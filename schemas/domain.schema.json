@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Domain",
+  "description": "A distinct problem class with its own objectives, constraints, evaluation criteria, and failure modes.",
+  "type": "object",
+  "additionalProperties": false
+}

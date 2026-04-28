@@ -1,0 +1,12 @@
+[package]
+name = "ajentic-cli"
+version = "0.0.0"
+edition = "2021"
+description = "AJENTIC command-line interface (v0.0.0 skeleton)"
+
+[[bin]]
+name = "ajentic"
+path = "src/main.rs"
+
+[dependencies]
+ajentic-core = { path = "../core" }

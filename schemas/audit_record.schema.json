@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Audit Record",
+  "description": "An immutable record of a governance decision or lifecycle transition.",
+  "type": "object",
+  "additionalProperties": false
+}

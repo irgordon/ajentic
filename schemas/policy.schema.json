@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Policy",
+  "description": "Defines the rules used to govern candidate evaluation and promotion.",
+  "type": "object",
+  "additionalProperties": false
+}

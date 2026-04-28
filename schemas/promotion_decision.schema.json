@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Promotion Decision",
+  "description": "The authoritative decision on whether a candidate solution is promoted to Tier-1.",
+  "type": "object",
+  "additionalProperties": false
+}

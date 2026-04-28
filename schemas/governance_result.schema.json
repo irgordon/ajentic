@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Governance Result",
+  "description": "The result of applying governance rules to a candidate solution.",
+  "type": "object",
+  "additionalProperties": false
+}
