@@ -1,0 +1,9 @@
+constraints:
+  id: example-constraints
+  performance: []
+  safety: []
+  policy: []
+  compliance: []
+  logic: []
+  resource_limits: []
+  prohibited_outputs: []

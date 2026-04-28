@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Candidate Solution",
+  "description": "A machine-generated option evaluated against a defined objective and its constraints.",
+  "type": "object",
+  "additionalProperties": false
+}

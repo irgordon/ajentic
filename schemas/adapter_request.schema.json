@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Adapter Request",
+  "description": "A request sent from the Rust harness to a non-authoritative adapter.",
+  "type": "object",
+  "additionalProperties": false
+}

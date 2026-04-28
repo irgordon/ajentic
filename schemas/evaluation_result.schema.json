@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evaluation Result",
+  "description": "The result of evaluating a candidate solution against an objective.",
+  "type": "object",
+  "additionalProperties": false
+}
