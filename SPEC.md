@@ -2,36 +2,34 @@
 
 ## Overview
 
-AJENTIC is a governed harness for machine-generated candidate solutions. It validates outputs
-against explicit objectives and constraints, and promotes only governed results for downstream review.
+AJENTIC is a governed harness for machine-generated candidate solutions.
 
-**v0.0.0 status:** This version reserves the structure only. It does not implement any of the behaviors described below.
+## Phase 1 status (v0.1.0)
+
+Phase 1 defines contract shapes only across JSON Schemas, Rust contract types,
+and minimal examples. Validation behavior will be added in later phases.
+
+## Contract boundaries
+
+- Schemas under `schemas/` define boundary object shapes.
+- Rust contract types under `core/src/*/contract.rs` are authoritative shapes.
+- Adapter input/output remains non-authoritative and untrusted.
 
 ## Definitions
 
 **Candidate solution**
-A machine-generated option evaluated against a defined objective and its constraints.
+A machine-generated option represented by the candidate contract shape.
 
 **Tier-1 output**
-A candidate solution that has passed governance, safety, quality, and performance thresholds and is suitable for external or downstream review.
+A contract-level promotion target shape. Promotion behavior is not implemented in Phase 1.
 
 **Domain**
-A distinct problem class with its own objectives, constraints, evaluation criteria, and failure modes.
+A distinct problem class described by domain contract fields.
 
 **Reuse event**
-The application of a previously successful pattern, strategy, or solution structure in a later run.
+A contract shape representing later reuse of earlier patterns.
 
-## System goals
+## Scope constraints
 
-- **Validated outcomes under constraints** — All promoted outputs satisfy defined constraints.
-- **Embedded runtime governance** — Governance is a first-class harness concern, not an afterthought.
-- **Bounded recursive self-improvement** — Self-improvement is constrained by explicit policy and audit.
-- **Cross-domain generalization without redesign** — Domain definitions enable reuse without architectural change.
-
-## Trust model
-
-Generated output is untrusted by default. No output advances to downstream review without passing governance, safety, quality, and performance thresholds.
-
-## v0.0.0 scope
-
-This version reserves structure only. No evaluators, ledger, replay, promotion, or governance logic is implemented.
+Phase 1 does not implement governance engines, validation execution, lifecycle enforcement,
+provider calls, evaluator execution, ledger persistence, replay, API, or dashboard behavior.

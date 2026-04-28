@@ -1,7 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Policy",
-  "description": "Defines the rules used to govern candidate evaluation and promotion.",
+  "title": "Policy Contract",
+  "description": "Phase 1 policy boundary contract shape.",
   "type": "object",
+  "required": [
+    "id",
+    "allowed_adapters",
+    "required_evaluators",
+    "resource_limits",
+    "promotion_thresholds",
+    "prohibited_bypass_flags"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "allowed_adapters": { "type": "array", "items": { "type": "string" } },
+    "required_evaluators": { "type": "array", "items": { "type": "string" } },
+    "resource_limits": { "type": "array", "items": { "type": "string" } },
+    "promotion_thresholds": { "type": "array", "items": { "type": "string" } },
+    "prohibited_bypass_flags": { "type": "array", "items": { "type": "string" } }
+  },
   "additionalProperties": false
 }

@@ -1,7 +1,27 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Constraints",
-  "description": "Defines the boundaries within which a candidate solution must operate.",
+  "title": "Constraints Contract",
+  "description": "Phase 1 constraints boundary contract shape.",
   "type": "object",
+  "required": [
+    "id",
+    "performance",
+    "safety",
+    "policy",
+    "compliance",
+    "logic",
+    "resource_limits",
+    "prohibited_outputs"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "performance": { "type": "array", "items": { "type": "string" } },
+    "safety": { "type": "array", "items": { "type": "string" } },
+    "policy": { "type": "array", "items": { "type": "string" } },
+    "compliance": { "type": "array", "items": { "type": "string" } },
+    "logic": { "type": "array", "items": { "type": "string" } },
+    "resource_limits": { "type": "array", "items": { "type": "string" } },
+    "prohibited_outputs": { "type": "array", "items": { "type": "string" } }
+  },
   "additionalProperties": false
 }

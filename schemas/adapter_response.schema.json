@@ -1,7 +1,27 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Adapter Response",
-  "description": "A response returned from a non-authoritative adapter to the Rust harness.",
+  "title": "Adapter Response Contract",
+  "description": "Phase 1 adapter response boundary contract shape.",
   "type": "object",
+  "required": [
+    "protocol_version",
+    "adapter_name",
+    "adapter_version",
+    "status",
+    "raw_output_ref",
+    "structured_output_ref",
+    "usage",
+    "errors"
+  ],
+  "properties": {
+    "protocol_version": { "type": "string" },
+    "adapter_name": { "type": "string" },
+    "adapter_version": { "type": "string" },
+    "status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "UNKNOWN"] },
+    "raw_output_ref": { "type": "string" },
+    "structured_output_ref": { "type": "string" },
+    "usage": { "type": "array", "items": { "type": "string" } },
+    "errors": { "type": "array", "items": { "type": "string" } }
+  },
   "additionalProperties": false
 }

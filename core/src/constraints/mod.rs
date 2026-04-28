@@ -1,6 +1,6 @@
 //! Constraints module.
 //!
-//! Constraints define the boundaries within which a candidate solution must operate:
-//! performance, safety, policy, compliance, logic, resource limits, and prohibited outputs.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 1 defines contract shapes only. Runtime validation and behavior are
+//! intentionally deferred to later phases.
+
+pub mod contract;
