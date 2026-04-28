@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.2.0
+
+**Status:** Phase 2 candidate lifecycle state machine.
+
+### Added
+
+- Candidate lifecycle states were defined in Rust.
+- Legal transition checks were added.
+- Invalid lifecycle transitions fail through typed errors.
+- Transition tests cover valid paths, invalid paths, typed error shape, and terminal-state boundaries.
+
+### Notes
+
+- No promotion governance, evaluator ingestion, ledger, replay, adapter execution, or UI behavior was implemented.
+- Passed -> PromotedTier1 is a legal transition shape, not a promotion authorization engine.
+- Validation of objectives, constraints, evaluators, policies, and evidence is reserved for later phases.
+
 ## v0.1.0
 
 **Status:** Phase 1 contracts and schemas.

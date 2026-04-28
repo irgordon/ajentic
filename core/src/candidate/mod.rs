@@ -1,6 +1,10 @@
 //! Candidate solution module.
 //!
-//! Phase 1 defines contract shapes only. Runtime validation and behavior are
-//! intentionally deferred to later phases.
+//! This phase defines the candidate lifecycle transition surface.
 
 pub mod contract;
+pub mod lifecycle;
+pub mod validate;
+
+pub use lifecycle::{transition, CandidateLifecycleState};
+pub use validate::can_transition;
