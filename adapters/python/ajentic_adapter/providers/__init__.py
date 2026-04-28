@@ -1,7 +1,5 @@
-"""
-AJENTIC provider adapters package.
+"""AJENTIC provider adapters package.
 
-Provider integrations will be implemented here in future phases.
-
-v0.0.0: scaffold placeholder only.
+Phase 4 includes a deterministic mock adapter for the Rust subprocess boundary.
+No real provider integrations are implemented.
 """

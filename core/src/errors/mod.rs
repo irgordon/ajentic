@@ -51,3 +51,49 @@ impl fmt::Display for StaticRunValidationError {
         }
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AdapterProtocolError {
+    ProtocolVersionMismatch { expected: String, found: String },
+    RunIdMismatch { expected: String, found: String },
+    CandidateRequestIdMismatch { expected: String, found: String },
+    EmptyAdapterName,
+    EmptyAdapterVersion,
+    OutputTooLarge { max: usize, actual: usize },
+    ParseFailed,
+    SubprocessFailed,
+    SubprocessNoOutput,
+    InvalidStatus { value: String },
+}
+
+impl fmt::Display for AdapterProtocolError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ProtocolVersionMismatch { expected, found } => write!(
+                f,
+                "adapter protocol version mismatch: expected '{expected}', found '{found}'"
+            ),
+            Self::RunIdMismatch { expected, found } => {
+                write!(
+                    f,
+                    "adapter run_id mismatch: expected '{expected}', found '{found}'"
+                )
+            }
+            Self::CandidateRequestIdMismatch { expected, found } => write!(
+                f,
+                "adapter candidate_request_id mismatch: expected '{expected}', found '{found}'"
+            ),
+            Self::EmptyAdapterName => write!(f, "adapter_name is empty"),
+            Self::EmptyAdapterVersion => write!(f, "adapter_version is empty"),
+            Self::OutputTooLarge { max, actual } => {
+                write!(f, "adapter output too large: max {max} bytes, got {actual}")
+            }
+            Self::ParseFailed => write!(f, "failed to parse adapter response"),
+            Self::SubprocessFailed => write!(f, "adapter subprocess execution failed"),
+            Self::SubprocessNoOutput => write!(f, "adapter subprocess returned no output"),
+            Self::InvalidStatus { value } => write!(f, "invalid adapter status: '{value}'"),
+        }
+    }
+}
+
+impl std::error::Error for AdapterProtocolError {}

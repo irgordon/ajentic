@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.0
+
+**Status:** Phase 4 adapter protocol and mock adapter.
+
+### Added
+
+- A Rust adapter protocol boundary was added.
+- A deterministic Python mock adapter was added.
+- Rust validates adapter response linkage and basic shape.
+- Malformed, mismatched, empty, over-limit, or failed adapter responses are rejected through typed errors.
+
+### Notes
+
+- No candidate creation, lifecycle mutation, evaluator execution, governance promotion, ledger, replay, audit emission, real provider integration, API, or UI behavior was implemented.
+
 ## v0.3.0
 
 **Status:** Phase 3 CLI static validation surface.

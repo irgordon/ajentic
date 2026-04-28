@@ -1,10 +1,8 @@
 # Trust Boundaries
 
-This file reserves the location for the AJENTIC trust boundary documentation.
-
 ## Generated output is untrusted
 
-All machine-generated output is untrusted by default. No output advances to downstream review without passing governance thresholds.
+All machine-generated output is untrusted by default.
 
 ## Trust boundary summary
 
@@ -16,12 +14,15 @@ All machine-generated output is untrusted by default. No output advances to down
 | Bash scripts | Non-authoritative (glue only) |
 | LLM output | Untrusted until governed |
 
+## Phase 4 adapter boundary
+
+- Rust owns adapter request construction, subprocess invocation, and adapter response validation.
+- Python owns deterministic mock adapter behavior only.
+- A completed adapter response is not a passing candidate.
+- Candidate creation and runtime governance checks are reserved for later phases.
+
 ## Prohibited trust escalations
 
-- Adapter output must not be promoted without Rust governance.
-- Missing or UNKNOWN results must not be treated as PASS.
+- Adapter output must not be treated as candidate promotion approval.
+- Missing or unknown adapter statuses must not be treated as governance pass.
 - No bypass flags may override governance decisions.
-
-## v0.0.0 status
-
-This component is non-authoritative in v0.0.0. Implementation will be added in later phases.
