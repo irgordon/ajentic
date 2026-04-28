@@ -4,13 +4,14 @@
 
 AJENTIC is a governed harness for machine-generated candidate solutions.
 
-## Phase 2 status (v0.2.0)
+## Phase 3 status (v0.3.0)
 
-This phase defines the candidate lifecycle transition surface.
-The transition API rejects illegal state moves.
-Promotion governance is not implemented in Phase 2.
-Passed -> PromotedTier1 is a legal transition shape, not a promotion authorization engine.
-Validation of objectives, constraints, evaluators, policies, and evidence is reserved for later phases.
+This phase adds static run directory checks.
+The CLI supports `validate <run-dir>` and `inspect <run-dir>`.
+The validate command checks required file presence and minimal static markers.
+The inspect command reports static file presence and byte lengths.
+YAML parsing and schema validation are reserved for later phases.
+Static validation does not prove governance validity or candidate correctness.
 
 ## Contract boundaries
 
@@ -24,7 +25,7 @@ Validation of objectives, constraints, evaluators, policies, and evidence is res
 A machine-generated option represented by the candidate contract shape.
 
 **Tier-1 output**
-A contract-level promotion target shape. Promotion behavior is not implemented in Phase 2.
+A contract-level promotion target shape. Promotion behavior is not implemented in Phase 3.
 
 **Domain**
 A distinct problem class described by domain contract fields.
@@ -34,5 +35,5 @@ A contract shape representing later reuse of earlier patterns.
 
 ## Scope constraints
 
-Phase 2 does not implement governance engines, objective/constraint validation execution,
+Phase 3 does not implement governance engines, objective/constraint validation execution,
 provider calls, evaluator execution, ledger persistence, replay, API, or dashboard behavior.

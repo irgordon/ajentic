@@ -1,15 +1,16 @@
-id: example-constraints
-performance:
-  - p95 latency under 2s
-safety:
-  - no unsafe medical advice
-policy:
-  - do not expose secrets
-compliance:
-  - no regulated claims
-logic:
-  - preserve user intent
-resource_limits:
-  - max_tokens:1024
-prohibited_outputs:
-  - fabricated citations
+constraints:
+  id: example-constraints
+  performance:
+    - p95 latency under 2s
+  safety:
+    - no unsafe medical advice
+  policy:
+    - do not expose secrets
+  compliance:
+    - no regulated claims
+  logic:
+    - preserve user intent
+  resource_limits:
+    - max_tokens:1024
+  prohibited_outputs:
+    - fabricated citations
