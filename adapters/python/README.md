@@ -2,15 +2,20 @@
 
 Python adapters are **non-authoritative**.
 
-## Scope
+## Phase 4 scope
 
-- Adapters may call providers in future phases.
-- Adapters must not promote candidates.
-- Adapters must not write ledger records.
-- Adapters must not enforce governance.
+- This phase establishes the adapter protocol boundary.
+- The `mock_adapter.py` provider returns deterministic untrusted output.
+- Rust validates adapter response shape and request linkage.
+- A completed adapter response is not a passing candidate.
+- Candidate creation and runtime checks are reserved for later phases.
+- Timeout execution is reserved for a later phase.
 
-## v0.0.0 status
+## Included adapter
 
-This directory is a scaffold placeholder. No provider integrations are implemented.
+- `ajentic_adapter/providers/mock_adapter.py`
+  - Reads a narrow `key=value` request from stdin.
+  - Emits one deterministic `key=value` response to stdout.
+  - Uses no external services, randomness, network calls, or file writes.
 
-See [GOVERNANCE.md](../../GOVERNANCE.md) for the full authority model.
+See [GOVERNANCE.md](../../GOVERNANCE.md) for the authority model.

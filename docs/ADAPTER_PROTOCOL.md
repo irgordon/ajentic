@@ -1,8 +1,10 @@
 # Adapter Protocol
 
-Phase 1 defines adapter protocol contract fields only.
+This phase establishes the adapter protocol boundary.
 
-## AdapterRequestContract fields
+## Phase 4 runtime request shape
+
+Rust constructs a minimal runtime adapter request:
 
 - `protocol_version`
 - `run_id`
@@ -13,20 +15,28 @@ Phase 1 defines adapter protocol contract fields only.
 - `constraints_ref`
 - `domain_ref`
 - `input_ref`
-- `limits`
+- `limits.timeout_ms`
+- `limits.max_output_bytes`
 
-## AdapterResponseContract fields
+## Phase 4 runtime response shape
+
+Rust parses and validates a minimal runtime adapter response:
 
 - `protocol_version`
 - `adapter_name`
 - `adapter_version`
-- `status`
+- `run_id`
+- `candidate_request_id`
+- `status` (`COMPLETED`, `FAILED`, `BLOCKED`, `UNKNOWN`)
 - `raw_output_ref`
 - `structured_output_ref`
-- `usage`
-- `errors`
+- `output_text`
+- `error` (repeatable key for error lines)
 
 ## Trust boundary
 
-Adapter output remains untrusted. These contracts reserve boundary shape only;
-validation and runtime handling will be added in later phases.
+- Rust validates adapter response shape and request linkage.
+- The mock adapter returns deterministic untrusted output.
+- A completed adapter response is not a passing candidate.
+- Candidate creation and runtime checks are reserved for later phases.
+- Timeout execution is reserved for a later phase.
