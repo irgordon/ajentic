@@ -3,5 +3,42 @@
   "title": "Adapter Response",
   "description": "A response returned from a non-authoritative adapter to the Rust harness.",
   "type": "object",
+  "required": ["protocol_version", "adapter_name", "adapter_version", "status", "raw_output_ref", "structured_output_ref", "usage", "errors"],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "description": "Version of the adapter protocol this response conforms to."
+    },
+    "adapter_name": {
+      "type": "string",
+      "description": "Name of the adapter that produced this response."
+    },
+    "adapter_version": {
+      "type": "string",
+      "description": "Version of the adapter that produced this response."
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of the adapter execution: PASS, FAIL, BLOCKED, or UNKNOWN."
+    },
+    "raw_output_ref": {
+      "type": "string",
+      "description": "Reference to the raw output artifact. Adapter output is untrusted."
+    },
+    "structured_output_ref": {
+      "type": "string",
+      "description": "Reference to the structured output artifact. Adapter output is untrusted."
+    },
+    "usage": {
+      "type": "object",
+      "description": "Resource usage reported by the adapter.",
+      "additionalProperties": true
+    },
+    "errors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Error messages reported by the adapter, if any."
+    }
+  },
   "additionalProperties": false
 }

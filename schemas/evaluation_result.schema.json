@@ -3,5 +3,43 @@
   "title": "Evaluation Result",
   "description": "The result of evaluating a candidate solution against an objective.",
   "type": "object",
+  "required": ["id", "candidate_solution_id", "evaluator_id", "status", "checked_constraints", "threshold_results", "evidence_ref", "failure_reasons"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this evaluation result."
+    },
+    "candidate_solution_id": {
+      "type": "string",
+      "description": "Candidate solution this result evaluates."
+    },
+    "evaluator_id": {
+      "type": "string",
+      "description": "Identifier of the evaluator that produced this result."
+    },
+    "status": {
+      "type": "string",
+      "description": "Evaluation status: PASS, FAIL, BLOCKED, or UNKNOWN."
+    },
+    "checked_constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Constraint identifiers that were checked during this evaluation."
+    },
+    "threshold_results": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Threshold check result identifiers from this evaluation."
+    },
+    "evidence_ref": {
+      "type": "string",
+      "description": "Reference to the evidence artifact for this evaluation result."
+    },
+    "failure_reasons": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Reasons for failure if status is FAIL or BLOCKED."
+    }
+  },
   "additionalProperties": false
 }

@@ -3,5 +3,37 @@
   "title": "Policy",
   "description": "Defines the rules used to govern candidate evaluation and promotion.",
   "type": "object",
+  "required": ["id", "allowed_adapters", "required_evaluators", "resource_limits", "promotion_thresholds", "prohibited_bypass_flags"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this policy document."
+    },
+    "allowed_adapters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Adapter identifiers permitted under this policy."
+    },
+    "required_evaluators": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Evaluator identifiers that must run before promotion is eligible."
+    },
+    "resource_limits": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Resource limit identifiers enforced by this policy."
+    },
+    "promotion_thresholds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Promotion threshold identifiers that must be satisfied."
+    },
+    "prohibited_bypass_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bypass flags that are prohibited under this policy."
+    }
+  },
   "additionalProperties": false
 }

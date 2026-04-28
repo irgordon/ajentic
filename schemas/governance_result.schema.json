@@ -3,5 +3,35 @@
   "title": "Governance Result",
   "description": "The result of applying governance rules to a candidate solution.",
   "type": "object",
+  "required": ["id", "candidate_solution_id", "status", "policy_checks", "blocked_reasons", "evidence_refs"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this governance result."
+    },
+    "candidate_solution_id": {
+      "type": "string",
+      "description": "Candidate solution this governance result applies to."
+    },
+    "status": {
+      "type": "string",
+      "description": "Governance status: PASS, FAIL, BLOCKED, or UNKNOWN."
+    },
+    "policy_checks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy check identifiers that were applied."
+    },
+    "blocked_reasons": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Reasons the candidate was blocked, if applicable."
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to evidence artifacts supporting this governance result."
+    }
+  },
   "additionalProperties": false
 }

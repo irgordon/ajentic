@@ -3,5 +3,52 @@
   "title": "Audit Record",
   "description": "An immutable record of a governance decision or lifecycle transition.",
   "type": "object",
+  "required": ["id", "run_id", "objective_id", "constraints_id", "domain_id", "candidate_solution_ids", "evaluation_result_ids", "governance_result_ids", "promotion_decision_ids", "final_status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this audit record."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Run identifier this audit record belongs to."
+    },
+    "objective_id": {
+      "type": "string",
+      "description": "Objective identifier for this run."
+    },
+    "constraints_id": {
+      "type": "string",
+      "description": "Constraints document identifier for this run."
+    },
+    "domain_id": {
+      "type": "string",
+      "description": "Domain identifier for this run."
+    },
+    "candidate_solution_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Candidate solution identifiers included in this audit record."
+    },
+    "evaluation_result_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Evaluation result identifiers included in this audit record."
+    },
+    "governance_result_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Governance result identifiers included in this audit record."
+    },
+    "promotion_decision_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Promotion decision identifiers included in this audit record."
+    },
+    "final_status": {
+      "type": "string",
+      "description": "Final run status: PASS, FAIL, BLOCKED, or UNKNOWN."
+    }
+  },
   "additionalProperties": false
 }

@@ -3,5 +3,37 @@
   "title": "Objective",
   "description": "Defines the goal of a governed run.",
   "type": "object",
+  "required": ["id", "domain_id", "objective_type", "description", "success_criteria", "constraints_ref", "evaluation_profile_ref"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this objective."
+    },
+    "domain_id": {
+      "type": "string",
+      "description": "Reference to the domain this objective belongs to."
+    },
+    "objective_type": {
+      "type": "string",
+      "description": "The category or type of this objective within its domain."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of what this objective requires."
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of criteria that define a successful outcome."
+    },
+    "constraints_ref": {
+      "type": "string",
+      "description": "Reference to the constraints document that applies to this objective."
+    },
+    "evaluation_profile_ref": {
+      "type": "string",
+      "description": "Reference to the evaluation profile used to assess candidates for this objective."
+    }
+  },
   "additionalProperties": false
 }

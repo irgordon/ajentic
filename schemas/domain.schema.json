@@ -3,5 +3,41 @@
   "title": "Domain",
   "description": "A distinct problem class with its own objectives, constraints, evaluation criteria, and failure modes.",
   "type": "object",
+  "required": ["id", "name", "objective_types", "constraint_types", "evaluators", "known_failure_modes", "promotion_thresholds"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this domain."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this domain."
+    },
+    "objective_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Objective type identifiers supported in this domain."
+    },
+    "constraint_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Constraint category identifiers applicable in this domain."
+    },
+    "evaluators": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Evaluator identifiers configured for this domain."
+    },
+    "known_failure_modes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Known failure mode identifiers for this domain."
+    },
+    "promotion_thresholds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Promotion threshold identifiers configured for this domain."
+    }
+  },
   "additionalProperties": false
 }

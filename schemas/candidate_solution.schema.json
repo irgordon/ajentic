@@ -3,5 +3,50 @@
   "title": "Candidate Solution",
   "description": "A machine-generated option evaluated against a defined objective and its constraints.",
   "type": "object",
+  "required": ["id", "run_id", "domain_id", "objective_id", "constraints_id", "content_ref", "generation_metadata_ref", "lifecycle_state", "evaluation_results_ref", "governance_results_ref"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this candidate solution."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Identifier of the run that generated this candidate."
+    },
+    "domain_id": {
+      "type": "string",
+      "description": "Domain this candidate was generated for."
+    },
+    "objective_id": {
+      "type": "string",
+      "description": "Objective this candidate was generated to satisfy."
+    },
+    "constraints_id": {
+      "type": "string",
+      "description": "Constraints document applied to this candidate."
+    },
+    "content_ref": {
+      "type": "string",
+      "description": "Reference to the candidate content artifact."
+    },
+    "generation_metadata_ref": {
+      "type": "string",
+      "description": "Reference to generation metadata (adapter, model, prompt)."
+    },
+    "lifecycle_state": {
+      "type": "string",
+      "description": "Current lifecycle state of this candidate."
+    },
+    "evaluation_results_ref": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to evaluation result records for this candidate."
+    },
+    "governance_results_ref": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to governance result records for this candidate."
+    }
+  },
   "additionalProperties": false
 }

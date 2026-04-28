@@ -3,5 +3,47 @@
   "title": "Constraints",
   "description": "Defines the boundaries within which a candidate solution must operate.",
   "type": "object",
+  "required": ["id", "performance", "safety", "policy", "compliance", "logic", "resource_limits", "prohibited_outputs"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this constraints document."
+    },
+    "performance": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Performance constraints the candidate must satisfy."
+    },
+    "safety": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Safety constraints the candidate must satisfy."
+    },
+    "policy": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy constraints the candidate must satisfy."
+    },
+    "compliance": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Compliance constraints the candidate must satisfy."
+    },
+    "logic": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Logic constraints the candidate must satisfy."
+    },
+    "resource_limits": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Resource limits the candidate must not exceed."
+    },
+    "prohibited_outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Output patterns or content categories that are prohibited."
+    }
+  },
   "additionalProperties": false
 }

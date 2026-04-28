@@ -3,5 +3,49 @@
   "title": "Adapter Request",
   "description": "A request sent from the Rust harness to a non-authoritative adapter.",
   "type": "object",
+  "required": ["protocol_version", "run_id", "candidate_request_id", "provider", "model", "objective_ref", "constraints_ref", "domain_ref", "input_ref", "limits"],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "description": "Version of the adapter protocol this request conforms to."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Run identifier associated with this adapter request."
+    },
+    "candidate_request_id": {
+      "type": "string",
+      "description": "Unique identifier for this candidate generation request."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider identifier the adapter should use."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model identifier the adapter should use."
+    },
+    "objective_ref": {
+      "type": "string",
+      "description": "Reference to the objective document for this request."
+    },
+    "constraints_ref": {
+      "type": "string",
+      "description": "Reference to the constraints document for this request."
+    },
+    "domain_ref": {
+      "type": "string",
+      "description": "Reference to the domain document for this request."
+    },
+    "input_ref": {
+      "type": "string",
+      "description": "Reference to the input artifact for this request."
+    },
+    "limits": {
+      "type": "object",
+      "description": "Resource and output limits for this request.",
+      "additionalProperties": true
+    }
+  },
   "additionalProperties": false
 }
