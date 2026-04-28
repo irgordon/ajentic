@@ -1,30 +1,27 @@
 # First Run
 
-This file reserves the location for the AJENTIC first-run guide.
+This file provides a minimal first-run guide for the current static CLI surface.
 
-## v0.0.0 first run
+## v0.3.0 first run
 
 ```sh
 ./scripts/bootstrap.sh
 ./scripts/check.sh
 cargo check --workspace
+cargo run -p ajentic-cli -- validate examples/minimal_run
+cargo run -p ajentic-cli -- inspect examples/minimal_run
 ```
 
 ## What these commands do
 
-- `bootstrap.sh` — Prints a bootstrap message. No installation occurs in v0.0.0.
+- `bootstrap.sh` — Prints a bootstrap message.
 - `check.sh` — Runs `cargo check --workspace` and optionally `cargo fmt --all -- --check`.
 - `cargo check --workspace` — Verifies the Rust workspace compiles.
+- `cargo run -p ajentic-cli -- validate examples/minimal_run` — Runs static run directory checks.
+- `cargo run -p ajentic-cli -- inspect examples/minimal_run` — Prints static run file summary and byte lengths.
 
-## What is not available in v0.0.0
+## Phase 3 scope note
 
-- No model calls
-- No governance engine
-- No evaluators
-- No ledger
-- No replay
-- No UI dashboard
-
-## v0.0.0 status
-
-This file reserves the location for the first-run guide. A full first-run experience will be added in later phases.
+- This phase adds static run directory checks only.
+- YAML parsing and schema validation are reserved for later phases.
+- Static validation does not prove governance validity or candidate correctness.

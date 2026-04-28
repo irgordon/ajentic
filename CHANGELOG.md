@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.0
+
+**Status:** Phase 3 CLI static validation surface.
+
+### Added
+
+- The CLI now supports static `validate <run-dir>` checks.
+- The CLI now supports static `inspect <run-dir>` output.
+- Required run files are checked for presence, non-empty content, and expected plain-text markers.
+
+### Notes
+
+- No YAML parsing, schema validation, adapter execution, evaluator execution, governance promotion, ledger, replay, audit emission, API, or UI behavior was implemented.
+
 ## v0.2.0
 
 **Status:** Phase 2 candidate lifecycle state machine.
