@@ -1,5 +1,11 @@
 //! Errors module.
-//!
-//! Defines error types for the AJENTIC core harness.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+
+use crate::candidate::lifecycle::CandidateLifecycleState;
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum CandidateLifecycleError {
+    InvalidTransition {
+        from: CandidateLifecycleState,
+        to: CandidateLifecycleState,
+    },
+}

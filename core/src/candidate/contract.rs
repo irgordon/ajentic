@@ -1,17 +1,7 @@
-//! Phase 1 candidate contract shapes.
+//! Candidate contract shapes.
 //! These definitions reserve the boundary contract only.
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CandidateLifecycleState {
-    Created,
-    Evaluating,
-    Failed,
-    Blocked,
-    Passed,
-    PromotedTier1,
-    Rejected,
-    Unknown,
-}
+use super::lifecycle::CandidateLifecycleState;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CandidateSolutionContract {
