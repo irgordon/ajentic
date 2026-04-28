@@ -1,7 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Governance Result",
-  "description": "The result of applying governance rules to a candidate solution.",
+  "title": "Governance Result Contract",
+  "description": "Phase 1 governance result boundary contract shape.",
   "type": "object",
+  "required": [
+    "id",
+    "candidate_solution_id",
+    "status",
+    "policy_checks",
+    "blocked_reasons",
+    "evidence_refs"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "candidate_solution_id": { "type": "string" },
+    "status": { "type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "UNKNOWN"] },
+    "policy_checks": { "type": "array", "items": { "type": "string" } },
+    "blocked_reasons": { "type": "array", "items": { "type": "string" } },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } }
+  },
   "additionalProperties": false
 }

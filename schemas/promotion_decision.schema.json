@@ -1,7 +1,27 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Promotion Decision",
-  "description": "The authoritative decision on whether a candidate solution is promoted to Tier-1.",
+  "title": "Promotion Decision Contract",
+  "description": "Phase 1 promotion decision boundary contract shape.",
   "type": "object",
+  "required": [
+    "id",
+    "candidate_solution_id",
+    "from_state",
+    "to_state",
+    "promotion_status",
+    "required_checks_passed",
+    "evidence_refs",
+    "decision_timestamp"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "candidate_solution_id": { "type": "string" },
+    "from_state": { "type": "string" },
+    "to_state": { "type": "string" },
+    "promotion_status": { "type": "string", "enum": ["APPROVED", "DENIED"] },
+    "required_checks_passed": { "type": "array", "items": { "type": "string" } },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "decision_timestamp": { "type": "string" }
+  },
   "additionalProperties": false
 }

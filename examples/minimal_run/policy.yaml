@@ -1,4 +1,12 @@
-policy:
-  id: example-policy
-  status: placeholder
-  notes: v0.0.0 does not implement policy enforcement.
+id: example-policy
+allowed_adapters:
+  - local-python-adapter
+required_evaluators:
+  - structure_check
+resource_limits:
+  - max_tokens:1024
+promotion_thresholds:
+  - governance_pass_rate:1.0
+prohibited_bypass_flags:
+  - prohibited-flag-force-promote
+  - prohibited-flag-skip-policy

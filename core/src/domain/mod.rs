@@ -1,6 +1,6 @@
 //! Domain module.
 //!
-//! A domain is a distinct problem class with its own objectives, constraints,
-//! evaluation criteria, and failure modes.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 1 defines contract shapes only. Runtime validation and behavior are
+//! intentionally deferred to later phases.
+
+pub mod contract;

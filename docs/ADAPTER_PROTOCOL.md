@@ -1,23 +1,32 @@
 # Adapter Protocol
 
-This file reserves the location for the AJENTIC adapter protocol documentation.
+Phase 1 defines adapter protocol contract fields only.
 
-## Purpose
+## AdapterRequestContract fields
 
-The adapter protocol defines how non-authoritative Python adapters communicate with the Rust harness. Adapters provide inputs; the harness makes decisions.
+- `protocol_version`
+- `run_id`
+- `candidate_request_id`
+- `provider`
+- `model`
+- `objective_ref`
+- `constraints_ref`
+- `domain_ref`
+- `input_ref`
+- `limits`
 
-## Roles
+## AdapterResponseContract fields
 
-- **Harness (Rust):** Sends requests, receives responses, normalizes results, applies governance.
-- **Adapter (Python):** Receives requests, calls providers, returns raw results.
+- `protocol_version`
+- `adapter_name`
+- `adapter_version`
+- `status`
+- `raw_output_ref`
+- `structured_output_ref`
+- `usage`
+- `errors`
 
-## Constraints
+## Trust boundary
 
-- Adapters must not promote candidates.
-- Adapters must not write ledger records.
-- Adapters must not enforce governance.
-- Adapters must return results in the schema defined by `schemas/adapter_response.schema.json`.
-
-## v0.0.0 status
-
-This file reserves the location for the adapter protocol. Implementation will be added in later phases.
+Adapter output remains untrusted. These contracts reserve boundary shape only;
+validation and runtime handling will be added in later phases.

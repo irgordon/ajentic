@@ -1,6 +1,6 @@
 //! Policy module.
 //!
-//! Policy defines the rules used to govern candidate evaluation and promotion.
-//! Policy authority belongs exclusively to Rust core.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 1 defines contract shapes only. Runtime validation and behavior are
+//! intentionally deferred to later phases.
+
+pub mod contract;

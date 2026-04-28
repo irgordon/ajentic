@@ -1,8 +1,13 @@
-domain:
-  id: example-domain
-  name: Example Domain
-  objective_types: []
-  constraint_types: []
-  evaluators: []
-  known_failure_modes: []
-  promotion_thresholds: []
+id: example-domain
+name: Example Domain
+objective_types:
+  - summarize
+constraint_types:
+  - performance
+  - safety
+evaluators:
+  - structure_check
+known_failure_modes:
+  - missing_required_sections
+promotion_thresholds:
+  - governance_pass_rate:1.0

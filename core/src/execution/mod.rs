@@ -1,6 +1,6 @@
 //! Execution module.
 //!
-//! Execution manages the lifecycle of a governed run, from objective intake
-//! through candidate generation, evaluation, governance, and promotion decision.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 1 defines adapter protocol contract shapes only. Runtime execution
+//! behavior is intentionally deferred to later phases.
+
+pub mod adapter_protocol;
