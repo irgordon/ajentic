@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.5.0
+
+**Status:** Phase 5 candidate creation and runtime adapter checks.
+
+### Added
+
+- Rust-owned candidate record creation from validated adapter responses was added.
+- Candidate IDs are assigned deterministically by Rust using run_id and candidate_request_id.
+- Candidates created from adapter output start in lifecycle state Created.
+- Adapter output remains untrusted after candidate creation.
+- Failed, blocked, unknown, malformed, mismatched, incomplete, or empty adapter responses do not create candidates.
+
+### Notes
+
+- No evaluator execution, evaluation result ingestion, governance approval, promotion, ledger persistence, replay, audit emission, real provider integration, API, or UI behavior was implemented.
+
 ## v0.4.0
 
 **Status:** Phase 4 adapter protocol and mock adapter.

@@ -14,6 +14,52 @@ pub enum CandidateLifecycleError {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub enum CandidateCreationError {
+    AdapterResponseInvalid(AdapterProtocolError),
+    AdapterStatusNotCompleted {
+        status: crate::execution::adapter_protocol::AdapterStatus,
+    },
+    MissingRunId,
+    MissingDomainId,
+    MissingObjectiveId,
+    MissingConstraintsId,
+    MissingContentRef,
+    MissingGenerationMetadataRef,
+    MissingRawOutputRef,
+    MissingStructuredOutputRef,
+    EmptyOutputText,
+    InvalidCandidateIdInput {
+        run_id: String,
+        candidate_request_id: String,
+    },
+}
+
+impl fmt::Display for CandidateCreationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::AdapterResponseInvalid(error) => write!(f, "adapter response invalid: {error}"),
+            Self::AdapterStatusNotCompleted { status } => {
+                write!(f, "adapter status must be Completed for candidate creation, found: {status:?}")
+            }
+            Self::MissingRunId => write!(f, "run_id is required"),
+            Self::MissingDomainId => write!(f, "domain_id is required"),
+            Self::MissingObjectiveId => write!(f, "objective_id is required"),
+            Self::MissingConstraintsId => write!(f, "constraints_id is required"),
+            Self::MissingContentRef => write!(f, "content_ref is required"),
+            Self::MissingGenerationMetadataRef => write!(f, "generation_metadata_ref is required"),
+            Self::MissingRawOutputRef => write!(f, "raw_output_ref is required"),
+            Self::MissingStructuredOutputRef => write!(f, "structured_output_ref is required"),
+            Self::EmptyOutputText => write!(f, "output_text is empty"),
+            Self::InvalidCandidateIdInput { run_id, candidate_request_id } => write!(
+                f,
+                "candidate id input is invalid: run_id='{run_id}', candidate_request_id='{candidate_request_id}'"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for CandidateCreationError {}
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum StaticRunValidationError {
     RunDirectoryMissing { path: PathBuf },
     RunPathIsNotDirectory { path: PathBuf },
