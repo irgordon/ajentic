@@ -1,4 +1,6 @@
 //! Built-in deterministic domain profiles.
+//! These profiles define compatibility expectations only.
+//! They do not register providers, execute evaluators, or define promotion authority.
 
 use crate::domain::profile::DomainProfile;
 
@@ -43,10 +45,12 @@ pub fn built_in_domains() -> Vec<DomainProfile> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::validate::validate_domain_profile;
 
     #[test]
     fn built_in_domains_have_distinct_ids() {
         let domains = built_in_domains();
+
         assert_ne!(domains[0].id, domains[1].id);
     }
 
@@ -54,6 +58,14 @@ mod tests {
     fn built_in_domains_have_distinct_required_evaluators() {
         let code = code_patch_review_domain();
         let security = security_analysis_domain();
+
         assert_ne!(code.required_evaluators, security.required_evaluators);
+    }
+
+    #[test]
+    fn built_in_domains_validate() {
+        for domain in built_in_domains() {
+            validate_domain_profile(&domain).unwrap();
+        }
     }
 }
