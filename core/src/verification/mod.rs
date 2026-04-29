@@ -10,7 +10,7 @@ use architecture_alignment::{
     DocumentationAlignmentStatus, FailClosedVerificationStatus, OverallAlignmentStatus,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AlignmentEvidence {
     pub architecture_rules_present: bool,
     pub boundary_rules_present: bool,
@@ -25,7 +25,7 @@ pub struct AlignmentEvidence {
     pub unknown_inputs_detected: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ArchitectureAlignmentVerification {
     pub architecture_alignment: ArchitectureAlignmentStatus,
     pub authority_boundary: AuthorityBoundaryStatus,
@@ -44,11 +44,11 @@ pub fn verify_architecture_alignment(
     let fail_closed_verification = evaluate_fail_closed(evidence);
     let documentation_alignment = evaluate_documentation_alignment(evidence);
     let overall = evaluate_overall(
-        &architecture_alignment,
-        &authority_boundary,
-        &determinism_verification,
-        &fail_closed_verification,
-        &documentation_alignment,
+        architecture_alignment,
+        authority_boundary,
+        determinism_verification,
+        fail_closed_verification,
+        documentation_alignment,
     );
 
     ArchitectureAlignmentVerification {
@@ -112,13 +112,6 @@ fn evaluate_fail_closed(evidence: &AlignmentEvidence) -> FailClosedVerificationS
         return FailClosedVerificationStatus::ViolationDetected;
     }
 
-    if evidence.missing_required_facts_detected
-        || evidence.malformed_inputs_detected
-        || evidence.unknown_inputs_detected
-    {
-        return FailClosedVerificationStatus::Enforced;
-    }
-
     FailClosedVerificationStatus::Enforced
 }
 
@@ -135,11 +128,11 @@ fn evaluate_documentation_alignment(evidence: &AlignmentEvidence) -> Documentati
 }
 
 fn evaluate_overall(
-    architecture_alignment: &ArchitectureAlignmentStatus,
-    authority_boundary: &AuthorityBoundaryStatus,
-    determinism_verification: &DeterminismVerificationStatus,
-    fail_closed_verification: &FailClosedVerificationStatus,
-    documentation_alignment: &DocumentationAlignmentStatus,
+    architecture_alignment: ArchitectureAlignmentStatus,
+    authority_boundary: AuthorityBoundaryStatus,
+    determinism_verification: DeterminismVerificationStatus,
+    fail_closed_verification: FailClosedVerificationStatus,
+    documentation_alignment: DocumentationAlignmentStatus,
 ) -> OverallAlignmentStatus {
     if matches!(architecture_alignment, ArchitectureAlignmentStatus::Unknown)
         || matches!(authority_boundary, AuthorityBoundaryStatus::Unknown)
@@ -268,7 +261,7 @@ mod tests {
     #[test]
     fn verification_remains_non_authoritative() {
         let evidence = baseline_evidence();
-        let before = evidence.clone();
+        let before = evidence;
 
         let _ = verify_architecture_alignment(&evidence);
 
