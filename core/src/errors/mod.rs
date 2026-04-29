@@ -183,3 +183,32 @@ impl fmt::Display for AdapterProtocolError {
 }
 
 impl std::error::Error for AdapterProtocolError {}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GovernanceError {
+    MissingCandidateId,
+    MissingObjectiveId,
+    MissingConstraintsId,
+    MissingDomainId,
+    CandidateIdMismatch { expected: String, found: String },
+    MissingRequiredEvaluators,
+    MissingRequiredPolicyChecks,
+    MissingEvidenceRefs,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PromotionError {
+    CandidateIdMismatch {
+        expected: String,
+        found: String,
+    },
+    CandidateNotPassed {
+        state: CandidateLifecycleState,
+    },
+    GovernanceNotPassed {
+        status: crate::governance::runtime::GovernanceStatus,
+    },
+    RequiredChecksNotPassed,
+    MissingEvidenceRefs,
+    InvalidPromotionTransition,
+}
