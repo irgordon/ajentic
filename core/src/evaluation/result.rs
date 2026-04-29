@@ -1,4 +1,5 @@
 //! Phase 6 structured evaluation result records.
+//! These records are evidence inputs, not governance approval or promotion authority.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EvaluationStatus {
