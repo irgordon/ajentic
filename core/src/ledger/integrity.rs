@@ -71,15 +71,22 @@ pub fn validate_entry_fields(entry: &LedgerEntry) -> Result<(), LedgerAppendErro
         }
         LedgerEntry::ReuseApplied(record) => {
             if record.reuse_event_id.is_empty() {
-                return Err(LedgerAppendError::MissingPromotionDecisionId);
+                return Err(LedgerAppendError::MissingReuseEventId);
             }
-            if record.reused_candidate_id.is_empty()
-                || record.new_run_id.is_empty()
-                || record.reuse_reason.is_empty()
-                || record.triggering_actor.is_empty()
-                || record.timestamp_reference.is_empty()
-            {
-                return Err(LedgerAppendError::MissingCandidateId);
+            if record.reused_candidate_id.is_empty() {
+                return Err(LedgerAppendError::MissingReusedCandidateId);
+            }
+            if record.new_run_id.is_empty() {
+                return Err(LedgerAppendError::MissingReuseRunId);
+            }
+            if record.reuse_reason.is_empty() {
+                return Err(LedgerAppendError::MissingReuseReason);
+            }
+            if record.triggering_actor.is_empty() {
+                return Err(LedgerAppendError::MissingReuseTriggeringActor);
+            }
+            if record.timestamp_reference.is_empty() {
+                return Err(LedgerAppendError::MissingReuseTimestampReference);
             }
         }
     }
