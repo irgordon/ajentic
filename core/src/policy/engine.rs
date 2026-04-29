@@ -1,4 +1,5 @@
 //! Phase 7 policy check result model.
+//! Policy checks are typed governance inputs, not a policy DSL or promotion authority.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PolicyCheckStatus {
