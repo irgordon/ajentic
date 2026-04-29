@@ -1,6 +1,32 @@
 # Changelog
 
-## v0.0.11
+v0.0.12 - 2026-04-29
+Status: Phase 14 advisory candidate reuse capability.
+
+Added
+Rust-owned advisory reuse module.
+Deterministic candidate-to-candidate reuse discovery surface.
+Immutable ReuseApplied ledger record type.
+Ledger append validation requiring both referenced candidates to exist.
+Replay visibility for reuse events reconstructed from ledger facts.
+
+Notes
+Reuse records trace candidate reuse relationships only. They do not alter lifecycle state, governance approval, promotion eligibility, ledger authority, audit semantics, replay authority, adapter trust, API behavior, or UI authority.
+
+
+v0.0.13 - 2026-04-29
+Status: Phase 14.5 reuse validation and replay integrity testing.
+
+Added
+Append validation tests proving reuse append fails when source candidate is missing.
+Append validation tests proving reuse append fails when target candidate is missing.
+Replay tests proving reuse events appear for both source and target candidate views.
+Replay tests proving reuse does not affect final status or authoritative identifiers.
+
+Notes
+These tests strengthen validation coverage only. They do not introduce new runtime capability, lifecycle behavior, governance logic, promotion logic, replay semantics, persistence behavior, adapter integration, API behavior, or UI authority.
+
+## v0.0.11 - 2026-04-28
 
 **Status:** Phase 13 multi-domain capability.
 
@@ -15,7 +41,7 @@
 
 - Domains configure compatibility only. They do not alter lifecycle, governance promotion, ledger, audit, replay, adapter trust, API behavior, or UI authority.
 
-## v0.0.10
+## v0.0.10 - 2026-04-27
 
 **Status:** Phase 12 TypeScript UI review surface.
 
