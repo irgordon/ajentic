@@ -68,7 +68,7 @@ Only Rust may own lifecycle, governance, ledger, replay, audit, and promotion de
 ---
 
 <div align="center">
-  <img src="ajentic_arch_flow.png" width="350" />
+  <img src="ajentic_arch_flow.png" width="500" />
 </div>
 
 ---
