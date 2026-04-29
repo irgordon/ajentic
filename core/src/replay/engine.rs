@@ -24,6 +24,7 @@ pub struct ReplayResult {
     pub evaluation_result_ids: Vec<String>,
     pub governance_result_ids: Vec<String>,
     pub promotion_decision_ids: Vec<String>,
+    pub reuse_event_ids: Vec<String>,
     pub final_status: ReplayFinalStatus,
     pub evidence_refs: Vec<String>,
     pub blocked_reasons: Vec<String>,
@@ -42,6 +43,7 @@ pub fn replay_candidate(
     let mut evaluation_result_ids = Vec::new();
     let mut governance_result_ids = Vec::new();
     let mut promotion_decision_ids = Vec::new();
+    let mut reuse_event_ids = Vec::new();
     let mut evidence_refs = Vec::new();
     let mut blocked_reasons = Vec::new();
     let mut failure_reasons = Vec::new();
@@ -121,6 +123,14 @@ pub fn replay_candidate(
                 failure_reasons.extend(record.denial_reasons.clone());
 
                 last_promotion_status = Some(record.promotion_status.clone());
+            }
+            LedgerEntry::ReuseApplied(record) if record.reused_candidate_id == candidate_id => {
+                if candidate.is_none() {
+                    return Err(ReplayError::InvalidEntryOrder {
+                        candidate_id: candidate_id.to_string(),
+                    });
+                }
+                reuse_event_ids.push(record.reuse_event_id.clone());
             }
             _ => {}
         }
@@ -207,6 +217,7 @@ pub fn replay_candidate(
         evaluation_result_ids,
         governance_result_ids,
         promotion_decision_ids,
+        reuse_event_ids,
         final_status,
         evidence_refs,
         blocked_reasons,

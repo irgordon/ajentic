@@ -69,6 +69,19 @@ pub fn validate_entry_fields(entry: &LedgerEntry) -> Result<(), LedgerAppendErro
                 }
             }
         }
+        LedgerEntry::ReuseApplied(record) => {
+            if record.reuse_event_id.is_empty() {
+                return Err(LedgerAppendError::MissingPromotionDecisionId);
+            }
+            if record.reused_candidate_id.is_empty()
+                || record.new_run_id.is_empty()
+                || record.reuse_reason.is_empty()
+                || record.triggering_actor.is_empty()
+                || record.timestamp_reference.is_empty()
+            {
+                return Err(LedgerAppendError::MissingCandidateId);
+            }
+        }
     }
     Ok(())
 }
@@ -82,6 +95,7 @@ pub fn validate_order(
         LedgerEntry::EvaluationRecorded(r) => &r.candidate_id,
         LedgerEntry::GovernanceReviewed(r) => &r.candidate_id,
         LedgerEntry::PromotionDecided(r) => &r.candidate_id,
+        LedgerEntry::ReuseApplied(r) => &r.reused_candidate_id,
     };
 
     let has_candidate = existing
@@ -135,6 +149,14 @@ pub fn validate_order(
                         candidate_id: candidate_id.clone(),
                     });
                 }
+            }
+            Ok(())
+        }
+        LedgerEntry::ReuseApplied(_) => {
+            if !has_candidate {
+                return Err(LedgerAppendError::CandidateEntryMissing {
+                    candidate_id: candidate_id.clone(),
+                });
             }
             Ok(())
         }

@@ -9,6 +9,7 @@ pub enum LedgerEntryKind {
     EvaluationRecorded,
     GovernanceReviewed,
     PromotionDecided,
+    ReuseApplied,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,11 +54,22 @@ pub struct PromotionDecidedLedgerRecord {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReuseAppliedLedgerRecord {
+    pub reuse_event_id: String,
+    pub reused_candidate_id: String,
+    pub new_run_id: String,
+    pub reuse_reason: String,
+    pub triggering_actor: String,
+    pub timestamp_reference: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LedgerEntry {
     CandidateCreated(CandidateCreatedLedgerRecord),
     EvaluationRecorded(EvaluationRecordedLedgerRecord),
     GovernanceReviewed(GovernanceReviewedLedgerRecord),
     PromotionDecided(PromotionDecidedLedgerRecord),
+    ReuseApplied(ReuseAppliedLedgerRecord),
 }
 
 impl LedgerEntry {
@@ -67,6 +79,7 @@ impl LedgerEntry {
             Self::EvaluationRecorded(_) => LedgerEntryKind::EvaluationRecorded,
             Self::GovernanceReviewed(_) => LedgerEntryKind::GovernanceReviewed,
             Self::PromotionDecided(_) => LedgerEntryKind::PromotionDecided,
+            Self::ReuseApplied(_) => LedgerEntryKind::ReuseApplied,
         }
     }
 }

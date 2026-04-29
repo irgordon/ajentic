@@ -16,5 +16,6 @@ pub mod normalization;
 pub mod objective;
 pub mod policy;
 pub mod replay;
+pub mod reuse;
 
 pub mod validation;
