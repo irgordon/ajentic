@@ -2,18 +2,22 @@
 
 ## Manual ROADMAP.md update tasks for Owner
 
-ROADMAP.md is a governance file and was intentionally not edited by this task.
+ROADMAP.md is a governance file and should be updated manually by the Owner.
 
-Phase 6 candidate status: Current/Complete pending Owner review.
+Current repository status: Phase 6 complete pending Owner acceptance and documentation/version alignment.
 
-- [ ] Confirm Phase 0: Repository bootstrap remains Complete [2026-04-28] or previously accepted completion date.
-- [ ] Confirm Phase 1: Contracts and schemas remains Complete [2026-04-28] if previously accepted by Owner.
-- [ ] Confirm Phase 2: Candidate lifecycle state machine remains Complete [2026-04-28] if previously accepted by Owner.
-- [ ] Confirm Phase 3: CLI static validation surface remains Complete [2026-04-28] if previously accepted by Owner.
-- [ ] Confirm Phase 4: Adapter protocol and mock adapter remains Complete [2026-04-28] if previously accepted by Owner.
-- [ ] Confirm Phase 5: Candidate creation and runtime adapter checks remains Complete [2026-04-28] if previously accepted by Owner.
-- [ ] Mark Phase 6: Evaluation result ingestion as Current/Complete [2026-04-28], depending on final validation result.
-- [ ] Confirm v0.4.0 or the repository’s chosen Phase 6 version records evaluation result ingestion only.
-- [ ] Confirm Phase 7 is not marked started unless the Owner explicitly approves.
+- [ ] Confirm Phase 0: Repository bootstrap remains complete.
+- [ ] Confirm Phase 1: Contracts and schemas remains complete.
+- [ ] Confirm Phase 2: Candidate lifecycle state machine remains complete.
+- [ ] Confirm Phase 3: CLI static validation surface remains complete.
+- [ ] Confirm Phase 4: Adapter protocol and mock adapter remains complete.
+- [ ] Confirm Phase 5: Candidate creation and runtime adapter checks remains complete.
+- [ ] Confirm Phase 6: Evaluation result ingestion is complete.
+- [ ] Confirm Phase 7: Governance and promotion gates is not started unless the Owner explicitly approves.
+- [ ] Confirm roadmap versioning follows the chosen milestone model: `0.x.0` for accepted milestones and `0.x.y` for iterative changes within a milestone.
+- [ ] Confirm the current repository remains on the `0.0.x` alignment/pre-milestone line until the Owner accepts the core boundary milestone.
+- [ ] Confirm `0.1.0` is reserved for the accepted core boundary milestone.
 - [ ] Confirm no roadmap wording claims evaluator execution, governance approval, promotion, ledger persistence, replay, audit emission, real provider integration, API, or UI implementation.
 - [ ] Confirm any evaluation wording distinguishes result ingestion and required evaluator satisfaction from governance approval or promotion eligibility.
+- [ ] Confirm any lifecycle wording distinguishes `PromotedTier1` as a lifecycle state shape from governance authorization.
+- [ ] Confirm any adapter wording distinguishes deterministic mock adapter output from real provider integration or trusted candidate output.
