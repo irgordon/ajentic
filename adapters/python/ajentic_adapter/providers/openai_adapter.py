@@ -18,17 +18,19 @@ from ajentic_adapter.protocol import REQUIRED_REQUEST_KEYS, line_value
 ADAPTER_NAME = "openai_adapter"
 ADAPTER_VERSION = "0.1.0"
 DEFAULT_OPENAI_URL = "https://api.openai.com/v1/responses"
-DEFAULT_OPENAI_MODEL = "gpt-4.1-mini"
 DEFAULT_TIMEOUT_SECONDS = 10
 
 
 def parse_request(raw: str) -> dict[str, str]:
     values: dict[str, str] = {}
+
     for line in raw.splitlines():
         if not line:
             continue
+
         if "=" not in line:
             raise ValueError("malformed line")
+
         key, value = line.split("=", 1)
         values[key] = value
 
@@ -39,7 +41,12 @@ def parse_request(raw: str) -> dict[str, str]:
     return values
 
 
-def _build_response(request: dict[str, str], status: str, output_text: str, errors: list[str]) -> str:
+def _build_response(
+    request: dict[str, str],
+    status: str,
+    output_text: str,
+    errors: list[str],
+) -> str:
     lines = [
         f"protocol_version={request['protocol_version']}",
         f"adapter_name={ADAPTER_NAME}",
@@ -51,8 +58,10 @@ def _build_response(request: dict[str, str], status: str, output_text: str, erro
         f"structured_output_ref=openai://structured/{request['run_id']}",
         f"output_text={line_value(output_text)}",
     ]
+
     for error in errors:
         lines.append(f"error={line_value(error)}")
+
     return "\n".join(lines)
 
 
@@ -61,7 +70,7 @@ def _provider_url() -> str:
 
 
 def _provider_model(request: dict[str, str]) -> str:
-    return os.environ.get("AJENTIC_OPENAI_MODEL") or request["model"] or DEFAULT_OPENAI_MODEL
+    return os.environ.get("AJENTIC_OPENAI_MODEL", "").strip() or request["model"].strip()
 
 
 def _api_key() -> str:
@@ -73,8 +82,10 @@ def _request_timeout_seconds(request: dict[str, str]) -> float:
         timeout_ms = int(request["timeout_ms"])
     except ValueError:
         return DEFAULT_TIMEOUT_SECONDS
+
     if timeout_ms <= 0:
         return DEFAULT_TIMEOUT_SECONDS
+
     return timeout_ms / 1000
 
 
@@ -83,8 +94,10 @@ def _request_max_output_bytes(request: dict[str, str]) -> int | None:
         max_output_bytes = int(request["max_output_bytes"])
     except ValueError:
         return None
+
     if max_output_bytes <= 0:
         return None
+
     return max_output_bytes
 
 
@@ -102,26 +115,36 @@ def _extract_output_text(body: dict) -> str:
         for item in output:
             if not isinstance(item, dict):
                 continue
+
             content = item.get("content")
             if not isinstance(content, list):
                 continue
+
             for block in content:
                 if isinstance(block, dict) and isinstance(block.get("text"), str):
                     if block["text"].strip():
                         return block["text"]
+
     return ""
 
 
-def call_openai(request: dict[str, str], timeout_seconds: float | None = None) -> tuple[str, str, list[str]]:
+def call_openai(
+    request: dict[str, str],
+    timeout_seconds: float | None = None,
+) -> tuple[str, str, list[str]]:
     api_key = _api_key()
     if not api_key:
         return "FAILED", "", ["provider configuration error: missing AJENTIC_OPENAI_API_KEY"]
 
-    model = _provider_model(request).strip()
+    model = _provider_model(request)
     if not model:
         return "FAILED", "", ["provider configuration error: missing openai model"]
 
-    payload = {"model": model, "input": request["input_ref"]}
+    payload = {
+        "model": model,
+        "input": request["input_ref"],
+    }
+
     data = json.dumps(payload).encode("utf-8")
     http_request = urllib.request.Request(
         _provider_url(),
@@ -145,10 +168,13 @@ def call_openai(request: dict[str, str], timeout_seconds: float | None = None) -
     except urllib.error.HTTPError as error:
         if error.code == 429:
             return "BLOCKED", "", ["provider blocked: openai rate limited"]
+
         if error.code in (401, 403):
             return "FAILED", "", ["provider authorization error"]
+
         if 500 <= error.code <= 599:
             return "BLOCKED", "", [f"provider unavailable: openai http {error.code}"]
+
         return "FAILED", "", [f"provider error: openai http {error.code}"]
     except (urllib.error.URLError, OSError):
         return "FAILED", "", ["provider unavailable: openai endpoint not reachable"]
@@ -177,6 +203,7 @@ def call_openai(request: dict[str, str], timeout_seconds: float | None = None) -
 def run(raw_request: str) -> str:
     request = parse_request(raw_request)
     status, output_text, errors = call_openai(request)
+
     return _build_response(request, status, output_text, errors)
 
 
@@ -189,6 +216,7 @@ def main() -> int:
 
     sys.stdout.write(response)
     sys.stdout.write("\n")
+
     return 0
 
 
