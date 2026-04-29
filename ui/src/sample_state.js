@@ -3,13 +3,13 @@ export const reviewSnapshots = [
     runId: "run-001",
     candidate: {
       id: "candidate-001",
-      lifecycleState: "PromotedTier1",
+      lifecycleState: "Rejected",
       runId: "run-001",
       objectiveId: "objective-compile-safety",
       constraintsId: "constraints-standard",
       domainId: "domain-core-rust",
       adapterName: "mock-adapter",
-      outputSummary: "Static sample output. Display only; untrusted by default."
+      outputSummary: "Static sample output. Display only; untrusted by default.",
     },
     evaluations: [
       {
@@ -17,15 +17,15 @@ export const reviewSnapshots = [
         evaluatorId: "safety-evaluator",
         status: "Pass",
         evidenceRef: "ev://safety/001",
-        failureReasons: []
+        failureReasons: [],
       },
       {
         id: "eval-002",
         evaluatorId: "correctness-evaluator",
         status: "Fail",
         evidenceRef: "ev://correctness/002",
-        failureReasons: ["Missing acceptance criterion proof."]
-      }
+        failureReasons: ["Missing acceptance criterion proof."],
+      },
     ],
     governance: {
       id: "gov-001",
@@ -35,19 +35,19 @@ export const reviewSnapshots = [
         {
           id: "policy-required-evidence",
           status: "Blocked",
-          evidenceRef: "ev://policy/missing",
-          failureReasons: ["Required evidence reference missing for one evaluator."]
+          evidenceRef: "",
+          failureReasons: ["Required evidence reference missing for one evaluator."],
         },
         {
           id: "policy-risk-threshold",
           status: "Unknown",
-          evidenceRef: "missing",
-          failureReasons: ["Risk summary unavailable."]
-        }
+          evidenceRef: "",
+          failureReasons: ["Risk summary unavailable."],
+        },
       ],
       evidenceRefs: ["ev://safety/001", "ev://correctness/002"],
       blockedReasons: ["Required evaluators not fully satisfied."],
-      failureReasons: ["One required evaluator failed."]
+      failureReasons: ["One required evaluator failed."],
     },
     promotion: {
       id: "prom-001",
@@ -56,12 +56,12 @@ export const reviewSnapshots = [
       toState: "Rejected",
       requiredChecksPassed: false,
       evidenceRefs: ["ev://correctness/002"],
-      denialReasons: ["Governance blocked; promotion eligibility is Rust-owned and unmet."]
+      denialReasons: ["Governance blocked; promotion eligibility is Rust-owned and unmet."],
     },
     ledgerSummary: "Ledger: Rust-owned append-only facts (displayed sample, not UI-created).",
     auditSummary: "Audit: Rust-derived explanation (displayed sample, not UI-created).",
-    replaySummary: "Replay: Rust-owned reconstruction from facts (displayed sample, not UI-created)."
-  }
+    replaySummary: "Replay: Rust-owned reconstruction from facts (displayed sample, not UI-created).",
+  },
 ];
 
 export const lifecycleLegend = [
@@ -72,7 +72,7 @@ export const lifecycleLegend = [
   "Passed",
   "PromotedTier1",
   "Rejected",
-  "Unknown"
+  "Unknown",
 ];
 
 export const statusLegend = ["Pass", "Fail", "Blocked", "Unknown"];
