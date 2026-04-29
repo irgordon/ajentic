@@ -14,6 +14,7 @@
 ![Open Source](https://img.shields.io/badge/Open%20Source-🌐-blue)
 ![Agentic Coding](https://img.shields.io/badge/Agentic%20Coding-⚡-purple)
 
+</div>
 ---
 
 AJENTIC helps you work with AI in a way that feels clear, predictable, and fully under your control.  
@@ -21,7 +22,7 @@ Instead of guessing what a model might do, AJENTIC gives you a simple, guided wa
 
 It’s built for development teams that want the benefits of AI without the chaos: clean workflows, clear guardrails, and confidence that nothing moves forward unless you say so.
 
-</div>
+
 
 **Current status:** Phase 6 complete pending Owner acceptance.
 
