@@ -33,3 +33,18 @@ Current repository status: Phase 6 complete pending Owner acceptance and documen
 - [ ] Confirm Phase 10 provider adapters are not started.
 - [ ] Confirm no UI, API, or file IO behavior was added.
 - [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.
+
+
+## Owner review tasks for Phase 11
+
+- [ ] Confirm Phase 11 cloud adapter status.
+- [ ] Confirm the cloud adapter is Python-only adaptation.
+- [ ] Confirm Rust remains authority.
+- [ ] Confirm cloud model output remains untrusted.
+- [ ] Confirm adapter completion does not promote.
+- [ ] Confirm replay does not call the cloud provider.
+- [ ] Confirm no provider-specific governance was added.
+- [ ] Confirm no provider-specific promotion was added.
+- [ ] Confirm credentials are environment-only and never logged.
+- [ ] Confirm no UI, API, persistence, or provider-specific replay behavior was added.
+- [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.
