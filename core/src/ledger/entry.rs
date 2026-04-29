@@ -55,11 +55,19 @@ pub struct PromotionDecidedLedgerRecord {
 
 /// Records an explicit reuse event as an immutable ledger fact.
 /// This record is advisory and does not affect lifecycle, governance, or promotion authority.
+/// Reuse is defined between concrete candidate records, not runs.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReuseAppliedLedgerRecord {
     pub reuse_event_id: String,
+
+    /// Source candidate whose outputs are being reused.
     pub reused_candidate_id: String,
-    pub new_run_id: String,
+
+    /// Target candidate receiving the reuse.
+    /// This replaces the previous run-scoped reference to ensure replay and audit
+    /// operate strictly on candidate-level identity.
+    pub target_candidate_id: String,
+
     pub reuse_reason: String,
     pub triggering_actor: String,
     pub timestamp_reference: String,
