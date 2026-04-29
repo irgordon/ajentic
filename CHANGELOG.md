@@ -1,30 +1,30 @@
 # Changelog
 
-v0.0.12 - 2026-04-29
-Status: Phase 14 advisory candidate reuse capability.
+## v0.0.12 - 2026-04-29
+**Status:** Phase 14 advisory candidate reuse capability.
 
-Added
-Rust-owned advisory reuse module.
-Deterministic candidate-to-candidate reuse discovery surface.
-Immutable ReuseApplied ledger record type.
-Ledger append validation requiring both referenced candidates to exist.
-Replay visibility for reuse events reconstructed from ledger facts.
+### Added
+- Rust-owned advisory reuse module.
+- Deterministic candidate-to-candidate reuse discovery surface.
+- Immutable ReuseApplied ledger record type.
+- Ledger append validation requiring both referenced candidates to exist.
+- Replay visibility for reuse events reconstructed from ledger facts.
 
-Notes
-Reuse records trace candidate reuse relationships only. They do not alter lifecycle state, governance approval, promotion eligibility, ledger authority, audit semantics, replay authority, adapter trust, API behavior, or UI authority.
+### Notes
+- Reuse records trace candidate reuse relationships only. They do not alter lifecycle state, governance approval, promotion eligibility, ledger authority, audit semantics, replay authority, adapter trust, API behavior, or UI authority.
 
 
-v0.0.13 - 2026-04-29
-Status: Phase 14.5 reuse validation and replay integrity testing.
+## v0.0.13 - 2026-04-29
+**Status:** Phase 14.5 reuse validation and replay integrity testing.
 
-Added
-Append validation tests proving reuse append fails when source candidate is missing.
-Append validation tests proving reuse append fails when target candidate is missing.
-Replay tests proving reuse events appear for both source and target candidate views.
-Replay tests proving reuse does not affect final status or authoritative identifiers.
+### Added
+- Append validation tests proving reuse append fails when source candidate is missing.
+- Append validation tests proving reuse append fails when target candidate is missing.
+- Replay tests proving reuse events appear for both source and target candidate views.
+- Replay tests proving reuse does not affect final status or authoritative identifiers.
 
-Notes
-These tests strengthen validation coverage only. They do not introduce new runtime capability, lifecycle behavior, governance logic, promotion logic, replay semantics, persistence behavior, adapter integration, API behavior, or UI authority.
+### Notes
+- These tests strengthen validation coverage only. They do not introduce new runtime capability, lifecycle behavior, governance logic, promotion logic, replay semantics, persistence behavior, adapter integration, API behavior, or UI authority.
 
 ## v0.0.11 - 2026-04-28
 
