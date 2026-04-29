@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.8
+
+**Status:** Phase 10 local model adapter capability.
+
+### Added
+
+- Python local provider adapter for Ollama.
+- Local provider response parsing and error mapping.
+- Tests or documented checks showing local adapter output remains non-authoritative.
+
+### Notes
+
+- Local model output remains untrusted adapter output.
+- No cloud provider integration, governance change, promotion change, ledger persistence, replay regeneration, API behavior, or UI behavior was implemented.
+
 ## v0.0.7
 
 **Status:** Phase 9 replay from ledger facts.

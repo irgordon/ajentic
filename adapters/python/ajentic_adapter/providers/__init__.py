@@ -1,5 +1,6 @@
 """AJENTIC provider adapters package.
 
-Phase 4 includes a deterministic mock adapter for the Rust subprocess boundary.
-No real provider integrations are implemented.
+Phase 10 includes:
+- deterministic mock adapter for protocol boundary testing
+- local Ollama adapter for non-authoritative local generation
 """
