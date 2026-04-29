@@ -8,10 +8,14 @@
 - Replay completion classification enum with explicit closed states.
 - Replay final status classification enum with explicit closed states.
 - Deterministic replay classification output fields for readiness, completion, and final status.
+- Deterministic classification functions deriving readiness, completion, and final status from ledger facts.
 - Replay tests for deterministic status classification and deterministic replay output.
+- Explicit readiness classification for missing candidate, evaluation, governance, and promotion facts.
 
 ### Notes
 - Classification is descriptive only.
+- Classification is derived from ledger facts and is not stored as authoritative state.
+- Incomplete replay states return classification results rather than failing as hard errors.
 - Classification does not alter lifecycle state.
 - Classification does not alter governance approval.
 - Classification does not alter promotion eligibility.
