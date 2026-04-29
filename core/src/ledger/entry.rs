@@ -53,6 +53,8 @@ pub struct PromotionDecidedLedgerRecord {
     pub denial_reasons: Vec<String>,
 }
 
+/// Records an explicit reuse event as an immutable ledger fact.
+/// This record is advisory and does not affect lifecycle, governance, or promotion authority.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReuseAppliedLedgerRecord {
     pub reuse_event_id: String,
