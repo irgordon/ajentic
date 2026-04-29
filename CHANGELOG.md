@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.0.17 - 2026-04-29
+**Status:** Phase 17 replay integrity and ordering stability verification capability.
+
+### Added
+- Replay integrity verification classifications for ordering stability, idempotence, completeness, and overall integrity status.
+- Deterministic replay integrity verification output from replay reconstruction based on ledger entries.
+- Replay tests for ordering stability determinism, idempotence, completeness detection, integrity violations, non-authoritative behavior, and deterministic replay output.
+
+### Notes
+- Replay integrity verification is descriptive only.
+- Replay integrity verification does not alter lifecycle state.
+- Replay integrity verification does not alter governance approval.
+- Replay integrity verification does not alter promotion eligibility.
+- Replay integrity verification does not alter ledger authority.
+- Replay integrity verification does not introduce persistence, provider integration, API behavior, or UI authority.
+
 ## v0.0.15 - 2026-04-29
 **Status:** Phase 16 boundary and negative-path hardening.
 
