@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This roadmap defines the phased implementation path for AJENTIC from a blank repository to early production capability.
+This roadmap defines the phased implementation path for AJENTIC from a blank repository to early production capability. Through each phase, slight deviations may occur as it moves, the CHANGELOG should be considered the authoritative state, this document reflect the overarching planned implemention and serve as a strong guide to keep the project from adopting inappropriate expansion.
 
 AJENTIC is a governed harness for local and cloud-based large language models (LLMs). It treats generated output as untrusted, records candidate and evaluation data under Rust-owned control, and promotes only governed outputs for downstream review after explicit governance checks.
 
@@ -10,7 +10,7 @@ The implementation must progress incrementally. Each phase has a narrow scope, e
 
 The primary goal is not feature volume. The primary goal is a usable, maintainable, auditable harness whose control layer remains understandable to first-time developers and extensible by experienced developers.
 
-This roadmap is an anchor document. It forecasts the full v0 implementation path. Historical release notes belong in `CHANGELOG.md`.
+This roadmap is an anchor document. It provides a forecast from the full v0 implementation path to production capability. Historical release notes are owned by `CHANGELOG.md`.
 
 ---
 
