@@ -905,4 +905,17 @@ mod tests {
 
         assert_eq!(first, second);
     }
+    #[test]
+    fn replay_debug_output_is_byte_equivalent_for_identical_input() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
+        ledger.append(gov(GovernanceStatus::Blocked)).unwrap();
+        ledger.append(denied_with_id("prom-1")).unwrap();
+
+        let first = format!("{:?}", replay_candidate("cand-1", &ledger).unwrap());
+        let second = format!("{:?}", replay_candidate("cand-1", &ledger).unwrap());
+
+        assert_eq!(first.as_bytes(), second.as_bytes());
+    }
 }
