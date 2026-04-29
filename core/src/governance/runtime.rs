@@ -36,6 +36,14 @@ pub fn review_governance(
     if candidate.id.is_empty() {
         return Err(GovernanceError::MissingCandidateId);
     }
+
+    if evaluations.candidate_id != candidate.id {
+        return Err(GovernanceError::CandidateIdMismatch {
+            expected: candidate.id.clone(),
+            found: evaluations.candidate_id.clone(),
+        });
+    }
+
     if input.objective_id.is_empty() {
         return Err(GovernanceError::MissingObjectiveId);
     }
@@ -64,7 +72,11 @@ pub fn review_governance(
     let mut failure_reasons = Vec::new();
     let mut blocked_reasons = Vec::new();
 
+    let mut evaluator_failure_found = false;
+    let mut evaluator_block_found = false;
+
     for missing in missing_required_evaluators(evaluations, &input.required_evaluator_ids) {
+        evaluator_block_found = true;
         blocked_reasons.push(format!("missing evaluator: {missing}"));
     }
 
@@ -72,48 +84,58 @@ pub fn review_governance(
         let Some(result) = evaluations
             .results
             .iter()
-            .find(|r| &r.evaluator_id == evaluator_id)
+            .find(|result| &result.evaluator_id == evaluator_id)
         else {
             continue;
         };
+
         if result.evidence_ref.is_empty() {
+            evaluator_failure_found = true;
             failure_reasons.push(format!("missing evaluator evidence: {evaluator_id}"));
         }
+
         match result.status {
             EvaluationStatus::Pass => {}
             EvaluationStatus::Fail => {
-                failure_reasons.push(format!("evaluator failed: {evaluator_id}"))
+                evaluator_failure_found = true;
+                failure_reasons.push(format!("evaluator failed: {evaluator_id}"));
             }
             EvaluationStatus::Blocked => {
-                blocked_reasons.push(format!("evaluator blocked: {evaluator_id}"))
+                evaluator_block_found = true;
+                blocked_reasons.push(format!("evaluator blocked: {evaluator_id}"));
             }
             EvaluationStatus::Unknown => {
-                blocked_reasons.push(format!("evaluator unknown: {evaluator_id}"))
+                evaluator_block_found = true;
+                blocked_reasons.push(format!("evaluator unknown: {evaluator_id}"));
             }
         }
     }
 
+    let required_evaluators_satisfied = !evaluator_failure_found && !evaluator_block_found;
+
     for policy_check_id in &input.required_policy_check_ids {
         let Some(check) = policy_checks
             .iter()
-            .find(|p| &p.policy_check_id == policy_check_id)
+            .find(|policy_check| &policy_check.policy_check_id == policy_check_id)
         else {
             failure_reasons.push(format!("missing policy check: {policy_check_id}"));
             continue;
         };
+
         if check.evidence_ref.is_empty() {
             failure_reasons.push(format!("missing policy evidence: {policy_check_id}"));
         }
+
         match check.status {
             PolicyCheckStatus::Pass => {}
             PolicyCheckStatus::Fail => {
-                failure_reasons.push(format!("policy check failed: {policy_check_id}"))
+                failure_reasons.push(format!("policy check failed: {policy_check_id}"));
             }
             PolicyCheckStatus::Blocked => {
-                blocked_reasons.push(format!("policy check blocked: {policy_check_id}"))
+                blocked_reasons.push(format!("policy check blocked: {policy_check_id}"));
             }
             PolicyCheckStatus::Unknown => {
-                blocked_reasons.push(format!("policy check unknown: {policy_check_id}"))
+                blocked_reasons.push(format!("policy check unknown: {policy_check_id}"));
             }
         }
     }
@@ -130,7 +152,7 @@ pub fn review_governance(
         id: format!("governance::{}", candidate.id),
         candidate_id: candidate.id.clone(),
         status,
-        required_evaluators_satisfied: failure_reasons.is_empty() && blocked_reasons.is_empty(),
+        required_evaluators_satisfied,
         policy_checks,
         evidence_refs: input.evidence_refs,
         blocked_reasons,
@@ -163,6 +185,7 @@ mod tests {
             lifecycle_state: CandidateLifecycleState::Passed,
         }
     }
+
     fn eval_set(status: EvaluationStatus, evidence: &str) -> EvaluationResultSet {
         EvaluationResultSet {
             candidate_id: "cand-1".into(),
@@ -178,6 +201,7 @@ mod tests {
             }],
         }
     }
+
     fn input() -> GovernanceReviewInput {
         GovernanceReviewInput {
             candidate_id: "cand-1".into(),
@@ -189,6 +213,7 @@ mod tests {
             evidence_refs: vec!["ev://1".into()],
         }
     }
+
     fn checks(status: PolicyCheckStatus, evidence: &str) -> Vec<PolicyCheckResult> {
         vec![PolicyCheckResult {
             id: "policy::cand-1::pol-a".into(),
@@ -201,50 +226,197 @@ mod tests {
 
     #[test]
     fn governance_passes() {
-        let r = review_governance(
+        let result = review_governance(
             &candidate(),
             &eval_set(EvaluationStatus::Pass, "ev"),
             input(),
             checks(PolicyCheckStatus::Pass, "ev"),
         )
         .unwrap();
-        assert_eq!(r.status, GovernanceStatus::Pass);
-        assert!(r.failure_reasons.is_empty());
+
+        assert_eq!(result.status, GovernanceStatus::Pass);
+        assert!(result.required_evaluators_satisfied);
+        assert!(result.failure_reasons.is_empty());
+        assert!(result.blocked_reasons.is_empty());
     }
+
     #[test]
     fn empty_objective_fails() {
-        let mut i = input();
-        i.objective_id.clear();
+        let mut input = input();
+        input.objective_id.clear();
+
         assert_eq!(
             review_governance(
                 &candidate(),
                 &eval_set(EvaluationStatus::Pass, "ev"),
-                i,
-                checks(PolicyCheckStatus::Pass, "ev")
+                input,
+                checks(PolicyCheckStatus::Pass, "ev"),
             ),
             Err(GovernanceError::MissingObjectiveId)
         );
     }
+
     #[test]
-    fn unknown_blocks() {
-        let r = review_governance(
+    fn evaluation_set_candidate_mismatch_fails() {
+        let mut evaluations = eval_set(EvaluationStatus::Pass, "ev");
+        evaluations.candidate_id = "other-candidate".into();
+
+        assert_eq!(
+            review_governance(
+                &candidate(),
+                &evaluations,
+                input(),
+                checks(PolicyCheckStatus::Pass, "ev"),
+            ),
+            Err(GovernanceError::CandidateIdMismatch {
+                expected: "cand-1".into(),
+                found: "other-candidate".into(),
+            })
+        );
+    }
+
+    #[test]
+    fn input_candidate_mismatch_fails() {
+        let mut input = input();
+        input.candidate_id = "other-candidate".into();
+
+        assert_eq!(
+            review_governance(
+                &candidate(),
+                &eval_set(EvaluationStatus::Pass, "ev"),
+                input,
+                checks(PolicyCheckStatus::Pass, "ev"),
+            ),
+            Err(GovernanceError::CandidateIdMismatch {
+                expected: "cand-1".into(),
+                found: "other-candidate".into(),
+            })
+        );
+    }
+
+    #[test]
+    fn unknown_evaluator_blocks() {
+        let result = review_governance(
             &candidate(),
             &eval_set(EvaluationStatus::Unknown, "ev"),
             input(),
             checks(PolicyCheckStatus::Pass, "ev"),
         )
         .unwrap();
-        assert_eq!(r.status, GovernanceStatus::Blocked);
+
+        assert_eq!(result.status, GovernanceStatus::Blocked);
+        assert!(!result.required_evaluators_satisfied);
     }
+
     #[test]
-    fn missing_evidence_fails() {
-        let r = review_governance(
+    fn failed_evaluator_fails() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Fail, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Pass, "ev"),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Fail);
+        assert!(!result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn blocked_evaluator_blocks() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Blocked, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Pass, "ev"),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Blocked);
+        assert!(!result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn missing_evaluator_evidence_fails() {
+        let result = review_governance(
             &candidate(),
             &eval_set(EvaluationStatus::Pass, ""),
             input(),
             checks(PolicyCheckStatus::Pass, "ev"),
         )
         .unwrap();
-        assert_eq!(r.status, GovernanceStatus::Fail);
+
+        assert_eq!(result.status, GovernanceStatus::Fail);
+        assert!(!result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn missing_policy_check_fails_without_changing_evaluator_satisfaction() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Pass, "ev"),
+            input(),
+            Vec::new(),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Fail);
+        assert!(result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn failed_policy_check_fails_without_changing_evaluator_satisfaction() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Pass, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Fail, "ev"),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Fail);
+        assert!(result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn blocked_policy_check_blocks_without_changing_evaluator_satisfaction() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Pass, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Blocked, "ev"),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Blocked);
+        assert!(result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn unknown_policy_check_blocks_without_changing_evaluator_satisfaction() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Pass, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Unknown, "ev"),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Blocked);
+        assert!(result.required_evaluators_satisfied);
+    }
+
+    #[test]
+    fn missing_policy_evidence_fails_without_changing_evaluator_satisfaction() {
+        let result = review_governance(
+            &candidate(),
+            &eval_set(EvaluationStatus::Pass, "ev"),
+            input(),
+            checks(PolicyCheckStatus::Pass, ""),
+        )
+        .unwrap();
+
+        assert_eq!(result.status, GovernanceStatus::Fail);
+        assert!(result.required_evaluators_satisfied);
     }
 }
