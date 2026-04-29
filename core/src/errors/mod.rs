@@ -251,6 +251,56 @@ pub enum AuditError {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub enum DomainValidationError {
+    MissingDomainId,
+    MissingDomainName,
+    MissingObjectiveTypes,
+    MissingConstraintTypes,
+    MissingRequiredEvaluators,
+    MissingEvidenceRequirements,
+    EmptyObjectiveType,
+    EmptyConstraintType,
+    EmptyEvaluatorId,
+    EmptyEvidenceRequirement,
+    DuplicateObjectiveType {
+        objective_type: String,
+    },
+    DuplicateConstraintType {
+        constraint_type: String,
+    },
+    DuplicateRequiredEvaluator {
+        evaluator_id: String,
+    },
+    DuplicateOptionalEvaluator {
+        evaluator_id: String,
+    },
+    EvaluatorListedAsRequiredAndOptional {
+        evaluator_id: String,
+    },
+    DuplicateEvidenceRequirement {
+        evidence_requirement: String,
+    },
+    UnsupportedObjectiveType {
+        domain_id: String,
+        objective_type: String,
+    },
+    UnsupportedEvaluator {
+        domain_id: String,
+        evaluator_id: String,
+    },
+    MissingDomainRequiredEvaluator {
+        domain_id: String,
+        evaluator_id: String,
+    },
+    DomainNotFound {
+        domain_id: String,
+    },
+    DuplicateDomainId {
+        domain_id: String,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ReplayError {
     MissingCandidateId,
     CandidateEntryMissing { candidate_id: String },

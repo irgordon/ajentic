@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.11
+
+**Status:** Phase 13 multi-domain capability.
+
+### Added
+
+- Rust-owned domain profile model.
+- Built-in sample domain profiles.
+- Domain profile validation and compatibility checks.
+- Typed domain validation errors.
+
+### Notes
+
+- Domains configure compatibility only. They do not alter lifecycle, governance promotion, ledger, audit, replay, adapter trust, API behavior, or UI authority.
+
 ## v0.0.10
 
 **Status:** Phase 12 TypeScript UI review surface.
