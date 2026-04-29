@@ -1,11 +1,8 @@
-"""
-AJENTIC adapter protocol placeholder.
+"""AJENTIC Python adapter protocol constants.
 
-This module will define the request/response protocol between Python adapters
-and the Rust harness in a future phase.
-
-v0.0.0: placeholder constants only. No protocol is implemented.
+Python adapters are non-authoritative and emit adapter output for Rust-owned
+validation and downstream governance workflows.
 """
 
-PROTOCOL_VERSION = "0.0.0"
+PROTOCOL_VERSION = "0.1.0"
 ADAPTER_ROLE = "non-authoritative"
