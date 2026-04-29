@@ -1,6 +1,7 @@
 //! Replay classification status types.
 //!
 //! These enums are descriptive-only replay outputs derived from ledger facts.
+//! They do not grant authority or alter lifecycle, governance, or promotion behavior.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReplayReadinessStatus {
@@ -9,7 +10,6 @@ pub enum ReplayReadinessStatus {
     MissingEvaluation,
     MissingGovernance,
     MissingPromotion,
-    MissingRequiredFacts,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
