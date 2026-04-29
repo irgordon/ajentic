@@ -1,12 +1,34 @@
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 function badgeClass(value) {
   return `badge badge-${String(value).toLowerCase()}`;
 }
 
+function badge(value) {
+  return `<span class="${badgeClass(value)}">${escapeHtml(value)}</span>`;
+}
+
 function listOrEmpty(items, emptyLabel) {
   if (!items || items.length === 0) {
-    return `<li class="missing">${emptyLabel}</li>`;
+    return `<li class="missing">${escapeHtml(emptyLabel)}</li>`;
   }
-  return items.map((item) => `<li>${item}</li>`).join("");
+
+  return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+}
+
+function valueOrMissing(value) {
+  if (!value) {
+    return '<span class="missing">missing</span>';
+  }
+
+  return escapeHtml(value);
 }
 
 function renderSnapshot(snapshot) {
@@ -14,9 +36,9 @@ function renderSnapshot(snapshot) {
     .map(
       (item) => `
       <tr>
-        <td>${item.evaluatorId}</td>
-        <td><span class="${badgeClass(item.status)}">${item.status}</span></td>
-        <td>${item.evidenceRef || '<span class="missing">missing</span>'}</td>
+        <td>${escapeHtml(item.evaluatorId)}</td>
+        <td>${badge(item.status)}</td>
+        <td>${valueOrMissing(item.evidenceRef)}</td>
         <td><ul>${listOrEmpty(item.failureReasons, "none")}</ul></td>
       </tr>`
     )
@@ -26,9 +48,9 @@ function renderSnapshot(snapshot) {
     .map(
       (item) => `
       <tr>
-        <td>${item.id}</td>
-        <td><span class="${badgeClass(item.status)}">${item.status}</span></td>
-        <td>${item.evidenceRef || '<span class="missing">missing</span>'}</td>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${badge(item.status)}</td>
+        <td>${valueOrMissing(item.evidenceRef)}</td>
         <td><ul>${listOrEmpty(item.failureReasons, "none")}</ul></td>
       </tr>`
     )
@@ -37,56 +59,81 @@ function renderSnapshot(snapshot) {
   return `
     <section class="panel">
       <h2>Run overview</h2>
-      <p><strong>Run ID:</strong> ${snapshot.runId}</p>
+      <p><strong>Run ID:</strong> ${escapeHtml(snapshot.runId)}</p>
     </section>
 
     <section class="panel">
       <h2>Candidate record</h2>
-      <p><strong>ID:</strong> ${snapshot.candidate.id}</p>
-      <p><strong>Lifecycle:</strong> <span class="${badgeClass(snapshot.candidate.lifecycleState)}">${snapshot.candidate.lifecycleState}</span></p>
-      <p><strong>Objective:</strong> ${snapshot.candidate.objectiveId}</p>
-      <p><strong>Constraints:</strong> ${snapshot.candidate.constraintsId}</p>
-      <p><strong>Domain:</strong> ${snapshot.candidate.domainId}</p>
-      <p><strong>Adapter:</strong> ${snapshot.candidate.adapterName}</p>
-      <p><strong>Output summary:</strong> ${snapshot.candidate.outputSummary}</p>
+      <p><strong>ID:</strong> ${escapeHtml(snapshot.candidate.id)}</p>
+      <p><strong>Lifecycle:</strong> ${badge(snapshot.candidate.lifecycleState)}</p>
+      <p><strong>Objective:</strong> ${escapeHtml(snapshot.candidate.objectiveId)}</p>
+      <p><strong>Constraints:</strong> ${escapeHtml(snapshot.candidate.constraintsId)}</p>
+      <p><strong>Domain:</strong> ${escapeHtml(snapshot.candidate.domainId)}</p>
+      <p><strong>Adapter:</strong> ${escapeHtml(snapshot.candidate.adapterName)}</p>
+      <p><strong>Output summary:</strong> ${escapeHtml(snapshot.candidate.outputSummary)}</p>
     </section>
 
     <section class="panel">
       <h2>Evaluation results</h2>
-      <table><thead><tr><th>Evaluator</th><th>Status</th><th>Evidence</th><th>Failure reasons</th></tr></thead><tbody>${evaluationRows}</tbody></table>
+      <table>
+        <thead>
+          <tr>
+            <th>Evaluator</th>
+            <th>Status</th>
+            <th>Evidence</th>
+            <th>Failure reasons</th>
+          </tr>
+        </thead>
+        <tbody>${evaluationRows}</tbody>
+      </table>
     </section>
 
     <section class="panel">
       <h2>Governance result</h2>
-      <p><strong>Status:</strong> <span class="${badgeClass(snapshot.governance.status)}">${snapshot.governance.status}</span></p>
-      <p><strong>Required evaluators satisfied:</strong> ${snapshot.governance.requiredEvaluatorsSatisfied}</p>
+      <p><strong>Status:</strong> ${badge(snapshot.governance.status)}</p>
+      <p><strong>Required evaluators satisfied:</strong> ${escapeHtml(snapshot.governance.requiredEvaluatorsSatisfied)}</p>
       <h3>Policy checks</h3>
-      <table><thead><tr><th>Policy check</th><th>Status</th><th>Evidence</th><th>Failure reasons</th></tr></thead><tbody>${policyRows}</tbody></table>
-      <p><strong>Blocked reasons</strong></p><ul>${listOrEmpty(snapshot.governance.blockedReasons, "none")}</ul>
-      <p><strong>Failure reasons</strong></p><ul>${listOrEmpty(snapshot.governance.failureReasons, "none")}</ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Policy check</th>
+            <th>Status</th>
+            <th>Evidence</th>
+            <th>Failure reasons</th>
+          </tr>
+        </thead>
+        <tbody>${policyRows}</tbody>
+      </table>
+      <p><strong>Blocked reasons</strong></p>
+      <ul>${listOrEmpty(snapshot.governance.blockedReasons, "none")}</ul>
+      <p><strong>Failure reasons</strong></p>
+      <ul>${listOrEmpty(snapshot.governance.failureReasons, "none")}</ul>
     </section>
 
     <section class="panel">
       <h2>Promotion decision</h2>
-      <p><strong>Status:</strong> <span class="${badgeClass(snapshot.promotion.status)}">${snapshot.promotion.status}</span></p>
-      <p><strong>From state:</strong> ${snapshot.promotion.fromState}</p>
-      <p><strong>To state:</strong> ${snapshot.promotion.toState}</p>
-      <p><strong>Required checks passed:</strong> ${snapshot.promotion.requiredChecksPassed}</p>
-      <p><strong>Evidence refs</strong></p><ul>${listOrEmpty(snapshot.promotion.evidenceRefs, "missing")}</ul>
-      <p><strong>Denial reasons</strong></p><ul>${listOrEmpty(snapshot.promotion.denialReasons, "none")}</ul>
+      <p><strong>Status:</strong> ${badge(snapshot.promotion.status)}</p>
+      <p><strong>From state:</strong> ${escapeHtml(snapshot.promotion.fromState)}</p>
+      <p><strong>To state:</strong> ${escapeHtml(snapshot.promotion.toState)}</p>
+      <p><strong>Required checks passed:</strong> ${escapeHtml(snapshot.promotion.requiredChecksPassed)}</p>
+      <p><strong>Evidence refs</strong></p>
+      <ul>${listOrEmpty(snapshot.promotion.evidenceRefs, "missing")}</ul>
+      <p><strong>Denial reasons</strong></p>
+      <ul>${listOrEmpty(snapshot.promotion.denialReasons, "none")}</ul>
     </section>
 
     <section class="panel">
       <h2>Ledger / Audit / Replay</h2>
-      <p>${snapshot.ledgerSummary}</p>
-      <p>${snapshot.auditSummary}</p>
-      <p>${snapshot.replaySummary}</p>
+      <p>${escapeHtml(snapshot.ledgerSummary)}</p>
+      <p>${escapeHtml(snapshot.auditSummary)}</p>
+      <p>${escapeHtml(snapshot.replaySummary)}</p>
     </section>
   `;
 }
 
 export function renderApp(root, snapshots, lifecycleLegend, statusLegend) {
   const snapshot = snapshots[0];
+
   root.innerHTML = `
     <header>
       <h1>AJENTIC</h1>
@@ -108,8 +155,8 @@ export function renderApp(root, snapshots, lifecycleLegend, statusLegend) {
         <li>UNKNOWN is not PASS.</li>
         <li>Tier-1 is reviewable, not production-approved.</li>
       </ul>
-      <p><strong>Lifecycle states:</strong> ${lifecycleLegend.join(", ")}</p>
-      <p><strong>Review statuses:</strong> ${statusLegend.join(", ")}</p>
+      <p><strong>Lifecycle states:</strong> ${escapeHtml(lifecycleLegend.join(", "))}</p>
+      <p><strong>Review statuses:</strong> ${escapeHtml(statusLegend.join(", "))}</p>
     </section>
 
     ${renderSnapshot(snapshot)}
