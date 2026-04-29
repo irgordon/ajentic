@@ -1,5 +1,6 @@
 //! Phase 1 policy contract shapes.
 //! These definitions reserve the boundary contract only.
+//! Runtime policy enforcement belongs in Rust policy/governance modules.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PolicyContract {
