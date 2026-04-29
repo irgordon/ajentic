@@ -19,3 +19,4 @@ pub mod replay;
 pub mod reuse;
 
 pub mod validation;
+pub mod verification;
