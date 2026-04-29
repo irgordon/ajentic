@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.0.15 - 2026-04-29
+**Status:** Phase 16 boundary and negative-path hardening.
+
+### Added
+- Negative-path tests for governance, promotion, ledger, audit, replay, adapter, domain, UI, and script boundaries.
+- Boundary-regression coverage proving existing authority surfaces fail closed.
+- Validation coverage confirming non-Rust layers remain non-authoritative.
+
+### Notes
+- This phase adds test hardening only.
+- No new runtime capability was introduced.
+- No lifecycle, governance, promotion, ledger, replay, audit, adapter, provider, API, or UI authority behavior was added.
+- CHANGELOG remains the authoritative implementation history.
+
 ## v0.0.14 - 2026-04-29
 **Status:** Phase 15 replay readiness and status classification capability.
 
