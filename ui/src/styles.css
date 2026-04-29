@@ -1,0 +1,45 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f7fb;
+  color: #1b2430;
+}
+
+#app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+header, .panel, .banner {
+  background: white;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.subtitle { color: #40556f; }
+.banner { border-left: 4px solid #40556f; }
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.badge-pass, .badge-passed, .badge-approved, .badge-promotedtier1 { background: #d4f6df; }
+.badge-fail, .badge-failed, .badge-denied, .badge-rejected { background: #ffd8d8; }
+.badge-blocked { background: #ffe9bd; }
+.badge-unknown { background: #e7e7ef; }
+.badge-created, .badge-evaluating { background: #d9ebff; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; border-bottom: 1px solid #e5ebf3; padding: 0.5rem; vertical-align: top; }
+
+.missing { color: #a64b00; font-weight: 700; }

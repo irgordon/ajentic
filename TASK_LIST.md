@@ -48,3 +48,17 @@ Current repository status: Phase 6 complete pending Owner acceptance and documen
 - [ ] Confirm credentials are environment-only and never logged.
 - [ ] Confirm no UI, API, persistence, or provider-specific replay behavior was added.
 - [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.
+
+
+## Owner review tasks for Phase 12
+
+- [ ] Confirm Phase 12 UI review surface status.
+- [ ] Confirm UI is non-authoritative.
+- [ ] Confirm UI does not compute promotion eligibility.
+- [ ] Confirm UI does not call providers or adapters.
+- [ ] Confirm UI does not write ledger or audit records.
+- [ ] Confirm UI does not perform replay.
+- [ ] Confirm UI clearly displays failed, blocked, unknown, and missing states.
+- [ ] Confirm Phase 13 multi-domain runtime capability is not started.
+- [ ] Confirm no API/server/backend behavior was added.
+- [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.
