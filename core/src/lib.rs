@@ -1,7 +1,11 @@
 //! AJENTIC core library.
 //!
-//! Ledger, audit emission, replay, real provider adapters, and UI behavior
-//! are reserved for later phases.
+//! This crate defines the authoritative Rust surfaces for lifecycle,
+//! governance, replay, normalization, validation, and verification.
+//!
+//! Some capabilities within these modules may be reserved for later
+//! phases. Module presence does not imply full feature maturity or
+//! production readiness.
 
 pub mod audit;
 pub mod candidate;
