@@ -26,6 +26,8 @@ impl InMemoryLedger {
     }
 
     #[cfg(test)]
+    /// Test-only corruption hook for replay and ledger negative-path tests.
+    /// This must not be exposed in non-test builds.
     pub(crate) fn entries_mut_for_tests(&mut self) -> &mut Vec<LedgerEntry> {
         &mut self.entries
     }
