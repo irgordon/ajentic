@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.0.14 - 2026-04-29
+**Status:** Phase 15 replay readiness and status classification capability.
+
+### Added
+- Replay readiness classification enum with explicit closed states.
+- Replay completion classification enum with explicit closed states.
+- Replay final status classification enum with explicit closed states.
+- Deterministic replay classification output fields for readiness, completion, and final status.
+- Deterministic classification functions deriving readiness, completion, and final status from ledger facts.
+- Replay tests for deterministic status classification and deterministic replay output.
+- Explicit readiness classification for missing candidate, evaluation, governance, and promotion facts.
+
+### Notes
+- Classification is descriptive only.
+- Classification is derived from ledger facts and is not stored as authoritative state.
+- Incomplete replay states return classification results rather than failing as hard errors.
+- Classification does not alter lifecycle state.
+- Classification does not alter governance approval.
+- Classification does not alter promotion eligibility.
+- Classification does not alter ledger authority.
+- Classification does not introduce persistence, provider integration, API behavior, or UI authority.
+
 ## v0.0.12 - 2026-04-29
 **Status:** Phase 14 advisory candidate reuse capability.
 
