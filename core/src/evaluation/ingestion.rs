@@ -1,4 +1,6 @@
 //! Phase 6 evaluation result ingestion.
+//! Evaluation satisfaction is not promotion eligibility.
+//! Governance promotion consumes evaluation results as one input only.
 
 use crate::candidate::contract::CandidateRecord;
 use crate::errors::EvaluationIngestionError;
@@ -83,11 +85,13 @@ pub fn required_evaluators_satisfied(
     result_set: &EvaluationResultSet,
     required_evaluator_ids: &[String],
 ) -> bool {
-    required_evaluator_ids.iter().all(|required_id| {
-        result_set.results.iter().any(|result| {
-            result.evaluator_id == *required_id && matches!(result.status, EvaluationStatus::Pass)
+    !required_evaluator_ids.is_empty()
+        && required_evaluator_ids.iter().all(|required_id| {
+            result_set.results.iter().any(|result| {
+                result.evaluator_id == *required_id
+                    && matches!(result.status, EvaluationStatus::Pass)
+            })
         })
-    })
 }
 
 #[cfg(test)]
@@ -195,6 +199,14 @@ mod tests {
         assert!(required_evaluators_recorded(&set, &required));
         assert!(!required_evaluators_satisfied(&set, &required));
         assert!(missing_required_evaluators(&set, &required).is_empty());
+    }
+
+    #[test]
+    fn empty_required_evaluator_list_is_not_satisfied() {
+        let set = EvaluationResultSet::new("candidate-1".to_string());
+        let required: Vec<String> = Vec::new();
+
+        assert!(!required_evaluators_satisfied(&set, &required));
     }
 
     #[test]
