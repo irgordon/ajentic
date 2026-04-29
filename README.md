@@ -65,6 +65,13 @@ Adapter output is not approval. Candidate creation is not validation. Evaluation
 
 Only Rust may own lifecycle, governance, ledger, replay, audit, and promotion decisions. Python, TypeScript, Bash, and future Go wrappers must not define candidate truth or promotion authority.
 
+===
+
+<img src="ajentic_arch_flow.png" />
+
+===
+
+
 ## First run
 
 ```sh
