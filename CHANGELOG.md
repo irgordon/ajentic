@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.0.10
+
+**Status:** Phase 12 TypeScript UI review surface.
+
+### Added
+
+- Non-authoritative UI review surface scaffold.
+- Static display of candidate, evaluation, governance, promotion, ledger, audit, and replay concepts.
+- UI trust-boundary labels showing Rust authority and UI non-authority.
+
+### Notes
+
+- The UI does not compute promotion eligibility, mutate lifecycle state, call adapters/providers, write ledger records, emit audit records, perform replay, or provide API behavior.
+
 ## v0.0.9
 
 **Status:** Phase 11 cloud model adapter capability.
