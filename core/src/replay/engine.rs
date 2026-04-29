@@ -352,16 +352,18 @@ mod tests {
     fn promotion_before_candidate_fails() {
         let mut ledger = InMemoryLedger::new();
         ledger
-            .append(LedgerEntry::PromotionDecided(PromotionDecidedLedgerRecord {
-                promotion_decision_id: "prom-1".into(),
-                candidate_id: "cand-1".into(),
-                promotion_status: PromotionStatus::Denied,
-                from_state: CandidateLifecycleState::Passed,
-                to_state: CandidateLifecycleState::Passed,
-                required_checks_passed: true,
-                evidence_refs: vec!["ev://p1".into()],
-                denial_reasons: vec!["deny".into()],
-            }))
+            .append(LedgerEntry::PromotionDecided(
+                PromotionDecidedLedgerRecord {
+                    promotion_decision_id: "prom-1".into(),
+                    candidate_id: "cand-1".into(),
+                    promotion_status: PromotionStatus::Denied,
+                    from_state: CandidateLifecycleState::Passed,
+                    to_state: CandidateLifecycleState::Passed,
+                    required_checks_passed: true,
+                    evidence_refs: vec!["ev://p1".into()],
+                    denial_reasons: vec!["deny".into()],
+                },
+            ))
             .unwrap_err();
 
         assert_eq!(

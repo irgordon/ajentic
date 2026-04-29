@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.9
+
+**Status:** Phase 11 cloud model adapter capability.
+
+### Added
+
+- Python cloud provider adapter for OpenAI.
+- Cloud provider response parsing and error mapping.
+- Tests or documented checks showing cloud adapter output remains non-authoritative.
+
+### Notes
+
+- Cloud model output remains untrusted adapter output.
+- No governance change, promotion change, ledger persistence, replay regeneration, API behavior, or UI behavior was implemented.
+
 ## v0.0.8
 
 **Status:** Phase 10 local model adapter capability.
