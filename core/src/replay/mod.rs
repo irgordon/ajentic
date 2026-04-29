@@ -5,7 +5,12 @@
 //! or regenerate candidate output.
 
 pub mod engine;
+pub mod integrity;
 pub mod status;
 
 pub use engine::{replay_candidate, replay_status_from_ledger, ReplayResult};
+pub use integrity::{
+    ReplayCompletenessStatus, ReplayIdempotenceStatus, ReplayIntegrityStatus,
+    ReplayOrderingStabilityStatus,
+};
 pub use status::{ReplayCompletionStatus, ReplayFinalStatus, ReplayReadinessStatus};

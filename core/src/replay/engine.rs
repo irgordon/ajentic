@@ -4,6 +4,10 @@ use crate::governance::promotion::PromotionStatus;
 use crate::governance::runtime::GovernanceStatus;
 use crate::ledger::entry::LedgerEntry;
 use crate::ledger::InMemoryLedger;
+use crate::replay::integrity::{
+    ReplayCompletenessStatus, ReplayIdempotenceStatus, ReplayIntegrityStatus,
+    ReplayOrderingStabilityStatus,
+};
 use crate::replay::status::{ReplayCompletionStatus, ReplayFinalStatus, ReplayReadinessStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,6 +27,10 @@ pub struct ReplayResult {
     pub evidence_refs: Vec<String>,
     pub blocked_reasons: Vec<String>,
     pub failure_reasons: Vec<String>,
+    pub ordering_stability_status: ReplayOrderingStabilityStatus,
+    pub idempotence_status: ReplayIdempotenceStatus,
+    pub completeness_status: ReplayCompletenessStatus,
+    pub integrity_status: ReplayIntegrityStatus,
 }
 
 pub fn replay_candidate(
@@ -161,6 +169,10 @@ pub fn replay_candidate(
                 evidence_refs,
                 blocked_reasons,
                 failure_reasons,
+                ordering_stability_status: ReplayOrderingStabilityStatus::Unknown,
+                idempotence_status: ReplayIdempotenceStatus::Unknown,
+                completeness_status: ReplayCompletenessStatus::Incomplete,
+                integrity_status: ReplayIntegrityStatus::Unknown,
             });
         }
     };
@@ -213,6 +225,26 @@ pub fn replay_candidate(
         }
     }
 
+    let ordering_stability_status = classify_ordering_stability(ledger, candidate_id);
+    let completeness_status = classify_integrity_completeness(&readiness_status);
+    let integrity_status = classify_replay_integrity(
+        ledger,
+        candidate_id,
+        &evaluation_result_ids,
+        &governance_result_ids,
+        &promotion_decision_ids,
+        &evidence_refs,
+    );
+    let idempotence_status = if ordering_stability_status == ReplayOrderingStabilityStatus::Stable
+        && integrity_status == ReplayIntegrityStatus::Verified
+    {
+        ReplayIdempotenceStatus::Idempotent
+    } else if integrity_status == ReplayIntegrityStatus::Violation {
+        ReplayIdempotenceStatus::NonIdempotent
+    } else {
+        ReplayIdempotenceStatus::Unknown
+    };
+
     Ok(ReplayResult {
         candidate_id: candidate_id.to_string(),
         run_id: candidate.run_id.clone(),
@@ -229,6 +261,10 @@ pub fn replay_candidate(
         evidence_refs,
         blocked_reasons,
         failure_reasons,
+        ordering_stability_status,
+        idempotence_status,
+        completeness_status,
+        integrity_status,
     })
 }
 
@@ -282,6 +318,90 @@ fn classify_final_status(
             _ => ReplayFinalStatus::Denied,
         },
         None => ReplayFinalStatus::Unknown,
+    }
+}
+
+fn classify_ordering_stability(
+    ledger: &InMemoryLedger,
+    candidate_id: &str,
+) -> ReplayOrderingStabilityStatus {
+    let mut has_target = false;
+    let mut seen_candidate = false;
+    for entry in ledger.entries() {
+        match entry {
+            LedgerEntry::CandidateCreated(record) if record.candidate_id == candidate_id => {
+                has_target = true;
+                seen_candidate = true;
+            }
+            LedgerEntry::EvaluationRecorded(record) if record.candidate_id == candidate_id => {
+                has_target = true;
+                if !seen_candidate {
+                    return ReplayOrderingStabilityStatus::OrderDependent;
+                }
+            }
+            LedgerEntry::GovernanceReviewed(record) if record.candidate_id == candidate_id => {
+                has_target = true;
+                if !seen_candidate {
+                    return ReplayOrderingStabilityStatus::OrderDependent;
+                }
+            }
+            LedgerEntry::PromotionDecided(record) if record.candidate_id == candidate_id => {
+                has_target = true;
+                if !seen_candidate {
+                    return ReplayOrderingStabilityStatus::OrderDependent;
+                }
+            }
+            LedgerEntry::ReuseApplied(record)
+                if record.reused_candidate_id == candidate_id
+                    || record.target_candidate_id == candidate_id =>
+            {
+                has_target = true;
+                if !seen_candidate {
+                    return ReplayOrderingStabilityStatus::OrderDependent;
+                }
+            }
+            _ => {}
+        }
+    }
+    if has_target {
+        ReplayOrderingStabilityStatus::Stable
+    } else {
+        ReplayOrderingStabilityStatus::Unknown
+    }
+}
+
+fn classify_integrity_completeness(
+    readiness_status: &ReplayReadinessStatus,
+) -> ReplayCompletenessStatus {
+    if *readiness_status == ReplayReadinessStatus::Ready {
+        ReplayCompletenessStatus::Complete
+    } else {
+        ReplayCompletenessStatus::Incomplete
+    }
+}
+
+fn classify_replay_integrity(
+    ledger: &InMemoryLedger,
+    candidate_id: &str,
+    evaluation_result_ids: &[String],
+    governance_result_ids: &[String],
+    promotion_decision_ids: &[String],
+    evidence_refs: &[String],
+) -> ReplayIntegrityStatus {
+    let candidate_records = ledger.entries().iter().filter(|entry| matches!(entry, LedgerEntry::CandidateCreated(record) if record.candidate_id == candidate_id)).count();
+    if candidate_records > 1 {
+        return ReplayIntegrityStatus::Violation;
+    }
+    if !evaluation_result_ids.is_empty() && evidence_refs.is_empty() {
+        return ReplayIntegrityStatus::Violation;
+    }
+    if !promotion_decision_ids.is_empty() && governance_result_ids.is_empty() {
+        return ReplayIntegrityStatus::Violation;
+    }
+    if candidate_records == 0 {
+        ReplayIntegrityStatus::Unknown
+    } else {
+        ReplayIntegrityStatus::Verified
     }
 }
 
@@ -718,6 +838,61 @@ mod tests {
     }
 
     #[test]
+    fn replay_ordering_stability_classification_is_deterministic_for_valid_orderings() {
+        let mut ledger_one = InMemoryLedger::new();
+        ledger_one.append(created()).unwrap();
+        ledger_one.append(eval()).unwrap();
+        ledger_one.append(gov(GovernanceStatus::Pass)).unwrap();
+        ledger_one.append(denied_with_id("prom-1")).unwrap();
+
+        let mut ledger_two = InMemoryLedger::new();
+        ledger_two.append(created()).unwrap();
+        ledger_two.append(gov(GovernanceStatus::Pass)).unwrap();
+        ledger_two.append(eval()).unwrap();
+        ledger_two.append(denied_with_id("prom-1")).unwrap();
+
+        let first = replay_candidate("cand-1", &ledger_one).unwrap();
+        let second = replay_candidate("cand-1", &ledger_two).unwrap();
+
+        assert_eq!(
+            first.ordering_stability_status,
+            ReplayOrderingStabilityStatus::Stable
+        );
+        assert_eq!(
+            first.ordering_stability_status,
+            second.ordering_stability_status
+        );
+    }
+
+    #[test]
+    fn replay_completeness_is_incomplete_when_required_facts_are_missing() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+
+        let result = replay_candidate("cand-1", &ledger).unwrap();
+
+        assert_eq!(
+            result.completeness_status,
+            ReplayCompletenessStatus::Incomplete
+        );
+    }
+
+    #[test]
+    fn replay_integrity_violation_detected_for_conflicting_candidate_records() {
+        let mut ledger = InMemoryLedger::new();
+        ledger
+            .entries_mut_for_tests()
+            .push(created_with_id("cand-1"));
+        ledger
+            .entries_mut_for_tests()
+            .push(created_with_id("cand-1"));
+
+        let result = replay_candidate("cand-1", &ledger).unwrap();
+
+        assert_eq!(result.integrity_status, ReplayIntegrityStatus::Violation);
+    }
+
+    #[test]
     fn replay_output_is_deterministic_for_identical_input() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created()).unwrap();
@@ -729,5 +904,18 @@ mod tests {
         let second = replay_candidate("cand-1", &ledger).unwrap();
 
         assert_eq!(first, second);
+    }
+    #[test]
+    fn replay_debug_output_is_byte_equivalent_for_identical_input() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
+        ledger.append(gov(GovernanceStatus::Blocked)).unwrap();
+        ledger.append(denied_with_id("prom-1")).unwrap();
+
+        let first = format!("{:?}", replay_candidate("cand-1", &ledger).unwrap());
+        let second = format!("{:?}", replay_candidate("cand-1", &ledger).unwrap());
+
+        assert_eq!(first.as_bytes(), second.as_bytes());
     }
 }
