@@ -39,7 +39,10 @@ impl fmt::Display for CandidateCreationError {
         match self {
             Self::AdapterResponseInvalid(error) => write!(f, "adapter response invalid: {error}"),
             Self::AdapterStatusNotCompleted { status } => {
-                write!(f, "adapter status must be Completed for candidate creation, found: {status:?}")
+                write!(
+                    f,
+                    "adapter status must be Completed for candidate creation, found: {status:?}"
+                )
             }
             Self::MissingRunId => write!(f, "run_id is required"),
             Self::MissingDomainId => write!(f, "domain_id is required"),
@@ -50,7 +53,10 @@ impl fmt::Display for CandidateCreationError {
             Self::MissingRawOutputRef => write!(f, "raw_output_ref is required"),
             Self::MissingStructuredOutputRef => write!(f, "structured_output_ref is required"),
             Self::EmptyOutputText => write!(f, "output_text is empty"),
-            Self::InvalidCandidateIdInput { run_id, candidate_request_id } => write!(
+            Self::InvalidCandidateIdInput {
+                run_id,
+                candidate_request_id,
+            } => write!(
                 f,
                 "candidate id input is invalid: run_id='{run_id}', candidate_request_id='{candidate_request_id}'"
             ),
@@ -78,7 +84,9 @@ impl fmt::Display for EvaluationIngestionError {
         match self {
             Self::MissingCandidateId => write!(f, "candidate id is required"),
             Self::MissingResultId => write!(f, "evaluation result id is required"),
-            Self::MissingResultCandidateId => write!(f, "evaluation result candidate_solution_id is required"),
+            Self::MissingResultCandidateId => {
+                write!(f, "evaluation result candidate_solution_id is required")
+            }
             Self::CandidateIdMismatch { expected, found } => write!(
                 f,
                 "evaluation result candidate id mismatch: expected '{expected}', found '{found}'"
@@ -262,6 +270,8 @@ pub enum DomainValidationError {
     EmptyConstraintType,
     EmptyEvaluatorId,
     EmptyEvidenceRequirement,
+    EmptyKnownFailureMode,
+    EmptyPromotionThreshold,
     DuplicateObjectiveType {
         objective_type: String,
     },
@@ -279,6 +289,12 @@ pub enum DomainValidationError {
     },
     DuplicateEvidenceRequirement {
         evidence_requirement: String,
+    },
+    DuplicateKnownFailureMode {
+        known_failure_mode: String,
+    },
+    DuplicatePromotionThreshold {
+        promotion_threshold: String,
     },
     UnsupportedObjectiveType {
         domain_id: String,
