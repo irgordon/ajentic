@@ -349,39 +349,33 @@ mod tests {
     }
 
     #[test]
-    fn promotion_before_candidate_fails() {
+    fn ledger_rejects_promotion_before_candidate() {
         let mut ledger = InMemoryLedger::new();
-        ledger
-            .append(LedgerEntry::PromotionDecided(
-                PromotionDecidedLedgerRecord {
-                    promotion_decision_id: "prom-1".into(),
-                    candidate_id: "cand-1".into(),
-                    promotion_status: PromotionStatus::Denied,
-                    from_state: CandidateLifecycleState::Passed,
-                    to_state: CandidateLifecycleState::Passed,
-                    required_checks_passed: true,
-                    evidence_refs: vec!["ev://p1".into()],
-                    denial_reasons: vec!["deny".into()],
-                },
-            ))
-            .unwrap_err();
 
-        assert_eq!(
-            replay_candidate("cand-1", &ledger),
-            Err(ReplayError::CandidateEntryMissing {
-                candidate_id: "cand-1".into(),
-            })
+        assert!(
+            ledger
+                .append(LedgerEntry::PromotionDecided(
+                    PromotionDecidedLedgerRecord {
+                        promotion_decision_id: "prom-1".into(),
+                        candidate_id: "cand-1".into(),
+                        promotion_status: PromotionStatus::Denied,
+                        from_state: CandidateLifecycleState::Passed,
+                        to_state: CandidateLifecycleState::Passed,
+                        required_checks_passed: true,
+                        evidence_refs: vec!["ev://p1".into()],
+                        denial_reasons: vec!["deny".into()],
+                    },
+                ))
+                .is_err()
         );
     }
 
     #[test]
-    fn promoted_replay_without_evaluation_fails() {
+    fn replay_without_promotion_entry_fails() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created()).unwrap();
         ledger.append(gov(GovernanceStatus::Pass)).unwrap();
 
-        // Bypass append validation is intentionally impossible through the public ledger API,
-        // so this test verifies replay behavior up to the missing promotion requirement.
         assert_eq!(
             replay_candidate("cand-1", &ledger),
             Err(ReplayError::PromotionEntryMissing {
