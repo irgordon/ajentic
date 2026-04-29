@@ -249,3 +249,19 @@ pub enum AuditError {
     MissingConstraintsId { candidate_id: String },
     MissingDomainId { candidate_id: String },
 }
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ReplayError {
+    MissingCandidateId,
+    CandidateEntryMissing { candidate_id: String },
+    EvaluationEntryMissing { candidate_id: String },
+    GovernanceEntryMissing { candidate_id: String },
+    PromotionEntryMissing { candidate_id: String },
+    MissingRunId { candidate_id: String },
+    MissingObjectiveId { candidate_id: String },
+    MissingConstraintsId { candidate_id: String },
+    MissingDomainId { candidate_id: String },
+    MissingEvidence { candidate_id: String },
+    InvalidEntryOrder { candidate_id: String },
+    UnsupportedPromotion { candidate_id: String },
+}
