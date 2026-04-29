@@ -1,4 +1,6 @@
 //! Phase 7 governance review input surface.
+//! This type is a data carrier only.
+//! Validation and promotion authority live in governance runtime and promotion modules.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GovernanceReviewInput {
