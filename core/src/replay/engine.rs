@@ -134,23 +134,13 @@ pub fn replay_candidate(
         }
     }
 
-    let readiness_status = if candidate.is_none() {
-        ReplayReadinessStatus::MissingCandidate
-    } else if evaluation_result_ids.is_empty() {
-        ReplayReadinessStatus::MissingEvaluation
-    } else if governance_result_ids.is_empty() {
-        ReplayReadinessStatus::MissingGovernance
-    } else if promotion_decision_ids.is_empty() {
-        ReplayReadinessStatus::MissingPromotion
-    } else {
-        ReplayReadinessStatus::Ready
-    };
-
-    let completion_status = if readiness_status == ReplayReadinessStatus::Ready {
-        ReplayCompletionStatus::Complete
-    } else {
-        ReplayCompletionStatus::Incomplete
-    };
+    let readiness_status = classify_readiness(
+        candidate.is_some(),
+        !evaluation_result_ids.is_empty(),
+        !governance_result_ids.is_empty(),
+        !promotion_decision_ids.is_empty(),
+    );
+    let completion_status = classify_completion(&readiness_status);
 
     let candidate = match candidate {
         Some(candidate) => candidate,
@@ -171,7 +161,7 @@ pub fn replay_candidate(
                 evidence_refs,
                 blocked_reasons,
                 failure_reasons,
-            })
+            });
         }
     };
 
@@ -195,19 +185,10 @@ pub fn replay_candidate(
             candidate_id: candidate_id.to_string(),
         });
     }
-    // Phase 9 promotion decisions do not carry an explicit governance-result reference.
-    // Denied replay status is therefore mapped from the last governance status available
-    // for this candidate in the ledger.
-    let final_status = match last_promotion_status {
-        Some(PromotionStatus::Approved) => ReplayFinalStatus::PromotedTier1,
-        Some(PromotionStatus::Denied) => match last_governance_status {
-            Some(GovernanceStatus::Fail) => ReplayFinalStatus::Failed,
-            Some(GovernanceStatus::Blocked) => ReplayFinalStatus::Blocked,
-            Some(GovernanceStatus::Unknown) => ReplayFinalStatus::Unknown,
-            _ => ReplayFinalStatus::Denied,
-        },
-        None => ReplayFinalStatus::Unknown,
-    };
+
+    // Final status is a projection of ledger facts only. It must not infer promotion
+    // eligibility or recompute governance from other replay data.
+    let final_status = classify_final_status(&last_promotion_status, &last_governance_status);
 
     if final_status == ReplayFinalStatus::PromotedTier1 {
         if evaluation_result_ids.is_empty() {
@@ -256,6 +237,52 @@ pub fn replay_status_from_ledger(
     ledger: &InMemoryLedger,
 ) -> Result<ReplayFinalStatus, ReplayError> {
     replay_candidate(candidate_id, ledger).map(|result| result.final_status)
+}
+
+fn classify_readiness(
+    has_candidate: bool,
+    has_evaluation: bool,
+    has_governance: bool,
+    has_promotion: bool,
+) -> ReplayReadinessStatus {
+    if !has_candidate {
+        return ReplayReadinessStatus::MissingCandidate;
+    }
+    if !has_evaluation {
+        return ReplayReadinessStatus::MissingEvaluation;
+    }
+    if !has_governance {
+        return ReplayReadinessStatus::MissingGovernance;
+    }
+    if !has_promotion {
+        return ReplayReadinessStatus::MissingPromotion;
+    }
+
+    ReplayReadinessStatus::Ready
+}
+
+fn classify_completion(readiness_status: &ReplayReadinessStatus) -> ReplayCompletionStatus {
+    if *readiness_status == ReplayReadinessStatus::Ready {
+        ReplayCompletionStatus::Complete
+    } else {
+        ReplayCompletionStatus::Incomplete
+    }
+}
+
+fn classify_final_status(
+    last_promotion_status: &Option<PromotionStatus>,
+    last_governance_status: &Option<GovernanceStatus>,
+) -> ReplayFinalStatus {
+    match last_promotion_status {
+        Some(PromotionStatus::Approved) => ReplayFinalStatus::PromotedTier1,
+        Some(PromotionStatus::Denied) => match last_governance_status {
+            Some(GovernanceStatus::Fail) => ReplayFinalStatus::Failed,
+            Some(GovernanceStatus::Blocked) => ReplayFinalStatus::Blocked,
+            Some(GovernanceStatus::Unknown) => ReplayFinalStatus::Unknown,
+            _ => ReplayFinalStatus::Denied,
+        },
+        None => ReplayFinalStatus::Unknown,
+    }
 }
 
 #[cfg(test)]
@@ -387,6 +414,8 @@ mod tests {
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
 
+        assert_eq!(result.readiness_status, ReplayReadinessStatus::Ready);
+        assert_eq!(result.completion_status, ReplayCompletionStatus::Complete);
         assert_eq!(result.final_status, ReplayFinalStatus::PromotedTier1);
         assert_eq!(result.run_id, "run-1");
         assert_eq!(result.objective_id, "obj-1");
@@ -408,6 +437,8 @@ mod tests {
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
 
+        assert_eq!(result.readiness_status, ReplayReadinessStatus::Ready);
+        assert_eq!(result.completion_status, ReplayCompletionStatus::Complete);
         assert_eq!(result.final_status, ReplayFinalStatus::Blocked);
         assert_eq!(result.promotion_decision_ids, vec!["prom-1"]);
     }
@@ -478,6 +509,7 @@ mod tests {
         let ledger = InMemoryLedger::new();
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
+
         assert_eq!(
             result.readiness_status,
             ReplayReadinessStatus::MissingCandidate
@@ -507,6 +539,20 @@ mod tests {
     }
 
     #[test]
+    fn invalid_entry_order_fails_closed() {
+        let mut ledger = InMemoryLedger::new();
+
+        ledger.entries_mut_for_tests().push(eval());
+
+        assert_eq!(
+            replay_candidate("cand-1", &ledger),
+            Err(ReplayError::InvalidEntryOrder {
+                candidate_id: "cand-1".into(),
+            })
+        );
+    }
+
+    #[test]
     fn replay_without_promotion_entry_is_incomplete() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created()).unwrap();
@@ -514,6 +560,7 @@ mod tests {
         ledger.append(gov(GovernanceStatus::Pass)).unwrap();
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
+
         assert_eq!(
             result.readiness_status,
             ReplayReadinessStatus::MissingPromotion
@@ -656,6 +703,16 @@ mod tests {
             result.readiness_status,
             ReplayReadinessStatus::MissingGovernance
         );
+
+        let mut missing_promotion = InMemoryLedger::new();
+        missing_promotion.append(created()).unwrap();
+        missing_promotion.append(eval()).unwrap();
+        missing_promotion.append(gov(GovernanceStatus::Pass)).unwrap();
+        let result = replay_candidate("cand-1", &missing_promotion).unwrap();
+        assert_eq!(
+            result.readiness_status,
+            ReplayReadinessStatus::MissingPromotion
+        );
     }
 
     #[test]
@@ -668,6 +725,7 @@ mod tests {
 
         let first = replay_candidate("cand-1", &ledger).unwrap();
         let second = replay_candidate("cand-1", &ledger).unwrap();
+
         assert_eq!(first, second);
     }
 }
