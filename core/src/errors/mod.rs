@@ -338,3 +338,4 @@ pub enum ReuseError {
     MissingObjectiveType,
     InvalidConstraintCriteria,
 }
+
