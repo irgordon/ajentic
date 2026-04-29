@@ -36,11 +36,14 @@ REQUIRED_KEYS = (
 
 def parse_request(raw: str) -> dict[str, str]:
     values: dict[str, str] = {}
+
     for line in raw.splitlines():
         if not line:
             continue
+
         if "=" not in line:
             raise ValueError("malformed line")
+
         key, value = line.split("=", 1)
         values[key] = value
 
@@ -51,7 +54,16 @@ def parse_request(raw: str) -> dict[str, str]:
     return values
 
 
-def _build_response(request: dict[str, str], status: str, output_text: str, errors: list[str]) -> str:
+def _line_value(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r")
+
+
+def _build_response(
+    request: dict[str, str],
+    status: str,
+    output_text: str,
+    errors: list[str],
+) -> str:
     lines = [
         f"protocol_version={request['protocol_version']}",
         f"adapter_name={ADAPTER_NAME}",
@@ -61,10 +73,12 @@ def _build_response(request: dict[str, str], status: str, output_text: str, erro
         f"status={status}",
         f"raw_output_ref=ollama://raw/{request['run_id']}",
         f"structured_output_ref=ollama://structured/{request['run_id']}",
-        f"output_text={output_text}",
+        f"output_text={_line_value(output_text)}",
     ]
+
     for error in errors:
-        lines.append(f"error={error}")
+        lines.append(f"error={_line_value(error)}")
+
     return "\n".join(lines)
 
 
@@ -76,7 +90,41 @@ def _provider_model(request: dict[str, str]) -> str:
     return os.environ.get("AJENTIC_OLLAMA_MODEL") or request["model"]
 
 
-def call_ollama(request: dict[str, str], timeout_seconds: float | None = None) -> tuple[str, list[str], str]:
+def _request_timeout_seconds(request: dict[str, str]) -> float:
+    try:
+        timeout_ms = int(request["timeout_ms"])
+    except ValueError:
+        return DEFAULT_TIMEOUT_SECONDS
+
+    if timeout_ms <= 0:
+        return DEFAULT_TIMEOUT_SECONDS
+
+    return timeout_ms / 1000
+
+
+def _request_max_output_bytes(request: dict[str, str]) -> int | None:
+    try:
+        max_output_bytes = int(request["max_output_bytes"])
+    except ValueError:
+        return None
+
+    if max_output_bytes <= 0:
+        return None
+
+    return max_output_bytes
+
+
+def _output_exceeds_limit(output_text: str, max_output_bytes: int | None) -> bool:
+    if max_output_bytes is None:
+        return False
+
+    return len(output_text.encode("utf-8")) > max_output_bytes
+
+
+def call_ollama(
+    request: dict[str, str],
+    timeout_seconds: float | None = None,
+) -> tuple[str, str, list[str]]:
     model = _provider_model(request).strip()
     if not model:
         return "FAILED", "", ["provider configuration error: missing ollama model"]
@@ -95,7 +143,11 @@ def call_ollama(request: dict[str, str], timeout_seconds: float | None = None) -
         method="POST",
     )
 
-    timeout = timeout_seconds if timeout_seconds is not None else DEFAULT_TIMEOUT_SECONDS
+    timeout = (
+        timeout_seconds
+        if timeout_seconds is not None
+        else _request_timeout_seconds(request)
+    )
 
     try:
         with urllib.request.urlopen(http_request, timeout=timeout) as response:
@@ -125,12 +177,16 @@ def call_ollama(request: dict[str, str], timeout_seconds: float | None = None) -
     if not text.strip():
         return "FAILED", "", ["provider response invalid: empty generated text"]
 
+    if _output_exceeds_limit(text, _request_max_output_bytes(request)):
+        return "FAILED", "", ["provider response invalid: output exceeds max_output_bytes"]
+
     return "COMPLETED", text, []
 
 
 def run(raw_request: str) -> str:
     request = parse_request(raw_request)
     status, output_text, errors = call_ollama(request)
+
     return _build_response(request, status, output_text, errors)
 
 
@@ -143,6 +199,7 @@ def main() -> int:
 
     sys.stdout.write(response)
     sys.stdout.write("\n")
+
     return 0
 
 
