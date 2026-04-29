@@ -44,6 +44,28 @@ mod tests {
             domain_id: "dom-1".into(),
         })
     }
+
+    fn created_with_id(candidate_id: &str) -> LedgerEntry {
+        LedgerEntry::CandidateCreated(CandidateCreatedLedgerRecord {
+            candidate_id: candidate_id.into(),
+            run_id: "run-1".into(),
+            objective_id: "obj-1".into(),
+            constraints_id: "con-1".into(),
+            domain_id: "dom-1".into(),
+        })
+    }
+
+    fn reuse_with_ids(source_candidate_id: &str, target_candidate_id: &str) -> LedgerEntry {
+        LedgerEntry::ReuseApplied(ReuseAppliedLedgerRecord {
+            reuse_event_id: "reuse-1".into(),
+            reused_candidate_id: source_candidate_id.into(),
+            target_candidate_id: target_candidate_id.into(),
+            reuse_reason: "same objective type".into(),
+            triggering_actor: "owner".into(),
+            timestamp_reference: "manual-ref-1".into(),
+        })
+    }
+
     fn eval() -> LedgerEntry {
         LedgerEntry::EvaluationRecorded(EvaluationRecordedLedgerRecord {
             evaluation_result_id: "eval-1".into(),
@@ -88,6 +110,32 @@ mod tests {
             Err(LedgerAppendError::CandidateEntryMissing { .. })
         ));
     }
+    #[test]
+    fn rejects_reuse_when_source_candidate_is_missing() {
+        let mut l = InMemoryLedger::new();
+        l.append(created_with_id("cand-2")).unwrap();
+
+        assert_eq!(
+            l.append(reuse_with_ids("cand-1", "cand-2")),
+            Err(LedgerAppendError::ReuseSourceCandidateEntryMissing {
+                candidate_id: "cand-1".into(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_reuse_when_target_candidate_is_missing() {
+        let mut l = InMemoryLedger::new();
+        l.append(created_with_id("cand-1")).unwrap();
+
+        assert_eq!(
+            l.append(reuse_with_ids("cand-1", "cand-2")),
+            Err(LedgerAppendError::ReuseTargetCandidateEntryMissing {
+                candidate_id: "cand-2".into(),
+            })
+        );
+    }
+
     #[test]
     fn approves_only_after_eval_and_pass_governance() {
         let mut l = InMemoryLedger::new();

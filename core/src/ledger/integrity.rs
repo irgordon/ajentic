@@ -175,8 +175,8 @@ fn governance_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
 }
 
 fn passing_governance_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
-    existing.iter().any(
-        |entry| matches!(entry, LedgerEntry::GovernanceReviewed(record)
-            if record.candidate_id == candidate_id && record.status == GovernanceStatus::Pass),
-    )
+    existing.iter().any(|entry| {
+        matches!(entry, LedgerEntry::GovernanceReviewed(record)
+            if record.candidate_id == candidate_id && record.status == GovernanceStatus::Pass)
+    })
 }

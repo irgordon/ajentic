@@ -406,7 +406,7 @@ mod tests {
     }
 
     #[test]
-    fn reuse_event_replays_for_source_candidate_without_changing_status() {
+    fn reuse_event_replays_for_source_and_target_candidates_without_affecting_status_or_facts() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created_with_id("cand-1")).unwrap();
         ledger.append(eval_for("cand-1", "eval-1")).unwrap();
@@ -414,31 +414,31 @@ mod tests {
             .append(gov_for("cand-1", "gov-1", GovernanceStatus::Unknown))
             .unwrap();
         ledger.append(denied_for("cand-1", "prom-1")).unwrap();
-        ledger.append(created_with_id("cand-2")).unwrap();
-        ledger.append(reuse()).unwrap();
 
-        let result = replay_candidate("cand-1", &ledger).unwrap();
-
-        assert_eq!(result.reuse_event_ids, vec!["reuse-1"]);
-        assert_eq!(result.final_status, ReplayFinalStatus::Unknown);
-    }
-
-    #[test]
-    fn reuse_event_replays_for_target_candidate_without_changing_status() {
-        let mut ledger = InMemoryLedger::new();
-        ledger.append(created_with_id("cand-1")).unwrap();
         ledger.append(created_with_id("cand-2")).unwrap();
         ledger.append(eval_for("cand-2", "eval-2")).unwrap();
         ledger
             .append(gov_for("cand-2", "gov-2", GovernanceStatus::Blocked))
             .unwrap();
         ledger.append(denied_for("cand-2", "prom-2")).unwrap();
+
         ledger.append(reuse()).unwrap();
 
-        let result = replay_candidate("cand-2", &ledger).unwrap();
+        let source_result = replay_candidate("cand-1", &ledger).unwrap();
+        let target_result = replay_candidate("cand-2", &ledger).unwrap();
 
-        assert_eq!(result.reuse_event_ids, vec!["reuse-1"]);
-        assert_eq!(result.final_status, ReplayFinalStatus::Blocked);
+        assert_eq!(source_result.reuse_event_ids, vec!["reuse-1"]);
+        assert_eq!(target_result.reuse_event_ids, vec!["reuse-1"]);
+
+        assert_eq!(source_result.final_status, ReplayFinalStatus::Unknown);
+        assert_eq!(target_result.final_status, ReplayFinalStatus::Blocked);
+
+        assert_eq!(source_result.evaluation_result_ids, vec!["eval-1"]);
+        assert_eq!(target_result.evaluation_result_ids, vec!["eval-2"]);
+        assert_eq!(source_result.governance_result_ids, vec!["gov-1"]);
+        assert_eq!(target_result.governance_result_ids, vec!["gov-2"]);
+        assert_eq!(source_result.promotion_decision_ids, vec!["prom-1"]);
+        assert_eq!(target_result.promotion_decision_ids, vec!["prom-2"]);
     }
 
     #[test]
