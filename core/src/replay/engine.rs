@@ -4,15 +4,7 @@ use crate::governance::promotion::PromotionStatus;
 use crate::governance::runtime::GovernanceStatus;
 use crate::ledger::entry::LedgerEntry;
 use crate::ledger::InMemoryLedger;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ReplayFinalStatus {
-    Promoted,
-    Denied,
-    Failed,
-    Blocked,
-    Unknown,
-}
+use crate::replay::status::{ReplayCompletionStatus, ReplayFinalStatus, ReplayReadinessStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReplayResult {
@@ -25,6 +17,8 @@ pub struct ReplayResult {
     pub governance_result_ids: Vec<String>,
     pub promotion_decision_ids: Vec<String>,
     pub reuse_event_ids: Vec<String>,
+    pub readiness_status: ReplayReadinessStatus,
+    pub completion_status: ReplayCompletionStatus,
     pub final_status: ReplayFinalStatus,
     pub evidence_refs: Vec<String>,
     pub blocked_reasons: Vec<String>,
@@ -140,9 +134,46 @@ pub fn replay_candidate(
         }
     }
 
-    let candidate = candidate.ok_or_else(|| ReplayError::CandidateEntryMissing {
-        candidate_id: candidate_id.to_string(),
-    })?;
+    let readiness_status = if candidate.is_none() {
+        ReplayReadinessStatus::MissingCandidate
+    } else if evaluation_result_ids.is_empty() {
+        ReplayReadinessStatus::MissingEvaluation
+    } else if governance_result_ids.is_empty() {
+        ReplayReadinessStatus::MissingGovernance
+    } else if promotion_decision_ids.is_empty() {
+        ReplayReadinessStatus::MissingPromotion
+    } else {
+        ReplayReadinessStatus::Ready
+    };
+
+    let completion_status = if readiness_status == ReplayReadinessStatus::Ready {
+        ReplayCompletionStatus::Complete
+    } else {
+        ReplayCompletionStatus::Incomplete
+    };
+
+    let candidate = match candidate {
+        Some(candidate) => candidate,
+        None => {
+            return Ok(ReplayResult {
+                candidate_id: candidate_id.to_string(),
+                run_id: String::new(),
+                objective_id: String::new(),
+                constraints_id: String::new(),
+                domain_id: String::new(),
+                evaluation_result_ids,
+                governance_result_ids,
+                promotion_decision_ids,
+                reuse_event_ids,
+                readiness_status,
+                completion_status,
+                final_status: ReplayFinalStatus::Unknown,
+                evidence_refs,
+                blocked_reasons,
+                failure_reasons,
+            })
+        }
+    };
 
     if candidate.run_id.is_empty() {
         return Err(ReplayError::MissingRunId {
@@ -164,22 +195,11 @@ pub fn replay_candidate(
             candidate_id: candidate_id.to_string(),
         });
     }
-    if governance_result_ids.is_empty() {
-        return Err(ReplayError::GovernanceEntryMissing {
-            candidate_id: candidate_id.to_string(),
-        });
-    }
-    if promotion_decision_ids.is_empty() {
-        return Err(ReplayError::PromotionEntryMissing {
-            candidate_id: candidate_id.to_string(),
-        });
-    }
-
     // Phase 9 promotion decisions do not carry an explicit governance-result reference.
     // Denied replay status is therefore mapped from the last governance status available
     // for this candidate in the ledger.
     let final_status = match last_promotion_status {
-        Some(PromotionStatus::Approved) => ReplayFinalStatus::Promoted,
+        Some(PromotionStatus::Approved) => ReplayFinalStatus::PromotedTier1,
         Some(PromotionStatus::Denied) => match last_governance_status {
             Some(GovernanceStatus::Fail) => ReplayFinalStatus::Failed,
             Some(GovernanceStatus::Blocked) => ReplayFinalStatus::Blocked,
@@ -189,7 +209,7 @@ pub fn replay_candidate(
         None => ReplayFinalStatus::Unknown,
     };
 
-    if final_status == ReplayFinalStatus::Promoted {
+    if final_status == ReplayFinalStatus::PromotedTier1 {
         if evaluation_result_ids.is_empty() {
             return Err(ReplayError::EvaluationEntryMissing {
                 candidate_id: candidate_id.to_string(),
@@ -222,6 +242,8 @@ pub fn replay_candidate(
         governance_result_ids,
         promotion_decision_ids,
         reuse_event_ids,
+        readiness_status,
+        completion_status,
         final_status,
         evidence_refs,
         blocked_reasons,
@@ -365,7 +387,7 @@ mod tests {
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
 
-        assert_eq!(result.final_status, ReplayFinalStatus::Promoted);
+        assert_eq!(result.final_status, ReplayFinalStatus::PromotedTier1);
         assert_eq!(result.run_id, "run-1");
         assert_eq!(result.objective_id, "obj-1");
         assert_eq!(result.constraints_id, "con-1");
@@ -401,7 +423,7 @@ mod tests {
 
         let result = replay_candidate("cand-1", &ledger).unwrap();
 
-        assert_eq!(result.final_status, ReplayFinalStatus::Promoted);
+        assert_eq!(result.final_status, ReplayFinalStatus::PromotedTier1);
         assert_eq!(result.promotion_decision_ids, vec!["prom-1", "prom-2"]);
     }
 
@@ -452,15 +474,16 @@ mod tests {
     }
 
     #[test]
-    fn missing_candidate_entry_fails() {
+    fn missing_candidate_entry_is_classified_not_ready() {
         let ledger = InMemoryLedger::new();
 
+        let result = replay_candidate("cand-1", &ledger).unwrap();
         assert_eq!(
-            replay_candidate("cand-1", &ledger),
-            Err(ReplayError::CandidateEntryMissing {
-                candidate_id: "cand-1".into(),
-            })
+            result.readiness_status,
+            ReplayReadinessStatus::MissingCandidate
         );
+        assert_eq!(result.completion_status, ReplayCompletionStatus::Incomplete);
+        assert_eq!(result.final_status, ReplayFinalStatus::Unknown);
     }
 
     #[test]
@@ -484,17 +507,18 @@ mod tests {
     }
 
     #[test]
-    fn replay_without_promotion_entry_fails() {
+    fn replay_without_promotion_entry_is_incomplete() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
         ledger.append(gov(GovernanceStatus::Pass)).unwrap();
 
+        let result = replay_candidate("cand-1", &ledger).unwrap();
         assert_eq!(
-            replay_candidate("cand-1", &ledger),
-            Err(ReplayError::PromotionEntryMissing {
-                candidate_id: "cand-1".into(),
-            })
+            result.readiness_status,
+            ReplayReadinessStatus::MissingPromotion
         );
+        assert_eq!(result.completion_status, ReplayCompletionStatus::Incomplete);
     }
 
     #[test]
@@ -598,5 +622,52 @@ mod tests {
         });
 
         assert!(ledger.append(entry).is_err());
+    }
+
+    #[test]
+    fn replay_readiness_is_deterministic() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
+        ledger.append(gov(GovernanceStatus::Pass)).unwrap();
+
+        let first = replay_candidate("cand-1", &ledger).unwrap();
+        let second = replay_candidate("cand-1", &ledger).unwrap();
+
+        assert_eq!(first.readiness_status, second.readiness_status);
+        assert_eq!(first.completion_status, second.completion_status);
+    }
+
+    #[test]
+    fn replay_missing_fact_states_are_classified_not_ready() {
+        let mut missing_evaluation = InMemoryLedger::new();
+        missing_evaluation.append(created()).unwrap();
+        let result = replay_candidate("cand-1", &missing_evaluation).unwrap();
+        assert_eq!(
+            result.readiness_status,
+            ReplayReadinessStatus::MissingEvaluation
+        );
+
+        let mut missing_governance = InMemoryLedger::new();
+        missing_governance.append(created()).unwrap();
+        missing_governance.append(eval()).unwrap();
+        let result = replay_candidate("cand-1", &missing_governance).unwrap();
+        assert_eq!(
+            result.readiness_status,
+            ReplayReadinessStatus::MissingGovernance
+        );
+    }
+
+    #[test]
+    fn replay_output_is_deterministic_for_identical_input() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
+        ledger.append(gov(GovernanceStatus::Blocked)).unwrap();
+        ledger.append(denied_with_id("prom-1")).unwrap();
+
+        let first = replay_candidate("cand-1", &ledger).unwrap();
+        let second = replay_candidate("cand-1", &ledger).unwrap();
+        assert_eq!(first, second);
     }
 }
