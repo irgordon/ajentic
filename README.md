@@ -14,6 +14,9 @@
 ![Open Source](https://img.shields.io/badge/Open%20Source-🌐-blue)
 ![Agentic Coding](https://img.shields.io/badge/Agentic%20Coding-⚡-purple)
 
+<!-- Website Button -->
+[![Website](https://img.shields.io/badge/Website-ajentic.dev-0A0A0A?logo=google-chrome&logoColor=white)](https://www.ajentic.dev)
+
 </div>
 
 ---
@@ -23,9 +26,15 @@ Instead of guessing what a model might do, AJENTIC gives you a simple, guided wa
 
 It’s built for development teams that want the benefits of AI without the chaos: clean workflows, clear guardrails, and confidence that nothing moves forward unless you say so.
 
+**Current status:** Alpha Pre-Release
 
+This repository is under active development. Capabilities may expand, but authority boundaries and governance rules remain stable.
 
-**Current status:** Pre-Release Active Development
+The README describes what the project is and how to begin using it.  
+Implementation history, capability progression, and release decisions are recorded in the CHANGELOG.  
+System rules and decision authority are defined in the governance and specification documents.
+
+---
 
 ## Language ownership
 
@@ -51,7 +60,6 @@ Only Rust may own lifecycle, governance, ledger, replay, audit, and promotion de
 
 ---
 
-
 ## First run
 
 ```sh
@@ -62,16 +70,25 @@ cargo run -p ajentic-cli -- validate examples/minimal_run
 cargo run -p ajentic-cli -- inspect examples/minimal_run
 ````
 
-The current CLI validation surface performs static run-directory checks only. It checks required file presence, non-empty content, and expected plain-text markers. It does not parse YAML, validate schemas, evaluate candidates, apply governance, or approve promotion.
+The CLI validation surface performs deterministic structural and protocol validation of run inputs and adapter responses.
+It verifies required files, validates adapter responses, and enforces contract boundaries.
+It does not perform governance approval or promotion decisions.
 
-Before any phases begin, refer to the documentation and roadmap status should remain aligned with the actual repository state. Promotion logic must have one authoritative home in Rust governance code. It must not be duplicated in candidate lifecycle, evaluation ingestion, Python adapters, TypeScript UI, Bash scripts, or CLI convenience paths.
+System behavior, approval authority, and promotion rules are defined in governance code and supporting documentation.
+When behavior questions arise, refer to the governance documents and the CHANGELOG.
+
+---
 
 ## Documentation
 
-* [docs/SPEC.md](docs/SPEC.md) — System specification
-* [docs/GOVERNANCE.md](docs/GOVERNANCE.md) — Governance rules
-* [docs/ROADMAP.md](docs/ROADMAP.md) — Phased implementation plan
-* [CHANGELOG.md](CHANGELOG.md) — Version and phase history
-* [CONTRIBUTING.md](CONTRIBUTING.md) — Contributor guide
-* [AGENTS.md](AGENTS.md) — LLM coding agent guide
-* [docs/](docs/) — Architecture and protocol documentation
+The documents below define the authoritative system rules and implementation history.
+
+* [docs/SPEC.md](docs/SPEC.md) — System specification and architectural boundaries
+* [docs/GOVERNANCE.md](docs/GOVERNANCE.md) — Governance and decision authority rules
+* [docs/ROADMAP.md](docs/ROADMAP.md) — Planned capability progression
+* [CHANGELOG.md](CHANGELOG.md) — Authoritative implementation and release history
+* [CONTRIBUTING.md](CONTRIBUTING.md) — Contributor workflow and expectations
+* [AGENTS.md](AGENTS.md) — LLM coding agent guidance
+* [docs/](docs/) — Supporting architecture and protocol documentation
+
+When documentation appears inconsistent, the CHANGELOG and governance documents take precedence.
