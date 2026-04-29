@@ -15,6 +15,7 @@
 ![Agentic Coding](https://img.shields.io/badge/Agentic%20Coding-⚡-purple)
 
 </div>
+
 ---
 
 AJENTIC helps you work with AI in a way that feels clear, predictable, and fully under your control.  
