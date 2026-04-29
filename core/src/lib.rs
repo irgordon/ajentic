@@ -1,6 +1,7 @@
 //! AJENTIC core library.
 //!
-//! v0.0.0 skeleton. No runtime behavior is implemented.
+//! Ledger, audit emission, replay, real provider adapters, and UI behavior
+//! are reserved for later phases.
 
 pub mod audit;
 pub mod candidate;
