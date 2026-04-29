@@ -21,3 +21,15 @@ Current repository status: Phase 6 complete pending Owner acceptance and documen
 - [ ] Confirm any evaluation wording distinguishes result ingestion and required evaluator satisfaction from governance approval or promotion eligibility.
 - [ ] Confirm any lifecycle wording distinguishes `PromotedTier1` as a lifecycle state shape from governance authorization.
 - [ ] Confirm any adapter wording distinguishes deterministic mock adapter output from real provider integration or trusted candidate output.
+
+## Owner review tasks for Phase 9
+
+- [ ] Confirm Phase 9 replay status.
+- [ ] Confirm replay is Rust-owned.
+- [ ] Confirm replay reconstructs from ledger facts only.
+- [ ] Confirm replay does not call adapters or providers.
+- [ ] Confirm replay does not regenerate candidate output.
+- [ ] Confirm replay does not implement persistence.
+- [ ] Confirm Phase 10 provider adapters are not started.
+- [ ] Confirm no UI, API, or file IO behavior was added.
+- [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.

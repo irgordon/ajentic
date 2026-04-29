@@ -1,6 +1,7 @@
 //! Replay module.
 //!
-//! Replay reconstructs harness state from ledger records. Replay logic
-//! belongs exclusively to Rust core.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 9 implements Rust-owned replay from ledger facts.
+
+pub mod engine;
+
+pub use engine::{replay_candidate, replay_status_from_ledger, ReplayFinalStatus, ReplayResult};

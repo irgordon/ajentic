@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.7
+
+**Status:** Phase 9 replay from ledger facts.
+
+### Added
+
+- Rust-owned replay result model.
+- Rust-owned replay from in-memory ledger facts.
+- Typed replay errors.
+- Replay validation for missing facts, invalid ordering, unsupported promotion, and missing evidence.
+
+### Notes
+
+- No provider calls, adapter calls, evaluator execution, ledger persistence, file IO, API behavior, or UI behavior was implemented.
+
 ## v0.0.6
 
 **Status:** Phase 6 evaluation result ingestion.
