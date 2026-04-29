@@ -266,3 +266,19 @@ will be added in later phases.
 ### Notes
 
 This version is skeleton-only. No model calls, governance engine, evaluators, ledger, replay, or UI dashboard are implemented.
+
+## v0.0.16 - 2026-04-29
+**Status:** Phase 16 architecture alignment and determinism verification capability.
+
+### Added
+- Rust-owned architecture alignment verification status enums with explicit, closed vocabularies.
+- Deterministic, read-only architecture alignment verification engine over architecture rules, governance boundaries, determinism guarantees, fail-closed behavior, and documentation consistency evidence.
+- Verification tests for deterministic output, authority boundary violation detection, determinism stability, fail-closed enforcement, documentation mismatch detection, non-authoritative behavior, and byte-equivalent output consistency.
+
+### Notes
+- Verification is descriptive only.
+- Verification does not alter lifecycle state.
+- Verification does not alter governance approval.
+- Verification does not alter promotion eligibility.
+- Verification does not alter ledger authority.
+- Verification does not introduce persistence, provider integration, API behavior, or UI authority.
