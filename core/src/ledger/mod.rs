@@ -1,6 +1,8 @@
-//! Ledger module.
-//!
-//! The ledger records all lifecycle events for auditability and replay.
-//! Ledger integrity is the exclusive responsibility of Rust core.
-//!
-//! v0.0.0: structure placeholder only. No runtime behavior implemented.
+//! Phase 8 Rust-owned append-only in-memory ledger.
+
+pub mod append;
+pub mod entry;
+pub mod integrity;
+
+pub use append::InMemoryLedger;
+pub use entry::*;

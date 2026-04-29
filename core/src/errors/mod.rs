@@ -212,3 +212,40 @@ pub enum PromotionError {
     MissingEvidenceRefs,
     InvalidPromotionTransition,
 }
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum LedgerAppendError {
+    MissingCandidateId,
+    MissingRunId,
+    MissingObjectiveId,
+    MissingConstraintsId,
+    MissingDomainId,
+    MissingEvaluationResultId,
+    MissingEvaluatorId,
+    MissingEvidenceRef,
+    MissingGovernanceResultId,
+    MissingPromotionDecisionId,
+    ApprovedPromotionMissingEvidence,
+    ApprovedPromotionMissingRequiredChecks,
+    InvalidApprovedPromotionTransition,
+    CandidateEntryMissing { candidate_id: String },
+    GovernanceEntryMissing { candidate_id: String },
+    EvaluationEntryMissing { candidate_id: String },
+    GovernanceNotPassed { candidate_id: String },
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AuditError {
+    MissingCandidateId,
+    CandidateEntryMissing { candidate_id: String },
+    GovernanceEntryMissing { candidate_id: String },
+    PromotionEntryMissing { candidate_id: String },
+    EvaluationEntryMissing { candidate_id: String },
+    MissingPromotionEvidence { candidate_id: String },
+    MissingGovernanceEvidence { candidate_id: String },
+    MissingEvaluationEvidence { candidate_id: String },
+    MissingRunId { candidate_id: String },
+    MissingObjectiveId { candidate_id: String },
+    MissingConstraintsId { candidate_id: String },
+    MissingDomainId { candidate_id: String },
+}

@@ -156,10 +156,7 @@ mod tests {
         );
         assert_eq!(decision.promotion_status, PromotionStatus::Approved);
         assert_eq!(decision.from_state, CandidateLifecycleState::Passed);
-        assert_eq!(
-            decision.to_state,
-            CandidateLifecycleState::PromotedTier1
-        );
+        assert_eq!(decision.to_state, CandidateLifecycleState::PromotedTier1);
         assert_eq!(decision.evidence_refs, vec!["ev://1"]);
     }
 
