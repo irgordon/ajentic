@@ -312,6 +312,20 @@ mod tests {
     }
 
     #[test]
+    fn denied_promotion_after_blocked_governance_replays_blocked() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created()).unwrap();
+        ledger.append(eval()).unwrap();
+        ledger.append(gov(GovernanceStatus::Blocked)).unwrap();
+        ledger.append(denied_with_id("prom-1")).unwrap();
+
+        let result = replay_candidate("cand-1", &ledger).unwrap();
+
+        assert_eq!(result.final_status, ReplayFinalStatus::Blocked);
+        assert_eq!(result.promotion_decision_ids, vec!["prom-1"]);
+    }
+
+    #[test]
     fn keeps_all_promotion_ids_and_uses_last_status() {
         let mut ledger = InMemoryLedger::new();
         ledger.append(created()).unwrap();
@@ -352,22 +366,20 @@ mod tests {
     fn ledger_rejects_promotion_before_candidate() {
         let mut ledger = InMemoryLedger::new();
 
-        assert!(
-            ledger
-                .append(LedgerEntry::PromotionDecided(
-                    PromotionDecidedLedgerRecord {
-                        promotion_decision_id: "prom-1".into(),
-                        candidate_id: "cand-1".into(),
-                        promotion_status: PromotionStatus::Denied,
-                        from_state: CandidateLifecycleState::Passed,
-                        to_state: CandidateLifecycleState::Passed,
-                        required_checks_passed: true,
-                        evidence_refs: vec!["ev://p1".into()],
-                        denial_reasons: vec!["deny".into()],
-                    },
-                ))
-                .is_err()
-        );
+        assert!(ledger
+            .append(LedgerEntry::PromotionDecided(
+                PromotionDecidedLedgerRecord {
+                    promotion_decision_id: "prom-1".into(),
+                    candidate_id: "cand-1".into(),
+                    promotion_status: PromotionStatus::Denied,
+                    from_state: CandidateLifecycleState::Passed,
+                    to_state: CandidateLifecycleState::Passed,
+                    required_checks_passed: true,
+                    evidence_refs: vec!["ev://p1".into()],
+                    denial_reasons: vec!["deny".into()],
+                },
+            ))
+            .is_err());
     }
 
     #[test]

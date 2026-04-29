@@ -62,3 +62,19 @@ Current repository status: Phase 6 complete pending Owner acceptance and documen
 - [ ] Confirm Phase 13 multi-domain runtime capability is not started.
 - [ ] Confirm no API/server/backend behavior was added.
 - [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.
+
+
+## Owner review tasks for Phase 13
+
+- [ ] Confirm Phase 13 multi-domain status.
+- [ ] Confirm domains are Rust-owned compatibility profiles.
+- [ ] Confirm at least two sample domains exist.
+- [ ] Confirm unsupported objective types fail closed.
+- [ ] Confirm missing required evaluators fail closed.
+- [ ] Confirm domains do not alter lifecycle.
+- [ ] Confirm domains do not alter promotion.
+- [ ] Confirm domains do not alter ledger, audit, or replay.
+- [ ] Confirm domains do not affect adapter trust.
+- [ ] Confirm Phase 14 reuse/bounded improvement is not started.
+- [ ] Confirm no provider, API, or UI authority behavior was added.
+- [ ] Confirm version remains pre-milestone unless Owner accepts a milestone.

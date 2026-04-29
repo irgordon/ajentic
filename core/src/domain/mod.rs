@@ -1,6 +1,6 @@
-//! Domain module.
-//!
-//! Phase 1 defines contract shapes only. Runtime validation and behavior are
-//! intentionally deferred to later phases.
+//! Rust-owned domain compatibility profiles and validation (Phase 13).
 
 pub mod contract;
+pub mod profile;
+pub mod registry;
+pub mod validate;
