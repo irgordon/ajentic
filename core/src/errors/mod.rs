@@ -233,12 +233,20 @@ pub enum LedgerAppendError {
     MissingEvidenceRef,
     MissingGovernanceResultId,
     MissingPromotionDecisionId,
+    MissingReuseEventId,
+    MissingReusedCandidateId,
+    MissingReuseTargetCandidateId,
+    MissingReuseReason,
+    MissingReuseTriggeringActor,
+    MissingReuseTimestampReference,
     ApprovedPromotionMissingEvidence,
     ApprovedPromotionMissingRequiredChecks,
     InvalidApprovedPromotionTransition,
     CandidateEntryMissing { candidate_id: String },
     GovernanceEntryMissing { candidate_id: String },
     EvaluationEntryMissing { candidate_id: String },
+    ReuseSourceCandidateEntryMissing { candidate_id: String },
+    ReuseTargetCandidateEntryMissing { candidate_id: String },
     GovernanceNotPassed { candidate_id: String },
 }
 
@@ -336,6 +344,7 @@ pub enum ReplayError {
 pub enum ReuseError {
     MissingDomainId,
     MissingObjectiveType,
+    MissingCandidateId,
     InvalidConstraintCriteria,
 }
 
