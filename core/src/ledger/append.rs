@@ -24,6 +24,13 @@ impl InMemoryLedger {
     pub fn entries(&self) -> &[LedgerEntry] {
         &self.entries
     }
+
+    #[cfg(test)]
+    /// Test-only corruption hook for replay and ledger negative-path tests.
+    /// This must not be exposed in non-test builds.
+    pub(crate) fn entries_mut_for_tests(&mut self) -> &mut Vec<LedgerEntry> {
+        &mut self.entries
+    }
 }
 
 #[cfg(test)]
@@ -133,6 +140,89 @@ mod tests {
             Err(LedgerAppendError::ReuseTargetCandidateEntryMissing {
                 candidate_id: "cand-2".into(),
             })
+        );
+    }
+
+    #[test]
+    fn rejects_candidate_created_with_missing_candidate_id() {
+        let mut l = InMemoryLedger::new();
+        let entry = created_with_id("");
+
+        assert_eq!(l.append(entry), Err(LedgerAppendError::MissingCandidateId));
+    }
+
+    #[test]
+    fn rejects_approved_promotion_without_evaluation_fact() {
+        let mut l = InMemoryLedger::new();
+        l.append(created()).unwrap();
+        l.append(gov(GovernanceStatus::Pass)).unwrap();
+
+        let promotion = LedgerEntry::PromotionDecided(PromotionDecidedLedgerRecord {
+            promotion_decision_id: "p1".into(),
+            candidate_id: "cand-1".into(),
+            promotion_status: PromotionStatus::Approved,
+            from_state: CandidateLifecycleState::Passed,
+            to_state: CandidateLifecycleState::PromotedTier1,
+            required_checks_passed: true,
+            evidence_refs: vec!["ev://p1".into()],
+            denial_reasons: vec![],
+        });
+
+        assert_eq!(
+            l.append(promotion),
+            Err(LedgerAppendError::EvaluationEntryMissing {
+                candidate_id: "cand-1".into(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_approved_promotion_without_passing_governance_fact() {
+        let mut l = InMemoryLedger::new();
+        l.append(created()).unwrap();
+        l.append(eval()).unwrap();
+        l.append(gov(GovernanceStatus::Fail)).unwrap();
+
+        let promotion = LedgerEntry::PromotionDecided(PromotionDecidedLedgerRecord {
+            promotion_decision_id: "p1".into(),
+            candidate_id: "cand-1".into(),
+            promotion_status: PromotionStatus::Approved,
+            from_state: CandidateLifecycleState::Passed,
+            to_state: CandidateLifecycleState::PromotedTier1,
+            required_checks_passed: true,
+            evidence_refs: vec!["ev://p1".into()],
+            denial_reasons: vec![],
+        });
+
+        assert_eq!(
+            l.append(promotion),
+            Err(LedgerAppendError::GovernanceNotPassed {
+                candidate_id: "cand-1".into(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_approved_promotion_without_evidence_refs() {
+        let mut l = InMemoryLedger::new();
+        l.append(created()).unwrap();
+        l.append(eval()).unwrap();
+        l.append(gov(GovernanceStatus::Pass)).unwrap();
+
+        let promotion = LedgerEntry::PromotionDecided(PromotionDecidedLedgerRecord {
+            promotion_decision_id: "p1".into(),
+            candidate_id: "cand-1".into(),
+            promotion_status: PromotionStatus::Approved,
+            from_state: CandidateLifecycleState::Passed,
+            to_state: CandidateLifecycleState::PromotedTier1,
+            required_checks_passed: true,
+            evidence_refs: vec![],
+            denial_reasons: vec![],
+        });
+
+        assert_eq!(
+            l.append(promotion),
+            Err(LedgerAppendError::ApprovedPromotionMissingEvidence)
         );
     }
 

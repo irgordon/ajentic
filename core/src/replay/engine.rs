@@ -707,7 +707,9 @@ mod tests {
         let mut missing_promotion = InMemoryLedger::new();
         missing_promotion.append(created()).unwrap();
         missing_promotion.append(eval()).unwrap();
-        missing_promotion.append(gov(GovernanceStatus::Pass)).unwrap();
+        missing_promotion
+            .append(gov(GovernanceStatus::Pass))
+            .unwrap();
         let result = replay_candidate("cand-1", &missing_promotion).unwrap();
         assert_eq!(
             result.readiness_status,
