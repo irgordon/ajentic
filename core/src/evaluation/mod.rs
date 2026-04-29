@@ -1,6 +1,8 @@
 //! Evaluation module.
 //!
-//! Phase 1 defines contract shapes only. Runtime validation and behavior are
-//! intentionally deferred to later phases.
+//! Phase 6 records structured evaluation results in memory and links them to Rust-owned
+//! candidate records. Governance and promotion remain reserved for later phases.
 
 pub mod contract;
+pub mod ingestion;
+pub mod result;

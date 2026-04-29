@@ -59,6 +59,46 @@ impl fmt::Display for CandidateCreationError {
 }
 
 impl std::error::Error for CandidateCreationError {}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum EvaluationIngestionError {
+    MissingCandidateId,
+    MissingResultId,
+    MissingResultCandidateId,
+    CandidateIdMismatch { expected: String, found: String },
+    MissingEvaluatorId,
+    MissingEvidenceRef,
+    ResultSetCandidateMismatch { expected: String, found: String },
+    DuplicateResultId { id: String },
+    DuplicateEvaluatorId { evaluator_id: String },
+}
+
+impl fmt::Display for EvaluationIngestionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MissingCandidateId => write!(f, "candidate id is required"),
+            Self::MissingResultId => write!(f, "evaluation result id is required"),
+            Self::MissingResultCandidateId => write!(f, "evaluation result candidate_solution_id is required"),
+            Self::CandidateIdMismatch { expected, found } => write!(
+                f,
+                "evaluation result candidate id mismatch: expected '{expected}', found '{found}'"
+            ),
+            Self::MissingEvaluatorId => write!(f, "evaluation result evaluator_id is required"),
+            Self::MissingEvidenceRef => write!(f, "evaluation result evidence_ref is required"),
+            Self::ResultSetCandidateMismatch { expected, found } => write!(
+                f,
+                "evaluation result set candidate id mismatch: expected '{expected}', found '{found}'"
+            ),
+            Self::DuplicateResultId { id } => write!(f, "duplicate evaluation result id: '{id}'"),
+            Self::DuplicateEvaluatorId { evaluator_id } => {
+                write!(f, "duplicate evaluation evaluator_id: '{evaluator_id}'")
+            }
+        }
+    }
+}
+
+impl std::error::Error for EvaluationIngestionError {}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum StaticRunValidationError {
     RunDirectoryMissing { path: PathBuf },

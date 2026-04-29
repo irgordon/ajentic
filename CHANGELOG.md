@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.6.0
+
+**Status:** Phase 6 evaluation result ingestion.
+
+### Added
+
+- Rust-owned evaluation result ingestion was added.
+- Evaluation results are linked to candidate records.
+- Evaluation statuses include PASS, FAIL, BLOCKED, and UNKNOWN.
+- Required evaluator presence and required evaluator satisfaction checks were added.
+- UNKNOWN, FAIL, BLOCKED, malformed, missing, or incomplete results do not satisfy required evaluators.
+- Evaluation ingestion does not mutate candidate lifecycle state.
+
+### Notes
+
+- No evaluator execution, governance approval, promotion, ledger persistence, replay, audit emission, real provider integration, API, or UI behavior was implemented.
+
 ## v0.5.0
 
 **Status:** Phase 5 candidate creation and runtime adapter checks.
