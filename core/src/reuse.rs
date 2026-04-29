@@ -44,7 +44,8 @@ pub fn discover_reusable_candidates(
 
     for (index, entry) in ledger.entries().iter().enumerate() {
         if let LedgerEntry::CandidateCreated(record) = entry {
-            if record.domain_id != criteria.domain_id || record.objective_id != criteria.objective_type
+            if record.domain_id != criteria.domain_id
+                || record.objective_id != criteria.objective_type
             {
                 continue;
             }
@@ -153,15 +154,9 @@ mod tests {
 
     #[test]
     fn reuse_applied_record_uses_explicit_target_candidate() {
-        let record = build_reuse_applied_record(
-            "reuse-1",
-            "cand-1",
-            "cand-2",
-            "manual",
-            "operator",
-            "ts-1",
-        )
-        .unwrap();
+        let record =
+            build_reuse_applied_record("reuse-1", "cand-1", "cand-2", "manual", "operator", "ts-1")
+                .unwrap();
 
         assert_eq!(record.reuse_event_id, "reuse-1");
         assert_eq!(record.reused_candidate_id, "cand-1");

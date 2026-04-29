@@ -347,4 +347,3 @@ pub enum ReuseError {
     MissingCandidateId,
     InvalidConstraintCriteria,
 }
-
