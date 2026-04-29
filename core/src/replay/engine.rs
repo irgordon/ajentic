@@ -24,6 +24,7 @@ pub struct ReplayResult {
     pub evaluation_result_ids: Vec<String>,
     pub governance_result_ids: Vec<String>,
     pub promotion_decision_ids: Vec<String>,
+    pub reuse_event_ids: Vec<String>,
     pub final_status: ReplayFinalStatus,
     pub evidence_refs: Vec<String>,
     pub blocked_reasons: Vec<String>,
@@ -42,6 +43,7 @@ pub fn replay_candidate(
     let mut evaluation_result_ids = Vec::new();
     let mut governance_result_ids = Vec::new();
     let mut promotion_decision_ids = Vec::new();
+    let mut reuse_event_ids = Vec::new();
     let mut evidence_refs = Vec::new();
     let mut blocked_reasons = Vec::new();
     let mut failure_reasons = Vec::new();
@@ -121,6 +123,18 @@ pub fn replay_candidate(
                 failure_reasons.extend(record.denial_reasons.clone());
 
                 last_promotion_status = Some(record.promotion_status.clone());
+            }
+            LedgerEntry::ReuseApplied(record)
+                if record.reused_candidate_id == candidate_id
+                    || record.target_candidate_id == candidate_id =>
+            {
+                if candidate.is_none() {
+                    return Err(ReplayError::InvalidEntryOrder {
+                        candidate_id: candidate_id.to_string(),
+                    });
+                }
+
+                reuse_event_ids.push(record.reuse_event_id.clone());
             }
             _ => {}
         }
@@ -207,6 +221,7 @@ pub fn replay_candidate(
         evaluation_result_ids,
         governance_result_ids,
         promotion_decision_ids,
+        reuse_event_ids,
         final_status,
         evidence_refs,
         blocked_reasons,
@@ -228,14 +243,18 @@ mod tests {
     use crate::governance::runtime::GovernanceStatus;
     use crate::ledger::entry::*;
 
-    fn created() -> LedgerEntry {
+    fn created_with_id(candidate_id: &str) -> LedgerEntry {
         LedgerEntry::CandidateCreated(CandidateCreatedLedgerRecord {
-            candidate_id: "cand-1".into(),
+            candidate_id: candidate_id.into(),
             run_id: "run-1".into(),
             objective_id: "obj-1".into(),
             constraints_id: "con-1".into(),
             domain_id: "dom-1".into(),
         })
+    }
+
+    fn created() -> LedgerEntry {
+        created_with_id("cand-1")
     }
 
     fn eval() -> LedgerEntry {
@@ -248,10 +267,32 @@ mod tests {
         })
     }
 
+    fn eval_for(candidate_id: &str, result_id: &str) -> LedgerEntry {
+        LedgerEntry::EvaluationRecorded(EvaluationRecordedLedgerRecord {
+            evaluation_result_id: result_id.into(),
+            candidate_id: candidate_id.into(),
+            evaluator_id: "e-1".into(),
+            status: EvaluationStatus::Pass,
+            evidence_ref: "ev://e1".into(),
+        })
+    }
+
     fn gov(status: GovernanceStatus) -> LedgerEntry {
         LedgerEntry::GovernanceReviewed(GovernanceReviewedLedgerRecord {
             governance_result_id: "gov-1".into(),
             candidate_id: "cand-1".into(),
+            status,
+            required_evaluators_satisfied: true,
+            evidence_refs: vec!["ev://g1".into()],
+            blocked_reasons: vec!["blocked".into()],
+            failure_reasons: vec!["failed".into()],
+        })
+    }
+
+    fn gov_for(candidate_id: &str, result_id: &str, status: GovernanceStatus) -> LedgerEntry {
+        LedgerEntry::GovernanceReviewed(GovernanceReviewedLedgerRecord {
+            governance_result_id: result_id.into(),
+            candidate_id: candidate_id.into(),
             status,
             required_evaluators_satisfied: true,
             evidence_refs: vec!["ev://g1".into()],
@@ -287,6 +328,30 @@ mod tests {
             required_checks_passed: true,
             evidence_refs: vec!["ev://p1".into()],
             denial_reasons: vec!["deny".into()],
+        })
+    }
+
+    fn denied_for(candidate_id: &str, promotion_id: &str) -> LedgerEntry {
+        LedgerEntry::PromotionDecided(PromotionDecidedLedgerRecord {
+            promotion_decision_id: promotion_id.into(),
+            candidate_id: candidate_id.into(),
+            promotion_status: PromotionStatus::Denied,
+            from_state: CandidateLifecycleState::Passed,
+            to_state: CandidateLifecycleState::Passed,
+            required_checks_passed: true,
+            evidence_refs: vec!["ev://p1".into()],
+            denial_reasons: vec!["deny".into()],
+        })
+    }
+
+    fn reuse() -> LedgerEntry {
+        LedgerEntry::ReuseApplied(ReuseAppliedLedgerRecord {
+            reuse_event_id: "reuse-1".into(),
+            reused_candidate_id: "cand-1".into(),
+            target_candidate_id: "cand-2".into(),
+            reuse_reason: "same objective type".into(),
+            triggering_actor: "owner".into(),
+            timestamp_reference: "manual-ref-1".into(),
         })
     }
 
@@ -338,6 +403,42 @@ mod tests {
 
         assert_eq!(result.final_status, ReplayFinalStatus::Promoted);
         assert_eq!(result.promotion_decision_ids, vec!["prom-1", "prom-2"]);
+    }
+
+    #[test]
+    fn reuse_event_replays_for_source_candidate_without_changing_status() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created_with_id("cand-1")).unwrap();
+        ledger.append(eval_for("cand-1", "eval-1")).unwrap();
+        ledger
+            .append(gov_for("cand-1", "gov-1", GovernanceStatus::Unknown))
+            .unwrap();
+        ledger.append(denied_for("cand-1", "prom-1")).unwrap();
+        ledger.append(created_with_id("cand-2")).unwrap();
+        ledger.append(reuse()).unwrap();
+
+        let result = replay_candidate("cand-1", &ledger).unwrap();
+
+        assert_eq!(result.reuse_event_ids, vec!["reuse-1"]);
+        assert_eq!(result.final_status, ReplayFinalStatus::Unknown);
+    }
+
+    #[test]
+    fn reuse_event_replays_for_target_candidate_without_changing_status() {
+        let mut ledger = InMemoryLedger::new();
+        ledger.append(created_with_id("cand-1")).unwrap();
+        ledger.append(created_with_id("cand-2")).unwrap();
+        ledger.append(eval_for("cand-2", "eval-2")).unwrap();
+        ledger
+            .append(gov_for("cand-2", "gov-2", GovernanceStatus::Blocked))
+            .unwrap();
+        ledger.append(denied_for("cand-2", "prom-2")).unwrap();
+        ledger.append(reuse()).unwrap();
+
+        let result = replay_candidate("cand-2", &ledger).unwrap();
+
+        assert_eq!(result.reuse_event_ids, vec!["reuse-1"]);
+        assert_eq!(result.final_status, ReplayFinalStatus::Blocked);
     }
 
     #[test]

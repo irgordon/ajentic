@@ -69,6 +69,26 @@ pub fn validate_entry_fields(entry: &LedgerEntry) -> Result<(), LedgerAppendErro
                 }
             }
         }
+        LedgerEntry::ReuseApplied(record) => {
+            if record.reuse_event_id.is_empty() {
+                return Err(LedgerAppendError::MissingReuseEventId);
+            }
+            if record.reused_candidate_id.is_empty() {
+                return Err(LedgerAppendError::MissingReusedCandidateId);
+            }
+            if record.target_candidate_id.is_empty() {
+                return Err(LedgerAppendError::MissingReuseTargetCandidateId);
+            }
+            if record.reuse_reason.is_empty() {
+                return Err(LedgerAppendError::MissingReuseReason);
+            }
+            if record.triggering_actor.is_empty() {
+                return Err(LedgerAppendError::MissingReuseTriggeringActor);
+            }
+            if record.timestamp_reference.is_empty() {
+                return Err(LedgerAppendError::MissingReuseTimestampReference);
+            }
+        }
     }
     Ok(())
 }
@@ -77,66 +97,86 @@ pub fn validate_order(
     existing: &[LedgerEntry],
     entry: &LedgerEntry,
 ) -> Result<(), LedgerAppendError> {
-    let candidate_id = match entry {
-        LedgerEntry::CandidateCreated(r) => &r.candidate_id,
-        LedgerEntry::EvaluationRecorded(r) => &r.candidate_id,
-        LedgerEntry::GovernanceReviewed(r) => &r.candidate_id,
-        LedgerEntry::PromotionDecided(r) => &r.candidate_id,
-    };
-
-    let has_candidate = existing
-        .iter()
-        .any(|e| matches!(e, LedgerEntry::CandidateCreated(r) if r.candidate_id == *candidate_id));
-    let has_evaluation = existing.iter().any(
-        |e| matches!(e, LedgerEntry::EvaluationRecorded(r) if r.candidate_id == *candidate_id),
-    );
-    let has_governance = existing.iter().any(
-        |e| matches!(e, LedgerEntry::GovernanceReviewed(r) if r.candidate_id == *candidate_id),
-    );
-    let has_passing_governance = existing.iter().any(|e| matches!(e, LedgerEntry::GovernanceReviewed(r) if r.candidate_id == *candidate_id && r.status == GovernanceStatus::Pass));
-
     match entry {
         LedgerEntry::CandidateCreated(_) => Ok(()),
-        LedgerEntry::EvaluationRecorded(_) => {
-            if !has_candidate {
+        LedgerEntry::EvaluationRecorded(record) => {
+            if !candidate_exists(existing, &record.candidate_id) {
                 return Err(LedgerAppendError::CandidateEntryMissing {
-                    candidate_id: candidate_id.clone(),
+                    candidate_id: record.candidate_id.clone(),
                 });
             }
             Ok(())
         }
-        LedgerEntry::GovernanceReviewed(_) => {
-            if !has_candidate {
+        LedgerEntry::GovernanceReviewed(record) => {
+            if !candidate_exists(existing, &record.candidate_id) {
                 return Err(LedgerAppendError::CandidateEntryMissing {
-                    candidate_id: candidate_id.clone(),
+                    candidate_id: record.candidate_id.clone(),
                 });
             }
             Ok(())
         }
         LedgerEntry::PromotionDecided(record) => {
-            if !has_candidate {
+            if !candidate_exists(existing, &record.candidate_id) {
                 return Err(LedgerAppendError::CandidateEntryMissing {
-                    candidate_id: candidate_id.clone(),
+                    candidate_id: record.candidate_id.clone(),
                 });
             }
-            if !has_governance {
+            if !governance_exists(existing, &record.candidate_id) {
                 return Err(LedgerAppendError::GovernanceEntryMissing {
-                    candidate_id: candidate_id.clone(),
+                    candidate_id: record.candidate_id.clone(),
                 });
             }
             if record.promotion_status == PromotionStatus::Approved {
-                if !has_evaluation {
+                if !evaluation_exists(existing, &record.candidate_id) {
                     return Err(LedgerAppendError::EvaluationEntryMissing {
-                        candidate_id: candidate_id.clone(),
+                        candidate_id: record.candidate_id.clone(),
                     });
                 }
-                if !has_passing_governance {
+                if !passing_governance_exists(existing, &record.candidate_id) {
                     return Err(LedgerAppendError::GovernanceNotPassed {
-                        candidate_id: candidate_id.clone(),
+                        candidate_id: record.candidate_id.clone(),
                     });
                 }
             }
             Ok(())
         }
+        LedgerEntry::ReuseApplied(record) => {
+            if !candidate_exists(existing, &record.reused_candidate_id) {
+                return Err(LedgerAppendError::ReuseSourceCandidateEntryMissing {
+                    candidate_id: record.reused_candidate_id.clone(),
+                });
+            }
+            if !candidate_exists(existing, &record.target_candidate_id) {
+                return Err(LedgerAppendError::ReuseTargetCandidateEntryMissing {
+                    candidate_id: record.target_candidate_id.clone(),
+                });
+            }
+            Ok(())
+        }
     }
+}
+
+fn candidate_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
+    existing.iter().any(
+        |entry| matches!(entry, LedgerEntry::CandidateCreated(record) if record.candidate_id == candidate_id),
+    )
+}
+
+fn evaluation_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
+    existing.iter().any(
+        |entry| matches!(entry, LedgerEntry::EvaluationRecorded(record) if record.candidate_id == candidate_id),
+    )
+}
+
+fn governance_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
+    existing.iter().any(
+        |entry| matches!(entry, LedgerEntry::GovernanceReviewed(record) if record.candidate_id == candidate_id),
+    )
+}
+
+fn passing_governance_exists(existing: &[LedgerEntry], candidate_id: &str) -> bool {
+    existing.iter().any(
+        |entry| matches!(entry, LedgerEntry::GovernanceReviewed(record)
+            if record.candidate_id == candidate_id && record.status == GovernanceStatus::Pass),
+    )
 }

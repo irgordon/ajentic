@@ -9,6 +9,7 @@ pub enum LedgerEntryKind {
     EvaluationRecorded,
     GovernanceReviewed,
     PromotionDecided,
+    ReuseApplied,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -52,12 +53,33 @@ pub struct PromotionDecidedLedgerRecord {
     pub denial_reasons: Vec<String>,
 }
 
+/// Records an explicit reuse event as an immutable ledger fact.
+/// This record is advisory and does not affect lifecycle, governance, or promotion authority.
+/// Reuse is defined between concrete candidate records, not runs.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReuseAppliedLedgerRecord {
+    pub reuse_event_id: String,
+
+    /// Source candidate whose outputs are being reused.
+    pub reused_candidate_id: String,
+
+    /// Target candidate receiving the reuse.
+    /// This replaces the previous run-scoped reference to ensure replay and audit
+    /// operate strictly on candidate-level identity.
+    pub target_candidate_id: String,
+
+    pub reuse_reason: String,
+    pub triggering_actor: String,
+    pub timestamp_reference: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LedgerEntry {
     CandidateCreated(CandidateCreatedLedgerRecord),
     EvaluationRecorded(EvaluationRecordedLedgerRecord),
     GovernanceReviewed(GovernanceReviewedLedgerRecord),
     PromotionDecided(PromotionDecidedLedgerRecord),
+    ReuseApplied(ReuseAppliedLedgerRecord),
 }
 
 impl LedgerEntry {
@@ -67,6 +89,7 @@ impl LedgerEntry {
             Self::EvaluationRecorded(_) => LedgerEntryKind::EvaluationRecorded,
             Self::GovernanceReviewed(_) => LedgerEntryKind::GovernanceReviewed,
             Self::PromotionDecided(_) => LedgerEntryKind::PromotionDecided,
+            Self::ReuseApplied(_) => LedgerEntryKind::ReuseApplied,
         }
     }
 }
