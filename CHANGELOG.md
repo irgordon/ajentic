@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.6.0
+## v0.0.6
 
 **Status:** Phase 6 evaluation result ingestion.
 
@@ -17,7 +17,7 @@
 
 - No evaluator execution, governance approval, promotion, ledger persistence, replay, audit emission, real provider integration, API, or UI behavior was implemented.
 
-## v0.5.0
+## v0.0.5
 
 **Status:** Phase 5 candidate creation and runtime adapter checks.
 
@@ -33,7 +33,7 @@
 
 - No evaluator execution, evaluation result ingestion, governance approval, promotion, ledger persistence, replay, audit emission, real provider integration, API, or UI behavior was implemented.
 
-## v0.4.0
+## v0.0.4
 
 **Status:** Phase 4 adapter protocol and mock adapter.
 
@@ -48,7 +48,7 @@
 
 - No candidate creation, lifecycle mutation, evaluator execution, governance promotion, ledger, replay, audit emission, real provider integration, API, or UI behavior was implemented.
 
-## v0.3.0
+## v0.0.3
 
 **Status:** Phase 3 CLI static validation surface.
 
@@ -62,7 +62,7 @@
 
 - No YAML parsing, schema validation, adapter execution, evaluator execution, governance promotion, ledger, replay, audit emission, API, or UI behavior was implemented.
 
-## v0.2.0
+## v0.0.2
 
 **Status:** Phase 2 candidate lifecycle state machine.
 
@@ -79,7 +79,7 @@
 - Passed -> PromotedTier1 is a legal transition shape, not a promotion authorization engine.
 - Validation of objectives, constraints, evaluators, policies, and evidence is reserved for later phases.
 
-## v0.1.0
+## v0.0.1
 
 **Status:** Phase 1 contracts and schemas.
 
