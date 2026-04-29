@@ -1,18 +1,46 @@
-# AJENTIC Roadmap
+# AJENTIC ROADMAP
+
+Last Reviewed: 2026-04-29 UTC
 
 ## 1. Purpose
 
-This roadmap defines the phased implementation path for AJENTIC from a blank repository to early production capability. Through each phase, slight deviations may occur as it moves, the CHANGELOG should be considered the authoritative state, this document reflect the overarching planned implemention and serve as a strong guide to keep the project from adopting inappropriate expansion.
+This document defines the proposed implementation roadmap for AJENTIC. It describes intended capability progression and planning direction.
 
-AJENTIC is a governed harness for local and cloud-based large language models (LLMs). It treats generated output as untrusted, records candidate and evaluation data under Rust-owned control, and promotes only governed outputs for downstream review after explicit governance checks.
+The roadmap is a planning artifact. It does not define the current operational state of the repository.
 
-The implementation must progress incrementally. Each phase has a narrow scope, explicit validation gates, and a defined stopping point. Later phases must not backfill hidden behavior into earlier phases.
+## 1a. Authority Model
 
-The primary goal is not feature volume. The primary goal is a usable, maintainable, auditable harness whose control layer remains understandable to first-time developers and extensible by experienced developers.
+The authoritative source for repository state is:
 
-This roadmap is an anchor document. It provides a forecast from the full v0 implementation path to production capability. Historical release notes are owned by `CHANGELOG.md`.
+- CHANGELOG.md — authoritative record of implemented capabilities, accepted milestones, and version history
+- Governance and specification documents — authoritative system rules and architectural boundaries
+- Repository code and tests — authoritative runtime behavior
 
----
+This roadmap must not be used to determine implementation status.
+
+## 1b. Deviation Policy
+
+Future work may deviate from this roadmap in controlled ways.
+
+Acceptable sources of deviation include:
+
+- Manual Owner decisions
+- Branch-specific development
+- Controlled architectural adjustments
+- Sequencing refinements discovered during implementation
+
+Small deviations in ordering, scope, or structure are expected during development.  
+Such deviations are not defects unless they violate governance rules or architectural boundaries.
+
+## 1c. Update Rules
+
+Implementation changes must be recorded in CHANGELOG.md.
+
+The roadmap should be updated when planning direction changes, not when implementation state changes.
+
+If a discrepancy exists between the roadmap and the repository:
+
+The CHANGELOG and repository state take precedence.
 
 ## 2. Architecture rule
 
@@ -40,7 +68,7 @@ Go is not used before early production unless a service wrapper becomes necessar
 
 ## 3. Current implementation status
 
-Current repository status: Phase 6 complete pending Owner acceptance and documentation/version alignment.
+Current repository status: Pre-Alpha
 
 Implemented through the current repository state:
 
@@ -51,9 +79,6 @@ Implemented through the current repository state:
 * Phase 4: adapter protocol and deterministic mock adapter boundary
 * Phase 5: Rust-owned candidate creation and runtime adapter checks
 * Phase 6: Rust-owned evaluation result ingestion
-
-Not implemented yet:
-
 * Phase 7: governance and promotion gates
 * Phase 8: append-only ledger and audit records
 * Phase 9: replay
@@ -61,6 +86,9 @@ Not implemented yet:
 * Phase 11: cloud model adapter capability
 * Phase 12: TypeScript UI review surface
 * Phase 13: multi-domain capability
+
+Not implemented yet:
+
 * Phase 14: reuse and bounded improvement records
 * Phase 15: hardening and negative testing
 * Phase N: early production capability
