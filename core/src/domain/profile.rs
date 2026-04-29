@@ -1,4 +1,6 @@
 //! Rust-owned domain compatibility profile for Phase 13.
+//! Domain profiles configure compatibility expectations only.
+//! They do not define lifecycle, promotion, ledger, audit, replay, or adapter authority.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DomainProfile {
