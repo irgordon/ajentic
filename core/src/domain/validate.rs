@@ -32,6 +32,7 @@ pub fn validate_domain_profile(profile: &DomainProfile) -> Result<(), DomainVali
             objective_type: value.to_string(),
         },
     )?;
+
     validate_unique_and_non_empty(
         &profile.constraint_types,
         DomainValidationError::EmptyConstraintType,
@@ -39,6 +40,7 @@ pub fn validate_domain_profile(profile: &DomainProfile) -> Result<(), DomainVali
             constraint_type: value.to_string(),
         },
     )?;
+
     validate_unique_and_non_empty(
         &profile.required_evaluators,
         DomainValidationError::EmptyEvaluatorId,
@@ -46,6 +48,7 @@ pub fn validate_domain_profile(profile: &DomainProfile) -> Result<(), DomainVali
             evaluator_id: value.to_string(),
         },
     )?;
+
     validate_unique_and_non_empty(
         &profile.optional_evaluators,
         DomainValidationError::EmptyEvaluatorId,
@@ -53,6 +56,23 @@ pub fn validate_domain_profile(profile: &DomainProfile) -> Result<(), DomainVali
             evaluator_id: value.to_string(),
         },
     )?;
+
+    validate_unique_and_non_empty(
+        &profile.known_failure_modes,
+        DomainValidationError::EmptyKnownFailureMode,
+        |value| DomainValidationError::DuplicateKnownFailureMode {
+            known_failure_mode: value.to_string(),
+        },
+    )?;
+
+    validate_unique_and_non_empty(
+        &profile.promotion_thresholds,
+        DomainValidationError::EmptyPromotionThreshold,
+        |value| DomainValidationError::DuplicatePromotionThreshold {
+            promotion_threshold: value.to_string(),
+        },
+    )?;
+
     validate_unique_and_non_empty(
         &profile.evidence_requirements,
         DomainValidationError::EmptyEvidenceRequirement,
@@ -85,6 +105,7 @@ pub fn objective_supported(
     if objective_type.is_empty() {
         return Err(DomainValidationError::EmptyObjectiveType);
     }
+
     if !profile
         .objective_types
         .iter()
@@ -95,6 +116,7 @@ pub fn objective_supported(
             objective_type: objective_type.to_string(),
         });
     }
+
     Ok(())
 }
 
@@ -110,6 +132,7 @@ pub fn required_evaluators_supported(
         if evaluator_id.is_empty() {
             return Err(DomainValidationError::EmptyEvaluatorId);
         }
+
         let supported = profile
             .required_evaluators
             .iter()
@@ -118,6 +141,7 @@ pub fn required_evaluators_supported(
                 .optional_evaluators
                 .iter()
                 .any(|it| it == evaluator_id);
+
         if !supported {
             return Err(DomainValidationError::UnsupportedEvaluator {
                 domain_id: profile.id.clone(),
@@ -147,16 +171,19 @@ pub fn find_domain<'a>(
     }
 
     let mut matches = profiles.iter().filter(|profile| profile.id == domain_id);
+
     let Some(first) = matches.next() else {
         return Err(DomainValidationError::DomainNotFound {
             domain_id: domain_id.to_string(),
         });
     };
+
     if matches.next().is_some() {
         return Err(DomainValidationError::DuplicateDomainId {
             domain_id: domain_id.to_string(),
         });
     }
+
     Ok(first)
 }
 
@@ -169,14 +196,17 @@ where
     F: Fn(&str) -> DomainValidationError,
 {
     let mut seen = HashSet::new();
+
     for value in values {
         if value.is_empty() {
             return Err(empty_error.clone());
         }
-        if !seen.insert(value) {
+
+        if !seen.insert(value.as_str()) {
             return Err(duplicate_error(value));
         }
     }
+
     Ok(())
 }
 
@@ -191,10 +221,12 @@ mod tests {
     fn valid_code_patch_review_domain_passes() {
         assert!(validate_domain_profile(&code_patch_review_domain()).is_ok());
     }
+
     #[test]
     fn valid_security_analysis_domain_passes() {
         assert!(validate_domain_profile(&security_analysis_domain()).is_ok());
     }
+
     #[test]
     fn built_in_domains_validate() {
         for domain in built_in_domains() {
@@ -204,186 +236,306 @@ mod tests {
 
     #[test]
     fn empty_domain_id_fails() {
-        let mut p = code_patch_review_domain();
-        p.id.clear();
+        let mut profile = code_patch_review_domain();
+        profile.id.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingDomainId)
         );
     }
+
     #[test]
     fn empty_name_fails() {
-        let mut p = code_patch_review_domain();
-        p.name.clear();
+        let mut profile = code_patch_review_domain();
+        profile.name.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingDomainName)
         );
     }
+
     #[test]
     fn empty_objective_types_fails() {
-        let mut p = code_patch_review_domain();
-        p.objective_types.clear();
+        let mut profile = code_patch_review_domain();
+        profile.objective_types.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingObjectiveTypes)
         );
     }
+
     #[test]
     fn empty_constraint_types_fails() {
-        let mut p = code_patch_review_domain();
-        p.constraint_types.clear();
+        let mut profile = code_patch_review_domain();
+        profile.constraint_types.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingConstraintTypes)
         );
     }
+
     #[test]
     fn empty_required_evaluators_fails() {
-        let mut p = code_patch_review_domain();
-        p.required_evaluators.clear();
+        let mut profile = code_patch_review_domain();
+        profile.required_evaluators.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingRequiredEvaluators)
         );
     }
+
     #[test]
     fn empty_evidence_requirements_fails() {
-        let mut p = code_patch_review_domain();
-        p.evidence_requirements.clear();
+        let mut profile = code_patch_review_domain();
+        profile.evidence_requirements.clear();
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::MissingEvidenceRequirements)
         );
     }
+
     #[test]
     fn empty_objective_type_fails() {
-        let mut p = code_patch_review_domain();
-        p.objective_types.push(String::new());
+        let mut profile = code_patch_review_domain();
+        profile.objective_types.push(String::new());
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::EmptyObjectiveType)
         );
     }
+
     #[test]
     fn empty_required_evaluator_fails() {
-        let mut p = code_patch_review_domain();
-        p.required_evaluators.push(String::new());
+        let mut profile = code_patch_review_domain();
+        profile.required_evaluators.push(String::new());
+
         assert_eq!(
-            validate_domain_profile(&p),
+            validate_domain_profile(&profile),
             Err(DomainValidationError::EmptyEvaluatorId)
         );
     }
+
+    #[test]
+    fn empty_known_failure_mode_fails() {
+        let mut profile = code_patch_review_domain();
+        profile.known_failure_modes.push(String::new());
+
+        assert_eq!(
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::EmptyKnownFailureMode)
+        );
+    }
+
+    #[test]
+    fn empty_promotion_threshold_fails() {
+        let mut profile = code_patch_review_domain();
+        profile.promotion_thresholds.push(String::new());
+
+        assert_eq!(
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::EmptyPromotionThreshold)
+        );
+    }
+
     #[test]
     fn duplicate_objective_type_fails() {
-        let mut p = code_patch_review_domain();
-        let v = p.objective_types[0].clone();
-        p.objective_types.push(v.clone());
+        let mut profile = code_patch_review_domain();
+        let value = profile.objective_types[0].clone();
+        profile.objective_types.push(value.clone());
+
         assert_eq!(
-            validate_domain_profile(&p),
-            Err(DomainValidationError::DuplicateObjectiveType { objective_type: v })
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::DuplicateObjectiveType {
+                objective_type: value
+            })
         );
     }
+
     #[test]
     fn duplicate_required_evaluator_fails() {
-        let mut p = code_patch_review_domain();
-        let v = p.required_evaluators[0].clone();
-        p.required_evaluators.push(v.clone());
+        let mut profile = code_patch_review_domain();
+        let value = profile.required_evaluators[0].clone();
+        profile.required_evaluators.push(value.clone());
+
         assert_eq!(
-            validate_domain_profile(&p),
-            Err(DomainValidationError::DuplicateRequiredEvaluator { evaluator_id: v })
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::DuplicateRequiredEvaluator {
+                evaluator_id: value
+            })
         );
     }
+
+    #[test]
+    fn duplicate_optional_evaluator_fails() {
+        let mut profile = code_patch_review_domain();
+        let value = profile.optional_evaluators[0].clone();
+        profile.optional_evaluators.push(value.clone());
+
+        assert_eq!(
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::DuplicateOptionalEvaluator {
+                evaluator_id: value
+            })
+        );
+    }
+
+    #[test]
+    fn duplicate_known_failure_mode_fails() {
+        let mut profile = code_patch_review_domain();
+        let value = profile.known_failure_modes[0].clone();
+        profile.known_failure_modes.push(value.clone());
+
+        assert_eq!(
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::DuplicateKnownFailureMode {
+                known_failure_mode: value
+            })
+        );
+    }
+
+    #[test]
+    fn duplicate_promotion_threshold_fails() {
+        let mut profile = code_patch_review_domain();
+        let value = profile.promotion_thresholds[0].clone();
+        profile.promotion_thresholds.push(value.clone());
+
+        assert_eq!(
+            validate_domain_profile(&profile),
+            Err(DomainValidationError::DuplicatePromotionThreshold {
+                promotion_threshold: value
+            })
+        );
+    }
+
     #[test]
     fn required_and_optional_overlap_fails() {
-        let mut p = code_patch_review_domain();
-        let v = p.required_evaluators[0].clone();
-        p.optional_evaluators.push(v.clone());
+        let mut profile = code_patch_review_domain();
+        let value = profile.required_evaluators[0].clone();
+        profile.optional_evaluators.push(value.clone());
+
         assert_eq!(
-            validate_domain_profile(&p),
-            Err(DomainValidationError::EvaluatorListedAsRequiredAndOptional { evaluator_id: v })
+            validate_domain_profile(&profile),
+            Err(
+                DomainValidationError::EvaluatorListedAsRequiredAndOptional {
+                    evaluator_id: value,
+                },
+            )
         );
     }
 
     #[test]
     fn supported_objective_passes() {
-        let p = code_patch_review_domain();
-        assert!(objective_supported(&p, "patch_review").is_ok());
+        let profile = code_patch_review_domain();
+
+        assert!(objective_supported(&profile, "patch_review").is_ok());
     }
+
     #[test]
     fn unsupported_objective_fails() {
-        let p = code_patch_review_domain();
+        let profile = code_patch_review_domain();
+
         assert_eq!(
-            objective_supported(&p, "foo"),
+            objective_supported(&profile, "foo"),
             Err(DomainValidationError::UnsupportedObjectiveType {
-                domain_id: p.id,
-                objective_type: "foo".into()
+                domain_id: profile.id,
+                objective_type: "foo".into(),
             })
         );
     }
+
     #[test]
     fn empty_objective_fails() {
-        let p = code_patch_review_domain();
+        let profile = code_patch_review_domain();
+
         assert_eq!(
-            objective_supported(&p, ""),
+            objective_supported(&profile, ""),
             Err(DomainValidationError::EmptyObjectiveType)
         );
     }
 
     #[test]
     fn complete_required_evaluators_pass() {
-        let p = code_patch_review_domain();
-        assert!(required_evaluators_supported(&p, &p.required_evaluators).is_ok());
+        let profile = code_patch_review_domain();
+
+        assert!(required_evaluators_supported(&profile, &profile.required_evaluators).is_ok());
     }
+
     #[test]
     fn missing_required_evaluator_fails() {
-        let p = code_patch_review_domain();
-        let ids = vec![p.required_evaluators[0].clone()];
+        let profile = code_patch_review_domain();
+        let ids = vec![profile.required_evaluators[0].clone()];
+
         assert_eq!(
-            required_evaluators_supported(&p, &ids),
+            required_evaluators_supported(&profile, &ids),
             Err(DomainValidationError::MissingDomainRequiredEvaluator {
-                domain_id: p.id,
-                evaluator_id: "test_regression".into()
+                domain_id: profile.id,
+                evaluator_id: "test_regression".into(),
             })
         );
     }
+
     #[test]
     fn unsupported_evaluator_fails() {
-        let p = code_patch_review_domain();
+        let profile = code_patch_review_domain();
         let ids = vec!["bad".into()];
+
         assert_eq!(
-            required_evaluators_supported(&p, &ids),
+            required_evaluators_supported(&profile, &ids),
             Err(DomainValidationError::UnsupportedEvaluator {
-                domain_id: p.id,
-                evaluator_id: "bad".into()
+                domain_id: profile.id,
+                evaluator_id: "bad".into(),
             })
         );
     }
+
     #[test]
     fn empty_evaluator_id_fails() {
-        let p = code_patch_review_domain();
+        let profile = code_patch_review_domain();
         let ids = vec![String::new()];
+
         assert_eq!(
-            required_evaluators_supported(&p, &ids),
+            required_evaluators_supported(&profile, &ids),
             Err(DomainValidationError::EmptyEvaluatorId)
         );
     }
+
     #[test]
     fn optional_evaluator_can_be_present() {
-        let p = code_patch_review_domain();
-        let mut ids = p.required_evaluators.clone();
-        ids.push(p.optional_evaluators[0].clone());
-        assert!(required_evaluators_supported(&p, &ids).is_ok());
+        let profile = code_patch_review_domain();
+        let mut ids = profile.required_evaluators.clone();
+        ids.push(profile.optional_evaluators[0].clone());
+
+        assert!(required_evaluators_supported(&profile, &ids).is_ok());
+    }
+
+    #[test]
+    fn find_domain_missing_id_fails() {
+        let profiles = built_in_domains();
+
+        assert_eq!(
+            find_domain(&profiles, "missing"),
+            Err(DomainValidationError::DomainNotFound {
+                domain_id: "missing".into(),
+            })
+        );
     }
 
     #[test]
     fn find_domain_duplicate_id_fails() {
         let mut profiles = built_in_domains();
         profiles.push(code_patch_review_domain());
+
         assert_eq!(
             find_domain(&profiles, "code_patch_review"),
             Err(DomainValidationError::DuplicateDomainId {
-                domain_id: "code_patch_review".into()
+                domain_id: "code_patch_review".into(),
             })
         );
     }
