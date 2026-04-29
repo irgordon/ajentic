@@ -1,4 +1,4 @@
-//! Governance module.
+//! Rust-owned governance and promotion surfaces.
 
 pub mod contract;
 pub mod precheck;
