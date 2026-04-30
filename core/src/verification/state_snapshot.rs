@@ -10,7 +10,7 @@ use crate::verification::architecture_alignment::{
     FailClosedVerificationStatus,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerificationStateSnapshot {
     pub architecture_alignment_status: ArchitectureAlignmentStatus,
     pub authority_boundary_status: AuthorityBoundaryStatus,
@@ -38,9 +38,9 @@ pub fn collect_verification_state_snapshot(
         replay_idempotence_status: replay_result.idempotence_status,
         replay_completeness_status: replay_result.completeness_status,
         replay_integrity_status: replay_result.integrity_status,
-        replay_readiness_status: replay_result.readiness_status,
-        replay_completion_status: replay_result.completion_status,
-        replay_final_status: replay_result.final_status,
+        replay_readiness_status: replay_result.readiness_status.clone(),
+        replay_completion_status: replay_result.completion_status.clone(),
+        replay_final_status: replay_result.final_status.clone(),
     }
 }
 
