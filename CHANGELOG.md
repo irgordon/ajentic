@@ -1,5 +1,23 @@
 # Changelog
 
+
+## Phase 19 — Boundary Regression and Cross-Domain Stability
+
+Added deterministic regression tests verifying that domain configuration
+remains metadata and cannot alter lifecycle, governance, replay, or
+verification semantics.
+
+Implemented:
+
+- cross-domain promotion behavior equivalence tests
+- replay classification stability across domains
+- lifecycle transition independence validation
+- deterministic domain validation failure tests
+
+No runtime behavior changes.
+No new authority surfaces introduced.
+No lifecycle, governance, or replay logic modified.
+
 ## v0.0.18 - 2026-04-29
 **Status:** Phase 18 verification state snapshot visibility surface.
 
