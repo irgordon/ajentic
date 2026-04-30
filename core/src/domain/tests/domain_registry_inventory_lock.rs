@@ -1,5 +1,12 @@
 use crate::domain::registry::built_in_domains;
 
+fn expected_domain_ids() -> Vec<String> {
+    vec![
+        "code_patch_review".to_string(),
+        "security_analysis".to_string(),
+    ]
+}
+
 fn registry_domain_ids() -> Vec<String> {
     built_in_domains()
         .into_iter()
@@ -11,13 +18,7 @@ fn registry_domain_ids() -> Vec<String> {
 fn canonical_built_in_domain_inventory_is_locked() {
     let domain_ids = registry_domain_ids();
 
-    assert_eq!(
-        domain_ids,
-        vec![
-            "code_patch_review".to_string(),
-            "security_analysis".to_string(),
-        ]
-    );
+    assert_eq!(domain_ids, expected_domain_ids());
 }
 
 #[test]
@@ -26,13 +27,7 @@ fn canonical_inventory_order_is_deterministic() {
     let second = registry_domain_ids();
 
     assert_eq!(first, second);
-    assert_eq!(
-        first,
-        vec![
-            "code_patch_review".to_string(),
-            "security_analysis".to_string(),
-        ]
-    );
+    assert_eq!(first, expected_domain_ids());
 }
 
 #[test]
