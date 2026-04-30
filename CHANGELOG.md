@@ -1,6 +1,23 @@
 # Changelog
 
 
+## Phase 20 — Domain Registry Determinism and Canonical Identity
+
+Added deterministic regression tests verifying that the domain registry
+maintains stable identity, ordering, and lookup semantics across runs.
+
+Implemented:
+
+- registry identity determinism tests
+- stable domain lookup validation
+- duplicate and conflict rejection tests
+- registry immutability validation
+
+No runtime behavior changes.
+No new authority surfaces introduced.
+No lifecycle, governance, or replay logic modified.
+
+
 ## Phase 19 — Boundary Regression and Cross-Domain Stability
 
 Added deterministic regression tests verifying that domain configuration
