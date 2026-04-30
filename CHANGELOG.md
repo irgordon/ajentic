@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.22 — Phase 22 — Domain Resolution Safety and Deterministic Consumption
+
+Added regression and boundary hardening coverage for safe domain registry consumption semantics.
+
+Implemented:
+
+- deterministic domain resolution enforcement tests
+- fail-closed lookup semantics tests for invalid, empty, and malformed domain identifiers
+- non-mutation guarantee tests for governance, replay, and registry identity during domain resolution
+- deterministic lookup consistency tests across repeated access, lookup ordering, and registry reconstruction
+
+Domain resolution is deterministic, explicit, and side-effect free.
+
+No runtime capability changes.
+Regression and boundary hardening only.
+
+
 ## v0.0.21 — Phase 21 — Domain Registry Extension Safety
 
 Added deterministic registry inventory enforcement tests that lock the canonical built-in domain list and ordering.
