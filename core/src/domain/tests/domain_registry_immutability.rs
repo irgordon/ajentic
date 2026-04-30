@@ -10,14 +10,14 @@ fn registry_access_is_read_only() {
 
     let registry_before = built_in_domains();
 
-    for _ in 0..5 {
-        let registry = built_in_domains();
-        let code = find_domain(&registry, "code_patch_review").unwrap();
-        let security = find_domain(&registry, "security_analysis").unwrap();
+for _ in 0..5 {
+    let registry = built_in_domains();
 
-        assert_eq!(code.id, "code_patch_review");
-        assert_eq!(security.id, "security_analysis");
+    for profile in &registry {
+        let found = find_domain(&registry, &profile.id).unwrap();
+        assert_eq!(found, profile);
     }
+}
 
     let governance_after = GovernanceStatus::Unknown;
     let replay_after = ReplayFinalStatus::Unknown;
