@@ -33,6 +33,12 @@ impl InMemoryLedger {
     }
 }
 
+impl Default for InMemoryLedger {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

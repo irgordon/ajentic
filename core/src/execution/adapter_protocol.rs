@@ -174,7 +174,7 @@ pub fn validate_adapter_response(
         return Err(AdapterProtocolError::EmptyAdapterVersion);
     }
 
-    let output_size = response.output_text.as_bytes().len();
+    let output_size = response.output_text.len();
     if output_size > request.limits.max_output_bytes {
         return Err(AdapterProtocolError::OutputTooLarge {
             max: request.limits.max_output_bytes,
