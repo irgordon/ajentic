@@ -64,14 +64,14 @@ fn registry_failure_is_deterministic() {
     let mut duplicated = built_in_domains();
     duplicated.push(code_patch_review_domain());
 
-let first_duplicate_lookup = find_domain(&duplicated, "code_patch_review");
-let second_duplicate_lookup = find_domain(&duplicated, "code_patch_review");
+    let first_duplicate_lookup = find_domain(&duplicated, "code_patch_review");
+    let second_duplicate_lookup = find_domain(&duplicated, "code_patch_review");
 
-assert_eq!(
-    first_duplicate_lookup,
-    Err(DomainValidationError::DuplicateDomainId {
-        domain_id: "code_patch_review".to_string(),
-    })
-);
-assert_eq!(first_duplicate_lookup, second_duplicate_lookup);
+    assert_eq!(
+        first_duplicate_lookup,
+        Err(DomainValidationError::DuplicateDomainId {
+            domain_id: "code_patch_review".to_string(),
+        })
+    );
+    assert_eq!(first_duplicate_lookup, second_duplicate_lookup);
 }

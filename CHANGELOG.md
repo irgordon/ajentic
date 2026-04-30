@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.21 — Phase 21 — Domain Registry Extension Safety
+
+Added deterministic registry inventory enforcement tests that lock the canonical built-in domain list and ordering.
+
+Implemented:
+
+- canonical built-in domain inventory lock tests
+- deterministic registry identity and repeated-construction stability tests
+- registry read-only access tests validating governance and replay status remain unchanged
+- extension safety tests requiring intentional inventory test updates
+
+Any future built-in domain addition requires an intentional test update and review.
+
+No runtime capability changes.
+Regression and governance hardening only.
+
+
 ## Phase 20 — Domain Registry Determinism and Canonical Identity
 
 Added deterministic regression tests verifying that the domain registry
