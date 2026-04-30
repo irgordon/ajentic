@@ -4,6 +4,7 @@
 //! lifecycle, governance, promotion, replay, or ledger authority.
 
 pub mod architecture_alignment;
+pub mod state_snapshot;
 
 use architecture_alignment::{
     ArchitectureAlignmentStatus, AuthorityBoundaryStatus, DeterminismVerificationStatus,
@@ -278,3 +279,5 @@ mod tests {
         assert_eq!(first.as_bytes(), second.as_bytes());
     }
 }
+
+pub type ArchitectureAlignmentVerificationResult = ArchitectureAlignmentVerification;
