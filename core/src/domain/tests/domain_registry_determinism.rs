@@ -28,6 +28,7 @@ fn registry_ordering_is_deterministic() {
     let first_ids: Vec<&str> = first.iter().map(|profile| profile.id.as_str()).collect();
     let second_ids: Vec<&str> = second.iter().map(|profile| profile.id.as_str()).collect();
 
+    assert_eq!(first_ids, vec!["code_patch_review"]);
     assert_eq!(first_ids, second_ids);
 }
 
