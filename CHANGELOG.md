@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.18 - 2026-04-29
+**Status:** Phase 18 verification state snapshot visibility surface.
+
+### Added
+- Deterministic, read-only `VerificationStateSnapshot` surface aggregating architecture alignment verification and replay classification outputs.
+- Snapshot collection function `collect_verification_state_snapshot` that assembles existing verification statuses without mutation or inference.
+- Verification snapshot tests for determinism, completeness, non-authoritative behavior, and equality stability.
+
+### Notes
+- Verification state snapshot is descriptive only.
+- Verification state snapshot does not alter lifecycle state.
+- Verification state snapshot does not alter governance approval.
+- Verification state snapshot does not alter promotion eligibility.
+- Verification state snapshot does not introduce persistence, execution behavior, or authority expansion.
+
 ## v0.0.17 - 2026-04-29
 **Status:** Phase 17 replay integrity and ordering stability verification capability.
 
