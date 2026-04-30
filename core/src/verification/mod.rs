@@ -175,6 +175,8 @@ fn evaluate_overall(
     OverallAlignmentStatus::Verified
 }
 
+pub type ArchitectureAlignmentVerificationResult = ArchitectureAlignmentVerification;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -279,5 +281,3 @@ mod tests {
         assert_eq!(first.as_bytes(), second.as_bytes());
     }
 }
-
-pub type ArchitectureAlignmentVerificationResult = ArchitectureAlignmentVerification;

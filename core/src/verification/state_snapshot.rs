@@ -1,14 +1,14 @@
-use crate::replay::ReplayResult;
 use crate::replay::status::ReplayCompletionStatus;
+use crate::replay::ReplayResult;
 use crate::replay::{
     ReplayCompletenessStatus, ReplayFinalStatus, ReplayIdempotenceStatus, ReplayIntegrityStatus,
     ReplayOrderingStabilityStatus, ReplayReadinessStatus,
 };
-use crate::verification::ArchitectureAlignmentVerificationResult;
 use crate::verification::architecture_alignment::{
     ArchitectureAlignmentStatus, AuthorityBoundaryStatus, DeterminismVerificationStatus,
     FailClosedVerificationStatus,
 };
+use crate::verification::ArchitectureAlignmentVerificationResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerificationStateSnapshot {
@@ -51,7 +51,7 @@ mod tests {
         ReplayCompletenessStatus, ReplayIdempotenceStatus, ReplayOrderingStabilityStatus,
     };
     use crate::verification::{
-        AlignmentEvidence, ArchitectureAlignmentVerification, verify_architecture_alignment,
+        verify_architecture_alignment, AlignmentEvidence, ArchitectureAlignmentVerification,
     };
 
     fn baseline_alignment() -> ArchitectureAlignmentVerification {
