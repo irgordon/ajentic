@@ -9,11 +9,14 @@ AJENTIC treats generated output as untrusted, records candidate and evaluation d
 
 The harness is not primarily an LLM caller. It is a control layer around model output, adapter output, evaluator evidence, lifecycle state, governance decisions, audit records, and replay.
 
-## 2. Current implementation status
+## 2. Implemented capability surfaces
 
-Current repository status: Phase 6 complete pending Owner acceptance and documentation/version alignment.
+The repository currently contains foundational control-layer surfaces that
+establish deterministic behavior and Rust-owned authority boundaries.
 
-Implemented:
+These surfaces define structural capability, not operational readiness.
+
+Implemented capability surfaces include:
 
 - contracts and schemas
 - candidate lifecycle state machine
@@ -21,21 +24,20 @@ Implemented:
 - adapter protocol and deterministic Python mock adapter boundary
 - Rust-owned candidate creation from validated adapter responses
 - Rust-owned evaluation result ingestion
+- deterministic domain registry construction and validation
+- fail-closed domain resolution behavior
+- deterministic replay and verification classification surfaces
 
-Not implemented:
+The presence of these surfaces indicates architectural capability only.
 
-- full objective validation
-- full constraint validation
-- domain compatibility validation
-- governance approval
-- promotion eligibility
-- Tier-1 promotion decisions
-- append-only ledger
-- audit record emission
-- replay
-- real local or cloud provider adapters
-- TypeScript review UI
-- multi-domain runtime capability
+Operational state, readiness, and phase acceptance are determined by:
+
+- executable code
+- passing tests
+- accepted CHANGELOG entries
+
+Future capability surfaces may be added through controlled phases
+without altering authority boundaries.
 
 ## 3. Architecture rule
 
