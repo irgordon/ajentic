@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.0.27 - 2026-05-01
+**Status:** Phase 27 provider parity and adapter reliability validation surface.
+
+### Added
+- Deterministic, read-only provider parity validation surface verifying identical trust boundary behavior across local and cloud adapters.
+- Provider parity classification ensuring provider source does not influence lifecycle, governance, promotion, replay, or audit semantics.
+- Provider parity regression tests for protocol equivalence, error mapping consistency, authority boundary enforcement, and deterministic behavior.
+
+### Notes
+- Provider parity validation is descriptive only.
+- Provider parity validation does not execute adapters.
+- Provider parity validation does not alter lifecycle state.
+- Provider parity validation does not alter governance approval.
+- Provider parity validation does not alter promotion eligibility.
+- Provider parity validation does not introduce provider execution, credential handling, network access, or runtime authority.
+
 ## v0.0.26 - 2026-05-01
 **Status:** Phase 26 changelog coverage and phase continuity verification.
 
