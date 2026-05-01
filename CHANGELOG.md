@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.0.25 - 2026-05-01
+**Status:** Phase 25 changelog continuity and version sequence verification.
+
+### Added
+- Deterministic CHANGELOG sequence validation helpers ensuring strictly
+  increasing version numbers and chronological date ordering.
+- Typed validation errors for duplicate versions, version regressions,
+  non-monotonic dates, and invalid version formats.
+- Inline fixture tests validating deterministic version sequencing behavior.
+
+### Notes
+- CHANGELOG sequence validation is descriptive only.
+- CHANGELOG sequence validation does not alter lifecycle state.
+- CHANGELOG sequence validation does not alter governance approval.
+- CHANGELOG sequence validation does not alter promotion eligibility.
+- CHANGELOG sequence validation does not introduce persistence,
+  execution behavior, provider integration, API behavior, or UI authority.
+
 ## v0.0.24 - 2026-05-01
 **Status:** Phase 24 changelog contract and acceptance record validation.
 
