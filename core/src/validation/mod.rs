@@ -7,3 +7,5 @@ pub mod changelog_contract;
 pub mod changelog_sequence;
 
 pub mod changelog_phase_coverage;
+
+pub mod provider_parity;
