@@ -1,23 +1,18 @@
-````markdown id="spec-md"
 # AJENTIC Specification
 
 ## 1. Overview
 
 AJENTIC is a governed harness for machine-generated candidate solutions.
-
-AJENTIC treats generated output as untrusted, records candidate and evaluation data under Rust-owned control, and promotes outputs only after explicit governance checks in later phases.
-
+AJENTIC treats generated output as untrusted, records candidate and evaluation data under Rust-owned control, and promotes outputs only after explicit governance checks.
 The harness is not primarily an LLM caller. It is a control layer around model output, adapter output, evaluator evidence, lifecycle state, governance decisions, audit records, and replay.
+This specification defines architecture and capability boundaries.  
+It does not record operational status or phase completion.
 
 ## 2. Implemented capability surfaces
 
-The repository currently contains foundational control-layer surfaces that
-establish deterministic behavior and Rust-owned authority boundaries.
-
-These surfaces define structural capability, not operational readiness.
-
+The repository contains foundational control-layer surfaces that establish deterministic behavior and Rust-owned authority boundaries.
+These surfaces describe architectural capability, not operational readiness.
 Implemented capability surfaces include:
-
 - contracts and schemas
 - candidate lifecycle state machine
 - static CLI validation and inspection
@@ -26,18 +21,18 @@ Implemented capability surfaces include:
 - Rust-owned evaluation result ingestion
 - deterministic domain registry construction and validation
 - fail-closed domain resolution behavior
-- deterministic replay and verification classification surfaces
-
-The presence of these surfaces indicates architectural capability only.
-
-Operational state, readiness, and phase acceptance are determined by:
-
+- deterministic verification and replay classification surfaces
+- deterministic registry identity and ordering enforcement
+- domain boundary and isolation regression tests
+- registry inventory lock and extension safety enforcement
+- domain resolution determinism and non-mutation validation
+These capabilities define structural correctness and boundary enforcement.
+They do not imply production readiness, governance authorization, or promotion eligibility.
+Operational state, readiness, and implementation acceptance are determined exclusively by:
 - executable code
 - passing tests
 - accepted CHANGELOG entries
-
-Future capability surfaces may be added through controlled phases
-without altering authority boundaries.
+If documentation and implementation diverge, implementation artifacts take precedence.
 
 ## 3. Architecture rule
 
@@ -47,19 +42,19 @@ Python = adaptation
 TypeScript = visibility
 Bash = glue
 Go = optional service wrapper, not part of the current implementation path
-````
+```
 
 Rust owns authoritative lifecycle, governance, policy enforcement, ledger, replay, audit, validation, and promotion decisions.
 
 Python adapters and evaluators are non-authoritative. They may produce output, evidence, or observations, but they must not approve, promote, mutate lifecycle state, write ledger entries, emit audit records, or decide final pass/fail semantics.
 
-TypeScript is a future visibility and review surface. It may display Rust-generated state and request actions, but it must not compute authoritative promotion eligibility.
+TypeScript is a visibility and review surface. It may display Rust-generated state and request actions, but it must not compute authoritative promotion eligibility.
 
 Bash is thin local and CI glue. It must not encode policy, lifecycle, governance, replay, audit, or promotion decisions.
 
-Go is optional future service infrastructure only. If added, it must wrap the Rust authority rather than duplicate it.
+Go is optional future service infrastructure only. If added, it must wrap the Rust authority rather than duplicate 
 
-## 4. Core trust model
+##4. Core trust model
 
 Generated output is untrusted by default.
 
@@ -71,31 +66,29 @@ Candidate creation is not validation.
 
 Required evaluator satisfaction is not promotion eligibility.
 
-`UNKNOWN` is not `PASS`.
+UNKNOWN is not PASS.
 
-Only Rust may make authoritative lifecycle, governance, ledger, replay, audit, and promotion decisions.
+Only Rust may make authoritative lifecycle, governance, ledger, replay, audit, validation, and promotion decisions.
 
 No unsafe bypass flags are allowed:
 
-```text
 --force-promote
 --skip-policy
 --trust-adapter-output
 --ignore-unknown
 --promote-anyway
-```
 
-## 5. Implemented surfaces
+## 5. Implemented architectural surfaces
 
 ### 5.1 Contracts and schemas
 
-Schemas under `schemas/` define boundary object shapes.
+Schemas under schemas/ define boundary object shapes.
 
-Rust contract types under `core/src/*/contract.rs` define Rust-side contract shapes.
+Rust contract types under core/src/*/contract.rs define Rust-side contract shapes.
 
-Contracts and schemas define structure. They do not by themselves enforce runtime behavior.
+Contracts and schemas define structure. They do not authorize behavior.
 
-Schema validation, full YAML parsing, full contract deserialization, and complete run validation remain future work unless explicitly implemented in later phases.
+Schema validation, full YAML parsing, full contract deserialization, and complete run validation remain governed by explicit Rust logic.
 
 ### 5.2 Candidate lifecycle
 
@@ -103,238 +96,332 @@ The Rust core defines the candidate lifecycle state machine.
 
 Lifecycle states include:
 
-* `CREATED`
-* `EVALUATING`
-* `FAILED`
-* `BLOCKED`
-* `PASSED`
-* `PROMOTED_TIER_1`
-* `REJECTED`
-* `UNKNOWN`
+* CREATED
+* EVALUATING
+* FAILED
+* BLOCKED
+* PASSED
+* PROMOTED_TIER_1
+* REJECTED
+* UNKNOWN
 
 Lifecycle transition checks are typed and Rust-owned.
 
-`PROMOTED_TIER_1` is currently a lifecycle state shape. Authorization to enter this state belongs to future Rust governance promotion logic.
+PROMOTED_TIER_1 is a lifecycle state shape.
+
+Authorization to enter this state belongs exclusively to Rust governance promotion logic.
 
 ### 5.3 Static CLI validation and inspection
 
 The CLI supports:
 
-```sh
 cargo run -p ajentic-cli -- validate examples/minimal_run
 cargo run -p ajentic-cli -- inspect examples/minimal_run
-```
 
-The current validation command checks static run-directory shape only:
+The validation command checks static run-directory structure only:
 
 * required file presence
 * non-empty file content
-* expected plain-text markers
+* expected structure markers
 
-The inspect command reports static file presence and byte lengths.
+The inspect command reports parsed structure and validation status.
 
-Static CLI validation does not parse YAML, validate schemas, deserialize contracts, evaluate candidates, apply governance, or approve promotion.
+These commands do not:
+
+* perform governance decisions
+* promote candidates
+* execute replay
+* mutate runtime state
 
 ### 5.4 Adapter protocol and mock adapter
 
-The Rust core defines a Phase 4 adapter boundary.
+The Rust core defines a deterministic adapter boundary.
 
-Rust can invoke a deterministic Python mock adapter through a subprocess. Rust validates response linkage, required metadata, status vocabulary, and output-size limits.
+Rust invokes a Python mock adapter through a subprocess boundary.
+
+Rust validates:
+
+* protocol structure
+* response linkage
+* status vocabulary
+* output size limits
+* required metadata
 
 A completed adapter response is untrusted generated output only.
 
-A completed adapter response is not a passing candidate, not governance approval, and not a promotion decision.
+It is not:
 
-The current line protocol is an early deterministic mock boundary. It is not provider authority and should not be treated as the final real-provider adapter contract.
+* candidate approval
+* governance authorization
+* promotion eligibility
+* audit evidence
+
+The current adapter protocol is a deterministic boundary mechanism.
+It is not provider authority.
 
 ### 5.5 Candidate creation
 
-Rust can create a candidate record from a validated completed adapter response.
+Rust creates candidate records from validated adapter responses.
 
 Candidate IDs are deterministic and Rust-assigned.
 
-Created candidates start in lifecycle state `CREATED`.
+Created candidates begin in lifecycle state:
 
-Candidate creation does not evaluate, govern, promote, persist, replay, or audit the candidate.
+CREATED
 
-Created candidates remain untrusted.
+Candidate creation:
+
+* records untrusted output
+* preserves traceability
+* does not evaluate
+* does not govern
+* does not promote
+* does not persist
+* does not replay
+* does not audit
 
 ### 5.6 Evaluation result ingestion
 
-Rust can ingest structured evaluation results and link them to candidate records.
+Rust ingests structured evaluation results and links them to candidates.
 
 Evaluation statuses include:
 
-* `PASS`
-* `FAIL`
-* `BLOCKED`
-* `UNKNOWN`
+* PASS
+* FAIL
+* BLOCKED
+* UNKNOWN
 
-Rust can check required evaluator presence and required evaluator satisfaction.
+Rust verifies required evaluator presence and required evaluator satisfaction.
 
-Only `PASS` satisfies a required evaluator.
+Only PASS satisfies a required evaluator.
 
-`FAIL`, `BLOCKED`, `UNKNOWN`, missing, malformed, or incomplete evaluator results do not satisfy required evaluators.
+FAIL, BLOCKED, UNKNOWN, missing, malformed, or incomplete results do not satisfy required evaluators.
 
-Evaluation result ingestion does not mutate candidate lifecycle state. It does not approve candidates and does not promote candidates.
+Evaluation ingestion:
 
-## 6. Not-yet-implemented surfaces
+* records evidence
+* preserves determinism
+* does not authorize promotion
+* does not mutate lifecycle state outside explicit rules
 
-The following are intentionally not implemented yet:
+### 5.7 Domain registry and resolution
 
-* governance precheck
-* runtime governance review
-* policy enforcement engine
-* promotion eligibility engine
-* promotion decision creation
-* Rust-only authorization into `PROMOTED_TIER_1`
-* append-only ledger
-* audit record emission
-* replay from recorded facts
-* real local model adapter
-* real cloud model adapter
-* TypeScript review UI
-* multi-domain runtime capability
-* reuse and bounded improvement records
-* hardening fixture suite
+Domain profiles are defined as deterministic metadata structures.
 
-These surfaces must be implemented only through later scoped phases.
+The domain registry:
 
-## 7. Boundary definitions
+* is constructed in fixed literal order
+* has deterministic identity
+* has deterministic lookup behavior
+* rejects invalid references
+* fails closed on malformed input
 
-### Candidate solution
+Registry ordering is part of identity.
 
-A Rust-owned candidate record derived from a validated completed adapter response.
+Domain resolution is:
 
-The candidate may contain or reference generated content, but that content remains untrusted until evaluated and governed.
+* deterministic
+* explicit
+* side-effect free
+* non-mutating
 
-### Evaluation result
+Domain configuration must not alter:
 
-A structured result linked to a candidate and evaluator.
+* lifecycle authority
+* governance semantics
+* replay behavior
+* verification logic
+* promotion eligibility
 
-An evaluation result may record `PASS`, `FAIL`, `BLOCKED`, or `UNKNOWN`.
+### 5.8 Verification and replay classification
 
-An evaluation result is evidence. It is not promotion authority.
+Verification and replay modules operate as deterministic classification surfaces.
 
-### Required evaluator satisfaction
+They:
 
-A Rust-owned check that determines whether required evaluators have recorded satisfying results.
+* analyze recorded state
+* classify system condition
+* produce descriptive results
 
-Only `PASS` satisfies a required evaluator.
+They do not:
 
-Required evaluator satisfaction is not promotion eligibility.
+* mutate runtime state
+* execute governance
+* perform promotion
+* regenerate external outputs
 
-### Governance result
+Replay reconstructs decisions from recorded facts.
 
-A future Rust-owned governance record.
+Replay must not:
 
-Governance will consume candidate data, evaluation evidence, policy checks, and required references.
+* call adapters
+* call providers
+* call external services
+* regenerate model output
+* mutate ledger records
 
-Governance is not implemented in the current repository state.
+## 6. Boundary definitions
 
-### Promotion decision
+Candidate solution
 
-A future Rust-owned decision that may authorize transition to `PROMOTED_TIER_1`.
+A Rust-owned record derived from validated adapter output.
 
-Promotion decisions must have one authoritative implementation path in Rust governance code.
+Candidate content remains untrusted until governed.
 
-Promotion is not implemented in the current repository state.
+⸻
 
-### Tier-1 output
+Evaluation result
 
-A future governed output suitable for downstream review.
+Structured evidence linked to a candidate.
 
-Tier-1 does not mean automatic production approval.
+Evaluation results do not authorize promotion.
 
-Tier-1 output creation is not implemented in the current repository state.
+⸻
 
-### Domain
+Required evaluator satisfaction
 
-A distinct problem class described by domain contract fields.
+A deterministic check verifying evaluator completion.
 
-Domains may later configure objective types, constraint types, evaluators, thresholds, failure modes, and evidence requirements.
+It is an input to governance logic.
 
-Domains must not alter lifecycle authority, promotion semantics, ledger rules, replay rules, unknown handling, or Rust authority.
+It is not promotion eligibility.
 
-### Reuse event
+⸻
 
-A future Rust-owned record representing reuse of earlier patterns.
+Governance result
 
-Reuse is advisory until validated in the new context.
+A Rust-owned decision record.
 
-Reuse must not bypass validation or alter governance rules.
+Governance consumes candidate state, evaluation evidence, policy checks, and required references.
 
-## 8. Phase boundary constraints
+Only governance logic may authorize promotion.
 
-Current implemented surfaces must not be reinterpreted as later-phase behavior.
+⸻
 
-Specifically:
+Promotion decision
 
-* static CLI validation must not be treated as full run validation
-* adapter completion must not be treated as candidate approval
-* candidate creation must not be treated as candidate validation
-* evaluator satisfaction must not be treated as governance approval
-* lifecycle state shape must not be treated as promotion authorization
-* Python output must not be treated as authoritative
-* UI state must not be treated as authoritative
-* Bash scripts must not encode governance policy
+A Rust-owned authorization event.
 
-## 9. Future implementation direction
+Promotion requires:
 
-### Governance and promotion
+* valid objective
+* valid constraints
+* valid domain
+* completed required evaluators
+* absence of FAIL
+* absence of BLOCKED
+* absence of unresolved UNKNOWN
+* required evidence presence
 
-The next major implementation phase is Rust-only governance and promotion.
+Promotion authority must exist in exactly one Rust implementation path.
 
-Promotion authority must live in one Rust governance path. It must not be duplicated in candidate lifecycle code, evaluation ingestion code, CLI wrappers, Python adapters, TypeScript UI, or Bash scripts.
+⸻
 
-A candidate may be promoted only when future governance logic verifies:
+Tier-1 output
 
-* objective validity
-* constraint validity
-* domain validity
-* required evaluator completion
-* absence of required `FAIL`
-* absence of required `BLOCKED`
-* absence of unresolved `UNKNOWN`
-* required policy checks
-* required evidence references
+A governed output suitable for downstream review.
 
-### Ledger, audit, and replay
+Tier-1 does not imply production deployment.
 
-Later phases must add append-only ledger records, audit records, and replay.
+⸻
 
-Replay must reconstruct decisions from recorded facts. It must not regenerate model output or call Python adapters, model providers, TypeScript UI, Bash scripts, or remote services.
+Domain
 
-### Provider adapters
+A metadata-defined problem classification.
 
-Real local and cloud adapters must use the same non-authoritative adapter boundary.
+Domains configure compatibility.
 
-Provider source must not affect trust semantics.
+Domains do not alter authority.
 
-Provider-specific behavior must not enter candidate lifecycle or promotion logic.
+⸻
 
-### UI
+Reuse event
 
-The TypeScript UI must display Rust-generated state.
+A recorded reuse of prior patterns.
 
-It must not compute authoritative promotion eligibility or hide failed, blocked, unknown, or missing checks.
+Reuse is advisory.
 
-## 10. Scope constraints
+Reuse does not bypass validation.
 
-The current repository state does not implement:
+## 7. Scope constraints
 
-* full run validation
-* provider calls
-* evaluator execution
-* governance engines
-* promotion logic
-* ledger persistence
-* replay
-* API server
-* dashboard behavior
-* production deployment approval
+The current architecture intentionally restricts capability expansion.
 
-Any future work that adds these capabilities must be scoped through the roadmap and must preserve Rust authority, fail-closed behavior, and the non-authoritative status of adapters, UI, and scripts.
+The system does not assume:
 
-```
-```
+* automatic promotion
+* implicit success
+* hidden defaults
+* silent recovery
+* nondeterministic execution
+* external authority
+
+All transitions require explicit validation.
+
+All decisions require deterministic evidence.
+
+All failures must fail closed.
+
+
+## 8. Architectural invariants
+
+The following invariants are permanent:
+
+Rust authority invariant
+
+Only Rust may authorize lifecycle transitions, governance decisions, ledger operations, replay execution, audit generation, and promotion.
+
+Adapter non-authority invariant
+
+Adapters may generate output. They must not approve candidates.
+
+UI non-authority invariant
+
+User interfaces may display state. They must not define truth.
+
+Script non-authority invariant
+
+Scripts may invoke commands. They must not encode policy.
+
+Unknown-is-not-pass invariant
+
+Unknown, missing, malformed, incomplete, blocked, or failed results must not be treated as passing.
+
+One-rule-one-home invariant
+
+Each governance rule must have one authoritative implementation.
+
+Replay independence invariant
+
+Replay must reconstruct decisions from recorded facts without regeneration.
+
+Determinism invariant
+
+Repeated operations must produce identical results under identical inputs.
+
+Failure-closed invariant
+
+Missing or invalid information must halt progression.
+
+
+## 9. Specification governance rule
+
+This document defines architecture and invariant behavior.
+
+It does not:
+
+* record operational readiness
+* declare implementation completion
+* assign phase status
+* authorize deployment
+* override tests
+* override code
+* override the CHANGELOG
+
+Behavior is determined by:
+
+* executable code
+* deterministic tests
+* accepted CHANGELOG entries
+
+These artifacts are the final authority.
