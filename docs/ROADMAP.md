@@ -8,6 +8,15 @@ This document defines the proposed implementation roadmap for AJENTIC. It descri
 
 The roadmap is a planning artifact. It does not define the current operational state of the repository.
 
+Current operational state is determined by:
+
+- Implemented code
+- Executable tests
+- Accepted CHANGELOG entries
+
+If a discrepancy exists between ROADMAP and implementation artifacts,
+the implementation artifacts take precedence.
+
 ## 1a. Authority Model
 
 The authoritative source for repository state is:
