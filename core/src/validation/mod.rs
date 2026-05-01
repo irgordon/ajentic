@@ -11,3 +11,5 @@ pub mod changelog_phase_coverage;
 pub mod provider_parity;
 
 pub mod early_production_boundary;
+
+pub mod execution_stability;

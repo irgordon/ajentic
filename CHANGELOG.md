@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.0.30 - 2026-05-01
+**Status:** Phase 30 deterministic execution and performance stability verification surface.
+
+### Added
+
+- Deterministic, read-only execution stability validation surface verifying repeatable lifecycle, governance, and replay outcomes.
+- Typed execution stability errors for non-deterministic outcomes, replay mismatch, lifecycle variance, governance variance, performance bound violation, failure classification variance, authority boundary change, and measurement instability.
+- Inline fixture tests for fail-closed execution stability validation and deterministic classification.
+
+### Notes
+
+- Execution stability validation is descriptive only.
+- Execution stability validation does not perform benchmarking.
+- Execution stability validation does not alter lifecycle state.
+- Execution stability validation does not alter governance approval.
+- Execution stability validation does not alter promotion eligibility.
+- Execution stability validation does not introduce performance tuning, concurrency control, scaling behavior, persistence changes, API behavior, or UI authority.
+
 ## v0.0.29 - 2026-05-01
 **Status:** Phase 29 early production capability boundary validation surface.
 
