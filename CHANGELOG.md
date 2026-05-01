@@ -1,7 +1,8 @@
 # Changelog
 
 
-## v0.0.22 — Phase 22 — Domain Resolution Safety and Deterministic Consumption
+## v0.0.22 — 2026-04-30
+**Status:** Phase 22 — Domain Resolution Safety and Deterministic Consumption
 
 Added regression and boundary hardening coverage for safe domain registry consumption semantics.
 
@@ -18,7 +19,8 @@ No runtime capability changes.
 Regression and boundary hardening only.
 
 
-## v0.0.21 — Phase 21 — Domain Registry Extension Safety
+## v0.0.21 — 2026-04-29
+**Status:** Phase 21 — Domain Registry Extension Safety
 
 Added deterministic registry inventory enforcement tests that lock the canonical built-in domain list and ordering.
 
@@ -35,7 +37,8 @@ No runtime capability changes.
 Regression and governance hardening only.
 
 
-## Phase 20 — Domain Registry Determinism and Canonical Identity
+## v0.0.20 - 2026-04-29
+**Status:** Phase 20 — Domain Registry Determinism and Canonical Identity
 
 Added deterministic regression tests verifying that the domain registry
 maintains stable identity, ordering, and lookup semantics across runs.
@@ -52,7 +55,8 @@ No new authority surfaces introduced.
 No lifecycle, governance, or replay logic modified.
 
 
-## Phase 19 — Boundary Regression and Cross-Domain Stability
+## v0.0.19 - 2026-04-29
+**Status:** Phase 19 — Boundary Regression and Cross-Domain Stability
 
 Added deterministic regression tests verifying that domain configuration
 remains metadata and cannot alter lifecycle, governance, replay, or
