@@ -1,9 +1,0 @@
-objective:
-  id: example-objective
-  domain_id: example-domain
-  objective_type: summarize
-  description: Minimal non-production objective contract example.
-  success_criteria:
-    - include key points
-  constraints_ref: constraints.yaml
-  evaluation_profile_ref: domain.yaml
