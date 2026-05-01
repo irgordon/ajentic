@@ -1,3 +1,9 @@
+---
+truth_dimension: orientation
+authority_level: non_authoritative
+mutation_path: readme_update
+---
+
 # AJENTIC
 
 AJENTIC is a deterministic control layer for model-driven work.
@@ -11,7 +17,6 @@ The harness treats model output as candidate material. It assembles bounded cont
 Large language models can generate useful work, but raw model output is not a reliable execution boundary.
 
 AJENTIC exists to put a controlled system around that output:
-
 - clear context
 - typed requests
 - governed memory
@@ -19,7 +24,7 @@ AJENTIC exists to put a controlled system around that output:
 - ledgered events
 - replayable runs
 - audit-friendly output
-- human operator review
+- human review
 
 The goal is not to make the model autonomous.
 
@@ -28,7 +33,6 @@ The goal is to make model-driven work inspectable, repeatable, and controlled.
 ## What it will provide
 
 The planned application includes:
-
 - Rust authoritative core
 - browser-based TypeScript UI
 - bounded context inspection
@@ -47,27 +51,26 @@ User intent + model output
   → harness intake
   → context assembly
   → policy and validation
-  → normalized candidate output
-  → controlled execution
+  → validated candidate output
+  → controlled task execution
   → ledger
   → replay
   → audit
   → clean human-readable output
-```
 
 Raw model output is not clean output.
 
 Clean output is output that has passed through the harness boundary.
 
-## Project Status
+### Project status
 
-This repository is in Pre-alpha Development.
+This repository is in pre-alpha development.
 
 The initial work establishes the repository structure, governance boundaries, and validation gates needed before runtime behavior is implemented.
 
 No production runtime capability should be assumed from placeholder files.
 
-## Repository model
+### Repository model
 
 The repository separates different kinds of truth:
 
@@ -83,7 +86,7 @@ The repository separates different kinds of truth:
 
 This README is orientation only. It is not an authority source.
 
-## Intended Users
+### Intended users
 
 AJENTIC is intended for engineers and teams using model-assisted workflows who need:
 
@@ -94,7 +97,7 @@ AJENTIC is intended for engineers and teams using model-assisted workflows who n
 * clear operator controls
 * confidence that model output is not silently trusted
 
-## Project boundary
+### Project boundary
 
 This project is not an autonomous coding agent.
 
