@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.0.29 - 2026-05-01
+**Status:** Phase 29 early production capability boundary validation surface.
+
+### Added
+- Deterministic, read-only early production boundary validation surface for controlled governed review workflow readiness evidence.
+- Typed boundary errors for missing static validation, adapter boundary, provider parity, candidate generation path, structured evaluation, Rust governance authority, ledger boundary, replay from facts, audit traceability, UI non-authority, multi-domain stability, reuse boundary, negative-path coverage, and operational readiness.
+- Inline fixture tests for fail-closed early production boundary validation, production approval claim rejection, and deterministic boundary classification.
+
+### Notes
+- Early production boundary validation is descriptive only.
+- Early production boundary validation does not approve deployment.
+- Early production boundary validation does not certify full production maturity.
+- Early production boundary validation does not alter lifecycle state.
+- Early production boundary validation does not alter governance approval.
+- Early production boundary validation does not alter promotion eligibility.
+- Early production boundary validation does not introduce runtime orchestration, provider execution, credential handling, persistence, API behavior, or UI authority.
+
 ## v0.0.27 - 2026-05-01
 **Status:** Phase 27 provider parity and adapter reliability validation surface.
 
