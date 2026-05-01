@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.0.26 - 2026-05-01
+**Status:** Phase 26 changelog coverage and phase continuity verification.
+
+### Added
+- Deterministic CHANGELOG phase coverage validation helpers ensuring complete
+  phase numbering continuity.
+- Typed validation errors for missing phases, duplicate phases, non-sequential
+  numbering, and missing Status lines.
+- Inline fixture tests validating deterministic phase coverage behavior.
+
+### Notes
+- CHANGELOG phase coverage validation is descriptive only.
+- CHANGELOG phase coverage validation does not alter lifecycle state.
+- CHANGELOG phase coverage validation does not alter governance approval.
+- CHANGELOG phase coverage validation does not alter promotion eligibility.
+- CHANGELOG phase coverage validation does not introduce persistence,
+  execution behavior, provider integration, API behavior, or UI authority.
+
 ## v0.0.25 - 2026-05-01
 **Status:** Phase 25 changelog continuity and version sequence verification.
 
