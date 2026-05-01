@@ -57,6 +57,7 @@ User intent + model output
   → replay
   → audit
   → clean human-readable output
+```
 
 Raw model output is not clean output.
 
