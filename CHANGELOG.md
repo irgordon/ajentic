@@ -1,6 +1,21 @@
 # Changelog
 
 
+## v0.0.24 - 2026-05-01
+**Status:** Phase 24 changelog contract and acceptance record validation.
+
+### Added
+- Deterministic CHANGELOG contract validation helpers for accepted phase entry structure.
+- Typed validation errors for malformed version headings, missing status lines, missing sections, duplicate versions, and status text embedded in version headings.
+- Inline fixture tests for canonical CHANGELOG entry acceptance and formatting drift rejection.
+
+### Notes
+- CHANGELOG validation is descriptive only.
+- CHANGELOG validation does not alter lifecycle state.
+- CHANGELOG validation does not alter governance approval.
+- CHANGELOG validation does not alter promotion eligibility.
+- CHANGELOG validation does not introduce persistence, execution behavior, provider integration, API behavior, or UI authority.
+
 ## v0.0.22 — 2026-04-30
 **Status:** Phase 22 — Domain Resolution Safety and Deterministic Consumption
 
