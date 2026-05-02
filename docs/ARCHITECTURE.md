@@ -69,7 +69,7 @@ For every phase:
 ### Milestone groups
 
 | Milestone group	| Purpose |
-| -------- | -------- | -------- |
+| -------- | -------- |
 | Milestone 0	| Repository foundation and drift prevention |
 | Milestone 1 | Rust authority core |
 | Milestone 2	| Context, memory, ledger, replay, and audit |
