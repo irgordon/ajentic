@@ -6,6 +6,23 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.19 - 2026-05-02
+
+**Status:** Phase 19 - Operator Intent Routing Baseline
+
+### Changed
+
+- Updated `core/src/api/mod.rs` to add typed operator intent routing surfaces (`OperatorRoute`, `OperatorRouteResult`, `OperatorRouteError`), deterministic route classification by `OperatorIntentType`, `OperatorIntent::new(...)`, and deterministic routing unit tests.
+- Updated `checklists/current-phase.md` for Phase 19 operator intent routing scope.
+- Updated `CHANGELOG.md` with `v0.0.19`.
+
+### Notes
+
+- Phase 19 routes caller-supplied operator intents into typed route classifications only.
+- Routing does not execute actions, mutate state, append ledgers, call providers, serve APIs, parse CLI commands, or touch UI behavior.
+- Route classification depends only on `OperatorIntentType` and non-empty reason validation.
+- No new dependencies were added.
+
 ## v0.0.18 - 2026-05-02
 
 **Status:** Phase 18 - Promotion Replay Verification Baseline

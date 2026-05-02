@@ -4,38 +4,36 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 18 — Promotion Replay Verification Baseline
+# Current Phase: Phase 19 — Operator Intent Routing Baseline
 
-This is the active procedural execution surface for Phase 18.
+This is the active procedural execution surface for Phase 19.
 
 ## Phase
 
-Phase 18 — Promotion Replay Verification Baseline
+Phase 19 — Operator Intent Routing Baseline
 
 ## Phase goal
 
-Implement a narrow read-only Rust-owned verification helper that confirms an existing in-memory ledger replay-classifies and reconstructs to `LifecycleState::PromotedTier1`.
+Implement a narrow Rust-owned operator intent routing surface that classifies caller-supplied operator intents into typed in-memory route results.
 
 ## Allowed surfaces
 
-- `core/src/execution/mod.rs`
+- `core/src/api/mod.rs`
 - `core/src/lib.rs` only if test placement or export cleanup requires it
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Task checklist
 
-- [x] Update checklist to Phase 18 scope.
-- [x] Preserve existing Phase 14, 15, 16, and 17 behavior.
-- [x] Add read-only promotion replay verification types with stable reason codes.
-- [x] Add deterministic `verify_promotion_replay(...)` using caller-supplied in-memory `Ledger` only.
-- [x] Verify readiness via `classify_replay_readiness(events)`.
-- [x] Verify reconstruction via `reconstruct_harness_state(events)`.
-- [x] Return `NotVerified` on replay-not-ready, reconstruction failure, or non-promoted final lifecycle.
-- [x] Return `Verified` with reconstructed revision and replay counters when final lifecycle is `PromotedTier1`.
-- [x] Do not mutate ledger events, append events, mutate `HarnessState`, or repair/reorder replay.
-- [x] Add deterministic unit tests for required behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.18`.
+- [x] Update checklist to Phase 19 scope.
+- [x] Preserve existing `ApiSurface`, `OperatorIntentType`, and `OperatorIntent` names.
+- [x] Add typed operator route, result, and error surfaces with stable code methods.
+- [x] Add deterministic `route_operator_intent(intent)` mapped only by `OperatorIntentType`.
+- [x] Reject empty `intent.reason` with `OperatorRouteError::EmptyIntentReason`.
+- [x] Return `"operator_intent_routed"` for all successful route results.
+- [x] Do not execute routes, mutate intent input, or call external module behavior.
+- [x] Add deterministic unit tests for required route behavior.
+- [x] Add `CHANGELOG.md` entry `v0.0.19`.
 - [x] Run required validation commands.
 
 ## Validation checklist
