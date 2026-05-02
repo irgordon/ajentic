@@ -8,6 +8,17 @@ pub enum ReplayStatus {
     Unknown,
 }
 
+impl ReplayStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Replayable => "replayable",
+            Self::NotReplayable => "not_replayable",
+            Self::Failed => "failed",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReplayIntegrity {
     Valid,
@@ -17,10 +28,31 @@ pub enum ReplayIntegrity {
     Unknown,
 }
 
+impl ReplayIntegrity {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+            Self::Incomplete => "incomplete",
+            Self::Conflicting => "conflicting",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReplayReadiness {
     Ready,
     NotReady,
+}
+
+impl ReplayReadiness {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Ready => "ready",
+            Self::NotReady => "not_ready",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -250,6 +282,22 @@ mod tests {
     #[test]
     fn replay_error_codes_are_stable() {
         let _ = ReplayError::EmptyLedger.code();
+    }
+    #[test]
+    fn stable_code_methods_return_expected_values() {
+        assert_eq!(ReplayStatus::Replayable.code(), "replayable");
+        assert_eq!(ReplayStatus::NotReplayable.code(), "not_replayable");
+        assert_eq!(ReplayStatus::Failed.code(), "failed");
+        assert_eq!(ReplayStatus::Unknown.code(), "unknown");
+
+        assert_eq!(ReplayIntegrity::Valid.code(), "valid");
+        assert_eq!(ReplayIntegrity::Invalid.code(), "invalid");
+        assert_eq!(ReplayIntegrity::Incomplete.code(), "incomplete");
+        assert_eq!(ReplayIntegrity::Conflicting.code(), "conflicting");
+        assert_eq!(ReplayIntegrity::Unknown.code(), "unknown");
+
+        assert_eq!(ReplayReadiness::Ready.code(), "ready");
+        assert_eq!(ReplayReadiness::NotReady.code(), "not_ready");
     }
     #[test]
     fn replay_empty_ledger_errors() {

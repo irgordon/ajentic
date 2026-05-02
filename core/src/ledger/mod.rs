@@ -17,6 +17,28 @@ pub enum LedgerEventType {
     AuditExported,
 }
 
+impl LedgerEventType {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::StateTransition => "state_transition",
+            Self::MemoryWrite => "memory_write",
+            Self::MemoryDelete => "memory_delete",
+            Self::ExecutionStart => "execution_start",
+            Self::ExecutionEnd => "execution_end",
+            Self::ValidationPass => "validation_pass",
+            Self::ValidationFail => "validation_fail",
+            Self::PolicyPass => "policy_pass",
+            Self::PolicyFail => "policy_fail",
+            Self::ContextCreated => "context_created",
+            Self::CandidateReceived => "candidate_received",
+            Self::IntentAccepted => "intent_accepted",
+            Self::IntentRejected => "intent_rejected",
+            Self::ReplayRequested => "replay_requested",
+            Self::AuditExported => "audit_exported",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LedgerActorType {
     System,
@@ -257,6 +279,28 @@ mod tests {
             payload(),
         );
         assert_eq!(result, Err(LedgerError::InvalidRevision));
+    }
+
+    #[test]
+    fn stable_code_methods_return_expected_values() {
+        assert_eq!(LedgerEventType::StateTransition.code(), "state_transition");
+        assert_eq!(LedgerEventType::MemoryWrite.code(), "memory_write");
+        assert_eq!(LedgerEventType::MemoryDelete.code(), "memory_delete");
+        assert_eq!(LedgerEventType::ExecutionStart.code(), "execution_start");
+        assert_eq!(LedgerEventType::ExecutionEnd.code(), "execution_end");
+        assert_eq!(LedgerEventType::ValidationPass.code(), "validation_pass");
+        assert_eq!(LedgerEventType::ValidationFail.code(), "validation_fail");
+        assert_eq!(LedgerEventType::PolicyPass.code(), "policy_pass");
+        assert_eq!(LedgerEventType::PolicyFail.code(), "policy_fail");
+        assert_eq!(LedgerEventType::ContextCreated.code(), "context_created");
+        assert_eq!(
+            LedgerEventType::CandidateReceived.code(),
+            "candidate_received"
+        );
+        assert_eq!(LedgerEventType::IntentAccepted.code(), "intent_accepted");
+        assert_eq!(LedgerEventType::IntentRejected.code(), "intent_rejected");
+        assert_eq!(LedgerEventType::ReplayRequested.code(), "replay_requested");
+        assert_eq!(LedgerEventType::AuditExported.code(), "audit_exported");
     }
 
     #[test]

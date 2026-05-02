@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.13 - 2026-05-02
+
+**Status:** Phase 13 - Audit Projection Baseline
+
+### Changed
+
+- Updated `core/src/audit/mod.rs` to replace the Phase 5 skeleton with deterministic read-only audit projection types, typed audit errors with stable codes, and pure projection helpers for ledger timelines, replay summaries, and reconstruction summaries.
+- Updated `core/src/replay/mod.rs` with stable replay status/integrity/readiness code helpers and deterministic tests used by audit projection summaries.
+- Updated `core/src/ledger/mod.rs` with stable ledger event type code helpers and deterministic tests used by timeline projection summaries.
+- Updated `checklists/current-phase.md` for Phase 13 execution scope.
+- Updated `CHANGELOG.md` with `v0.0.13`.
+
+### Notes
+
+- Phase 13 implements read-only audit projections over caller-supplied in-memory ledger and replay data only.
+- Audit projections do not persist, export, reconstruct replay, classify readiness, mutate state, call providers, serve APIs, execute CLI commands, or render UI.
+- Stable code methods were added only where required to avoid Debug-format-derived audit text.
+- No new dependencies were added.
+
 ## v0.0.12 - 2026-05-02
 
 **Status:** Phase 12 - Replay Reconstruction Baseline
