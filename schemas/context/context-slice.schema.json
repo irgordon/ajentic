@@ -1,1 +1,83 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/context/context-slice.schema.json",
+  "title": "Context Slice",
+  "description": "Individual model-visible context slice.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "slice_id",
+    "view_type",
+    "truth_dimension",
+    "source_path",
+    "content",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "slice_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "view_type": {
+      "type": "string",
+      "enum": [
+        "code",
+        "memory",
+        "docs",
+        "schema",
+        "diff",
+        "task",
+        "example",
+        "system",
+        "tool_output",
+        "model_output"
+      ]
+    },
+    "truth_dimension": {
+      "type": "string",
+      "enum": [
+        "normative",
+        "structural",
+        "planned",
+        "historical",
+        "procedural",
+        "executable",
+        "contract",
+        "data",
+        "example",
+        "orientation",
+        "navigation"
+      ]
+    },
+    "source_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "selected_by"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selected_by": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

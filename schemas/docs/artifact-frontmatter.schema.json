@@ -1,1 +1,55 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/docs/artifact-frontmatter.schema.json",
+  "title": "Artifact Frontmatter",
+  "description": "Schema for governed Markdown artifact frontmatter metadata.",
+  "type": "object",
+  "required": [
+    "truth_dimension",
+    "authority_level",
+    "mutation_path"
+  ],
+  "properties": {
+    "truth_dimension": {
+      "type": "string",
+      "enum": [
+        "normative",
+        "structural",
+        "planned",
+        "historical",
+        "procedural",
+        "executable",
+        "contract",
+        "data",
+        "example",
+        "orientation",
+        "navigation"
+      ]
+    },
+    "authority_level": {
+      "type": "string",
+      "enum": [
+        "authoritative",
+        "advisory",
+        "non_authoritative"
+      ]
+    },
+    "mutation_path": {
+      "type": "string",
+      "enum": [
+        "governance_pr",
+        "architecture_pr",
+        "roadmap_update",
+        "changelog_entry",
+        "checklist_revision",
+        "code_change",
+        "schema_change",
+        "memory_update",
+        "example_update",
+        "readme_update",
+        "agents_update"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,1 +1,63 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/events/audit-event.schema.json",
+  "title": "Audit Event",
+  "description": "Audit projection event shape.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "audit_event_id",
+    "run_id",
+    "event_type",
+    "timestamp",
+    "source_refs",
+    "summary",
+    "details"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "audit_event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "timeline_entry",
+        "validation_summary",
+        "policy_summary",
+        "memory_summary",
+        "context_summary",
+        "replay_summary",
+        "output_summary",
+        "export_summary"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

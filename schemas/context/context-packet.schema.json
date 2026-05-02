@@ -1,1 +1,209 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/context/context-packet.schema.json",
+  "title": "Context Packet",
+  "description": "Deterministic model-visible context packet assembled before model invocation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "packet_id",
+    "run_id",
+    "timestamp",
+    "task",
+    "slices",
+    "budget",
+    "sources",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "task": {
+      "type": "object"
+    },
+    "slices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "slice_id",
+          "view_type",
+          "truth_dimension",
+          "source_path",
+          "content",
+          "provenance"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+          },
+          "slice_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "view_type": {
+            "type": "string",
+            "enum": [
+              "code",
+              "memory",
+              "docs",
+              "schema",
+              "diff",
+              "task",
+              "example",
+              "system",
+              "tool_output",
+              "model_output"
+            ]
+          },
+          "truth_dimension": {
+            "type": "string",
+            "enum": [
+              "normative",
+              "structural",
+              "planned",
+              "historical",
+              "procedural",
+              "executable",
+              "contract",
+              "data",
+              "example",
+              "orientation",
+              "navigation"
+            ]
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "source",
+              "selected_by"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "selected_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "budget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://ajentic.dev/schemas/context/context-budget.schema.json",
+      "title": "Context Budget",
+      "description": "Token or size budget metadata for context packets.",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "max_units",
+        "used_units",
+        "unit"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "max_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "used_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "tokens",
+            "bytes",
+            "characters"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "truth_dimension"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "truth_dimension": {
+            "type": "string",
+            "enum": [
+              "normative",
+              "structural",
+              "planned",
+              "historical",
+              "procedural",
+              "executable",
+              "contract",
+              "data",
+              "example",
+              "orientation",
+              "navigation"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "assembled_by",
+        "assembly_reason"
+      ],
+      "properties": {
+        "assembled_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assembly_reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,1 +1,97 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/events/ledger-event.schema.json",
+  "title": "Ledger Event",
+  "description": "Authoritative ledger event shape after accepted state transitions or authority events.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_type",
+    "revision",
+    "timestamp",
+    "actor",
+    "state_before",
+    "state_after",
+    "evidence_refs",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "state_transition",
+        "memory_write",
+        "memory_delete",
+        "execution_start",
+        "execution_end",
+        "validation_pass",
+        "validation_fail",
+        "policy_pass",
+        "policy_fail",
+        "context_created",
+        "candidate_received",
+        "intent_accepted",
+        "intent_rejected",
+        "replay_requested",
+        "audit_exported"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "system",
+            "human",
+            "ui",
+            "cli"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "state_before": {
+      "type": "object"
+    },
+    "state_after": {
+      "type": "object"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

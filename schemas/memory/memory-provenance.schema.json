@@ -1,1 +1,37 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/memory/memory-provenance.schema.json",
+  "title": "Memory Provenance",
+  "description": "Provenance for governed memory entries.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source",
+    "created_by",
+    "created_at",
+    "reason"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}
