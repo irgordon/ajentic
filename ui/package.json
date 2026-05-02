@@ -1,0 +1,14 @@
+{
+  "name": "ajentic-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "lint": "echo \"ui lint placeholder\"",
+    "typecheck": "tsc --noEmit",
+    "build": "echo \"ui build placeholder\""
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

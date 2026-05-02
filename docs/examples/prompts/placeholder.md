@@ -1,0 +1,17 @@
+---
+truth_dimension: example
+authority_level: non_authoritative
+mutation_path: example_update
+---
+
+# Example prompts (placeholder)
+
+This file is a placeholder for example prompts.
+
+Examples are illustrative only. They do not define policy, required behavior, acceptance criteria, or architecture rules.
+
+This document is subordinate to `GOVERNANCE.md` and `ARCHITECTURE.md`.
+
+## Status
+
+No examples are defined in Phase 0. Examples will be added in future phases.
