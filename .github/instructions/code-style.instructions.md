@@ -36,6 +36,8 @@ Do not hide policy failures behind generic errors.
 
 Do not implement lifecycle, validation, ledger, replay, or memory decisions outside Rust authority paths.
 
+Run `cargo fmt --manifest-path core/Cargo.toml` before running `cargo fmt --manifest-path core/Cargo.toml -- --check`.
+
 ## TypeScript
 
 TypeScript is a visibility and operator-intent surface.
@@ -59,3 +61,5 @@ Scripts must not implement policy.
 Scripts must not directly edit authoritative runtime data.
 
 Scripts must remain replaceable by direct Rust CLI invocation.
+
+Local validation should use `./scripts/check.sh` when available.
