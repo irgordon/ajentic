@@ -91,6 +91,13 @@ jobs:
           def is_git_path(path: Path) -> bool:
               return ".git" in path.parts
 
+          def is_github_instruction_path(path: Path) -> bool:
+              return (
+                  len(path.parts) >= 3
+                  and path.parts[0] == ".github"
+                  and path.parts[1] == "instructions"
+              )
+
           def read_text_utf8(path: Path) -> str:
               return path.read_text(encoding="utf-8", errors="strict")
 
@@ -201,10 +208,18 @@ jobs:
                   if path.is_file() and path.name != ".gitignore":
                       fail(f"{path.as_posix()}: ephemeral memory must not be committed")
 
+          # GitHub instruction files use Copilot frontmatter, not governed artifact frontmatter.
+          instructions = Path(".github/instructions")
+          if instructions.exists():
+              for path in instructions.glob("*.instructions.md"):
+                  fm = parse_frontmatter(path)
+                  if "applyTo" not in fm:
+                      fail(f"{path.as_posix()}: GitHub instruction files must declare applyTo frontmatter")
+
           # Frontmatter placement validation.
           markdown_paths = [
               path for path in ROOT.rglob("*.md")
-              if not is_git_path(path)
+              if not is_git_path(path) and not is_github_instruction_path(path)
           ]
 
           for path in markdown_paths:
