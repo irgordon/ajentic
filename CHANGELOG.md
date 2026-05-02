@@ -19,6 +19,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 14 implements execution decision classification only.
+- decide_execution(...) classifies caller-supplied lifecycle, policy, validation, and replay readiness results.
+- It does not evaluate those inputs, mutate them, or execute anything.
 - Decisions combine caller-supplied lifecycle, policy, validation, and replay-readiness results.
 - No execution engine, tool invocation, provider adapter, ledger append, replay reconstruction, audit projection, API server, CLI command, or UI behavior was implemented.
 - No new dependencies were added.
