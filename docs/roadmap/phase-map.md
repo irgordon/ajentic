@@ -99,8 +99,8 @@ Scope:
 
 Allowed:
 
-* GOVERNANCE.md
-* ARCHITECTURE.md
+* docs/governance/GOVERNANCE.md
+* docs/architecture/ARCHITECTURE.md
 * AGENTS.md
 * README.md
 * CHANGELOG.md
