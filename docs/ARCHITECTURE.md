@@ -249,7 +249,7 @@ agentic-harness/
 ├── docs/
 ├── schemas/
 └── .github/
-``
+```
 
 Top-level anchors:
 
@@ -318,7 +318,7 @@ It owns:
 
 The state module does not depend on UI display state, Bash script behavior, provider preference, or model confidence.
 
-10. context/
+10. `context/`
 
 The context module assembles model-visible context.
 
@@ -335,7 +335,7 @@ The context module prefers minimal, relevant, auditable context slices over maxi
 
 The context module does not include arbitrary repository knowledge by default.
 
-11. memory/
+11. `memory/`
 
 The memory module governs runtime access to memory/.
 
@@ -355,7 +355,7 @@ Ephemeral memory is run-scoped.
 
 Memory does not define policy.
 
-12. policy/
+12. `policy/`
 
 The policy module defines allowed and prohibited runtime behavior.
 
@@ -370,7 +370,7 @@ Policy is deterministic.
 
 Policy does not depend on UI preference, Bash script behavior, provider preference, model confidence, or undocumented repository text.
 
-13. validation/
+13. `validation/`
 
 The validation module evaluates typed evidence.
 
@@ -387,7 +387,7 @@ Validation does not directly mutate state.
 
 Validation does not accept missing evidence as pass.
 
-14. execution/
+14. `execution/`
 
 The execution module invokes harness workflows.
 
@@ -404,7 +404,7 @@ Execution passes through policy, state, and validation.
 
 Execution does not directly trust provider output.
 
-15. ledger/
+## 15. `ledger/`
 
 The ledger module records accepted authoritative events.
 
@@ -422,7 +422,7 @@ Ledger read is observational.
 
 The ledger does not decide validity.
 
-16. replay/
+## 16. `replay/`
 
 The replay module reconstructs runs from ledger entries and recorded inputs.
 
@@ -437,7 +437,7 @@ Replay fails closed on missing, malformed, reordered, conflicting, or unverifiab
 
 Replay does not repair ledger history.
 
-17. audit/
+## 17. `audit/`
 
 The audit module produces human-readable projections.
 
@@ -452,7 +452,7 @@ Audit does not create authority.
 
 Audit does not mutate state, memory, ledger, replay, policy, or execution outputs.
 
-18. api/
+## 18. `api/`
 
 The API module exposes typed request and projection surfaces.
 
@@ -466,7 +466,7 @@ It owns:
 
 The API does not expose mutation paths that bypass policy, state, validation, memory, ledger, or replay.
 
-19. errors/
+## 19. `errors/`
 
 The errors module defines typed error surfaces.
 
@@ -474,11 +474,13 @@ Errors are explicit enough for deterministic tests and operator inspection.
 
 Errors do not hide authority failures behind generic failure states.
 
-20. Browser UI
+## 20. Browser UI
 
 Location:
 
+```text
 ui/
+```
 
 The browser UI is a non-authoritative review and operator-intent surface.
 
@@ -488,10 +490,11 @@ The UI displays Rust projections and submits typed intents.
 
 The UI does not directly mutate authoritative state.
 
-21. Browser UI layout target
+## 21. Browser UI layout target
 
 The UI uses a responsive browser-first application shell.
 
+```text
 ┌───────────────────────────────────────────────┐
 │ Top bar                                       │
 │ Run selector | State badge | API status        │
@@ -508,15 +511,17 @@ The UI uses a responsive browser-first application shell.
 ├───────────────┴───────────────────────────────┤
 │ Intent/action tray                            │
 └───────────────────────────────────────────────┘
+```
 
 On mobile, navigation collapses into a bottom tab bar or drawer.
 
 The current state and required operator attention remain visible or quickly reachable on desktop, tablet, and mobile layouts.
 
-22. Browser UI screens
+## 22. Browser UI screens
 
 The planned UI screens are:
 
+```text
 OverviewScreen
 RunOverviewScreen
 StateMachineScreen
@@ -526,15 +531,17 @@ PolicyValidationScreen
 RunTimelineScreen
 ReplayScreen
 CleanOutputScreen
+```
 
 Each screen consumes Rust projections or submits typed intents.
 
 No screen owns authority.
 
-23. Browser UI components
+## 23. Browser UI components
 
 The planned reusable UI components are:
 
+```text
 StateBadge
 AuthorityBadge
 StatusCard
@@ -544,6 +551,7 @@ ContextSliceCard
 MemoryEntryCard
 IntentButton
 RawDataDisclosure
+```
 
 Components render structured data into human-readable cards, tables, badges, timelines, diagrams, and controls.
 
@@ -551,10 +559,11 @@ Raw JSON may be available through explicit diagnostic disclosure.
 
 Raw JSON is not the default human review interface.
 
-24. Browser UI routes
+## 24. Browser UI routes
 
 The initial route model is:
 
+```bash
 /
   Overview
 /runs
@@ -577,13 +586,14 @@ The initial route model is:
   Clean output view
 /settings
   Non-authoritative UI preferences only
-
+```
 Settings do not define policy or runtime authority.
 
-25. UI mutation path
+## 25. UI mutation path
 
 All UI-originated mutation requests follow this path:
 
+```text
 UI component
   → typed UI client
   → operator intent schema
@@ -591,10 +601,10 @@ UI component
   → policy/state/validation
   → accepted ledger event
   → projected UI update
-
+```
 No UI-originated mutation bypasses this path.
 
-26. UI data rendering
+## 26. UI data rendering
 
 The UI renders structured data as:
 
@@ -618,7 +628,7 @@ The UI visually distinguishes:
 * replayable runs
 * non-replayable runs
 
-27. TypeScript contract usage
+## 27. TypeScript contract usage
 
 TypeScript types are generated from JSON Schema where feasible.
 
@@ -626,23 +636,31 @@ Runtime validators are generated from JSON Schema where feasible.
 
 Generated types live under:
 
+```text
 ui/src/types/generated/
+```
 
 Generated validators live under:
 
+```text
 ui/src/validation/generated/
+```
 
 Temporary non-authoritative adapters may live under:
 
+```text
 ui/src/validation/adapters/
+```
 
 TypeScript does not define shared contract truth.
 
-28. Bash scripts
+## 28. Bash scripts
 
 Location:
 
+```
 scripts/
+```
 
 Bash scripts are wrappers around Rust CLI commands.
 
@@ -661,11 +679,13 @@ Scripts do not directly mutate authoritative runtime state.
 
 Scripts are replaceable by direct Rust CLI invocation without changing behavior.
 
-29. GitHub workflows
+## 29. GitHub workflows
 
 Location:
 
+```text
 .github/workflows/
+```
 
 GitHub workflows are enforcement wiring.
 
@@ -684,22 +704,26 @@ Workflows do not create standalone governance.
 
 Workflow-enforced rules trace back to governance, architecture, schemas, tests, or code.
 
-30. Schemas
+## 30. Schemas
 
 Location:
 
+```text
 schemas/
+```
 
 Schemas define shared contract shape.
 
 Schema categories include:
 
+```text
 schemas/docs/
 schemas/context/
 schemas/memory/
 schemas/events/
 schemas/intents/
 schemas/traces/
+```
 
 Schemas are consumed by:
 
@@ -715,7 +739,7 @@ The canonical schema root is schemas/.
 
 Schema authority is not duplicated elsewhere.
 
-31. Memory directory
+## 31. Memory directory
 
 Location:
 
@@ -741,7 +765,7 @@ Memory is not documentation.
 
 Memory is not policy.
 
-32. Tests
+## 32. Tests
 
 Location:
 
@@ -768,7 +792,7 @@ Tests cover:
 
 Tests avoid interpretive ambiguity.
 
-33. Context architecture
+## 33. Context architecture
 
 A context packet is the bounded set of material made visible to a model for a task.
 
@@ -790,7 +814,7 @@ Context packets are inspectable.
 
 Context packets are reproducible where replay requires it.
 
-34. Model provider architecture
+## 34. Model provider architecture
 
 Providers are adapters.
 
@@ -816,7 +840,7 @@ Integration boundaries may include:
 
 Integration does not change authority ownership.
 
-35. Intent architecture
+## 35. Intent architecture
 
 An intent is a typed request.
 
@@ -845,7 +869,7 @@ Every intent identifies:
 
 Rust accepts or rejects intents.
 
-36. Ledger and replay architecture
+## 36. Ledger and replay architecture
 
 The ledger records accepted events.
 
@@ -862,7 +886,7 @@ Replay fails closed on violations.
 
 Replay output may be projected through audit and UI.
 
-37. Audit architecture
+## 37. Audit architecture
 
 Audit produces human-readable projections over ledger and replay output.
 
@@ -878,7 +902,7 @@ Audit projections may include:
 
 Audit does not create authority.
 
-38. Clean output architecture
+## 38. Clean output architecture
 
 Clean output is output that has passed through the harness boundary.
 
@@ -896,7 +920,7 @@ Raw model output is not clean output.
 
 The UI displays raw model output and clean output as different states.
 
-39. Trust boundaries
+## 39. Trust boundaries
 
 The following are untrusted by default:
 
@@ -922,7 +946,7 @@ The following may become trusted only through deterministic acceptance:
 * accepted state transitions
 * ledgered events
 
-40. Production structural target
+## 40. Production structural target
 
 The production structure supports:
 
