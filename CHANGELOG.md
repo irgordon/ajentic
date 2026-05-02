@@ -21,6 +21,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 13 implements read-only audit projections over caller-supplied in-memory ledger and replay data only.
+- Audit projections are deterministic views over caller-supplied in-memory ledger/replay data.
+- They are not durable audit records, exported reports, replay reconstruction, or runtime authority.
 - Audit projections do not persist, export, reconstruct replay, classify readiness, mutate state, call providers, serve APIs, execute CLI commands, or render UI.
 - Stable code methods were added only where required to avoid Debug-format-derived audit text.
 - No new dependencies were added.
