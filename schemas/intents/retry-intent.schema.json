@@ -1,1 +1,94 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/intents/retry-intent.schema.json",
+  "title": "Retry Intent",
+  "description": "Typed retry operator intent.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "intent_id",
+    "intent_type",
+    "timestamp",
+    "actor",
+    "target",
+    "reason",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "intent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent_type": {
+      "const": "retry"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "human",
+            "ui",
+            "cli",
+            "system"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "run",
+            "candidate",
+            "memory_entry",
+            "context_packet",
+            "ledger_event",
+            "replay_report",
+            "validation_report",
+            "policy_check",
+            "state",
+            "tool"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

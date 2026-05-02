@@ -4,9 +4,9 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 3 — CI and Structure Drift Gates
+# Current Phase: Phase 4 — Contract Schema Baseline
 
-This is the active procedural execution surface for Phase 3.
+This is the active procedural execution surface for Phase 4.
 
 This document does not define governance rules or architecture authority.
 
@@ -14,45 +14,55 @@ This document does not record completed history. Completed accepted work moves t
 
 ## Phase
 
-Phase 3 — CI and Structure Drift Gates
+Phase 4 — Contract Schema Baseline
 
 ## Phase goal
 
-Harden deterministic CI and repository validation gates so structure, documentation placement, schema placement, memory placement, script syntax, Rust compile shape, and UI placeholder checks fail early before runtime code expands.
+Define strict shared JSON Schema Draft 2020-12 contract baselines under `schemas/` for future validation, memory, intent, ledger, replay, and documentation work without implementing runtime behavior.
 
 ## Allowed surfaces
 
+- `schemas/docs/artifact-frontmatter.schema.json`
+- `schemas/context/context-packet.schema.json`
+- `schemas/context/context-slice.schema.json`
+- `schemas/context/context-budget.schema.json`
+- `schemas/memory/memory-entry.schema.json`
+- `schemas/memory/memory-snapshot.schema.json`
+- `schemas/memory/memory-provenance.schema.json`
+- `schemas/events/ledger-event.schema.json`
+- `schemas/events/run-event.schema.json`
+- `schemas/events/audit-event.schema.json`
+- `schemas/intents/operator-intent.schema.json`
+- `schemas/intents/approve-intent.schema.json`
+- `schemas/intents/reject-intent.schema.json`
+- `schemas/intents/retry-intent.schema.json`
+- `schemas/intents/memory-intent.schema.json`
+- `schemas/traces/run-trace.schema.json`
+- `schemas/traces/replay-report.schema.json`
+- `schemas/traces/validation-report.schema.json`
+- `checklists/current-phase.md`
+- `CHANGELOG.md`
 - `.github/workflows/ci.yml`
 - `.github/workflows/structure-lint.yml`
 - `.github/workflows/docs-gate.yml`
 - `.github/workflows/memory-lint.yml`
-- `.github/workflows/pr-agent-review.yml`
-- `.github/instructions/*.md`
-- `.gitignore`
-- `checklists/current-phase.md`
-- `CHANGELOG.md`
-- `docs/roadmap/phase-map.md`
-- `docs/governance/phase-execution-contract.md`
 
 ## Boundary rules for this checklist
 
-- This checklist is procedural truth only for active Phase 3 execution.
-- Governance authority remains in `docs/governance/GOVERNANCE.md` and `docs/governance/phase-execution-contract.md`.
+- This checklist is procedural truth only for active Phase 4 execution.
+- Governance authority remains in `docs/governance/GOVERNANCE.md` and subordinate governance documents.
 - Architecture authority remains in `docs/architecture/ARCHITECTURE.md`.
-- Workflows are enforcement wiring only and must stay traceable to governed docs and repository contracts.
+- Contract truth remains rooted in `schemas/`; no Rust or TypeScript contract duplication is introduced in this phase.
 - Completed accepted work must be recorded in `CHANGELOG.md`, not in this checklist.
 
 ## Task checklist
 
-- [ ] Normalize `checklists/current-phase.md` for Phase 3 procedural scope.
-- [ ] Harden `.github/workflows/ci.yml` with conditional Rust/UI/schema/script gates.
-- [ ] Harden `.github/workflows/structure-lint.yml` for canonical structure and conservative frontmatter checks.
-- [ ] Harden `.github/workflows/docs-gate.yml` for conservative truth-dimension boundary checks.
-- [ ] Harden `.github/workflows/memory-lint.yml` for memory placement and JSON syntax checks.
-- [ ] Verify `.github/workflows/pr-agent-review.yml` remains advisory and least-privilege.
-- [ ] Verify `.github/instructions/*.md` remain Copilot metadata and non-governance roots.
-- [ ] Verify `.gitignore` contains required build/cache/environment/ephemeral exclusions.
-- [ ] Add `v0.0.3` changelog entry.
+- [ ] Normalize `checklists/current-phase.md` for Phase 4 procedural scope.
+- [ ] Replace placeholder Phase 4 schema files with strict Draft 2020-12 contract schemas.
+- [ ] Ensure schema contracts include required versioning and boundary fields.
+- [ ] Ensure schema files remain JSON-only contract truth under `schemas/`.
+- [ ] Review CI and lint workflows for Phase 4 compatibility and edit only if required.
+- [ ] Add `v0.0.4` changelog entry.
 - [ ] Run required validation commands and record results.
 
 ## Validation checklist
@@ -71,11 +81,11 @@ Harden deterministic CI and repository validation gates so structure, documentat
 
 | Item | Reason deferred | Target phase |
 | --- | --- | --- |
-| Runtime harness behavior | Out of scope for Phase 3 | Later phases |
-| Model provider adapters | Out of scope for Phase 3 | Later phases |
-| Policy/validation runtime logic | Out of scope for Phase 3 | Later phases |
-| Memory, ledger, replay, audit runtime behavior | Out of scope for Phase 3 | Later phases |
-| Browser UI runtime functionality | Out of scope for Phase 3 | Later phases |
+| Runtime harness behavior | Out of scope for Phase 4 | Later phases |
+| TypeScript bindings and generated validators | Out of scope for Phase 4 | Later phases |
+| Rust schema consumer/runtime validation wiring | Out of scope for Phase 4 | Later phases |
+| Provider adapters and policy lifecycle logic | Out of scope for Phase 4 | Later phases |
+| Replay/audit runtime behavior | Out of scope for Phase 4 | Later phases |
 
 ## Validation log
 

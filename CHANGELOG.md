@@ -6,6 +6,23 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.4 - 2026-05-02
+
+**Status:** Phase 4 - Contract Schema Baseline
+
+### Changed
+
+- Normalized `checklists/current-phase.md` to Phase 4 procedural scope with updated allowed surfaces, task checklist, validation checklist, deferred items, and validation log table.
+- Replaced placeholder contract schema files under `schemas/docs/`, `schemas/context/`, `schemas/memory/`, `schemas/events/`, `schemas/intents/`, and `schemas/traces/` with strict Draft 2020-12 JSON Schema baselines including explicit required fields, stable enums, boundary versioning, and closed top-level shapes.
+- Reviewed Phase 4 workflow surfaces and kept `.github/workflows/ci.yml`, `.github/workflows/structure-lint.yml`, `.github/workflows/docs-gate.yml`, and `.github/workflows/memory-lint.yml` unchanged because existing checks remain compatible with schema baseline changes.
+
+### Notes
+
+- Phase 4 defines contract shapes only.
+- No runtime harness behavior was implemented.
+- TypeScript bindings, runtime validators, and Rust schema consumers are not implemented in this phase.
+- JSON Schema remains the contract truth root under `schemas/`.
+
 ## v0.0.3 - 2026-05-02
 
 **Status:** Phase 3 - CI and Structure Drift Gates

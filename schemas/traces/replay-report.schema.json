@@ -1,1 +1,58 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/traces/replay-report.schema.json",
+  "title": "Replay Report",
+  "description": "Replay result report.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "replay_report_id",
+    "run_id",
+    "status",
+    "integrity",
+    "events_replayed",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "replay_report_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "replayable",
+        "not_replayable",
+        "failed",
+        "unknown"
+      ]
+    },
+    "integrity": {
+      "type": "string",
+      "enum": [
+        "valid",
+        "invalid",
+        "incomplete",
+        "conflicting",
+        "unknown"
+      ]
+    },
+    "events_replayed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

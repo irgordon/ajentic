@@ -1,1 +1,80 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/memory/memory-entry.schema.json",
+  "title": "Memory Entry",
+  "description": "Persistent governed memory entry.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "memory_id",
+    "memory_type",
+    "content",
+    "provenance",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "memory_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "memory_type": {
+      "type": "string",
+      "enum": [
+        "project_fact",
+        "convention",
+        "operator_note",
+        "run_observation",
+        "disabled"
+      ]
+    },
+    "content": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "source",
+        "created_by",
+        "created_at",
+        "reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "disabled",
+        "rejected"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
