@@ -20,6 +20,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 9 implements in-memory memory model shapes and deterministic projections only.
+- MemorySnapshot::active_entries is a deterministic projection, not retrieval.
+- MemoryEntry::is_active is classification, not authorization.
 - No memory file IO, persistence, loading, retrieval, ranking, semantic search, vector search, embeddings, policy authorization, ledger persistence, replay, audit, provider adapter, API server, CLI command, or UI behavior was implemented.
 - All memory entries, provenance values, timestamps, and snapshot entries are caller-supplied.
 - No new dependencies were added.
