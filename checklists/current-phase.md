@@ -4,17 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 14 — Execution Decision Baseline
+# Current Phase: Phase 15 — Promotion Decision Baseline
 
-This is the active procedural execution surface for Phase 14.
+This is the active procedural execution surface for Phase 15.
 
 ## Phase
 
-Phase 14 — Execution Decision Baseline
+Phase 15 — Promotion Decision Baseline
 
 ## Phase goal
 
-Implement a narrow Rust-owned deterministic execution decision classification over caller-supplied lifecycle, policy, validation, and replay-readiness results.
+Implement a narrow Rust-owned deterministic promotion decision classification over caller-supplied lifecycle and execution decision results.
 
 ## Allowed surfaces
 
@@ -25,13 +25,13 @@ Implement a narrow Rust-owned deterministic execution decision classification ov
 
 ## Task checklist
 
-- [x] Update checklist to Phase 14 scope.
+- [x] Update checklist to Phase 15 scope.
 - [x] Preserve existing `ExecutionStatus` and `ExecutionPlan` names.
-- [x] Add deterministic execution decision types and stable reason code helpers.
-- [x] Add deterministic `decide_execution(...)` using caller-supplied typed inputs only.
-- [x] Fail closed when lifecycle, policy, validation, or replay readiness are not explicitly acceptable.
+- [x] Add deterministic promotion decision types and stable reason code helpers.
+- [x] Add deterministic `decide_promotion(...)` using caller-supplied lifecycle and execution decision inputs only.
+- [x] Fail closed unless lifecycle is Passed and execution decision is Allowed.
 - [x] Add deterministic unit tests for decision behavior, reason-code stability, precedence, and reason-string independence.
-- [x] Add `CHANGELOG.md` entry `v0.0.14`.
+- [x] Add `CHANGELOG.md` entry `v0.0.15`.
 - [x] Run required validation commands.
 
 ## Validation checklist

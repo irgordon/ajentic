@@ -104,6 +104,74 @@ pub fn decide_execution(
     ExecutionDecisionReport::allowed()
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionDecision {
+    Allowed,
+    Blocked,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionDecisionReason {
+    ReadyForTier1Promotion,
+    LifecycleNotPassed,
+    ExecutionNotAllowed,
+}
+
+impl PromotionDecisionReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ReadyForTier1Promotion => "ready_for_tier_1_promotion",
+            Self::LifecycleNotPassed => "lifecycle_not_passed",
+            Self::ExecutionNotAllowed => "execution_not_allowed",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PromotionDecisionReport {
+    pub decision: PromotionDecision,
+    pub reason: PromotionDecisionReason,
+}
+
+impl PromotionDecisionReport {
+    pub fn allowed() -> Self {
+        Self {
+            decision: PromotionDecision::Allowed,
+            reason: PromotionDecisionReason::ReadyForTier1Promotion,
+        }
+    }
+
+    pub fn blocked(reason: PromotionDecisionReason) -> Self {
+        Self {
+            decision: PromotionDecision::Blocked,
+            reason,
+        }
+    }
+
+    pub fn rejected(reason: PromotionDecisionReason) -> Self {
+        Self {
+            decision: PromotionDecision::Rejected,
+            reason,
+        }
+    }
+}
+
+pub fn decide_promotion(
+    lifecycle: crate::state::LifecycleState,
+    execution: &ExecutionDecisionReport,
+) -> PromotionDecisionReport {
+    if lifecycle != crate::state::LifecycleState::Passed {
+        return PromotionDecisionReport::rejected(PromotionDecisionReason::LifecycleNotPassed);
+    }
+
+    if execution.decision != ExecutionDecision::Allowed {
+        return PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed);
+    }
+
+    PromotionDecisionReport::allowed()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -308,5 +376,117 @@ mod tests {
         assert_eq!(report_a, ExecutionDecisionReport::allowed());
         assert_eq!(report_b, ExecutionDecisionReport::allowed());
         assert_eq!(report_a, report_b);
+    }
+
+    #[test]
+    fn promotion_decision_reason_codes_are_stable() {
+        assert_eq!(
+            PromotionDecisionReason::ReadyForTier1Promotion.code(),
+            "ready_for_tier_1_promotion"
+        );
+        assert_eq!(
+            PromotionDecisionReason::LifecycleNotPassed.code(),
+            "lifecycle_not_passed"
+        );
+        assert_eq!(
+            PromotionDecisionReason::ExecutionNotAllowed.code(),
+            "execution_not_allowed"
+        );
+    }
+
+    #[test]
+    fn promotion_allows_when_lifecycle_passed_and_execution_allowed() {
+        let report = decide_promotion(LifecycleState::Passed, &ExecutionDecisionReport::allowed());
+
+        assert_eq!(report, PromotionDecisionReport::allowed());
+    }
+
+    #[test]
+    fn promotion_rejects_when_lifecycle_created() {
+        let report = decide_promotion(LifecycleState::Created, &ExecutionDecisionReport::allowed());
+
+        assert_eq!(
+            report,
+            PromotionDecisionReport::rejected(PromotionDecisionReason::LifecycleNotPassed)
+        );
+    }
+
+    #[test]
+    fn promotion_rejects_when_lifecycle_promoted_tier_1() {
+        let report = decide_promotion(
+            LifecycleState::PromotedTier1,
+            &ExecutionDecisionReport::allowed(),
+        );
+
+        assert_eq!(
+            report,
+            PromotionDecisionReport::rejected(PromotionDecisionReason::LifecycleNotPassed)
+        );
+    }
+
+    #[test]
+    fn promotion_blocks_when_execution_blocked() {
+        let report = decide_promotion(
+            LifecycleState::Passed,
+            &ExecutionDecisionReport::blocked(ExecutionDecisionReason::PolicyNotAllowed),
+        );
+
+        assert_eq!(
+            report,
+            PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed)
+        );
+    }
+
+    #[test]
+    fn promotion_blocks_when_execution_rejected() {
+        let report = decide_promotion(
+            LifecycleState::Passed,
+            &ExecutionDecisionReport::rejected(ExecutionDecisionReason::LifecycleNotPassed),
+        );
+
+        assert_eq!(
+            report,
+            PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed)
+        );
+    }
+
+    #[test]
+    fn promotion_priority_lifecycle_before_execution() {
+        let report = decide_promotion(
+            LifecycleState::Created,
+            &ExecutionDecisionReport::blocked(ExecutionDecisionReason::PolicyNotAllowed),
+        );
+
+        assert_eq!(
+            report,
+            PromotionDecisionReport::rejected(PromotionDecisionReason::LifecycleNotPassed)
+        );
+    }
+
+    #[test]
+    fn promotion_decision_uses_execution_decision_not_reason() {
+        let report = decide_promotion(
+            LifecycleState::Passed,
+            &ExecutionDecisionReport {
+                decision: ExecutionDecision::Allowed,
+                reason: ExecutionDecisionReason::PolicyNotAllowed,
+            },
+        );
+
+        assert_eq!(report, PromotionDecisionReport::allowed());
+    }
+
+    #[test]
+    fn promotion_does_not_mutate_or_transition_harness_state() {
+        let state = crate::state::HarnessState {
+            lifecycle: LifecycleState::Passed,
+            revision: 7,
+        };
+
+        let report = decide_promotion(state.lifecycle, &ExecutionDecisionReport::allowed());
+
+        assert_eq!(report, PromotionDecisionReport::allowed());
+        assert_eq!(state.lifecycle, LifecycleState::Passed);
+        assert_eq!(state.revision, 7);
     }
 }
