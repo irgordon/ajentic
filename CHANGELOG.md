@@ -20,6 +20,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 10 implements an in-memory ledger event model and append sequence checks only.
+- Ledger::append validates revision sequence and returns a new in-memory ledger.
+- It does not persist, serialize, authorize, replay, audit, or orchestrate state.
 - No ledger file IO, persistence, loading, database storage, serialization, replay, audit, state orchestration, policy authorization, provider adapter, API server, CLI command, or UI behavior was implemented.
 - All ledger events, actors, evidence refs, revisions, and payload summaries are caller-supplied.
 - `Ledger::append` is append-only and returns a new ledger on success without mutating the existing ledger.
