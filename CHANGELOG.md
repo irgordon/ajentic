@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.10 - 2026-05-02
+
+**Status:** Phase 10 - Ledger Event Model Baseline
+
+### Changed
+
+- Updated `core/src/ledger/mod.rs` with typed ledger actor, payload, event, ledger, and error surfaces.
+- Added deterministic append-only in-memory ledger sequence checks from caller-supplied events.
+- Added unit tests covering required event fields, evidence references, revision sequencing, append failure immutability, event ordering, immutable event access, last revision projection, and stable error codes.
+- Updated `checklists/current-phase.md` for Phase 10 execution scope.
+
+### Notes
+
+- Phase 10 implements an in-memory ledger event model and append sequence checks only.
+- No ledger file IO, persistence, loading, database storage, serialization, replay, audit, state orchestration, policy authorization, provider adapter, API server, CLI command, or UI behavior was implemented.
+- All ledger events, actors, evidence refs, revisions, and payload summaries are caller-supplied.
+- `Ledger::append` is append-only and returns a new ledger on success without mutating the existing ledger.
+- No new dependencies were added.
+
 ## v0.0.9 - 2026-05-02
 
 **Status:** Phase 9 - Memory Model Baseline
