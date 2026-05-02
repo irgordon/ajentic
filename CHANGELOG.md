@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.16 - 2026-05-02
+
+**Status:** Phase 16 - Promotion Recording Baseline
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to add deterministic promotion record construction types, stable promotion record error codes, and fail-closed record assembly from caller-supplied promotion decision and ledger event inputs.
+- Updated `checklists/current-phase.md` for Phase 16 promotion recording scope.
+- Updated `CHANGELOG.md` with `v0.0.16`.
+
+### Notes
+
+- Phase 16 constructs a promotion ledger event shape only after an allowed promotion decision.
+- build_promotion_record(...) creates a caller-supplied StateTransition ledger event targeting PromotedTier1.
+- It does not append that event, apply it, authorize it independently, persist it, or mutate HarnessState.
+- The promotion record is not appended to a ledger and does not mutate HarnessState.
+- No lifecycle transition, promotion execution, ledger persistence, replay, audit, provider adapter, API server, CLI command, or UI behavior was implemented.
+- No new dependencies were added.
+
 ## v0.0.15 - 2026-05-02
 
 **Status:** Phase 15 - Promotion Decision Baseline

@@ -172,6 +172,57 @@ pub fn decide_promotion(
     PromotionDecisionReport::allowed()
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionRecordError {
+    PromotionNotAllowed,
+    LedgerEventInvalid,
+}
+
+impl PromotionRecordError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::PromotionNotAllowed => "promotion_not_allowed",
+            Self::LedgerEventInvalid => "ledger_event_invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PromotionRecord {
+    pub event: crate::ledger::LedgerEvent,
+}
+
+pub fn build_promotion_record(
+    event_id: impl Into<String>,
+    revision: u64,
+    actor: crate::ledger::LedgerActor,
+    evidence_refs: Vec<String>,
+    payload_summary: impl Into<String>,
+    promotion: &PromotionDecisionReport,
+) -> Result<PromotionRecord, PromotionRecordError> {
+    if promotion.decision != PromotionDecision::Allowed {
+        return Err(PromotionRecordError::PromotionNotAllowed);
+    }
+
+    let payload = crate::ledger::LedgerPayload::with_lifecycle_transition(
+        payload_summary,
+        crate::state::LifecycleState::PromotedTier1,
+    )
+    .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
+
+    let event = crate::ledger::LedgerEvent::new(
+        event_id,
+        revision,
+        crate::ledger::LedgerEventType::StateTransition,
+        actor,
+        evidence_refs,
+        payload,
+    )
+    .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
+
+    Ok(PromotionRecord { event })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -488,5 +539,236 @@ mod tests {
         assert_eq!(report, PromotionDecisionReport::allowed());
         assert_eq!(state.lifecycle, LifecycleState::Passed);
         assert_eq!(state.revision, 7);
+    }
+
+    fn ledger_actor() -> crate::ledger::LedgerActor {
+        crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::Human, "operator-1")
+            .expect("actor should be valid")
+    }
+
+    #[test]
+    fn promotion_record_error_codes_are_stable() {
+        assert_eq!(
+            PromotionRecordError::PromotionNotAllowed.code(),
+            "promotion_not_allowed"
+        );
+        assert_eq!(
+            PromotionRecordError::LedgerEventInvalid.code(),
+            "ledger_event_invalid"
+        );
+    }
+
+    #[test]
+    fn promotion_record_rejects_blocked_promotion() {
+        let result = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+        );
+
+        assert_eq!(result, Err(PromotionRecordError::PromotionNotAllowed));
+    }
+
+    #[test]
+    fn promotion_record_rejects_rejected_promotion() {
+        let result = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::rejected(PromotionDecisionReason::LifecycleNotPassed),
+        );
+
+        assert_eq!(result, Err(PromotionRecordError::PromotionNotAllowed));
+    }
+
+    #[test]
+    fn promotion_record_builds_state_transition_event_for_allowed_promotion() {
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(
+            record.event.event_type,
+            crate::ledger::LedgerEventType::StateTransition
+        );
+    }
+
+    #[test]
+    fn promotion_record_payload_targets_promoted_tier_1() {
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(
+            record.event.payload.lifecycle_transition,
+            Some(LifecycleState::PromotedTier1)
+        );
+    }
+
+    #[test]
+    fn promotion_record_preserves_caller_revision() {
+        let record = build_promotion_record(
+            "evt-1",
+            42,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(record.event.revision, 42);
+    }
+
+    #[test]
+    fn promotion_record_preserves_caller_actor() {
+        let actor = ledger_actor();
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            actor.clone(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(record.event.actor.id, actor.id);
+        assert_eq!(record.event.actor.actor_type, actor.actor_type);
+    }
+
+    #[test]
+    fn promotion_record_preserves_evidence_refs() {
+        let evidence_refs = vec![
+            "evidence-1".to_string(),
+            "evidence-2".to_string(),
+            "evidence-3".to_string(),
+        ];
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            evidence_refs.clone(),
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(record.event.evidence_refs, evidence_refs);
+    }
+
+    #[test]
+    fn promotion_record_fails_on_invalid_ledger_event() {
+        let blocked = build_promotion_record(
+            "",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        );
+        assert_eq!(blocked, Err(PromotionRecordError::LedgerEventInvalid));
+
+        let zero_revision = build_promotion_record(
+            "evt-1",
+            0,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        );
+        assert_eq!(zero_revision, Err(PromotionRecordError::LedgerEventInvalid));
+
+        let no_evidence = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec![],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        );
+        assert_eq!(no_evidence, Err(PromotionRecordError::LedgerEventInvalid));
+
+        let empty_summary = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "",
+            &PromotionDecisionReport::allowed(),
+        );
+        assert_eq!(empty_summary, Err(PromotionRecordError::LedgerEventInvalid));
+    }
+
+    #[test]
+    fn promotion_record_uses_decision_not_reason() {
+        let report = PromotionDecisionReport {
+            decision: PromotionDecision::Allowed,
+            reason: PromotionDecisionReason::LifecycleNotPassed,
+        };
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &report,
+        );
+
+        assert!(record.is_ok());
+    }
+
+    #[test]
+    fn promotion_record_does_not_append_to_ledger() {
+        let ledger = crate::ledger::Ledger::empty();
+        let _ = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert!(ledger.events().is_empty());
+    }
+
+    #[test]
+    fn promotion_record_does_not_transition_harness_state() {
+        let state = crate::state::HarnessState {
+            revision: 10,
+            lifecycle: LifecycleState::Passed,
+        };
+
+        let _ = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("allowed promotion should build record");
+
+        assert_eq!(state.revision, 10);
+        assert_eq!(state.lifecycle, LifecycleState::Passed);
     }
 }
