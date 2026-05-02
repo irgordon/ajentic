@@ -1,0 +1,25 @@
+name: pr-agent-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  advisory-agent-review:
+    name: Advisory Agent Review Placeholder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Advisory review placeholder
+        run: |
+          echo "Agent review is advisory only."
+          echo "Agent judgment is not authoritative."
+          echo "Future implementation should produce typed review evidence."
