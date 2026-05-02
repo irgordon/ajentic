@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.15 - 2026-05-02
+
+**Status:** Phase 15 - Promotion Decision Baseline
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to add deterministic promotion decision classification types, stable reason code helpers, and fail-closed decision ordering over caller-supplied lifecycle and execution decision inputs.
+- Updated `checklists/current-phase.md` for Phase 15 promotion scope.
+- Updated `CHANGELOG.md` with `v0.0.15`.
+
+### Notes
+
+- Phase 15 implements promotion decision classification only.
+- Promotion decisions use caller-supplied lifecycle and execution decision results.
+- No lifecycle transition, promotion execution, ledger append, provider adapter, API server, CLI command, or UI behavior was implemented.
+- PromotedTier1 remains a lifecycle state shape; entering it still requires a separate authorized transition path.
+- No new dependencies were added.
+
 ## v0.0.14 - 2026-05-02
 
 **Status:** Phase 14 - Execution Decision Baseline
