@@ -19,6 +19,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 17 appends an already-built promotion record to an in-memory ledger only.
+- append_promotion_record(...) appends an already-built PromotionRecord to a caller-supplied in-memory Ledger through Ledger::append.
+- It does not decide, build, apply, persist, replay, audit, or execute promotion.
 - `Ledger::append` remains responsible for revision sequencing.
 - The append helper does not construct promotion records, classify promotion decisions, mutate `HarnessState`, apply lifecycle transitions, persist ledgers, replay, audit, call providers, serve APIs, execute CLI commands, or touch UI behavior.
 - No new dependencies were added.
