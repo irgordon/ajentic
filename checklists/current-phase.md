@@ -4,17 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 17 — Promotion Ledger Append Baseline
+# Current Phase: Phase 18 — Promotion Replay Verification Baseline
 
-This is the active procedural execution surface for Phase 17.
+This is the active procedural execution surface for Phase 18.
 
 ## Phase
 
-Phase 17 — Promotion Ledger Append Baseline
+Phase 18 — Promotion Replay Verification Baseline
 
 ## Phase goal
 
-Implement a narrow Rust-owned deterministic helper that appends an already-built promotion record to a caller-supplied in-memory ledger using `Ledger::append` sequencing.
+Implement a narrow read-only Rust-owned verification helper that confirms an existing in-memory ledger replay-classifies and reconstructs to `LifecycleState::PromotedTier1`.
 
 ## Allowed surfaces
 
@@ -25,17 +25,17 @@ Implement a narrow Rust-owned deterministic helper that appends an already-built
 
 ## Task checklist
 
-- [x] Update checklist to Phase 17 scope.
-- [x] Preserve existing Phase 14, Phase 15, and Phase 16 behavior.
-- [x] Add deterministic promotion append error type with stable code mapping.
-- [x] Add deterministic `append_promotion_record(...)` using only caller-supplied `Ledger` and `PromotionRecord`.
-- [x] Delegate revision sequencing to `Ledger::append`.
-- [x] Return a new `Ledger` on success.
-- [x] Do not mutate input `Ledger`.
-- [x] Do not mutate `HarnessState` and do not call `HarnessState::transition_to`.
-- [x] Do not call `decide_execution`, `decide_promotion`, or `build_promotion_record` inside append helper.
-- [x] Add deterministic unit tests for required append behavior and non-goals.
-- [x] Add `CHANGELOG.md` entry `v0.0.17`.
+- [x] Update checklist to Phase 18 scope.
+- [x] Preserve existing Phase 14, 15, 16, and 17 behavior.
+- [x] Add read-only promotion replay verification types with stable reason codes.
+- [x] Add deterministic `verify_promotion_replay(...)` using caller-supplied in-memory `Ledger` only.
+- [x] Verify readiness via `classify_replay_readiness(events)`.
+- [x] Verify reconstruction via `reconstruct_harness_state(events)`.
+- [x] Return `NotVerified` on replay-not-ready, reconstruction failure, or non-promoted final lifecycle.
+- [x] Return `Verified` with reconstructed revision and replay counters when final lifecycle is `PromotedTier1`.
+- [x] Do not mutate ledger events, append events, mutate `HarnessState`, or repair/reorder replay.
+- [x] Add deterministic unit tests for required behavior.
+- [x] Add `CHANGELOG.md` entry `v0.0.18`.
 - [x] Run required validation commands.
 
 ## Validation checklist

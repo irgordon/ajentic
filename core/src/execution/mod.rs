@@ -245,6 +245,95 @@ pub fn append_promotion_record(
         .map_err(|_| PromotionAppendError::LedgerAppendFailed)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionReplayVerificationStatus {
+    Verified,
+    NotVerified,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionReplayVerificationReason {
+    PromotionReplayVerified,
+    LedgerNotReplayReady,
+    ReconstructionFailed,
+    FinalStateNotPromotedTier1,
+}
+
+impl PromotionReplayVerificationReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::PromotionReplayVerified => "promotion_replay_verified",
+            Self::LedgerNotReplayReady => "ledger_not_replay_ready",
+            Self::ReconstructionFailed => "reconstruction_failed",
+            Self::FinalStateNotPromotedTier1 => "final_state_not_promoted_tier_1",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PromotionReplayVerificationReport {
+    pub status: PromotionReplayVerificationStatus,
+    pub reason: PromotionReplayVerificationReason,
+    pub final_revision: u64,
+    pub events_seen: u64,
+    pub state_transitions_applied: u64,
+}
+
+impl PromotionReplayVerificationReport {
+    pub fn verified(final_revision: u64, events_seen: u64, state_transitions_applied: u64) -> Self {
+        Self {
+            status: PromotionReplayVerificationStatus::Verified,
+            reason: PromotionReplayVerificationReason::PromotionReplayVerified,
+            final_revision,
+            events_seen,
+            state_transitions_applied,
+        }
+    }
+
+    pub fn not_verified(reason: PromotionReplayVerificationReason) -> Self {
+        Self {
+            status: PromotionReplayVerificationStatus::NotVerified,
+            reason,
+            final_revision: 0,
+            events_seen: 0,
+            state_transitions_applied: 0,
+        }
+    }
+}
+
+pub fn verify_promotion_replay(
+    ledger: &crate::ledger::Ledger,
+) -> PromotionReplayVerificationReport {
+    let events = ledger.events();
+
+    if crate::replay::classify_replay_readiness(events).is_err() {
+        return PromotionReplayVerificationReport::not_verified(
+            PromotionReplayVerificationReason::LedgerNotReplayReady,
+        );
+    }
+
+    let reconstruction = match crate::replay::reconstruct_harness_state(events) {
+        Ok(reconstruction) => reconstruction,
+        Err(_) => {
+            return PromotionReplayVerificationReport::not_verified(
+                PromotionReplayVerificationReason::ReconstructionFailed,
+            );
+        }
+    };
+
+    if reconstruction.final_state.lifecycle != crate::state::LifecycleState::PromotedTier1 {
+        return PromotionReplayVerificationReport::not_verified(
+            PromotionReplayVerificationReason::FinalStateNotPromotedTier1,
+        );
+    }
+
+    PromotionReplayVerificationReport::verified(
+        reconstruction.final_state.revision,
+        reconstruction.events_seen,
+        reconstruction.state_transitions_applied,
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -566,6 +655,28 @@ mod tests {
     fn ledger_actor() -> crate::ledger::LedgerActor {
         crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::Human, "operator-1")
             .expect("actor should be valid")
+    }
+
+    fn replay_event(
+        id: &str,
+        revision: u64,
+        lifecycle: Option<LifecycleState>,
+    ) -> crate::ledger::LedgerEvent {
+        let payload = match lifecycle {
+            Some(next) => crate::ledger::LedgerPayload::with_lifecycle_transition("summary", next)
+                .expect("payload should be valid"),
+            None => crate::ledger::LedgerPayload::new("summary").expect("payload should be valid"),
+        };
+
+        crate::ledger::LedgerEvent::new(
+            id,
+            revision,
+            crate::ledger::LedgerEventType::StateTransition,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            payload,
+        )
+        .expect("event should be valid")
     }
 
     #[test]
@@ -985,5 +1096,162 @@ mod tests {
         let result = append_promotion_record(&ledger, record);
 
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn promotion_replay_verification_reason_codes_are_stable() {
+        assert_eq!(
+            PromotionReplayVerificationReason::PromotionReplayVerified.code(),
+            "promotion_replay_verified"
+        );
+        assert_eq!(
+            PromotionReplayVerificationReason::LedgerNotReplayReady.code(),
+            "ledger_not_replay_ready"
+        );
+        assert_eq!(
+            PromotionReplayVerificationReason::ReconstructionFailed.code(),
+            "reconstruction_failed"
+        );
+        assert_eq!(
+            PromotionReplayVerificationReason::FinalStateNotPromotedTier1.code(),
+            "final_state_not_promoted_tier_1"
+        );
+    }
+
+    #[test]
+    fn promotion_replay_verification_passes_for_valid_promoted_tier_1_replay() {
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed")
+            .append(replay_event(
+                "evt-3",
+                3,
+                Some(LifecycleState::PromotedTier1),
+            ))
+            .expect("append should succeed");
+
+        let report = verify_promotion_replay(&ledger);
+
+        assert_eq!(report.status, PromotionReplayVerificationStatus::Verified);
+        assert_eq!(
+            report.reason,
+            PromotionReplayVerificationReason::PromotionReplayVerified
+        );
+    }
+
+    #[test]
+    fn promotion_replay_verification_fails_for_empty_ledger() {
+        let report = verify_promotion_replay(&crate::ledger::Ledger::empty());
+        assert_eq!(
+            report.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+        assert_eq!(
+            report.reason,
+            PromotionReplayVerificationReason::LedgerNotReplayReady
+        );
+    }
+
+    #[test]
+    fn promotion_replay_verification_fails_for_non_replay_ready_ledger() {
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-1", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed");
+        let report = verify_promotion_replay(&ledger);
+
+        assert_eq!(
+            report.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+        assert_eq!(
+            report.reason,
+            PromotionReplayVerificationReason::LedgerNotReplayReady
+        );
+    }
+
+    #[test]
+    fn promotion_replay_verification_fails_when_reconstruction_fails() {
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, None))
+            .expect("append should succeed");
+
+        let report = verify_promotion_replay(&ledger);
+        assert_eq!(
+            report.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+        assert_eq!(
+            report.reason,
+            PromotionReplayVerificationReason::ReconstructionFailed
+        );
+    }
+
+    #[test]
+    fn promotion_replay_verification_fails_when_final_state_not_promoted() {
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed");
+
+        let report = verify_promotion_replay(&ledger);
+        assert_eq!(
+            report.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+        assert_eq!(
+            report.reason,
+            PromotionReplayVerificationReason::FinalStateNotPromotedTier1
+        );
+    }
+
+    fn promoted_tier_1_ledger() -> crate::ledger::Ledger {
+        crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed")
+            .append(replay_event(
+                "evt-3",
+                3,
+                Some(LifecycleState::PromotedTier1),
+            ))
+            .expect("append should succeed")
+    }
+
+    #[test]
+    fn promotion_replay_verification_reports_final_revision() {
+        let report = verify_promotion_replay(&promoted_tier_1_ledger());
+        assert_eq!(report.final_revision, 3);
+    }
+
+    #[test]
+    fn promotion_replay_verification_reports_events_seen() {
+        let ledger = promoted_tier_1_ledger();
+        let report = verify_promotion_replay(&ledger);
+        assert_eq!(report.events_seen, ledger.events().len() as u64);
+    }
+
+    #[test]
+    fn promotion_replay_verification_reports_state_transitions_applied() {
+        let report = verify_promotion_replay(&promoted_tier_1_ledger());
+        assert_eq!(report.state_transitions_applied, 3);
+    }
+
+    #[test]
+    fn promotion_replay_verification_does_not_mutate_ledger() {
+        let ledger = promoted_tier_1_ledger();
+        let before = ledger.events().to_vec();
+        let _ = verify_promotion_replay(&ledger);
+        let after = ledger.events().to_vec();
+
+        assert_eq!(before.len(), after.len());
+        assert_eq!(before, after);
     }
 }
