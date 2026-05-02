@@ -223,6 +223,28 @@ pub fn build_promotion_record(
     Ok(PromotionRecord { event })
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PromotionAppendError {
+    LedgerAppendFailed,
+}
+
+impl PromotionAppendError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LedgerAppendFailed => "ledger_append_failed",
+        }
+    }
+}
+
+pub fn append_promotion_record(
+    ledger: &crate::ledger::Ledger,
+    record: PromotionRecord,
+) -> Result<crate::ledger::Ledger, PromotionAppendError> {
+    ledger
+        .append(record.event)
+        .map_err(|_| PromotionAppendError::LedgerAppendFailed)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -770,5 +792,198 @@ mod tests {
 
         assert_eq!(state.revision, 10);
         assert_eq!(state.lifecycle, LifecycleState::Passed);
+    }
+    #[test]
+    fn promotion_append_error_codes_are_stable() {
+        assert_eq!(
+            PromotionAppendError::LedgerAppendFailed.code(),
+            "ledger_append_failed"
+        );
+    }
+
+    #[test]
+    fn promotion_append_succeeds_on_empty_ledger_with_revision_one() {
+        let ledger = crate::ledger::Ledger::empty();
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let next = append_promotion_record(&ledger, record).expect("append should succeed");
+
+        assert_eq!(ledger.events().len(), 0);
+        assert_eq!(next.events().len(), 1);
+    }
+
+    #[test]
+    fn promotion_append_preserves_event_shape() {
+        let ledger = crate::ledger::Ledger::empty();
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let next = append_promotion_record(&ledger, record).expect("append should succeed");
+        let appended = &next.events()[0];
+
+        assert_eq!(
+            appended.event_type,
+            crate::ledger::LedgerEventType::StateTransition
+        );
+        assert_eq!(
+            appended.payload.lifecycle_transition,
+            Some(LifecycleState::PromotedTier1)
+        );
+    }
+
+    #[test]
+    fn promotion_append_preserves_existing_ledger_order() {
+        let actor = ledger_actor();
+        let payload = crate::ledger::LedgerPayload::new("seed-summary").expect("payload valid");
+        let seed_event = crate::ledger::LedgerEvent::new(
+            "evt-seed",
+            1,
+            crate::ledger::LedgerEventType::StateTransition,
+            actor.clone(),
+            vec!["evidence-seed".to_string()],
+            payload,
+        )
+        .expect("seed event valid");
+        let ledger = crate::ledger::Ledger::empty()
+            .append(seed_event)
+            .expect("seed append should succeed");
+
+        let record = build_promotion_record(
+            "evt-2",
+            2,
+            actor,
+            vec!["evidence-2".to_string()],
+            "promotion-summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let next = append_promotion_record(&ledger, record).expect("append should succeed");
+
+        assert_eq!(next.events().len(), 2);
+        assert_eq!(next.events()[0].id, "evt-seed");
+        assert_eq!(next.events()[1].id, "evt-2");
+    }
+
+    #[test]
+    fn promotion_append_requires_valid_next_revision() {
+        let actor = ledger_actor();
+        let payload = crate::ledger::LedgerPayload::new("seed-summary").expect("payload valid");
+        let seed_event = crate::ledger::LedgerEvent::new(
+            "evt-seed",
+            1,
+            crate::ledger::LedgerEventType::StateTransition,
+            actor.clone(),
+            vec!["evidence-seed".to_string()],
+            payload,
+        )
+        .expect("seed event valid");
+        let ledger = crate::ledger::Ledger::empty()
+            .append(seed_event)
+            .expect("seed append should succeed");
+
+        let record = build_promotion_record(
+            "evt-3",
+            3,
+            actor,
+            vec!["evidence-3".to_string()],
+            "promotion-summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let result = append_promotion_record(&ledger, record);
+
+        assert_eq!(result, Err(PromotionAppendError::LedgerAppendFailed));
+    }
+
+    #[test]
+    fn promotion_append_failure_does_not_mutate_ledger() {
+        let actor = ledger_actor();
+        let payload = crate::ledger::LedgerPayload::new("seed-summary").expect("payload valid");
+        let seed_event = crate::ledger::LedgerEvent::new(
+            "evt-seed",
+            1,
+            crate::ledger::LedgerEventType::StateTransition,
+            actor.clone(),
+            vec!["evidence-seed".to_string()],
+            payload,
+        )
+        .expect("seed event valid");
+        let ledger = crate::ledger::Ledger::empty()
+            .append(seed_event)
+            .expect("seed append should succeed");
+
+        let record = build_promotion_record(
+            "evt-3",
+            3,
+            actor,
+            vec!["evidence-3".to_string()],
+            "promotion-summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let _ = append_promotion_record(&ledger, record);
+
+        assert_eq!(ledger.events().len(), 1);
+        assert_eq!(ledger.events()[0].id, "evt-seed");
+        assert_eq!(ledger.events()[0].revision, 1);
+    }
+
+    #[test]
+    fn promotion_append_does_not_transition_harness_state() {
+        let state = crate::state::HarnessState {
+            revision: 8,
+            lifecycle: LifecycleState::Passed,
+        };
+        let ledger = crate::ledger::Ledger::empty();
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let _ = append_promotion_record(&ledger, record).expect("append should succeed");
+
+        assert_eq!(state.lifecycle, LifecycleState::Passed);
+        assert_eq!(state.revision, 8);
+    }
+
+    #[test]
+    fn promotion_append_does_not_require_replay_readiness() {
+        let ledger = crate::ledger::Ledger::empty();
+        let record = build_promotion_record(
+            "evt-1",
+            1,
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+            "summary",
+            &PromotionDecisionReport::allowed(),
+        )
+        .expect("record should build");
+
+        let result = append_promotion_record(&ledger, record);
+
+        assert!(result.is_ok());
     }
 }
