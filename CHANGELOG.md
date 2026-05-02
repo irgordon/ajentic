@@ -20,6 +20,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 11 implements replay-readiness and ledger-integrity classification only.
+- classify_replay_readiness(...) classifies whether caller-supplied ledger events are structurally replay-ready.
+- It does not replay, reconstruct, repair, persist, audit, or apply events.
 - No replay reconstruction, event application, state rehydration, replay repair, ledger persistence, audit projection, provider adapter, API server, CLI command, or UI behavior was implemented.
 - Replay classification uses caller-supplied ledger event order and does not sort or infer missing events.
 - No new dependencies were added.
