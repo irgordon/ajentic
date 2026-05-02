@@ -150,6 +150,37 @@ mod tests {
     }
 
     #[test]
+    fn promoted_tier_1_self_transition_keeps_state() {
+        let next = LifecycleState::PromotedTier1
+            .transition_to(LifecycleState::PromotedTier1)
+            .expect("terminal self transition should be idempotent");
+
+        assert_eq!(next, LifecycleState::PromotedTier1);
+    }
+
+    #[test]
+    fn rejected_self_transition_keeps_state() {
+        let next = LifecycleState::Rejected
+            .transition_to(LifecycleState::Rejected)
+            .expect("terminal self transition should be idempotent");
+
+        assert_eq!(next, LifecycleState::Rejected);
+    }
+
+    #[test]
+    fn lifecycle_error_codes_are_stable() {
+        assert_eq!(
+            LifecycleError::InvalidTransition.code(),
+            "invalid_transition"
+        );
+        assert_eq!(LifecycleError::TerminalState.code(), "terminal_state");
+        assert_eq!(
+            LifecycleError::UnknownCannotPass.code(),
+            "unknown_cannot_pass"
+        );
+    }
+
+    #[test]
     fn harness_state_successful_transition_increments_revision() {
         let state = HarnessState::genesis();
         let next = state
