@@ -19,6 +19,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 16 constructs a promotion ledger event shape only after an allowed promotion decision.
+- build_promotion_record(...) creates a caller-supplied StateTransition ledger event targeting PromotedTier1.
+- It does not append that event, apply it, authorize it independently, persist it, or mutate HarnessState.
 - The promotion record is not appended to a ledger and does not mutate HarnessState.
 - No lifecycle transition, promotion execution, ledger persistence, replay, audit, provider adapter, API server, CLI command, or UI behavior was implemented.
 - No new dependencies were added.
