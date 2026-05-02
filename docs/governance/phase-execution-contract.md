@@ -41,13 +41,21 @@ An agent must not modify unrelated surfaces while completing a checklist item.
 ## 3. No boundary escapes
 
 An agent must not bypass the declared truth dimension of the work item.
+
 Governance work must remain in governance surfaces.
+
 Architecture work must remain in architecture surfaces.
+
 Roadmap work must remain in roadmap surfaces.
+
 Checklist work must remain in checklist surfaces.
+
 Schema work must remain in schemas.
+
 Runtime behavior must remain in code and tests.
+
 UI behavior must remain in UI surfaces and must not create authority.
+
 Scripts must remain wrappers around Rust CLI behavior.
 
 ## 4. Completion rule
