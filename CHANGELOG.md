@@ -6,6 +6,29 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.8.5 - 2026-05-02
+
+**Status:** Phase 8.5 - CI Validation Script Extraction
+
+### Added
+
+- Added `scripts/validate_structure.py` as the first-class repository structure validation entrypoint.
+- Added `scripts/validate_docs.py` as the first-class documentation boundary validation entrypoint.
+
+### Changed
+
+- Updated `.github/workflows/structure-lint.yml` to call `scripts/validate_structure.py` instead of embedding Python in workflow YAML.
+- Updated `.github/workflows/docs-gate.yml` to call `scripts/validate_docs.py` instead of embedding Python in workflow YAML.
+- Updated `checklists/current-phase.md` for Phase 8.5 execution scope.
+- Updated `CHANGELOG.md` with the Phase 8.5 maintenance entry.
+
+### Notes
+
+- Phase 8.5 is CI/CD maintenance only.
+- No runtime harness behavior was implemented.
+- Local validation and GitHub Actions now use the same Python script entrypoints for structure and documentation gates.
+- No new dependencies were added.
+
 ## v0.0.8 - 2026-05-02
 
 **Status:** Phase 8 - Context Packet Assembly
