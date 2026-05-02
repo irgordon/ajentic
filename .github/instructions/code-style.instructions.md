@@ -1,5 +1,5 @@
 ---
-applyTo: "core/**/*.rs,ui/**/*.{ts,tsx},scripts/**/*.sh"
+applyTo: "core/**/*.rs,ui/**/*.ts,ui/**/*.tsx,scripts/**/*.sh"
 ---
 
 # Code style instructions
@@ -22,11 +22,11 @@ Avoid hidden behavior.
 
 Avoid implicit authority.
 
-Avoid long, redundant or decorative comments. 
+Avoid long, redundant, or decorative comments.
 
 ## Rust
 
-Rust is the authoritative runtime language.
+Rust is the authoritative runtime surface.
 
 Rust code should make authority boundaries explicit.
 
@@ -46,7 +46,7 @@ UI code must not directly mutate state, memory, ledger, replay, policy, or valid
 
 Generated types must not be hand-edited.
 
-Runtime validators should be generated from JSON Schema where possible.
+Use generated runtime validators from JSON Schema where the project provides them.
 
 ## Bash
 
