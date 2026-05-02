@@ -9,11 +9,16 @@ Usage:
     python3 scripts/bootstrap_repo.py
 """
 
-import os
-import sys
+from __future__ import annotations
+
+from datetime import date
 from pathlib import Path
+import stat
+
 
 ROOT = Path(__file__).resolve().parent.parent
+TODAY = date.today().isoformat()
+
 
 DIRS = [
     "core/src/state",
@@ -64,17 +69,41 @@ DIRS = [
     "schemas/traces",
 ]
 
+
+def governed_md(
+    truth_dimension: str,
+    authority_level: str,
+    mutation_path: str,
+    title: str,
+    body: str,
+) -> str:
+    return f"""---
+truth_dimension: {truth_dimension}
+authority_level: {authority_level}
+mutation_path: {mutation_path}
+---
+
+# {title}
+
+{body}
+"""
+
+
+def schema_placeholder() -> str:
+    return """{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object"
+}
+"""
+
+
 FILES = {
-    "AGENTS.md": """\
----
-truth_dimension: navigation
-authority_level: non_authoritative
-mutation_path: agents_update
----
-
-# AGENTS.md
-
-This file is a short navigation contract for agents and tools working in this repository.
+    "AGENTS.md": governed_md(
+        "navigation",
+        "non_authoritative",
+        "agents_update",
+        "AGENTS.md",
+        """This file is a short navigation contract for agents and tools working in this repository.
 
 It is not the system of record.
 
@@ -84,23 +113,23 @@ It does not define governance rules, architecture authority, roadmap commitments
 
 | Source | Purpose |
 | --- | --- |
-| `GOVERNANCE.md` | Normative rules, authority model, prohibited patterns, and invariants. |
-| `ARCHITECTURE.md` | Structural description of the system, component responsibilities, and data flow. |
-| `docs/PHASE_MAP.md` | Planned phase sequence and active phase scope. |
+| `docs/governance/GOVERNANCE.md` | Normative rules, authority model, prohibited patterns, and invariants. |
+| `docs/architecture/ARCHITECTURE.md` | Structural description of the system, component responsibilities, and data flow. |
+| `docs/roadmap/phase-map.md` | Planned phase sequence and phase scope. |
 | `checklists/current-phase.md` | Active execution checklist for the current phase. |
 | `CHANGELOG.md` | Completed accepted work. |
-| `schemas/` | Shared data contracts (JSON Schema). |
+| `schemas/` | Shared data contracts through JSON Schema. |
 
 ## Quick navigation
 
-- **Rules and invariants**: `GOVERNANCE.md`, `docs/governance/`
-- **System structure**: `ARCHITECTURE.md`, `docs/architecture/`
-- **Roadmap and phases**: `docs/PHASE_MAP.md`, `docs/roadmap/`
-- **Active phase tasks**: `checklists/current-phase.md`
-- **Data contracts**: `schemas/`
-- **Runtime source**: `core/`
-- **Browser UI source**: `ui/`
-- **Operator scripts**: `scripts/`
+- Rules and invariants: `docs/governance/GOVERNANCE.md`, `docs/governance/`
+- System structure: `docs/architecture/ARCHITECTURE.md`, `docs/architecture/`
+- Roadmap and phases: `docs/roadmap/phase-map.md`, `docs/roadmap/`
+- Active phase tasks: `checklists/current-phase.md`
+- Data contracts: `schemas/`
+- Runtime source: `core/`
+- Browser UI source: `ui/`
+- Operator scripts: `scripts/`
 
 ## Constraint reminder
 
@@ -114,9 +143,24 @@ Model output is untrusted until validated through Rust-owned paths.
 
 This file must remain short, stable, and non-authoritative.
 """,
+    ),
 
-    "CHANGELOG.md": """\
----
+    "README.md": governed_md(
+        "orientation",
+        "non_authoritative",
+        "readme_update",
+        "AJENTIC",
+        """AJENTIC is a deterministic control layer for model-driven work.
+
+It is designed for teams that want the speed of local or cloud large language models without surrendering review, validation, replay, or operator control.
+
+The harness treats model output as candidate material. It assembles bounded context, validates outputs, records accepted events, supports replay, and presents the run through a human-readable browser UI.
+
+This README is orientation only. It is not an authority source.
+""",
+    ),
+
+    "CHANGELOG.md": f"""---
 truth_dimension: historical
 authority_level: authoritative
 mutation_path: changelog_entry
@@ -124,7 +168,7 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
-## v0.0.0 - 2026-05-02
+## v0.0.0 - {TODAY}
 
 **Status:** Phase 0 - Initial Repo Setup
 
@@ -132,7 +176,7 @@ mutation_path: changelog_entry
 
 - Created the initial repository skeleton for AJENTIC.
 - Added top-level navigation, orientation, and historical anchors.
-- Added canonical directories for Rust core, browser UI, scripts, tests, memory, checklists, docs, schemas, and workflows.
+- Added canonical directories for Rust core, browser UI, scripts, tests, memory, checklists, docs, and schemas.
 - Added minimal Rust core compile skeleton under `core/`.
 - Added minimal TypeScript browser UI placeholder structure under `ui/`.
 - Added initial governed documentation directories under `docs/`.
@@ -236,121 +280,274 @@ export {};
 /* Placeholder. No layout implemented. */
 """,
 
-    "memory/persistent/project-facts.json": "{}",
-    "memory/persistent/conventions.json": "{}",
+    "memory/persistent/project-facts.json": "{}\n",
+    "memory/persistent/conventions.json": "{}\n",
 
     "memory/ephemeral/.gitignore": """\
 *
 !.gitignore
 """,
 
-    "schemas/docs/artifact-frontmatter.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "checklists/current-phase.md": governed_md(
+        "procedural",
+        "authoritative",
+        "checklist_revision",
+        "Current phase checklist",
+        """This checklist is the active working surface for the current phase.
+
+It does not define governance.
+
+It does not define architecture.
+
+It does not record completed history.
+
+## Phase
+
+Phase 0 - Initial Repo Setup
+
+## Goal
+
+Bring the blank repository to the Phase 0 skeleton baseline.
+
+## Tasks
+
+- [ ] Create required directories.
+- [ ] Create required placeholder files.
+- [ ] Validate bootstrap idempotence.
+- [ ] Validate Rust compile skeleton.
+- [ ] Validate UI placeholder typecheck when dependencies are available.
+- [ ] Validate JSON placeholder schemas.
+
+## Deferred items
+
+| Item | Reason | Target phase |
+| --- | --- | --- |
+
+## Validation log
+
+| Check | Result | Notes |
+| --- | --- | --- |
 """,
-    "schemas/context/context-packet.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
+    ),
+
+    "checklists/release.md": governed_md(
+        "procedural",
+        "authoritative",
+        "checklist_revision",
+        "Release checklist",
+        "Placeholder. No release procedure implemented.\n",
+    ),
+
+    "checklists/migration.md": governed_md(
+        "procedural",
+        "authoritative",
+        "checklist_revision",
+        "Migration checklist",
+        "Placeholder. No migration procedure implemented.\n",
+    ),
+
+    "checklists/audit.md": governed_md(
+        "procedural",
+        "authoritative",
+        "checklist_revision",
+        "Audit checklist",
+        "Placeholder. No audit procedure implemented.\n",
+    ),
+
+    "docs/governance/invariants.md": governed_md(
+        "normative",
+        "authoritative",
+        "governance_pr",
+        "Governance invariants",
+        "Subordinate to `docs/governance/GOVERNANCE.md`.\n",
+    ),
+
+    "docs/governance/artifact-placement.md": governed_md(
+        "normative",
+        "authoritative",
+        "governance_pr",
+        "Artifact placement rules",
+        "Subordinate to `docs/governance/GOVERNANCE.md`.\n",
+    ),
+
+    "docs/governance/mutation-paths.md": governed_md(
+        "normative",
+        "authoritative",
+        "governance_pr",
+        "Mutation paths",
+        "Subordinate to `docs/governance/GOVERNANCE.md`.\n",
+    ),
+
+    "docs/governance/negative-patterns.md": governed_md(
+        "normative",
+        "authoritative",
+        "governance_pr",
+        "Negative patterns",
+        "Subordinate to `docs/governance/GOVERNANCE.md`.\n",
+    ),
+
+    "docs/governance/non-goals.md": governed_md(
+        "normative",
+        "authoritative",
+        "governance_pr",
+        "Non-goals",
+        "Subordinate to `docs/governance/GOVERNANCE.md`.\n",
+    ),
+
+    "docs/architecture/system-architecture.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "System architecture",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/browser-ui.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "Browser UI architecture",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/state-machine.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "State machine architecture",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/context-pipeline.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "Context pipeline architecture",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/memory-model.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "Memory model architecture",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/policy-validation-boundary.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "Policy validation boundary",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/architecture/ledger-replay-model.md": governed_md(
+        "structural",
+        "authoritative",
+        "architecture_pr",
+        "Ledger replay model",
+        "Subordinate to `docs/architecture/ARCHITECTURE.md`.\n",
+    ),
+
+    "docs/roadmap/phases.md": governed_md(
+        "planned",
+        "advisory",
+        "roadmap_update",
+        "Roadmap phases",
+        "Planned truth. Does not record completed work.\n",
+    ),
+
+    "docs/roadmap/sequencing.md": governed_md(
+        "planned",
+        "advisory",
+        "roadmap_update",
+        "Roadmap sequencing",
+        "Planned truth. Does not record completed work.\n",
+    ),
+
+    "docs/operations/operator-handbook.md": governed_md(
+        "orientation",
+        "advisory",
+        "readme_update",
+        "Operator handbook",
+        "Human operator explanation. Not procedural authority.\n",
+    ),
+
+    "docs/examples/prompts/placeholder.md": governed_md(
+        "example",
+        "non_authoritative",
+        "example_update",
+        "Prompt examples",
+        "Placeholder examples only. Not authoritative.\n",
+    ),
+
+    "docs/examples/workflows/placeholder.md": governed_md(
+        "example",
+        "non_authoritative",
+        "example_update",
+        "Workflow examples",
+        "Placeholder examples only. Not authoritative.\n",
+    ),
+
+    "schemas/docs/artifact-frontmatter.schema.json": schema_placeholder(),
+    "schemas/context/context-packet.schema.json": schema_placeholder(),
+    "schemas/context/context-slice.schema.json": schema_placeholder(),
+    "schemas/context/context-budget.schema.json": schema_placeholder(),
+    "schemas/memory/memory-entry.schema.json": schema_placeholder(),
+    "schemas/memory/memory-snapshot.schema.json": schema_placeholder(),
+    "schemas/memory/memory-provenance.schema.json": schema_placeholder(),
+    "schemas/events/ledger-event.schema.json": schema_placeholder(),
+    "schemas/events/run-event.schema.json": schema_placeholder(),
+    "schemas/events/audit-event.schema.json": schema_placeholder(),
+    "schemas/intents/operator-intent.schema.json": schema_placeholder(),
+    "schemas/intents/approve-intent.schema.json": schema_placeholder(),
+    "schemas/intents/reject-intent.schema.json": schema_placeholder(),
+    "schemas/intents/retry-intent.schema.json": schema_placeholder(),
+    "schemas/intents/memory-intent.schema.json": schema_placeholder(),
+    "schemas/traces/run-trace.schema.json": schema_placeholder(),
+    "schemas/traces/replay-report.schema.json": schema_placeholder(),
+    "schemas/traces/validation-report.schema.json": schema_placeholder(),
 }
+
+
+EXECUTABLE_FILES = {
+    "scripts/check.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cargo check --manifest-path core/Cargo.toml
 """,
-    "schemas/context/context-slice.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "scripts/dev-run.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cargo run --manifest-path core/Cargo.toml
 """,
-    "schemas/context/context-budget.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "scripts/replay.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cargo run --manifest-path core/Cargo.toml -- replay "$@"
 """,
-    "schemas/memory/memory-entry.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "scripts/memory-snapshot.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cargo run --manifest-path core/Cargo.toml -- memory snapshot "$@"
 """,
-    "schemas/memory/memory-snapshot.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "scripts/memory-clear-ephemeral.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cargo run --manifest-path core/Cargo.toml -- memory clear-ephemeral "$@"
 """,
-    "schemas/memory/memory-provenance.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/events/ledger-event.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/events/run-event.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/events/audit-event.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/intents/operator-intent.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/intents/approve-intent.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/intents/reject-intent.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/intents/retry-intent.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/intents/memory-intent.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/traces/run-trace.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/traces/replay-report.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
-""",
-    "schemas/traces/validation-report.schema.json": """\
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object"
-}
+    "scripts/ui-start.sh": """\
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ui
+npm run build
 """,
 }
 
@@ -359,6 +556,12 @@ def write_file(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8", newline="\n")
     print(f"  created: {path.relative_to(ROOT)}")
+
+
+def write_executable_file(path: Path, content: str) -> None:
+    write_file(path, content)
+    mode = path.stat().st_mode
+    path.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 def ensure_dir(path: Path) -> None:
@@ -384,10 +587,27 @@ def main() -> None:
             write_file(target, content)
             created += 1
 
+    for rel, content in EXECUTABLE_FILES.items():
+        target = ROOT / rel
+        if target.exists():
+            print(f"  skipped (exists): {rel}")
+            skipped += 1
+        else:
+            write_executable_file(target, content)
+            created += 1
+
     for mod in [
-        "state", "context", "memory", "policy",
-        "validation", "execution", "ledger", "replay",
-        "audit", "api", "errors",
+        "state",
+        "context",
+        "memory",
+        "policy",
+        "validation",
+        "execution",
+        "ledger",
+        "replay",
+        "audit",
+        "api",
+        "errors",
     ]:
         target = ROOT / f"core/src/{mod}/mod.rs"
         if not target.exists():
