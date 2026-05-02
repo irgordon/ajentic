@@ -4,49 +4,41 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 16 — Promotion Recording Baseline
+# Current Phase: Phase 17 — Promotion Ledger Append Baseline
 
-This is the active procedural execution surface for Phase 16.
+This is the active procedural execution surface for Phase 17.
 
 ## Phase
 
-Phase 16 — Promotion Recording Baseline
+Phase 17 — Promotion Ledger Append Baseline
 
 ## Phase goal
 
-Implement a narrow Rust-owned deterministic promotion recording surface that constructs a caller-supplied ledger event shape only after an already-allowed promotion decision.
+Implement a narrow Rust-owned deterministic helper that appends an already-built promotion record to a caller-supplied in-memory ledger using `Ledger::append` sequencing.
 
 ## Allowed surfaces
 
 - `core/src/execution/mod.rs`
-- `core/src/ledger/mod.rs` only if a minimal ledger event type/code helper is required
 - `core/src/lib.rs` only if test placement or export cleanup requires it
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Task checklist
 
-- [x] Update checklist to Phase 16 scope.
-- [x] Preserve existing Phase 14 and Phase 15 behavior.
-- [x] Add deterministic promotion record request/result types and stable error code helpers.
-- [x] Add deterministic `build_promotion_record(...)` using only caller-supplied promotion decision report, actor, evidence refs, and payload summary.
-- [x] Fail closed unless promotion decision is `Allowed`.
-- [x] Construct `LedgerEventType::StateTransition` with lifecycle transition payload targeting `LifecycleState::PromotedTier1`.
-- [x] Do not append to `Ledger`, mutate `HarnessState`, call `HarnessState::transition_to`, or call decision functions inside record construction.
-- [x] Add deterministic unit tests for promotion record construction behavior and non-goals.
-- [x] Add `CHANGELOG.md` entry `v0.0.16`.
+- [x] Update checklist to Phase 17 scope.
+- [x] Preserve existing Phase 14, Phase 15, and Phase 16 behavior.
+- [x] Add deterministic promotion append error type with stable code mapping.
+- [x] Add deterministic `append_promotion_record(...)` using only caller-supplied `Ledger` and `PromotionRecord`.
+- [x] Delegate revision sequencing to `Ledger::append`.
+- [x] Return a new `Ledger` on success.
+- [x] Do not mutate input `Ledger`.
+- [x] Do not mutate `HarnessState` and do not call `HarnessState::transition_to`.
+- [x] Do not call `decide_execution`, `decide_promotion`, or `build_promotion_record` inside append helper.
+- [x] Add deterministic unit tests for required append behavior and non-goals.
+- [x] Add `CHANGELOG.md` entry `v0.0.17`.
 - [x] Run required validation commands.
 
 ## Validation checklist
 
-- [x] `python3 scripts/bootstrap_repo.py`
-- [x] `python3 -m compileall scripts/bootstrap_repo.py scripts/validate_structure.py scripts/validate_docs.py`
-- [x] `python3 scripts/validate_structure.py`
-- [x] `python3 scripts/validate_docs.py`
-- [x] `bash -n scripts/*.sh`
-- [x] `find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null`
-- [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [x] `cargo check --manifest-path core/Cargo.toml --all-targets`
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [x] `./scripts/check.sh`
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`

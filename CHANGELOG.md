@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.17 - 2026-05-02
+
+**Status:** Phase 17 - Promotion Ledger Append Baseline
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to add deterministic promotion-record append delegation with stable append error code mapping and unit tests.
+- Updated `checklists/current-phase.md` for Phase 17 promotion ledger append scope.
+- Updated `CHANGELOG.md` with `v0.0.17`.
+
+### Notes
+
+- Phase 17 appends an already-built promotion record to an in-memory ledger only.
+- append_promotion_record(...) appends an already-built PromotionRecord to a caller-supplied in-memory Ledger through Ledger::append.
+- It does not decide, build, apply, persist, replay, audit, or execute promotion.
+- `Ledger::append` remains responsible for revision sequencing.
+- The append helper does not construct promotion records, classify promotion decisions, mutate `HarnessState`, apply lifecycle transitions, persist ledgers, replay, audit, call providers, serve APIs, execute CLI commands, or touch UI behavior.
+- No new dependencies were added.
+
 ## v0.0.16 - 2026-05-02
 
 **Status:** Phase 16 - Promotion Recording Baseline
