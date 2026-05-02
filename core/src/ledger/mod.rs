@@ -34,6 +34,7 @@ pub struct LedgerActor {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LedgerPayload {
     pub summary: String,
+    pub lifecycle_transition: Option<crate::state::LifecycleState>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -94,7 +95,19 @@ impl LedgerPayload {
             return Err(LedgerError::EmptyPayloadSummary);
         }
 
-        Ok(Self { summary })
+        Ok(Self {
+            summary,
+            lifecycle_transition: None,
+        })
+    }
+
+    pub fn with_lifecycle_transition(
+        summary: impl Into<String>,
+        next_state: crate::state::LifecycleState,
+    ) -> Result<Self, LedgerError> {
+        let mut payload = Self::new(summary)?;
+        payload.lifecycle_transition = Some(next_state);
+        Ok(payload)
     }
 }
 
@@ -198,6 +211,26 @@ mod tests {
     fn ledger_payload_requires_summary() {
         let result = LedgerPayload::new("");
         assert_eq!(result, Err(LedgerError::EmptyPayloadSummary));
+    }
+
+    #[test]
+    fn ledger_payload_new_has_no_lifecycle_transition() {
+        let payload = LedgerPayload::new("summary").expect("payload should be valid");
+        assert_eq!(payload.lifecycle_transition, None);
+    }
+
+    #[test]
+    fn ledger_payload_with_lifecycle_transition_sets_next_state() {
+        let payload = LedgerPayload::with_lifecycle_transition(
+            "summary",
+            crate::state::LifecycleState::Evaluating,
+        )
+        .expect("payload should be valid");
+
+        assert_eq!(
+            payload.lifecycle_transition,
+            Some(crate::state::LifecycleState::Evaluating)
+        );
     }
 
     #[test]
