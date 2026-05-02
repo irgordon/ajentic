@@ -1,0 +1,50 @@
+name: memory-lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  memory-lint:
+    name: Memory Placement Gate
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('memory/**') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate memory placement
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if find memory -type f -name "*.md" | grep -q .; then
+            echo "::error::memory/ must not contain Markdown documentation"
+            exit 1
+          fi
+
+          if find memory -type f -name "*.schema.json" | grep -q .; then
+            echo "::error::memory/ must not contain schemas"
+            exit 1
+          fi
+
+          if [ -d memory/ephemeral ]; then
+            unexpected="$(find memory/ephemeral -type f ! -name ".gitignore" -print)"
+            if [ -n "$unexpected" ]; then
+              echo "::error::ephemeral memory files must not be committed"
+              echo "$unexpected"
+              exit 1
+            fi
+          fi
+
+          if find memory -type f -name "*.json" | grep -q .; then
+            find memory -type f -name "*.json" -print0 |
+              xargs -0 -n1 python3 -m json.tool > /dev/null
+          fi
+
+          echo "Memory placement checks passed."
