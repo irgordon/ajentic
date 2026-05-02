@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.8 - 2026-05-02
+
+**Status:** Phase 8 - Context Packet Assembly
+
+### Changed
+
+- Updated `core/src/context/mod.rs` with deterministic context packet assembly types for truth dimensions, sources, tasks, budgets, and provenance-carrying slices.
+- Added typed fail-closed `ContextError` variants with stable error codes and explicit constructor validation for packet, task, source, slice, budget, and packet provenance boundaries.
+- Added deterministic unit tests covering budget checks, required provenance fields, required source metadata, deterministic packet assembly, slice/source order preservation, and stable context error codes.
+- Updated `checklists/current-phase.md` for Phase 8 execution scope, boundaries, tasks, validation checklist, deferred items, and validation log table.
+
+### Notes
+
+- Phase 8 implements context packet assembly from caller-supplied inputs only.
+- No repository scanning, context retrieval, memory retrieval, tokenization, model invocation, provider adapter, ledger persistence, replay reconstruction, audit projection, API server behavior, CLI command behavior, or UI behavior was implemented.
+- Budget values are caller-supplied and only checked for `used_units <= max_units`.
+- Sources and slices are caller-supplied and are not reconciled in this phase.
+- No new dependencies were added.
+
 ## v0.0.7 - 2026-05-02
 
 **Status:** Phase 7 - Policy and Validation Baseline
