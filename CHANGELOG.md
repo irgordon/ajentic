@@ -6,6 +6,22 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.3 - 2026-05-02
+
+**Status:** Phase 3 - CI and Structure Drift Gates
+
+### Changed
+
+- Normalized `checklists/current-phase.md` to Phase 3 procedural scope, boundaries, task checklist, validation checklist, deferred items, and validation log table.
+- Hardened `.github/workflows/structure-lint.yml` to reject root `PHASE_MAP.md` in addition to root governance and architecture anchors.
+- Hardened `.github/workflows/docs-gate.yml` to reject root `PHASE_MAP.md` and exclude `.github/instructions/*.instructions.md` from governed documentation boundary checks.
+
+### Notes
+
+- Phase 3 is a CI and drift-gate hardening phase only.
+- No runtime harness behavior was implemented.
+- Workflows remain enforcement wiring and do not create standalone governance.
+
 ## v0.0.2 - 2026-05-02
 
 **Status:** Phase 2 - Phase Execution Loop and Active Checklist
