@@ -1,5 +1,3 @@
-Below is a tighter docs/roadmap/phase-map.md structure. It is written as planned truth only. It avoids implementation status, avoids historical claims, and gives an agentic coder enough boundary information to execute one phase at a time without drifting.
-
 ---
 truth_dimension: planned
 authority_level: authoritative
