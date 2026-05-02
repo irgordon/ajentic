@@ -130,7 +130,6 @@ Required commands:
 
 ```python
 python3 scripts/bootstrap_repo.py
-python3 scripts/bootstrap_repo.py
 python3 -m compileall scripts/bootstrap_repo.py
 bash -n scripts/*.sh
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
@@ -147,7 +146,7 @@ npm run lint
 npm run build
 ```
 
-Required checks:
+Required tests/checks:
 
 * bootstrap is idempotent
 * governed Markdown files have frontmatter
@@ -243,7 +242,6 @@ Scope:
 Allowed:
 
 * docs/roadmap/phase-map.md
-* docs/roadmap/sequencing.md
 * checklists/current-phase.md
 * docs/governance/phase-execution-contract.md
 
@@ -257,7 +255,7 @@ Not allowed:
 
 Validation gate:
 
-Required checks:
+Required tests/checks:
 
 ```python
 python3 -m compileall scripts/bootstrap_repo.py
@@ -404,7 +402,7 @@ find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool 
 cargo check --manifest-path core/Cargo.toml
 ```
 
-Required checks:
+Required tests/checks:
 
 * all schema files are valid JSON
 * schema files use Draft 2020-12
@@ -1081,7 +1079,7 @@ npm run lint
 npm run build
 ```
 
-Required checks:
+Required tests/checks:
 
 * UI builds
 * UI typechecks
@@ -1390,7 +1388,7 @@ npm run lint
 npm run build
 ```
 
-Required checks:
+Required tests/checks:
 
 * desktop layout usable
 * tablet layout usable

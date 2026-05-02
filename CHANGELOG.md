@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.2 - 2026-05-02
+
+**Status:** Phase 2 - Phase Execution Loop and Active Checklist
+
+### Changed
+
+- Audited and normalized `docs/roadmap/phase-map.md` so phase structure remains agent-executable and planned-only.
+- Clarified `docs/governance/phase-execution-contract.md` execution surfaces and changelog handoff boundaries.
+- Replaced `checklists/current-phase.md` with Phase 2 procedural execution surface content and validation tracking tables.
+- Updated `AGENTS.md` navigation links to include the phase execution contract as an authoritative source pointer.
+
+### Notes
+
+- Phase 2 is a planning and execution-discipline phase only.
+- No runtime harness behavior was implemented.
+- `docs/roadmap/phase-map.md` remains planned truth and must not record completed work.
+- `checklists/current-phase.md` remains the only active phase execution surface.
+
 ## v0.0.1 - 2026-05-02
 
 **Status:** Phase 1 - Governance and Architecture Baseline

@@ -17,6 +17,7 @@ It does not define governance rules, architecture authority, roadmap commitments
 | Source | Purpose |
 | --- | --- |
 | `docs/governance/GOVERNANCE.md` | Normative rules, authority model, prohibited patterns, and invariants. |
+| `docs/governance/phase-execution-contract.md` | Normative phase execution loop contract and checklist/changelog boundaries. |
 | `docs/architecture/ARCHITECTURE.md` | Structural description of the system, component responsibilities, and data flow. |
 | `docs/roadmap/phase-map.md` | Planned phase sequence and active phase scope. |
 | `checklists/current-phase.md` | Active execution checklist for the current phase. |
@@ -25,7 +26,7 @@ It does not define governance rules, architecture authority, roadmap commitments
 
 ## Quick navigation
 
-- **Rules and invariants**: `docs/governance/GOVERNANCE.md`, `docs/governance/`
+- **Rules and invariants**: `docs/governance/GOVERNANCE.md`, `docs/governance/phase-execution-contract.md`, `docs/governance/`
 - **System structure**: `docs/architecture/ARCHITECTURE.md`, `docs/architecture/`
 - **Roadmap and phases**: `docs/roadmap/phase-map.md`, `docs/roadmap/`
 - **Active phase tasks**: `checklists/current-phase.md`
