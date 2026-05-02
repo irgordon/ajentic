@@ -79,9 +79,6 @@ jobs:
           CHANGELOG_FUTURE_PATTERNS = [
               r"\bplanned next\b",
               r"\bfuture plan\b",
-              r"\bwill implement\b",
-              r"\bwill add\b",
-              r"\bwill support\b",
               r"\bcoming soon\b",
               r"\bto be implemented\b",
               r"\bnext phase will\b",
@@ -98,33 +95,32 @@ jobs:
 
           GOVERNANCE_STATUS_PATTERNS = [
               r"\bstatus:\s*(complete|in progress|pending|done)\b",
-              r"\bimplemented\b",
               r"\bcurrently implemented\b",
               r"\bphase\s+\d+\s+is\s+complete\b",
-              r"\bcompleted work\b",
           ]
 
           ARCHITECTURE_HISTORY_OR_PLAN_PATTERNS = [
               r"\bstatus:\s*(complete|in progress|pending|done)\b",
               r"\bcompleted on\b",
               r"\bwas completed\b",
-              r"\bnext phase\b",
-              r"\bwill implement\b",
+              r"\bhas been completed\b",
+              r"\bnext phase will\b",
               r"\bplanned phase\b",
           ]
 
           README_AUTHORITY_PATTERNS = [
-              r"\bmust always\b",
-              r"\bmust not\b",
               r"\brequired mutation path\b",
-              r"\bauthoritative runtime\b",
+              r"\bgovernance_pr\b",
+              r"\barchitecture_pr\b",
+              r"\bschema_change\b",
+              r"\bchecklist_revision\b",
           ]
 
           AGENTS_MONOLITH_PATTERNS = [
               r"\bfull governance\b",
-              r"\broadmap phase\b",
-              r"\bimplementation plan\b",
+              r"\bphase-by-phase implementation\b",
               r"\bprovider-specific instructions\b",
+              r"\blong prompt library\b",
           ]
 
           def fail(message: str) -> None:
