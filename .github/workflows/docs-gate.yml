@@ -133,6 +133,14 @@ jobs:
           def is_git_path(path: Path) -> bool:
               return ".git" in path.parts
 
+          def is_github_instruction_path(path: Path) -> bool:
+              return (
+                  len(path.parts) >= 3
+                  and path.parts[0] == ".github"
+                  and path.parts[1] == "instructions"
+                  and path.name.endswith(".instructions.md")
+              )
+
           def read_text(path: Path) -> str:
               return path.read_text(encoding="utf-8", errors="strict")
 
@@ -180,7 +188,7 @@ jobs:
 
           markdown_files = [
               path for path in Path(".").rglob("*.md")
-              if not is_git_path(path)
+              if not is_git_path(path) and not is_github_instruction_path(path)
           ]
 
           # Root docs-owned anchor model.
@@ -189,6 +197,9 @@ jobs:
 
           if Path("ARCHITECTURE.md").exists():
               fail("ARCHITECTURE.md must live at docs/architecture/ARCHITECTURE.md, not repository root")
+
+          if Path("PHASE_MAP.md").exists():
+              fail("PHASE_MAP.md must live under docs/roadmap/, not repository root")
 
           for anchor, expected in EXPECTED_DOCS_ANCHORS.items():
               path = Path(anchor)

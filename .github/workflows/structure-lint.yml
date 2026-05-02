@@ -142,7 +142,7 @@ jobs:
                   fail(f"Missing required docs anchor: {filename}")
 
           # Disallow root governance and architecture anchors.
-          for filename in ["GOVERNANCE.md", "ARCHITECTURE.md"]:
+          for filename in ["GOVERNANCE.md", "ARCHITECTURE.md", "PHASE_MAP.md"]:
               if Path(filename).exists():
                   fail(f"{filename} must live under docs/, not repository root")
 
