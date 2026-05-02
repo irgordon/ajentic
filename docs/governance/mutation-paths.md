@@ -8,7 +8,7 @@ mutation_path: governance_pr
 
 This document defines how artifact types may be changed.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 ## Mutation path table
 

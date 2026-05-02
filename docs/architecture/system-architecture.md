@@ -8,7 +8,7 @@ mutation_path: architecture_pr
 
 This document describes the high-level system structure of AJENTIC.
 
-This document is subordinate to `ARCHITECTURE.md`.
+This document is subordinate to `docs/architecture/ARCHITECTURE.md`.
 
 This document does not define governance rules, implementation status, roadmap progress, or release history.
 
@@ -35,4 +35,4 @@ Authority flows from typed intents through Rust-owned API and CLI surfaces.
 
 No surface outside Rust may create runtime authority.
 
-See `ARCHITECTURE.md` for the full structural description.
+See `docs/architecture/ARCHITECTURE.md` for the full structural description.

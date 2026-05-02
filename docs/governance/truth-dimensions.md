@@ -8,7 +8,7 @@ mutation_path: governance_pr
 
 This document defines the repository artifact taxonomy used to prevent truth-dimension collapse.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 This document does not redefine system identity, runtime authority, architecture, implementation status, roadmap progress, release history, or operational procedure.
 
@@ -24,8 +24,8 @@ A repository becomes difficult to audit when one artifact type starts carrying a
 
 | Truth dimension | Artifact location | Role |
 | --- | --- | --- |
-| Normative truth | `GOVERNANCE.md`, `docs/governance/` | Defines rules, invariants, authority boundaries, prohibitions, and non-goals. |
-| Structural truth | `ARCHITECTURE.md`, `docs/architecture/` | Describes system structure, boundaries, data flow, and component responsibilities. |
+| Normative truth | `docs/governance/GOVERNANCE.md`, `docs/governance/` | Defines rules, invariants, authority boundaries, prohibitions, and non-goals. |
+| Structural truth | `docs/architecture/ARCHITECTURE.md`, `docs/architecture/` | Describes system structure, boundaries, data flow, and component responsibilities. |
 | Planned truth | `docs/roadmap/` | Describes possible future work, sequencing, dependencies, and acceptance targets. |
 | Historical truth | `CHANGELOG.md` | Records completed changes. |
 | Procedural truth | `checklists/` | Defines bounded execution steps for releases, audits, migrations, or similar events. |

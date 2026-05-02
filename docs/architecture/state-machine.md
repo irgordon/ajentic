@@ -8,7 +8,7 @@ mutation_path: architecture_pr
 
 This document describes the structural role of the state machine in AJENTIC.
 
-This document is subordinate to `ARCHITECTURE.md`.
+This document is subordinate to `docs/architecture/ARCHITECTURE.md`.
 
 This document does not define governance rules, implementation status, roadmap progress, or release history.
 

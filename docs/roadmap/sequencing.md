@@ -8,7 +8,7 @@ mutation_path: roadmap_update
 
 This document describes the sequencing dependencies between phases.
 
-This document is subordinate to `docs/PHASE_MAP.md`.
+This document is subordinate to `docs/roadmap/phase-map.md`.
 
 This document does not record completed work, define governance rules, or define architecture authority.
 
@@ -20,4 +20,4 @@ Phase 1 (governance and architecture baseline) must complete before runtime impl
 
 Phases 2 through 6 must follow the phase execution contract in `docs/governance/phase-execution-contract.md`.
 
-See `docs/PHASE_MAP.md` for the full sequencing and exit criteria.
+See `docs/roadmap/phase-map.md` for the full sequencing and exit criteria.

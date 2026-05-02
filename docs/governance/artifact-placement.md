@@ -8,14 +8,14 @@ mutation_path: governance_pr
 
 This document defines where artifact types live.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 ## Directory mapping
 
 | Truth dimension | Directory |
 | --- | --- |
-| Normative truth | `GOVERNANCE.md`, `docs/governance/` |
-| Structural truth | `ARCHITECTURE.md`, `docs/architecture/` |
+| Normative truth | `docs/governance/GOVERNANCE.md`, `docs/governance/` |
+| Structural truth | `docs/architecture/ARCHITECTURE.md`, `docs/architecture/` |
 | Planned truth | `docs/roadmap/` |
 | Historical truth | `CHANGELOG.md` |
 | Procedural truth | `checklists/` |
