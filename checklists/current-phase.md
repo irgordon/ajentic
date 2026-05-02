@@ -4,9 +4,9 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 8.5 — CI Validation Script Extraction
+# Current Phase: Phase 9 — Memory Model Baseline
 
-This is the active procedural execution surface for Phase 8.5.
+This is the active procedural execution surface for Phase 9.
 
 This document does not define governance rules or architecture authority.
 
@@ -14,39 +14,38 @@ This document does not record completed history. Completed accepted work moves t
 
 ## Phase
 
-Phase 8.5 — CI Validation Script Extraction
+Phase 9 — Memory Model Baseline
 
 ## Phase goal
 
-Eliminate workflow-embedded Python validation logic by extracting structure and documentation checks into first-class scripts under `scripts/` that run identically for local users, agents, and GitHub Actions.
+Implement deterministic, typed, in-memory memory entry and memory snapshot behavior in Rust from caller-supplied inputs only.
 
 ## Allowed surfaces
 
-- `scripts/validate_structure.py`
-- `scripts/validate_docs.py`
-- `.github/workflows/structure-lint.yml`
-- `.github/workflows/docs-gate.yml`
+- `core/src/memory/mod.rs`
+- `core/src/errors/mod.rs` only if needed for a minimal shared error shape
+- `core/src/lib.rs` only if test placement or export cleanup requires it
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Boundary rules for this checklist
 
-- This checklist is procedural truth only for active Phase 8.5 execution.
+- This checklist is procedural truth only for active Phase 9 execution.
 - Governance authority remains in `docs/governance/GOVERNANCE.md` and subordinate governance documents.
 - Architecture authority remains in `docs/architecture/ARCHITECTURE.md` and subordinate architecture documents.
-- This phase is CI/CD maintenance only.
-- This phase must preserve existing validation behavior unless an existing false positive or false negative is identified and documented.
-- This phase must not implement runtime harness behavior.
+- This phase is deterministic in-memory memory-model construction and projection only.
+- All memory entries, provenance values, timestamps, and snapshot entries are caller-supplied.
+- This phase must not implement file IO, persistence, loading, retrieval, ranking, semantic search, vector search, embeddings, policy authorization, ledger persistence, replay, audit, provider adapters, API server behavior, CLI command behavior, or UI behavior.
 - Completed accepted work must be recorded in `CHANGELOG.md`, not in this checklist.
 
 ## Task checklist
 
-- [x] Normalize `checklists/current-phase.md` for Phase 8.5 procedural scope.
-- [x] Create `scripts/validate_structure.py` with extracted structure validation logic.
-- [x] Create `scripts/validate_docs.py` with extracted documentation boundary logic.
-- [x] Update `.github/workflows/structure-lint.yml` to call `python3 scripts/validate_structure.py`.
-- [x] Update `.github/workflows/docs-gate.yml` to call `python3 scripts/validate_docs.py`.
-- [x] Preserve anchor checks, frontmatter checks, path constraints, and conservative pattern checks.
+- [x] Normalize `checklists/current-phase.md` for Phase 9 procedural scope.
+- [x] Implement typed memory provenance, entry, snapshot, and memory error surfaces in `core/src/memory/mod.rs`.
+- [x] Ensure every memory entry requires caller-supplied provenance and status.
+- [x] Implement deterministic snapshot construction and active-entry projection without mutation or reordering.
+- [x] Add deterministic unit tests covering required constructors, active-status behavior, snapshot order, deterministic construction, and stable error codes.
+- [x] Update `CHANGELOG.md` with `v0.0.9` entry.
 - [x] Run required validation commands and record results.
 
 ## Validation checklist
@@ -67,22 +66,22 @@ Eliminate workflow-embedded Python validation logic by extracting structure and 
 
 | Item | Reason deferred | Target phase |
 | --- | --- | --- |
-| Runtime harness behavior | Out of scope for Phase 8.5 maintenance | Later phases |
-| Policy or validation engine behavior changes | Out of scope for Phase 8.5 maintenance | Later phases |
-| Lifecycle, memory, ledger, replay, audit, API, CLI, or UI implementation changes | Out of scope for Phase 8.5 maintenance | Later phases |
+| Memory file persistence and loading | Out of scope for deterministic in-memory baseline | Later phases |
+| Memory retrieval, ranking, semantic search, vector search, and embeddings | Out of scope for deterministic in-memory baseline | Later phases |
+| Policy authorization, ledger persistence, replay reconstruction, audit projection, provider adapters, API server behavior, CLI command behavior, and UI behavior | Out of scope for deterministic in-memory baseline | Later phases |
 
 ## Validation log
 
 | Date | Command | Result | Notes |
 | --- | --- | --- | --- |
-| 2026-05-02 | `python3 scripts/bootstrap_repo.py` | Pass | Repository already initialized; no new skeleton changes required. |
-| 2026-05-02 | `python3 -m compileall scripts/bootstrap_repo.py scripts/validate_structure.py scripts/validate_docs.py` | Pass | Compiled all listed Python scripts successfully. |
-| 2026-05-02 | `python3 scripts/validate_structure.py` | Pass | Extracted structure checks pass locally. |
-| 2026-05-02 | `python3 scripts/validate_docs.py` | Pass | Extracted docs boundary checks pass locally. |
+| 2026-05-02 | `python3 scripts/bootstrap_repo.py` | Pass | Repository bootstrap check passed. |
+| 2026-05-02 | `python3 -m compileall scripts/bootstrap_repo.py scripts/validate_structure.py scripts/validate_docs.py` | Pass | Compiled listed Python scripts successfully. |
+| 2026-05-02 | `python3 scripts/validate_structure.py` | Pass | Structure validation passed. |
+| 2026-05-02 | `python3 scripts/validate_docs.py` | Pass | Documentation validation passed. |
 | 2026-05-02 | `bash -n scripts/*.sh` | Pass | Shell syntax checks passed. |
 | 2026-05-02 | `find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null` | Pass | Schema JSON syntax checks passed. |
-| 2026-05-02 | `cargo fmt --manifest-path core/Cargo.toml -- --check` | Pass | Formatting checks passed. |
+| 2026-05-02 | `cargo fmt --manifest-path core/Cargo.toml -- --check` | Pass | Rust formatting check passed. |
 | 2026-05-02 | `cargo check --manifest-path core/Cargo.toml --all-targets` | Pass | Rust compile checks passed. |
-| 2026-05-02 | `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Rust tests passed. |
-| 2026-05-02 | `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings` | Pass | No clippy warnings. |
+| 2026-05-02 | `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Rust tests passed including memory tests. |
+| 2026-05-02 | `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings` | Pass | Clippy passed with no warnings. |
 | 2026-05-02 | `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation checks passed in current environment. |

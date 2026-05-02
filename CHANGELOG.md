@@ -6,6 +6,26 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.9 - 2026-05-02
+
+**Status:** Phase 9 - Memory Model Baseline
+
+### Changed
+
+- Updated `core/src/memory/mod.rs` with typed memory provenance, entry, snapshot, status, and error surfaces.
+- Added deterministic in-memory snapshot assembly from caller-supplied entries.
+- Added unit tests covering required provenance fields, required entry fields, active-status projection, snapshot order preservation, deterministic construction, and stable error codes.
+- Updated `checklists/current-phase.md` for Phase 9 execution scope.
+
+### Notes
+
+- Phase 9 implements in-memory memory model shapes and deterministic projections only.
+- MemorySnapshot::active_entries is a deterministic projection, not retrieval.
+- MemoryEntry::is_active is classification, not authorization.
+- No memory file IO, persistence, loading, retrieval, ranking, semantic search, vector search, embeddings, policy authorization, ledger persistence, replay, audit, provider adapter, API server, CLI command, or UI behavior was implemented.
+- All memory entries, provenance values, timestamps, and snapshot entries are caller-supplied.
+- No new dependencies were added.
+
 ## v0.0.8.5 - 2026-05-02
 
 **Status:** Phase 8.5 - CI Validation Script Extraction
