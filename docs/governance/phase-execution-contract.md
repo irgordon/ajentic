@@ -12,6 +12,29 @@ This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 It does not define architecture, roadmap sequencing, implementation status, or historical completion.
 
+
+## 0. Execution surfaces and handoff
+
+Durable phase planning lives in:
+
+```text
+docs/roadmap/phase-map.md
+```
+
+The only active execution checklist lives in:
+
+```text
+checklists/current-phase.md
+```
+
+Completed accepted work is recorded in:
+
+```text
+CHANGELOG.md
+```
+
+No other document may become the active phase tracker.
+
 ## 1. One active execution surface
 
 Each phase must execute through one active checklist.
