@@ -6,6 +6,28 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.1 - 2026-05-02
+
+**Status:** Phase 1 - Governance and Architecture Baseline
+
+### Added
+
+- No new files were added in this phase.
+
+### Changed
+
+- Audited and normalized the Phase 1 execution surface in `checklists/current-phase.md`.
+- Audited governance anchor and governance subdocuments under `docs/governance/` for authoritative frontmatter, scope, and subordination.
+- Audited architecture anchor and architecture subdocuments under `docs/architecture/` for structural scope and non-implementation wording.
+- Verified `AGENTS.md` remains navigation-only and non-authoritative.
+- Verified `README.md` remains orientation-only and non-authoritative.
+
+### Notes
+
+- Phase 1 is a documentation and boundary-hardening phase only.
+- No runtime harness behavior was implemented.
+- Governance and architecture subdocuments remain subordinate to their docs-owned anchors.
+
 ## v0.0.0 - 2026-05-02
 
 **Status:** Phase 0 - Initial Repo Setup
