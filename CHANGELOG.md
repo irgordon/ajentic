@@ -6,6 +6,27 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.12 - 2026-05-02
+
+**Status:** Phase 12 - Replay Reconstruction Baseline
+
+### Changed
+
+- Updated `core/src/replay/mod.rs` with typed replay reconstruction surfaces, fail-closed reconstruction flow, and deterministic unit tests for supported lifecycle state-transition replay behavior.
+- Updated `core/src/ledger/mod.rs` to extend `LedgerPayload` with optional lifecycle-transition requests and a minimal constructor helper for state-transition payloads.
+- Updated `checklists/current-phase.md` for Phase 12 execution scope.
+- Updated `CHANGELOG.md` with `v0.0.12`.
+
+### Notes
+
+- Phase 12 reconstructs HarnessState from supported in-memory ledger events only.
+- reconstruct_harness_state(...) reconstructs only supported lifecycle state transitions from in-memory caller-supplied ledger events.
+- It does not reconstruct arbitrary runtime state, infer transitions from text, repair ledger history, persist/load ledgers, audit, serve APIs, or invoke providers.
+- Replay readiness classification still gates reconstruction.
+- Unsupported or invalid state-transition payloads fail closed.
+- No persistence, loading, repair, audit, provider, API, CLI, or UI behavior was implemented.
+- No new dependencies were added.
+
 ## v0.0.11 - 2026-05-02
 
 **Status:** Phase 11 - Replay Readiness and Integrity Baseline
