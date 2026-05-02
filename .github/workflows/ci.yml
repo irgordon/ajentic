@@ -1,0 +1,125 @@
+name: ci
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    name: Rust
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('core/Cargo.toml') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path core/Cargo.toml -- --check
+
+      - name: Check Rust build
+        run: cargo check --manifest-path core/Cargo.toml --all-targets
+
+      - name: Run Rust tests
+        run: cargo test --manifest-path core/Cargo.toml --all-targets
+
+      - name: Run Clippy
+        run: cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
+
+  ui:
+    name: TypeScript UI
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('ui/package.json') != '' }}
+
+    defaults:
+      run:
+        working-directory: ui
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Detect package manager lockfile
+        id: lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f package-lock.json ]; then
+            echo "install=npm ci" >> "$GITHUB_OUTPUT"
+          elif [ -f pnpm-lock.yaml ]; then
+            echo "install=corepack enable && pnpm install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "install=corepack enable && yarn install --immutable" >> "$GITHUB_OUTPUT"
+          else
+            echo "install=npm install" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install UI dependencies
+        shell: bash
+        run: ${{ steps.lockfile.outputs.install }}
+
+      - name: Run UI typecheck
+        run: npm run typecheck
+
+      - name: Run UI lint
+        run: npm run lint
+
+      - name: Run UI build
+        run: npm run build
+
+  schemas:
+    name: Schemas
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('schemas/**/*.json') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find schemas -type f -name "*.json" -print0 |
+            xargs -0 -n1 python3 -m json.tool > /dev/null
+
+      - name: Ensure schemas stay under canonical root
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if find . -type f -name "*.schema.json" ! -path "./schemas/*" | grep -q .; then
+            echo "::error::Schema files must live under schemas/"
+            exit 1
+          fi
+
+  scripts:
+    name: Scripts
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('scripts/**/*.sh') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check shell scripts parse
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find scripts -type f -name "*.sh" -print0 |
+            xargs -0 -n1 bash -n
