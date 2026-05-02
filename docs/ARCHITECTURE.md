@@ -128,20 +128,24 @@ Validation gate:
 
 Required commands:
 
+```python
 python3 scripts/bootstrap_repo.py
 python3 scripts/bootstrap_repo.py
 python3 -m compileall scripts/bootstrap_repo.py
 bash -n scripts/*.sh
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
 cargo check --manifest-path core/Cargo.toml
+```
 
 UI validation, when Node dependencies are available:
 
+```bash
 cd ui
 npm install
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required checks:
 
@@ -199,9 +203,11 @@ Validation gate:
 
 Required commands:
 
+```python
 python3 -m compileall scripts/bootstrap_repo.py
 bash -n scripts/*.sh
 cargo check --manifest-path core/Cargo.toml
+```
 
 Required review checks:
 
@@ -253,9 +259,11 @@ Validation gate:
 
 Required checks:
 
+```python
 python3 -m compileall scripts/bootstrap_repo.py
 bash -n scripts/*.sh
 cargo check --manifest-path core/Cargo.toml
+```
 
 Required review checks:
 
@@ -312,6 +320,7 @@ Validation gate:
 
 Required commands:
 
+```python
 python3 -m compileall scripts/bootstrap_repo.py
 bash -n scripts/*.sh
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
@@ -319,14 +328,17 @@ cargo fmt --manifest-path core/Cargo.toml -- --check
 cargo check --manifest-path core/Cargo.toml --all-targets
 cargo test --manifest-path core/Cargo.toml --all-targets
 cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
+```
 
 UI validation:
 
+```bash
 cd ui
 npm install
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required tests/checks:
 
@@ -387,8 +399,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
 cargo check --manifest-path core/Cargo.toml
+```
 
 Required checks:
 
@@ -449,11 +463,13 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo fmt --manifest-path core/Cargo.toml -- --check
 cargo check --manifest-path core/Cargo.toml --all-targets
 cargo test --manifest-path core/Cargo.toml --all-targets
 cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -516,8 +532,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -573,8 +591,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -631,8 +651,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -690,8 +712,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -746,8 +770,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -802,8 +828,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -860,9 +888,11 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
 bash -n scripts/*.sh
+```
 
 Required tests:
 
@@ -919,8 +949,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -977,8 +1009,10 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
+```
 
 Required tests:
 
@@ -1039,11 +1073,13 @@ Validation gate:
 
 Required commands:
 
+```bash
 cd ui
 npm install
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required checks:
 
@@ -1098,10 +1134,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cd ui
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required tests/checks:
 
@@ -1158,10 +1196,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cd ui
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required tests/checks:
 
@@ -1217,10 +1257,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cd ui
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required tests/checks:
 
@@ -1281,9 +1323,11 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
+```
 
 Required tests/checks:
 
@@ -1339,10 +1383,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cd ui
 npm run typecheck
 npm run lint
 npm run build
+```
 
 Required checks:
 
@@ -1401,9 +1447,11 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
+```
 
 Required tests/checks:
 
@@ -1466,10 +1514,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
+```
 
 Required tests/checks:
 
@@ -1534,10 +1584,12 @@ Validation gate:
 
 Required commands:
 
+```bash
 cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
 find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
+```
 
 Required production checks:
 
@@ -1560,6 +1612,7 @@ Boundary note:
 Production-ready means usable, inspectable, replayable, and governed. It does not mean autonomous.
 
 This map is agent-usable because every phase has the same control structure:
+
 ```text
 Phase
 Milestone group
