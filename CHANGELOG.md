@@ -19,6 +19,7 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 18 verifies promotion replay from an existing in-memory ledger only.
+- Promotion replay verification uses the existing lifecycle transition table; the valid replay path to `PromotedTier1` requires three state-transition events (`Created -> Evaluating -> Passed -> PromotedTier1`), so the successful verification test asserts final revision `3`.
 - Verification uses existing replay readiness and reconstruction functions.
 - Verification does not build promotion records, append ledger events, mutate HarnessState, persist ledgers, repair replay, audit, call providers, serve APIs, execute CLI commands, or touch UI behavior.
 - No new dependencies were added.
