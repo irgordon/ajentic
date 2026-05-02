@@ -1,0 +1,228 @@
+name: structure-lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  structure-lint:
+    name: Repository Structure Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate repository structure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 <<'PY'
+          from pathlib import Path
+          import sys
+
+          ROOT = Path(".")
+          failures = []
+
+          REQUIRED_TOP_LEVEL_FILES = {
+              "GOVERNANCE.md",
+              "ARCHITECTURE.md",
+              "AGENTS.md",
+              "README.md",
+              "CHANGELOG.md",
+          }
+
+          ALLOWED_TOP_LEVEL_FILES = REQUIRED_TOP_LEVEL_FILES | {
+              ".gitignore",
+              "LICENSE",
+              "Cargo.toml",
+              "Cargo.lock",
+              "package.json",
+              "pnpm-lock.yaml",
+              "package-lock.json",
+              "yarn.lock",
+          }
+
+          ALLOWED_TOP_LEVEL_DIRS = {
+              ".git",
+              ".github",
+              "core",
+              "ui",
+              "scripts",
+              "tests",
+              "memory",
+              "checklists",
+              "docs",
+              "schemas",
+          }
+
+          ALLOWED_DOCS_DIRS = {
+              "governance",
+              "architecture",
+              "roadmap",
+              "operations",
+              "examples",
+          }
+
+          TRUTH_ROOTS = {
+              "normative": [Path("GOVERNANCE.md"), Path("docs/governance")],
+              "structural": [Path("ARCHITECTURE.md"), Path("docs/architecture")],
+              "planned": [Path("docs/roadmap")],
+              "historical": [Path("CHANGELOG.md")],
+              "procedural": [Path("checklists")],
+              "contract": [Path("schemas")],
+              "data": [Path("memory")],
+              "example": [Path("docs/examples")],
+              "orientation": [Path("README.md"), Path("docs/operations")],
+              "navigation": [Path("AGENTS.md")],
+          }
+
+          def fail(message: str) -> None:
+              failures.append(message)
+
+          def is_git_path(path: Path) -> bool:
+              return ".git" in path.parts
+
+          def read_text_utf8(path: Path) -> str:
+              return path.read_text(encoding="utf-8", errors="strict")
+
+          def is_under(path: Path, root: Path) -> bool:
+              path_posix = path.as_posix()
+              root_posix = root.as_posix()
+              return path_posix == root_posix or path_posix.startswith(root_posix.rstrip("/") + "/")
+
+          def allowed_for_truth(path: Path, truth_dimension: str) -> bool:
+              roots = TRUTH_ROOTS.get(truth_dimension)
+              if not roots:
+                  fail(f"{path}: unknown truth_dimension '{truth_dimension}'")
+                  return False
+              return any(is_under(path, root) for root in roots)
+
+          def parse_frontmatter(path: Path) -> dict:
+              text = read_text_utf8(path)
+              lines = text.splitlines()
+
+              if not lines or lines[0].strip() != "---":
+                  return {}
+
+              data = {}
+              for line in lines[1:]:
+                  if line.strip() == "---":
+                      return data
+                  if ":" not in line:
+                      continue
+                  key, value = line.split(":", 1)
+                  data[key.strip()] = value.strip().strip('"').strip("'")
+
+              return {}
+
+          # Required top-level anchors.
+          for filename in sorted(REQUIRED_TOP_LEVEL_FILES):
+              if not Path(filename).is_file():
+                  fail(f"Missing required top-level file: {filename}")
+
+          # Top-level file and directory allowlists.
+          for child in ROOT.iterdir():
+              name = child.name
+
+              if child.is_dir():
+                  if name not in ALLOWED_TOP_LEVEL_DIRS:
+                      fail(f"Unexpected top-level directory: {name}")
+                  continue
+
+              if child.is_file():
+                  if name not in ALLOWED_TOP_LEVEL_FILES:
+                      fail(f"Unexpected top-level file: {name}")
+
+          # docs/ subdirectory allowlist.
+          docs = Path("docs")
+          if docs.exists():
+              for child in docs.iterdir():
+                  if child.is_dir() and child.name not in ALLOWED_DOCS_DIRS:
+                      fail(f"Unexpected docs/ subdirectory: {child.as_posix()}")
+
+          # Top-level anchor uniqueness.
+          for anchor in ["GOVERNANCE.md", "ARCHITECTURE.md"]:
+              matches = [
+                  path for path in ROOT.rglob(anchor)
+                  if path.as_posix() != anchor and not is_git_path(path)
+              ]
+              for match in matches:
+                  fail(f"{anchor} must exist only at repository root; found {match.as_posix()}")
+
+          # Schema placement.
+          for path in ROOT.rglob("*.schema.json"):
+              if is_git_path(path):
+                  continue
+              if not is_under(path, Path("schemas")):
+                  fail(f"{path.as_posix()}: schema files must live under schemas/")
+
+          # Memory placement.
+          memory = Path("memory")
+          if memory.exists():
+              for path in memory.rglob("*"):
+                  if not path.is_file():
+                      continue
+                  if path.suffix == ".md":
+                      fail(f"{path.as_posix()}: memory/ must not contain Markdown documentation")
+                  if path.name.endswith(".schema.json"):
+                      fail(f"{path.as_posix()}: memory/ must not contain schemas")
+
+          # Ephemeral memory exclusion.
+          ephemeral = Path("memory/ephemeral")
+          if ephemeral.exists():
+              for path in ephemeral.rglob("*"):
+                  if path.is_file() and path.name != ".gitignore":
+                      fail(f"{path.as_posix()}: ephemeral memory must not be committed")
+
+          # Frontmatter placement validation.
+          markdown_paths = [
+              path for path in ROOT.rglob("*.md")
+              if not is_git_path(path)
+          ]
+
+          for path in markdown_paths:
+              fm = parse_frontmatter(path)
+
+              requires_frontmatter = (
+                  path.name in REQUIRED_TOP_LEVEL_FILES
+                  or is_under(path, Path("docs"))
+                  or is_under(path, Path("checklists"))
+              )
+
+              if requires_frontmatter and not fm:
+                  fail(f"{path.as_posix()}: missing required frontmatter")
+                  continue
+
+              if not fm:
+                  continue
+
+              for key in ["truth_dimension", "authority_level", "mutation_path"]:
+                  if key not in fm:
+                      fail(f"{path.as_posix()}: missing frontmatter key '{key}'")
+
+              truth_dimension = fm.get("truth_dimension")
+              if truth_dimension and not allowed_for_truth(path, truth_dimension):
+                  fail(
+                      f"{path.as_posix()}: truth_dimension '{truth_dimension}' "
+                      f"is not allowed in this location"
+                  )
+
+          # docs/ must not contain schemas.
+          for path in Path("docs").rglob("*") if Path("docs").exists() else []:
+              if path.is_file() and path.name.endswith(".schema.json"):
+                  fail(f"{path.as_posix()}: docs/ must not contain schemas")
+
+          if failures:
+              for message in failures:
+                  print(f"::error::{message}")
+              print(f"\nStructure lint failed with {len(failures)} violation(s).")
+              sys.exit(1)
+
+          print("Repository structure is valid.")
+          PY
