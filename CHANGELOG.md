@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.14 - 2026-05-02
+
+**Status:** Phase 14 - Execution Decision Baseline
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to add deterministic execution decision classification types, stable decision-reason codes, and fail-closed decision ordering over caller-supplied lifecycle, policy, validation, and replay-readiness inputs.
+- Updated `checklists/current-phase.md` for Phase 14 execution scope.
+- Updated `CHANGELOG.md` with `v0.0.14`.
+
+### Notes
+
+- Phase 14 implements execution decision classification only.
+- decide_execution(...) classifies caller-supplied lifecycle, policy, validation, and replay readiness results.
+- It does not evaluate those inputs, mutate them, or execute anything.
+- Decisions combine caller-supplied lifecycle, policy, validation, and replay-readiness results.
+- No execution engine, tool invocation, provider adapter, ledger append, replay reconstruction, audit projection, API server, CLI command, or UI behavior was implemented.
+- No new dependencies were added.
+
 ## v0.0.13 - 2026-05-02
 
 **Status:** Phase 13 - Audit Projection Baseline
