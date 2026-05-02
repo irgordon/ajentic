@@ -29,15 +29,18 @@ jobs:
           ROOT = Path(".")
           failures = []
 
-          REQUIRED_TOP_LEVEL_FILES = {
-              "GOVERNANCE.md",
-              "ARCHITECTURE.md",
+          REQUIRED_ROOT_FILES = {
               "AGENTS.md",
               "README.md",
               "CHANGELOG.md",
           }
 
-          ALLOWED_TOP_LEVEL_FILES = REQUIRED_TOP_LEVEL_FILES | {
+          REQUIRED_DOC_ANCHORS = {
+              "docs/governance/GOVERNANCE.md",
+              "docs/architecture/ARCHITECTURE.md",
+          }
+
+          ALLOWED_TOP_LEVEL_FILES = REQUIRED_ROOT_FILES | {
               ".gitignore",
               "LICENSE",
               "Cargo.toml",
@@ -70,8 +73,8 @@ jobs:
           }
 
           TRUTH_ROOTS = {
-              "normative": [Path("GOVERNANCE.md"), Path("docs/governance")],
-              "structural": [Path("ARCHITECTURE.md"), Path("docs/architecture")],
+              "normative": [Path("docs/governance")],
+              "structural": [Path("docs/architecture")],
               "planned": [Path("docs/roadmap")],
               "historical": [Path("CHANGELOG.md")],
               "procedural": [Path("checklists")],
@@ -121,10 +124,20 @@ jobs:
 
               return {}
 
-          # Required top-level anchors.
-          for filename in sorted(REQUIRED_TOP_LEVEL_FILES):
+          # Required root files.
+          for filename in sorted(REQUIRED_ROOT_FILES):
               if not Path(filename).is_file():
-                  fail(f"Missing required top-level file: {filename}")
+                  fail(f"Missing required root file: {filename}")
+
+          # Required docs-owned anchors.
+          for filename in sorted(REQUIRED_DOC_ANCHORS):
+              if not Path(filename).is_file():
+                  fail(f"Missing required docs anchor: {filename}")
+
+          # Disallow root governance and architecture anchors.
+          for filename in ["GOVERNANCE.md", "ARCHITECTURE.md"]:
+              if Path(filename).exists():
+                  fail(f"{filename} must live under docs/, not repository root")
 
           # Top-level file and directory allowlists.
           for child in ROOT.iterdir():
@@ -146,14 +159,22 @@ jobs:
                   if child.is_dir() and child.name not in ALLOWED_DOCS_DIRS:
                       fail(f"Unexpected docs/ subdirectory: {child.as_posix()}")
 
-          # Top-level anchor uniqueness.
-          for anchor in ["GOVERNANCE.md", "ARCHITECTURE.md"]:
+          # Docs anchor uniqueness.
+          anchor_locations = {
+              "GOVERNANCE.md": Path("docs/governance/GOVERNANCE.md"),
+              "ARCHITECTURE.md": Path("docs/architecture/ARCHITECTURE.md"),
+          }
+
+          for anchor, allowed_path in anchor_locations.items():
               matches = [
                   path for path in ROOT.rglob(anchor)
-                  if path.as_posix() != anchor and not is_git_path(path)
+                  if path != allowed_path and not is_git_path(path)
               ]
               for match in matches:
-                  fail(f"{anchor} must exist only at repository root; found {match.as_posix()}")
+                  fail(
+                      f"{anchor} must exist only at {allowed_path.as_posix()}; "
+                      f"found {match.as_posix()}"
+                  )
 
           # Schema placement.
           for path in ROOT.rglob("*.schema.json"):
@@ -190,7 +211,8 @@ jobs:
               fm = parse_frontmatter(path)
 
               requires_frontmatter = (
-                  path.name in REQUIRED_TOP_LEVEL_FILES
+                  path.name in REQUIRED_ROOT_FILES
+                  or path.as_posix() in REQUIRED_DOC_ANCHORS
                   or is_under(path, Path("docs"))
                   or is_under(path, Path("checklists"))
               )
