@@ -6,6 +6,23 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.6 - 2026-05-02
+
+**Status:** Phase 6 - Candidate Lifecycle State Machine
+
+### Changed
+
+- Updated `core/src/state/mod.rs` with deterministic lifecycle transition checks, typed `LifecycleError`, lifecycle error codes, and immutable `HarnessState::transition_to` revision behavior.
+- Added lifecycle unit tests covering valid transitions, invalid transitions, terminal states, UNKNOWN handling, and `HarnessState` revision behavior.
+- Updated `checklists/current-phase.md` for Phase 6 execution scope, boundaries, tasks, validation checklist, deferred items, and validation log table.
+
+### Notes
+
+- Phase 6 implements lifecycle transition behavior only.
+- No governance approval, promotion authorization, evaluator execution, ledger persistence, replay, audit projection, provider adapter, API server, or UI behavior was implemented.
+- `PromotedTier1` remains a lifecycle state shape only; authorization to enter it belongs to later Rust-owned governance or promotion logic.
+- No new dependencies were added.
+
 ## v0.0.5 - 2026-05-02
 
 **Status:** Phase 5 - Rust Authority Skeleton
