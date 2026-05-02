@@ -1,12 +1,23 @@
 # Rust build artifacts
 core/target/
+target/
 
 # Node.js
 ui/node_modules/
+node_modules/
 
 # Python cache
 **/__pycache__/
 *.pyc
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
 
 # Ephemeral memory (enforced by memory/ephemeral/.gitignore too)
 memory/ephemeral/*
