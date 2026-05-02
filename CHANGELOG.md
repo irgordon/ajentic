@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.7 - 2026-05-02
+
+**Status:** Phase 7 - Policy and Validation Baseline
+
+### Changed
+
+- Updated `core/src/policy/mod.rs` with deterministic policy evidence evaluation, fail-closed decision ordering, and stable reason helpers.
+- Updated `core/src/validation/mod.rs` with deterministic validation evidence evaluation, fail-closed status ordering, and stable message helpers.
+- Added unit tests covering missing evidence behavior, malformed evidence behavior, unknown handling, model-output non-authority, deterministic failure ordering, and stable result messages.
+- Updated `checklists/current-phase.md` for Phase 7 execution scope, boundaries, tasks, validation checklist, deferred items, and validation log table.
+
+### Notes
+
+- Phase 7 implements narrow policy and validation result baselines only.
+- No full policy engine, JSON Schema validation engine, evaluator execution, governance approval, ledger persistence, replay reconstruction, audit projection generation, provider adapter, API server, CLI command, or UI behavior was implemented.
+- Model output claims do not create policy approval or validation pass results.
+- No new dependencies were added.
+- `core/src/state/mod.rs` received rustfmt-only whitespace/layout normalization; lifecycle logic was unchanged.
+
 ## v0.0.6 - 2026-05-02
 
 **Status:** Phase 6 - Candidate Lifecycle State Machine
@@ -22,6 +41,7 @@ mutation_path: changelog_entry
 - No governance approval, promotion authorization, evaluator execution, ledger persistence, replay, audit projection, provider adapter, API server, or UI behavior was implemented.
 - `PromotedTier1` remains a lifecycle state shape only; authorization to enter it belongs to later Rust-owned governance or promotion logic.
 - No new dependencies were added.
+- `core/src/state/mod.rs` received rustfmt-only whitespace/layout normalization; lifecycle logic was unchanged.
 
 ## v0.0.5 - 2026-05-02
 
@@ -40,6 +60,7 @@ mutation_path: changelog_entry
 - No runtime harness behavior was implemented.
 - Lifecycle transitions, policy gates, validation logic, ledger persistence, replay reconstruction, audit generation, API serving, and provider adapters remain unimplemented.
 - No new dependencies were added.
+- `core/src/state/mod.rs` received rustfmt-only whitespace/layout normalization; lifecycle logic was unchanged.
 
 ## v0.0.4 - 2026-05-02
 
