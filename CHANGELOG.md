@@ -20,6 +20,8 @@ mutation_path: changelog_entry
 ### Notes
 
 - Phase 12 reconstructs HarnessState from supported in-memory ledger events only.
+- reconstruct_harness_state(...) reconstructs only supported lifecycle state transitions from in-memory caller-supplied ledger events.
+- It does not reconstruct arbitrary runtime state, infer transitions from text, repair ledger history, persist/load ledgers, audit, serve APIs, or invoke providers.
 - Replay readiness classification still gates reconstruction.
 - Unsupported or invalid state-transition payloads fail closed.
 - No persistence, loading, repair, audit, provider, API, CLI, or UI behavior was implemented.
