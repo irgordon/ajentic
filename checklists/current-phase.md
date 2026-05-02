@@ -4,40 +4,34 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 13 — Audit Projection Baseline
+# Current Phase: Phase 14 — Execution Decision Baseline
 
-This is the active procedural execution surface for Phase 13.
+This is the active procedural execution surface for Phase 14.
 
 ## Phase
 
-Phase 13 — Audit Projection Baseline
+Phase 14 — Execution Decision Baseline
 
 ## Phase goal
 
-Implement deterministic, read-only audit projections over caller-supplied ledger events and replay outputs.
+Implement a narrow Rust-owned deterministic execution decision classification over caller-supplied lifecycle, policy, validation, and replay-readiness results.
 
 ## Allowed surfaces
 
-- `core/src/replay/mod.rs`
-- `core/src/ledger/mod.rs` only if a minimal payload accessor or payload shape correction is required
-- `core/src/state/mod.rs` only if a minimal read-only helper is required
+- `core/src/execution/mod.rs`
 - `core/src/lib.rs` only if test placement or export cleanup requires it
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Task checklist
 
-- [x] Update checklist to Phase 13 scope.
-- [x] Add deterministic read-only audit projection types and constructor validation in `core/src/audit/mod.rs`.
-- [x] Add typed `AuditError` variants and stable `AuditError::code()` values.
-- [x] Add deterministic `project_ledger_timeline(...)` projection over caller-supplied ledger events.
-- [x] Add deterministic `project_replay_summary(...)` projection over caller-supplied replay reports.
-- [x] Add deterministic `project_reconstruction_summary(...)` projection over caller-supplied replay reconstruction outputs.
-- [x] Preserve caller-supplied ledger event order in timeline projections.
-- [x] Keep projection helpers read-only and avoid replay reconstruction/readiness calls.
-- [x] Add stable code helpers only where required for deterministic audit summaries.
-- [x] Add deterministic unit tests for audit projection behavior and stable code helpers.
-- [x] Add `CHANGELOG.md` entry `v0.0.13`.
+- [x] Update checklist to Phase 14 scope.
+- [x] Preserve existing `ExecutionStatus` and `ExecutionPlan` names.
+- [x] Add deterministic execution decision types and stable reason code helpers.
+- [x] Add deterministic `decide_execution(...)` using caller-supplied typed inputs only.
+- [x] Fail closed when lifecycle, policy, validation, or replay readiness are not explicitly acceptable.
+- [x] Add deterministic unit tests for decision behavior, reason-code stability, precedence, and reason-string independence.
+- [x] Add `CHANGELOG.md` entry `v0.0.14`.
 - [x] Run required validation commands.
 
 ## Validation checklist
