@@ -23,6 +23,8 @@ mutation_path: changelog_entry
 - No runtime harness behavior was implemented.
 - `docs/roadmap/phase-map.md` remains planned truth and must not record completed work.
 - `checklists/current-phase.md` remains the only active phase execution surface.
+- Updated .github/workflows/structure-lint.yml so GitHub Copilot instruction files use applyTo metadata without requiring governed artifact frontmatter.
+- Updated .gitignore to exclude Rust, Node.js, Python, editor, environment, and ephemeral memory artifacts from repository tracking.
 
 ## v0.0.1 - 2026-05-02
 
