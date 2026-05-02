@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.11 - 2026-05-02
+
+**Status:** Phase 11 - Replay Readiness and Integrity Baseline
+
+### Changed
+
+- Updated `core/src/replay/mod.rs` with replay readiness, integrity, report, and typed replay error surfaces.
+- Added deterministic replay-readiness classification over caller-supplied ledger events with checks for empty ledger, first revision validity, revision continuity, duplicate revisions, conflicting event IDs, and replayable event counting.
+- Added unit tests covering unknown-not-ready behavior, stable error codes, empty ledgers, invalid first revision, revision gaps, duplicate revisions, conflicting event IDs, input-order preservation, and error-to-report projection mappings.
+- Updated `checklists/current-phase.md` for Phase 11 execution scope.
+
+### Notes
+
+- Phase 11 implements replay-readiness and ledger-integrity classification only.
+- No replay reconstruction, event application, state rehydration, replay repair, ledger persistence, audit projection, provider adapter, API server, CLI command, or UI behavior was implemented.
+- Replay classification uses caller-supplied ledger event order and does not sort or infer missing events.
+- No new dependencies were added.
+
 ## v0.0.10 - 2026-05-02
 
 **Status:** Phase 10 - Ledger Event Model Baseline

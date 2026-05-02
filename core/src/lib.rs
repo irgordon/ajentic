@@ -13,7 +13,7 @@ pub mod validation;
 #[cfg(test)]
 mod tests {
     use crate::policy::{PolicyDecision, PolicyResult};
-    use crate::replay::{ReplayIntegrity, ReplayReport, ReplayStatus};
+    use crate::replay::{ReplayIntegrity, ReplayReadiness, ReplayReport, ReplayStatus};
     use crate::state::{HarnessState, LifecycleState};
     use crate::validation::{ValidationResult, ValidationStatus};
 
@@ -43,6 +43,8 @@ mod tests {
         let report = ReplayReport::unknown();
         assert_eq!(report.status, ReplayStatus::Unknown);
         assert_eq!(report.integrity, ReplayIntegrity::Unknown);
+        assert_eq!(report.readiness, ReplayReadiness::NotReady);
         assert_eq!(report.events_replayed, 0);
+        assert_eq!(report.reason, "unknown_is_not_pass");
     }
 }
