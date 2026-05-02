@@ -21,6 +21,7 @@ mutation_path: changelog_entry
 - Phase 3 is a CI and drift-gate hardening phase only.
 - No runtime harness behavior was implemented.
 - Workflows remain enforcement wiring and do not create standalone governance.
+- Updated .github/workflows/docs-gate.yml to narrow pattern checks and avoid false positives on valid governance and README boundary language.
 
 ## v0.0.2 - 2026-05-02
 
