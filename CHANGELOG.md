@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.5 - 2026-05-02
+
+**Status:** Phase 5 - Rust Authority Skeleton
+
+### Changed
+
+- Normalized `checklists/current-phase.md` to Phase 5 procedural scope including allowed surfaces, task checklist, validation checklist, deferred items, and validation log table.
+- Replaced placeholder Rust module stubs under `core/src/` with compile-safe authority boundary skeleton types for state, context, memory, policy, validation, execution, ledger, replay, audit, api, and errors.
+- Added minimal compile-shape tests in `core/src/lib.rs` for `HarnessState::genesis`, `PolicyResult::unknown`, `ValidationResult::unknown`, and `ReplayReport::unknown`.
+- Kept `core/src/main.rs` as a minimal CLI placeholder surface.
+
+### Notes
+
+- Phase 5 establishes Rust authority module shapes only.
+- No runtime harness behavior was implemented.
+- Lifecycle transitions, policy gates, validation logic, ledger persistence, replay reconstruction, audit generation, API serving, and provider adapters remain unimplemented.
+- No new dependencies were added.
+
 ## v0.0.4 - 2026-05-02
 
 **Status:** Phase 4 - Contract Schema Baseline
