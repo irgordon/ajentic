@@ -8,7 +8,7 @@ mutation_path: governance_pr
 
 This document names prohibited patterns.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 ## Prohibited patterns
 

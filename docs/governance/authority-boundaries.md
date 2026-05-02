@@ -8,9 +8,9 @@ mutation_path: governance_pr
 
 This document defines which repository surfaces may request, enforce, record, display, or explain authority.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
-This document does not replace `ARCHITECTURE.md`, define component structure, describe implementation status, or specify runtime workflow details.
+This document does not replace `docs/architecture/ARCHITECTURE.md`, define component structure, describe implementation status, or specify runtime workflow details.
 
 ## 1. Boundary roles
 
@@ -29,10 +29,10 @@ A surface must not exceed its allowed role.
 
 | Surface | Allowed role | Boundary |
 | --- | --- | --- |
-| `GOVERNANCE.md` | Define | Defines top-level normative truth. |
-| `docs/governance/` | Define | Defines subordinate normative rules consistent with `GOVERNANCE.md`. |
-| `ARCHITECTURE.md` | Define | Defines top-level structural truth. |
-| `docs/architecture/` | Define | Defines subordinate structural descriptions consistent with `ARCHITECTURE.md`. |
+| `docs/governance/GOVERNANCE.md` | Define | Defines top-level normative truth. |
+| `docs/governance/` | Define | Defines subordinate normative rules consistent with `docs/governance/GOVERNANCE.md`. |
+| `docs/architecture/ARCHITECTURE.md` | Define | Defines top-level structural truth. |
+| `docs/architecture/` | Define | Defines subordinate structural descriptions consistent with `docs/architecture/ARCHITECTURE.md`. |
 | `schemas/` | Define | Defines contract truth. |
 | `core/` | Enforce, record | Enforces runtime authority and records accepted events. |
 | `tests/` | Enforce | Verifies executable behavior. |

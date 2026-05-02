@@ -18,12 +18,12 @@ Phase 0 — Initial Repo Setup
 
 ## Goal
 
-Create the minimum governed repository skeleton required for Phase 0 bootstrap as described in `docs/PHASE_MAP.md`.
+Create the minimum governed repository skeleton required for Phase 0 bootstrap as described in `docs/roadmap/phase-map.md`.
 
 ## Allowed surfaces
 
-- `GOVERNANCE.md`
-- `ARCHITECTURE.md`
+- `docs/governance/GOVERNANCE.md`
+- `docs/architecture/ARCHITECTURE.md`
 - `AGENTS.md`
 - `README.md`
 - `CHANGELOG.md`
@@ -39,7 +39,7 @@ Create the minimum governed repository skeleton required for Phase 0 bootstrap a
 
 ## Task checklist
 
-- [ ] Top-level anchors created (`GOVERNANCE.md`, `ARCHITECTURE.md`, `AGENTS.md`, `README.md`, `CHANGELOG.md`)
+- [ ] Top-level anchors created (`docs/governance/GOVERNANCE.md`, `docs/architecture/ARCHITECTURE.md`, `AGENTS.md`, `README.md`, `CHANGELOG.md`)
 - [ ] Canonical directories created
 - [ ] Rust core skeleton compiles (`core/Cargo.toml`, `core/src/lib.rs`, module stubs)
 - [ ] TypeScript UI placeholder structure created (`ui/package.json`, `ui/tsconfig.json`, source dirs)

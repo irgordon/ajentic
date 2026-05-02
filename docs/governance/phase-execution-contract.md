@@ -8,7 +8,7 @@ mutation_path: governance_pr
 
 This document defines how agents and humans execute phases without boundary drift.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 It does not define architecture, roadmap sequencing, implementation status, or historical completion.
 

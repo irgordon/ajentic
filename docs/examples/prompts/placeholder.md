@@ -10,7 +10,7 @@ This file is a placeholder for example prompts.
 
 Examples are illustrative only. They do not define policy, required behavior, acceptance criteria, or architecture rules.
 
-This document is subordinate to `GOVERNANCE.md` and `ARCHITECTURE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md` and `docs/architecture/ARCHITECTURE.md`.
 
 ## Status
 

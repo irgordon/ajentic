@@ -8,7 +8,7 @@ mutation_path: governance_pr
 
 This document defines the invariants that must hold at all times in the AJENTIC system.
 
-This document is subordinate to `GOVERNANCE.md`.
+This document is subordinate to `docs/governance/GOVERNANCE.md`.
 
 This document does not redefine system identity, runtime authority, roadmap progress, release history, or operational procedure.
 

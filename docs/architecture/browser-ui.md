@@ -8,7 +8,7 @@ mutation_path: architecture_pr
 
 This document describes the structural role of the browser UI in AJENTIC.
 
-This document is subordinate to `ARCHITECTURE.md`.
+This document is subordinate to `docs/architecture/ARCHITECTURE.md`.
 
 This document does not define governance rules, implementation status, roadmap progress, or release history.
 
@@ -30,4 +30,4 @@ Validated UI data is renderable data, not authoritative state.
 
 UI source: `ui/`
 
-See `ARCHITECTURE.md` and `GOVERNANCE.md` for the full authority boundary description.
+See `docs/architecture/ARCHITECTURE.md` and `docs/governance/GOVERNANCE.md` for the full authority boundary description.

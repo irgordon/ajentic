@@ -8,7 +8,7 @@ mutation_path: roadmap_update
 
 This document describes the planned phase sequence for AJENTIC.
 
-This document is subordinate to `docs/PHASE_MAP.md`.
+This document is subordinate to `docs/roadmap/phase-map.md`.
 
 This document does not record completed work, define governance rules, or define architecture authority.
 
@@ -24,4 +24,4 @@ This document does not record completed work, define governance rules, or define
 | Phase 5 | Milestone 4 | Browser UI and human operator workflow |
 | Phase 6 | Milestone 5 | Local/IDE integration and production hardening |
 
-See `docs/PHASE_MAP.md` for the full phase definitions, scope, allowed surfaces, and exit criteria.
+See `docs/roadmap/phase-map.md` for the full phase definitions, scope, allowed surfaces, and exit criteria.
