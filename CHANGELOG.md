@@ -6,6 +6,29 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.30 - 2026-05-03
+
+**Status:** Phase 30 - Roadmap and Changelog Alignment Check + Script Boundary Audit
+
+### Added
+
+- Added `docs/operations/repository-audit-phase-30.md` with an advisory Phase 30 roadmap/changelog alignment and script boundary audit summary.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 30 procedural scope, script/workflow audit checklists, findings classification, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.30`.
+- Updated `docs/operations/repository-audit-phase-30.md` during Phase 30 audit finalization.
+
+### Notes
+
+- Phase 30 verifies roadmap/changelog alignment before provider and integration work.
+- Phase 30 audits Python and Bash scripts for deterministic validation behavior and boundary compliance.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- Audit findings are advisory unless enforced by existing code, tests, schemas, scripts, or CI.
+- No runtime harness behavior, UI behavior, provider adapter, schema change, workflow change, governance change, or architecture change was implemented.
+
 ## v0.0.29 - 2026-05-03
 
 **Status:** Phase 29 - Responsive UI and Operator Usability Hardening
