@@ -6,6 +6,26 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.40 - 2026-05-03
+
+**Status:** Phase 40 - Roadmap/Changelog Reconciliation + AST Lint CI Alignment
+
+### Changed
+
+- Updated `docs/roadmap/phase-map.md` planned future sequence to explicitly account for Phase 38/39 maintenance deviations, define Phase 40 reconciliation scope, and confirm Phase 41 planned continuation.
+- Updated `.github/workflows/ci.yml` to run `node scripts/test_lint_ui_boundaries.mjs` and `node scripts/lint_ui_boundaries.mjs` on pull requests through the UI job.
+- Updated `checklists/release.md` to record AST-aware UI boundary lint local+CI enforcement evidence and completed Phase 40 reconciliation responsibility.
+- Updated `checklists/current-phase.md` to Phase 40 procedural truth with roadmap/changelog alignment, AST lint CI alignment, findings, deferred items, and validation logs.
+- Updated `CHANGELOG.md` with `v0.0.40`.
+
+### Notes
+
+- Phase 40 reconciles roadmap/changelog sequencing after the Phase 38/39 static-boundary lint maintenance deviation.
+- Phase 40 verifies that CI reflects the Phase 38/39 AST-aware UI boundary lint baseline.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- No runtime harness behavior, UI behavior, provider work, API server, CLI command, schema change, script behavior change, governance change, architecture change, dependency change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.39 - 2026-05-03
 
 **Status:** Phase 39 - UI Boundary Lint Diagnostic Hardening

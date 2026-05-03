@@ -80,6 +80,12 @@ jobs:
       - name: Run UI build
         run: npm run build
 
+      - name: Run UI boundary AST lint self-tests
+        run: node ../scripts/test_lint_ui_boundaries.mjs
+
+      - name: Run UI boundary AST lint
+        run: node ../scripts/lint_ui_boundaries.mjs
+
   schemas:
     name: Schemas
     runs-on: ubuntu-latest

@@ -96,11 +96,12 @@ Optional/manual review:
 
 ## Static scan debt
 
+- [x] AST-aware UI boundary lint is enforced through local validation and CI pull-request validation (`node scripts/test_lint_ui_boundaries.mjs` and `node scripts/lint_ui_boundaries.mjs`).
 - [ ] UI boundary AST lint now includes deterministic self-tests.
 - [ ] UI boundary lint diagnostics must remain IDE-friendly using `path:line:column` output.
 - [ ] Ripgrep scans remain advisory for broader cross-surface review.
 - [ ] Remaining static scan precision debt includes Rust/network/provider checks, Bash/Python boundary checks, documentation/prohibition-language scans, and any UI checks not yet covered by AST lint.
-- [ ] Phase 40 remains responsible for roadmap/changelog sequencing reconciliation.
+- [x] Phase 40 roadmap/changelog sequencing reconciliation completed; roadmap planned sequence updated while preserving changelog historical truth.
 - [ ] Production-readiness still requires evidence that the lint baseline remains active in local validation and CI or equivalent release validation.
 - [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in this phase unless validation is blocked and a minimal correction is required.
 

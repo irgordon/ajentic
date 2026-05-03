@@ -2094,3 +2094,38 @@ Release-candidate definition is planning and evidence framing, not final product
 ### Recurring roadmap/changelog alignment requirement
 
 Every fifth phase after this reconciliation must include a roadmap/changelog alignment check. The check must compare `docs/roadmap/phase-map.md` against `CHANGELOG.md`, identify drift, and update only planned future sequencing. It must not move completed work out of `CHANGELOG.md` or record implementation status in the roadmap.
+
+
+## Phase 37: Release-Candidate Evidence Collection Baseline
+
+Milestone group: Milestone 5
+
+Primary goal: Collect baseline release-candidate evidence without claiming release or production readiness.
+
+## Phase 38: Static Boundary Lint Baseline (Maintenance Deviation)
+
+Milestone group: Milestone 5
+
+Primary goal: Apply a scoped maintenance deviation to establish AST-aware UI boundary lint baseline ahead of planned sequence continuation.
+
+## Phase 39: UI Boundary Lint Diagnostic Hardening (Maintenance Deviation)
+
+Milestone group: Milestone 5
+
+Primary goal: Continue scoped maintenance deviation to harden AST lint diagnostics and deterministic self-test evidence.
+
+## Phase 40: Roadmap/Changelog Reconciliation + AST Lint CI Alignment
+
+Milestone group: Milestone 5
+
+Primary goal: Reconcile planned future sequencing after Phase 38/39 maintenance deviation and verify CI runs the AST-aware UI boundary lint baseline.
+
+## Phase 41: Release-Candidate Planning Continuation
+
+Milestone group: Milestone 5
+
+Primary goal: Resume planned implementation/evidence sequence after Phase 40 reconciliation.
+
+Boundary note:
+
+Phases 38/39 are explicitly scoped maintenance deviations preserved as historical truth in `CHANGELOG.md`; roadmap sequencing from this point remains planned truth for forward work only.
