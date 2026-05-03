@@ -6,6 +6,26 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.36 - 2026-05-03
+
+**Status:** Phase 36 - Release Candidate Boundary
+
+### Changed
+
+- Updated `checklists/release.md` into a procedural release-candidate boundary and evidence checklist.
+- Updated `checklists/current-phase.md` to Phase 36 procedural scope, boundary/evidence framing checklists, static-scan-debt tracking, findings/deferred/validation logs, and required commands.
+- Updated `CHANGELOG.md` with `v0.0.36`.
+
+### Notes
+
+- Phase 36 defines release-candidate boundary evidence only.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+- Static scan debt is recorded as future release-candidate evidence work; no lint tooling, workflow change, or dependency change was implemented.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- No runtime harness behavior, UI behavior, provider adapter work, API server, CLI command, schema change, workflow change, governance change, architecture change, lint-tooling change, or dependency change was implemented.
+
 ## v0.0.35 - 2026-05-03
 
 **Status:** Phase 35 - Roadmap and Changelog Alignment Check + Replay Verification Idempotency Audit

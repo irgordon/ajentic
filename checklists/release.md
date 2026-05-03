@@ -4,30 +4,105 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Release checklist
+# Release-candidate evidence checklist
 
-This checklist defines release steps for AJENTIC.
+This checklist defines procedural evidence requirements for a future release-candidate claim.
 
 This document does not define governance rules or architecture authority.
 
-This checklist is a placeholder for Phase 0. Release steps will be defined in a future phase.
+This document does not record changelog history.
 
-## Pre-release
+This document does not claim release-candidate readiness is achieved.
 
-- [ ] All Phase N tasks complete and validated
-- [ ] CHANGELOG.md updated with release entry
-- [ ] All CI checks pass
-- [ ] Schema contracts validated
-- [ ] Rust tests pass
-- [ ] UI typecheck and build pass
-- [ ] Governance and architecture drift check complete
+This document does not claim production readiness.
 
-## Release steps
+## Release-candidate boundary
 
-- [ ] Tag release version
-- [ ] Publish artifacts if applicable
+A future release candidate requires evidence that AJENTIC is usable for controlled local model-driven work without losing Rust-owned authority.
 
-## Post-release
+## Required evidence
 
-- [ ] Roadmap updated if applicable
-- [ ] Announce to relevant stakeholders
+- [ ] Rust checks pass.
+- [ ] UI typecheck/lint/build pass.
+- [ ] Structure and documentation gates pass.
+- [ ] Schema syntax validation passes.
+- [ ] Script boundary checks pass.
+- [ ] Provider and integration outputs remain untrusted.
+- [ ] Controlled flow remains deterministic and in-memory.
+- [ ] Replay verification remains read-only and idempotent.
+- [ ] UI remains non-authoritative.
+- [ ] Operator intent controls remain request-only unless a future phase explicitly implements Rust-owned intent submission.
+- [ ] Raw provider/model output remains visibly distinct from clean output.
+- [ ] No accepted output bypasses policy, validation, ledger, replay, or audit expectations where required.
+- [ ] Static scan debt is documented and triaged before any production-readiness claim.
+- [ ] No production-readiness claim is made without separate production evidence.
+
+## Blocking conditions
+
+- [ ] Provider output treated as trusted.
+- [ ] UI authority over runtime decisions.
+- [ ] Direct ledger/memory/replay mutation from UI.
+- [ ] Replay repair without explicit command and audit trail.
+- [ ] Failed validation gates.
+- [ ] Undocumented architecture/governance drift.
+- [ ] Changelog/roadmap truth-dimension drift.
+- [ ] Raw JSON-only human review path for critical operator review.
+- [ ] Untriaged static scan debt before production-readiness claim.
+- [ ] Production capability claim without evidence.
+
+## Validation commands
+
+Required:
+
+- `./scripts/check.sh`
+- `cd ui && npm run typecheck && npm run lint && npm run build`
+
+Optional/manual review:
+
+- `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|submit|form|href=|method=|action=" ui/src`
+- `rg -n "reqwest|ureq|hyper|tokio|async|await|fetch|http|https|api key|apikey|token|Authorization|Bearer|TcpStream|UdpSocket|std::net" core scripts ui`
+- `rg -n "repair|auto-repair|reorder|append|remove|mutate|write|persist|std::fs|File::|read_to_string|serde|json" core/src/execution/mod.rs core/src/replay/mod.rs core/src/ledger/mod.rs`
+
+## Authority-boundary checks
+
+- [ ] Rust remains the only authoritative runtime surface.
+- [ ] No non-Rust surface bypasses policy, validation, ledger, replay, or audit boundaries.
+- [ ] Provider/model output remains untrusted unless accepted through Rust-owned paths.
+
+## UI evidence checks
+
+- [ ] UI remains projection/review and request-only intent surface.
+- [ ] UI does not directly mutate runtime authority surfaces.
+- [ ] UI clearly distinguishes raw output from clean output.
+- [ ] UI does not regress to raw JSON-only critical review paths.
+
+## Provider/integration evidence checks
+
+- [ ] Provider/local/IDE integration boundaries preserve untrusted output treatment.
+- [ ] Provider integrations do not write authority state directly.
+- [ ] Integration boundaries do not bypass Rust acceptance logic.
+
+## Replay and audit evidence checks
+
+- [ ] Replay verification remains deterministic for repeated runs on identical input.
+- [ ] Replay verification remains read-only and non-repairing.
+- [ ] Audit remains projection-only and non-authoritative.
+
+## Documentation/truth-dimension checks
+
+- [ ] `CHANGELOG.md` remains historical truth only.
+- [ ] `docs/roadmap/phase-map.md` remains planned truth only.
+- [ ] Procedural release evidence remains in checklist surfaces.
+
+## Static scan debt
+
+- [ ] Current ripgrep-based boundary scans are advisory transitional checks.
+- [ ] Ripgrep scans are string-based and can produce false positives on comments, fixture text, labels, and documentation.
+- [ ] Future release-candidate evidence must identify which checks may remain grep-based and which should be promoted to AST-aware linting before production readiness.
+- [ ] Candidate AST-aware enforcement options include ESLint rules for TypeScript UI surfaces and Clippy/Rust test guards for Rust authority surfaces.
+- [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in Phase 36 unless validation is blocked and a minimal correction is required.
+
+## Release decision record placeholder
+
+| Evidence item | Status | Source | Reviewer note |
+| --- | --- | --- | --- |
