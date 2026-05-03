@@ -1,9 +1,10 @@
 import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 import { StatusPill } from "../components/StatusPill";
+import { IntentPreviewPanel } from "../components/IntentPreviewPanel";
 
 export function OverviewScreen(): string {
-  const { run, output } = getUiReadModel();
+  const { run, output, operatorIntentPreviews } = getUiReadModel();
 
   return SectionCard({
     title: "Overview",
@@ -20,6 +21,11 @@ export function OverviewScreen(): string {
       `Authority: ${run.authority}`,
       `Run summary: ${run.summary}`,
       `Output trust: rawOutputTrusted=${output.rawOutputTrusted}`,
+      "Operator intent previews: controls are previews only in this phase.",
+      "No request is submitted.",
+      "No state is mutated.",
+      "Rust remains the authority.",
+      IntentPreviewPanel({ intents: operatorIntentPreviews }),
       "This surface is read-only and fixture-backed for operator review only."
     ]
   });
