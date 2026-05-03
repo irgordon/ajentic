@@ -96,9 +96,11 @@ Optional/manual review:
 
 ## Static scan debt
 
-- [ ] UI boundary enforcement now includes an AST-aware lint baseline for forbidden runtime APIs and executable UI controls.
+- [ ] UI boundary AST lint now includes deterministic self-tests.
+- [ ] UI boundary lint diagnostics must remain IDE-friendly using `path:line:column` output.
 - [ ] Ripgrep scans remain advisory for broader cross-surface review.
-- [ ] Remaining static scan precision debt includes Rust/network/provider checks and any UI checks not yet covered by AST lint.
+- [ ] Remaining static scan precision debt includes Rust/network/provider checks, Bash/Python boundary checks, documentation/prohibition-language scans, and any UI checks not yet covered by AST lint.
+- [ ] Phase 40 remains responsible for roadmap/changelog sequencing reconciliation.
 - [ ] Production-readiness still requires evidence that the lint baseline remains active in local validation and CI or equivalent release validation.
 - [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in this phase unless validation is blocked and a minimal correction is required.
 

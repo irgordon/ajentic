@@ -6,6 +6,33 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.39 - 2026-05-03
+
+**Status:** Phase 39 - UI Boundary Lint Diagnostic Hardening
+
+### Added
+
+- Added `scripts/test_lint_ui_boundaries.mjs` with deterministic temporary-file self-tests for allowed static text/clean TSX cases and forbidden UI runtime/control patterns.
+- Added `docs/operations/static-boundary-lint-hardening-phase-39.md` as an advisory report for diagnostic and self-test hardening scope.
+
+### Changed
+
+- Updated `scripts/lint_ui_boundaries.mjs` to emit IDE-friendly diagnostics in `path:line:column: message` format and support explicit target roots for test harness usage while preserving production default behavior.
+- Updated `scripts/check.sh` to run `node scripts/test_lint_ui_boundaries.mjs` before direct UI boundary AST lint.
+- Updated `checklists/release.md` static scan debt/evidence section to record UI boundary lint diagnostic and deterministic self-test coverage.
+- Updated `checklists/current-phase.md` to Phase 39 procedural truth, scoped maintenance continuation notes, deterministic self-test evidence, and validation/deferred tracking.
+- Updated `CHANGELOG.md` with `v0.0.39`.
+
+### Notes
+
+- Phase 39 hardens the AST-aware UI boundary lint baseline with IDE-friendly diagnostics and deterministic self-tests.
+- Phase 39 continues the scoped static-boundary lint maintenance deviation ahead of Phase 40.
+- Phase 40 remains the scheduled roadmap/changelog alignment checkpoint for reconciling future sequencing against historical truth.
+- Ripgrep scans remain advisory for broader evidence review.
+- Static scan precision debt is reduced further for UI runtime/control boundaries but remains unresolved for Rust, scripts, documentation/prohibition language, and broader cross-surface scans.
+- No UI behavior, Rust behavior, provider work, API server, CLI command, schema change, workflow change, governance change, architecture change, roadmap rewrite, release-candidate readiness claim, or production-readiness claim was implemented.
+- No new dependencies were added unless explicitly required and documented.
+
 ## v0.0.38 - 2026-05-03
 
 **Status:** Phase 38 - Static Boundary Lint Baseline

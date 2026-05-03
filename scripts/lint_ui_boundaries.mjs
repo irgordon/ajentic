@@ -9,7 +9,10 @@ const typescriptPath = fs.existsSync(localTypescriptPath) ? localTypescriptPath 
 const ts = await import(pathToFileURL(typescriptPath).href);
 const typescript = ts.default ?? ts;
 
-const UI_SRC_ROOT = path.resolve('ui/src');
+const cliTargets = process.argv.slice(2);
+// Production default remains ui/src. Tests may pass explicit target roots.
+const targetRoots = cliTargets.length > 0 ? cliTargets.map((entry) => path.resolve(entry)) : [path.resolve('ui/src')];
+
 const forbiddenJsxHandlers = new Set([
   'onClick',
   'onSubmit',
@@ -20,8 +23,9 @@ const forbiddenJsxHandlers = new Set([
 ]);
 const forbiddenImportModules = new Set(['http', 'https', 'net', 'ws', 'axios', 'node-fetch']);
 
-function collectSourceFiles(rootDir) {
+function collectSourceFiles(rootDirs) {
   const files = [];
+
   function walk(currentDir) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     for (const entry of entries) {
@@ -34,9 +38,12 @@ function collectSourceFiles(rootDir) {
     }
   }
 
-  if (fs.existsSync(rootDir)) {
-    walk(rootDir);
+  for (const rootDir of rootDirs) {
+    if (fs.existsSync(rootDir)) {
+      walk(rootDir);
+    }
   }
+
   return files.sort();
 }
 
@@ -46,41 +53,44 @@ function locationOf(sourceFile, node) {
 }
 
 function report(violations, sourceFile, node, message) {
-  violations.push(`${locationOf(sourceFile, node)} - ${message}`);
+  violations.push(`${locationOf(sourceFile, node)}: ${message}`);
 }
 
 function isIdentifierNamed(node, name) {
   return typescript.isIdentifier(node) && node.text === name;
 }
 
-const files = collectSourceFiles(UI_SRC_ROOT);
+function jsxOwnerElement(node) {
+  if (!node?.parent) return null;
+  const owner = node.parent.parent;
+  if (owner && (typescript.isJsxOpeningElement(owner) || typescript.isJsxSelfClosingElement(owner))) return owner;
+  return null;
+}
+
+const files = collectSourceFiles(targetRoots);
 const violations = [];
 
 for (const filePath of files) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const sourceFile = typescript.createSourceFile(filePath, content, typescript.ScriptTarget.Latest, true, filePath.endsWith('.tsx') ? typescript.ScriptKind.TSX : typescript.ScriptKind.TS);
+  const sourceFile = typescript.createSourceFile(
+    filePath,
+    content,
+    typescript.ScriptTarget.Latest,
+    true,
+    filePath.endsWith('.tsx') ? typescript.ScriptKind.TSX : typescript.ScriptKind.TS,
+  );
 
   function visit(node) {
     if (typescript.isCallExpression(node)) {
       const expr = node.expression;
-      if (isIdentifierNamed(expr, 'fetch')) {
-        report(violations, sourceFile, node, 'Forbidden call: fetch(...)');
-      }
-      if (isIdentifierNamed(expr, 'setInterval')) {
-        report(violations, sourceFile, node, 'Forbidden call: setInterval(...)');
-      }
-      if (isIdentifierNamed(expr, 'setTimeout')) {
-        report(violations, sourceFile, node, 'Forbidden call: setTimeout(...)');
-      }
+      if (isIdentifierNamed(expr, 'fetch')) report(violations, sourceFile, node, 'Forbidden call: fetch(...)');
+      if (isIdentifierNamed(expr, 'setInterval')) report(violations, sourceFile, node, 'Forbidden call: setInterval(...)');
+      if (isIdentifierNamed(expr, 'setTimeout')) report(violations, sourceFile, node, 'Forbidden call: setTimeout(...)');
     }
 
     if (typescript.isNewExpression(node) && typescript.isIdentifier(node.expression)) {
-      if (node.expression.text === 'WebSocket') {
-        report(violations, sourceFile, node, 'Forbidden constructor: new WebSocket(...)');
-      }
-      if (node.expression.text === 'EventSource') {
-        report(violations, sourceFile, node, 'Forbidden constructor: new EventSource(...)');
-      }
+      if (node.expression.text === 'WebSocket') report(violations, sourceFile, node, 'Forbidden constructor: new WebSocket(...)');
+      if (node.expression.text === 'EventSource') report(violations, sourceFile, node, 'Forbidden constructor: new EventSource(...)');
     }
 
     if (typescript.isIdentifier(node) && (node.text === 'localStorage' || node.text === 'sessionStorage')) {
@@ -89,9 +99,7 @@ for (const filePath of files) {
 
     if (typescript.isImportDeclaration(node) && typescript.isStringLiteral(node.moduleSpecifier)) {
       const moduleName = node.moduleSpecifier.text;
-      if (forbiddenImportModules.has(moduleName)) {
-        report(violations, sourceFile, node, `Forbidden import module: ${moduleName}`);
-      }
+      if (forbiddenImportModules.has(moduleName)) report(violations, sourceFile, node, `Forbidden import module: ${moduleName}`);
     }
 
     if (typescript.isBinaryExpression(node) && node.operatorToken.kind === typescript.SyntaxKind.EqualsToken) {
@@ -100,9 +108,7 @@ for (const filePath of files) {
       }
       if (typescript.isElementAccessExpression(node.left) && typescript.isStringLiteral(node.left.argumentExpression)) {
         const key = node.left.argumentExpression.text;
-        if (forbiddenJsxHandlers.has(key)) {
-          report(violations, sourceFile, node.left, `Forbidden assignment target: ${key}`);
-        }
+        if (forbiddenJsxHandlers.has(key)) report(violations, sourceFile, node.left, `Forbidden assignment target: ${key}`);
       }
     }
 
@@ -112,38 +118,29 @@ for (const filePath of files) {
         : typescript.isStringLiteral(node.name)
           ? node.name.text
           : '';
-      if (forbiddenJsxHandlers.has(key)) {
-        report(violations, sourceFile, node.name, `Forbidden object property: ${key}`);
-      }
+      if (forbiddenJsxHandlers.has(key)) report(violations, sourceFile, node.name, `Forbidden object property: ${key}`);
     }
 
     if (typescript.isJsxAttribute(node)) {
       const attr = node.name.text;
-      if (forbiddenJsxHandlers.has(attr)) {
-        report(violations, sourceFile, node.name, `Forbidden JSX event-handler attribute: ${attr}`);
-      }
-      if (attr === 'href' && typescript.isJsxOpeningElement(node.parent)) {
-        const tag = node.parent.tagName.getText(sourceFile);
-        if (tag === 'a') {
-          report(violations, sourceFile, node.name, 'Forbidden JSX anchor href on <a>');
-        }
+      if (forbiddenJsxHandlers.has(attr)) report(violations, sourceFile, node.name, `Forbidden JSX event-handler attribute: ${attr}`);
+      const owner = jsxOwnerElement(node);
+      if (attr === 'href' && owner) {
+        const tag = owner.tagName.getText(sourceFile);
+        if (tag === 'a') report(violations, sourceFile, node.name, 'Forbidden JSX anchor href on <a>');
       }
       if (attr === 'type') {
         const initializer = node.initializer;
-        if (initializer && typescript.isStringLiteral(initializer) && initializer.text === 'submit' && typescript.isJsxOpeningElement(node.parent)) {
-          const tag = node.parent.tagName.getText(sourceFile);
-          if (tag === 'input') {
-            report(violations, sourceFile, node.name, 'Forbidden JSX submit input element: <input type="submit">');
-          }
+        if (initializer && typescript.isStringLiteral(initializer) && initializer.text === 'submit' && owner) {
+          const tag = owner.tagName.getText(sourceFile);
+          if (tag === 'input') report(violations, sourceFile, node.name, 'Forbidden JSX submit input element: <input type="submit">');
         }
       }
     }
 
     if (typescript.isJsxOpeningElement(node) || typescript.isJsxSelfClosingElement(node)) {
       const tag = node.tagName.getText(sourceFile);
-      if (tag === 'form' || tag === 'button') {
-        report(violations, sourceFile, node.tagName, `Forbidden JSX intrinsic element: <${tag}>`);
-      }
+      if (tag === 'form' || tag === 'button') report(violations, sourceFile, node.tagName, `Forbidden JSX intrinsic element: <${tag}>`);
     }
 
     typescript.forEachChild(node, visit);
@@ -153,10 +150,8 @@ for (const filePath of files) {
 }
 
 if (violations.length > 0) {
-  console.error(`UI boundary lint failed with ${violations.length} violation(s):`);
-  for (const violation of violations) {
-    console.error(`- ${violation}`);
-  }
+  for (const violation of violations) console.error(violation);
+  console.error(`UI boundary lint failed with ${violations.length} violation(s).`);
   process.exit(1);
 }
 
