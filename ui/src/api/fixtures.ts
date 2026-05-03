@@ -37,21 +37,76 @@ export const uiReadModelFixture: UiReadModel = {
     }
   ],
   context: {
-    packetId: "ctx-fixture-0001",
-    slices: 4,
-    sources: 2,
-    budgetUsed: 320,
+    packetId: "ctx-fixture-0024",
+    slices: 5,
+    sources: 3,
+    budgetUsed: 412,
     budgetMax: 1024,
     authority: "rust",
-    summary: "Static context packet projection placeholder."
+    summary: "Static context packet projection placeholder.",
+    slicesPreview: [
+      {
+        id: "slice-docs-governance",
+        viewType: "docs",
+        truthDimension: "normative",
+        sourcePath: "docs/governance/GOVERNANCE.md",
+        authority: "rust",
+        provenance: "fixture:phase24:governance-doc",
+        summary: "Governance constraints included for authority boundary review."
+      },
+      {
+        id: "slice-task-phase24",
+        viewType: "task",
+        truthDimension: "procedural",
+        sourcePath: "checklists/current-phase.md",
+        authority: "operator",
+        provenance: "fixture:phase24:active-checklist",
+        summary: "Active phase checklist scope and constraints for current UI work."
+      },
+      {
+        id: "slice-schema-memory",
+        viewType: "schema",
+        truthDimension: "contract",
+        sourcePath: "schemas/memory/",
+        authority: "rust",
+        provenance: "fixture:phase24:memory-schema-index",
+        summary: "Memory contract references included as non-authoritative read context."
+      }
+    ]
   },
   memory: {
-    snapshotId: "mem-fixture-0001",
+    snapshotId: "mem-fixture-0024",
     activeEntries: 8,
     disabledEntries: 1,
     rejectedEntries: 2,
     authority: "rust",
-    summary: "Static memory projection placeholder for shell display."
+    summary: "Static memory projection placeholder for shell display.",
+    entriesPreview: [
+      {
+        id: "mem-entry-001",
+        memoryType: "policy-note",
+        status: "ready",
+        authority: "rust",
+        provenance: "fixture:phase24:memory-ready",
+        summary: "Accepted policy guidance retained for read-only operator inspection."
+      },
+      {
+        id: "mem-entry-002",
+        memoryType: "task-cache",
+        status: "blocked",
+        authority: "ui",
+        provenance: "fixture:phase24:memory-blocked",
+        summary: "Blocked task context due to missing runtime validation path."
+      },
+      {
+        id: "mem-entry-003",
+        memoryType: "candidate-output",
+        status: "rejected",
+        authority: "rust",
+        provenance: "fixture:phase24:memory-rejected",
+        summary: "Rejected candidate output remains non-authoritative and untrusted."
+      }
+    ]
   },
   ledger: {
     events: 12,

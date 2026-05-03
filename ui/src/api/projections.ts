@@ -31,6 +31,25 @@ export type RunOverviewProjection = Readonly<{
   summary: string;
 }>;
 
+export type ContextSliceProjection = Readonly<{
+  id: string;
+  viewType: string;
+  truthDimension: string;
+  sourcePath: string;
+  authority: AuthoritySurface;
+  summary: string;
+  provenance: string;
+}>;
+
+export type MemoryEntryProjection = Readonly<{
+  id: string;
+  memoryType: string;
+  status: ProjectionStatus;
+  authority: AuthoritySurface;
+  summary: string;
+  provenance: string;
+}>;
+
 export type ContextProjection = Readonly<{
   packetId: string;
   slices: number;
@@ -39,6 +58,7 @@ export type ContextProjection = Readonly<{
   budgetMax: number;
   authority: AuthoritySurface;
   summary: string;
+  slicesPreview: readonly ContextSliceProjection[];
 }>;
 
 export type MemoryProjection = Readonly<{
@@ -48,6 +68,7 @@ export type MemoryProjection = Readonly<{
   rejectedEntries: number;
   authority: AuthoritySurface;
   summary: string;
+  entriesPreview: readonly MemoryEntryProjection[];
 }>;
 
 export type LedgerProjection = Readonly<{

@@ -6,6 +6,31 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.24 - 2026-05-03
+
+**Status:** Phase 24 - Context Packet and Memory Inspection UI
+
+### Added
+
+- Added `ui/src/components/ProjectionList.tsx` as a read-only readable list component for inspection projection rows.
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add `ContextSliceProjection`, `MemoryEntryProjection`, and preview list fields on context and memory projections.
+- Updated `ui/src/api/fixtures.ts` to add static fixture-backed context slice previews and memory entry previews for read-only inspection display.
+- Updated `ui/src/api/readModel.ts` to preserve synchronous fixture-backed `getUiReadModel()` behavior.
+- Updated `ui/src/screens/ContextScreen.tsx` to display context packet metadata and context slice preview inspection details as readable text.
+- Updated `ui/src/screens/MemoryScreen.tsx` to display memory snapshot metadata and memory entry preview inspection details as readable text.
+- Updated `checklists/current-phase.md` to Phase 24 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.24`.
+
+### Notes
+
+- Phase 24 displays context packet and memory snapshot projections as read-only UI inspection surfaces.
+- The UI remains non-authoritative and fixture-backed in this phase.
+- No live API integration, async behavior, runtime authority, operator intent controls, provider calls, context mutation, memory mutation, state mutation, ledger mutation, replay repair, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.23 - 2026-05-03
 
 **Status:** Phase 23 - State and Run Overview UI
