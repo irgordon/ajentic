@@ -155,5 +155,73 @@ export const uiReadModelFixture: UiReadModel = {
     summary: "Clean output projection is read-only display data in this phase.",
     rawOutputSummary: "Raw model output is untrusted and not authoritative.",
     cleanOutputSummary: "Fixture indicates harness-cleaned output preview; UI does not infer or grant authority."
-  }
+  },
+  operatorIntentPreviews: [
+    {
+      id: "intent-preview-approve",
+      intentType: "approve",
+      label: "Approve candidate",
+      description: "Non-authoritative operator request preview for approval review.",
+      reasonPreview: "reason=operator reviewed evidence and requests acceptance",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "operator",
+      status: "unknown",
+      disabled: true
+    },
+    {
+      id: "intent-preview-reject",
+      intentType: "reject",
+      label: "Reject candidate",
+      description: "Non-authoritative operator request preview for rejection review.",
+      reasonPreview: "reason=operator requests rejection due to evidence mismatch",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "operator",
+      status: "unknown",
+      disabled: false
+    },
+    {
+      id: "intent-preview-retry",
+      intentType: "retry",
+      label: "Retry request",
+      description: "Non-authoritative operator retry request preview in read-only UI.",
+      reasonPreview: "reason=operator requests retry after reviewing blocked projection",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "operator",
+      status: "not_available",
+      disabled: false
+    },
+    {
+      id: "intent-preview-replay-request",
+      intentType: "replay_request",
+      label: "Replay request",
+      description: "Non-authoritative replay request preview surface without execution behavior.",
+      reasonPreview: "reason=operator requests replay review of ledger reconstruction",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "ui",
+      status: "not_available",
+      disabled: false
+    },
+    {
+      id: "intent-preview-context-rebuild",
+      intentType: "context_rebuild_request",
+      label: "Context rebuild request",
+      description: "Non-authoritative context rebuild request preview for operator review only.",
+      reasonPreview: "reason=operator requests context rebuild preview after stale slice inspection",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "ui",
+      status: "blocked",
+      disabled: false
+    },
+    {
+      id: "intent-preview-memory-snapshot",
+      intentType: "memory_snapshot_request",
+      label: "Memory snapshot request",
+      description: "Non-authoritative memory snapshot request preview with no mutation behavior.",
+      reasonPreview: "reason=operator requests memory snapshot preview for inspection",
+      routePreview: "route=operator_intent_preview_only",
+      authority: "operator",
+      status: "not_available",
+      disabled: false
+    }
+  ]
 };

@@ -156,6 +156,18 @@ export type CleanOutputProjection = Readonly<{
   cleanOutputSummary: string;
 }>;
 
+
+export type OperatorIntentPreviewProjection = Readonly<{
+  id: string;
+  intentType: string;
+  label: string;
+  description: string;
+  reasonPreview: string;
+  routePreview: string;
+  authority: AuthoritySurface;
+  status: ProjectionStatus;
+  disabled: boolean;
+}>;
 export type UiReadModel = Readonly<{
   lifecycle: LifecycleProjection;
   run: RunOverviewProjection;
@@ -173,4 +185,5 @@ export type UiReadModel = Readonly<{
   auditDetails: readonly AuditDetailProjection[];
   output: OutputProjection;
   cleanOutput: CleanOutputProjection;
+  operatorIntentPreviews: readonly OperatorIntentPreviewProjection[];
 }>;

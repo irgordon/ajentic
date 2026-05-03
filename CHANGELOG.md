@@ -6,6 +6,30 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.28 - 2026-05-03
+
+**Status:** Phase 28 - Operator Intent Controls UI
+
+### Added
+
+- Added `ui/src/components/IntentPreviewPanel.tsx` as a display-only typed operator intent request preview component.
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add `OperatorIntentPreviewProjection` and include `operatorIntentPreviews` in `UiReadModel`.
+- Updated `ui/src/api/fixtures.ts` to add static fixture-backed operator intent preview entries for approve, reject, retry, replay request, context rebuild request, and memory snapshot request.
+- Updated `ui/src/api/readModel.ts` to preserve synchronous fixture-backed `getUiReadModel()` behavior.
+- Updated `ui/src/screens/OverviewScreen.tsx` to render a clearly labeled request-only operator intent preview section.
+- Updated `checklists/current-phase.md` to Phase 28 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.28`.
+
+### Notes
+
+- Phase 28 adds typed operator intent preview controls as request-only UI surfaces.
+- Intent previews are static, fixture-backed, non-authoritative, and non-executing in this phase.
+- No live API integration, async behavior, runtime authority, provider calls, executable operator intent submission, state mutation, ledger mutation, replay repair, audit export, output publish, Rust behavior, schema change, or new dependency was implemented.
+- Intent is a request. Rust decides.
+
 ## v0.0.27 - 2026-05-03
 
 **Status:** Phase 27 - Ledger, Replay, Audit, and Clean Output UI
