@@ -1347,6 +1347,10 @@ Intent is a request. Rust decides.
 
 ⸻
 
+## Planned sequence from current state
+
+The phase entries below resume planning from the post-v0.0.19 repository state. Earlier phase numbers may appear in historical records, but completed work remains authoritative only in CHANGELOG.md. Future implementation planning resumes at Phase 20.
+
 ## Phase 20: Roadmap Alignment Check and UI Entry Reset
 
 Milestone group: Milestone 4

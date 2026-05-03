@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.20 - 2026-05-03
+
+**Status:** Phase 20 - Roadmap Alignment Check and UI Entry Reset
+
+### Changed
+
+- Updated `docs/roadmap/phase-map.md` to add a clear planned-sequence divider that resumes future implementation planning at Phase 20 from the post-`v0.0.19` state.
+- Updated `checklists/current-phase.md` for Phase 20 procedural scope and validation tracking.
+- Updated `CHANGELOG.md` with `v0.0.20`.
+
+### Notes
+
+- Phase 20 verifies roadmap/changelog alignment after Phase 19.5.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- Future implementation planning resumes at Phase 20 from the post-v0.0.19 repository state.
+- Phase 21 remains the planned browser UI shell entry point.
+- No runtime harness behavior, UI behavior, provider adapter, schema change, workflow change, governance change, or architecture change was implemented.
+
 ## v0.0.19.5 - 2026-05-03
 
 **Status:** Phase 19.5 - Roadmap and Changelog Reconciliation
