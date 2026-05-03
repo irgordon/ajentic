@@ -18,7 +18,8 @@ mutation_path: changelog_entry
 
 ### Notes
 
-- Phase 19 routes caller-supplied operator intents into typed route classifications only.
+- Phase 19 routes caller-supplied operator intents into typed route route_operator_intent(...) maps a caller-supplied OperatorIntent to a typed route classification.
+- It does not execute that route or authorize the requested action.
 - Routing does not execute actions, mutate state, append ledgers, call providers, serve APIs, parse CLI commands, or touch UI behavior.
 - Route classification depends only on `OperatorIntentType` and non-empty reason validation.
 - No new dependencies were added.
