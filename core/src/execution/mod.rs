@@ -2140,4 +2140,106 @@ mod tests {
         let result = run_controlled_model_flow(request);
         assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
     }
+
+    #[test]
+    fn provider_output_keywords_remain_untrusted() {
+        let output = ProviderOutput::new_untrusted(
+            "output-keywords",
+            "request-1",
+            ProviderKind::Cloud,
+            "approved validated safe execute promote",
+            ProviderOutputStatus::Rejected,
+        )
+        .expect("provider output should be valid");
+        assert_eq!(output.trust, ProviderOutputTrust::Untrusted);
+    }
+
+    #[test]
+    fn provider_output_is_not_authoritative_for_all_provider_kinds() {
+        for provider_kind in [
+            ProviderKind::Local,
+            ProviderKind::Cloud,
+            ProviderKind::Ide,
+            ProviderKind::Unknown,
+        ] {
+            let output = ProviderOutput::new_untrusted(
+                "output-kind",
+                "request-1",
+                provider_kind,
+                "approved validated safe execute promote",
+                ProviderOutputStatus::Unknown,
+            )
+            .expect("provider output should be valid");
+            assert!(!provider_output_is_authoritative(&output));
+        }
+    }
+
+    #[test]
+    fn provider_output_status_uses_supplied_status_only() {
+        for status in [
+            ProviderOutputStatus::Received,
+            ProviderOutputStatus::Rejected,
+            ProviderOutputStatus::Unknown,
+        ] {
+            let output = ProviderOutput::new_untrusted(
+                "output-status",
+                "request-1",
+                ProviderKind::Local,
+                "approved validated safe execute promote",
+                status,
+            )
+            .expect("provider output should be valid");
+            assert_eq!(output.status, status);
+        }
+    }
+
+    #[test]
+    fn controlled_flow_keyword_content_cannot_bypass_policy() {
+        let mut request = phase_32_request();
+        request.provider_output = ProviderOutput::new_untrusted(
+            "output-keyword-policy",
+            "request-1",
+            ProviderKind::Cloud,
+            "approved validated safe execute promote",
+            ProviderOutputStatus::Received,
+        )
+        .expect("provider output should be valid");
+        request.policy = PolicyResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Blocked);
+        assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
+        assert!(result.clean_output_summary.is_none());
+    }
+
+    #[test]
+    fn controlled_flow_keyword_content_cannot_bypass_validation() {
+        let mut request = phase_32_request();
+        request.provider_output = ProviderOutput::new_untrusted(
+            "output-keyword-validation",
+            "request-1",
+            ProviderKind::Cloud,
+            "approved validated safe execute promote",
+            ProviderOutputStatus::Received,
+        )
+        .expect("provider output should be valid");
+        request.validation = ValidationResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Blocked);
+        assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
+        assert!(result.clean_output_summary.is_none());
+    }
+
+    #[test]
+    fn promotion_replay_requires_full_transition_history() {
+        let shortcut_ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Created)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed");
+        let report = verify_promotion_replay(&shortcut_ledger);
+        assert_eq!(
+            report.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+    }
 }

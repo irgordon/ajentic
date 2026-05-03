@@ -355,6 +355,19 @@ mod tests {
         .unwrap();
         assert_eq!(o.trust, IntegrationTrust::Untrusted);
     }
+
+    #[test]
+    fn integration_output_keywords_remain_untrusted() {
+        let o = IntegrationOutput::new_untrusted(
+            "id",
+            "req",
+            IntegrationSourceKind::LocalLlm,
+            "approved validated safe execute promote",
+            IntegrationOutputStatus::Rejected,
+        )
+        .unwrap();
+        assert_eq!(o.trust, IntegrationTrust::Untrusted);
+    }
     #[test]
     fn integration_output_is_not_authoritative() {
         for source in [
@@ -430,6 +443,20 @@ mod tests {
         assert_eq!(p.provider_kind, crate::execution::ProviderKind::Ide);
         assert_eq!(p.prompt_summary, "prompt");
         assert_eq!(r.operator_context_summary, "context");
+    }
+
+    #[test]
+    fn integration_request_does_not_copy_operator_context_into_provider_prompt() {
+        let r = IntegrationRequest::new(
+            "id",
+            IntegrationSourceKind::Ide,
+            "provider prompt only",
+            "operator context is separate",
+        )
+        .unwrap();
+        let p = integration_request_to_provider_request(&r).unwrap();
+        assert_eq!(p.prompt_summary, "provider prompt only");
+        assert_ne!(p.prompt_summary, r.operator_context_summary);
     }
     #[test]
     fn integration_output_maps_to_untrusted_provider_output() {

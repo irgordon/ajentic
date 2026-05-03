@@ -6,6 +6,26 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.34 - 2026-05-03
+
+**Status:** Phase 34 - Production Hardening
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` with additional negative-path and boundary-regression tests for provider trust/status invariants, controlled-flow fail-closed behavior, and replay/promotion transition-history verification.
+- Updated `core/src/api/mod.rs` with additional negative-path integration boundary tests proving untrusted-only handling and separation of `operator_context_summary` from provider-facing `prompt_summary`.
+- Updated `ui/src/api/readModel.ts` with compile-safe exported guards that assert the UI read model remains synchronous, fixture-backed, and request-preview-only.
+- Updated `checklists/current-phase.md` to Phase 34 procedural scope and required validation/static scan checklist.
+- Updated `CHANGELOG.md` with `v0.0.34`.
+
+### Notes
+
+- Phase 34 adds negative-path and boundary-regression hardening only.
+- No new runtime capability, provider call, local model invocation, IDE connection, HTTP/socket/file IO, async behavior, provider authentication, ledger persistence, replay repair, audit export, API server, CLI command, executable UI control, schema change, workflow change, or dependency was implemented.
+- Provider and integration outputs remain untrusted candidate material.
+- Controlled flow remains deterministic, in-memory, and fail-closed.
+- Raw provider output remains untrusted.
+
 ## v0.0.33 - 2026-05-03
 
 **Status:** Phase 33 - Local LLM and IDE Integration Boundary
