@@ -4,42 +4,39 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 39 - UI Boundary Lint Diagnostic Hardening
+# Phase 40 - Roadmap/Changelog Reconciliation + AST Lint CI Alignment
 
 ## Phase goal
 
-Harden the AST-aware UI boundary lint baseline by improving diagnostic quality and adding deterministic self-tests for forbidden UI runtime/control patterns.
-
-## Roadmap deviation note
-
-Phase 39 continues the scoped static-boundary lint maintenance deviation introduced in Phase 38 to reduce static scan precision debt ahead of the Phase 40 roadmap/changelog sequencing reconciliation checkpoint.
+Reconcile planned roadmap sequencing against historical changelog truth after the Phase 38/39 maintenance deviation and verify CI alignment with the AST-aware UI boundary lint baseline.
 
 ## Allowed surfaces
 
-- `scripts/lint_ui_boundaries.mjs`
-- `scripts/test_lint_ui_boundaries.mjs`
-- `scripts/check.sh`
+- `docs/roadmap/phase-map.md`
 - `checklists/current-phase.md`
 - `checklists/release.md`
 - `CHANGELOG.md`
-- `docs/operations/static-boundary-lint-hardening-phase-39.md`
+- `.github/workflows/*.yml` only if AST lint CI alignment is missing
+- `docs/operations/repository-audit-phase-40.md` if needed
 
 ## Boundary rules
 
-- Keep UI non-authoritative and request-only.
-- Keep lint deterministic, read-only, parse-only, and dependency-neutral.
-- Do not change Rust runtime behavior, schema contracts, workflow behavior, governance, architecture, or roadmap truth surfaces.
-- Keep ripgrep scans advisory/manual evidence checks.
+- Treat `CHANGELOG.md` as historical truth and `docs/roadmap/phase-map.md` as planned truth.
+- Preserve Phase 38/39 as scoped maintenance deviations, not retroactive planned feature phases.
+- Correct only future planned sequencing drift.
+- Do not modify runtime/UI behavior, schemas, scripts, governance, architecture, or dependencies.
+- Do not claim release-candidate readiness or production readiness.
 
 ## Task checklist
 
-- [x] Update checklist to Phase 39 with scoped maintenance continuation note.
-- [x] Improve `scripts/lint_ui_boundaries.mjs` diagnostics to IDE-friendly `path:line:column: message`.
-- [x] Add deterministic self-tests in `scripts/test_lint_ui_boundaries.mjs` using temporary files outside tracked UI source.
-- [x] Update `scripts/check.sh` to run lint self-tests before direct UI boundary lint.
-- [x] Update `checklists/release.md` static scan debt/evidence language for diagnostic+self-test hardening.
-- [x] Add `CHANGELOG.md` entry `v0.0.39`.
-- [x] Add advisory report `docs/operations/static-boundary-lint-hardening-phase-39.md`.
+- [x] Update current checklist to Phase 40 scope.
+- [x] Compare roadmap planned sequence against changelog history.
+- [x] Reconcile planned future sequencing for Phase 38/39 maintenance deviation context.
+- [x] Confirm Phase 41 is next planned implementation phase after Phase 40.
+- [x] Audit CI workflows for AST-aware UI boundary lint baseline execution.
+- [x] Update CI workflow minimally to run AST-aware UI boundary lint baseline on pull requests.
+- [x] Update release checklist AST lint CI evidence language.
+- [x] Add `CHANGELOG.md` entry `v0.0.40`.
 
 ## Validation checklist
 
@@ -47,55 +44,51 @@ Phase 39 continues the scoped static-boundary lint maintenance deviation introdu
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `rg -n "scripts/check.sh|test_lint_ui_boundaries|lint_ui_boundaries" .github/workflows scripts/check.sh`
+- [x] `rg -n "production-ready|production ready|release candidate ready|release-candidate ready|RC ready|ready for production" docs checklists CHANGELOG.md README.md AGENTS.md`
 - [x] `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|submit|form|href=|method=|action=" ui/src`
 - [x] `rg -n "reqwest|ureq|hyper|tokio|async|await|fetch|http|https|api key|apikey|token|Authorization|Bearer|TcpStream|UdpSocket|std::net" core scripts ui`
 - [x] `git status --short`
 - [x] `git log --oneline -1`
 
-## Lint diagnostic checklist
+## Roadmap/changelog alignment checklist
 
-- [x] Diagnostics emit `path:line:column: message`.
-- [x] Lint reports all violations before exit.
-- [x] Exit code is nonzero for violations and zero for clean runs.
-- [x] Production default target remains `ui/src`.
-- [x] Optional explicit target roots supported for deterministic self-test harness use.
+- [x] Roadmap contains Phase 19.5 historical implementation note.
+- [x] Roadmap contains "Planned sequence from current state" divider.
+- [x] Roadmap contains recurring alignment checkpoint language.
+- [x] Future planned sequencing reconciled for the Phase 38/39 maintenance deviation context.
+- [x] Roadmap remains planned-truth only and does not record completion history.
 
-## Lint self-test checklist
+## AST lint CI alignment checklist
 
-- [x] Uses only built-in Node modules and existing lint script.
-- [x] Creates temporary files under OS temp directory.
-- [x] Includes allowed static text case.
-- [x] Includes clean TS/TSX case.
-- [x] Includes forbidden cases: `fetch`, `localStorage`, `new WebSocket`, `setTimeout`, JSX `onClick`, JSX `form`, JSX `button`, anchor `href`, submit input, object property `onSubmit`.
-- [x] Asserts pass/fail expectations and diagnostic format.
-- [x] Cleans temporary files/directories.
-- [x] Prints short pass summary and exits nonzero on failure.
+- [x] CI pull-request workflow includes AST lint self-test command.
+- [x] CI pull-request workflow includes AST UI boundary lint command.
+- [x] CI lint alignment added with minimal workflow change and no new dependencies.
 
 ## Findings table
 
 | Finding | Classification | Status | Notes |
 | --- | --- | --- | --- |
-| AST lint now provides IDE-friendly location diagnostics | enforced by AST lint | Closed | Violations now print as `path:line:column: message`. |
-| Deterministic lint self-tests now guard forbidden UI runtime/control pattern detection | enforced by AST lint | Closed | Self-test harness validates clean and forbidden cases with temporary files. |
-| Ripgrep UI/runtime matches remain broad evidence and not automatic failures | harmless | Closed | Continues as advisory/manual review output. |
-| Rust/network/provider/script/docs static precision debt remains broader than current UI AST scope | deferred | Open | Deferred to future phases beyond current allowed scope. |
+| Roadmap/changelog alignment required Phase 40 planned-sequence reconciliation after maintenance deviation | required follow-up | Closed | Planned sequence updated; historical completion remains in changelog. |
+| AST-aware UI boundary lint baseline was local-only before workflow audit | required follow-up | Closed | CI now executes self-test + lint commands in PR workflow UI job. |
+| Broad advisory ripgrep scans still return context-rich matches | harmless | Closed | Matches classified as advisory evidence, not automatic failures. |
+| Wider static scan precision debt outside UI AST scope remains | deferred | Open | Deferred to future scoped static-boundary phases. |
 
 ## Deferred items table
 
 | Item | Reason deferred | Revisit phase |
 | --- | --- | --- |
-| Rust/network/provider AST/static enforcement | Outside Phase 39 allowed scope | Future static-boundary phase |
-| Bash/Python boundary precision checks | Outside Phase 39 allowed scope | Future static-boundary phase |
-| Documentation/prohibition-language scan precision | Outside Phase 39 allowed scope | Future static-boundary phase |
-| Roadmap/changelog sequencing reconciliation | Assigned checkpoint | Phase 40 |
+| Rust/network/provider AST static enforcement expansion | Outside Phase 40 scope | Future static-boundary phase |
+| Bash/Python boundary precision automation | Outside Phase 40 scope | Future static-boundary phase |
+| Documentation/prohibition-language scan precision automation | Outside Phase 40 scope | Future static-boundary phase |
 
 ## Validation log table
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | Pass | Includes lint self-test and production AST lint before Rust checks. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation commands pass without behavior changes. |
-| `node scripts/test_lint_ui_boundaries.mjs` | Pass | Deterministic self-tests pass across allowed and forbidden cases. |
-| `node scripts/lint_ui_boundaries.mjs` | Pass | Production UI boundary lint passes on `ui/src`. |
-| UI boundary advisory scan (`rg ... ui/src`) | Pass | Advisory output reviewed/classified; no automatic failures. |
-| Core/scripts/ui network advisory scan (`rg ... core scripts ui`) | Pass | Advisory output reviewed/classified; broad terms remain deferred evidence. |
+| `./scripts/check.sh` | Pass | Includes AST lint self-test + lint, docs/structure/schema gates, and Rust checks. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation passes with no behavior changes. |
+| `node scripts/test_lint_ui_boundaries.mjs` | Pass | Deterministic AST lint self-tests pass. |
+| `node scripts/lint_ui_boundaries.mjs` | Pass | Production UI AST boundary lint passes on `ui/src`. |
+| `rg -n "scripts/check.sh|test_lint_ui_boundaries|lint_ui_boundaries" .github/workflows scripts/check.sh` | Pass | Verified CI + local wiring evidence for AST lint baseline. |
+| Advisory scans (`rg ...`) | Pass | Classified matches as enforced by AST lint / harmless / deferred. |
