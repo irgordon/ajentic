@@ -6,6 +6,32 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.23 - 2026-05-03
+
+**Status:** Phase 23 - State and Run Overview UI
+
+### Added
+
+- Added `ui/src/components/StatusPill.tsx` as a display-only status text component for read-only projection status labels.
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add `RunOverviewProjection` and include `run` in `UiReadModel`.
+- Updated `ui/src/api/fixtures.ts` to add static fixture-backed `run` overview projection data.
+- Updated `ui/src/api/readModel.ts` to keep synchronous fixture-backed `getUiReadModel()` behavior with the extended read model shape.
+- Updated `ui/src/app/AppShell.tsx` to include run overview metadata in shell projection summaries.
+- Updated `ui/src/screens/OverviewScreen.tsx` to display run overview, lifecycle, decisions, replay readiness, clean output availability, and read-only summary messaging.
+- Updated `ui/src/screens/StateScreen.tsx` to display lifecycle projection details and run linkage in a read-only state view.
+- Updated `checklists/current-phase.md` to Phase 23 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.23`.
+
+### Notes
+
+- Phase 23 displays state and run overview projections as read-only UI surfaces.
+- The UI remains non-authoritative and fixture-backed in this phase.
+- No live API integration, runtime authority, operator intent controls, provider calls, state mutation, ledger mutation, replay repair, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.22 - 2026-05-03
 
 **Status:** Phase 22 - Read-Only API Projection Surface for UI

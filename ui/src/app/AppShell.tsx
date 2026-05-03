@@ -15,9 +15,11 @@ export function AppShell(): string {
   const overview = OverviewScreen();
 
   const projectionSummary = [
+    `- Run: ${readModel.run.title} (${readModel.run.runId})`,
+    `- Run status: ${readModel.run.status}`,
     `- Lifecycle: ${readModel.lifecycle.summary}`,
-    `- Decisions: ${readModel.decisions.length}`,
-    `- Ledger: ${readModel.ledger.summary}`,
+    `- Execution decision: ${readModel.run.executionDecision}`,
+    `- Promotion decision: ${readModel.run.promotionDecision}`,
     `- Replay: ${readModel.replay.summary}`,
     `- Output trust: rawOutputTrusted=${readModel.output.rawOutputTrusted}`
   ].join("\n");

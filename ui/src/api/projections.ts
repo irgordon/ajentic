@@ -18,6 +18,19 @@ export type DecisionProjection = Readonly<{
   authority: AuthoritySurface;
 }>;
 
+export type RunOverviewProjection = Readonly<{
+  runId: string;
+  title: string;
+  status: ProjectionStatus;
+  currentLifecycle: string;
+  executionDecision: string;
+  promotionDecision: string;
+  replayReadiness: string;
+  cleanOutputAvailable: boolean;
+  authority: AuthoritySurface;
+  summary: string;
+}>;
+
 export type ContextProjection = Readonly<{
   packetId: string;
   slices: number;
@@ -70,6 +83,7 @@ export type OutputProjection = Readonly<{
 
 export type UiReadModel = Readonly<{
   lifecycle: LifecycleProjection;
+  run: RunOverviewProjection;
   decisions: readonly DecisionProjection[];
   context: ContextProjection;
   memory: MemoryProjection;
