@@ -6,6 +6,41 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.21 - 2026-05-03
+
+**Status:** Phase 21 - Browser UI Shell Baseline
+
+### Added
+
+- Added `ui/src/screens/OverviewScreen.tsx`.
+- Added `ui/src/screens/StateScreen.tsx`.
+- Added `ui/src/screens/ContextScreen.tsx`.
+- Added `ui/src/screens/MemoryScreen.tsx`.
+- Added `ui/src/screens/PolicyScreen.tsx`.
+- Added `ui/src/screens/ValidationScreen.tsx`.
+- Added `ui/src/screens/LedgerScreen.tsx`.
+- Added `ui/src/screens/ReplayScreen.tsx`.
+- Added `ui/src/screens/AuditScreen.tsx`.
+- Added `ui/src/screens/OutputScreen.tsx`.
+- Added `ui/src/components/SectionCard.tsx`.
+
+### Changed
+
+- Updated `ui/src/app/AppShell.tsx` with a read-only browser UI shell baseline layout surface.
+- Updated `ui/src/app/navigation.ts` with typed primary navigation display metadata.
+- Updated `ui/src/app/routes.tsx` with typed route display metadata.
+- Updated `ui/src/styles/tokens.css` with shared design token variables.
+- Updated `ui/src/styles/layout.css` with responsive shell layout styling.
+- Updated `checklists/current-phase.md` to Phase 21 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.21`.
+
+### Notes
+
+- Phase 21 adds browser UI shell and layout scaffolding only.
+- UI surfaces are read-only, non-authoritative, and intent-free in this phase.
+- No API integration, runtime authority, provider adapter, operator intent controls, state mutation, ledger mutation, replay repair, or Rust behavior was implemented.
+- No new dependencies were added.
+
 ## v0.0.20 - 2026-05-03
 
 **Status:** Phase 20 - Roadmap Alignment Check and UI Entry Reset

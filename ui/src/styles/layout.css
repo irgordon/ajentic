@@ -1,1 +1,57 @@
-/* Placeholder. No layout implemented. */
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: var(--line-height);
+}
+
+.app-shell__header {
+  padding: var(--space-6);
+  border-bottom: var(--border-width) solid var(--border-color);
+  background: var(--color-surface);
+}
+
+.app-shell__body {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.app-shell__nav,
+.app-shell__main,
+.section-card {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--space-4);
+}
+
+.app-shell__nav-list,
+.route-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.read-only-note {
+  border-left: 0.25rem solid var(--color-focus);
+  padding-left: var(--space-3);
+  color: var(--color-muted-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .app-shell__body {
+    grid-template-columns: 1fr;
+  }
+}
