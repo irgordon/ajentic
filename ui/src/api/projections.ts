@@ -18,6 +18,17 @@ export type DecisionProjection = Readonly<{
   authority: AuthoritySurface;
 }>;
 
+export type DecisionDetailProjection = Readonly<{
+  id: string;
+  label: string;
+  decision: string;
+  reason: string;
+  status: ProjectionStatus;
+  authority: AuthoritySurface;
+  summary: string;
+  evidenceSummary: string;
+}>;
+
 export type RunOverviewProjection = Readonly<{
   runId: string;
   title: string;
@@ -106,6 +117,9 @@ export type UiReadModel = Readonly<{
   lifecycle: LifecycleProjection;
   run: RunOverviewProjection;
   decisions: readonly DecisionProjection[];
+  policyDecisions: readonly DecisionDetailProjection[];
+  validationDecisions: readonly DecisionDetailProjection[];
+  executionDecisions: readonly DecisionDetailProjection[];
   context: ContextProjection;
   memory: MemoryProjection;
   ledger: LedgerProjection;
