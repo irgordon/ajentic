@@ -1,4 +1,126 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderKind {
+    Local,
+    Cloud,
+    Ide,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderOutputStatus {
+    Received,
+    Rejected,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderOutputTrust {
+    Untrusted,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderRequest {
+    pub id: String,
+    pub provider_kind: ProviderKind,
+    pub prompt_summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderOutput {
+    pub id: String,
+    pub request_id: String,
+    pub provider_kind: ProviderKind,
+    pub content: String,
+    pub status: ProviderOutputStatus,
+    pub trust: ProviderOutputTrust,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderBoundaryError {
+    EmptyRequestId,
+    EmptyPromptSummary,
+    EmptyOutputId,
+    EmptyOutputRequestId,
+    EmptyOutputContent,
+    OutputMarkedTrusted,
+}
+
+impl ProviderBoundaryError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyRequestId => "empty_request_id",
+            Self::EmptyPromptSummary => "empty_prompt_summary",
+            Self::EmptyOutputId => "empty_output_id",
+            Self::EmptyOutputRequestId => "empty_output_request_id",
+            Self::EmptyOutputContent => "empty_output_content",
+            Self::OutputMarkedTrusted => "output_marked_trusted",
+        }
+    }
+}
+
+impl ProviderRequest {
+    pub fn new(
+        id: impl Into<String>,
+        provider_kind: ProviderKind,
+        prompt_summary: impl Into<String>,
+    ) -> Result<Self, ProviderBoundaryError> {
+        let id = id.into();
+        if id.is_empty() {
+            return Err(ProviderBoundaryError::EmptyRequestId);
+        }
+
+        let prompt_summary = prompt_summary.into();
+        if prompt_summary.is_empty() {
+            return Err(ProviderBoundaryError::EmptyPromptSummary);
+        }
+
+        Ok(Self {
+            id,
+            provider_kind,
+            prompt_summary,
+        })
+    }
+}
+
+impl ProviderOutput {
+    pub fn new_untrusted(
+        id: impl Into<String>,
+        request_id: impl Into<String>,
+        provider_kind: ProviderKind,
+        content: impl Into<String>,
+        status: ProviderOutputStatus,
+    ) -> Result<Self, ProviderBoundaryError> {
+        let id = id.into();
+        if id.is_empty() {
+            return Err(ProviderBoundaryError::EmptyOutputId);
+        }
+
+        let request_id = request_id.into();
+        if request_id.is_empty() {
+            return Err(ProviderBoundaryError::EmptyOutputRequestId);
+        }
+
+        let content = content.into();
+        if content.is_empty() {
+            return Err(ProviderBoundaryError::EmptyOutputContent);
+        }
+
+        Ok(Self {
+            id,
+            request_id,
+            provider_kind,
+            content,
+            status,
+            trust: ProviderOutputTrust::Untrusted,
+        })
+    }
+}
+
+pub fn provider_output_is_authoritative(_output: &ProviderOutput) -> bool {
+    false
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExecutionStatus {
     NotStarted,
     Running,
@@ -352,6 +474,185 @@ mod tests {
 
     fn ready_replay() -> ReplayReport {
         ReplayReport::replayable(2)
+    }
+
+    #[test]
+    fn provider_request_requires_id() {
+        assert_eq!(
+            ProviderRequest::new("", ProviderKind::Local, "summary"),
+            Err(ProviderBoundaryError::EmptyRequestId)
+        );
+    }
+
+    #[test]
+    fn provider_request_requires_prompt_summary() {
+        assert_eq!(
+            ProviderRequest::new("req-1", ProviderKind::Local, ""),
+            Err(ProviderBoundaryError::EmptyPromptSummary)
+        );
+    }
+
+    #[test]
+    fn provider_output_requires_id() {
+        assert_eq!(
+            ProviderOutput::new_untrusted(
+                "",
+                "request-1",
+                ProviderKind::Local,
+                "candidate",
+                ProviderOutputStatus::Received
+            ),
+            Err(ProviderBoundaryError::EmptyOutputId)
+        );
+    }
+
+    #[test]
+    fn provider_output_requires_request_id() {
+        assert_eq!(
+            ProviderOutput::new_untrusted(
+                "output-1",
+                "",
+                ProviderKind::Local,
+                "candidate",
+                ProviderOutputStatus::Received
+            ),
+            Err(ProviderBoundaryError::EmptyOutputRequestId)
+        );
+    }
+
+    #[test]
+    fn provider_output_requires_content() {
+        assert_eq!(
+            ProviderOutput::new_untrusted(
+                "output-1",
+                "request-1",
+                ProviderKind::Local,
+                "",
+                ProviderOutputStatus::Received
+            ),
+            Err(ProviderBoundaryError::EmptyOutputContent)
+        );
+    }
+
+    #[test]
+    fn provider_output_is_always_untrusted() {
+        let output = ProviderOutput::new_untrusted(
+            "output-1",
+            "request-1",
+            ProviderKind::Local,
+            "validated approved passed safe",
+            ProviderOutputStatus::Received,
+        )
+        .expect("output should be valid");
+
+        assert_eq!(output.trust, ProviderOutputTrust::Untrusted);
+    }
+
+    #[test]
+    fn provider_output_is_not_authoritative() {
+        for provider_kind in [
+            ProviderKind::Local,
+            ProviderKind::Cloud,
+            ProviderKind::Ide,
+            ProviderKind::Unknown,
+        ] {
+            let output = ProviderOutput::new_untrusted(
+                "output-1",
+                "request-1",
+                provider_kind,
+                "approved safe",
+                ProviderOutputStatus::Received,
+            )
+            .expect("output should be valid");
+
+            assert!(!provider_output_is_authoritative(&output));
+        }
+    }
+
+    #[test]
+    fn provider_output_does_not_infer_validation_status() {
+        let output = ProviderOutput::new_untrusted(
+            "output-1",
+            "request-1",
+            ProviderKind::Local,
+            "validated passed",
+            ProviderOutputStatus::Unknown,
+        )
+        .expect("output should be valid");
+
+        assert_eq!(output.trust, ProviderOutputTrust::Untrusted);
+        assert_eq!(output.status, ProviderOutputStatus::Unknown);
+    }
+
+    #[test]
+    fn provider_output_does_not_infer_policy_status() {
+        let output = ProviderOutput::new_untrusted(
+            "output-1",
+            "request-1",
+            ProviderKind::Cloud,
+            "approved safe",
+            ProviderOutputStatus::Rejected,
+        )
+        .expect("output should be valid");
+
+        assert_eq!(output.trust, ProviderOutputTrust::Untrusted);
+        assert_eq!(output.status, ProviderOutputStatus::Rejected);
+    }
+
+    #[test]
+    fn provider_boundary_error_codes_are_stable() {
+        assert_eq!(
+            ProviderBoundaryError::EmptyRequestId.code(),
+            "empty_request_id"
+        );
+        assert_eq!(
+            ProviderBoundaryError::EmptyPromptSummary.code(),
+            "empty_prompt_summary"
+        );
+        assert_eq!(
+            ProviderBoundaryError::EmptyOutputId.code(),
+            "empty_output_id"
+        );
+        assert_eq!(
+            ProviderBoundaryError::EmptyOutputRequestId.code(),
+            "empty_output_request_id"
+        );
+        assert_eq!(
+            ProviderBoundaryError::EmptyOutputContent.code(),
+            "empty_output_content"
+        );
+        assert_eq!(
+            ProviderBoundaryError::OutputMarkedTrusted.code(),
+            "output_marked_trusted"
+        );
+    }
+
+    #[test]
+    fn provider_boundary_accepts_local_provider_kind() {
+        let request = ProviderRequest::new("req-1", ProviderKind::Local, "prompt")
+            .expect("request should be valid");
+        assert_eq!(request.provider_kind, ProviderKind::Local);
+    }
+
+    #[test]
+    fn provider_boundary_accepts_cloud_provider_kind() {
+        let request = ProviderRequest::new("req-1", ProviderKind::Cloud, "prompt")
+            .expect("request should be valid");
+        assert_eq!(request.provider_kind, ProviderKind::Cloud);
+    }
+
+    #[test]
+    fn provider_boundary_accepts_ide_provider_kind() {
+        let request =
+            ProviderRequest::new("req-1", ProviderKind::Ide, "prompt").expect("valid request");
+        assert_eq!(request.provider_kind, ProviderKind::Ide);
+    }
+
+    #[test]
+    fn provider_boundary_accepts_unknown_provider_kind() {
+        let request = ProviderRequest::new("req-1", ProviderKind::Unknown, "prompt")
+            .expect("request should be valid");
+        assert_eq!(request.provider_kind, ProviderKind::Unknown);
     }
 
     #[test]

@@ -6,6 +6,23 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.31 - 2026-05-03
+
+**Status:** Phase 31 - Provider Adapter Boundary
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to define a typed Phase 31 provider adapter boundary with deterministic constructors, typed boundary errors, explicit untrusted provider output handling, and deterministic tests that enforce non-authoritative provider output behavior.
+- Updated `checklists/current-phase.md` to Phase 31 procedural scope and required validation/static scan checklist.
+- Updated `CHANGELOG.md` with `v0.0.31`.
+
+### Notes
+
+- Phase 31 defines a provider adapter boundary only.
+- Provider output is represented as untrusted candidate material and is never authoritative.
+- No real provider calls, HTTP behavior, async behavior, provider authentication, model invocation, validation execution, policy execution, ledger append, replay, audit, API server, CLI behavior, UI behavior, schema change, or new dependency was implemented.
+- Raw provider output remains untrusted.
+
 ## v0.0.30 - 2026-05-03
 
 **Status:** Phase 30 - Roadmap and Changelog Alignment Check + Script Boundary Audit
