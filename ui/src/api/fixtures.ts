@@ -8,6 +8,18 @@ export const uiReadModelFixture: UiReadModel = {
     authority: "rust",
     summary: "Placeholder lifecycle projection for read-only UI preview."
   },
+  run: {
+    runId: "run-fixture-0023",
+    title: "Phase 23 Read-Only Overview Fixture",
+    status: "ready",
+    currentLifecycle: "Evaluating",
+    executionDecision: "allow",
+    promotionDecision: "hold",
+    replayReadiness: "replayable",
+    cleanOutputAvailable: true,
+    authority: "rust",
+    summary: "Static run overview projection for display-only UI review."
+  },
   decisions: [
     {
       label: "Policy gate",
