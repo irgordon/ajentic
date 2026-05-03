@@ -6,6 +6,30 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.35 - 2026-05-03
+
+**Status:** Phase 35 - Roadmap and Changelog Alignment Check + Replay Verification Idempotency Audit
+
+### Added
+
+- Added `docs/operations/repository-audit-phase-35.md` with an advisory Phase 35 roadmap/changelog alignment and replay-verification idempotency audit summary.
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` with minimal replay-verification idempotency tests proving repeated verification is deterministic for valid and invalid ledgers and does not mutate or repair ledger state.
+- Updated `checklists/current-phase.md` to Phase 35 procedural scope, replay-verification idempotency checklist, findings/deferred/validation-log tables, and required validation/static scan commands.
+- Updated `CHANGELOG.md` with `v0.0.35`.
+- Updated `docs/operations/repository-audit-phase-35.md` during Phase 35 audit finalization.
+
+### Notes
+
+- Phase 35 verifies roadmap/changelog alignment before release-candidate planning.
+- Phase 35 audits replay verification idempotency and read-only behavior.
+- Replay verification must not append, remove, reorder, mutate, repair, persist, or write audit state.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- No replay repair, runtime behavior, UI behavior, provider adapter, schema change, workflow change, governance change, architecture change, release-candidate readiness claim, or production capability claim was implemented.
+
 ## v0.0.34 - 2026-05-03
 
 **Status:** Phase 34 - Production Hardening
