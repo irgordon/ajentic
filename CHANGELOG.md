@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.29 - 2026-05-03
+
+**Status:** Phase 29 - Responsive UI and Operator Usability Hardening
+
+### Changed
+
+- Updated `ui/src/app/AppShell.tsx` to improve human-readable projection summary hierarchy and explicit text-visible trust/authority wording.
+- Updated `ui/src/components/IntentPreviewPanel.tsx` and `ui/src/components/StatusPill.tsx` to strengthen readable request-preview, status, and authority text surfaces without introducing behavior.
+- Updated `ui/src/styles/tokens.css` and `ui/src/styles/layout.css` to improve responsive shell spacing, card/list readability, wrapping behavior, and focus-visible support for desktop/tablet/mobile layouts.
+- Updated `checklists/current-phase.md` to Phase 29 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.29`.
+
+### Notes
+
+- Phase 29 improves responsive layout, readability, hierarchy, focus styling, and operator usability for existing fixture-backed UI surfaces.
+- The UI remains non-authoritative, fixture-backed, read-only/request-preview only.
+- No live API integration, async behavior, runtime authority, executable operator controls, provider calls, mutation behavior, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.28 - 2026-05-03
 
 **Status:** Phase 28 - Operator Intent Controls UI

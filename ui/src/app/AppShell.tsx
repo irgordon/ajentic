@@ -15,13 +15,15 @@ export function AppShell(): string {
   const overview = OverviewScreen();
 
   const projectionSummary = [
+    "Run and trust summary (read-only)",
     `- Run: ${readModel.run.title} (${readModel.run.runId})`,
-    `- Run status: ${readModel.run.status}`,
-    `- Lifecycle: ${readModel.lifecycle.summary}`,
-    `- Execution decision: ${readModel.run.executionDecision}`,
-    `- Promotion decision: ${readModel.run.promotionDecision}`,
-    `- Replay: ${readModel.replay.summary}`,
-    `- Output trust: rawOutputTrusted=${readModel.output.rawOutputTrusted}`
+    `- Status text: ${readModel.run.status}`,
+    `- Lifecycle summary: ${readModel.lifecycle.summary}`,
+    `- Execution decision (text): ${readModel.run.executionDecision}`,
+    `- Promotion decision (text): ${readModel.run.promotionDecision}`,
+    `- Replay summary: ${readModel.replay.summary}`,
+    `- Authority text: ${readModel.run.authority}`,
+    `- Trust text: rawOutputTrusted=${readModel.output.rawOutputTrusted} (raw model output remains untrusted until Rust validation)`
   ].join("\n");
 
   return [header, "", "Primary navigation", navigation, "", "Main content", overview, "", "Projection summary", projectionSummary, "", "Planned routes", routes].join("\n");

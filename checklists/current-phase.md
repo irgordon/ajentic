@@ -4,40 +4,37 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 28 - Operator Intent Controls UI
+# Current Phase: Phase 29 - Responsive UI and Operator Usability Hardening
 
-This is the active procedural execution surface for Phase 28.
+This is the active procedural execution surface for Phase 29.
 
 ## Phase name
 
-Phase 28 - Operator Intent Controls UI
+Phase 29 - Responsive UI and Operator Usability Hardening
 
 ## Phase goal
 
-Add typed, display-only operator intent preview controls that render request-shaped data without execution, submission, mutation, or authority bypass.
+Improve responsive layout, readability, and operator usability for the fixture-backed browser UI while preserving read-only/request-preview boundaries.
 
 ## Allowed surfaces
 
-- `ui/src/api/projections.ts`
-- `ui/src/api/fixtures.ts`
-- `ui/src/api/readModel.ts`
+- `ui/src/app/AppShell.tsx`
+- `ui/src/screens/*.tsx`
 - `ui/src/screens/OverviewScreen.tsx`
 - `ui/src/components/*.tsx`
-- `ui/src/styles/*.css`
+- `ui/src/styles/tokens.css`
+- `ui/src/styles/layout.css`
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Task checklist
 
-- [x] Update active checklist to Phase 28 scope.
-- [x] Extend UI read-only projection model with `OperatorIntentPreviewProjection`.
-- [x] Update `UiReadModel` to include `operatorIntentPreviews`.
-- [x] Add static fixture-backed operator intent preview projection data for approve/reject/retry/replay/context rebuild/memory snapshot request shapes.
-- [x] Keep `getUiReadModel()` synchronous and fixture-backed.
-- [x] Add display-only `IntentPreviewPanel` component for typed intent request preview display.
-- [x] Render request-only operator intent previews on `OverviewScreen` with explicit trust-boundary text.
-- [x] Preserve non-authoritative read-only UI boundaries with no submit, mutation, network, provider, replay, audit, or execution behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.28`.
+- [x] Update active checklist to Phase 29 scope.
+- [x] Improve responsive shell and layout token usage for desktop/tablet/mobile readability.
+- [x] Improve spacing and hierarchy in screen and component read-only displays.
+- [x] Preserve explicit trust/authority/status text and request-preview-only boundaries.
+- [x] Keep UI fixture-backed, synchronous, and non-authoritative with no executable controls.
+- [x] Add `CHANGELOG.md` entry `v0.0.29`.
 - [x] Run required validation commands and static scan.
 
 ## Validation checklist

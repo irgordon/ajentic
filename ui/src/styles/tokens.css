@@ -3,10 +3,12 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
 
   --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-size-xs: 0.8125rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.25rem;
@@ -14,6 +16,7 @@
 
   --border-width: 1px;
   --border-radius: 0.5rem;
+  --border-radius-lg: 0.75rem;
   --border-color: #c9d1dd;
 
   --color-bg: #f5f7fb;
@@ -21,4 +24,6 @@
   --color-text: #1f2430;
   --color-muted-text: #4b5565;
   --color-focus: #1d4ed8;
+
+  --content-max-width: 74rem;
 }
