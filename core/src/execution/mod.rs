@@ -1881,6 +1881,68 @@ mod tests {
         assert_eq!(before, after);
     }
 
+    #[test]
+    fn promotion_replay_verification_is_idempotent_for_valid_promotion_ledger() {
+        let ledger = promoted_tier_1_ledger();
+
+        let first = verify_promotion_replay(&ledger);
+        let second = verify_promotion_replay(&ledger);
+
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn promotion_replay_verification_does_not_mutate_valid_ledger() {
+        let ledger = promoted_tier_1_ledger();
+        let before_events = ledger.events().to_vec();
+        let before_last_revision = ledger.last_revision();
+
+        let _ = verify_promotion_replay(&ledger);
+        let _ = verify_promotion_replay(&ledger);
+
+        assert_eq!(ledger.events().len(), before_events.len());
+        assert_eq!(ledger.events(), before_events.as_slice());
+        assert_eq!(ledger.last_revision(), before_last_revision);
+    }
+
+    fn invalid_promotion_ledger() -> crate::ledger::Ledger {
+        crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .expect("append should succeed")
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .expect("append should succeed")
+    }
+
+    #[test]
+    fn promotion_replay_verification_is_idempotent_for_invalid_ledger() {
+        let invalid_ledger = invalid_promotion_ledger();
+
+        let first = verify_promotion_replay(&invalid_ledger);
+        let second = verify_promotion_replay(&invalid_ledger);
+
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn promotion_replay_verification_does_not_repair_invalid_ledger() {
+        let invalid_ledger = invalid_promotion_ledger();
+        let before_events = invalid_ledger.events().to_vec();
+        let before_last_revision = invalid_ledger.last_revision();
+
+        let first = verify_promotion_replay(&invalid_ledger);
+        let second = verify_promotion_replay(&invalid_ledger);
+
+        assert_eq!(first.status, PromotionReplayVerificationStatus::NotVerified);
+        assert_eq!(
+            second.status,
+            PromotionReplayVerificationStatus::NotVerified
+        );
+        assert_eq!(first, second);
+        assert_eq!(invalid_ledger.events().len(), before_events.len());
+        assert_eq!(invalid_ledger.events(), before_events.as_slice());
+        assert_eq!(invalid_ledger.last_revision(), before_last_revision);
+    }
+
     fn untrusted_provider_output() -> ProviderOutput {
         ProviderOutput::new_untrusted(
             "output-1",
