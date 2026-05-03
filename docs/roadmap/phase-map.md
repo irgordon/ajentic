@@ -25,6 +25,8 @@ Completed accepted work is recorded in:
 ```text
 CHANGELOG.md
 ```
+
+Historical implementation through v0.0.19 followed a more granular Rust authority sequence than this roadmap originally projected. Completed work is recorded only in CHANGELOG.md. This roadmap resumes from the current repository state and defines planned work from the next phase forward.
 ## Production outcome
 
 The production outcome is a human-usable harness application with a working browser UI that can constrain, inspect, validate, and record local or cloud model-driven work.
@@ -1345,283 +1347,746 @@ Intent is a request. Rust decides.
 
 ⸻
 
-## Phase 20: Responsive UI and operator usability hardening
+## Phase 20: Roadmap Alignment Check and UI Entry Reset
 
 Milestone group: Milestone 4
 
-Primary goal: Make the browser UI usable on desktop, tablet, and mobile.
+Primary goal: Verify roadmap/changelog alignment after reconciliation and prepare the repository for UI work without implementing UI behavior.
 
 Scope:
 
-* Responsive layout.
-* Navigation refinement.
-* Readable status hierarchy.
-* Empty states.
-* Error states.
-* Keyboard navigation.
-* Touch target review.
-* Raw-data disclosure refinement.
-* Visual distinction for authority states.
+* Compare `docs/roadmap/phase-map.md` to `CHANGELOG.md`.
+* Correct planned future sequencing drift only.
+* Reset `checklists/current-phase.md` entry framing for UI planning handoff.
 
 Allowed:
 
-* ui/
-* UI tests
-* accessibility checks where scoped
+* `docs/roadmap/phase-map.md`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
 
 Not allowed:
 
-* new runtime authority
-* new policy logic in UI
-* UI-only validation
-* terminal-only critical review flows
-* raw JSON as primary workflow
+* UI implementation
+* runtime behavior
+* provider adapter work
+* schema changes
 
 Validation gate:
 
 Required commands:
 
 ```bash
-cd ui
-npm run typecheck
-npm run lint
-npm run build
-```
-
-Required tests/checks:
-
-* desktop layout usable
-* tablet layout usable
-* mobile layout usable
-* current state visible or quickly reachable
-* required operator attention visible
-* core review flow does not require terminal-only inspection
-* status does not rely on color alone
-
-Exit criteria:
-
-Phase 20 is complete when the UI can support real human review across desktop, tablet, and mobile layouts.
-
-Boundary note:
-
-Human usability is part of production readiness.
-
-⸻
-
-## Phase 21: Local LLM and IDE integration boundary
-
-Milestone group: Milestone 5
-
-Primary goal: Make the harness applicable to local LLM and IDE-style model workflows.
-
-Scope:
-
-* Local model connection path.
-* IDE adapter request path.
-* Codex Desktop-style integration boundary.
-* Antigravity-style integration boundary.
-* Local operator startup path.
-* Provider boundary documentation.
-* UI projection support for integrated runs.
-
-Allowed:
-
-* core/src/api/
-* core/src/execution/
-* scripts/
-* docs/operations/
-* integration tests where scoped
-
-Not allowed:
-
-* IDE-owned authority
-* provider-owned authority
-* direct IDE-to-ledger writes
-* direct IDE-to-memory writes
-* bypassing validation for IDE convenience
-* terminal-only review requirement
-
-Validation gate:
-
-Required commands:
-
-```bash
-cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
 ```
 
-Required tests/checks:
-
-* local model output enters candidate path
-* IDE-style output enters candidate path
-* provider output remains untrusted
-* UI can display integrated run projections
-* controlled run does not require terminal-only review
-* integration boundary can be disabled or rejected deterministically
-
 Exit criteria:
 
-Phase 21 is complete when the harness can attach to local or IDE-style model workflows without surrendering authority.
+Roadmap and changelog alignment is verified, future planned sequencing is corrected if needed, and no implementation behavior is changed.
 
 Boundary note:
 
-Integration increases reach. It must not reduce control.
+This is a planning reconciliation phase only.
 
-⸻
+## Phase 21: Browser UI Shell Baseline
 
-## Phase 22: Production hardening
+Milestone group: Milestone 4
 
-Milestone group: Milestone 5
-
-Primary goal: Harden the harness for controlled production use.
+Primary goal: Create the browser UI shell and layout structure without runtime authority, data mutation, or API integration.
 
 Scope:
 
-* Negative-path tests.
-* Malformed input tests.
-* Replay integrity tests.
-* Memory provenance tests.
-* UI intent contract tests.
-* Provider boundary tests.
-* CI hardening.
-* Documentation link checks where scoped.
-* Packaging review.
+* App shell layout.
+* Primary navigation layout.
+* Non-authoritative route scaffolding.
 
 Allowed:
 
-* core/
-* ui/
-* tests/
-* schemas/
-* .github/workflows/
-* scripts/
-* docs/operations/
-* checklists/release.md
+* `ui/` layout shell files
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* runtime authority paths
+* state mutation
+* provider calls
+* direct API integration
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+The UI shell builds and provides non-authoritative layout scaffolding only.
+
+Boundary note:
+
+UI visibility is non-authoritative and intent-free in this phase.
+
+## Phase 22: Read-Only API Projection Surface for UI
+
+Milestone group: Milestone 4
+
+Primary goal: Add read-only projection shapes or mock-safe UI data boundaries for existing Rust authority outputs without serving HTTP or mutating state.
+
+Scope:
+
+* Read-only projection shapes.
+* Mock-safe boundary adapters.
+* Projection typing alignment.
+
+Allowed:
+
+* `core/src/api/` projection shape files
+* `ui/src/api/` typed read-only adapters
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* HTTP serving
+* state mutation
+* policy execution
+* provider integration
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Read-only projection boundaries exist for UI consumption without opening mutation surfaces.
+
+Boundary note:
+
+Projection shape exposure does not transfer authority.
+
+## Phase 23: State and Run Overview UI
+
+Milestone group: Milestone 4
+
+Primary goal: Display lifecycle, execution decision, promotion decision, and run summary projections in the browser UI as read-only views.
+
+Scope:
+
+* State and run overview screens.
+* Read-only lifecycle and decision cards.
+* Run summary projection presentation.
+
+Allowed:
+
+* `ui/src/screens/`
+* `ui/src/components/`
+* `ui/src/api/` read-only consumers
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* intent submission controls
+* mutation paths
+* provider invocation
+* policy decision logic in UI
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Operators can inspect state and run overview projections in read-only UI views.
+
+Boundary note:
+
+Displayed decisions remain Rust-owned projections.
+
+## Phase 24: Context Packet and Memory Inspection UI
+
+Milestone group: Milestone 4
+
+Primary goal: Display context packet and memory snapshot projections in the browser UI as read-only inspection surfaces.
+
+Scope:
+
+* Context inspection views.
+* Memory snapshot inspection views.
+* Provenance display for inspected data.
+
+Allowed:
+
+* `ui/src/screens/`
+* `ui/src/components/`
+* `ui/src/api/` read-only consumers
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* memory edits
+* context mutation
+* policy mutation
+* runtime execution
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Context and memory projections are inspectable as read-only surfaces.
+
+Boundary note:
+
+Inspection capability does not permit data mutation.
+
+## Phase 25: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 4
+
+Primary goal: Compare planned roadmap sequencing against CHANGELOG.md and correct future plan drift before continuing UI expansion.
+
+Scope:
+
+* Planned-vs-historical drift audit.
+* Future phase sequencing corrections only.
+* Checklist handoff update.
+
+Allowed:
+
+* `docs/roadmap/phase-map.md`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* implementation behavior changes
+* governance changes
+* architecture changes
+* status tracking in roadmap
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Roadmap future sequencing is re-aligned to changelog history with no implementation behavior changes.
+
+Boundary note:
+
+Alignment phases update planned sequencing only.
+
+## Phase 26: Policy, Validation, and Execution Decision UI
+
+Milestone group: Milestone 4
+
+Primary goal: Display policy, validation, and execution decision results as readable, non-authoritative UI projections.
+
+Scope:
+
+* Policy result views.
+* Validation result views.
+* Execution decision views.
+
+Allowed:
+
+* `ui/src/screens/`
+* `ui/src/components/`
+* `ui/src/api/` read-only consumers
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* UI decision authority
+* direct policy evaluation
+* state mutation
+* provider calls
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Policy, validation, and execution decisions are visible as read-only projections.
+
+Boundary note:
+
+Decision authority remains in Rust.
+
+## Phase 27: Ledger, Replay, Audit, and Clean Output UI
+
+Milestone group: Milestone 4
+
+Primary goal: Display ledger timeline, replay readiness/reconstruction results, audit projections, and clean output summaries without granting UI authority.
+
+Scope:
+
+* Ledger timeline views.
+* Replay readiness and reconstruction views.
+* Audit projection views.
+* Clean output summary views.
+
+Allowed:
+
+* `ui/src/screens/`
+* `ui/src/components/`
+* `ui/src/api/` read-only consumers
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* ledger mutation
+* replay repair
+* audit mutation
+* clean output authority changes
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Operators can inspect ledger/replay/audit/output projections with no authority leakage.
+
+Boundary note:
+
+UI remains projection-only for ledger, replay, audit, and output.
+
+## Phase 28: Operator Intent Controls UI
+
+Milestone group: Milestone 4
+
+Primary goal: Add typed operator intent controls that emit intent-shaped data only; no direct mutation, policy bypass, or execution authority.
+
+Scope:
+
+* Intent control components.
+* Typed intent payload emission.
+* Rejection reason display.
+
+Allowed:
+
+* `ui/src/components/`
+* `ui/src/api/` intent clients
+* `tests/ui-contracts/`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* direct mutation
+* policy bypass
+* validation bypass
+* provider invocation authority
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+UI emits typed intents only and cannot mutate authority surfaces directly.
+
+Boundary note:
+
+Intent submission is request-only.
+
+## Phase 29: Responsive UI and Operator Usability Hardening
+
+Milestone group: Milestone 4
+
+Primary goal: Improve desktop, tablet, and mobile usability, including responsive layout, readable hierarchy, empty states, error states, and operator clarity.
+
+Scope:
+
+* Responsive layout refinements.
+* Usability and hierarchy improvements.
+* Empty/error state clarity.
+
+Allowed:
+
+* `ui/`
+* UI tests
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* new authority paths
+* policy logic in UI
+* provider authority
+* runtime mutation behavior
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+UI remains non-authoritative while usability improves across target form factors.
+
+Boundary note:
+
+Usability hardening must not add authority leakage.
+
+## Phase 30: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 5
+
+Primary goal: Compare planned roadmap sequencing against CHANGELOG.md and correct future plan drift before provider and integration work.
+
+Scope:
+
+* Planned-vs-historical drift audit.
+* Future sequencing corrections only.
+* Provider/integration readiness handoff update.
+
+Allowed:
+
+* `docs/roadmap/phase-map.md`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* provider implementation
+* runtime implementation
+* governance changes
+* roadmap completion status tracking
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Roadmap future sequencing is corrected for drift before provider and integration expansion.
+
+Boundary note:
+
+Alignment phases remain documentation-only planning maintenance.
+
+## Phase 31: Provider Adapter Boundary
+
+Milestone group: Milestone 5
+
+Primary goal: Define and implement the first provider adapter boundary without making provider output authoritative.
+
+Scope:
+
+* Provider adapter request/response boundary.
+* Untrusted provider output intake path.
+* Validation handoff hooks.
+
+Allowed:
+
+* `core/src/execution/`
+* `core/src/api/`
+* provider-boundary tests
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* provider-owned policy
+* provider-owned state
+* direct provider-to-ledger writes
+* trusted provider output
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+A bounded provider adapter path exists with untrusted output treatment preserved.
+
+Boundary note:
+
+Provider output remains candidate input until Rust validation.
+
+## Phase 32: End-to-End Controlled Model Run Loop
+
+Milestone group: Milestone 5
+
+Primary goal: Connect bounded context, provider output intake, validation, decisions, ledger recording, replay, audit, and clean output through a controlled local flow.
+
+Scope:
+
+* End-to-end local controlled flow wiring.
+* Accepted/rejected branching.
+* Ledger, replay, and audit linkages.
+
+Allowed:
+
+* `core/`
+* bounded tests
+* minimal script updates
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* direct acceptance of raw model output
+* skipping validation
+* skipping ledger events for accepted outcomes
+* UI authority shortcuts
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Controlled model run flow completes deterministically with replay/audit-supporting outputs.
+
+Boundary note:
+
+Controlled flow requires validation before authority acceptance.
+
+## Phase 33: Local LLM and IDE Integration Boundary
+
+Milestone group: Milestone 5
+
+Primary goal: Define local LLM and IDE integration surfaces without weakening Rust-owned authority boundaries.
+
+Scope:
+
+* Local LLM integration boundary.
+* IDE integration boundary.
+* Integration projection wiring.
+
+Allowed:
+
+* `core/src/api/`
+* `core/src/execution/`
+* `scripts/`
+* integration tests
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* IDE/provider authority ownership
+* direct integration writes to ledger or memory
+* validation bypasses
+* terminal-only operational dependency
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Local and IDE integration boundaries exist while retaining Rust-owned authority constraints.
+
+Boundary note:
+
+Integration expands entry points, not authority surfaces.
+
+## Phase 34: Production Hardening
+
+Milestone group: Milestone 5
+
+Primary goal: Harden failure paths, validation coverage, packaging boundaries, and operational safety before any production-capable claim.
+
+Scope:
+
+* Failure-path expansion.
+* Validation and negative-path coverage expansion.
+* Packaging boundary and safety checks.
+
+Allowed:
+
+* `core/`
+* `ui/`
+* `tests/`
+* `schemas/`
+* `.github/workflows/`
+* `scripts/`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
 
 Not allowed:
 
 * new unplanned feature surfaces
 * governance drift
 * architecture drift
-* UI authority shortcuts
-* provider trust shortcuts
-* skipped validation for release convenience
+* authority shortcuts for release speed
 
 Validation gate:
 
 Required commands:
 
 ```bash
-cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
-find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
 ```
-
-Required tests/checks:
-
-* invalid external input fails closed
-* malformed provider output fails
-* missing evidence fails
-* replay integrity violations fail
-* UI actions remain intent-only
-* memory provenance required
-* CI gates block drift
-* release checklist is usable
 
 Exit criteria:
 
-Phase 22 is complete when known authority leakage, replay integrity, provider trust, UI mutation, and drift-prevention paths have negative-path coverage.
+High-risk failure modes and authority-boundary regressions are covered by deterministic checks.
 
 Boundary note:
 
-Hardening should reduce risk without adding new scope.
+Hardening reduces risk without expanding product scope.
 
-## Phase N: Production-ready harness application
+## Phase 35: Roadmap and Changelog Alignment Check
 
-Milestone group: Milestone N
+Milestone group: Milestone 5
 
-Primary goal: Release a production-ready harness application for human-operated model work.
+Primary goal: Compare planned roadmap sequencing against CHANGELOG.md and correct future plan drift before release-candidate planning.
 
 Scope:
 
-* Rust authority core.
-* Browser UI.
-* Local/cloud provider boundaries.
-* Local/IDE integration boundary.
-* Governed memory.
-* Context inspection.
-* Deterministic validation.
-* Ledger.
-* Replay.
-* Audit.
-* CI gates.
-* Operator workflows.
+* Planned-vs-historical drift audit.
+* Future sequencing corrections only.
+* Release-candidate planning handoff update.
 
 Allowed:
 
-* release packaging
-* release checklist
-* changelog release entry
-* production readiness validation
-* final documentation alignment
+* `docs/roadmap/phase-map.md`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
 
 Not allowed:
 
-* unvalidated provider output
-* UI authority
-* Bash authority
-* workflow-only governance
-* memory policy
-* unreplayable accepted runs where replay is required
-* raw JSON-only human review flow
-* undocumented production limitations
+* release-candidate implementation
+* runtime behavior changes
+* roadmap completion history
+* governance or architecture mutations
 
 Validation gate:
 
 Required commands:
 
 ```bash
-cargo test --workspace
 ./scripts/check.sh
 cd ui && npm run typecheck && npm run lint && npm run build
-find schemas -type f -name "*.json" -print0 | xargs -0 -n1 python3 -m json.tool > /dev/null
 ```
-
-Required production checks:
-
-* operator can run and inspect a model workflow without living in the terminal
-* operator can see current state, context, memory, policy, validation, timeline, replay, and clean output
-* raw model output is visually distinct from clean output
-* local/cloud model output enters the harness as untrusted candidate material
-* accepted output is ledgered
-* accepted run can replay where required
-* audit projection is usable
-* UI works on desktop, tablet, and mobile
-* CI blocks structure, schema, memory, and truth-dimension drift
 
 Exit criteria:
 
-Phase N is complete when the harness is usable by a human operator for controlled model-driven work and can attach to local/cloud/IDE-style model workflows without losing Rust-owned authority.
+Roadmap future sequencing is aligned with changelog history before release-candidate planning.
 
 Boundary note:
 
-Production-ready means usable, inspectable, replayable, and governed. It does not mean autonomous.
+Alignment phases preserve truth-dimension boundaries.
 
-This map is agent-usable because every phase has the same control structure:
+## Phase 36: Release Candidate Boundary
 
-```text
-Phase
-Milestone group
-Primary goal
-Scope
-Allowed
-Not allowed
-Validation gate
-Required tests/checks
-Exit criteria
-Boundary note
+Milestone group: Milestone 5
+
+Primary goal: Define the minimum release-candidate capability boundary and required evidence without claiming production readiness prematurely.
+
+Scope:
+
+* Release-candidate capability boundary definition.
+* Required evidence checklist definition.
+* Release-candidate validation framing.
+
+Allowed:
+
+* `checklists/release.md`
+* `docs/roadmap/phase-map.md`
+* `checklists/current-phase.md`
+* `CHANGELOG.md`
+
+Not allowed:
+
+* production-ready claims
+* authority model changes
+* provider trust shortcuts
+* roadmap completion status reporting
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
 ```
 
-It also avoids the main failure modes: agents will not need to infer scope, invent validation, or decide where to record progress.
+Exit criteria:
+
+Release-candidate boundary and evidence requirements are explicit without claiming production readiness.
+
+Boundary note:
+
+Release-candidate definition is planning and evidence framing, not final production assertion.
+
+### Recurring roadmap/changelog alignment requirement
+
+Every fifth phase after this reconciliation must include a roadmap/changelog alignment check. The check must compare `docs/roadmap/phase-map.md` against `CHANGELOG.md`, identify drift, and update only planned future sequencing. It must not move completed work out of `CHANGELOG.md` or record implementation status in the roadmap.

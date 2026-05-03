@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.19.5 - 2026-05-03
+
+**Status:** Phase 19.5 - Roadmap and Changelog Reconciliation
+
+### Changed
+
+- Updated `docs/roadmap/phase-map.md` to reconcile planned future sequencing with the conservative post-`v0.0.19` repository state while preserving roadmap planned-truth boundaries.
+- Updated `checklists/current-phase.md` for Phase 19.5 roadmap/changelog reconciliation scope.
+- Updated `CHANGELOG.md` with `v0.0.19.5`.
+
+### Notes
+
+- Phase 19.5 reconciles planned roadmap sequencing with the more granular historical implementation path recorded in `CHANGELOG.md`.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth and must not record completed implementation status.
+- Future roadmap/changelog alignment checks are scheduled every 5 phases.
+- No runtime harness behavior, UI behavior, provider adapter, schema change, workflow change, or governance change was implemented.
+
 ## v0.0.19 - 2026-05-02
 
 **Status:** Phase 19 - Operator Intent Routing Baseline
