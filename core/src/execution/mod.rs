@@ -456,6 +456,331 @@ pub fn verify_promotion_replay(
     )
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledRunStatus {
+    Accepted,
+    Rejected,
+    Blocked,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledRunReason {
+    RunAccepted,
+    ProviderOutputInvalid,
+    LifecycleNotPassed,
+    PolicyNotAllowed,
+    ValidationNotPassed,
+    ExecutionNotAllowed,
+    PromotionNotAllowed,
+    PromotionRecordInvalid,
+    LedgerAppendFailed,
+    PromotionReplayNotVerified,
+}
+
+impl ControlledRunReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::RunAccepted => "run_accepted",
+            Self::ProviderOutputInvalid => "provider_output_invalid",
+            Self::LifecycleNotPassed => "lifecycle_not_passed",
+            Self::PolicyNotAllowed => "policy_not_allowed",
+            Self::ValidationNotPassed => "validation_not_passed",
+            Self::ExecutionNotAllowed => "execution_not_allowed",
+            Self::PromotionNotAllowed => "promotion_not_allowed",
+            Self::PromotionRecordInvalid => "promotion_record_invalid",
+            Self::LedgerAppendFailed => "ledger_append_failed",
+            Self::PromotionReplayNotVerified => "promotion_replay_not_verified",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledRunRequest {
+    pub run_id: String,
+    pub context_packet_id: String,
+    pub provider_output: ProviderOutput,
+    pub lifecycle: crate::state::LifecycleState,
+    pub policy: crate::policy::PolicyResult,
+    pub validation: crate::validation::ValidationResult,
+    pub replay: crate::replay::ReplayReport,
+    pub ledger: crate::ledger::Ledger,
+    pub actor: crate::ledger::LedgerActor,
+    pub evidence_refs: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledRunResult {
+    pub status: ControlledRunStatus,
+    pub reason: ControlledRunReason,
+    pub execution_decision: ExecutionDecisionReport,
+    pub promotion_decision: PromotionDecisionReport,
+    pub ledger: crate::ledger::Ledger,
+    pub promotion_replay: PromotionReplayVerificationReport,
+    pub clean_output_summary: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledRunError {
+    EmptyRunId,
+    EmptyContextPacketId,
+    MissingEvidenceRefs,
+}
+
+impl ControlledRunError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyRunId => "empty_run_id",
+            Self::EmptyContextPacketId => "empty_context_packet_id",
+            Self::MissingEvidenceRefs => "missing_evidence_refs",
+        }
+    }
+}
+
+impl ControlledRunRequest {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        run_id: impl Into<String>,
+        context_packet_id: impl Into<String>,
+        provider_output: ProviderOutput,
+        lifecycle: crate::state::LifecycleState,
+        policy: crate::policy::PolicyResult,
+        validation: crate::validation::ValidationResult,
+        replay: crate::replay::ReplayReport,
+        ledger: crate::ledger::Ledger,
+        actor: crate::ledger::LedgerActor,
+        evidence_refs: Vec<String>,
+    ) -> Result<Self, ControlledRunError> {
+        let run_id = run_id.into();
+        if run_id.is_empty() {
+            return Err(ControlledRunError::EmptyRunId);
+        }
+        let context_packet_id = context_packet_id.into();
+        if context_packet_id.is_empty() {
+            return Err(ControlledRunError::EmptyContextPacketId);
+        }
+        if evidence_refs.is_empty() {
+            return Err(ControlledRunError::MissingEvidenceRefs);
+        }
+
+        Ok(Self {
+            run_id,
+            context_packet_id,
+            provider_output,
+            lifecycle,
+            policy,
+            validation,
+            replay,
+            ledger,
+            actor,
+            evidence_refs,
+        })
+    }
+}
+
+pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRunResult {
+    let failed = |status, reason, execution_decision, promotion_decision, promotion_replay| {
+        ControlledRunResult {
+            status,
+            reason,
+            execution_decision,
+            promotion_decision,
+            ledger: request.ledger.clone(),
+            promotion_replay,
+            clean_output_summary: None,
+        }
+    };
+
+    if provider_output_is_authoritative(&request.provider_output) {
+        return failed(
+            ControlledRunStatus::Rejected,
+            ControlledRunReason::ProviderOutputInvalid,
+            ExecutionDecisionReport::blocked(ExecutionDecisionReason::ReplayNotReady),
+            PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+            PromotionReplayVerificationReport::not_verified(
+                PromotionReplayVerificationReason::LedgerNotReplayReady,
+            ),
+        );
+    }
+
+    let execution = decide_execution(
+        request.lifecycle,
+        &request.policy,
+        &request.validation,
+        &request.replay,
+    );
+    match (execution.decision, execution.reason) {
+        (ExecutionDecision::Rejected, ExecutionDecisionReason::LifecycleNotPassed) => {
+            return failed(
+                ControlledRunStatus::Rejected,
+                ControlledRunReason::LifecycleNotPassed,
+                execution,
+                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        (ExecutionDecision::Blocked, ExecutionDecisionReason::PolicyNotAllowed) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PolicyNotAllowed,
+                execution,
+                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        (ExecutionDecision::Blocked, ExecutionDecisionReason::ValidationNotPassed) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::ValidationNotPassed,
+                execution,
+                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        (ExecutionDecision::Blocked, ExecutionDecisionReason::ReplayNotReady) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::ExecutionNotAllowed,
+                execution,
+                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        _ if execution.decision != ExecutionDecision::Allowed => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::ExecutionNotAllowed,
+                execution,
+                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        _ => {}
+    }
+
+    let promotion = decide_promotion(request.lifecycle, &execution);
+    match (promotion.decision, promotion.reason) {
+        (PromotionDecision::Rejected, PromotionDecisionReason::LifecycleNotPassed) => {
+            return failed(
+                ControlledRunStatus::Rejected,
+                ControlledRunReason::LifecycleNotPassed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        (PromotionDecision::Blocked, PromotionDecisionReason::ExecutionNotAllowed) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PromotionNotAllowed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        _ if promotion.decision != PromotionDecision::Allowed => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PromotionNotAllowed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        _ => {}
+    }
+
+    let record = match build_promotion_record(
+        format!("promotion:{}", request.run_id),
+        request.ledger.last_revision().unwrap_or(0) + 1,
+        request.actor,
+        request.evidence_refs,
+        format!("controlled_run:{}:promotion", request.run_id),
+        &promotion,
+    ) {
+        Ok(record) => record,
+        Err(PromotionRecordError::PromotionNotAllowed) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PromotionNotAllowed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+        Err(PromotionRecordError::LedgerEventInvalid) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PromotionRecordInvalid,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+    };
+
+    let next_ledger = match append_promotion_record(&request.ledger, record) {
+        Ok(next) => next,
+        Err(_) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::LedgerAppendFailed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+    };
+
+    let replay_verification = verify_promotion_replay(&next_ledger);
+    if replay_verification.status != PromotionReplayVerificationStatus::Verified {
+        return failed(
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::PromotionReplayNotVerified,
+            execution,
+            promotion,
+            replay_verification,
+        );
+    }
+
+    let _audit_timeline = crate::audit::project_ledger_timeline(next_ledger.events());
+    let clean_output_summary = Some(format!(
+        "run_id={} context_packet_id={} provider_output_id={} raw provider output remains untrusted; clean output is based on accepted controlled flow",
+        request.run_id, request.context_packet_id, request.provider_output.id
+    ));
+
+    ControlledRunResult {
+        status: ControlledRunStatus::Accepted,
+        reason: ControlledRunReason::RunAccepted,
+        execution_decision: execution,
+        promotion_decision: promotion,
+        ledger: next_ledger,
+        promotion_replay: replay_verification,
+        clean_output_summary,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1554,5 +1879,265 @@ mod tests {
 
         assert_eq!(before.len(), after.len());
         assert_eq!(before, after);
+    }
+
+    fn untrusted_provider_output() -> ProviderOutput {
+        ProviderOutput::new_untrusted(
+            "output-1",
+            "request-1",
+            ProviderKind::Local,
+            "candidate content",
+            ProviderOutputStatus::Received,
+        )
+        .expect("provider output should be valid")
+    }
+
+    fn phase_32_request() -> ControlledRunRequest {
+        ControlledRunRequest::new(
+            "run-1",
+            "context-1",
+            untrusted_provider_output(),
+            LifecycleState::Passed,
+            ready_policy(),
+            ready_validation(),
+            ready_replay(),
+            crate::ledger::Ledger::empty()
+                .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+                .expect("append should succeed")
+                .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+                .expect("append should succeed"),
+            ledger_actor(),
+            vec!["evidence-1".to_string()],
+        )
+        .expect("request should be valid")
+    }
+
+    #[test]
+    fn controlled_run_error_codes_are_stable() {
+        assert_eq!(ControlledRunError::EmptyRunId.code(), "empty_run_id");
+        assert_eq!(
+            ControlledRunError::EmptyContextPacketId.code(),
+            "empty_context_packet_id"
+        );
+        assert_eq!(
+            ControlledRunError::MissingEvidenceRefs.code(),
+            "missing_evidence_refs"
+        );
+    }
+
+    #[test]
+    fn controlled_run_reason_codes_are_stable() {
+        assert_eq!(ControlledRunReason::RunAccepted.code(), "run_accepted");
+        assert_eq!(
+            ControlledRunReason::ProviderOutputInvalid.code(),
+            "provider_output_invalid"
+        );
+        assert_eq!(
+            ControlledRunReason::LifecycleNotPassed.code(),
+            "lifecycle_not_passed"
+        );
+    }
+
+    #[test]
+    fn controlled_run_request_requires_run_id() {
+        assert_eq!(
+            ControlledRunRequest::new(
+                "",
+                "context-1",
+                untrusted_provider_output(),
+                LifecycleState::Passed,
+                ready_policy(),
+                ready_validation(),
+                ready_replay(),
+                crate::ledger::Ledger::empty(),
+                ledger_actor(),
+                vec!["evidence-1".to_string()],
+            ),
+            Err(ControlledRunError::EmptyRunId)
+        );
+    }
+
+    #[test]
+    fn controlled_run_request_requires_context_packet_id() {
+        assert_eq!(
+            ControlledRunRequest::new(
+                "run-1",
+                "",
+                untrusted_provider_output(),
+                LifecycleState::Passed,
+                ready_policy(),
+                ready_validation(),
+                ready_replay(),
+                crate::ledger::Ledger::empty(),
+                ledger_actor(),
+                vec!["evidence-1".to_string()],
+            ),
+            Err(ControlledRunError::EmptyContextPacketId)
+        );
+    }
+
+    #[test]
+    fn controlled_run_request_requires_evidence_refs() {
+        assert_eq!(
+            ControlledRunRequest::new(
+                "run-1",
+                "context-1",
+                untrusted_provider_output(),
+                LifecycleState::Passed,
+                ready_policy(),
+                ready_validation(),
+                ready_replay(),
+                crate::ledger::Ledger::empty(),
+                ledger_actor(),
+                vec![],
+            ),
+            Err(ControlledRunError::MissingEvidenceRefs)
+        );
+    }
+
+    #[test]
+    fn controlled_flow_rejects_authoritative_provider_output_if_possible() {
+        assert!(!provider_output_is_authoritative(
+            &untrusted_provider_output()
+        ));
+        let result = run_controlled_model_flow(phase_32_request());
+        assert_ne!(result.reason, ControlledRunReason::ProviderOutputInvalid);
+    }
+
+    #[test]
+    fn controlled_flow_blocks_when_policy_not_allowed() {
+        let mut request = phase_32_request();
+        request.policy = PolicyResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Blocked);
+        assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
+    }
+
+    #[test]
+    fn controlled_flow_blocks_when_validation_not_passed() {
+        let mut request = phase_32_request();
+        request.validation = ValidationResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Blocked);
+        assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
+    }
+
+    #[test]
+    fn controlled_flow_rejects_when_lifecycle_not_passed() {
+        let mut request = phase_32_request();
+        request.lifecycle = LifecycleState::Created;
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Rejected);
+        assert_eq!(result.reason, ControlledRunReason::LifecycleNotPassed);
+    }
+
+    #[test]
+    fn controlled_flow_blocks_when_replay_not_ready() {
+        let mut request = phase_32_request();
+        request.replay = ReplayReport::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Blocked);
+        assert_eq!(result.reason, ControlledRunReason::ExecutionNotAllowed);
+    }
+
+    #[test]
+    fn controlled_flow_blocks_when_promotion_not_allowed() {
+        let mut request = phase_32_request();
+        request.lifecycle = LifecycleState::PromotedTier1;
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Rejected);
+        assert_eq!(result.reason, ControlledRunReason::LifecycleNotPassed);
+    }
+
+    #[test]
+    fn controlled_flow_appends_promotion_record_on_success() {
+        let request = phase_32_request();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Accepted);
+        assert_eq!(result.ledger.events().len(), 3);
+        assert_eq!(result.ledger.events()[2].id, "promotion:run-1");
+        assert_eq!(result.ledger.events()[2].revision, 3);
+    }
+
+    #[test]
+    fn controlled_flow_verifies_promotion_replay_on_success() {
+        let result = run_controlled_model_flow(phase_32_request());
+        assert_eq!(
+            result.promotion_replay.status,
+            PromotionReplayVerificationStatus::Verified
+        );
+    }
+
+    #[test]
+    fn controlled_flow_returns_clean_output_summary_on_success() {
+        let result = run_controlled_model_flow(phase_32_request());
+        let summary = result
+            .clean_output_summary
+            .expect("accepted result should include clean output summary");
+        assert!(summary.contains("run_id=run-1"));
+        assert!(summary.contains("context_packet_id=context-1"));
+        assert!(summary.contains("provider_output_id=output-1"));
+        assert!(summary.contains("remains untrusted"));
+        assert!(summary.contains("accepted controlled flow"));
+    }
+
+    #[test]
+    fn controlled_flow_keeps_raw_provider_output_untrusted() {
+        let request = phase_32_request();
+        assert_eq!(
+            request.provider_output.trust,
+            ProviderOutputTrust::Untrusted
+        );
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.status, ControlledRunStatus::Accepted);
+    }
+
+    #[test]
+    fn controlled_flow_returns_no_clean_output_on_failure() {
+        let mut request = phase_32_request();
+        request.policy = PolicyResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert!(result.clean_output_summary.is_none());
+    }
+
+    #[test]
+    fn controlled_flow_failure_does_not_append_ledger() {
+        let mut request = phase_32_request();
+        let original = request.ledger.clone();
+        request.policy = PolicyResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.ledger, original);
+    }
+
+    #[test]
+    fn controlled_flow_does_not_infer_validation_from_provider_content() {
+        let mut request = phase_32_request();
+        request.provider_output = ProviderOutput::new_untrusted(
+            "output-2",
+            "request-1",
+            ProviderKind::Cloud,
+            "validated passed approved safe",
+            ProviderOutputStatus::Received,
+        )
+        .expect("provider output should be valid");
+        request.validation = ValidationResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
+    }
+
+    #[test]
+    fn controlled_flow_does_not_infer_policy_from_provider_content() {
+        let mut request = phase_32_request();
+        request.provider_output = ProviderOutput::new_untrusted(
+            "output-3",
+            "request-1",
+            ProviderKind::Cloud,
+            "approved authorized safe",
+            ProviderOutputStatus::Received,
+        )
+        .expect("provider output should be valid");
+        request.policy = PolicyResult::unknown();
+        let result = run_controlled_model_flow(request);
+        assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
     }
 }
