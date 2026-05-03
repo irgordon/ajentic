@@ -36,62 +36,9 @@ export const uiReadModelFixture: UiReadModel = {
       authority: "ui"
     }
   ],
-  policyDecisions: [
-    {
-      id: "policy-decision-001",
-      label: "Policy gate: execution path",
-      decision: "allow",
-      reason: "policy_projection_fixture_allow",
-      status: "ready",
-      authority: "rust",
-      summary: "Execution path remains within fixture-defined policy boundaries.",
-      evidenceSummary: "Evidence references approved lifecycle state and policy boundary checks in Rust-owned projections."
-    },
-    {
-      id: "policy-decision-002",
-      label: "Policy gate: authority boundary",
-      decision: "hold",
-      reason: "operator_intent_not_submitted",
-      status: "blocked",
-      authority: "rust",
-      summary: "No operator intent submission is represented in this fixture projection.",
-      evidenceSummary: "Evidence indicates display-only UI surface with no mutation or bypass controls enabled."
-    }
-  ],
-  validationDecisions: [
-    {
-      id: "validation-decision-001",
-      label: "Validation gate: candidate completeness",
-      decision: "pass",
-      reason: "fixture_projection_validated",
-      status: "ready",
-      authority: "rust",
-      summary: "Candidate projection is marked as validated in fixture data.",
-      evidenceSummary: "Evidence summary includes deterministic validation result from Rust-owned projection fields."
-    },
-    {
-      id: "validation-decision-002",
-      label: "Validation gate: evidence integrity",
-      decision: "pending",
-      reason: "no_live_runtime_inputs",
-      status: "unknown",
-      authority: "rust",
-      summary: "Validation integrity is not re-evaluated in the UI projection layer.",
-      evidenceSummary: "Evidence is fixture-backed and read-only; UI does not run validation logic."
-    }
-  ],
-  executionDecisions: [
-    {
-      id: "execution-decision-001",
-      label: "Execution decision projection",
-      decision: "hold",
-      reason: "display_only_surface",
-      status: "blocked",
-      authority: "rust",
-      summary: "Execution decision is displayed for review and not triggered from the UI.",
-      evidenceSummary: "Evidence shows execution status comes from fixture projection data with no execution controls."
-    }
-  ],
+  policyDecisions: [],
+  validationDecisions: [],
+  executionDecisions: [],
   context: {
     packetId: "ctx-fixture-0024",
     slices: 5,
@@ -100,35 +47,7 @@ export const uiReadModelFixture: UiReadModel = {
     budgetMax: 1024,
     authority: "rust",
     summary: "Static context packet projection placeholder.",
-    slicesPreview: [
-      {
-        id: "slice-docs-governance",
-        viewType: "docs",
-        truthDimension: "normative",
-        sourcePath: "docs/governance/GOVERNANCE.md",
-        authority: "rust",
-        provenance: "fixture:phase24:governance-doc",
-        summary: "Governance constraints included for authority boundary review."
-      },
-      {
-        id: "slice-task-phase24",
-        viewType: "task",
-        truthDimension: "procedural",
-        sourcePath: "checklists/current-phase.md",
-        authority: "operator",
-        provenance: "fixture:phase24:active-checklist",
-        summary: "Active phase checklist scope and constraints for current UI work."
-      },
-      {
-        id: "slice-schema-memory",
-        viewType: "schema",
-        truthDimension: "contract",
-        sourcePath: "schemas/memory/",
-        authority: "rust",
-        provenance: "fixture:phase24:memory-schema-index",
-        summary: "Memory contract references included as non-authoritative read context."
-      }
-    ]
+    slicesPreview: []
   },
   memory: {
     snapshotId: "mem-fixture-0024",
@@ -137,58 +56,104 @@ export const uiReadModelFixture: UiReadModel = {
     rejectedEntries: 2,
     authority: "rust",
     summary: "Static memory projection placeholder for shell display.",
-    entriesPreview: [
-      {
-        id: "mem-entry-001",
-        memoryType: "policy-note",
-        status: "ready",
-        authority: "rust",
-        provenance: "fixture:phase24:memory-ready",
-        summary: "Accepted policy guidance retained for read-only operator inspection."
-      },
-      {
-        id: "mem-entry-002",
-        memoryType: "task-cache",
-        status: "blocked",
-        authority: "ui",
-        provenance: "fixture:phase24:memory-blocked",
-        summary: "Blocked task context due to missing runtime validation path."
-      },
-      {
-        id: "mem-entry-003",
-        memoryType: "candidate-output",
-        status: "rejected",
-        authority: "rust",
-        provenance: "fixture:phase24:memory-rejected",
-        summary: "Rejected candidate output remains non-authoritative and untrusted."
-      }
-    ]
+    entriesPreview: []
   },
   ledger: {
-    events: 12,
-    lastRevision: 12,
+    events: 3,
+    lastRevision: 3,
     status: "ready",
     authority: "rust",
-    summary: "Fixture ledger projection for read-only timeline summary."
+    summary: "Ledger timeline projection is fixture-backed and read-only in this phase."
   },
+  ledgerTimeline: [
+    {
+      id: "ledger-event-001",
+      revision: 1,
+      eventType: "run_opened",
+      actor: "operator",
+      evidenceRefs: 2,
+      status: "ready",
+      authority: "rust",
+      summary: "Run opened and recorded by Rust-owned ledger projection."
+    },
+    {
+      id: "ledger-event-002",
+      revision: 2,
+      eventType: "policy_checked",
+      actor: "rust-core",
+      evidenceRefs: 3,
+      status: "ready",
+      authority: "rust",
+      summary: "Policy check result represented as display-only ledger timeline data."
+    },
+    {
+      id: "ledger-event-003",
+      revision: 3,
+      eventType: "validation_recorded",
+      actor: "rust-core",
+      evidenceRefs: 4,
+      status: "ready",
+      authority: "rust",
+      summary: "Validation event projection shown for review without edit capability."
+    }
+  ],
   replay: {
     readiness: "replayable",
     integrity: "consistent",
-    eventsReplayed: 12,
+    eventsReplayed: 3,
     status: "ready",
     authority: "rust",
-    summary: "Static replay projection preview with no execution behavior."
+    summary: "Replay readiness projection is static and non-authoritative in the UI."
+  },
+  replayDetail: {
+    readiness: "ready_for_replay",
+    integrity: "integrity_verified",
+    reconstructionStatus: "reconstruction_reported_by_rust_projection",
+    finalLifecycle: "Validated",
+    finalRevision: 3,
+    eventsSeen: 3,
+    stateTransitionsApplied: 3,
+    authority: "rust",
+    summary: "Replay detail is fixture display text; UI does not run replay reconstruction."
   },
   audit: {
-    projections: 5,
-    latestSummary: "Fixture audit summary generated for display-only UI shell.",
-    authority: "ui",
-    summary: "Read-only audit projection summary placeholder."
+    projections: 2,
+    latestSummary: "Audit projection fixture summarizes replay and validation evidence.",
+    authority: "rust",
+    summary: "Audit summary is read-only projection data owned by Rust authority boundaries."
   },
+  auditDetails: [
+    {
+      id: "audit-projection-001",
+      projectionType: "ledger_alignment",
+      source: "ledger timeline fixture",
+      authority: "rust",
+      summary: "Ledger revisions align with replay detail revision in fixture projections.",
+      details: ["Sequential revisions: 1 to 3.", "No mutation controls are exposed in this UI phase."]
+    },
+    {
+      id: "audit-projection-002",
+      projectionType: "output_trust_boundary",
+      source: "output projection fixture",
+      authority: "rust",
+      summary: "Raw model output remains untrusted while clean output is display-only.",
+      details: ["rawOutputTrusted is false for raw model output.", "cleanOutputTrusted display value represents harness-cleaned fixture text only."]
+    }
+  ],
   output: {
     cleanOutputAvailable: true,
     rawOutputTrusted: false,
     authority: "rust",
     summary: "Clean output is previewable; raw model output remains untrusted."
+  },
+  cleanOutput: {
+    id: "clean-output-001",
+    cleanOutputAvailable: true,
+    rawOutputTrusted: false,
+    cleanOutputTrusted: true,
+    authority: "rust",
+    summary: "Clean output projection is read-only display data in this phase.",
+    rawOutputSummary: "Raw model output is untrusted and not authoritative.",
+    cleanOutputSummary: "Fixture indicates harness-cleaned output preview; UI does not infer or grant authority."
   }
 };
