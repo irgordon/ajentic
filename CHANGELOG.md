@@ -6,6 +6,24 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.32 - 2026-05-03
+
+**Status:** Phase 32 - End-to-End Controlled Model Run Loop
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` to add a deterministic in-memory controlled model run loop that composes existing typed provider boundary, policy, validation, execution, promotion, ledger append, replay verification, and audit projection helpers with fail-closed behavior and deterministic unit tests.
+- Updated `checklists/current-phase.md` to Phase 32 procedural scope and required validation/static scan checklist.
+- Updated `CHANGELOG.md` with `v0.0.32`.
+
+### Notes
+
+- Phase 32 connects existing typed in-memory surfaces into a deterministic local controlled flow.
+- Provider output remains untrusted candidate material.
+- The controlled flow does not call real providers, perform network IO, run async behavior, persist ledgers, serve APIs, execute CLI commands, touch UI behavior, or add new dependencies.
+- Accepted clean output summaries are produced only after typed policy, validation, execution, promotion, ledger append, and replay verification gates pass.
+- Raw provider output remains untrusted.
+
 ## v0.0.31 - 2026-05-03
 
 **Status:** Phase 31 - Provider Adapter Boundary

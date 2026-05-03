@@ -4,17 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 31 - Provider Adapter Boundary
+# Current Phase: Phase 32 - End-to-End Controlled Model Run Loop
 
-This is the active procedural execution surface for Phase 31.
+This is the active procedural execution surface for Phase 32.
 
 ## Phase name
 
-Phase 31 - Provider Adapter Boundary
+Phase 32 - End-to-End Controlled Model Run Loop
 
 ## Phase goal
 
-Define and implement the first typed provider adapter boundary where provider output enters the harness as untrusted candidate material only.
+Define and implement the first typed deterministic in-memory controlled run loop composition where provider output enters the harness as untrusted candidate material only.
 
 ## Allowed surfaces
 
@@ -35,13 +35,13 @@ Define and implement the first typed provider adapter boundary where provider ou
 
 ## Task checklist
 
-- [x] Update active checklist to Phase 31 scope and procedural sections.
-- [x] Add typed provider adapter boundary types in Rust.
+- [x] Update active checklist to Phase 32 scope and procedural sections.
+- [x] Add typed deterministic in-memory controlled run loop composition types in Rust.
 - [x] Represent provider output as untrusted candidate material only.
 - [x] Add deterministic constructors and typed provider-boundary errors.
 - [x] Add helper proving provider output is never authoritative.
-- [x] Add deterministic tests for provider boundary inputs, trust, and non-authoritative behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.31`.
+- [x] Add deterministic tests for controlled run loop request validation, fail-closed gating, ledger append behavior, replay verification, and clean output summary behavior.
+- [x] Add `CHANGELOG.md` entry `v0.0.32`.
 
 ## Validation checklist
 
