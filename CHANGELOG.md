@@ -6,6 +6,30 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.37 - 2026-05-03
+
+**Status:** Phase 37 - Release-Candidate Evidence Collection Baseline
+
+### Added
+
+- Added `docs/operations/release-candidate-evidence-phase-37.md` with advisory baseline release-candidate evidence collection, validation reporting, static scan classification, blockers/deferred evidence tracking, and non-readiness statement.
+
+### Changed
+
+- Updated `checklists/release.md` release decision record placeholder with Phase 37 evidence rows only.
+- Updated `checklists/current-phase.md` to Phase 37 procedural scope, evidence checklist, findings/deferred items tables, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.37`.
+
+### Notes
+
+- Phase 37 collects baseline release-candidate evidence only.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+- Static scan debt remains evidence debt unless converted by a future scoped linting/tooling phase.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- No runtime harness behavior, UI behavior, provider adapter work, API server, CLI command, schema change, workflow change, governance change, architecture change, lint-tooling change, or dependency change was implemented.
+
 ## v0.0.36 - 2026-05-03
 
 **Status:** Phase 36 - Release Candidate Boundary

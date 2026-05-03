@@ -106,3 +106,15 @@ Optional/manual review:
 
 | Evidence item | Status | Source | Reviewer note |
 | --- | --- | --- | --- |
+| Rust checks | pass | `./scripts/check.sh` (Phase 37 run) | Baseline evidence captured; no readiness claim. |
+| UI typecheck/lint/build | pass | `cd ui && npm run typecheck && npm run lint && npm run build` (Phase 37 run) | Placeholder lint/build scripts passed in current repo state. |
+| Structure and documentation gates | pass | `./scripts/check.sh` (structure/docs steps) | Procedural/documentation gates passed. |
+| Schema syntax validation | pass | `./scripts/check.sh` (schema step) | JSON schema syntax gate passed. |
+| Script boundary checks | pass | `./scripts/check.sh` (`bash -n scripts/*.sh`) | Script parse/boundary check passed. |
+| Provider/integration untrusted boundary | pass | `core/src/api/mod.rs`, `core/src/execution/mod.rs`, plus trust keyword scan | Existing tests and scan evidence preserve untrusted boundary. |
+| Controlled flow deterministic in-memory behavior | pass | `core/src/execution/mod.rs` tests via `./scripts/check.sh` | Deterministic in-memory controlled-flow tests passed. |
+| Replay verification idempotency | pass | `docs/operations/repository-audit-phase-35.md`; `core/src/execution/mod.rs` tests in `./scripts/check.sh` | Phase 35 harmless finding carried forward; source unchanged in Phase 37. |
+| UI non-authority and request-preview boundary | pass | `ui/src` boundary scan; `docs/operations/repository-audit-phase-30.md` | Phase 30 script/UI boundary audit plus current scan evidence; no UI authority change in Phase 37. |
+| Raw provider/model output remains distinct from clean output | pass | `core/src/execution/mod.rs` tests and boundary wording scans | Existing controlled-flow tests keep raw output untrusted and separate from clean output summary. |
+| Static scan debt triage | deferred | Phase 37 evidence report (`docs/operations/release-candidate-evidence-phase-37.md`) | Debt remains evidence debt pending future scoped AST-aware tooling phase. |
+| Roadmap/changelog truth-dimension alignment | pass | `CHANGELOG.md`, `docs/roadmap/phase-map.md`, `docs/governance/truth-dimensions.md` | No drift correction needed in this phase; boundaries preserved. |
