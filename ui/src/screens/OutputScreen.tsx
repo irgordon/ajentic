@@ -1,9 +1,12 @@
+import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function OutputScreen(): string {
+  const { output } = getUiReadModel();
+
   return SectionCard({
     title: "Output",
-    description: "Planned output surface.",
-    children: "This screen is a static, read-only placeholder in Phase 21. No authority actions, execution controls, or mutation paths are enabled."
+    description: "Read-only output projection surface.",
+    children: [`Clean output available: ${output.cleanOutputAvailable}`, `Raw output trusted: ${output.rawOutputTrusted}`, `Authority: ${output.authority}`, `Summary: ${output.summary}`]
   });
 }

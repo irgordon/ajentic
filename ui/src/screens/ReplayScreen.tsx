@@ -1,9 +1,12 @@
+import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function ReplayScreen(): string {
+  const { replay } = getUiReadModel();
+
   return SectionCard({
     title: "Replay",
-    description: "Planned replay surface.",
-    children: "This screen is a static, read-only placeholder in Phase 21. No authority actions, execution controls, or mutation paths are enabled."
+    description: "Read-only replay projection surface.",
+    children: [`Readiness: ${replay.readiness}`, `Integrity: ${replay.integrity}`, `Events replayed: ${replay.eventsReplayed}`, `Status: ${replay.status}`, `Authority: ${replay.authority}`, `Summary: ${replay.summary}`]
   });
 }

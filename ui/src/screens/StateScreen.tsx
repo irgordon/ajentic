@@ -1,9 +1,12 @@
+import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function StateScreen(): string {
+  const { lifecycle } = getUiReadModel();
+
   return SectionCard({
     title: "State",
-    description: "Planned state surface.",
-    children: "This screen is a static, read-only placeholder in Phase 21. No authority actions, execution controls, or mutation paths are enabled."
+    description: "Read-only lifecycle projection surface.",
+    children: [`Lifecycle: ${lifecycle.lifecycle}`, `Revision: ${lifecycle.revision}`, `Status: ${lifecycle.status}`, `Authority: ${lifecycle.authority}`, `Summary: ${lifecycle.summary}`]
   });
 }

@@ -1,9 +1,12 @@
+import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function AuditScreen(): string {
+  const { audit } = getUiReadModel();
+
   return SectionCard({
     title: "Audit",
-    description: "Planned audit surface.",
-    children: "This screen is a static, read-only placeholder in Phase 21. No authority actions, execution controls, or mutation paths are enabled."
+    description: "Read-only audit projection summary surface.",
+    children: [`Projection count: ${audit.projections}`, `Latest summary: ${audit.latestSummary}`, `Authority: ${audit.authority}`, `Summary: ${audit.summary}`]
   });
 }

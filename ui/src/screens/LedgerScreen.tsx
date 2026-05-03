@@ -1,9 +1,12 @@
+import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function LedgerScreen(): string {
+  const { ledger } = getUiReadModel();
+
   return SectionCard({
     title: "Ledger",
-    description: "Planned ledger surface.",
-    children: "This screen is a static, read-only placeholder in Phase 21. No authority actions, execution controls, or mutation paths are enabled."
+    description: "Read-only ledger projection surface.",
+    children: [`Events: ${ledger.events}`, `Last revision: ${ledger.lastRevision ?? "none"}`, `Status: ${ledger.status}`, `Authority: ${ledger.authority}`, `Summary: ${ledger.summary}`]
   });
 }
