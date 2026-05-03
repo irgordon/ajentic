@@ -6,5 +6,5 @@ export type StatusPillProps = Readonly<{
 }>;
 
 export function StatusPill({ label, status }: StatusPillProps): string {
-  return `${label}: ${status}`;
+  return `${label}: ${status} (text-visible status indicator)`;
 }

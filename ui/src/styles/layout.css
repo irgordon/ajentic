@@ -16,9 +16,11 @@
 
 .app-shell__body {
   display: grid;
-  grid-template-columns: 16rem 1fr;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   gap: var(--space-4);
   padding: var(--space-4);
+  width: min(100%, var(--content-max-width));
+  margin: 0 auto;
 }
 
 .app-shell__nav,
@@ -26,8 +28,16 @@
 .section-card {
   background: var(--color-surface);
   border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-lg);
   padding: var(--space-4);
+}
+
+.app-shell__main,
+.section-card,
+.projection-list,
+.timeline-list,
+.intent-preview-panel {
+  overflow-wrap: anywhere;
 }
 
 .app-shell__nav-list,
@@ -45,13 +55,46 @@
   color: var(--color-muted-text);
 }
 
+.status-line,
+.authority-line,
+.trust-line,
+.preview-state-line {
+  font-size: var(--font-size-sm);
+}
+
+.summary-line {
+  color: var(--color-muted-text);
+  font-size: var(--font-size-sm);
+}
+
+.section-block {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 @media (max-width: 900px) {
+  .app-shell__header {
+    padding: var(--space-4);
+  }
+
   .app-shell__body {
     grid-template-columns: 1fr;
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell__header,
+  .app-shell__nav,
+  .app-shell__main,
+  .section-card {
+    padding: var(--space-3);
   }
 }

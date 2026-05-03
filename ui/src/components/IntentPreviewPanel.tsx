@@ -8,16 +8,16 @@ export type IntentPreviewPanelProps = Readonly<{
 export function IntentPreviewPanel(props: IntentPreviewPanelProps): string {
   const rows = props.intents.map((intent) =>
     [
-      `ID: ${intent.id}`,
-      `intentType: ${intent.intentType}`,
-      `label: ${intent.label}`,
-      `description: ${intent.description}`,
-      `reasonPreview: ${intent.reasonPreview}`,
-      `routePreview: ${intent.routePreview}`,
-      `authority: ${intent.authority}`,
-      `status: ${intent.status}`,
-      `disabled: ${intent.disabled}`,
-      "Intent is a request. Rust decides."
+      `Intent ${intent.id}`,
+      `Type: ${intent.intentType}`,
+      `Label: ${intent.label}`,
+      `Preview summary: ${intent.description}`,
+      `Reason preview: ${intent.reasonPreview}`,
+      `Route preview: ${intent.routePreview}`,
+      `Authority text: ${intent.authority}`,
+      `Status text: ${intent.status}`,
+      `Request-preview state: ${intent.disabled ? "disabled/request-preview-only" : "preview-only"}`,
+      "Intent is a request preview only. Rust decides whether any typed request is accepted."
     ].join(" | ")
   );
 
