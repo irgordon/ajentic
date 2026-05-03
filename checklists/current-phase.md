@@ -4,36 +4,34 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 19 — Operator Intent Routing Baseline
+# Current Phase: Phase 19.5 - Roadmap and Changelog Reconciliation
 
-This is the active procedural execution surface for Phase 19.
+This is the active procedural execution surface for Phase 19.5.
 
 ## Phase
 
-Phase 19 — Operator Intent Routing Baseline
+Phase 19.5 - Roadmap and Changelog Reconciliation
 
 ## Phase goal
 
-Implement a narrow Rust-owned operator intent routing surface that classifies caller-supplied operator intents into typed in-memory route results.
+Realign `docs/roadmap/phase-map.md` with the conservative implementation path recorded in `CHANGELOG.md` while preserving truth-dimension boundaries.
 
 ## Allowed surfaces
 
-- `core/src/api/mod.rs`
-- `core/src/lib.rs` only if test placement or export cleanup requires it
+- `docs/roadmap/phase-map.md`
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Task checklist
 
-- [x] Update checklist to Phase 19 scope.
-- [x] Preserve existing `ApiSurface`, `OperatorIntentType`, and `OperatorIntent` names.
-- [x] Add typed operator route, result, and error surfaces with stable code methods.
-- [x] Add deterministic `route_operator_intent(intent)` mapped only by `OperatorIntentType`.
-- [x] Reject empty `intent.reason` with `OperatorRouteError::EmptyIntentReason`.
-- [x] Return `"operator_intent_routed"` for all successful route results.
-- [x] Do not execute routes, mutate intent input, or call external module behavior.
-- [x] Add deterministic unit tests for required route behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.19`.
+- [x] Update checklist to Phase 19.5 scope.
+- [x] Audit `docs/roadmap/phase-map.md` against `CHANGELOG.md`.
+- [x] Preserve roadmap as planned truth and changelog as historical truth.
+- [x] Add required roadmap historical-implementation note near the top of the phase map.
+- [x] Reframe future phases from post-`v0.0.19` repository state using smaller one-surface phases.
+- [x] Add recurring roadmap/changelog alignment checks every five phases.
+- [x] Keep phase definitions concise and bounded with required sections.
+- [x] Add `CHANGELOG.md` entry `v0.0.19.5`.
 - [x] Run required validation commands.
 
 ## Validation checklist
