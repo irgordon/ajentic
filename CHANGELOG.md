@@ -6,6 +6,33 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.27 - 2026-05-03
+
+**Status:** Phase 27 - Ledger, Replay, Audit, and Clean Output UI
+
+### Added
+
+- Added `ui/src/components/TimelineList.tsx` as a display-only readable timeline/detail list component for projection rows.
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add ledger timeline, replay detail, audit detail, and clean output projection types and include them in `UiReadModel`.
+- Updated `ui/src/api/fixtures.ts` to add static fixture-backed ledger timeline entries, replay detail projection data, audit detail projection data, and clean output projection data.
+- Updated `ui/src/api/readModel.ts` to preserve synchronous fixture-backed `getUiReadModel()` behavior.
+- Updated `ui/src/screens/LedgerScreen.tsx` to render ledger projection metadata and readable ledger timeline entry details as a read-only display.
+- Updated `ui/src/screens/ReplayScreen.tsx` to render replay projection metadata and replay detail reconstruction status as a read-only display.
+- Updated `ui/src/screens/AuditScreen.tsx` to render audit projection summary and readable audit detail projection entries as a read-only display.
+- Updated `ui/src/screens/OutputScreen.tsx` to render clean output projection metadata and explicit raw-output untrusted display text.
+- Updated `checklists/current-phase.md` to Phase 27 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.27`.
+
+### Notes
+
+- Phase 27 displays ledger, replay, audit, and clean output projections as read-only UI surfaces.
+- The UI remains non-authoritative and fixture-backed in this phase.
+- No live API integration, async behavior, runtime authority, operator intent controls, provider calls, ledger mutation, audit export, replay repair, output apply/publish, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.26 - 2026-05-03
 
 **Status:** Phase 26 - Policy, Validation, and Execution Decision UI

@@ -90,11 +90,34 @@ export type LedgerProjection = Readonly<{
   summary: string;
 }>;
 
+export type LedgerTimelineEntryProjection = Readonly<{
+  id: string;
+  revision: number;
+  eventType: string;
+  actor: string;
+  evidenceRefs: number;
+  status: ProjectionStatus;
+  authority: AuthoritySurface;
+  summary: string;
+}>;
+
 export type ReplayProjection = Readonly<{
   readiness: string;
   integrity: string;
   eventsReplayed: number;
   status: ProjectionStatus;
+  authority: AuthoritySurface;
+  summary: string;
+}>;
+
+export type ReplayDetailProjection = Readonly<{
+  readiness: string;
+  integrity: string;
+  reconstructionStatus: string;
+  finalLifecycle: string;
+  finalRevision: number;
+  eventsSeen: number;
+  stateTransitionsApplied: number;
   authority: AuthoritySurface;
   summary: string;
 }>;
@@ -106,11 +129,31 @@ export type AuditProjectionSummary = Readonly<{
   summary: string;
 }>;
 
+export type AuditDetailProjection = Readonly<{
+  id: string;
+  projectionType: string;
+  source: string;
+  authority: AuthoritySurface;
+  summary: string;
+  details: readonly string[];
+}>;
+
 export type OutputProjection = Readonly<{
   cleanOutputAvailable: boolean;
   rawOutputTrusted: boolean;
   authority: AuthoritySurface;
   summary: string;
+}>;
+
+export type CleanOutputProjection = Readonly<{
+  id: string;
+  cleanOutputAvailable: boolean;
+  rawOutputTrusted: boolean;
+  cleanOutputTrusted: boolean;
+  authority: AuthoritySurface;
+  summary: string;
+  rawOutputSummary: string;
+  cleanOutputSummary: string;
 }>;
 
 export type UiReadModel = Readonly<{
@@ -123,7 +166,11 @@ export type UiReadModel = Readonly<{
   context: ContextProjection;
   memory: MemoryProjection;
   ledger: LedgerProjection;
+  ledgerTimeline: readonly LedgerTimelineEntryProjection[];
   replay: ReplayProjection;
+  replayDetail: ReplayDetailProjection;
   audit: AuditProjectionSummary;
+  auditDetails: readonly AuditDetailProjection[];
   output: OutputProjection;
+  cleanOutput: CleanOutputProjection;
 }>;
