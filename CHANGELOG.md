@@ -6,6 +6,23 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.33 - 2026-05-03
+
+**Status:** Phase 33 - Local LLM and IDE Integration Boundary
+
+### Changed
+
+- Updated `core/src/api/mod.rs` to add typed local LLM/IDE integration boundary request/output types, untrusted-only constructors, deterministic mapping helpers into existing ProviderRequest/ProviderOutput shapes, and deterministic unit tests proving non-authoritative boundary behavior.
+- Updated `checklists/current-phase.md` to Phase 33 procedural scope and required validation/static scan checklist.
+- Updated `CHANGELOG.md` with `v0.0.33`.
+
+### Notes
+
+- Phase 33 defines typed local LLM and IDE integration boundary surfaces only.
+- Integration output is mapped into existing untrusted provider-output shapes and is never authoritative.
+- No local model invocation, IDE connection, file IO, file watching, socket/HTTP behavior, async behavior, provider authentication, controlled-flow execution, ledger append, replay, audit, API server, CLI command, UI behavior, schema change, or new dependency was implemented.
+- Raw local/IDE integration output remains untrusted.
+
 ## v0.0.32 - 2026-05-03
 
 **Status:** Phase 32 - End-to-End Controlled Model Run Loop

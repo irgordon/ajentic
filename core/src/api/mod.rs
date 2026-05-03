@@ -88,12 +88,9 @@ pub struct OperatorRouteResult {
 pub enum OperatorRouteError {
     EmptyIntentReason,
 }
-
 impl OperatorRouteError {
     pub fn code(&self) -> &'static str {
-        match self {
-            Self::EmptyIntentReason => "empty_intent_reason",
-        }
+        "empty_intent_reason"
     }
 }
 
@@ -103,7 +100,6 @@ pub fn route_operator_intent(
     if intent.reason.is_empty() {
         return Err(OperatorRouteError::EmptyIntentReason);
     }
-
     let route = match intent.intent_type {
         OperatorIntentType::Approve => OperatorRoute::Approval,
         OperatorIntentType::Reject => OperatorRoute::Rejection,
@@ -120,11 +116,167 @@ pub fn route_operator_intent(
         OperatorIntentType::MemorySnapshotRequest => OperatorRoute::MemorySnapshotRequest,
         OperatorIntentType::MemoryDisableRequest => OperatorRoute::MemoryDisableRequest,
     };
-
     Ok(OperatorRouteResult {
         route,
         reason: "operator_intent_routed",
     })
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrationSourceKind {
+    LocalLlm,
+    Ide,
+    Unknown,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrationOutputStatus {
+    Received,
+    Rejected,
+    Unknown,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrationTrust {
+    Untrusted,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IntegrationRequest {
+    pub id: String,
+    pub source_kind: IntegrationSourceKind,
+    pub prompt_summary: String,
+    pub operator_context_summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IntegrationOutput {
+    pub id: String,
+    pub request_id: String,
+    pub source_kind: IntegrationSourceKind,
+    pub content: String,
+    pub status: IntegrationOutputStatus,
+    pub trust: IntegrationTrust,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrationBoundaryError {
+    EmptyRequestId,
+    EmptyPromptSummary,
+    EmptyOperatorContextSummary,
+    EmptyOutputId,
+    EmptyOutputRequestId,
+    EmptyOutputContent,
+}
+impl IntegrationBoundaryError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyRequestId => "empty_request_id",
+            Self::EmptyPromptSummary => "empty_prompt_summary",
+            Self::EmptyOperatorContextSummary => "empty_operator_context_summary",
+            Self::EmptyOutputId => "empty_output_id",
+            Self::EmptyOutputRequestId => "empty_output_request_id",
+            Self::EmptyOutputContent => "empty_output_content",
+        }
+    }
+}
+
+impl IntegrationRequest {
+    pub fn new(
+        id: impl Into<String>,
+        source_kind: IntegrationSourceKind,
+        prompt_summary: impl Into<String>,
+        operator_context_summary: impl Into<String>,
+    ) -> Result<Self, IntegrationBoundaryError> {
+        let id = id.into();
+        if id.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyRequestId);
+        }
+        let prompt_summary = prompt_summary.into();
+        if prompt_summary.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyPromptSummary);
+        }
+        let operator_context_summary = operator_context_summary.into();
+        if operator_context_summary.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyOperatorContextSummary);
+        }
+        Ok(Self {
+            id,
+            source_kind,
+            prompt_summary,
+            operator_context_summary,
+        })
+    }
+}
+
+impl IntegrationOutput {
+    pub fn new_untrusted(
+        id: impl Into<String>,
+        request_id: impl Into<String>,
+        source_kind: IntegrationSourceKind,
+        content: impl Into<String>,
+        status: IntegrationOutputStatus,
+    ) -> Result<Self, IntegrationBoundaryError> {
+        let id = id.into();
+        if id.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyOutputId);
+        }
+        let request_id = request_id.into();
+        if request_id.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyOutputRequestId);
+        }
+        let content = content.into();
+        if content.is_empty() {
+            return Err(IntegrationBoundaryError::EmptyOutputContent);
+        }
+        Ok(Self {
+            id,
+            request_id,
+            source_kind,
+            content,
+            status,
+            trust: IntegrationTrust::Untrusted,
+        })
+    }
+}
+
+pub fn integration_source_to_provider_kind(
+    source_kind: IntegrationSourceKind,
+) -> crate::execution::ProviderKind {
+    match source_kind {
+        IntegrationSourceKind::LocalLlm => crate::execution::ProviderKind::Local,
+        IntegrationSourceKind::Ide => crate::execution::ProviderKind::Ide,
+        IntegrationSourceKind::Unknown => crate::execution::ProviderKind::Unknown,
+    }
+}
+
+pub fn integration_request_to_provider_request(
+    request: &IntegrationRequest,
+) -> Result<crate::execution::ProviderRequest, crate::execution::ProviderBoundaryError> {
+    crate::execution::ProviderRequest::new(
+        request.id.clone(),
+        integration_source_to_provider_kind(request.source_kind),
+        request.prompt_summary.clone(),
+    )
+}
+
+pub fn integration_output_to_provider_output(
+    output: &IntegrationOutput,
+) -> Result<crate::execution::ProviderOutput, crate::execution::ProviderBoundaryError> {
+    let status = match output.status {
+        IntegrationOutputStatus::Received => crate::execution::ProviderOutputStatus::Received,
+        IntegrationOutputStatus::Rejected => crate::execution::ProviderOutputStatus::Rejected,
+        IntegrationOutputStatus::Unknown => crate::execution::ProviderOutputStatus::Unknown,
+    };
+    crate::execution::ProviderOutput::new_untrusted(
+        output.id.clone(),
+        output.request_id.clone(),
+        integration_source_to_provider_kind(output.source_kind),
+        output.content.clone(),
+        status,
+    )
+}
+
+pub fn integration_output_is_authoritative(_output: &IntegrationOutput) -> bool {
+    false
 }
 
 #[cfg(test)]
@@ -132,169 +284,248 @@ mod tests {
     use super::*;
 
     #[test]
-    fn operator_route_codes_are_stable() {
-        assert_eq!(OperatorRoute::Approval.code(), "approval");
-        assert_eq!(OperatorRoute::Rejection.code(), "rejection");
-        assert_eq!(OperatorRoute::Retry.code(), "retry");
-        assert_eq!(OperatorRoute::MemoryWrite.code(), "memory_write");
-        assert_eq!(OperatorRoute::MemoryDelete.code(), "memory_delete");
-        assert_eq!(OperatorRoute::RunStart.code(), "run_start");
-        assert_eq!(OperatorRoute::RunStop.code(), "run_stop");
-        assert_eq!(OperatorRoute::ToolRequest.code(), "tool_request");
-        assert_eq!(OperatorRoute::PolicyCheck.code(), "policy_check");
+    fn integration_request_requires_id() {
         assert_eq!(
-            OperatorRoute::StateTransitionRequest.code(),
-            "state_transition_request"
+            IntegrationRequest::new("", IntegrationSourceKind::LocalLlm, "p", "c"),
+            Err(IntegrationBoundaryError::EmptyRequestId)
+        );
+    }
+    #[test]
+    fn integration_request_requires_prompt_summary() {
+        assert_eq!(
+            IntegrationRequest::new("id", IntegrationSourceKind::LocalLlm, "", "c"),
+            Err(IntegrationBoundaryError::EmptyPromptSummary)
+        );
+    }
+    #[test]
+    fn integration_request_requires_operator_context_summary() {
+        assert_eq!(
+            IntegrationRequest::new("id", IntegrationSourceKind::LocalLlm, "p", ""),
+            Err(IntegrationBoundaryError::EmptyOperatorContextSummary)
+        );
+    }
+    #[test]
+    fn integration_output_requires_id() {
+        assert_eq!(
+            IntegrationOutput::new_untrusted(
+                "",
+                "req",
+                IntegrationSourceKind::Ide,
+                "c",
+                IntegrationOutputStatus::Received
+            ),
+            Err(IntegrationBoundaryError::EmptyOutputId)
+        );
+    }
+    #[test]
+    fn integration_output_requires_request_id() {
+        assert_eq!(
+            IntegrationOutput::new_untrusted(
+                "id",
+                "",
+                IntegrationSourceKind::Ide,
+                "c",
+                IntegrationOutputStatus::Received
+            ),
+            Err(IntegrationBoundaryError::EmptyOutputRequestId)
+        );
+    }
+    #[test]
+    fn integration_output_requires_content() {
+        assert_eq!(
+            IntegrationOutput::new_untrusted(
+                "id",
+                "req",
+                IntegrationSourceKind::Ide,
+                "",
+                IntegrationOutputStatus::Received
+            ),
+            Err(IntegrationBoundaryError::EmptyOutputContent)
+        );
+    }
+    #[test]
+    fn integration_output_is_always_untrusted() {
+        let o = IntegrationOutput::new_untrusted(
+            "id",
+            "req",
+            IntegrationSourceKind::LocalLlm,
+            "x",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        assert_eq!(o.trust, IntegrationTrust::Untrusted);
+    }
+    #[test]
+    fn integration_output_is_not_authoritative() {
+        for source in [
+            IntegrationSourceKind::LocalLlm,
+            IntegrationSourceKind::Ide,
+            IntegrationSourceKind::Unknown,
+        ] {
+            let o = IntegrationOutput::new_untrusted(
+                "id",
+                "req",
+                source,
+                "x",
+                IntegrationOutputStatus::Received,
+            )
+            .unwrap();
+            assert!(!integration_output_is_authoritative(&o));
+        }
+    }
+    #[test]
+    fn integration_boundary_error_codes_are_stable() {
+        assert_eq!(
+            IntegrationBoundaryError::EmptyRequestId.code(),
+            "empty_request_id"
         );
         assert_eq!(
-            OperatorRoute::ContextRebuildRequest.code(),
-            "context_rebuild_request"
-        );
-        assert_eq!(OperatorRoute::ReplayRequest.code(), "replay_request");
-        assert_eq!(
-            OperatorRoute::MemorySnapshotRequest.code(),
-            "memory_snapshot_request"
+            IntegrationBoundaryError::EmptyPromptSummary.code(),
+            "empty_prompt_summary"
         );
         assert_eq!(
-            OperatorRoute::MemoryDisableRequest.code(),
-            "memory_disable_request"
+            IntegrationBoundaryError::EmptyOperatorContextSummary.code(),
+            "empty_operator_context_summary"
         );
-    }
-
-    #[test]
-    fn operator_route_error_codes_are_stable() {
         assert_eq!(
-            OperatorRouteError::EmptyIntentReason.code(),
-            "empty_intent_reason"
+            IntegrationBoundaryError::EmptyOutputId.code(),
+            "empty_output_id"
         );
-    }
-
-    #[test]
-    fn operator_intent_constructor_preserves_type_and_reason() {
-        let intent = OperatorIntent::new(OperatorIntentType::PolicyCheck, "review_policy");
-
-        assert_eq!(intent.intent_type, OperatorIntentType::PolicyCheck);
-        assert_eq!(intent.reason, "review_policy");
-    }
-
-    #[test]
-    fn route_operator_intent_rejects_empty_reason() {
-        let intent = OperatorIntent::new(OperatorIntentType::Approve, "");
-
         assert_eq!(
-            route_operator_intent(&intent),
-            Err(OperatorRouteError::EmptyIntentReason)
+            IntegrationBoundaryError::EmptyOutputRequestId.code(),
+            "empty_output_request_id"
+        );
+        assert_eq!(
+            IntegrationBoundaryError::EmptyOutputContent.code(),
+            "empty_output_content"
         );
     }
-
-    fn assert_route(intent_type: OperatorIntentType, expected_route: OperatorRoute) {
-        let intent = OperatorIntent::new(intent_type, "any_non_empty_reason");
-
-        let result = route_operator_intent(&intent).expect("route should succeed");
-
-        assert_eq!(result.route, expected_route);
-        assert_eq!(result.reason, "operator_intent_routed");
-    }
-
     #[test]
-    fn route_approve_intent() {
-        assert_route(OperatorIntentType::Approve, OperatorRoute::Approval);
-    }
-
-    #[test]
-    fn route_reject_intent() {
-        assert_route(OperatorIntentType::Reject, OperatorRoute::Rejection);
-    }
-
-    #[test]
-    fn route_retry_intent() {
-        assert_route(OperatorIntentType::Retry, OperatorRoute::Retry);
-    }
-
-    #[test]
-    fn route_memory_write_intent() {
-        assert_route(OperatorIntentType::MemoryWrite, OperatorRoute::MemoryWrite);
-    }
-
-    #[test]
-    fn route_memory_delete_intent() {
-        assert_route(
-            OperatorIntentType::MemoryDelete,
-            OperatorRoute::MemoryDelete,
+    fn integration_source_maps_local_llm_to_local_provider() {
+        assert_eq!(
+            integration_source_to_provider_kind(IntegrationSourceKind::LocalLlm),
+            crate::execution::ProviderKind::Local
         );
     }
-
     #[test]
-    fn route_run_start_intent() {
-        assert_route(OperatorIntentType::RunStart, OperatorRoute::RunStart);
-    }
-
-    #[test]
-    fn route_run_stop_intent() {
-        assert_route(OperatorIntentType::RunStop, OperatorRoute::RunStop);
-    }
-
-    #[test]
-    fn route_tool_request_intent() {
-        assert_route(OperatorIntentType::ToolRequest, OperatorRoute::ToolRequest);
-    }
-
-    #[test]
-    fn route_policy_check_intent() {
-        assert_route(OperatorIntentType::PolicyCheck, OperatorRoute::PolicyCheck);
-    }
-
-    #[test]
-    fn route_state_transition_request_intent() {
-        assert_route(
-            OperatorIntentType::StateTransitionRequest,
-            OperatorRoute::StateTransitionRequest,
+    fn integration_source_maps_ide_to_ide_provider() {
+        assert_eq!(
+            integration_source_to_provider_kind(IntegrationSourceKind::Ide),
+            crate::execution::ProviderKind::Ide
         );
     }
-
     #[test]
-    fn route_context_rebuild_request_intent() {
-        assert_route(
-            OperatorIntentType::ContextRebuildRequest,
-            OperatorRoute::ContextRebuildRequest,
+    fn integration_source_maps_unknown_to_unknown_provider() {
+        assert_eq!(
+            integration_source_to_provider_kind(IntegrationSourceKind::Unknown),
+            crate::execution::ProviderKind::Unknown
         );
     }
-
     #[test]
-    fn route_replay_request_intent() {
-        assert_route(
-            OperatorIntentType::ReplayRequest,
-            OperatorRoute::ReplayRequest,
-        );
+    fn integration_request_maps_to_provider_request() {
+        let r =
+            IntegrationRequest::new("id", IntegrationSourceKind::Ide, "prompt", "context").unwrap();
+        let p = integration_request_to_provider_request(&r).unwrap();
+        assert_eq!(p.id, "id");
+        assert_eq!(p.provider_kind, crate::execution::ProviderKind::Ide);
+        assert_eq!(p.prompt_summary, "prompt");
+        assert_eq!(r.operator_context_summary, "context");
     }
-
     #[test]
-    fn route_memory_snapshot_request_intent() {
-        assert_route(
-            OperatorIntentType::MemorySnapshotRequest,
-            OperatorRoute::MemorySnapshotRequest,
-        );
+    fn integration_output_maps_to_untrusted_provider_output() {
+        let o = IntegrationOutput::new_untrusted(
+            "out",
+            "req",
+            IntegrationSourceKind::LocalLlm,
+            "approved validated safe execute promote",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        let p = integration_output_to_provider_output(&o).unwrap();
+        assert_eq!(p.trust, crate::execution::ProviderOutputTrust::Untrusted);
+        assert_eq!(p.provider_kind, crate::execution::ProviderKind::Local);
     }
-
     #[test]
-    fn route_memory_disable_request_intent() {
-        assert_route(
-            OperatorIntentType::MemoryDisableRequest,
-            OperatorRoute::MemoryDisableRequest,
-        );
+    fn integration_output_status_maps_to_provider_output_status() {
+        for (i, e) in [
+            (
+                IntegrationOutputStatus::Received,
+                crate::execution::ProviderOutputStatus::Received,
+            ),
+            (
+                IntegrationOutputStatus::Rejected,
+                crate::execution::ProviderOutputStatus::Rejected,
+            ),
+            (
+                IntegrationOutputStatus::Unknown,
+                crate::execution::ProviderOutputStatus::Unknown,
+            ),
+        ] {
+            let o = IntegrationOutput::new_untrusted(
+                "id",
+                "req",
+                IntegrationSourceKind::Unknown,
+                "x",
+                i,
+            )
+            .unwrap();
+            assert_eq!(integration_output_to_provider_output(&o).unwrap().status, e);
+        }
     }
-
     #[test]
-    fn route_does_not_depend_on_reason_content() {
-        let intent_a = OperatorIntent::new(OperatorIntentType::ReplayRequest, "reason_a");
-        let intent_b = OperatorIntent::new(OperatorIntentType::ReplayRequest, "reason_b");
-
-        let result_a = route_operator_intent(&intent_a).expect("route should succeed");
-        let result_b = route_operator_intent(&intent_b).expect("route should succeed");
-
-        assert_eq!(result_a.route, OperatorRoute::ReplayRequest);
-        assert_eq!(result_b.route, OperatorRoute::ReplayRequest);
-        assert_eq!(result_a.reason, "operator_intent_routed");
-        assert_eq!(result_b.reason, "operator_intent_routed");
+    fn integration_output_content_does_not_infer_validation() {
+        let o = IntegrationOutput::new_untrusted(
+            "id",
+            "req",
+            IntegrationSourceKind::Ide,
+            "validated approved",
+            IntegrationOutputStatus::Unknown,
+        )
+        .unwrap();
+        let p = integration_output_to_provider_output(&o).unwrap();
+        assert_eq!(p.trust, crate::execution::ProviderOutputTrust::Untrusted);
+        assert_eq!(p.status, crate::execution::ProviderOutputStatus::Unknown);
+    }
+    #[test]
+    fn integration_output_content_does_not_infer_policy() {
+        let o = IntegrationOutput::new_untrusted(
+            "id",
+            "req",
+            IntegrationSourceKind::Ide,
+            "safe policy allow",
+            IntegrationOutputStatus::Rejected,
+        )
+        .unwrap();
+        let p = integration_output_to_provider_output(&o).unwrap();
+        assert_eq!(p.trust, crate::execution::ProviderOutputTrust::Untrusted);
+        assert_eq!(p.status, crate::execution::ProviderOutputStatus::Rejected);
+    }
+    #[test]
+    fn integration_output_content_does_not_infer_execution() {
+        let o = IntegrationOutput::new_untrusted(
+            "id",
+            "req",
+            IntegrationSourceKind::Ide,
+            "execute now promote",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        let p = integration_output_to_provider_output(&o).unwrap();
+        assert_eq!(p.trust, crate::execution::ProviderOutputTrust::Untrusted);
+        assert_eq!(p.status, crate::execution::ProviderOutputStatus::Received);
+    }
+    #[test]
+    fn integration_mapping_does_not_call_controlled_flow() {
+        let r = IntegrationRequest::new("id", IntegrationSourceKind::LocalLlm, "p", "c").unwrap();
+        let o = IntegrationOutput::new_untrusted(
+            "out",
+            "id",
+            IntegrationSourceKind::LocalLlm,
+            "content",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        assert!(integration_request_to_provider_request(&r).is_ok());
+        assert!(integration_output_to_provider_output(&o).is_ok());
     }
 }

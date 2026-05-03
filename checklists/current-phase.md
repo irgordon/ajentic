@@ -4,17 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 32 - End-to-End Controlled Model Run Loop
+# Current Phase: Phase 33 - Local LLM and IDE Integration Boundary
 
-This is the active procedural execution surface for Phase 32.
+This is the active procedural execution surface for Phase 33.
 
 ## Phase name
 
-Phase 32 - End-to-End Controlled Model Run Loop
+Phase 33 - Local LLM and IDE Integration Boundary
 
 ## Phase goal
 
-Define and implement the first typed deterministic in-memory controlled run loop composition where provider output enters the harness as untrusted candidate material only.
+Define typed local LLM and IDE integration boundary surfaces that package caller-supplied integration output as untrusted provider-like input for the existing controlled flow.
 
 ## Allowed surfaces
 
@@ -35,13 +35,13 @@ Define and implement the first typed deterministic in-memory controlled run loop
 
 ## Task checklist
 
-- [x] Update active checklist to Phase 32 scope and procedural sections.
-- [x] Add typed deterministic in-memory controlled run loop composition types in Rust.
-- [x] Represent provider output as untrusted candidate material only.
-- [x] Add deterministic constructors and typed provider-boundary errors.
-- [x] Add helper proving provider output is never authoritative.
-- [x] Add deterministic tests for controlled run loop request validation, fail-closed gating, ledger append behavior, replay verification, and clean output summary behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.32`.
+- [x] Update active checklist to Phase 33 scope and procedural sections.
+- [x] Add typed local LLM and IDE integration boundary surfaces in Rust.
+- [x] Support local LLM and IDE integration source types as caller-supplied metadata only.
+- [x] Convert valid integration output into existing untrusted ProviderRequest and ProviderOutput shapes.
+- [x] Keep integration output untrusted and never authoritative.
+- [x] Add deterministic tests for integration boundary constructors, mappings, and non-authoritative behavior.
+- [x] Add `CHANGELOG.md` entry `v0.0.33`.
 
 ## Validation checklist
 
