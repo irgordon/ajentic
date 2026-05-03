@@ -96,11 +96,11 @@ Optional/manual review:
 
 ## Static scan debt
 
-- [ ] Current ripgrep-based boundary scans are advisory transitional checks.
-- [ ] Ripgrep scans are string-based and can produce false positives on comments, fixture text, labels, and documentation.
-- [ ] Future release-candidate evidence must identify which checks may remain grep-based and which should be promoted to AST-aware linting before production readiness.
-- [ ] Candidate AST-aware enforcement options include ESLint rules for TypeScript UI surfaces and Clippy/Rust test guards for Rust authority surfaces.
-- [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in Phase 36 unless validation is blocked and a minimal correction is required.
+- [ ] UI boundary enforcement now includes an AST-aware lint baseline for forbidden runtime APIs and executable UI controls.
+- [ ] Ripgrep scans remain advisory for broader cross-surface review.
+- [ ] Remaining static scan precision debt includes Rust/network/provider checks and any UI checks not yet covered by AST lint.
+- [ ] Production-readiness still requires evidence that the lint baseline remains active in local validation and CI or equivalent release validation.
+- [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in this phase unless validation is blocked and a minimal correction is required.
 
 ## Release decision record placeholder
 

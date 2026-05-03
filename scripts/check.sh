@@ -29,6 +29,10 @@ echo "Running shell script parse check..."
 find scripts -type f -name "*.sh" -print0 | xargs -0 -n1 bash -n
 echo "  scripts OK"
 
+echo "Running UI boundary AST lint..."
+node scripts/lint_ui_boundaries.mjs
+echo "  UI boundary lint OK"
+
 echo "Running Rust formatting..."
 cargo fmt --manifest-path core/Cargo.toml
 cargo fmt --manifest-path core/Cargo.toml -- --check

@@ -6,6 +6,32 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.38 - 2026-05-03
+
+**Status:** Phase 38 - Static Boundary Lint Baseline
+
+### Added
+
+- Added `scripts/lint_ui_boundaries.mjs` as a deterministic AST-aware UI boundary lint baseline using existing TypeScript parser tooling.
+- Added `docs/operations/static-boundary-lint-baseline-phase-38.md` as an advisory scope/enforcement/debt report for this maintenance phase.
+
+### Changed
+
+- Updated `scripts/check.sh` to run `node scripts/lint_ui_boundaries.mjs` as part of local deterministic validation.
+- Updated `checklists/release.md` static scan debt section to record partial debt reduction from AST-aware UI linting and remaining deferred precision work.
+- Updated `checklists/current-phase.md` to Phase 38 procedural scope, lint coverage checklist, scoped maintenance deviation note, and validation/findings/deferred logs.
+- Updated `CHANGELOG.md` with `v0.0.38`.
+
+### Notes
+
+- Phase 38 adds an AST-aware UI boundary lint baseline for forbidden runtime APIs and executable UI controls.
+- Phase 38 intentionally advances static-boundary linting ahead of the prior roadmap sequence to reduce scan precision debt.
+- Phase 40 remains the scheduled roadmap/changelog alignment checkpoint for reconciling future sequencing against historical truth.
+- Ripgrep scans remain advisory for broader evidence review.
+- Static scan precision debt is partially reduced but not fully resolved.
+- No UI behavior, Rust behavior, provider work, API server, CLI command, schema change, workflow change, governance change, architecture change, roadmap rewrite, release-candidate readiness claim, or production-readiness claim was implemented.
+- No new dependencies were added unless explicitly required and documented.
+
 ## v0.0.37 - 2026-05-03
 
 **Status:** Phase 37 - Release-Candidate Evidence Collection Baseline
