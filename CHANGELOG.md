@@ -6,6 +6,37 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.22 - 2026-05-03
+
+**Status:** Phase 22 - Read-Only API Projection Surface for UI
+
+### Added
+
+- Added `ui/src/api/projections.ts` with read-only UI projection type shapes.
+- Added `ui/src/api/fixtures.ts` with static fixture-backed read-model projection data.
+- Added `ui/src/api/readModel.ts` with synchronous fixture accessor `getUiReadModel()`.
+
+### Changed
+
+- Updated `ui/src/app/AppShell.tsx` to display read-only projection summary lines from `getUiReadModel()`.
+- Updated `ui/src/screens/OverviewScreen.tsx` with read-only projection overview summary text.
+- Updated `ui/src/screens/StateScreen.tsx` with lifecycle projection display text.
+- Updated `ui/src/screens/ContextScreen.tsx` with context projection display text.
+- Updated `ui/src/screens/MemoryScreen.tsx` with memory projection display text.
+- Updated `ui/src/screens/LedgerScreen.tsx` with ledger projection display text.
+- Updated `ui/src/screens/ReplayScreen.tsx` with replay projection display text.
+- Updated `ui/src/screens/AuditScreen.tsx` with audit projection summary display text.
+- Updated `ui/src/screens/OutputScreen.tsx` with output trust projection display text.
+- Updated `checklists/current-phase.md` to Phase 22 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.22`.
+
+### Notes
+
+- Phase 22 adds read-only UI projection shapes and static fixture-backed read-model access only.
+- The UI read model is non-authoritative and does not redefine contract truth.
+- No HTTP/API fetching, async behavior, provider calls, operator intent controls, state mutation, ledger mutation, replay repair, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.21 - 2026-05-03
 
 **Status:** Phase 21 - Browser UI Shell Baseline

@@ -4,27 +4,26 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase: Phase 21 - Browser UI Shell Baseline
+# Current Phase: Phase 22 - Read-Only API Projection Surface for UI
 
-This is the active procedural execution surface for Phase 21.
+This is the active procedural execution surface for Phase 22.
 
 ## Phase name
 
-Phase 21 - Browser UI Shell Baseline
+Phase 22 - Read-Only API Projection Surface for UI
 
 ## Phase goal
 
-Create a minimal compile-safe browser UI shell and layout scaffolding that remains read-only, non-authoritative, and intent-free.
+Add read-only TypeScript UI projection shapes and static fixture-backed read-model access for display-only browser UI surfaces.
 
 ## Allowed surfaces
 
 - `ui/src/app/AppShell.tsx`
-- `ui/src/app/routes.tsx`
-- `ui/src/app/navigation.ts`
-- `ui/src/styles/tokens.css`
-- `ui/src/styles/layout.css`
+- `ui/src/api/*.ts`
+- `ui/src/app/AppShell.tsx`
 - `ui/src/screens/*.tsx`
 - `ui/src/components/*.tsx`
+- `ui/src/styles/*.css`
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
@@ -37,15 +36,14 @@ Create a minimal compile-safe browser UI shell and layout scaffolding that remai
 
 ## Task checklist
 
-- [x] Update active checklist to Phase 21 scope.
-- [x] Replace placeholder UI shell files with compile-safe shell scaffolding.
-- [x] Add typed navigation display metadata for planned UI areas.
-- [x] Add typed route metadata for planned screens.
-- [x] Add static read-only placeholder screens for Overview, State, Context, Memory, Policy, Validation, Ledger, Replay, Audit, and Output.
-- [x] Add shared layout-only `SectionCard` component.
-- [x] Add design tokens and responsive layout CSS scaffolding.
+- [x] Update active checklist to Phase 22 scope.
+- [x] Add read-only UI projection types under `ui/src/api/projections.ts`.
+- [x] Add static fixture-backed read model data under `ui/src/api/fixtures.ts`.
+- [x] Add synchronous read-model accessor under `ui/src/api/readModel.ts`.
+- [x] Wire AppShell and read-only screens to display fixture projection summaries.
+- [x] Keep projection display non-authoritative and read-only with no intent controls.
 - [x] Verify UI shell remains read-only and intent-free.
-- [x] Add `CHANGELOG.md` entry `v0.0.21`.
+- [x] Add `CHANGELOG.md` entry `v0.0.22`.
 - [x] Run required validation commands.
 
 ## Validation checklist
