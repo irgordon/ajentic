@@ -6,6 +6,28 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.25 - 2026-05-03
+
+**Status:** Phase 25 - Roadmap and Changelog Alignment Check + Repository Audit
+
+### Added
+
+- Added `docs/operations/repository-audit-phase-25.md` with an advisory Phase 25 repository audit summary.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 25 procedural scope, validation log, and audit findings tracking.
+- Updated `CHANGELOG.md` with `v0.0.25`.
+- Updated `docs/operations/repository-audit-phase-25.md` during Phase 25 audit execution finalization.
+
+### Notes
+
+- Phase 25 verifies roadmap/changelog alignment and audits repository correctness, coding standards, truth-dimension placement, and phase creep.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- Audit findings are advisory unless enforced by existing code, tests, schemas, or CI.
+- No runtime harness behavior, UI behavior, provider adapter, schema change, workflow change, governance change, or architecture change was implemented.
+
 ## v0.0.24 - 2026-05-03
 
 **Status:** Phase 24 - Context Packet and Memory Inspection UI
