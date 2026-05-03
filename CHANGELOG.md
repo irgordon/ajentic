@@ -6,6 +6,31 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.26 - 2026-05-03
+
+**Status:** Phase 26 - Policy, Validation, and Execution Decision UI
+
+### Added
+
+- Added `ui/src/components/DecisionSummary.tsx` as a display-only readable decision detail projection component.
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add `DecisionDetailProjection` and include `policyDecisions`, `validationDecisions`, and `executionDecisions` in `UiReadModel`.
+- Updated `ui/src/api/fixtures.ts` to add static fixture-backed policy, validation, and execution decision detail projection data.
+- Updated `ui/src/api/readModel.ts` to preserve synchronous fixture-backed `getUiReadModel()` behavior with expanded projection fields.
+- Updated `ui/src/screens/PolicyScreen.tsx` to render readable policy decision projection details as a read-only surface.
+- Updated `ui/src/screens/ValidationScreen.tsx` to render readable validation and execution decision projection details as read-only display sections.
+- Updated `checklists/current-phase.md` to Phase 26 procedural scope.
+- Updated `CHANGELOG.md` with `v0.0.26`.
+
+### Notes
+
+- Phase 26 displays policy, validation, and execution decision projections as read-only UI surfaces.
+- The UI remains non-authoritative and fixture-backed in this phase.
+- No live API integration, async behavior, runtime authority, operator intent controls, provider calls, policy evaluation in UI, validation evaluation in UI, state mutation, ledger mutation, replay repair, Rust behavior, schema change, or new dependency was implemented.
+- Raw model output remains untrusted.
+
 ## v0.0.25 - 2026-05-03
 
 **Status:** Phase 25 - Roadmap and Changelog Alignment Check + Repository Audit

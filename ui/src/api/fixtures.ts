@@ -36,6 +36,62 @@ export const uiReadModelFixture: UiReadModel = {
       authority: "ui"
     }
   ],
+  policyDecisions: [
+    {
+      id: "policy-decision-001",
+      label: "Policy gate: execution path",
+      decision: "allow",
+      reason: "policy_projection_fixture_allow",
+      status: "ready",
+      authority: "rust",
+      summary: "Execution path remains within fixture-defined policy boundaries.",
+      evidenceSummary: "Evidence references approved lifecycle state and policy boundary checks in Rust-owned projections."
+    },
+    {
+      id: "policy-decision-002",
+      label: "Policy gate: authority boundary",
+      decision: "hold",
+      reason: "operator_intent_not_submitted",
+      status: "blocked",
+      authority: "rust",
+      summary: "No operator intent submission is represented in this fixture projection.",
+      evidenceSummary: "Evidence indicates display-only UI surface with no mutation or bypass controls enabled."
+    }
+  ],
+  validationDecisions: [
+    {
+      id: "validation-decision-001",
+      label: "Validation gate: candidate completeness",
+      decision: "pass",
+      reason: "fixture_projection_validated",
+      status: "ready",
+      authority: "rust",
+      summary: "Candidate projection is marked as validated in fixture data.",
+      evidenceSummary: "Evidence summary includes deterministic validation result from Rust-owned projection fields."
+    },
+    {
+      id: "validation-decision-002",
+      label: "Validation gate: evidence integrity",
+      decision: "pending",
+      reason: "no_live_runtime_inputs",
+      status: "unknown",
+      authority: "rust",
+      summary: "Validation integrity is not re-evaluated in the UI projection layer.",
+      evidenceSummary: "Evidence is fixture-backed and read-only; UI does not run validation logic."
+    }
+  ],
+  executionDecisions: [
+    {
+      id: "execution-decision-001",
+      label: "Execution decision projection",
+      decision: "hold",
+      reason: "display_only_surface",
+      status: "blocked",
+      authority: "rust",
+      summary: "Execution decision is displayed for review and not triggered from the UI.",
+      evidenceSummary: "Evidence shows execution status comes from fixture projection data with no execution controls."
+    }
+  ],
   context: {
     packetId: "ctx-fixture-0024",
     slices: 5,
