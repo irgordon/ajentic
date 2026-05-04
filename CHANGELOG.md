@@ -5,6 +5,19 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.63.5 - 2026-05-04
+**Status:** Phase 63.5 - Procedural Evidence Closure
+
+### Changed
+- Updated `checklists/current-phase.md` to close Phase 63 procedural evidence drift and accurately record completed validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.63.5`.
+
+### Notes
+- Phase 63.5 is a out-of-band fix that corrects checklist evidence drift from Phase 63.
+- No Rust code, runtime behavior, diagnostic behavior, UI behavior, roadmap, governance, architecture, script, workflow, schema, dependency, release-candidate readiness claim, production-readiness claim, or public-usability claim was changed.
+- Execution-owned diagnostic mappings remain deferred.
+- Phase 64 may begin after this procedural closure.
+
 ## v0.0.62 - 2026-05-04
 **Status:** Phase 62 - Persistence Recovery and Corruption Detection
 

@@ -3,13 +3,13 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-# Phase 63 - Error-Code Family and Reporting Standardization
+# Phase 63.5 - Procedural Evidence Closure (for Phase 63)
 
 ## Phase name
-Phase 63 - Error-Code Family and Reporting Standardization
+Phase 63.5 - Procedural Evidence Closure for Phase 63
 
 ## Phase goal
-Add typed diagnostic family/context reporting around existing stable `code()` strings without changing runtime behavior.
+Close procedural evidence drift from Phase 63 by aligning checklist validation records to commands that were executed, without changing code or behavior.
 
 ## Working-tree hygiene gate
 - [x] Ran `git status --short` before editing and classified uncommitted files.
@@ -35,11 +35,11 @@ Add typed diagnostic family/context reporting around existing stable `code()` st
 - [x] Added phase-63 operations document.
 
 ## Validation checklist
-- [ ] `./scripts/check.sh`
-- [ ] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [ ] `node scripts/test_lint_ui_boundaries.mjs`
-- [ ] `node scripts/lint_ui_boundaries.mjs`
-- [ ] `cargo run --manifest-path core/Cargo.toml -- dry-run`
+- [x] `./scripts/check.sh`
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
+- [x] `node scripts/test_lint_ui_boundaries.mjs`
+- [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
 ## Diagnostic family checklist
 - [x] OperatorIntent
@@ -65,6 +65,13 @@ Add typed diagnostic family/context reporting around existing stable `code()` st
 - [x] API-side preserve-code tests implemented.
 - [x] Family/label/key deterministic tests implemented.
 
+
+## Phase 63.5 closure note
+- Phase 63 implemented API-side diagnostic family reporting only.
+- Existing `code()` values remain unchanged.
+- `diagnostic_key(...)` is a reporting key and does not replace `code()`.
+- Execution-owned diagnostic mappings remain deferred.
+
 ## Deferred items table
 | Item | Reason deferred |
 | --- | --- |
@@ -78,4 +85,12 @@ Add typed diagnostic family/context reporting around existing stable `code()` st
 ## Validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| Required validation/scans | Pending | Run after edits complete. |
+| `./scripts/check.sh` | Passed | Final Phase 63 validation command completed successfully. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | Passed | UI validation completed successfully during final Phase 63 validation. |
+| `node scripts/test_lint_ui_boundaries.mjs` | Passed | Direct AST lint boundary test completed successfully. |
+| `node scripts/lint_ui_boundaries.mjs` | Passed | Direct AST lint boundary scan completed successfully. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Passed | CLI dry-run completed successfully without behavior changes. |
+| API module size / `core/src/api/mod.rs` cleanliness checks | Passed | Completed successfully during final Phase 63 validation/static scan pass. |
+| Diagnostic family mapping scan | Passed | API-side diagnostic family reporting coverage verified. |
+| Code-preservation scan (`code()` stability) | Passed | Existing `code()` values preserved; no replacement by reporting keys. |
+| Readiness/static scans | Passed | Completed successfully; no readiness claim added. |
