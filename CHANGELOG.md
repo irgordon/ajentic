@@ -6,6 +6,26 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.46 - 2026-05-04
+
+**Status:** Phase 46 - Local CLI Dry-Run Entry
+
+### Changed
+
+- Updated `core/src/main.rs` with a minimal deterministic local CLI dry-run entry, safe default/no-arg behavior, safe unknown-command usage output, and unit tests.
+- Updated `checklists/current-phase.md` to Phase 46 procedural scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.46`.
+
+### Notes
+
+- Phase 46 adds a minimal local CLI dry-run entry only.
+- Dry-run output is deterministic and in-memory.
+- Dry-run output states that provider output remains untrusted, no files are read or written, no provider/model is called, no persistence occurs, and no release-candidate or production readiness is claimed.
+- Phase 46 does not introduce provider/model calls, file IO, file watching, workspace scanning, environment-variable reads, socket/HTTP behavior, async behavior, provider authentication, durable persistence, replay repair, audit writing, API server, background service, process spawning, UI behavior, schema change, workflow change, lint weakening, or new dependency.
+- Phase 47 remains the explicit persistence boundary.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.45 - 2026-05-04
 
 **Status:** Phase 45 - Roadmap and Changelog Alignment Check
