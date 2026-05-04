@@ -6,6 +6,30 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.49 - 2026-05-04
+
+**Status:** Phase 49 - Real Local Provider Adapter Boundary
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` with typed local provider adapter configuration and capability metadata surfaces, deterministic validation, secret-marker rejection, and deterministic tests enforcing metadata-only/non-authoritative behavior.
+- Updated `core/src/main.rs` tests to assert dry-run still states no provider/model call and does not use local provider config surfaces.
+- Updated `checklists/current-phase.md` to Phase 49 procedural scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.49`.
+
+### Notes
+
+- Phase 49 adds local provider adapter configuration and capability metadata only.
+- LocalProcess and LocalHttp endpoint kinds are metadata only in this phase.
+- Capability flags are descriptive only and do not grant authority.
+- DeterministicStubProvider remains the only implemented invoking adapter.
+- Phase 49 does not make AJENTIC capable of calling real local providers or local models.
+- Phase 46 dry-run remains no-provider-call and no-persistence.
+- Phase 47 persistence remains validation/stub-only and is not physically implemented.
+- No real provider adapter, local model invocation, cloud model invocation, IDE connection, process spawning, file IO, file watching, environment-variable read, secrets storage, socket/HTTP behavior, async behavior, provider authentication, endpoint URL parsing, config-file loading, controlled-flow execution, ledger append, replay repair, audit writing, persistence, serialization, API server, CLI provider command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.48 - 2026-05-04
 
 **Status:** Phase 48 - Provider Adapter Trait and Deterministic Stub

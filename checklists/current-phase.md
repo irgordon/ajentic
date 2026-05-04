@@ -4,15 +4,15 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 48 - Provider Adapter Trait and Deterministic Stub
+# Phase 49 - Real Local Provider Adapter Boundary
 
 ## Phase name
 
-Phase 48 - Provider Adapter Trait and Deterministic Stub
+Phase 49 - Real Local Provider Adapter Boundary
 
 ## Phase goal
 
-Add a Rust-owned provider adapter trait and deterministic stub provider that produces untrusted provider output only, with no provider/model/network/file/persistence execution.
+Add typed local provider adapter configuration and capability metadata for a future real local model adapter, without adding any real provider invocation.
 
 ## Allowed surfaces
 
@@ -36,12 +36,13 @@ Add a Rust-owned provider adapter trait and deterministic stub provider that pro
 
 ## Task checklist
 
-- [x] Update procedural checklist to Phase 48 scope.
-- [x] Add typed provider adapter trait and adapter invocation/result types.
-- [x] Add deterministic stub provider implementation using `ProviderOutput::new_untrusted`.
-- [x] Add deterministic tests for adapter/stub behavior and non-authoritative boundaries.
-- [x] Keep CLI dry-run no-provider-call behavior and assert it does not use stub output.
-- [x] Add `CHANGELOG.md` entry `v0.0.48`.
+- [x] Update procedural checklist to Phase 49 scope.
+- [x] Add typed local provider adapter configuration and capability metadata surfaces.
+- [x] Add deterministic validation for required config fields and secret-marker rejection.
+- [x] Keep capability metadata descriptive-only and non-authoritative.
+- [x] Keep deterministic stub as the only invoking adapter implementation.
+- [x] Keep CLI dry-run no-provider-call behavior and assert no local provider config usage.
+- [x] Add `CHANGELOG.md` entry `v0.0.49`.
 
 ## Validation checklist
 

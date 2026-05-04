@@ -7,6 +7,165 @@ pub enum ProviderKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderEndpointKind {
+    LocalProcess,
+    LocalHttp,
+    Disabled,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LocalProviderCapability {
+    pub supports_streaming: bool,
+    pub supports_tools: bool,
+    pub supports_json_mode: bool,
+    pub supports_system_prompt: bool,
+    pub supports_temperature: bool,
+}
+
+impl LocalProviderCapability {
+    pub fn none() -> Self {
+        Self {
+            supports_streaming: false,
+            supports_tools: false,
+            supports_json_mode: false,
+            supports_system_prompt: false,
+            supports_temperature: false,
+        }
+    }
+
+    pub fn preview_local_model() -> Self {
+        Self {
+            supports_streaming: false,
+            supports_tools: false,
+            supports_json_mode: false,
+            supports_system_prompt: true,
+            supports_temperature: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderCapabilityAuthority {
+    DescriptiveOnly,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterConfigError {
+    EmptyAdapterId,
+    EmptyModelLabel,
+    InvalidProviderKind,
+    InvalidEndpointKind,
+    InvalidMaxOutputTokens,
+    InvalidTimeoutMillis,
+    SecretMarkerDetected,
+    CapabilityAuthorityInvalid,
+}
+
+impl LocalProviderAdapterConfigError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyAdapterId => "empty_adapter_id",
+            Self::EmptyModelLabel => "empty_model_label",
+            Self::InvalidProviderKind => "invalid_provider_kind",
+            Self::InvalidEndpointKind => "invalid_endpoint_kind",
+            Self::InvalidMaxOutputTokens => "invalid_max_output_tokens",
+            Self::InvalidTimeoutMillis => "invalid_timeout_millis",
+            Self::SecretMarkerDetected => "secret_marker_detected",
+            Self::CapabilityAuthorityInvalid => "capability_authority_invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterConfig {
+    pub adapter_id: String,
+    pub provider_kind: ProviderKind,
+    pub endpoint_kind: LocalProviderEndpointKind,
+    pub model_label: String,
+    pub max_output_tokens: u32,
+    pub timeout_millis: u64,
+    pub capabilities: LocalProviderCapability,
+    pub capability_authority: LocalProviderCapabilityAuthority,
+}
+
+impl LocalProviderAdapterConfig {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        adapter_id: impl Into<String>,
+        provider_kind: ProviderKind,
+        endpoint_kind: LocalProviderEndpointKind,
+        model_label: impl Into<String>,
+        max_output_tokens: u32,
+        timeout_millis: u64,
+        capabilities: LocalProviderCapability,
+        capability_authority: LocalProviderCapabilityAuthority,
+    ) -> Result<Self, LocalProviderAdapterConfigError> {
+        let adapter_id = adapter_id.into();
+        if adapter_id.is_empty() {
+            return Err(LocalProviderAdapterConfigError::EmptyAdapterId);
+        }
+        let model_label = model_label.into();
+        if model_label.is_empty() {
+            return Err(LocalProviderAdapterConfigError::EmptyModelLabel);
+        }
+        if provider_kind == ProviderKind::Unknown {
+            return Err(LocalProviderAdapterConfigError::InvalidProviderKind);
+        }
+        if endpoint_kind == LocalProviderEndpointKind::Unknown {
+            return Err(LocalProviderAdapterConfigError::InvalidEndpointKind);
+        }
+        if max_output_tokens == 0 {
+            return Err(LocalProviderAdapterConfigError::InvalidMaxOutputTokens);
+        }
+        if timeout_millis == 0 {
+            return Err(LocalProviderAdapterConfigError::InvalidTimeoutMillis);
+        }
+        if has_secret_marker(&adapter_id) || has_secret_marker(&model_label) {
+            return Err(LocalProviderAdapterConfigError::SecretMarkerDetected);
+        }
+        if capability_authority != LocalProviderCapabilityAuthority::DescriptiveOnly {
+            return Err(LocalProviderAdapterConfigError::CapabilityAuthorityInvalid);
+        }
+
+        Ok(Self {
+            adapter_id,
+            provider_kind,
+            endpoint_kind,
+            model_label,
+            max_output_tokens,
+            timeout_millis,
+            capabilities,
+            capability_authority,
+        })
+    }
+}
+
+pub fn local_provider_config_allows_authority(_config: &LocalProviderAdapterConfig) -> bool {
+    false
+}
+
+pub fn local_provider_config_can_invoke_real_provider(
+    _config: &LocalProviderAdapterConfig,
+) -> bool {
+    false
+}
+
+pub fn local_provider_config_has_secret_marker(config: &LocalProviderAdapterConfig) -> bool {
+    has_secret_marker(&config.adapter_id) || has_secret_marker(&config.model_label)
+}
+
+fn has_secret_marker(value: &str) -> bool {
+    let normalized = value.to_ascii_lowercase();
+    normalized.contains("api_key")
+        || normalized.contains("apikey")
+        || normalized.contains("secret")
+        || normalized.contains("token")
+        || normalized.contains("bearer")
+        || normalized.contains("password")
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderOutputStatus {
     Received,
     Rejected,
@@ -1125,6 +1284,281 @@ mod tests {
             ProviderAdapterError::RealProviderNotImplemented.code(),
             "real_provider_not_implemented"
         );
+    }
+
+    #[test]
+    fn local_provider_config_error_codes_are_stable() {
+        assert_eq!(
+            LocalProviderAdapterConfigError::EmptyAdapterId.code(),
+            "empty_adapter_id"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::EmptyModelLabel.code(),
+            "empty_model_label"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::InvalidProviderKind.code(),
+            "invalid_provider_kind"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::InvalidEndpointKind.code(),
+            "invalid_endpoint_kind"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::InvalidMaxOutputTokens.code(),
+            "invalid_max_output_tokens"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::InvalidTimeoutMillis.code(),
+            "invalid_timeout_millis"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::SecretMarkerDetected.code(),
+            "secret_marker_detected"
+        );
+        assert_eq!(
+            LocalProviderAdapterConfigError::CapabilityAuthorityInvalid.code(),
+            "capability_authority_invalid"
+        );
+    }
+
+    #[test]
+    fn local_provider_capability_none_is_closed() {
+        let cap = LocalProviderCapability::none();
+        assert!(!cap.supports_streaming);
+        assert!(!cap.supports_tools);
+        assert!(!cap.supports_json_mode);
+        assert!(!cap.supports_system_prompt);
+        assert!(!cap.supports_temperature);
+    }
+
+    #[test]
+    fn local_provider_capability_preview_is_descriptive_only() {
+        let cap = LocalProviderCapability::preview_local_model();
+        assert!(!cap.supports_streaming);
+        assert!(!cap.supports_tools);
+        assert!(!cap.supports_json_mode);
+        assert!(cap.supports_system_prompt);
+        assert!(cap.supports_temperature);
+    }
+
+    fn valid_local_provider_config(
+        endpoint_kind: LocalProviderEndpointKind,
+    ) -> LocalProviderAdapterConfig {
+        LocalProviderAdapterConfig::new(
+            "local-preview-adapter",
+            ProviderKind::Local,
+            endpoint_kind,
+            "preview-model-approved-validated-safe-execute-promote",
+            1024,
+            3000,
+            LocalProviderCapability::preview_local_model(),
+            LocalProviderCapabilityAuthority::DescriptiveOnly,
+        )
+        .expect("config should be valid")
+    }
+
+    #[test]
+    fn local_provider_config_requires_adapter_id() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "model",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::EmptyAdapterId)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_requires_model_label() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::EmptyModelLabel)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_unknown_provider_kind() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Unknown,
+                LocalProviderEndpointKind::Disabled,
+                "model",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::InvalidProviderKind)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_unknown_endpoint_kind() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Unknown,
+                "model",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::InvalidEndpointKind)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_zero_max_output_tokens() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "model",
+                0,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::InvalidMaxOutputTokens)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_zero_timeout() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "model",
+                1,
+                0,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::InvalidTimeoutMillis)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_secret_markers_in_adapter_id() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "my_api_key_adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "model",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::SecretMarkerDetected)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_rejects_secret_markers_in_model_label() {
+        assert_eq!(
+            LocalProviderAdapterConfig::new(
+                "adapter",
+                ProviderKind::Local,
+                LocalProviderEndpointKind::Disabled,
+                "preview_token_model",
+                1,
+                1,
+                LocalProviderCapability::none(),
+                LocalProviderCapabilityAuthority::DescriptiveOnly
+            ),
+            Err(LocalProviderAdapterConfigError::SecretMarkerDetected)
+        );
+    }
+
+    #[test]
+    fn local_provider_config_capabilities_do_not_grant_authority() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::Disabled);
+        assert_eq!(
+            config.capabilities,
+            LocalProviderCapability::preview_local_model()
+        );
+        assert!(!local_provider_config_allows_authority(&config));
+    }
+
+    #[test]
+    fn local_provider_config_allows_no_authority() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::Disabled);
+        assert!(!local_provider_config_allows_authority(&config));
+    }
+
+    #[test]
+    fn local_provider_config_cannot_invoke_real_provider() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::Disabled);
+        assert!(!local_provider_config_can_invoke_real_provider(&config));
+    }
+
+    #[test]
+    fn local_process_endpoint_is_metadata_only() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::LocalProcess);
+        assert_eq!(
+            config.endpoint_kind,
+            LocalProviderEndpointKind::LocalProcess
+        );
+        assert!(!local_provider_config_can_invoke_real_provider(&config));
+    }
+
+    #[test]
+    fn local_http_endpoint_is_metadata_only() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::LocalHttp);
+        assert_eq!(config.endpoint_kind, LocalProviderEndpointKind::LocalHttp);
+        assert!(!local_provider_config_can_invoke_real_provider(&config));
+    }
+
+    #[test]
+    fn deterministic_stub_provider_remains_only_invoking_adapter() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider
+            .invoke(&invocation)
+            .expect("stub invokes deterministically");
+        assert_eq!(result.adapter_id, "stub-provider");
+    }
+
+    #[test]
+    fn local_provider_config_has_secret_marker_is_deterministic() {
+        let clean = valid_local_provider_config(LocalProviderEndpointKind::Disabled);
+        assert!(!local_provider_config_has_secret_marker(&clean));
+    }
+
+    #[test]
+    fn local_provider_config_does_not_read_env_or_files() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::Disabled);
+        assert!(!local_provider_config_has_secret_marker(&config));
+        assert!(!local_provider_config_allows_authority(&config));
+    }
+
+    #[test]
+    fn local_provider_config_does_not_open_network_or_spawn_process() {
+        let config = valid_local_provider_config(LocalProviderEndpointKind::LocalHttp);
+        assert!(!local_provider_config_can_invoke_real_provider(&config));
     }
 
     #[test]
