@@ -2120,12 +2120,616 @@ Milestone group: Milestone 5
 
 Primary goal: Reconcile planned future sequencing after Phase 38/39 maintenance deviation and verify CI runs the AST-aware UI boundary lint baseline.
 
-## Phase 41: Release-Candidate Planning Continuation
+## Phase 41: Functional Gap Audit and Roadmap Expansion
 
 Milestone group: Milestone 5
 
-Primary goal: Resume planned implementation/evidence sequence after Phase 40 reconciliation.
+Primary goal: Audit implemented-versus-planned functional gaps and expand planned forward phases toward a usable local harness without readiness claims.
+
+Scope:
+
+- Functional gap audit against historical and planned truth surfaces.
+- Advisory operations report documenting implemented/partial/missing surfaces.
+- Roadmap expansion from Phase 42 onward.
+
+Allowed:
+
+- `docs/roadmap/phase-map.md`
+- `checklists/current-phase.md`
+- `CHANGELOG.md`
+- `docs/operations/functional-gap-audit-phase-41.md`
+
+Not allowed:
+
+- Runtime behavior implementation.
+- UI behavior implementation.
+- Provider execution implementation.
+- Schema, workflow, governance, or architecture mutation.
+- Release-candidate or production-readiness claims.
+
+Validation gate:
+
+Required commands:
+
+```bash
+./scripts/check.sh
+cd ui && npm run typecheck && npm run lint && npm run build
+```
+
+Exit criteria:
+
+Phase 41 is complete when the functional gap is documented and Phases 42+ are concretely expanded in planned truth format.
 
 Boundary note:
 
-Phases 38/39 are explicitly scoped maintenance deviations preserved as historical truth in `CHANGELOG.md`; roadmap sequencing from this point remains planned truth for forward work only.
+This phase is documentation planning only and does not implement harness behavior.
+
+## Phase 42: Local Runtime Configuration Boundary
+
+Milestone group: Milestone 6
+
+Primary goal: Add typed Rust configuration surfaces for local runs, provider mode selection, workspace metadata, and safety defaults.
+
+Scope:
+
+- Typed runtime config structs/enums and validation for local execution modes.
+
+Allowed:
+
+- Rust config/type modules and tests.
+
+Not allowed:
+
+- Provider calls, file watching, secrets persistence.
+
+Validation gate:
+
+- Rust checks and config-focused tests pass.
+
+Exit criteria:
+
+- Deterministic typed local runtime configuration boundary exists.
+
+Boundary note:
+
+Configuration remains Rust-owned authority input, not UI authority.
+
+## Phase 43: Rust Read Projection Boundary
+
+Milestone group: Milestone 6
+
+Primary goal: Add Rust-owned read projections aggregating lifecycle/run/ledger/replay/audit/memory/context/provider/integration/output state.
+
+Scope:
+
+- Read projection structs, mapping logic, and projection tests.
+
+Allowed:
+
+- Rust projection modules and tests.
+
+Not allowed:
+
+- HTTP server, UI fetching, mutation entrypoints.
+
+Validation gate:
+
+- Rust checks and deterministic projection tests pass.
+
+Exit criteria:
+
+- Read projection boundary is typed and consumable by non-authoritative surfaces.
+
+Boundary note:
+
+Projection output is visibility data only.
+
+## Phase 44: Local Application State Container
+
+Milestone group: Milestone 6
+
+Primary goal: Add in-memory app state container for run state, ledger, memory snapshot, replay report, audit projections, provider/integration state, and read projections.
+
+Scope:
+
+- In-memory state container and deterministic state transition tests.
+
+Allowed:
+
+- Rust state container modules and tests.
+
+Not allowed:
+
+- Persistence.
+
+Validation gate:
+
+- Rust checks and container state tests pass.
+
+Exit criteria:
+
+- Local in-memory application state boundary exists with deterministic behavior.
+
+Boundary note:
+
+Container centralizes authority state but remains non-durable.
+
+## Phase 45: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 6
+
+Primary goal: Verify planned/historical truth alignment after roadmap expansion and early runtime-boundary implementation.
+
+Scope:
+
+- Compare roadmap and changelog; reconcile only future planned sequence.
+
+Allowed:
+
+- Roadmap/checklist/changelog documentation updates.
+
+Not allowed:
+
+- Runtime/UI/provider behavior implementation.
+
+Validation gate:
+
+- Required docs scans and baseline validation commands pass.
+
+Exit criteria:
+
+- Alignment drift is resolved without collapsing truth dimensions.
+
+Boundary note:
+
+Roadmap remains planned truth; changelog remains historical truth.
+
+## Phase 46: Local CLI Dry-Run Entry
+
+Milestone group: Milestone 6
+
+Primary goal: Add minimal Rust CLI/command entry for deterministic controlled flow from caller-supplied or fixture input with safe summary output.
+
+Scope:
+
+- CLI entrypoint and dry-run summary path.
+
+Allowed:
+
+- Rust CLI command parsing/routing and tests.
+
+Not allowed:
+
+- Real provider calls, persistence.
+
+Validation gate:
+
+- Rust checks plus CLI dry-run tests pass.
+
+Exit criteria:
+
+- Local dry-run entry executes deterministic controlled flow without external provider dependence.
+
+Boundary note:
+
+CLI remains request boundary; authority remains internal Rust paths.
+
+## Phase 47: Local Persistence Boundary
+
+Milestone group: Milestone 7
+
+Primary goal: Add deterministic local persistence boundaries for ledger, memory snapshots, audit projections, and run records.
+
+Scope:
+
+- Persistence interfaces/adapters and deterministic write/read tests.
+
+Allowed:
+
+- Rust persistence boundary modules and tests.
+
+Not allowed:
+
+- Auto-repair, hidden writes, UI mutation.
+
+Validation gate:
+
+- Rust checks and persistence determinism tests pass.
+
+Exit criteria:
+
+- Durable local storage boundary exists with explicit authority-controlled writes.
+
+Boundary note:
+
+Persistence remains behind Rust-owned validation and policy boundaries.
+
+## Phase 48: Provider Adapter Trait and Deterministic Stub
+
+Milestone group: Milestone 7
+
+Primary goal: Add provider adapter trait and deterministic stub provider returning untrusted output.
+
+Scope:
+
+- Provider trait, stub adapter, untrusted-output handling tests.
+
+Allowed:
+
+- Rust provider boundary modules and tests.
+
+Not allowed:
+
+- Real model invocation.
+
+Validation gate:
+
+- Rust checks and provider-stub boundary tests pass.
+
+Exit criteria:
+
+- Deterministic provider abstraction exists without trusted-output bypass.
+
+Boundary note:
+
+Provider output remains untrusted until Rust acceptance path completes.
+
+## Phase 49: Real Local Provider Adapter Boundary
+
+Milestone group: Milestone 7
+
+Primary goal: Add first real local model adapter boundary behind untrusted provider interface.
+
+Scope:
+
+- Local model adapter boundary wiring and guarded tests.
+
+Allowed:
+
+- Rust provider adapter integration modules and tests.
+
+Not allowed:
+
+- Trusted output, direct ledger writes, UI authority.
+
+Validation gate:
+
+- Rust checks and local adapter boundary tests pass.
+
+Exit criteria:
+
+- First real provider adapter boundary exists with untrusted-output enforcement.
+
+Boundary note:
+
+Real adapter availability does not create authority outside Rust acceptance flow.
+
+## Phase 50: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 7
+
+Primary goal: Reconcile roadmap/changelog after persistence and provider-boundary expansion.
+
+Scope:
+
+- Planned-vs-historical alignment review and planned-sequence correction.
+
+Allowed:
+
+- Roadmap/checklist/changelog documentation updates.
+
+Not allowed:
+
+- Runtime/UI/provider behavior expansion outside alignment scope.
+
+Validation gate:
+
+- Required docs scans and baseline validation commands pass.
+
+Exit criteria:
+
+- Alignment remains clean with no truth-dimension drift.
+
+Boundary note:
+
+Alignment checks correct planning, not implementation status.
+
+## Phase 51: Rust-Owned Operator Intent Submission
+
+Milestone group: Milestone 8
+
+Primary goal: Add Rust ingress for operator intents (approve/reject/retry/replay/context rebuild/memory requests).
+
+Scope:
+
+- Typed intent ingress interfaces, validation, and routing tests.
+
+Allowed:
+
+- Rust API/CLI ingress modules and tests.
+
+Not allowed:
+
+- UI direct mutation paths.
+
+Validation gate:
+
+- Rust checks and typed intent ingress tests pass.
+
+Exit criteria:
+
+- Operator intent requests can be submitted through Rust-owned typed boundaries.
+
+Boundary note:
+
+Intent submission is request-only; Rust remains decision authority.
+
+## Phase 52: UI Live Read Projection Integration
+
+Milestone group: Milestone 8
+
+Primary goal: Replace fixture-backed UI data with read-only live projections from Rust-owned state or approved local read boundary.
+
+Scope:
+
+- UI read-projection integration and read-only rendering updates.
+
+Allowed:
+
+- UI data-access integration and rendering adjustments.
+
+Not allowed:
+
+- UI authority over runtime state.
+
+Validation gate:
+
+- UI typecheck/lint/build and boundary lint checks pass.
+
+Exit criteria:
+
+- UI displays live read projections without taking runtime authority.
+
+Boundary note:
+
+UI remains visibility surface only.
+
+## Phase 53: UI Operator Intent Submission Boundary
+
+Milestone group: Milestone 8
+
+Primary goal: Convert request-preview controls into typed submission controls sending intent-shaped data to Rust ingress.
+
+Scope:
+
+- UI submit control wiring to Rust-owned intent boundary.
+
+Allowed:
+
+- UI intent form/control integration and boundary-safe tests.
+
+Not allowed:
+
+- Direct mutation or bypass of Rust intent validation.
+
+Validation gate:
+
+- UI checks and integration boundary checks pass.
+
+Exit criteria:
+
+- UI can submit typed intents through Rust ingress without authority bypass.
+
+Boundary note:
+
+Submission transport does not grant UI authority.
+
+## Phase 54: End-to-End Local Harness Workflow
+
+Milestone group: Milestone 8
+
+Primary goal: Run full local controlled workflow across context assembly, provider intake, policy/validation, execution/promotion decision, ledger append, replay verification, audit projection, clean output, and UI inspection.
+
+Scope:
+
+- End-to-end local harness workflow integration and deterministic tests.
+
+Allowed:
+
+- Rust/UI integration and workflow test surfaces.
+
+Not allowed:
+
+- Production deployment claims.
+
+Validation gate:
+
+- Full local validation suite and workflow tests pass.
+
+Exit criteria:
+
+- Functional local harness workflow works end-to-end in local scope.
+
+Boundary note:
+
+Local harness completion is not production readiness.
+
+## Phase 55: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 8
+
+Primary goal: Verify planned/historical truth before release-candidate evidence expansion.
+
+Scope:
+
+- Compare planned sequence and completed history; reconcile forward plan only.
+
+Allowed:
+
+- Roadmap/checklist/changelog documentation updates.
+
+Not allowed:
+
+- Runtime/UI/provider behavior changes outside alignment scope.
+
+Validation gate:
+
+- Required docs scans and baseline validation commands pass.
+
+Exit criteria:
+
+- Truth-dimension alignment is preserved ahead of evidence expansion.
+
+Boundary note:
+
+Historical facts remain in changelog.
+
+## Phase 56: Packaging and Startup Boundary
+
+Milestone group: Milestone 9
+
+Primary goal: Add reproducible local startup/install path for app execution.
+
+Scope:
+
+- Packaging/startup boundary docs/scripts/code needed for reproducible local harness boot.
+
+Allowed:
+
+- Minimal startup boundary implementation and validation steps.
+
+Not allowed:
+
+- Production-readiness claim.
+
+Validation gate:
+
+- Startup reproducibility checks and baseline validation commands pass.
+
+Exit criteria:
+
+- Local harness can be started reproducibly by operators.
+
+Boundary note:
+
+Packaging is local-operability boundary, not production deployment boundary.
+
+## Phase 57: Release-Candidate Evidence Pass
+
+Milestone group: Milestone 9
+
+Primary goal: Populate release evidence using actual functional local workflow outputs.
+
+Scope:
+
+- Evidence capture/update against release checklist using real workflow runs.
+
+Allowed:
+
+- Checklist/operations evidence updates and minimal supporting validation outputs.
+
+Not allowed:
+
+- Production-readiness claim.
+
+Validation gate:
+
+- Required release-evidence commands and artifact checks pass.
+
+Exit criteria:
+
+- Release evidence reflects functional local workflow output traces.
+
+Boundary note:
+
+Evidence pass does not itself grant production readiness.
+
+## Phase 58: Failure Injection and Recovery Hardening
+
+Milestone group: Milestone 9
+
+Primary goal: Add negative-path tests for corrupt ledger, provider failures, invalid config, UI submit errors, replay mismatch, persistence failures, and recovery boundaries.
+
+Scope:
+
+- Failure injection scenarios and recovery boundary tests.
+
+Allowed:
+
+- Rust/UI test expansions and boundary-safe hardening.
+
+Not allowed:
+
+- Hidden auto-repair bypassing explicit operator/Rust authority.
+
+Validation gate:
+
+- Expanded failure-path test suites pass deterministically.
+
+Exit criteria:
+
+- Core failure/recovery boundaries are tested and enforced.
+
+Boundary note:
+
+Recovery must remain explicit, auditable, and authority-safe.
+
+## Phase 59: Production Readiness Gap Audit
+
+Milestone group: Milestone 9
+
+Primary goal: Identify remaining production blockers after a functional local harness exists.
+
+Scope:
+
+- Advisory production-gap audit and blocker classification.
+
+Allowed:
+
+- Operations/checklist/roadmap/changelog documentation updates.
+
+Not allowed:
+
+- Production-readiness claim.
+
+Validation gate:
+
+- Required audit scans and baseline validation commands pass.
+
+Exit criteria:
+
+- Production blockers are explicitly documented with follow-up planning direction.
+
+Boundary note:
+
+Gap audit identifies blockers; it does not assert blocker closure.
+
+## Phase 60: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 9
+
+Primary goal: Reconcile roadmap/changelog before any production-candidate work.
+
+Scope:
+
+- Planned/historical truth comparison and forward-plan reconciliation.
+
+Allowed:
+
+- Roadmap/checklist/changelog documentation updates.
+
+Not allowed:
+
+- Runtime/UI/provider behavior changes outside alignment scope.
+
+Validation gate:
+
+- Required docs scans and baseline validation commands pass.
+
+Exit criteria:
+
+- Roadmap/changelog truth alignment is clean before production-candidate planning.
+
+Boundary note:
+
+Alignment checkpoints preserve truth-dimension integrity and do not replace implementation evidence.
