@@ -136,3 +136,14 @@ pub struct ApplicationReadProjection {
     pub output: OutputReadProjection,
 }
 
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn read_projection_error_diagnostic_preserves_code() {
+        let error = ReadProjectionError::EmptyProjectionId;
+        let diagnostic = crate::api::read_projection_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+}

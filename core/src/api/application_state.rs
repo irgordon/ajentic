@@ -213,3 +213,15 @@ mod tests {
         assert!(cfg.is_err());
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn application_state_error_diagnostic_preserves_code() {
+        let error = ApplicationStateError::EmptyStateId;
+        let diagnostic = crate::api::application_state_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+}

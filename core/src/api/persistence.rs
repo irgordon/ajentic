@@ -805,3 +805,29 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn local_persistence_validation_reason_diagnostic_preserves_code() {
+        let reason = LocalPersistenceValidationReason::EmptyPlanId;
+        let diagnostic = crate::api::local_persistence_validation_reason_diagnostic(reason);
+        assert_eq!(diagnostic.code, reason.code());
+    }
+
+    #[test]
+    fn local_persistence_error_diagnostic_preserves_code() {
+        let error = LocalPersistenceError::PhysicalWriteNotImplemented;
+        let diagnostic = crate::api::local_persistence_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+
+    #[test]
+    fn persisted_record_envelope_error_diagnostic_preserves_code() {
+        let error = PersistedRecordEnvelopeError::ChecksumMismatch;
+        let diagnostic = crate::api::persisted_record_envelope_error_diagnostic(error.clone());
+        assert_eq!(diagnostic.code, error.code());
+    }
+}

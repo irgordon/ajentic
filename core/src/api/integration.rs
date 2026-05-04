@@ -113,3 +113,15 @@ impl IntegrationOutput {
         })
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn integration_boundary_error_diagnostic_preserves_code() {
+        let error = IntegrationBoundaryError::EmptyRequestId;
+        let diagnostic = crate::api::integration_boundary_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+}

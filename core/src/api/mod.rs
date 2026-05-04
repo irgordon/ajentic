@@ -1,15 +1,17 @@
-mod operator_intent;
-mod integration;
-mod runtime_config;
-mod read_projection;
 mod application_state;
-mod persistence;
+mod diagnostics;
+mod integration;
 mod local_workflow;
+mod operator_intent;
+mod persistence;
+mod read_projection;
+mod runtime_config;
 
-pub use operator_intent::*;
-pub use integration::*;
-pub use runtime_config::*;
-pub use read_projection::*;
 pub use application_state::*;
-pub use persistence::*;
+pub use diagnostics::*;
+pub use integration::*;
 pub use local_workflow::*;
+pub use operator_intent::*;
+pub use persistence::*;
+pub use read_projection::*;
+pub use runtime_config::*;

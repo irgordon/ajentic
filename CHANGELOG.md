@@ -1456,3 +1456,27 @@ mutation_path: changelog_entry
 - Phase 0 remains a skeleton validation phase.
 - No runtime harness behavior was implemented.
 - Placeholder files establish repository shape only.
+
+## v0.0.63 - 2026-05-04
+Phase 63 - Error-Code Family and Reporting Standardization
+
+### Added
+- Added API diagnostic family/context types and reporting helpers via `core/src/api/diagnostics.rs`.
+- Added advisory operations note `docs/operations/error-code-standardization-phase-63.md`.
+
+### Changed
+- Updated `core/src/api/mod.rs` to expose diagnostics module.
+- Updated API modules with preserve-code diagnostic mapping tests.
+- Updated `checklists/current-phase.md` for Phase 63 scope and validation tracking.
+- Updated `CHANGELOG.md` with Phase 63 entry.
+
+Notes:
+- Phase 63 adds diagnostic family/context reporting around existing stable `code()` strings.
+- Existing `code()` values remain unchanged and are not globally uniquified.
+- Duplicate code strings remain allowed when scoped by diagnostic family/context.
+- `diagnostic_key(...)` is a reporting key, not a replacement for `code()`.
+- Phase 63 does not add UI/CLI reporting integration.
+- Phase 63 does not change validation order, runtime behavior, persistence behavior, recovery behavior, provider execution, replay behavior, ledger behavior, CLI behavior, UI behavior, schema behavior, workflow behavior, scripts, dependencies, roadmap, governance, or architecture.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+- Public usability is not claimed.
