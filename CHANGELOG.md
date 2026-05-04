@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.64 - 2026-05-04
+**Status:** Phase 64 - Rust/TypeScript Contract Synchronization Boundary
+
+### Added
+- Added `docs/operations/contract-sync-phase-64.md` with advisory Phase 64 boundary, mirror coverage, validation evidence, and non-readiness posture.
+
+### Changed
+- Updated `ui/src/api/projections.ts` to align TypeScript contract mirror types with Rust-owned diagnostics, persistence verification, intent submission semantics, and read projection display boundaries.
+- Updated `ui/src/api/fixtures.ts` to exercise diagnostic and persisted-record verification mirror shapes in fixture/read-model data.
+- Updated `checklists/current-phase.md` to Phase 64 procedural truth and required validation/checklist coverage.
+- Updated `CHANGELOG.md` with `v0.0.64`.
+
+### Notes
+- Phase 64 aligns TypeScript mirror shapes with Rust-owned diagnostics, persistence verification, read projection, and intent submission semantics.
+- Rust remains authoritative.
+- TypeScript shapes are compile-time/UI display contracts only.
+- No transport, generated bindings, runtime validation, fetch/API client, WebAssembly, FFI, UI submission, provider execution, persistence wiring, CLI behavior change, dependency change, release-candidate readiness claim, production-readiness claim, or public-usability claim was added.
+
 ## v0.0.63.5 - 2026-05-04
 **Status:** Phase 63.5 - Procedural Evidence Closure
 
