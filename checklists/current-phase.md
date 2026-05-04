@@ -3,26 +3,26 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-# Phase 66 - Identity-Bound Operator Intent Authorization
+# Phase 67 - Operator Intent Audit Record Boundary
 
 ## Phase name
-Phase 66 - Identity-Bound Operator Intent Authorization
+Phase 67 - Operator Intent Audit Record Boundary
 
 ## Phase goal
-Add a Rust-owned, typed, deterministic, fail-closed authorization boundary for operator intent requests without executing operator actions.
+Define a Rust-owned typed, deterministic operator-intent audit record construction boundary that proves ingress + authorization metadata consistency without executing actions or persisting records.
 
 ## Task checklist
-- [x] Confirmed Phase 66 title/scope from roadmap planned truth.
-- [x] Added `core/src/api/authorization.rs` for identity/safety/context authorization.
+- [x] Confirmed Phase 67 title/scope from roadmap planned truth.
+- [x] Added `core/src/api/intent_audit.rs` for audit eligibility and record construction.
 - [x] Added API module declaration and re-export in `core/src/api/mod.rs`.
-- [x] Kept `core/src/execution/mod.rs` unchanged.
-- [x] Added deterministic authorization tests including non-execution guarantees.
-- [x] Added Phase 66 operations note at `docs/operations/identity-authorization-phase-66.md`.
-- [x] Added `CHANGELOG.md` entry `v0.0.66`.
+- [x] Added operator intent audit diagnostic family/mapping in `core/src/api/diagnostics.rs`.
+- [x] Added deterministic audit boundary tests including non-execution/non-persistence assertions.
+- [x] Added Phase 67 operations note at `docs/operations/intent-audit-boundary-phase-67.md`.
+- [x] Added `CHANGELOG.md` entry `v0.0.67`.
 
 ## Boundary checklist
-- [x] Authorization is not execution.
-- [x] Authorized decisions remain metadata-only for future execution.
+- [x] Audit record construction is not audit record persistence.
+- [x] Typed records are proof objects only.
 - [x] No operator action execution path added.
 - [x] No ledger/audit append behavior added.
 - [x] No persistence behavior added.
@@ -36,11 +36,12 @@ Add a Rust-owned, typed, deterministic, fail-closed authorization boundary for o
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 - [x] API size/cleanliness scans
-- [x] Authorization scans
+- [x] Audit scans
 - [x] No-execution scans
 - [x] execution.rs guard scan
+- [x] persistence.rs guard scan
 - [x] Readiness scan
 - [x] UI lint wiring scan
 
 ## Non-readiness statement
-Phase 66 adds authorization metadata boundaries only. It does not approve release-candidate readiness, production readiness, or public usability.
+Phase 67 adds audit record construction boundaries only. It does not approve release-candidate readiness, production readiness, or public usability.

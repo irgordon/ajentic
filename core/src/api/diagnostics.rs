@@ -9,6 +9,7 @@ use super::{
 pub enum DiagnosticFamily {
     OperatorIntent,
     OperatorAuthorization,
+    OperatorIntentAudit,
     Integration,
     RuntimeConfig,
     ReadProjection,
@@ -48,6 +49,7 @@ pub fn diagnostic_family_label(family: DiagnosticFamily) -> &'static str {
     match family {
         DiagnosticFamily::OperatorIntent => "operator_intent",
         DiagnosticFamily::OperatorAuthorization => "operator_authorization",
+        DiagnosticFamily::OperatorIntentAudit => "operator_intent_audit",
         DiagnosticFamily::Integration => "integration",
         DiagnosticFamily::RuntimeConfig => "runtime_config",
         DiagnosticFamily::ReadProjection => "read_projection",
@@ -92,6 +94,16 @@ pub fn operator_authorization_reason_diagnostic(
         DiagnosticFamily::OperatorAuthorization,
         reason.code(),
         "Operator intent authorization was denied.",
+    )
+}
+
+pub fn operator_intent_audit_reason_diagnostic(
+    reason: super::OperatorIntentAuditReason,
+) -> ErrorDiagnostic {
+    ErrorDiagnostic::new(
+        DiagnosticFamily::OperatorIntentAudit,
+        reason.code(),
+        "Operator intent audit record was ineligible for construction.",
     )
 }
 pub fn integration_boundary_error_diagnostic(error: IntegrationBoundaryError) -> ErrorDiagnostic {
