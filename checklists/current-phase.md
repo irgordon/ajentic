@@ -4,41 +4,44 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 47 - Local Persistence Boundary
+# Phase 48 - Provider Adapter Trait and Deterministic Stub
 
 ## Phase name
 
-Phase 47 - Local Persistence Boundary
+Phase 48 - Provider Adapter Trait and Deterministic Stub
 
 ## Phase goal
 
-Add typed local persistence planning and deterministic validation boundaries with explicit atomic-write plan metadata, without wiring persistence into dry-run or any default runtime path.
+Add a Rust-owned provider adapter trait and deterministic stub provider that produces untrusted provider output only, with no provider/model/network/file/persistence execution.
 
 ## Allowed surfaces
 
-- `core/src/api/mod.rs`
-- `core/src/main.rs`
+- `core/src/execution/mod.rs`
+- `core/src/api/mod.rs` (not required this phase)
+- `core/src/main.rs` (dry-run assertion only)
+- `core/src/lib.rs` (not required this phase)
 - `checklists/current-phase.md`
+- `checklists/release.md` (not changed; posture unchanged)
 - `CHANGELOG.md`
 
 ## Boundary rules
 
-- Persistence is explicit, typed, atomic-by-plan requirement, and opt-in.
-- No read-only, dry-run, replay verification, projection, or UI path writes to disk.
-- Local persistence paths remain caller-supplied metadata only.
-- Phase 46 dry-run remains no-persistence.
+- Stub provider output remains untrusted and non-authoritative.
+- No real provider/model invocation.
+- No network, file IO, environment reads, async, process/thread/timer use, ledger append, controlled-flow execution, persistence, or serialization.
+- Phase 46 dry-run remains no-provider-call and no-persistence.
+- Phase 47 persistence remains validation/stub-only and not physically implemented.
 - Release-candidate readiness is not claimed.
 - Production readiness is not claimed.
 
 ## Task checklist
 
-- [x] Update procedural checklist to Phase 47 scope.
-- [x] Add typed local persistence plan surfaces in `core/src/api/mod.rs`.
-- [x] Add deterministic validation and stable validation/error codes.
-- [x] Add explicit atomic-write semantics as typed plan metadata.
-- [x] Add deterministic tests for required persistence boundary behavior.
-- [x] Keep CLI dry-run as no-persistence and no-write behavior.
-- [x] Add `CHANGELOG.md` entry `v0.0.47`.
+- [x] Update procedural checklist to Phase 48 scope.
+- [x] Add typed provider adapter trait and adapter invocation/result types.
+- [x] Add deterministic stub provider implementation using `ProviderOutput::new_untrusted`.
+- [x] Add deterministic tests for adapter/stub behavior and non-authoritative boundaries.
+- [x] Keep CLI dry-run no-provider-call behavior and assert it does not use stub output.
+- [x] Add `CHANGELOG.md` entry `v0.0.48`.
 
 ## Validation checklist
 
@@ -48,8 +51,6 @@ Add typed local persistence planning and deterministic validation boundaries wit
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 - [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs`
-- [x] `rg -n "persist|persistence|write|rename|atomic|repair|replay repair|serialize|LocalApplicationState|dry-run|dry run|no persistence" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
+- [x] `rg -n "provider|adapter|stub|real provider|model|invoke|trusted|authoritative|validated|approved|safe|execute|promote|persist|write|ledger append|run_controlled_model_flow|execute_local_persistence_plan" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
 - [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" core/src/main.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`
-- [x] `git status --short`
-- [x] `git log --oneline -1`

@@ -6,6 +6,28 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.48 - 2026-05-04
+
+**Status:** Phase 48 - Provider Adapter Trait and Deterministic Stub
+
+### Changed
+
+- Updated `core/src/execution/mod.rs` with a typed provider adapter trait, adapter invocation/result types, deterministic stub provider implementation, and deterministic unit tests that keep provider output untrusted and non-authoritative.
+- Updated `core/src/main.rs` tests to assert dry-run does not use stub provider output and remains no-provider-call behavior.
+- Updated `checklists/current-phase.md` to Phase 48 procedural scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.48`.
+
+### Notes
+
+- Phase 48 adds a provider adapter trait and deterministic stub provider only.
+- Stub provider output is deterministic, untrusted, and non-authoritative.
+- The stub provider does not call real providers, local models, cloud models, files, environment variables, sockets, HTTP, async runtime, persistence helpers, controlled flow, ledger append, replay repair, audit writing, API server, CLI live command, or UI behavior.
+- Phase 46 dry-run remains no-provider-call and no-persistence.
+- Phase 47 persistence remains validation/stub-only and is not physically implemented.
+- No real provider adapter, provider authentication, model invocation, file IO, socket/HTTP behavior, async behavior, controlled-flow execution, ledger append, persistence, serialization, API server, CLI provider command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.47 - 2026-05-04
 
 **Status:** Phase 47 - Local Persistence Boundary

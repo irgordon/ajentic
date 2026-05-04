@@ -121,6 +121,129 @@ pub fn provider_output_is_authoritative(_output: &ProviderOutput) -> bool {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderAdapterError {
+    EmptyAdapterId,
+    EmptyRequestId,
+    EmptyPromptSummary,
+    OutputConstructionFailed,
+    RealProviderNotImplemented,
+}
+
+impl ProviderAdapterError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyAdapterId => "empty_adapter_id",
+            Self::EmptyRequestId => "empty_request_id",
+            Self::EmptyPromptSummary => "empty_prompt_summary",
+            Self::OutputConstructionFailed => "output_construction_failed",
+            Self::RealProviderNotImplemented => "real_provider_not_implemented",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderAdapterInvocation {
+    pub adapter_id: String,
+    pub request: ProviderRequest,
+}
+
+impl ProviderAdapterInvocation {
+    pub fn new(
+        adapter_id: impl Into<String>,
+        request: ProviderRequest,
+    ) -> Result<Self, ProviderAdapterError> {
+        let adapter_id = adapter_id.into();
+        if adapter_id.is_empty() {
+            return Err(ProviderAdapterError::EmptyAdapterId);
+        }
+        if request.id.is_empty() {
+            return Err(ProviderAdapterError::EmptyRequestId);
+        }
+        if request.prompt_summary.is_empty() {
+            return Err(ProviderAdapterError::EmptyPromptSummary);
+        }
+        Ok(Self {
+            adapter_id,
+            request,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderAdapterResult {
+    pub adapter_id: String,
+    pub output: ProviderOutput,
+}
+
+pub trait ProviderAdapter {
+    fn adapter_id(&self) -> &str;
+    fn invoke(
+        &self,
+        invocation: &ProviderAdapterInvocation,
+    ) -> Result<ProviderAdapterResult, ProviderAdapterError>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DeterministicStubProvider {
+    adapter_id: String,
+    response_prefix: String,
+}
+
+impl DeterministicStubProvider {
+    pub fn new(
+        adapter_id: impl Into<String>,
+        response_prefix: impl Into<String>,
+    ) -> Result<Self, ProviderAdapterError> {
+        let adapter_id = adapter_id.into();
+        if adapter_id.is_empty() {
+            return Err(ProviderAdapterError::EmptyAdapterId);
+        }
+        let response_prefix = response_prefix.into();
+        if response_prefix.is_empty() {
+            return Err(ProviderAdapterError::EmptyPromptSummary);
+        }
+        Ok(Self {
+            adapter_id,
+            response_prefix,
+        })
+    }
+}
+
+impl ProviderAdapter for DeterministicStubProvider {
+    fn adapter_id(&self) -> &str {
+        &self.adapter_id
+    }
+
+    fn invoke(
+        &self,
+        invocation: &ProviderAdapterInvocation,
+    ) -> Result<ProviderAdapterResult, ProviderAdapterError> {
+        let output_id = format!("stub-output:{}:{}", self.adapter_id, invocation.request.id);
+        let content = format!(
+            "{} {}",
+            self.response_prefix, invocation.request.prompt_summary
+        );
+        let output = ProviderOutput::new_untrusted(
+            output_id,
+            invocation.request.id.clone(),
+            invocation.request.provider_kind,
+            content,
+            ProviderOutputStatus::Received,
+        )
+        .map_err(|_| ProviderAdapterError::OutputConstructionFailed)?;
+
+        Ok(ProviderAdapterResult {
+            adapter_id: self.adapter_id.clone(),
+            output,
+        })
+    }
+}
+
+pub fn provider_adapter_result_is_authoritative(result: &ProviderAdapterResult) -> bool {
+    provider_output_is_authoritative(&result.output)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExecutionStatus {
     NotStarted,
     Running,
@@ -978,6 +1101,199 @@ mod tests {
         let request = ProviderRequest::new("req-1", ProviderKind::Unknown, "prompt")
             .expect("request should be valid");
         assert_eq!(request.provider_kind, ProviderKind::Unknown);
+    }
+
+    #[test]
+    fn provider_adapter_error_codes_are_stable() {
+        assert_eq!(
+            ProviderAdapterError::EmptyAdapterId.code(),
+            "empty_adapter_id"
+        );
+        assert_eq!(
+            ProviderAdapterError::EmptyRequestId.code(),
+            "empty_request_id"
+        );
+        assert_eq!(
+            ProviderAdapterError::EmptyPromptSummary.code(),
+            "empty_prompt_summary"
+        );
+        assert_eq!(
+            ProviderAdapterError::OutputConstructionFailed.code(),
+            "output_construction_failed"
+        );
+        assert_eq!(
+            ProviderAdapterError::RealProviderNotImplemented.code(),
+            "real_provider_not_implemented"
+        );
+    }
+
+    #[test]
+    fn provider_adapter_invocation_requires_adapter_id() {
+        let request = ProviderRequest::new("req-1", ProviderKind::Local, "summary").unwrap();
+        assert_eq!(
+            ProviderAdapterInvocation::new("", request),
+            Err(ProviderAdapterError::EmptyAdapterId)
+        );
+    }
+
+    #[test]
+    fn provider_adapter_invocation_requires_request_id() {
+        let request = ProviderRequest {
+            id: String::new(),
+            provider_kind: ProviderKind::Local,
+            prompt_summary: "summary".to_string(),
+        };
+        assert_eq!(
+            ProviderAdapterInvocation::new("stub", request),
+            Err(ProviderAdapterError::EmptyRequestId)
+        );
+    }
+
+    #[test]
+    fn provider_adapter_invocation_requires_prompt_summary() {
+        let request = ProviderRequest {
+            id: "req-1".to_string(),
+            provider_kind: ProviderKind::Local,
+            prompt_summary: String::new(),
+        };
+        assert_eq!(
+            ProviderAdapterInvocation::new("stub", request),
+            Err(ProviderAdapterError::EmptyPromptSummary)
+        );
+    }
+
+    #[test]
+    fn deterministic_stub_provider_requires_adapter_id() {
+        assert_eq!(
+            DeterministicStubProvider::new("", "prefix"),
+            Err(ProviderAdapterError::EmptyAdapterId)
+        );
+    }
+
+    fn stub_fixture() -> (DeterministicStubProvider, ProviderAdapterInvocation) {
+        let provider = DeterministicStubProvider::new("stub-provider", "stub-response:")
+            .expect("valid provider");
+        let request = ProviderRequest::new("req-1", ProviderKind::Cloud, "prompt").unwrap();
+        let invocation = ProviderAdapterInvocation::new("stub-provider", request).unwrap();
+        (provider, invocation)
+    }
+
+    #[test]
+    fn deterministic_stub_provider_invocation_returns_untrusted_output() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.trust, ProviderOutputTrust::Untrusted);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_output_is_not_authoritative() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert!(!provider_adapter_result_is_authoritative(&result));
+    }
+
+    #[test]
+    fn deterministic_stub_provider_output_id_is_deterministic() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.id, "stub-output:stub-provider:req-1");
+    }
+
+    #[test]
+    fn deterministic_stub_provider_output_request_id_matches_request() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.request_id, invocation.request.id);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_preserves_provider_kind() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(
+            result.output.provider_kind,
+            invocation.request.provider_kind
+        );
+    }
+
+    #[test]
+    fn deterministic_stub_provider_status_is_received() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.status, ProviderOutputStatus::Received);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_content_is_deterministic() {
+        let (provider, invocation) = stub_fixture();
+        let first = provider.invoke(&invocation).unwrap();
+        let second = provider.invoke(&invocation).unwrap();
+        assert_eq!(first.output.content, "stub-response: prompt");
+        assert_eq!(first.output.content, second.output.content);
+        assert_eq!(first.output.id, second.output.id);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_infer_policy_from_prompt() {
+        let provider = DeterministicStubProvider::new("stub-provider", "stub-response:").unwrap();
+        let request = ProviderRequest::new(
+            "req-policy",
+            ProviderKind::Local,
+            "approved validated safe execute promote persist write",
+        )
+        .unwrap();
+        let invocation = ProviderAdapterInvocation::new("stub-provider", request).unwrap();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.trust, ProviderOutputTrust::Untrusted);
+        assert_eq!(result.output.status, ProviderOutputStatus::Received);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_infer_validation_from_prompt() {
+        let provider = DeterministicStubProvider::new("stub-provider", "stub-response:").unwrap();
+        let request =
+            ProviderRequest::new("req-validation", ProviderKind::Ide, "validated").unwrap();
+        let invocation = ProviderAdapterInvocation::new("stub-provider", request).unwrap();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.trust, ProviderOutputTrust::Untrusted);
+        assert_eq!(result.output.status, ProviderOutputStatus::Received);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_infer_execution_from_prompt() {
+        let provider = DeterministicStubProvider::new("stub-provider", "stub-response:").unwrap();
+        let request =
+            ProviderRequest::new("req-execution", ProviderKind::Unknown, "execute").unwrap();
+        let invocation = ProviderAdapterInvocation::new("stub-provider", request).unwrap();
+        let result = provider.invoke(&invocation).unwrap();
+        assert_eq!(result.output.trust, ProviderOutputTrust::Untrusted);
+        assert_eq!(result.output.status, ProviderOutputStatus::Received);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_append_ledger() {
+        let (_, invocation) = stub_fixture();
+        let initial = crate::ledger::Ledger::empty().events().len();
+        assert_eq!(initial, 0);
+        let provider = DeterministicStubProvider::new("stub-provider", "stub-response:").unwrap();
+        let _ = provider.invoke(&invocation).unwrap();
+        assert_eq!(crate::ledger::Ledger::empty().events().len(), 0);
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_execute_controlled_flow() {
+        let (provider, invocation) = stub_fixture();
+        let result = provider.invoke(&invocation).unwrap();
+        assert!(result.output.content.contains("stub-response:"));
+        assert!(!result.output.content.contains("run_id="));
+    }
+
+    #[test]
+    fn deterministic_stub_provider_does_not_persist() {
+        let (provider, invocation) = stub_fixture();
+        let first = provider.invoke(&invocation).unwrap();
+        let second = provider.invoke(&invocation).unwrap();
+        assert_eq!(first, second);
     }
 
     #[test]
