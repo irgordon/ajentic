@@ -1,8 +1,8 @@
 import type { ApplicationUiProjection, UiReadModel } from "./projections";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
-  projectionId: "proj-fixture-0052",
-  runtimeConfigId: "runtime-cfg-0052",
+  projectionId: "proj-fixture-0053",
+  runtimeConfigId: "runtime-cfg-0053",
   safety: {
     safetyLevel: "strict",
     requirePolicyPass: true,
@@ -14,16 +14,22 @@ export const applicationProjectionFixture: ApplicationUiProjection = {
     authority: "rust",
     summary: "Runtime safety defaults are closed; provider network, file IO, and UI mutation are disallowed."
   },
-  lifecycle: { lifecycle: "Evaluating", revision: 52, status: "ready", authority: "rust", summary: "Lifecycle read projection from Rust-owned boundary." },
-  run: { runId: "run-fixture-0052", title: "Phase 52 Typed Read Projection Fixture", status: "ready", currentLifecycle: "Evaluating", executionDecision: "allow", promotionDecision: "hold", replayReadiness: "replayable", cleanOutputAvailable: true, authority: "rust", summary: "Run projection is display-only and non-authoritative in UI." },
+  lifecycle: { lifecycle: "Evaluating", revision: 53, status: "ready", authority: "rust", summary: "Lifecycle read projection from Rust-owned boundary." },
+  run: { runId: "run-fixture-0053", title: "Phase 53 Typed Intent Submission Preview Fixture", status: "ready", currentLifecycle: "Evaluating", executionDecision: "allow", promotionDecision: "hold", replayReadiness: "replayable", cleanOutputAvailable: true, authority: "rust", summary: "Run projection is display-only and non-authoritative in UI." },
   provider: { providerKind: "deterministic_stub", outputStatus: "received", outputTrust: "untrusted", authoritative: false, authority: "provider", summary: "Provider output remains untrusted and non-authoritative." },
   integration: { sourceKind: "local_llm", outputStatus: "received", outputTrust: "untrusted", authoritative: false, authority: "integration", summary: "Integration output remains untrusted and non-authoritative." },
   ledger: { events: 3, lastRevision: 3, status: "ready", authority: "rust", summary: "Ledger summary is projection-only and does not append events from UI." },
   replay: { readiness: "replayable", integrity: "consistent", eventsReplayed: 3, status: "ready", authority: "rust", summary: "Replay summary is display-only and non-executing in UI." },
   audit: { projections: 2, latestSummary: "Audit projection summary from supplied read projection data.", authority: "rust", summary: "Audit projection is read-only and non-authoritative in UI." },
-  context: { packetId: "ctx-fixture-0052", slices: 4, sources: 3, budgetUsed: 412, budgetMax: 1024, authority: "rust", summary: "Context summary from typed read projection metadata.", slicesPreview: [] },
-  memory: { snapshotId: "mem-fixture-0052", activeEntries: 8, disabledEntries: 1, rejectedEntries: 2, authority: "rust", summary: "Memory summary from typed read projection metadata.", entriesPreview: [] },
+  context: { packetId: "ctx-fixture-0053", slices: 4, sources: 3, budgetUsed: 412, budgetMax: 1024, authority: "rust", summary: "Context summary from typed read projection metadata.", slicesPreview: [] },
+  memory: { snapshotId: "mem-fixture-0053", activeEntries: 8, disabledEntries: 1, rejectedEntries: 2, authority: "rust", summary: "Memory summary from typed read projection metadata.", entriesPreview: [] },
   output: { cleanOutputAvailable: true, rawOutputTrusted: false, authority: "rust", summary: "Raw provider/model output remains untrusted and distinct from clean output." }
+};
+
+const previewBase = {
+  authority: "operator" as const,
+  status: "unknown" as const,
+  disabled: true
 };
 
 export const uiReadModelFixture: UiReadModel = {
@@ -31,7 +37,7 @@ export const uiReadModelFixture: UiReadModel = {
   application: applicationProjectionFixture,
   decisions: [
     { label: "Policy gate", decision: "allow", reason: "projection_display_only", status: "ready", authority: "rust" },
-    { label: "Validation gate", decision: "pending", reason: "no_runtime_transport_in_phase_52", status: "unknown", authority: "ui" }
+    { label: "Validation gate", decision: "pending", reason: "no_runtime_transport_in_phase_53", status: "unknown", authority: "ui" }
   ],
   policyDecisions: [],
   validationDecisions: [],
@@ -39,8 +45,13 @@ export const uiReadModelFixture: UiReadModel = {
   ledgerTimeline: [],
   replayDetail: { readiness: "ready_for_replay", integrity: "integrity_verified", reconstructionStatus: "reported_by_projection", finalLifecycle: "Validated", finalRevision: 3, eventsSeen: 3, stateTransitionsApplied: 3, authority: "rust", summary: "Replay detail remains non-executing UI text." },
   auditDetails: [],
-  cleanOutput: { id: "clean-output-0052", cleanOutputAvailable: true, rawOutputTrusted: false, cleanOutputTrusted: true, authority: "rust", summary: "Clean output projection is read-only text.", rawOutputSummary: "Raw provider/model output remains untrusted and non-authoritative.", cleanOutputSummary: "Clean output preview is distinct display data and does not grant authority." },
+  cleanOutput: { id: "clean-output-0053", cleanOutputAvailable: true, rawOutputTrusted: false, cleanOutputTrusted: true, authority: "rust", summary: "Clean output projection is read-only text.", rawOutputSummary: "Raw provider/model output remains untrusted and non-authoritative.", cleanOutputSummary: "Clean output preview is distinct display data and does not grant authority." },
   operatorIntentPreviews: [
-    { id: "intent-preview-approve", intentType: "approve", label: "Approve candidate", description: "Request preview only.", reasonPreview: "operator requests approval review", routePreview: "operator_intent_preview_only", authority: "operator", status: "unknown", disabled: true }
+    { id: "intent-preview-approve", intentType: "approve", label: "Approve candidate", description: "Submission-shaped request preview only.", reasonPreview: "operator requests approval review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-approve-0001", operatorId: "operator-phase53", intentType: "approve", targetKind: "run", targetId: "run-fixture-0053", reason: "Approve candidate for downstream policy review.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
+    { id: "intent-preview-reject", intentType: "reject", label: "Reject candidate", description: "Submission-shaped request preview only.", reasonPreview: "operator requests rejection review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-reject-0001", operatorId: "operator-phase53", intentType: "reject", targetKind: "run", targetId: "run-fixture-0053", reason: "Reject candidate pending additional evidence.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
+    { id: "intent-preview-retry", intentType: "retry", label: "Retry evaluation", description: "Submission-shaped request preview only.", reasonPreview: "operator requests retry review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-retry-0001", operatorId: "operator-phase53", intentType: "retry", targetKind: "run", targetId: "run-fixture-0053", reason: "Retry evaluation after non-authoritative review.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
+    { id: "intent-preview-replay", intentType: "replay_request", label: "Replay request", description: "Submission-shaped request preview only.", reasonPreview: "operator requests replay review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-replay-0001", operatorId: "operator-phase53", intentType: "replay_request", targetKind: "replay", targetId: "replay-fixture-0053", reason: "Request replay review with no execution in UI.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
+    { id: "intent-preview-context", intentType: "context_rebuild_request", label: "Context rebuild request", description: "Submission-shaped request preview only.", reasonPreview: "operator requests context rebuild review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-context-0001", operatorId: "operator-phase53", intentType: "context_rebuild_request", targetKind: "context", targetId: "ctx-fixture-0053", reason: "Request context rebuild review without UI execution.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
+    { id: "intent-preview-memory", intentType: "memory_snapshot_request", label: "Memory snapshot request", description: "Submission-shaped request preview only.", reasonPreview: "operator requests memory snapshot review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-memory-0001", operatorId: "operator-phase53", intentType: "memory_snapshot_request", targetKind: "memory", targetId: "mem-fixture-0053", reason: "Request memory snapshot review without UI execution.", requestPreviewEnabled: false, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } }
   ]
 };

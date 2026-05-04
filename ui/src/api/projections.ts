@@ -43,7 +43,9 @@ export type AuditDetailProjection = Readonly<{ id: string; projectionType: strin
 export type OutputProjection = Readonly<{ cleanOutputAvailable: boolean; rawOutputTrusted: boolean; authority: AuthoritySurface; summary: string; }>;
 export type CleanOutputProjection = Readonly<{ id: string; cleanOutputAvailable: boolean; rawOutputTrusted: boolean; cleanOutputTrusted: boolean; authority: AuthoritySurface; summary: string; rawOutputSummary: string; cleanOutputSummary: string; }>;
 
-export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType: string; label: string; description: string; reasonPreview: string; routePreview: string; authority: AuthoritySurface; status: ProjectionStatus; disabled: boolean; }>;
+export type IntentSubmissionUiProjection = Readonly<{ submissionId: string; operatorId: string; intentType: string; targetKind: string; targetId: string; reason: string; requestPreviewEnabled: boolean; submissionEnabled: false; authority: AuthoritySurface; summary: string; }>;
+
+export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType: string; label: string; description: string; reasonPreview: string; routePreview: string; authority: AuthoritySurface; status: ProjectionStatus; disabled: boolean; submissionPreview: IntentSubmissionUiProjection; }>;
 
 export type ApplicationUiProjection = Readonly<{
   projectionId: string;
