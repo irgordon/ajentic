@@ -105,6 +105,11 @@ mod tests {
     }
 
     #[test]
+    fn cli_dry_run_does_not_use_stub_provider() {
+        assert!(!run_dry_run_summary().contains("stub-output:"));
+    }
+
+    #[test]
     fn dry_run_summary_mentions_no_persistence() {
         assert!(run_dry_run_summary().contains("no persistence occurred"));
     }
