@@ -5,6 +5,31 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.54 - 2026-05-04
+
+**Status:** Phase 54 - End-to-End Local Harness Workflow
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with typed in-memory local harness workflow request/result/status/reason/error surfaces, deterministic stub-provider composition, controlled-flow wiring, local application state/read projection derivation, and deterministic Phase 54 tests.
+- Updated `core/src/main.rs` tests to assert CLI dry-run does not call the local harness workflow.
+- Updated `checklists/current-phase.md` to Phase 54 scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.54`.
+
+### Notes
+
+- Phase 54 adds an in-memory local harness workflow composition only.
+- The workflow composes existing typed surfaces using the deterministic stub provider and controlled flow.
+- Provider output remains untrusted and non-authoritative.
+- The workflow does not call real providers, local models, cloud models, files, environment variables, sockets, HTTP, async runtime, persistence helpers, replay repair, operator intent execution, API server, CLI live command, UI transport, or UI behavior.
+- The workflow does not physically persist or serialize state.
+- Phase 46 dry-run remains no-provider-call and no-persistence and does not call the workflow.
+- Phase 47 persistence remains validation/stub-only and is not physically implemented.
+- UI intent previews remain non-functional and are not wired to this workflow.
+- No schema change, workflow change, script change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.53 - 2026-05-04
 
 **Status:** Phase 53 - UI Operator Intent Submission Boundary

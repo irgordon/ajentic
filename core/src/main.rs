@@ -168,6 +168,12 @@ mod tests {
     }
 
     #[test]
+    fn cli_dry_run_does_not_call_local_harness_workflow() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("workflow completed in memory"));
+    }
+
+    #[test]
     fn unknown_command_usage_is_safe() {
         let output = run_from_args(["ajentic_core".to_string(), "unknown".to_string()]);
         assert!(output.contains("safe usage: ajentic_core [dry-run]"));
