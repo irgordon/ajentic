@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.66 - 2026-05-04
+**Status:** Phase 66 - Identity-Bound Operator Intent Authorization
+
+### Added
+- Added `core/src/api/authorization.rs` with typed identity/safety/target authorization request+decision models, deterministic fail-closed authorization checks, and non-execution helper coverage.
+- Added `docs/operations/identity-authorization-phase-66.md` documenting scope, non-execution boundary, and structural-risk constraints.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare/re-export the new authorization module.
+- Updated `core/src/api/diagnostics.rs` with `OperatorAuthorization` diagnostic family and `operator_authorization_reason_diagnostic(...)` mapping.
+- Updated `checklists/current-phase.md` to Phase 66 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.66`.
+
+### Notes
+- Authorization is not execution.
+- `AuthorizedForFutureExecution` is metadata-only and keeps `execution_enabled=false`.
+- Phase 66 does not execute operator actions, append ledger/audit records, persist state, call providers/models, or mutate execution flows.
+- `core/src/execution/mod.rs` was not expanded.
+- Phase 67 remains responsible for intent audit record boundary.
+
 ## v0.0.65 - 2026-05-04
 **Status:** Phase 65 - Roadmap and Changelog Alignment Check
 

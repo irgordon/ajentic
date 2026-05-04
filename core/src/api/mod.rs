@@ -1,4 +1,5 @@
 mod application_state;
+mod authorization;
 mod diagnostics;
 mod integration;
 mod local_workflow;
@@ -8,6 +9,7 @@ mod read_projection;
 mod runtime_config;
 
 pub use application_state::*;
+pub use authorization::*;
 pub use diagnostics::*;
 pub use integration::*;
 pub use local_workflow::*;
