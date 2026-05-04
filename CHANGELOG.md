@@ -6,6 +6,31 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.45 - 2026-05-04
+
+**Status:** Phase 45 - Roadmap and Changelog Alignment Check
+
+### Added
+
+- Added `docs/operations/repository-audit-phase-45.md` advisory report documenting Phase 45 alignment findings, boundary review, and carry-forward risks.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 45 procedural scope, alignment/boundary checklists, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.45`.
+- Updated `docs/operations/repository-audit-phase-45.md` during Phase 45 audit finalization.
+
+### Notes
+
+- Phase 45 verifies roadmap/changelog alignment after Phases 42-44.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- Phase 46 remains the planned no-persistence local CLI dry-run entry.
+- Phase 47 remains the planned explicit local persistence boundary.
+- `LocalApplicationState` remains an in-memory typed container, not a persistence surface.
+- `ApplicationContextMetadata` and `ApplicationMemoryMetadata` remain bounded summaries, not arbitrary payload stores.
+- No runtime harness behavior, UI behavior, provider work, API server, CLI command, persistence, serialization, file IO, schema change, workflow change, script change, governance change, architecture change, lint-tooling change, dependency change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.44 - 2026-05-04
 
 **Status:** Phase 44 - Local Application State Container
