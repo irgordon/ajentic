@@ -4,45 +4,56 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 56 - API Module Decomposition and Boundary Cleanup
+# Phase 56.5 - API Decomposition Validation Closure
 
 ## Phase name
 
-Phase 56 - API Module Decomposition and Boundary Cleanup
+Phase 56.5 - API Decomposition Validation Closure
 
 ## Phase goal
 
-Perform the scheduled roadmap/changelog alignment checkpoint after Phases 51-54, confirm the bounded non-production baseline, and insert Phase 56 as a structural API module decomposition phase before additional functional implementation.
+Close the Phase 56 validation gap by normalizing procedural documentation, running the full validation/static-scan suite from the final decomposed state, and confirming API split compatibility/behavior preservation.
+
+## Out-of-band validation note
+
+Phase 56.5 is an out-of-band validation and correctness sweep before moving to higher-level functional code work. It exists because Phase 56 completed structural decomposition but did not complete a final clean validation pass and left this checklist stale.
 
 ## Allowed surfaces
 
-- `docs/roadmap/phase-map.md`
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
-- `docs/operations/repository-audit-phase-55.md` (advisory only)
+- `core/src/api/mod.rs` (only if validation exposes cleanup need)
+- `core/src/api/operator_intent.rs` (only if validation exposes cleanup need)
+- `core/src/api/integration.rs` (only if validation exposes cleanup need)
+- `core/src/api/runtime_config.rs` (only if validation exposes cleanup need)
+- `core/src/api/read_projection.rs` (only if validation exposes cleanup need)
+- `core/src/api/application_state.rs` (only if validation exposes cleanup need)
+- `core/src/api/persistence.rs` (only if validation exposes cleanup need)
+- `core/src/api/local_workflow.rs` (only if validation exposes cleanup need)
+- `docs/operations/repository-audit-phase-56-5.md` (advisory only)
 
 ## Boundary rules
 
-- `CHANGELOG.md` is historical truth; `docs/roadmap/phase-map.md` is planned truth.
-- Do not record completed implementation status in the roadmap.
-- Do not move completed history out of `CHANGELOG.md`.
-- Do not implement API module decomposition in Phase 55.
-- Do not modify Rust, UI runtime behavior, schemas, scripts, workflows, governance docs, or architecture docs.
-- Do not add release-candidate or production-readiness claims.
+- Validation closure and correctness cleanup only; no opportunistic refactor.
+- No runtime behavior changes.
+- No API behavior additions.
+- No provider execution additions.
+- No persistence/physical write additions.
+- No CLI/UI behavior changes.
+- No schema/workflow/script/governance/architecture/roadmap/dependency changes.
+- No release-candidate or production-readiness claim.
 
 ## Task checklist
 
-- [x] Update `checklists/current-phase.md` to Phase 55 scope.
-- [x] Compare `docs/roadmap/phase-map.md` against `CHANGELOG.md`.
-- [x] Confirm Phases 51-54 are recorded as completed history only in `CHANGELOG.md`.
-- [x] Confirm roadmap remains planned truth and avoids completed-status claims.
-- [x] Confirm Phase 54 remains an in-memory local workflow baseline and not readiness evidence.
-- [x] Insert Phase 56 as **API Module Decomposition and Boundary Cleanup**.
-- [x] Shift prior Phase 56+ planned sequence forward by one phase number.
-- [x] Preserve every-fifth-phase roadmap/changelog alignment checkpoint cadence after renumbering.
-- [x] Record explicit behavior-preserving decomposition constraints for Phase 56.
-- [x] Confirm Phase 57 resumes functional implementation only after full decomposition validation.
-- [x] Add `CHANGELOG.md` entry `v0.0.55`.
+- [x] Ran `git status --short` before editing.
+- [x] Fully replaced this file with Phase 56.5 procedural truth.
+- [x] Confirmed no stale Phase 55 checklist body content remains.
+- [x] Ran full validation/static-scan suite after final state.
+- [x] Confirmed `core/src/api/mod.rs` remains module/re-export compatibility surface only.
+- [x] Confirmed split API modules own domain logic.
+- [x] Confirmed `crate::api::*` compatibility remains intact.
+- [x] Confirmed no generated artifacts were committed.
+- [x] Added `CHANGELOG.md` entry `v0.0.56.5`.
 
 ## Validation checklist
 
@@ -51,59 +62,69 @@ Perform the scheduled roadmap/changelog alignment checkpoint after Phases 51-54,
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] `rg -n "production-ready|production ready|release candidate ready|release-candidate ready|RC ready|ready for production|fully functional" docs checklists CHANGELOG.md README.md AGENTS.md`
-- [x] `rg -n "Phase 55|Phase 56|Phase 57|Phase 60|Roadmap and Changelog Alignment Check|API Module Decomposition|Boundary Cleanup" docs/roadmap/phase-map.md CHANGELOG.md checklists/current-phase.md`
-- [x] `rg -n "core/src/api/mod.rs|operator_intent.rs|integration.rs|runtime_config.rs|read_projection.rs|application_state.rs|persistence.rs|local_workflow.rs|re-export|pub\(crate\)|visibility|error code|validation order" docs/roadmap/phase-map.md checklists/current-phase.md CHANGELOG.md docs/operations/repository-audit-phase-55.md`
-- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep|spawn" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs`
+- [x] `wc -l core/src/api/mod.rs core/src/api/*.rs`
+- [x] `rg -n "pub enum|pub struct|pub trait|pub fn|impl .*code\(|fn code\(" core/src/api`
+- [x] `rg -n "empty_submission_id|empty_operator_id|empty_reason|empty_target_id|unsupported_intent_type|empty_workflow_id|empty_run_id|empty_projection_id|empty_config_id|empty_workspace_id|empty_workspace_root|empty_operator_label|unsafe_default_enabled|secrets_not_allowed|empty_context_packet_id|empty_memory_snapshot_id|target_and_temp_path_same|missing_expected_revision|physical_write_not_implemented|completed_in_memory|provider_invocation_failed|read_projection_failed" core/src/api`
+- [x] `rg -n "Phase 55|Phase 56|TODO|FIXME|HACK|temporary|for now|leftover|partial refactor|move later|dead code|unused|orphan" core/src/api checklists/current-phase.md CHANGELOG.md docs/operations/repository-audit-phase-56-5.md`
+- [x] `rg -n "pub enum|pub struct|pub fn|impl |#\[cfg\(test\)\]|fn code\(" core/src/api/mod.rs`
+- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep|spawn" core/src/api core/src/main.rs core/src/execution/mod.rs`
+- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" core/src/api CHANGELOG.md checklists/current-phase.md checklists/release.md docs/operations/repository-audit-phase-56-5.md`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`
 
-## Roadmap/changelog alignment checklist
+## Phase 56 deviation-closure checklist
 
-- [x] Roadmap Phase 55 remains roadmap/changelog alignment checkpoint.
-- [x] Roadmap now includes Phase 56 API decomposition phase before further functional implementation.
-- [x] Roadmap Phase 57 resumes functional implementation only after Phase 56 full validation.
-- [x] Later roadmap/changelog alignment checkpoint remains present after renumbering.
-- [x] Roadmap does not claim current production-ready or release-candidate-ready status.
+- [x] Current-phase checklist normalized.
+- [x] `./scripts/check.sh` passed after final state.
+- [x] Full static scan set passed/reviewed after final state.
+- [x] Cargo dry-run passed after final state.
+- [x] API re-export compatibility confirmed.
+- [x] No generated artifacts committed.
 
-## Phase 51-54 boundary review checklist
+## API decomposition verification checklist
 
-- [x] Phase 51 ingress validates/routes/classifies only and does not execute actions.
-- [x] Phase 52 UI read projection consumes typed projection-shaped data only and does not fetch/mutate.
-- [x] Phase 53 UI intent submission boundary remains submission-shaped display data only and does not submit.
-- [x] Phase 54 local harness workflow remains deterministic/in-memory only with no real providers, persistence, or transport wiring.
-- [x] AST-aware UI lint remains wired locally and in CI.
-- [x] Phase 47 persistence remains validation/stub-only and not physically implemented.
-- [x] Phase 46 dry-run remains no-provider-call and no-persistence.
+- [x] `core/src/api/mod.rs` re-exports moved public surfaces.
+- [x] Existing call sites compile without import rewrites outside allowed files.
+- [x] No public symbol renamed.
+- [x] No enum variant renamed.
+- [x] No struct field renamed.
+- [x] No constructor signature changed.
+- [x] No `code()` string changed.
+- [x] No validation priority changed.
+- [x] No helper behavior changed.
+- [x] No test assertion weakened.
 
-## API density/decomposition checklist
+## Zombie-code checklist
 
-- [x] `core/src/api/mod.rs` is oversized and should not continue receiving major feature additions.
-- [x] API domains are clear enough to decompose by ownership boundary.
-- [x] Phase 56 is structural only and behavior-preserving.
-- [x] Decomposition constraints and module ownership plan are recorded in roadmap.
+- [x] Unused imports scan reviewed.
+- [x] Duplicate orphan helper scan reviewed.
+- [x] Stale Phase 55/56 checklist text in API source comments reviewed.
+- [x] Leftover partial-refactor comment scan reviewed.
+- [x] `core/src/api/mod.rs` logic/test residue scan reviewed.
+- [x] Duplicated tests no longer targeting owning module scan reviewed.
+- [x] Visibility discipline (`pub` vs `pub(crate)`/private) reviewed.
 
 ## Findings table
 
 | Finding | Classification | Notes |
 | --- | --- | --- |
-| CHANGELOG records Phases 51-54 as historical completed work. | confirmed | Roadmap does not duplicate completed status. |
-| Roadmap required insertion of structural decomposition phase before additional implementation. | confirmed | Phase 56 inserted and later phases shifted. |
-| `core/src/api/mod.rs` density creates maintenance and review risk. | required follow-up | Address in Phase 56 structural split with strict behavior preservation. |
+| `core/src/api/mod.rs` contains module declarations and re-exports only. | confirmed | Compatibility surface preserved. |
+| Required validation/static scans completed from final decomposed state. | confirmed | No blocking failures observed. |
+| Phase 55 body content was stale in previous checklist state. | fixed | Fully replaced with Phase 56.5 procedural truth. |
 
 ## Deferred items table
 
 | Item | Deferred to | Reason |
 | --- | --- | --- |
-| Actual API module file split and test relocation | Phase 56 | Out of scope for alignment-only Phase 55. |
-| Post-decomposition functional implementation continuation | Phase 57+ | Must wait for full Phase 56 validation gate. |
+| Further functional API/runtime work | Phase 57+ | Phase 56.5 is validation closure only. |
+| Any structural refactor beyond cleanup | Future scoped phase | Out of Phase 56.5 boundary. |
 
 ## Validation log table
 
 | Command | Status | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | pass | Baseline checks pass. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI checks pass. |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass | AST lint test pass. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | AST lint pass. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Dry-run remains bounded/non-ready. |
-| Required static scans | pass | Matches reviewed and classified in Phase 55 reporting/audit. |
+| `./scripts/check.sh` | pass | Final-state run succeeded. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI validation passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | AST lint self-tests passed. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | AST lint passed. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Dry-run behavior preserved. |
+| Required scans (`rg`, `wc -l`) | pass/reviewed | Matches classified; no required code cleanup found. |
