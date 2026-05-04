@@ -110,6 +110,19 @@ mod tests {
     }
 
     #[test]
+    fn cli_dry_run_still_says_no_provider_or_model_called() {
+        assert!(run_dry_run_summary().contains("no provider/model was called"));
+    }
+
+    #[test]
+    fn cli_dry_run_does_not_use_local_provider_config() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("LocalProcess"));
+        assert!(!summary.contains("LocalHttp"));
+        assert!(!summary.contains("local-preview-adapter"));
+    }
+
+    #[test]
     fn dry_run_summary_mentions_no_persistence() {
         assert!(run_dry_run_summary().contains("no persistence occurred"));
     }
