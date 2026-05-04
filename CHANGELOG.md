@@ -6,6 +6,29 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.51 - 2026-05-04
+
+**Status:** Phase 51 - Rust-Owned Operator Intent Submission
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with Rust-owned operator intent ingress submission types, deterministic validation/classification, routing-only submission reporting, explicit non-execution helper, and deterministic tests for ingress behavior and non-execution guarantees.
+- Updated `core/src/main.rs` tests to assert CLI dry-run does not submit operator intents and does not wire UI preview controls.
+- Updated `checklists/current-phase.md` to Phase 51 procedural scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.51`.
+
+### Notes
+
+- Phase 51 adds a Rust-owned operator intent ingress boundary only.
+- Operator intent submission validates, classifies, and routes caller-supplied requests but does not execute requested actions.
+- Accepted intent routing does not imply approval execution, rejection execution, retry execution, replay execution, context rebuild, memory snapshot execution, output publication, ledger append, persistence, provider call, controlled-flow execution, replay repair, CLI live command, or UI wiring.
+- UI preview controls remain non-functional and are not wired by this phase.
+- Phase 46 dry-run remains no-provider-call and no-persistence.
+- Phase 47 persistence remains validation/stub-only and is not physically implemented.
+- No provider call, model invocation, file IO, environment read, socket/HTTP behavior, async behavior, provider authentication, controlled-flow execution, ledger append, replay repair, context mutation, memory mutation, audit writing, persistence, physical write, API server, CLI intent command, UI behavior, schema change, workflow change, lint weakening, central error registry, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.50 - 2026-05-04
 
 **Status:** Phase 50 - Roadmap and Changelog Alignment Check + Error-Code Registry Audit

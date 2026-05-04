@@ -154,6 +154,20 @@ mod tests {
     }
 
     #[test]
+    fn cli_dry_run_does_not_submit_operator_intent() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("operator intent"));
+        assert!(!summary.contains("intent submission"));
+    }
+
+    #[test]
+    fn ui_preview_controls_are_not_wired_by_this_phase() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("preview control"));
+        assert!(!summary.contains("ui control"));
+    }
+
+    #[test]
     fn unknown_command_usage_is_safe() {
         let output = run_from_args(["ajentic_core".to_string(), "unknown".to_string()]);
         assert!(output.contains("safe usage: ajentic_core [dry-run]"));
