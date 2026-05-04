@@ -110,6 +110,17 @@ mod tests {
     }
 
     #[test]
+    fn cli_dry_run_summary_still_says_no_persistence() {
+        assert!(run_dry_run_summary().contains("no persistence occurred"));
+    }
+
+    #[test]
+    fn cli_dry_run_does_not_call_persistence_plan() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("physical_write_not_implemented"));
+    }
+
+    #[test]
     fn dry_run_summary_does_not_claim_release_candidate_readiness() {
         assert!(run_dry_run_summary().contains("release-candidate readiness is not claimed"));
     }
