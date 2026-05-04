@@ -6,6 +6,31 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.41 - 2026-05-03
+
+**Status:** Phase 41 - Functional Gap Audit and Roadmap Expansion
+
+### Added
+
+- Added `docs/operations/functional-gap-audit-phase-41.md` advisory report documenting implemented baseline, partial surfaces, missing surfaces, production-outcome gap analysis, and non-readiness boundaries.
+
+### Changed
+
+- Updated `docs/roadmap/phase-map.md` to expand planned phases from Phase 42 through Phase 60 into concrete incremental local-harness implementation and alignment checkpoints.
+- Updated `checklists/current-phase.md` to Phase 41 procedural truth with cleanup guard, functional gap checklist, roadmap expansion checklist, findings/deferred/validation logs, and required validation commands.
+- Updated `CHANGELOG.md` with `v0.0.41` historical entry.
+
+### Notes
+
+- Phase 41 audits the gap between the current implemented baseline and the production outcome.
+- Phase 41 expands future roadmap phases toward a fully functional local harness.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- AJENTIC is not yet a fully functional local harness.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+- No runtime harness behavior, UI behavior, provider work, API server, CLI command, schema change, workflow change, governance change, architecture change, lint-tooling change, or dependency change was implemented.
+
 ## v0.0.40 - 2026-05-03
 
 **Status:** Phase 40 - Roadmap/Changelog Reconciliation + AST Lint CI Alignment

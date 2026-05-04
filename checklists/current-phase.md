@@ -4,39 +4,43 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 40 - Roadmap/Changelog Reconciliation + AST Lint CI Alignment
+# Phase 41 - Functional Gap Audit and Roadmap Expansion
 
 ## Phase goal
 
-Reconcile planned roadmap sequencing against historical changelog truth after the Phase 38/39 maintenance deviation and verify CI alignment with the AST-aware UI boundary lint baseline.
+Audit the functional gap between current implemented baseline and planned production outcome, then expand planned phases from Phase 42 onward into concrete local-harness implementation increments without claiming release-candidate or production readiness.
+
+## Cleanup guard
+
+- [x] Run `git status --short` before edits.
+- [x] Confirm no uncommitted failed-run partial edits were present.
+- [x] Confirm no incomplete runtime/UI/script/workflow edits were carried into Phase 41 scope.
 
 ## Allowed surfaces
 
 - `docs/roadmap/phase-map.md`
 - `checklists/current-phase.md`
-- `checklists/release.md`
 - `CHANGELOG.md`
-- `.github/workflows/*.yml` only if AST lint CI alignment is missing
-- `docs/operations/repository-audit-phase-40.md` if needed
+- `docs/operations/functional-gap-audit-phase-41.md`
 
 ## Boundary rules
 
-- Treat `CHANGELOG.md` as historical truth and `docs/roadmap/phase-map.md` as planned truth.
-- Preserve Phase 38/39 as scoped maintenance deviations, not retroactive planned feature phases.
-- Correct only future planned sequencing drift.
-- Do not modify runtime/UI behavior, schemas, scripts, governance, architecture, or dependencies.
-- Do not claim release-candidate readiness or production readiness.
+- Treat `CHANGELOG.md` as historical truth.
+- Treat `docs/roadmap/phase-map.md` as planned truth.
+- Keep this phase documentation-only.
+- Do not modify Rust runtime, UI behavior, schemas, scripts, workflows, governance docs, architecture docs, README, or AGENTS.
+- Do not claim release-candidate readiness.
+- Do not claim production readiness.
 
 ## Task checklist
 
-- [x] Update current checklist to Phase 40 scope.
-- [x] Compare roadmap planned sequence against changelog history.
-- [x] Reconcile planned future sequencing for Phase 38/39 maintenance deviation context.
-- [x] Confirm Phase 41 is next planned implementation phase after Phase 40.
-- [x] Audit CI workflows for AST-aware UI boundary lint baseline execution.
-- [x] Update CI workflow minimally to run AST-aware UI boundary lint baseline on pull requests.
-- [x] Update release checklist AST lint CI evidence language.
-- [x] Add `CHANGELOG.md` entry `v0.0.40`.
+- [x] Update checklist to Phase 41 scope.
+- [x] Create `docs/operations/functional-gap-audit-phase-41.md` with required advisory frontmatter and sections.
+- [x] Compare implemented baseline (historical truth) against planned production outcome (planned truth).
+- [x] Classify implemented, partial, and missing functional surfaces.
+- [x] Expand roadmap from Phase 42 onward into concrete incremental phases.
+- [x] Preserve every-fifth-phase roadmap/changelog alignment checkpoints.
+- [x] Add `CHANGELOG.md` entry `v0.0.41` after edits.
 
 ## Validation checklist
 
@@ -44,51 +48,53 @@ Reconcile planned roadmap sequencing against historical changelog truth after th
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
-- [x] `rg -n "scripts/check.sh|test_lint_ui_boundaries|lint_ui_boundaries" .github/workflows scripts/check.sh`
-- [x] `rg -n "production-ready|production ready|release candidate ready|release-candidate ready|RC ready|ready for production" docs checklists CHANGELOG.md README.md AGENTS.md`
-- [x] `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|submit|form|href=|method=|action=" ui/src`
-- [x] `rg -n "reqwest|ureq|hyper|tokio|async|await|fetch|http|https|api key|apikey|token|Authorization|Bearer|TcpStream|UdpSocket|std::net" core scripts ui`
+- [x] `rg -n "production-ready|production ready|release candidate ready|release-candidate ready|RC ready|ready for production|fully functional" docs checklists CHANGELOG.md README.md AGENTS.md`
+- [x] `rg -n "Phase 42|Phase 45|Phase 50|Phase 55|Phase 60|Roadmap and Changelog Alignment Check" docs/roadmap/phase-map.md`
+- [x] `rg -n "Functional Gap|functional gap|not yet a fully functional local harness|Release-candidate readiness is not claimed|Production readiness is not claimed" docs/operations/functional-gap-audit-phase-41.md checklists/current-phase.md CHANGELOG.md`
 - [x] `git status --short`
 - [x] `git log --oneline -1`
 
-## Roadmap/changelog alignment checklist
+## Functional gap checklist
 
-- [x] Roadmap contains Phase 19.5 historical implementation note.
-- [x] Roadmap contains "Planned sequence from current state" divider.
-- [x] Roadmap contains recurring alignment checkpoint language.
-- [x] Future planned sequencing reconciled for the Phase 38/39 maintenance deviation context.
-- [x] Roadmap remains planned-truth only and does not record completion history.
+- [x] Current implemented baseline documented.
+- [x] Partial surfaces documented.
+- [x] Missing functional surfaces documented.
+- [x] Production-outcome delta documented.
+- [x] Non-readiness statement included.
 
-## AST lint CI alignment checklist
+## Roadmap expansion checklist
 
-- [x] CI pull-request workflow includes AST lint self-test command.
-- [x] CI pull-request workflow includes AST UI boundary lint command.
-- [x] CI lint alignment added with minimal workflow change and no new dependencies.
+- [x] Phases 42 through 60 expanded with concise structured fields.
+- [x] Alignment checkpoints preserved at Phases 45, 50, 55, and 60.
+- [x] No completion history moved into roadmap.
+- [x] No runtime behavior implemented.
 
 ## Findings table
 
 | Finding | Classification | Status | Notes |
 | --- | --- | --- | --- |
-| Roadmap/changelog alignment required Phase 40 planned-sequence reconciliation after maintenance deviation | required follow-up | Closed | Planned sequence updated; historical completion remains in changelog. |
-| AST-aware UI boundary lint baseline was local-only before workflow audit | required follow-up | Closed | CI now executes self-test + lint commands in PR workflow UI job. |
-| Broad advisory ripgrep scans still return context-rich matches | harmless | Closed | Matches classified as advisory evidence, not automatic failures. |
-| Wider static scan precision debt outside UI AST scope remains | deferred | Open | Deferred to future scoped static-boundary phases. |
+| Baseline runtime boundaries exist but remain bounded/in-memory | required follow-up | Closed | Captured in Phase 41 advisory report and roadmap expansion. |
+| UI remains fixture-backed and request-preview only | required follow-up | Closed | Reflected in gaps and future phases for live projection + intent ingress. |
+| Provider boundary exists without real local/cloud call path | required follow-up | Closed | Planned provider trait/stub/real adapter sequence added. |
+| Persistence boundary for operator-facing durable state is missing | required follow-up | Closed | Planned as dedicated persistence phase before end-to-end harness. |
 
 ## Deferred items table
 
 | Item | Reason deferred | Revisit phase |
 | --- | --- | --- |
-| Rust/network/provider AST static enforcement expansion | Outside Phase 40 scope | Future static-boundary phase |
-| Bash/Python boundary precision automation | Outside Phase 40 scope | Future static-boundary phase |
-| Documentation/prohibition-language scan precision automation | Outside Phase 40 scope | Future static-boundary phase |
+| Real provider production hardening | Outside Phase 41 scope | Phase 49+ |
+| Failure injection and recovery hardening | Sequenced after functional harness path exists | Phase 58 |
+| Production readiness blockers audit | Requires functional local harness baseline first | Phase 59 |
 
 ## Validation log table
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | Pass | Includes AST lint self-test + lint, docs/structure/schema gates, and Rust checks. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation passes with no behavior changes. |
-| `node scripts/test_lint_ui_boundaries.mjs` | Pass | Deterministic AST lint self-tests pass. |
-| `node scripts/lint_ui_boundaries.mjs` | Pass | Production UI AST boundary lint passes on `ui/src`. |
-| `rg -n "scripts/check.sh|test_lint_ui_boundaries|lint_ui_boundaries" .github/workflows scripts/check.sh` | Pass | Verified CI + local wiring evidence for AST lint baseline. |
-| Advisory scans (`rg ...`) | Pass | Classified matches as enforced by AST lint / harmless / deferred. |
+| `git status --short` | Pass | Cleanup guard verified no pre-existing edits. |
+| `./scripts/check.sh` | Pass | Required repo checks passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation commands passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | Pass | Deterministic AST-lint self-tests passed. |
+| `node scripts/lint_ui_boundaries.mjs` | Pass | AST UI boundary lint passed. |
+| `rg -n "production-ready|production ready|release candidate ready|release-candidate ready|RC ready|ready for production|fully functional" docs checklists CHANGELOG.md README.md AGENTS.md` | Pass | Matches reviewed and classified; no readiness claim added. |
+| `rg -n "Phase 42|Phase 45|Phase 50|Phase 55|Phase 60|Roadmap and Changelog Alignment Check" docs/roadmap/phase-map.md` | Pass | Required future checkpoints present. |
+| `rg -n "Functional Gap|functional gap|not yet a fully functional local harness|Release-candidate readiness is not claimed|Production readiness is not claimed" docs/operations/functional-gap-audit-phase-41.md checklists/current-phase.md CHANGELOG.md` | Pass | Required advisory/non-readiness wording present. |
