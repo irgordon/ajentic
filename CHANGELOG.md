@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.56.5 - 2026-05-04
+
+**Status:** Phase 56.5 - API Decomposition Validation Closure
+
+### Changed
+
+- Updated `checklists/current-phase.md` with normalized Phase 56.5 procedural truth and final-state validation/static-scan closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.56.5`.
+
+### Notes
+
+- Phase 56.5 is an out-of-band validation and correctness sweep before moving to higher-level functional code work.
+- Phase 56.5 closes Phase 56 validation gaps after API module decomposition.
+- Phase 56.5 normalizes current-phase procedural truth for the decomposed API state.
+- Phase 56.5 completes the full validation/static-scan suite from the final decomposed state.
+- `core/src/api/mod.rs` remains the compatibility and re-export surface.
+- Behavior, public semantics, validation rules, error-code strings, helper behavior, and test expectations remain preserved.
+- No runtime harness behavior, provider execution, persistence, physical write behavior, CLI behavior change, UI behavior, schema change, workflow change, script change, governance change, architecture change, roadmap change, dependency change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.56 - 2026-05-04
 
 **Status:** Phase 56 - API Module Decomposition and Boundary Cleanup
