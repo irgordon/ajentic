@@ -5,6 +5,28 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.60 - 2026-05-04
+**Status:** Phase 60 - Roadmap and Changelog Alignment Check + Production-Path Expansion
+
+### Added
+- Added `docs/operations/repository-audit-phase-60.md` with advisory-only Phase 60 scope, roadmap/changelog truth alignment findings, Phase 51-59 boundary review, production-path risk expansion, and explicit non-readiness posture.
+
+### Changed
+- Updated `docs/roadmap/phase-map.md` to expand Phase 60-70 planning with durability-first sequencing, post-59 production-path risk boundaries, and preserved every-fifth-phase alignment checkpoints.
+- Updated `checklists/current-phase.md` to Phase 60 procedural truth with required alignment, boundary review, risk, roadmap expansion, and validation tracking sections.
+- Updated `CHANGELOG.md` with `v0.0.60`.
+- Updated `docs/operations/repository-audit-phase-60.md` during Phase 60 audit finalization.
+
+### Notes
+- Phase 60 verifies roadmap/changelog alignment after Phases 51-59.
+- Phase 60 expands the production-path roadmap around data durability, async determinism, identity-bound operator intent, bounded projections, error-code standardization, and Rust/TypeScript contract synchronization.
+- Phase 61 starts with data durability and atomic persistence rather than real provider execution or UI/Rust transport.
+- Phase 58 evidence collection did not approve release-candidate readiness.
+- Phase 59 failure hardening did not implement production recovery.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- No runtime harness behavior, Rust behavior, UI behavior, provider execution, real provider adapter, persistence implementation, physical write behavior, API server, CLI behavior change, UI/Rust transport, schema change, workflow change, script change, governance change, architecture change, lint-tooling change, dependency change, central error registry implementation, release-candidate readiness claim, production-readiness claim, or public-usability claim was implemented.
+
 ## v0.0.59 - 2026-05-04
 **Status:** Phase 59 - Failure Injection and Recovery Hardening
 
