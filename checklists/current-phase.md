@@ -4,51 +4,50 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 51 - Rust-Owned Operator Intent Submission
+# Phase 52 - UI Live Read Projection Integration
 
 ## Phase name
 
-Phase 51 - Rust-Owned Operator Intent Submission
+Phase 52 - UI Live Read Projection Integration
 
 ## Phase goal
 
-Add a Rust-owned operator intent ingress boundary that validates, classifies, and routes caller-supplied operator intent submissions without executing requested actions.
+Replace fixture-only UI read data with a typed read-model boundary that consumes Rust-owned `ApplicationReadProjection`-shaped data while keeping the UI non-authoritative and side-effect-free.
 
 ## Allowed surfaces
 
-- `core/src/api/mod.rs`
-- `core/src/execution/mod.rs` (only if minimal route alignment required)
-- `core/src/main.rs` (dry-run non-submission assertions only)
-- `core/src/lib.rs` (only if export cleanup is required)
+- `ui/src/api/projections.ts`
+- `ui/src/api/fixtures.ts`
+- `ui/src/api/readModel.ts`
+- `ui/src/app/AppShell.tsx`
+- `ui/src/screens/*.tsx`
+- `ui/src/components/*.tsx`
 - `checklists/current-phase.md`
 - `checklists/release.md` (only if evidence posture changes)
 - `CHANGELOG.md`
 
 ## Boundary rules
 
-- Operator intent submission is ingress request handling, not execution authority.
-- Accepted routing does not execute approve/reject/retry/replay/context/memory actions.
-- No provider call, controlled-flow execution, ledger append, persistence, replay repair, memory/context mutation, UI wiring, or CLI live command wiring.
-- Phase 46 dry-run remains no-provider-call and no-persistence.
-- Phase 47 persistence remains validation/stub-only and not physically implemented.
-- DeterministicStubProvider remains the only invoking adapter.
-- LocalProviderAdapterConfig remains non-invoking metadata.
-- No central error registry implementation in this phase.
+- UI consumption boundary only; no runtime Rust bridge, fetch, API client, or server integration.
+- No UI mutation, no event handlers, no forms, no buttons, no anchor href wiring.
+- Operator intent preview remains request-preview-only and non-functional.
+- Provider and integration outputs remain untrusted and non-authoritative.
+- Raw provider/model output remains distinct from clean output.
+- `getUiReadModel` remains synchronous and side-effect-free.
 - Release-candidate readiness is not claimed.
 - Production readiness is not claimed.
 
 ## Task checklist
 
-- [x] Update checklist to Phase 51 scope.
-- [x] Add typed operator intent ingress submission/status/reason/target/report surfaces in Rust.
-- [x] Validate required submission metadata with deterministic priority.
-- [x] Classify submissions into accepted/rejected ingress outcomes.
-- [x] Route accepted submissions via existing operator routing surface.
-- [x] Add explicit non-execution helper returning `false`.
-- [x] Add deterministic tests for all required Phase 51 behavior and non-goals.
-- [x] Confirm CLI dry-run does not submit operator intents.
-- [x] Confirm UI preview controls are not wired by this phase.
-- [x] Add `CHANGELOG.md` entry `v0.0.51`.
+- [x] Update checklist to Phase 52 scope.
+- [x] Add/align `ApplicationUiProjection` and `RuntimeSafetyUiProjection` typed surfaces.
+- [x] Add pure synchronous `buildUiReadModelFromApplicationProjection(...)` helper.
+- [x] Keep explicit fixture fallback path.
+- [x] Keep `getUiReadModel` synchronous and side-effect-free.
+- [x] Update app/screens to consume typed projection-backed read model.
+- [x] Display runtime safety posture and trust posture in UI summaries.
+- [x] Preserve non-functional operator intent preview surface.
+- [x] Add `CHANGELOG.md` entry `v0.0.52`.
 
 ## Validation checklist
 
@@ -57,8 +56,7 @@ Add a Rust-owned operator intent ingress boundary that validates, classifies, an
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep|spawn" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs`
-- [x] `rg -n "approve|reject|retry|replay|context rebuild|memory snapshot|operator intent|intent submission|execute|executed|ledger append|persist|repair|provider|run_controlled_model_flow|execute_local_persistence_plan" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
-- [x] `rg -n "skip policy|skip validation|force promote|promote anyway|trust output|ignore unknown|repair replay|write ledger" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
-- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" core/src/main.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
+- [x] `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|onChange|onInput|onKeyDown|onKeyUp|<form|<button|href=|type=\"submit\"|submit\\(|addEventListener" ui/src`
+- [x] `rg -n "intent submission|submit_operator_intent|operator_intent_ingress|ledger append|persist|provider call|run_controlled_model_flow|execute_local_persistence_plan|fetch|api client|server" ui/src CHANGELOG.md checklists/current-phase.md checklists/release.md`
+- [x] `rg -n "rawOutputTrusted|provider output remains untrusted|integration output remains untrusted|allowProviderNetwork|allowFileIo|allowUiMutation|release-candidate readiness is not claimed|production readiness is not claimed" ui/src CHANGELOG.md checklists/current-phase.md`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`

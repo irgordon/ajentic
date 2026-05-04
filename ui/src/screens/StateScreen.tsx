@@ -3,7 +3,8 @@ import { SectionCard } from "../components/SectionCard";
 import { StatusPill } from "../components/StatusPill";
 
 export function StateScreen(): string {
-  const { lifecycle, run } = getUiReadModel();
+  const { application } = getUiReadModel();
+  const { lifecycle, run } = application;
 
   return SectionCard({
     title: "State",

@@ -4,7 +4,8 @@ import { StatusPill } from "../components/StatusPill";
 import { IntentPreviewPanel } from "../components/IntentPreviewPanel";
 
 export function OverviewScreen(): string {
-  const { run, output, operatorIntentPreviews } = getUiReadModel();
+  const { application, operatorIntentPreviews } = getUiReadModel();
+  const { run, output, safety, provider, integration } = application;
 
   return SectionCard({
     title: "Overview",
@@ -20,6 +21,11 @@ export function OverviewScreen(): string {
       `Clean output available: ${run.cleanOutputAvailable}`,
       `Authority: ${run.authority}`,
       `Run summary: ${run.summary}`,
+      `Runtime safety level: ${safety.safetyLevel}`,
+      `Runtime safety summary: ${safety.summary}`,
+      `Safety defaults: allowProviderNetwork=${safety.allowProviderNetwork}, allowFileIo=${safety.allowFileIo}, allowUiMutation=${safety.allowUiMutation}`,
+      `Provider trust posture: ${provider.outputTrust} (authoritative=${provider.authoritative})`,
+      `Integration trust posture: ${integration.outputTrust} (authoritative=${integration.authoritative})`,
       `Output trust: rawOutputTrusted=${output.rawOutputTrusted}`,
       "Operator intent previews: controls are previews only in this phase.",
       "No request is submitted.",
