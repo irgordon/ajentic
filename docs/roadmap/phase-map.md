@@ -2558,11 +2558,13 @@ Local harness completion is not production readiness.
 
 Milestone group: Milestone 8
 
-Primary goal: Verify planned/historical truth before release-candidate evidence expansion.
+Primary goal: Verify planned/historical truth after Phases 51-54 and insert a structural API decomposition phase before further functional implementation.
 
 Scope:
 
 - Compare planned sequence and completed history; reconcile forward plan only.
+- Confirm the Phase 54 in-memory local harness workflow remains a bounded non-readiness baseline.
+- Insert Phase 56 API decomposition planning boundary and shift subsequent planned phases.
 
 Allowed:
 
@@ -2578,17 +2580,79 @@ Validation gate:
 
 Exit criteria:
 
-- Truth-dimension alignment is preserved ahead of evidence expansion.
+- Truth-dimension alignment is preserved and forward plan sequencing is updated without rewriting history.
 
 Boundary note:
 
 Historical facts remain in changelog.
 
-## Phase 56: Packaging and Startup Boundary
+## Phase 56: API Module Decomposition and Boundary Cleanup
 
 Milestone group: Milestone 9
 
-Primary goal: Add reproducible local startup/install path for app execution.
+Primary goal: Split `core/src/api/mod.rs` into bounded API domain submodules while preserving exact behavior and public semantics.
+
+Scope:
+
+- Structural decomposition only; no conceptual behavior movement.
+- Keep `core/src/api/mod.rs` as re-export surface.
+- Prefer `pub(crate)` intra-crate visibility unless wider visibility is already required by existing call sites/tests.
+- Keep tests colocated with owning submodule unless a shared integration-style test is clearly required.
+- Treat commit `6aa9645` as stable feature baseline for decomposition.
+- Recommended split target:
+
+```text
+core/src/api/
+  mod.rs
+  operator_intent.rs
+  integration.rs
+  runtime_config.rs
+  read_projection.rs
+  application_state.rs
+  persistence.rs
+  local_workflow.rs
+```
+
+Decomposition constraints:
+
+- No behavior changes.
+- No new runtime capability.
+- No error code changes.
+- No enum variant changes unless required only for module visibility.
+- No constructor validation order changes.
+- No helper behavior changes.
+- No test expectation changes.
+- No public API semantic changes.
+- No roadmap/changelog history rewrite.
+- Preserve public semantics exactly.
+- Do not widen visibility unless required by existing external call sites or tests.
+- Full validation must pass before functional implementation resumes.
+
+Allowed:
+
+- Rust API module file ownership refactor preserving behavior.
+
+Not allowed:
+
+- Functional feature additions or semantic changes.
+
+Validation gate:
+
+- Full validation suite and targeted API behavior-regression checks pass with no expectation changes.
+
+Exit criteria:
+
+- API module boundaries are decomposed with behavior parity preserved and validated.
+
+Boundary note:
+
+Phase 56 is structural cleanup only and must not expand capability.
+
+## Phase 57: Packaging and Startup Boundary
+
+Milestone group: Milestone 9
+
+Primary goal: Resume functional implementation only after Phase 56 full validation by adding reproducible local startup/install path for app execution.
 
 Scope:
 
@@ -2614,7 +2678,7 @@ Boundary note:
 
 Packaging is local-operability boundary, not production deployment boundary.
 
-## Phase 57: Release-Candidate Evidence Pass
+## Phase 58: Release-Candidate Evidence Pass
 
 Milestone group: Milestone 9
 
@@ -2644,7 +2708,7 @@ Boundary note:
 
 Evidence pass does not itself grant production readiness.
 
-## Phase 58: Failure Injection and Recovery Hardening
+## Phase 59: Failure Injection and Recovery Hardening
 
 Milestone group: Milestone 9
 
@@ -2674,7 +2738,7 @@ Boundary note:
 
 Recovery must remain explicit, auditable, and authority-safe.
 
-## Phase 59: Production Readiness Gap Audit
+## Phase 60: Production Readiness Gap Audit
 
 Milestone group: Milestone 9
 
@@ -2704,11 +2768,11 @@ Boundary note:
 
 Gap audit identifies blockers; it does not assert blocker closure.
 
-## Phase 60: Roadmap and Changelog Alignment Check
+## Phase 61: Roadmap and Changelog Alignment Check
 
 Milestone group: Milestone 9
 
-Primary goal: Reconcile roadmap/changelog before any production-candidate work.
+Primary goal: Reconcile roadmap/changelog before any production-candidate work after renumbering.
 
 Scope:
 
