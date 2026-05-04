@@ -1,13 +1,14 @@
 use super::{
     ApplicationStateError, IntegrationBoundaryError, LocalHarnessWorkflowError,
     LocalHarnessWorkflowReason, LocalPersistenceError, LocalPersistenceValidationReason,
-    LocalRuntimeConfigError, OperatorIntentIngressReason, PersistedRecordEnvelopeError,
-    ReadProjectionError,
+    LocalRuntimeConfigError, OperatorAuthorizationReason, OperatorIntentIngressReason,
+    PersistedRecordEnvelopeError, ReadProjectionError,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DiagnosticFamily {
     OperatorIntent,
+    OperatorAuthorization,
     Integration,
     RuntimeConfig,
     ReadProjection,
@@ -46,6 +47,7 @@ impl ErrorDiagnostic {
 pub fn diagnostic_family_label(family: DiagnosticFamily) -> &'static str {
     match family {
         DiagnosticFamily::OperatorIntent => "operator_intent",
+        DiagnosticFamily::OperatorAuthorization => "operator_authorization",
         DiagnosticFamily::Integration => "integration",
         DiagnosticFamily::RuntimeConfig => "runtime_config",
         DiagnosticFamily::ReadProjection => "read_projection",
@@ -83,6 +85,15 @@ pub fn operator_intent_ingress_reason_diagnostic(
     )
 }
 
+pub fn operator_authorization_reason_diagnostic(
+    reason: OperatorAuthorizationReason,
+) -> ErrorDiagnostic {
+    ErrorDiagnostic::new(
+        DiagnosticFamily::OperatorAuthorization,
+        reason.code(),
+        "Operator intent authorization was denied.",
+    )
+}
 pub fn integration_boundary_error_diagnostic(error: IntegrationBoundaryError) -> ErrorDiagnostic {
     ErrorDiagnostic::new(
         DiagnosticFamily::Integration,
