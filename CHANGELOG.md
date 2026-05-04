@@ -5,6 +5,33 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.56 - 2026-05-04
+
+**Status:** Phase 56 - API Module Decomposition and Boundary Cleanup
+
+### Added
+
+- Added `core/src/api/operator_intent.rs` for operator intent API surfaces and helpers.
+- Added `core/src/api/integration.rs` for integration boundary API surfaces and helpers.
+- Added `core/src/api/runtime_config.rs` for local runtime config API surfaces and helpers.
+- Added `core/src/api/read_projection.rs` for read projection API surfaces and helpers.
+- Added `core/src/api/application_state.rs` for local application state API surfaces and helpers.
+- Added `core/src/api/persistence.rs` for local persistence API surfaces and helpers.
+- Added `core/src/api/local_workflow.rs` for local harness workflow API surfaces and helpers.
+
+### Changed
+
+- Updated `core/src/api/mod.rs` to remain the compatibility and re-export surface for `crate::api::*`.
+- Updated `checklists/current-phase.md` to Phase 56 - API Module Decomposition and Boundary Cleanup.
+- Updated `CHANGELOG.md` with `v0.0.56`.
+
+### Notes
+
+- Phase 56 decomposes `core/src/api/mod.rs` into focused API submodules.
+- `core/src/api/mod.rs` remains the compatibility and re-export surface.
+- Behavior, public semantics, validation rules, error-code strings, helper behavior, and test expectations are preserved.
+- No runtime harness behavior, provider execution, persistence, physical write behavior, CLI behavior, UI behavior, schema change, workflow change, script change, governance change, architecture change, central error registry, dependency change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.55 - 2026-05-04
 
 **Status:** Phase 55 - Roadmap and Changelog Alignment Check + API Decomposition Planning

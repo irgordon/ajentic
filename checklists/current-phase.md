@@ -4,11 +4,11 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 55 - Roadmap and Changelog Alignment Check + API Decomposition Planning
+# Phase 56 - API Module Decomposition and Boundary Cleanup
 
 ## Phase name
 
-Phase 55 - Roadmap and Changelog Alignment Check + API Decomposition Planning
+Phase 56 - API Module Decomposition and Boundary Cleanup
 
 ## Phase goal
 
