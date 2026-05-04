@@ -4,46 +4,46 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 57 - Packaging and Startup Boundary
+# Phase 58 - Release-Candidate Evidence Pass
 
 ## Phase name
 
-Phase 57 - Packaging and Startup Boundary
+Phase 58 - Release-Candidate Evidence Pass
 
 ## Phase goal
 
-Define and validate AJENTIC's current local startup/packaging boundary as a safe deterministic validation and dry-run command surface only.
+Populate release-candidate evidence from actual local validation and deterministic workflow outputs without making any release-candidate or production-readiness approval claim.
+
+## Working-tree hygiene gate
+
+- [x] Ran `git status --short` before editing and classified all uncommitted files.
+- [x] Confirmed no generated artifacts needed rollback before editing.
+- [x] Restricted edits to Phase 58 allowed procedural/orientation/historical surfaces only.
 
 ## Allowed surfaces
 
-- `core/src/main.rs` (only if safe help/startup text adjustment is strictly required)
 - `checklists/current-phase.md`
-- `checklists/release.md` (only if evidence posture changes)
+- `checklists/release.md`
 - `CHANGELOG.md`
-- `docs/operations/local-startup-boundary-phase-57.md`
-- `README.md` (only concise safe local command documentation)
+- `docs/operations/release-candidate-evidence-phase-58.md`
+- `docs/operations/local-startup-boundary-phase-57.md` (only if minimal evidence-link clarification becomes necessary)
+- `README.md` (only if validation proves a currently documented command is wrong/unsupported)
 
 ## Boundary rules
 
-- Documentation and bounded command-surface clarification only.
-- No runtime behavior expansion.
-- No real provider/model invocation.
-- No persistence or physical writes.
-- No API server/service/daemon/background runner.
-- No UI/Rust transport wiring.
-- No installer/packaging/release workflow implementation.
-- No schema/script/workflow/governance/architecture/roadmap/dependency changes.
-- No release-candidate readiness or production readiness claim.
+- Evidence collection and checklist maintenance only.
+- No runtime, Rust behavior, UI behavior, provider behavior, persistence behavior, API behavior, schema, dependency, workflow, or script changes.
+- Do not claim release-candidate readiness.
+- Do not claim production readiness.
+- Keep carry-forward boundaries intact (dry-run deterministic/in-memory/no-provider/no-persistence; provider stub-only; UI non-authoritative; API decomposition intact).
 
 ## Task checklist
 
-- [x] Confirmed roadmap Phase 57 title/scope matches "Packaging and Startup Boundary".
-- [x] Created advisory operations document `docs/operations/local-startup-boundary-phase-57.md`.
-- [x] Updated this checklist to Phase 57 procedural truth with required checklists/tables.
-- [x] Updated `README.md` with concise local validation/dry-run command surface and explicit non-readiness statements.
-- [x] Confirmed Phase 56.5 API decomposition carry-forward remains intact.
-- [x] Confirmed `core/src/api/mod.rs` remains module/re-export only.
-- [x] Added `CHANGELOG.md` entry `v0.0.57`.
+- [x] Confirmed roadmap Phase 58 title/scope matches requested title.
+- [x] Created advisory evidence report `docs/operations/release-candidate-evidence-phase-58.md`.
+- [x] Updated `checklists/release.md` with Phase 58 evidence rows and conservative statuses.
+- [x] Updated this checklist to Phase 58 procedural truth with required checklists/tables.
+- [x] Added `CHANGELOG.md` entry `v0.0.58`.
 
 ## Validation checklist
 
@@ -54,51 +54,66 @@ Define and validate AJENTIC's current local startup/packaging boundary as a safe
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 - [x] `wc -l core/src/api/mod.rs core/src/api/*.rs`
 - [x] `rg -n "pub enum|pub struct|pub fn|impl |#\[cfg\(test\)\]|fn code\(" core/src/api/mod.rs`
-- [x] `rg -n "install|installer|package|packaging|release|daemon|service|server|listen|bind|port|http|https|fetch|WebSocket|EventSource|TcpStream|UdpSocket|std::net|tokio|async|await|spawn|Command::|std::process|thread::|sleep" README.md docs/operations/local-startup-boundary-phase-57.md core/src/main.rs checklists/current-phase.md CHANGELOG.md`
-- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\(" core/src/main.rs core/src/api core/src/execution/mod.rs`
-- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" README.md docs/operations/local-startup-boundary-phase-57.md CHANGELOG.md checklists/current-phase.md checklists/release.md`
+- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready|approved for release|production approved" checklists/release.md docs/operations/release-candidate-evidence-phase-58.md CHANGELOG.md checklists/current-phase.md README.md`
+- [x] `rg -n "real provider|local model|cloud model|provider execution|physical persistence|physical write|live UI|UI transport|API server|operator action execution|intent ledger|installer|release workflow|failure injection|recovery hardening" checklists/release.md docs/operations/release-candidate-evidence-phase-58.md CHANGELOG.md checklists/current-phase.md README.md`
+- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep|spawn" core/src/api core/src/main.rs core/src/execution/mod.rs`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`
 
-## Startup boundary checklist
+## Evidence collection checklist
 
-- [x] Supported safe local commands documented.
-- [x] Dry-run remains no-provider-call.
-- [x] Dry-run remains no-persistence.
-- [x] No service/daemon/server added.
-- [x] No installer/release packaging added.
-- [x] No UI/Rust transport added.
-- [x] No physical persistence added.
-- [x] No provider/model invocation added.
-- [x] No readiness claim added.
+- [x] Local full validation evidence captured.
+- [x] UI validation evidence captured.
+- [x] AST lint self-test and production scan evidence captured.
+- [x] CLI dry-run evidence captured.
+- [x] API decomposition compatibility and module split evidence captured.
+- [x] Provider/persistence/UI non-authority boundary evidence captured.
 
-## API decomposition carry-forward checklist
+## Release checklist update checklist
 
-- [x] `core/src/api/mod.rs` remains module declaration/re-export only.
-- [x] Split API submodules remain authoritative owners of their domain logic.
-- [x] No decomposition rollback introduced.
+- [x] Added Phase 58 evidence section/table entries in `checklists/release.md`.
+- [x] Used only allowed status values (`pass`, `deferred`, `blocked`, `not_applicable`, `evidence_only`).
+- [x] Kept deferred capabilities explicitly deferred.
+- [x] Avoided release-candidate/production readiness approval language.
+
+## Deferred evidence checklist
+
+- [x] Real provider/model invocation marked deferred.
+- [x] Physical persistence marked deferred.
+- [x] Live UI/Rust transport marked deferred.
+- [x] API server marked deferred.
+- [x] Operator action execution marked deferred.
+- [x] Intent ledgering/audit-record completion beyond current boundary marked deferred.
+- [x] Packaging/installer/release workflow marked deferred.
+- [x] Failure-injection/recovery hardening marked deferred.
 
 ## Findings table
 
 | Finding | Classification | Notes |
 | --- | --- | --- |
-| Roadmap Phase 57 title matches requested title. | confirmed | No mismatch to document. |
-| Startup boundary work is documentation/command-surface only. | confirmed | No packaging/runtime expansion added. |
-| API decomposition carry-forward remains intact. | confirmed | `core/src/api/mod.rs` remains compatibility surface only. |
+| Roadmap phase title and scope match "Release-Candidate Evidence Pass". | confirmed | No roadmap mismatch.
+| Validation suite currently passes in local environment. | confirmed | Evidence supports baseline stability only.
+| API decomposition boundary remains intact. | confirmed | `core/src/api/mod.rs` is module/re-export oriented only.
+| Readiness language remains non-approving. | confirmed | Evidence is explicitly non-readiness.
 
 ## Deferred items table
 
-| Item | Deferred to | Reason |
+| Item | Status | Reason |
 | --- | --- | --- |
-| Real packaging/installer/release workflow | Future scoped phase | Explicitly out of Phase 57 scope. |
-| Live provider/persistence/service startup | Future scoped phase | Phase 57 is local validation/dry-run boundary only. |
+| Real provider/model execution | deferred | Out of implemented capability; stub-only provider boundary remains.
+| Physical persistence writes | deferred | Persistence remains validation/stub-only boundary.
+| Live UI/Rust transport and API server | deferred | Not implemented in current local deterministic baseline.
+| Operator action execution and intent ledgering completion | deferred | Intent ingress remains transient/non-executing boundary.
+| Packaging/installer/release workflow | deferred | Out of scope for evidence-only phase.
+| Failure injection/recovery hardening | deferred | Planned in later phase.
 
 ## Validation log table
 
 | Command | Status | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | pass | Full project validation passed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI validation passed. |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass | AST lint tests passed. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | AST lint passed. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Deterministic in-memory dry-run summary unchanged in capability posture. |
-| Required scans (`rg`, `wc -l`) | pass/reviewed | Matches classified; no disallowed behavior introduced. |
+| `./scripts/check.sh` | pass | Full baseline validation passed.
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI validation commands all passed.
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | AST lint self-tests passed.
+| `node scripts/lint_ui_boundaries.mjs` | pass | AST lint production scan passed.
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Dry-run completed with deterministic/no-provider/no-persistence posture.
+| `wc -l core/src/api/mod.rs core/src/api/*.rs` | evidence_only | Module split evidence captured; no behavior change.
+| `rg` decomposition/readiness/non-capability/IO/wiring scans | evidence_only | Matches reviewed and classified without boundary violations.

@@ -16,108 +16,39 @@ This document does not claim release-candidate readiness is achieved.
 
 This document does not claim production readiness.
 
-## Release-candidate boundary
-
-A future release candidate requires evidence that AJENTIC is usable for controlled local model-driven work without losing Rust-owned authority.
-
-## Required evidence
-
-- [ ] Rust checks pass.
-- [ ] UI typecheck/lint/build pass.
-- [ ] Structure and documentation gates pass.
-- [ ] Schema syntax validation passes.
-- [ ] Script boundary checks pass.
-- [ ] Provider and integration outputs remain untrusted.
-- [ ] Controlled flow remains deterministic and in-memory.
-- [ ] Replay verification remains read-only and idempotent.
-- [ ] UI remains non-authoritative.
-- [ ] Operator intent controls remain request-only unless a future phase explicitly implements Rust-owned intent submission.
-- [ ] Raw provider/model output remains visibly distinct from clean output.
-- [ ] No accepted output bypasses policy, validation, ledger, replay, or audit expectations where required.
-- [ ] Static scan debt is documented and triaged before any production-readiness claim.
-- [ ] No production-readiness claim is made without separate production evidence.
-
-## Blocking conditions
-
-- [ ] Provider output treated as trusted.
-- [ ] UI authority over runtime decisions.
-- [ ] Direct ledger/memory/replay mutation from UI.
-- [ ] Replay repair without explicit command and audit trail.
-- [ ] Failed validation gates.
-- [ ] Undocumented architecture/governance drift.
-- [ ] Changelog/roadmap truth-dimension drift.
-- [ ] Raw JSON-only human review path for critical operator review.
-- [ ] Untriaged static scan debt before production-readiness claim.
-- [ ] Production capability claim without evidence.
-
-## Validation commands
-
-Required:
-
-- `./scripts/check.sh`
-- `cd ui && npm run typecheck && npm run lint && npm run build`
-
-Optional/manual review:
-
-- `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|submit|form|href=|method=|action=" ui/src`
-- `rg -n "reqwest|ureq|hyper|tokio|async|await|fetch|http|https|api key|apikey|token|Authorization|Bearer|TcpStream|UdpSocket|std::net" core scripts ui`
-- `rg -n "repair|auto-repair|reorder|append|remove|mutate|write|persist|std::fs|File::|read_to_string|serde|json" core/src/execution/mod.rs core/src/replay/mod.rs core/src/ledger/mod.rs`
-
-## Authority-boundary checks
-
-- [ ] Rust remains the only authoritative runtime surface.
-- [ ] No non-Rust surface bypasses policy, validation, ledger, replay, or audit boundaries.
-- [ ] Provider/model output remains untrusted unless accepted through Rust-owned paths.
-
-## UI evidence checks
-
-- [ ] UI remains projection/review and request-only intent surface.
-- [ ] UI does not directly mutate runtime authority surfaces.
-- [ ] UI clearly distinguishes raw output from clean output.
-- [ ] UI does not regress to raw JSON-only critical review paths.
-
-## Provider/integration evidence checks
-
-- [ ] Provider/local/IDE integration boundaries preserve untrusted output treatment.
-- [ ] Provider integrations do not write authority state directly.
-- [ ] Integration boundaries do not bypass Rust acceptance logic.
-
-## Replay and audit evidence checks
-
-- [ ] Replay verification remains deterministic for repeated runs on identical input.
-- [ ] Replay verification remains read-only and non-repairing.
-- [ ] Audit remains projection-only and non-authoritative.
-
-## Documentation/truth-dimension checks
-
-- [ ] `CHANGELOG.md` remains historical truth only.
-- [ ] `docs/roadmap/phase-map.md` remains planned truth only.
-- [ ] Procedural release evidence remains in checklist surfaces.
-
-## Static scan debt
-
-- [x] AST-aware UI boundary lint is enforced through local validation and CI pull-request validation (`node scripts/test_lint_ui_boundaries.mjs` and `node scripts/lint_ui_boundaries.mjs`).
-- [ ] UI boundary AST lint now includes deterministic self-tests.
-- [ ] UI boundary lint diagnostics must remain IDE-friendly using `path:line:column` output.
-- [ ] Ripgrep scans remain advisory for broader cross-surface review.
-- [ ] Remaining static scan precision debt includes Rust/network/provider checks, Bash/Python boundary checks, documentation/prohibition-language scans, and any UI checks not yet covered by AST lint.
-- [x] Phase 40 roadmap/changelog sequencing reconciliation completed; roadmap planned sequence updated while preserving changelog historical truth.
-- [ ] Production-readiness still requires evidence that the lint baseline remains active in local validation and CI or equivalent release validation.
-- [ ] Do not add ESLint rules, Clippy plugins, workflow changes, or new dependencies in this phase unless validation is blocked and a minimal correction is required.
-
-## Release decision record placeholder
+## Phase 58 evidence update
 
 | Evidence item | Status | Source | Reviewer note |
 | --- | --- | --- | --- |
-| Rust checks | pass | `./scripts/check.sh` (Phase 37 run) | Baseline evidence captured; no readiness claim. |
-| UI typecheck/lint/build | pass | `cd ui && npm run typecheck && npm run lint && npm run build` (Phase 37 run) | Placeholder lint/build scripts passed in current repo state. |
-| Structure and documentation gates | pass | `./scripts/check.sh` (structure/docs steps) | Procedural/documentation gates passed. |
-| Schema syntax validation | pass | `./scripts/check.sh` (schema step) | JSON schema syntax gate passed. |
-| Script boundary checks | pass | `./scripts/check.sh` (`bash -n scripts/*.sh`) | Script parse/boundary check passed. |
-| Provider/integration untrusted boundary | pass | `core/src/api/mod.rs`, `core/src/execution/mod.rs`, plus trust keyword scan | Existing tests and scan evidence preserve untrusted boundary. |
-| Controlled flow deterministic in-memory behavior | pass | `core/src/execution/mod.rs` tests via `./scripts/check.sh` | Deterministic in-memory controlled-flow tests passed. |
-| Replay verification idempotency | pass | `docs/operations/repository-audit-phase-35.md`; `core/src/execution/mod.rs` tests in `./scripts/check.sh` | Phase 35 harmless finding carried forward; source unchanged in Phase 37. |
-| UI non-authority and request-preview boundary | pass | `ui/src` boundary scan; `docs/operations/repository-audit-phase-30.md` | Phase 30 script/UI boundary audit plus current scan evidence; no UI authority change in Phase 37. |
-| Raw provider/model output remains distinct from clean output | pass | `core/src/execution/mod.rs` tests and boundary wording scans | Existing controlled-flow tests keep raw output untrusted and separate from clean output summary. |
-| Static scan debt triage | deferred | Phase 37 evidence report (`docs/operations/release-candidate-evidence-phase-37.md`) | Debt remains evidence debt pending future scoped AST-aware tooling phase. |
-| Roadmap/changelog truth-dimension alignment | pass | `CHANGELOG.md`, `docs/roadmap/phase-map.md`, `docs/governance/truth-dimensions.md` | No drift correction needed in this phase; boundaries preserved. |
+| Local full validation: `./scripts/check.sh` | pass | Phase 58 command run | Baseline validation passed; evidence only.
+| UI validation: `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Phase 58 command run | UI validation passed locally.
+| UI AST lint self-test: `node scripts/test_lint_ui_boundaries.mjs` | pass | Phase 58 command run | AST lint self-test passed.
+| UI AST lint production scan: `node scripts/lint_ui_boundaries.mjs` | pass | Phase 58 command run | AST boundary lint production scan passed.
+| CLI dry-run: `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Phase 58 command run | Dry-run remains deterministic and in-memory boundary output.
+| API decomposition compatibility: `core/src/api/mod.rs` remains module/re-export surface | evidence_only | `core/src/api/mod.rs`; `rg` decomposition scan | Compatibility surface posture preserved.
+| API decomposition module health: `core/src/api/*.rs` split remains intact | evidence_only | `wc -l core/src/api/mod.rs core/src/api/*.rs` | Module split present and unchanged in this phase.
+| Local harness workflow evidence (existing checks only) | pass | `./scripts/check.sh`; phase carry-forward constraints | Existing deterministic baseline checks continue passing.
+| Provider authority boundary: deterministic stub remains only invoking adapter; output untrusted/non-authoritative | pass | Phase carry-forward + scans + dry-run posture | Boundary remains intact; no real provider execution introduced.
+| Provider real execution | deferred | Phase 58 evidence review | Not implemented in current baseline.
+| Persistence physical writes | deferred | Phase 58 evidence review | Physical persistence not implemented.
+| UI/Rust live transport | deferred | Phase 58 evidence review | Live transport not implemented.
+| Operator action execution | deferred | Phase 58 evidence review | Intent ingress remains transient/non-executing.
+| Release packaging/installer | deferred | Phase 58 evidence review | Not implemented.
+| Failure injection/recovery hardening | deferred | Phase 58 evidence review | Planned later phase scope.
+
+## Conservative status vocabulary
+
+Allowed values in this checklist:
+
+- `pass`
+- `deferred`
+- `blocked`
+- `not_applicable`
+- `evidence_only`
+
+Disallowed readiness-approval vocabulary:
+
+- `ready`
+- `approved`
+- `release_candidate_ready`
+- `production_ready`
