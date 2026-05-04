@@ -445,6 +445,337 @@ pub fn integration_output_is_authoritative(_output: &IntegrationOutput) -> bool 
     false
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadProjectionStatus {
+    Ready,
+    Blocked,
+    Rejected,
+    Unknown,
+    NotAvailable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadProjectionAuthority {
+    Rust,
+    Ui,
+    Operator,
+    Provider,
+    Integration,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeSafetyProjection {
+    pub safety_level: RuntimeSafetyLevel,
+    pub require_policy_pass: bool,
+    pub require_validation_pass: bool,
+    pub require_replay_verification: bool,
+    pub allow_provider_network: bool,
+    pub allow_file_io: bool,
+    pub allow_ui_mutation: bool,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LifecycleReadProjection {
+    pub lifecycle: crate::state::LifecycleState,
+    pub revision: u64,
+    pub status: ReadProjectionStatus,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RunReadProjection {
+    pub run_id: String,
+    pub status: crate::execution::ControlledRunStatus,
+    pub reason: crate::execution::ControlledRunReason,
+    pub clean_output_available: bool,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderReadProjection {
+    pub provider_kind: crate::execution::ProviderKind,
+    pub output_status: crate::execution::ProviderOutputStatus,
+    pub output_trust: crate::execution::ProviderOutputTrust,
+    pub authoritative: bool,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IntegrationReadProjection {
+    pub source_kind: IntegrationSourceKind,
+    pub output_status: IntegrationOutputStatus,
+    pub output_trust: IntegrationTrust,
+    pub authoritative: bool,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LedgerReadProjection {
+    pub event_count: usize,
+    pub last_revision: Option<u64>,
+    pub status: ReadProjectionStatus,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReplayReadProjection {
+    pub readiness: crate::replay::ReplayReadiness,
+    pub integrity: crate::replay::ReplayIntegrity,
+    pub events_replayed: usize,
+    pub status: ReadProjectionStatus,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuditReadProjection {
+    pub projection_count: usize,
+    pub latest_summary: String,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ContextReadProjection {
+    pub packet_id: String,
+    pub slice_count: usize,
+    pub source_count: usize,
+    pub budget_used: usize,
+    pub budget_max: usize,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MemoryReadProjection {
+    pub snapshot_id: String,
+    pub active_entries: usize,
+    pub disabled_entries: usize,
+    pub rejected_entries: usize,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutputReadProjection {
+    pub clean_output_available: bool,
+    pub raw_output_trusted: bool,
+    pub clean_output_summary: Option<String>,
+    pub authority: ReadProjectionAuthority,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ApplicationReadProjection {
+    pub projection_id: String,
+    pub runtime_config_id: String,
+    pub safety: RuntimeSafetyProjection,
+    pub lifecycle: LifecycleReadProjection,
+    pub run: RunReadProjection,
+    pub provider: ProviderReadProjection,
+    pub integration: IntegrationReadProjection,
+    pub ledger: LedgerReadProjection,
+    pub replay: ReplayReadProjection,
+    pub audit: AuditReadProjection,
+    pub context: ContextReadProjection,
+    pub memory: MemoryReadProjection,
+    pub output: OutputReadProjection,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadProjectionError {
+    EmptyProjectionId,
+    EmptyRuntimeConfigId,
+    EmptyRunId,
+    EmptyContextPacketId,
+    EmptyMemorySnapshotId,
+    UnsafeRuntimeConfig,
+}
+impl ReadProjectionError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyProjectionId => "empty_projection_id",
+            Self::EmptyRuntimeConfigId => "empty_runtime_config_id",
+            Self::EmptyRunId => "empty_run_id",
+            Self::EmptyContextPacketId => "empty_context_packet_id",
+            Self::EmptyMemorySnapshotId => "empty_memory_snapshot_id",
+            Self::UnsafeRuntimeConfig => "unsafe_runtime_config",
+        }
+    }
+}
+
+impl ApplicationReadProjection {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        projection_id: impl Into<String>,
+        run_id: impl Into<String>,
+        runtime_config: &LocalRuntimeConfig,
+        harness_state: &crate::state::HarnessState,
+        controlled_run: &crate::execution::ControlledRunResult,
+        provider_output: &crate::execution::ProviderOutput,
+        integration_output: &IntegrationOutput,
+        ledger: &crate::ledger::Ledger,
+        replay_report: &crate::replay::ReplayReport,
+        audit_projections: &[crate::audit::AuditProjection],
+        context_packet_id: impl Into<String>,
+        context_slice_count: usize,
+        context_source_count: usize,
+        context_budget_used: usize,
+        context_budget_max: usize,
+        memory_snapshot_id: impl Into<String>,
+        active_memory_entries: usize,
+        disabled_memory_entries: usize,
+        rejected_memory_entries: usize,
+    ) -> Result<Self, ReadProjectionError> {
+        let projection_id = projection_id.into();
+        if projection_id.is_empty() {
+            return Err(ReadProjectionError::EmptyProjectionId);
+        }
+        if runtime_config.config_id.is_empty() {
+            return Err(ReadProjectionError::EmptyRuntimeConfigId);
+        }
+        let run_id = run_id.into();
+        if run_id.is_empty() {
+            return Err(ReadProjectionError::EmptyRunId);
+        }
+        let context_packet_id = context_packet_id.into();
+        if context_packet_id.is_empty() {
+            return Err(ReadProjectionError::EmptyContextPacketId);
+        }
+        let memory_snapshot_id = memory_snapshot_id.into();
+        if memory_snapshot_id.is_empty() {
+            return Err(ReadProjectionError::EmptyMemorySnapshotId);
+        }
+        if local_runtime_config_allows_authority_bypass(runtime_config) {
+            return Err(ReadProjectionError::UnsafeRuntimeConfig);
+        }
+
+        let safety = RuntimeSafetyProjection {
+            safety_level: runtime_config.safety_level,
+            require_policy_pass: runtime_config.safety_defaults.require_policy_pass,
+            require_validation_pass: runtime_config.safety_defaults.require_validation_pass,
+            require_replay_verification: runtime_config.safety_defaults.require_replay_verification,
+            allow_provider_network: runtime_config.safety_defaults.allow_provider_network,
+            allow_file_io: runtime_config.safety_defaults.allow_file_io,
+            allow_ui_mutation: runtime_config.safety_defaults.allow_ui_mutation,
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!(
+                "runtime safety level {:?} with closed authority bypass defaults",
+                runtime_config.safety_level
+            ),
+        };
+        let lifecycle = LifecycleReadProjection {
+            lifecycle: harness_state.lifecycle,
+            revision: harness_state.revision,
+            status: ReadProjectionStatus::Ready,
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!(
+                "lifecycle {:?} at revision {}",
+                harness_state.lifecycle, harness_state.revision
+            ),
+        };
+        let run = RunReadProjection {
+            run_id,
+            status: controlled_run.status,
+            reason: controlled_run.reason,
+            clean_output_available: controlled_run.clean_output_summary.is_some(),
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!(
+                "controlled run {:?} ({:?})",
+                controlled_run.status, controlled_run.reason
+            ),
+        };
+        let provider = ProviderReadProjection {
+            provider_kind: provider_output.provider_kind,
+            output_status: provider_output.status,
+            output_trust: provider_output.trust,
+            authoritative: crate::execution::provider_output_is_authoritative(provider_output),
+            authority: ReadProjectionAuthority::Provider,
+            summary: format!(
+                "provider output {:?} remains {:?}",
+                provider_output.status, provider_output.trust
+            ),
+        };
+        let integration = IntegrationReadProjection {
+            source_kind: integration_output.source_kind,
+            output_status: integration_output.status,
+            output_trust: integration_output.trust,
+            authoritative: integration_output_is_authoritative(integration_output),
+            authority: ReadProjectionAuthority::Integration,
+            summary: format!(
+                "integration output {:?} remains {:?}",
+                integration_output.status, integration_output.trust
+            ),
+        };
+        let ledger_proj = LedgerReadProjection {
+            event_count: ledger.events().len(),
+            last_revision: ledger.last_revision(),
+            status: ReadProjectionStatus::Ready,
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!("ledger contains {} events", ledger.events().len()),
+        };
+        let replay = ReplayReadProjection {
+            readiness: replay_report.readiness,
+            integrity: replay_report.integrity,
+            events_replayed: replay_report.events_replayed as usize,
+            status: ReadProjectionStatus::Ready,
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!(
+                "replay readiness {:?} integrity {:?}",
+                replay_report.readiness, replay_report.integrity
+            ),
+        };
+        let latest_summary = audit_projections
+            .last()
+            .map(|p| p.summary.clone())
+            .unwrap_or_else(|| "no_audit_projection".to_string());
+        let audit = AuditReadProjection {
+            projection_count: audit_projections.len(),
+            latest_summary: latest_summary.clone(),
+            authority: ReadProjectionAuthority::Rust,
+            summary: format!("audit projections count {}", audit_projections.len()),
+        };
+        let context = ContextReadProjection {
+            packet_id: context_packet_id,
+            slice_count: context_slice_count,
+            source_count: context_source_count,
+            budget_used: context_budget_used,
+            budget_max: context_budget_max,
+            authority: ReadProjectionAuthority::Rust,
+            summary: "context metadata from supplied typed inputs".to_string(),
+        };
+        let memory = MemoryReadProjection {
+            snapshot_id: memory_snapshot_id,
+            active_entries: active_memory_entries,
+            disabled_entries: disabled_memory_entries,
+            rejected_entries: rejected_memory_entries,
+            authority: ReadProjectionAuthority::Rust,
+            summary: "memory metadata from supplied typed inputs".to_string(),
+        };
+        let output = OutputReadProjection {
+            clean_output_available: controlled_run.clean_output_summary.is_some(),
+            raw_output_trusted: false,
+            clean_output_summary: controlled_run.clean_output_summary.clone(),
+            authority: ReadProjectionAuthority::Rust,
+            summary: "raw provider output remains untrusted".to_string(),
+        };
+        Ok(Self {
+            projection_id,
+            runtime_config_id: runtime_config.config_id.clone(),
+            safety,
+            lifecycle,
+            run,
+            provider,
+            integration,
+            ledger: ledger_proj,
+            replay,
+            audit,
+            context,
+            memory,
+            output,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -948,5 +1279,726 @@ mod tests {
         .unwrap();
         assert!(integration_request_to_provider_request(&r).is_ok());
         assert!(integration_output_to_provider_output(&o).is_ok());
+    }
+
+    fn projection_fixtures() -> (
+        LocalRuntimeConfig,
+        crate::state::HarnessState,
+        crate::execution::ControlledRunResult,
+        crate::execution::ProviderOutput,
+        IntegrationOutput,
+        crate::ledger::Ledger,
+        crate::replay::ReplayReport,
+        Vec<crate::audit::AuditProjection>,
+    ) {
+        let workspace =
+            LocalWorkspaceMetadata::new("workspace", "/workspace/ajentic", "operator").unwrap();
+        let runtime = LocalRuntimeConfig::new(
+            "cfg-1",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Stub,
+            RuntimeSafetyLevel::Strict,
+            workspace,
+            RuntimeSafetyDefaults::strict(),
+        )
+        .unwrap();
+        let state = crate::state::HarnessState {
+            revision: 3,
+            lifecycle: crate::state::LifecycleState::Passed,
+        };
+        let run = crate::execution::ControlledRunResult {
+            status: crate::execution::ControlledRunStatus::Accepted,
+            reason: crate::execution::ControlledRunReason::RunAccepted,
+            execution_decision: crate::execution::ExecutionDecisionReport::allowed(),
+            promotion_decision: crate::execution::PromotionDecisionReport::blocked(
+                crate::execution::PromotionDecisionReason::ExecutionNotAllowed,
+            ),
+            ledger: crate::ledger::Ledger::empty(),
+            promotion_replay: crate::execution::PromotionReplayVerificationReport::verified(
+                1, 1, 1,
+            ),
+            clean_output_summary: Some("clean".to_string()),
+        };
+        let provider = crate::execution::ProviderOutput::new_untrusted(
+            "p-out",
+            "p-req",
+            crate::execution::ProviderKind::Local,
+            "raw",
+            crate::execution::ProviderOutputStatus::Received,
+        )
+        .unwrap();
+        let integration = IntegrationOutput::new_untrusted(
+            "i-out",
+            "i-req",
+            IntegrationSourceKind::LocalLlm,
+            "raw",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        let actor =
+            crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::System, "actor")
+                .unwrap();
+        let payload = crate::ledger::LedgerPayload::new("summary").unwrap();
+        let event = crate::ledger::LedgerEvent::new(
+            "e1",
+            1,
+            crate::ledger::LedgerEventType::StateTransition,
+            actor,
+            vec!["ev1".to_string()],
+            payload,
+        )
+        .unwrap();
+        let ledger = crate::ledger::Ledger::empty().append(event).unwrap();
+        let replay = crate::replay::ReplayReport::replayable(1);
+        let audit = vec![crate::audit::project_replay_summary(&replay)];
+        (
+            runtime,
+            state,
+            run,
+            provider,
+            integration,
+            ledger,
+            replay,
+            audit,
+        )
+    }
+
+    #[test]
+    fn read_projection_error_codes_are_stable() {
+        assert_eq!(
+            ReadProjectionError::EmptyProjectionId.code(),
+            "empty_projection_id"
+        );
+        assert_eq!(
+            ReadProjectionError::EmptyRuntimeConfigId.code(),
+            "empty_runtime_config_id"
+        );
+        assert_eq!(ReadProjectionError::EmptyRunId.code(), "empty_run_id");
+        assert_eq!(
+            ReadProjectionError::EmptyContextPacketId.code(),
+            "empty_context_packet_id"
+        );
+        assert_eq!(
+            ReadProjectionError::EmptyMemorySnapshotId.code(),
+            "empty_memory_snapshot_id"
+        );
+        assert_eq!(
+            ReadProjectionError::UnsafeRuntimeConfig.code(),
+            "unsafe_runtime_config"
+        );
+    }
+
+    #[test]
+    fn application_read_projection_requires_projection_id() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "",
+                "run-1",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "ctx",
+                1,
+                1,
+                1,
+                2,
+                "mem",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::EmptyProjectionId)
+        );
+    }
+    #[test]
+    fn application_read_projection_requires_runtime_config_id() {
+        let (mut runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        runtime.config_id = "".into();
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "proj",
+                "run-1",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "ctx",
+                1,
+                1,
+                1,
+                2,
+                "mem",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::EmptyRuntimeConfigId)
+        );
+    }
+    #[test]
+    fn application_read_projection_requires_run_id() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "proj",
+                "",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "ctx",
+                1,
+                1,
+                1,
+                2,
+                "mem",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::EmptyRunId)
+        );
+    }
+    #[test]
+    fn application_read_projection_requires_context_packet_id() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "proj",
+                "run",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "",
+                1,
+                1,
+                1,
+                2,
+                "mem",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::EmptyContextPacketId)
+        );
+    }
+    #[test]
+    fn application_read_projection_requires_memory_snapshot_id() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "proj",
+                "run",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "ctx",
+                1,
+                1,
+                1,
+                2,
+                "",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::EmptyMemorySnapshotId)
+        );
+    }
+    #[test]
+    fn application_read_projection_rejects_unsafe_runtime_config() {
+        let (mut runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        runtime.safety_defaults.allow_file_io = true;
+        assert_eq!(
+            ApplicationReadProjection::new(
+                "proj",
+                "run",
+                &runtime,
+                &state,
+                &run,
+                &provider,
+                &integration,
+                &ledger,
+                &replay,
+                &audit,
+                "ctx",
+                1,
+                1,
+                1,
+                2,
+                "mem",
+                1,
+                0,
+                0
+            ),
+            Err(ReadProjectionError::UnsafeRuntimeConfig)
+        );
+    }
+    #[test]
+    fn safety_projection_exposes_runtime_safety_defaults() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert!(p.safety.require_policy_pass);
+        assert!(p.safety.require_validation_pass);
+        assert!(p.safety.require_replay_verification);
+    }
+    #[test]
+    fn safety_projection_exposes_runtime_safety_level() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.safety.safety_level, RuntimeSafetyLevel::Strict);
+    }
+    #[test]
+    fn provider_projection_marks_provider_output_untrusted() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(
+            p.provider.output_trust,
+            crate::execution::ProviderOutputTrust::Untrusted
+        );
+    }
+    #[test]
+    fn provider_projection_marks_provider_output_non_authoritative() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert!(!p.provider.authoritative);
+    }
+    #[test]
+    fn integration_projection_marks_integration_output_untrusted() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.integration.output_trust, IntegrationTrust::Untrusted);
+    }
+    #[test]
+    fn integration_projection_marks_integration_output_non_authoritative() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert!(!p.integration.authoritative);
+    }
+    #[test]
+    fn output_projection_marks_raw_output_untrusted() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert!(!p.output.raw_output_trusted);
+    }
+    #[test]
+    fn ledger_projection_reports_event_count_and_last_revision() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.ledger.event_count, 1);
+        assert_eq!(p.ledger.last_revision, Some(1));
+    }
+    #[test]
+    fn replay_projection_reports_readiness_integrity_and_event_count() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.replay.readiness, crate::replay::ReplayReadiness::Ready);
+        assert_eq!(p.replay.integrity, crate::replay::ReplayIntegrity::Valid);
+        assert_eq!(p.replay.events_replayed, 1);
+    }
+    #[test]
+    fn audit_projection_reports_projection_count_and_latest_summary() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            2,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.audit.projection_count, 1);
+        assert_eq!(p.audit.latest_summary, audit[0].summary);
+    }
+    #[test]
+    fn context_projection_uses_supplied_metadata_only() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx-supplied",
+            5,
+            7,
+            9,
+            11,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.context.packet_id, "ctx-supplied");
+        assert_eq!(p.context.slice_count, 5);
+        assert_eq!(p.context.source_count, 7);
+        assert_eq!(p.context.budget_used, 9);
+        assert_eq!(p.context.budget_max, 11);
+    }
+    #[test]
+    fn memory_projection_uses_supplied_metadata_only() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            1,
+            "mem-supplied",
+            10,
+            2,
+            3,
+        )
+        .unwrap();
+        assert_eq!(p.memory.snapshot_id, "mem-supplied");
+        assert_eq!(p.memory.active_entries, 10);
+        assert_eq!(p.memory.disabled_entries, 2);
+        assert_eq!(p.memory.rejected_entries, 3);
+    }
+    #[test]
+    fn application_read_projection_does_not_execute_controlled_flow() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run-explicit",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            1,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.run.run_id, "run-explicit");
+    }
+    #[test]
+    fn application_read_projection_does_not_verify_or_repair_replay() {
+        let (runtime, state, run, provider, integration, ledger, _replay, audit) =
+            projection_fixtures();
+        let replay = crate::replay::ReplayReport::unknown();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            1,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.replay.readiness, crate::replay::ReplayReadiness::NotReady);
+    }
+    #[test]
+    fn application_read_projection_does_not_read_files_or_call_network() {
+        let (runtime, state, run, provider, integration, ledger, replay, audit) =
+            projection_fixtures();
+        let p = ApplicationReadProjection::new(
+            "proj",
+            "run",
+            &runtime,
+            &state,
+            &run,
+            &provider,
+            &integration,
+            &ledger,
+            &replay,
+            &audit,
+            "ctx",
+            1,
+            1,
+            1,
+            1,
+            "mem",
+            1,
+            0,
+            0,
+        )
+        .unwrap();
+        assert_eq!(p.output.summary, "raw provider output remains untrusted");
     }
 }

@@ -6,6 +6,27 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.43 - 2026-05-04
+
+**Status:** Phase 43 - Rust Read Projection Boundary
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with Rust-owned read projection structs, deterministic constructor validation, runtime safety posture projection, and deterministic read-only projection tests.
+- Updated `checklists/current-phase.md` to Phase 43 procedural scope and required validation checklist.
+- Updated `CHANGELOG.md` with `v0.0.43`.
+
+### Notes
+
+- Phase 43 adds Rust-owned read projection boundaries only.
+- Runtime safety posture is visible in read projections.
+- Read projections are built only from supplied typed inputs and do not execute controlled flow, call providers, verify or repair replay, persist or serialize state, read files, serve APIs, execute CLI commands, or wire UI behavior.
+- Provider and integration outputs remain untrusted and non-authoritative in projections.
+- Raw provider output remains untrusted.
+- No provider call, local model invocation, cloud model invocation, IDE connection, file IO, file watching, environment read, secrets storage, socket/HTTP behavior, async behavior, controlled-flow execution, ledger mutation, replay repair, API server, CLI command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.42 - 2026-05-04
 
 **Status:** Phase 42 - Local Runtime Configuration Boundary

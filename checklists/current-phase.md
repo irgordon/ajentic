@@ -4,11 +4,11 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 42 - Local Runtime Configuration Boundary
+# Phase 43 - Rust Read Projection Boundary
 
 ## Phase goal
 
-Add typed Rust local runtime configuration boundaries and deterministic validation only, without adding provider execution, filesystem access, controlled-flow execution, state mutation, or UI behavior.
+Add Rust-owned read projection boundary structs for UI/API consumption using caller-supplied typed inputs only, without controlled-flow execution, provider calls, replay verification, file/network/API/CLI/UI behavior, persistence, or serialization.
 
 ## Allowed surfaces
 
@@ -21,13 +21,13 @@ Add typed Rust local runtime configuration boundaries and deterministic validati
 
 ## Task checklist
 
-- [x] Update checklist to Phase 42 scope.
-- [x] Add typed local runtime configuration surfaces in Rust.
-- [x] Add deterministic validation for empty or malformed local runtime configuration metadata fields.
-- [x] Keep workspace path handling caller-supplied metadata only.
-- [x] Keep runtime safety defaults closed for provider network, file IO, and UI mutation.
-- [x] Add deterministic tests for required Phase 42 behaviors.
-- [x] Add `CHANGELOG.md` entry `v0.0.42`.
+- [x] Update checklist to Phase 43 scope.
+- [x] Add Rust-owned typed read projection surfaces in Rust.
+- [x] Add deterministic constructor validation for required read projection identifiers.
+- [x] Keep projection metadata caller-supplied typed inputs only.
+- [x] Expose runtime safety level/defaults in read projection and reject unsafe runtime config bypass.
+- [x] Add deterministic tests for required Phase 43 behaviors.
+- [x] Add `CHANGELOG.md` entry `v0.0.43`.
 
 ## Validation checklist
 
