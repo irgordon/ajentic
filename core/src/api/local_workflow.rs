@@ -602,3 +602,22 @@ mod tests {
         assert!(!result.provider_output_authoritative);
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn local_harness_workflow_error_diagnostic_preserves_code() {
+        let error = LocalHarnessWorkflowError::EmptyWorkflowId;
+        let diagnostic = crate::api::local_harness_workflow_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+
+    #[test]
+    fn local_harness_workflow_reason_diagnostic_preserves_code() {
+        let reason = LocalHarnessWorkflowReason::CompletedInMemory;
+        let diagnostic = crate::api::local_harness_workflow_reason_diagnostic(reason);
+        assert_eq!(diagnostic.code, reason.code());
+    }
+}

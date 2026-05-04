@@ -253,3 +253,15 @@ mod tests {
         assert_eq!(err, LocalRuntimeConfigError::SecretsNotAllowed);
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn local_runtime_config_error_diagnostic_preserves_code() {
+        let error = LocalRuntimeConfigError::UnsafeDefaultEnabled;
+        let diagnostic = crate::api::local_runtime_config_error_diagnostic(error);
+        assert_eq!(diagnostic.code, error.code());
+    }
+}

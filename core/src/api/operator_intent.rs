@@ -301,3 +301,15 @@ mod tests {
         assert_eq!(err, OperatorIntentIngressReason::UnsupportedIntentType);
     }
 }
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn operator_intent_ingress_reason_diagnostic_preserves_code() {
+        let reason = OperatorIntentIngressReason::AcceptedForRouting;
+        let diagnostic = crate::api::operator_intent_ingress_reason_diagnostic(reason);
+        assert_eq!(diagnostic.code, reason.code());
+    }
+}
