@@ -3,7 +3,8 @@ import { SectionCard } from "../components/SectionCard";
 import { TimelineList } from "../components/TimelineList";
 
 export function AuditScreen(): string {
-  const { audit, auditDetails } = getUiReadModel();
+  const { application, auditDetails } = getUiReadModel();
+  const { audit } = application;
 
   const details = TimelineList({
     heading: "Audit detail projections",

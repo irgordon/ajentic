@@ -3,7 +3,8 @@ import { ProjectionList } from "../components/ProjectionList";
 import { SectionCard } from "../components/SectionCard";
 
 export function MemoryScreen(): string {
-  const { memory } = getUiReadModel();
+  const { application } = getUiReadModel();
+  const { memory } = application;
 
   const entryRows = memory.entriesPreview.map(
     (entry) =>

@@ -2,7 +2,8 @@ import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function ReplayScreen(): string {
-  const { replay, replayDetail } = getUiReadModel();
+  const { application, replayDetail } = getUiReadModel();
+  const { replay } = application;
 
   return SectionCard({
     title: "Replay",

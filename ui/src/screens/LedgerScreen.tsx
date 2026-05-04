@@ -3,7 +3,8 @@ import { SectionCard } from "../components/SectionCard";
 import { TimelineList } from "../components/TimelineList";
 
 export function LedgerScreen(): string {
-  const { ledger, ledgerTimeline } = getUiReadModel();
+  const { application, ledgerTimeline } = getUiReadModel();
+  const { ledger } = application;
 
   const timeline = TimelineList({
     heading: "Ledger timeline entries",

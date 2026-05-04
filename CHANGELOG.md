@@ -3,8 +3,33 @@ truth_dimension: historical
 authority_level: authoritative
 mutation_path: changelog_entry
 ---
-
 # CHANGELOG.md
+
+## v0.0.52 - 2026-05-04
+
+**Status:** Phase 52 - UI Live Read Projection Integration
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` with typed `ApplicationUiProjection` and `RuntimeSafetyUiProjection` surfaces aligned to Rust-owned read-projection shape for non-authoritative UI consumption.
+- Updated `ui/src/api/readModel.ts` with pure synchronous `buildUiReadModelFromApplicationProjection(...)`, fixture-or-supplied projection consumption, and explicit non-mutation/non-submission constants.
+- Updated `ui/src/api/fixtures.ts` to provide an `ApplicationUiProjection`-shaped fixture that preserves untrusted provider/integration/output trust posture and closed runtime safety defaults.
+- Updated UI shell/screens to read from the typed application projection boundary and display runtime safety, trust posture, and read-only summaries for lifecycle, run, ledger, replay, audit, context, memory, and output surfaces.
+- Updated `checklists/current-phase.md` to Phase 52 checklist scope.
+- Updated `CHANGELOG.md` with `v0.0.52`.
+
+### Notes
+
+- Phase 52 adds a typed UI consumption boundary for Rust-owned read projection-shaped data.
+- The UI remains non-authoritative and side-effect-free.
+- Fixture fallback remains explicit.
+- Runtime safety posture is visible in UI read projections.
+- Provider and integration outputs remain untrusted and non-authoritative in the UI.
+- Raw provider/model output remains distinct from clean output.
+- UI preview controls remain non-functional; operator intent submission is not wired in this phase.
+- No fetch/API client, server integration, Rust bridge, UI mutation, UI event handlers, forms, buttons, anchor hrefs, local/session storage, sockets, timers, provider call, model invocation, persistence, physical write, ledger append, replay repair, context mutation, memory mutation, audit writing, CLI live command, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
 
 ## v0.0.51 - 2026-05-04
 

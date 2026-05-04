@@ -2,7 +2,8 @@ import { getUiReadModel } from "../api/readModel";
 import { SectionCard } from "../components/SectionCard";
 
 export function OutputScreen(): string {
-  const { output, cleanOutput } = getUiReadModel();
+  const { application, cleanOutput } = getUiReadModel();
+  const { output } = application;
 
   return SectionCard({
     title: "Output",

@@ -3,7 +3,8 @@ import { ProjectionList } from "../components/ProjectionList";
 import { SectionCard } from "../components/SectionCard";
 
 export function ContextScreen(): string {
-  const { context } = getUiReadModel();
+  const { application } = getUiReadModel();
+  const { context } = application;
 
   const sliceRows = context.slicesPreview.map(
     (slice) =>
