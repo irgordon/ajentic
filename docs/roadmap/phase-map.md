@@ -2738,49 +2738,170 @@ Boundary note:
 
 Recovery must remain explicit, auditable, and authority-safe.
 
-## Phase 60: Production Readiness Gap Audit
+## Phase 60: Roadmap and Changelog Alignment Check + Production-Path Expansion
 
 Milestone group: Milestone 9
 
-Primary goal: Identify remaining production blockers after a functional local harness exists.
+Primary goal: Reconcile historical completion in the 50s block against planned truth and expand the production-path plan for the next risk-controlled sequence.
 
 Scope:
 
-- Advisory production-gap audit and blocker classification.
+- Advisory roadmap/changelog alignment check and production-path expansion planning.
 
 Allowed:
 
-- Operations/checklist/roadmap/changelog documentation updates.
+- Roadmap/checklist/changelog/operations documentation updates only.
 
 Not allowed:
 
-- Production-readiness claim.
+- Runtime/UI/provider/persistence behavior changes.
+- Release-candidate readiness, production-readiness, or public-usability claims.
 
 Validation gate:
 
-- Required audit scans and baseline validation commands pass.
+- Required alignment scans and baseline validation commands pass.
 
 Exit criteria:
 
-- Production blockers are explicitly documented with follow-up planning direction.
+- Planned truth remains in roadmap, historical truth remains in changelog, and post-60 production-path sequencing is explicitly documented.
 
 Boundary note:
 
-Gap audit identifies blockers; it does not assert blocker closure.
+Phase 60 is planning and alignment only.
 
-## Phase 61: Roadmap and Changelog Alignment Check
+## Phase 61: Data Durability and Atomic Persistence Implementation
 
-Milestone group: Milestone 9
+Milestone group: Milestone 10
 
-Primary goal: Reconcile roadmap/changelog before any production-candidate work after renumbering.
+Primary goal: Implement explicit atomic persistence for approved local persistence plans.
 
 Scope:
 
-- Planned/historical truth comparison and forward-plan reconciliation.
+- Rust-owned durable state write boundaries with fail-closed atomic semantics.
 
 Allowed:
 
-- Roadmap/checklist/changelog documentation updates.
+- Rust persistence implementation and deterministic tests for atomic write guarantees.
+
+Not allowed:
+
+- Hidden writes, UI writes, replay repair, provider execution, or public-usability claim.
+
+Validation gate:
+
+- Atomic persistence tests pass with deterministic fail-closed behavior on partial-write scenarios.
+
+Exit criteria:
+
+- Durable state writes are explicit, atomic, and auditable under Rust-owned control.
+
+Boundary note:
+
+Durability implementation must precede real provider execution and UI/Rust transport wiring.
+
+## Phase 62: Persistence Recovery and Corruption Detection
+
+Milestone group: Milestone 10
+
+Primary goal: Add deterministic recovery, corruption detection, and fail-closed handling for persisted local state.
+
+Scope:
+
+- Corruption detection and explicit typed recovery paths for persisted state.
+
+Allowed:
+
+- Rust recovery validation, typed recovery records, and fail-closed recovery tests.
+
+Not allowed:
+
+- Auto-repair of history without explicit typed recovery records.
+
+Validation gate:
+
+- Corruption and recovery-path tests prove deterministic fail-closed behavior and explicit recovery recording.
+
+Exit criteria:
+
+- Persisted state corruption is detected and surfaced through explicit, typed, auditable recovery boundaries.
+
+Boundary note:
+
+Recovery capability must not silently reinterpret or rewrite historical records.
+
+## Phase 63: Error-Code Family and Reporting Standardization
+
+Milestone group: Milestone 10
+
+Primary goal: Add an error family/context reporting strategy so consumers do not treat duplicate code() strings as globally unique.
+
+Scope:
+
+- Error family/context model and reporting updates across Rust-owned API surfaces.
+
+Allowed:
+
+- Non-breaking error reporting augmentations and compatibility-preserving migration notes.
+
+Not allowed:
+
+- Behavior reinterpretation or breaking existing code() values unless explicitly planned.
+
+Validation gate:
+
+- Error reporting checks show family/context disambiguation without breaking prior code() compatibility.
+
+Exit criteria:
+
+- Error reporting carries sufficient family/context structure for deterministic downstream interpretation.
+
+Boundary note:
+
+Standardization hardens interpretation without implying runtime capability expansion.
+
+## Phase 64: Rust/TypeScript Contract Synchronization Boundary
+
+Milestone group: Milestone 10
+
+Primary goal: Define how Rust-owned types map to TypeScript projection/intent shapes before live transport.
+
+Scope:
+
+- Contract mapping boundary and conformance rules for Rust-authoritative types and UI consumption shapes.
+
+Allowed:
+
+- Contract documentation and compatibility-safe type-shape alignment work.
+
+Not allowed:
+
+- UI authority expansion or transport coupling that bypasses Rust-owned contracts.
+
+Validation gate:
+
+- Contract conformance checks show TypeScript projection/intent shapes remain subordinate to Rust-owned contracts.
+
+Exit criteria:
+
+- Rust-to-TypeScript contract synchronization boundary is explicit and validated before transport introduction.
+
+Boundary note:
+
+Rust remains authoritative; UI types conform.
+
+## Phase 65: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 10
+
+Primary goal: Reconcile durability, recovery, error-reporting, and contract-sync work across planned and historical truth surfaces.
+
+Scope:
+
+- Advisory alignment review and follow-up planning updates.
+
+Allowed:
+
+- Roadmap/checklist/changelog/operations documentation updates.
 
 Not allowed:
 
@@ -2788,12 +2909,162 @@ Not allowed:
 
 Validation gate:
 
-- Required docs scans and baseline validation commands pass.
+- Alignment scans and baseline validation commands pass with no truth-dimension drift.
 
 Exit criteria:
 
-- Roadmap/changelog truth alignment is clean before production-candidate planning.
+- Planned and historical truth remain aligned after the durability/recovery/contract-sync block.
 
 Boundary note:
 
-Alignment checkpoints preserve truth-dimension integrity and do not replace implementation evidence.
+Alignment checkpoints verify truth hygiene and do not substitute for implementation evidence.
+
+## Phase 66: Identity-Bound Operator Intent Authorization
+
+Milestone group: Milestone 11
+
+Primary goal: Add Rust-owned identity/safety/context checks for future executable operator intents.
+
+Scope:
+
+- Authorization boundary for intent acceptance/rejection under explicit identity and safety constraints.
+
+Allowed:
+
+- Rust authorization checks and deterministic authorization test coverage.
+
+Not allowed:
+
+- Action execution enablement unless explicitly scoped.
+
+Validation gate:
+
+- Authorization tests prove identity/safety/context binding is enforced and fail-closed.
+
+Exit criteria:
+
+- Operator intent authorization boundary is explicit, typed, and Rust-owned.
+
+Boundary note:
+
+Authorization decisions do not execute operator actions.
+
+## Phase 67: Operator Intent Audit Record Boundary
+
+Milestone group: Milestone 11
+
+Primary goal: Define which submitted/routed/rejected/authorized intents can produce audit or ledger records.
+
+Scope:
+
+- Intent audit/ledger eligibility policy boundary and deterministic recording rules.
+
+Allowed:
+
+- Rust-owned audit eligibility typing and boundary-safe audit record tests.
+
+Not allowed:
+
+- Intent-action execution coupling.
+
+Validation gate:
+
+- Audit-boundary checks prove intent record eligibility is explicit and deterministic.
+
+Exit criteria:
+
+- Intent audit recording boundary is defined without expanding execution capabilities.
+
+Boundary note:
+
+Recording intent metadata does not execute intent actions.
+
+## Phase 68: Bounded Read Projection Slices
+
+Milestone group: Milestone 11
+
+Primary goal: Add bounded summary/detail or slice-based read projection semantics to avoid wide projection growth.
+
+Scope:
+
+- Rust-owned projection slicing semantics and bounded projection interfaces.
+
+Allowed:
+
+- Projection slicing models, compatibility-safe read projection updates, and deterministic bounds testing.
+
+Not allowed:
+
+- UI caching/pagination semantics before Rust owns projection slicing.
+
+Validation gate:
+
+- Projection-bound tests prove deterministic bounded summaries/details under Rust-owned rules.
+
+Exit criteria:
+
+- Read projection surfaces provide bounded slice semantics suitable for future transport.
+
+Boundary note:
+
+Projection bounds are Rust-owned before UI transport behavior.
+
+## Phase 69: Async Provider Transport Boundary
+
+Milestone group: Milestone 11
+
+Primary goal: Define async provider transport boundary without allowing asynchronous state mutation or ledger interleaving.
+
+Scope:
+
+- Transport boundary design and deterministic serialization rules for provider-originated outputs.
+
+Allowed:
+
+- Boundary-safe transport scaffolding and deterministic sequencing checks.
+
+Not allowed:
+
+- Asynchronous ledger mutation, interleaved authority updates, or trust-boundary bypass.
+
+Validation gate:
+
+- Sequencing tests prove ledger/state mutation remains serialized and Rust-owned under async transport boundary conditions.
+
+Exit criteria:
+
+- Async transport boundary is explicit while mutation authority remains deterministic and serialized.
+
+Boundary note:
+
+Provider output remains untrusted; Rust-owned mutation remains serialized.
+
+## Phase 70: Roadmap and Changelog Alignment Check
+
+Milestone group: Milestone 11
+
+Primary goal: Reconcile production-path boundary work before any public-usability claim.
+
+Scope:
+
+- Advisory alignment and follow-up planning review.
+
+Allowed:
+
+- Roadmap/checklist/changelog/operations documentation updates.
+
+Not allowed:
+
+- Public-usability, release-candidate readiness, or production-readiness claims.
+
+Validation gate:
+
+- Alignment and readiness-language scans pass with deferred capability boundaries preserved.
+
+Exit criteria:
+
+- Production-path boundary work is reconciled and truth surfaces remain aligned before later usability phases.
+
+Boundary note:
+
+Phase 70 is an alignment checkpoint and does not assert readiness.
