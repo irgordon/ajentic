@@ -6,6 +6,25 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.42 - 2026-05-04
+
+**Status:** Phase 42 - Local Runtime Configuration Boundary
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with typed local runtime configuration boundary surfaces, deterministic validation, deterministic secret-marker rejection, closed safety-default constructors, authority-bypass helper, and deterministic unit tests.
+- Updated `checklists/current-phase.md` to Phase 42 procedural scope and required validation checklist.
+- Updated `CHANGELOG.md` with `v0.0.42`.
+
+### Notes
+
+- Phase 42 adds typed local runtime configuration boundaries only.
+- Workspace paths are caller-supplied metadata only and are not read, canonicalized, watched, created, or validated against the filesystem.
+- Safety defaults remain closed for provider network, file IO, and UI mutation.
+- No provider call, local model invocation, cloud model invocation, IDE connection, file IO, file watching, environment read, secrets storage, socket/HTTP behavior, async behavior, controlled-flow execution, ledger mutation, replay repair, API server, CLI command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.41 - 2026-05-03
 
 **Status:** Phase 41 - Functional Gap Audit and Roadmap Expansion

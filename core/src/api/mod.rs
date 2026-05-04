@@ -238,6 +238,172 @@ impl IntegrationOutput {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalRuntimeMode {
+    DryRun,
+    ControlledRun,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderMode {
+    Stub,
+    LocalModel,
+    CloudModel,
+    Disabled,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuntimeSafetyLevel {
+    Strict,
+    PermissivePreview,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RuntimeSafetyDefaults {
+    pub require_policy_pass: bool,
+    pub require_validation_pass: bool,
+    pub require_replay_verification: bool,
+    pub allow_provider_network: bool,
+    pub allow_file_io: bool,
+    pub allow_ui_mutation: bool,
+}
+
+impl RuntimeSafetyDefaults {
+    pub fn strict() -> Self {
+        Self {
+            require_policy_pass: true,
+            require_validation_pass: true,
+            require_replay_verification: true,
+            allow_provider_network: false,
+            allow_file_io: false,
+            allow_ui_mutation: false,
+        }
+    }
+
+    pub fn preview() -> Self {
+        Self::strict()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalWorkspaceMetadata {
+    pub workspace_id: String,
+    pub workspace_root: String,
+    pub operator_label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalRuntimeConfig {
+    pub config_id: String,
+    pub runtime_mode: LocalRuntimeMode,
+    pub provider_mode: LocalProviderMode,
+    pub safety_level: RuntimeSafetyLevel,
+    pub workspace: LocalWorkspaceMetadata,
+    pub safety_defaults: RuntimeSafetyDefaults,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalRuntimeConfigError {
+    EmptyConfigId,
+    EmptyWorkspaceId,
+    EmptyWorkspaceRoot,
+    EmptyOperatorLabel,
+    UnsafeDefaultEnabled,
+    SecretsNotAllowed,
+}
+
+impl LocalRuntimeConfigError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyConfigId => "empty_config_id",
+            Self::EmptyWorkspaceId => "empty_workspace_id",
+            Self::EmptyWorkspaceRoot => "empty_workspace_root",
+            Self::EmptyOperatorLabel => "empty_operator_label",
+            Self::UnsafeDefaultEnabled => "unsafe_default_enabled",
+            Self::SecretsNotAllowed => "secrets_not_allowed",
+        }
+    }
+}
+
+fn contains_secret_marker(value: &str) -> bool {
+    let normalized = value.to_ascii_lowercase();
+    ["api_key", "apikey", "secret", "token", "bearer", "password"]
+        .iter()
+        .any(|marker| normalized.contains(marker))
+}
+
+impl LocalWorkspaceMetadata {
+    pub fn new(
+        workspace_id: impl Into<String>,
+        workspace_root: impl Into<String>,
+        operator_label: impl Into<String>,
+    ) -> Result<Self, LocalRuntimeConfigError> {
+        let workspace_id = workspace_id.into();
+        if workspace_id.is_empty() {
+            return Err(LocalRuntimeConfigError::EmptyWorkspaceId);
+        }
+        let workspace_root = workspace_root.into();
+        if workspace_root.is_empty() {
+            return Err(LocalRuntimeConfigError::EmptyWorkspaceRoot);
+        }
+        let operator_label = operator_label.into();
+        if operator_label.is_empty() {
+            return Err(LocalRuntimeConfigError::EmptyOperatorLabel);
+        }
+        Ok(Self {
+            workspace_id,
+            workspace_root,
+            operator_label,
+        })
+    }
+}
+
+impl LocalRuntimeConfig {
+    pub fn new(
+        config_id: impl Into<String>,
+        runtime_mode: LocalRuntimeMode,
+        provider_mode: LocalProviderMode,
+        safety_level: RuntimeSafetyLevel,
+        workspace: LocalWorkspaceMetadata,
+        safety_defaults: RuntimeSafetyDefaults,
+    ) -> Result<Self, LocalRuntimeConfigError> {
+        let config_id = config_id.into();
+        if config_id.is_empty() {
+            return Err(LocalRuntimeConfigError::EmptyConfigId);
+        }
+        if safety_defaults.allow_provider_network
+            || safety_defaults.allow_file_io
+            || safety_defaults.allow_ui_mutation
+        {
+            return Err(LocalRuntimeConfigError::UnsafeDefaultEnabled);
+        }
+        if contains_secret_marker(&config_id)
+            || contains_secret_marker(&workspace.workspace_id)
+            || contains_secret_marker(&workspace.workspace_root)
+            || contains_secret_marker(&workspace.operator_label)
+        {
+            return Err(LocalRuntimeConfigError::SecretsNotAllowed);
+        }
+        Ok(Self {
+            config_id,
+            runtime_mode,
+            provider_mode,
+            safety_level,
+            workspace,
+            safety_defaults,
+        })
+    }
+}
+
+pub fn local_runtime_config_allows_authority_bypass(config: &LocalRuntimeConfig) -> bool {
+    config.safety_defaults.allow_provider_network
+        || config.safety_defaults.allow_file_io
+        || config.safety_defaults.allow_ui_mutation
+}
+
 pub fn integration_source_to_provider_kind(
     source_kind: IntegrationSourceKind,
 ) -> crate::execution::ProviderKind {
@@ -541,6 +707,234 @@ mod tests {
         assert_eq!(p.trust, crate::execution::ProviderOutputTrust::Untrusted);
         assert_eq!(p.status, crate::execution::ProviderOutputStatus::Received);
     }
+    #[test]
+    fn runtime_safety_strict_defaults_are_closed() {
+        let defaults = RuntimeSafetyDefaults::strict();
+        assert!(defaults.require_policy_pass);
+        assert!(defaults.require_validation_pass);
+        assert!(defaults.require_replay_verification);
+        assert!(!defaults.allow_provider_network);
+        assert!(!defaults.allow_file_io);
+        assert!(!defaults.allow_ui_mutation);
+    }
+
+    #[test]
+    fn runtime_safety_preview_defaults_do_not_enable_io_network_or_ui_mutation() {
+        let defaults = RuntimeSafetyDefaults::preview();
+        assert!(defaults.require_policy_pass);
+        assert!(defaults.require_validation_pass);
+        assert!(defaults.require_replay_verification);
+        assert!(!defaults.allow_provider_network);
+        assert!(!defaults.allow_file_io);
+        assert!(!defaults.allow_ui_mutation);
+    }
+
+    #[test]
+    fn workspace_metadata_requires_workspace_id() {
+        assert_eq!(
+            LocalWorkspaceMetadata::new("", "root", "op"),
+            Err(LocalRuntimeConfigError::EmptyWorkspaceId)
+        );
+    }
+
+    #[test]
+    fn workspace_metadata_requires_workspace_root() {
+        assert_eq!(
+            LocalWorkspaceMetadata::new("id", "", "op"),
+            Err(LocalRuntimeConfigError::EmptyWorkspaceRoot)
+        );
+    }
+
+    #[test]
+    fn workspace_metadata_requires_operator_label() {
+        assert_eq!(
+            LocalWorkspaceMetadata::new("id", "root", ""),
+            Err(LocalRuntimeConfigError::EmptyOperatorLabel)
+        );
+    }
+
+    #[test]
+    fn workspace_metadata_does_not_require_existing_path() {
+        let workspace = LocalWorkspaceMetadata::new("id", "/path/does/not/exist", "op").unwrap();
+        assert_eq!(workspace.workspace_root, "/path/does/not/exist");
+    }
+
+    fn valid_workspace() -> LocalWorkspaceMetadata {
+        LocalWorkspaceMetadata::new("workspace", "/caller/supplied/path", "operator").unwrap()
+    }
+
+    #[test]
+    fn local_runtime_config_requires_config_id() {
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                valid_workspace(),
+                RuntimeSafetyDefaults::strict()
+            ),
+            Err(LocalRuntimeConfigError::EmptyConfigId)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_rejects_provider_network_default() {
+        let mut defaults = RuntimeSafetyDefaults::strict();
+        defaults.allow_provider_network = true;
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "cfg",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                valid_workspace(),
+                defaults
+            ),
+            Err(LocalRuntimeConfigError::UnsafeDefaultEnabled)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_rejects_file_io_default() {
+        let mut defaults = RuntimeSafetyDefaults::strict();
+        defaults.allow_file_io = true;
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "cfg",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                valid_workspace(),
+                defaults
+            ),
+            Err(LocalRuntimeConfigError::UnsafeDefaultEnabled)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_rejects_ui_mutation_default() {
+        let mut defaults = RuntimeSafetyDefaults::strict();
+        defaults.allow_ui_mutation = true;
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "cfg",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                valid_workspace(),
+                defaults
+            ),
+            Err(LocalRuntimeConfigError::UnsafeDefaultEnabled)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_rejects_secret_markers_in_config_id() {
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "my_api_key",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                valid_workspace(),
+                RuntimeSafetyDefaults::strict()
+            ),
+            Err(LocalRuntimeConfigError::SecretsNotAllowed)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_rejects_secret_markers_in_workspace_metadata() {
+        let workspace =
+            LocalWorkspaceMetadata::new("workspace", "/root", "Bearer operator").unwrap();
+        assert_eq!(
+            LocalRuntimeConfig::new(
+                "cfg",
+                LocalRuntimeMode::DryRun,
+                LocalProviderMode::Stub,
+                RuntimeSafetyLevel::Strict,
+                workspace,
+                RuntimeSafetyDefaults::strict()
+            ),
+            Err(LocalRuntimeConfigError::SecretsNotAllowed)
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_does_not_allow_authority_bypass() {
+        let config = LocalRuntimeConfig::new(
+            "cfg",
+            LocalRuntimeMode::ControlledRun,
+            LocalProviderMode::Disabled,
+            RuntimeSafetyLevel::PermissivePreview,
+            valid_workspace(),
+            RuntimeSafetyDefaults::preview(),
+        )
+        .unwrap();
+        assert!(!local_runtime_config_allows_authority_bypass(&config));
+    }
+
+    #[test]
+    fn local_runtime_config_error_codes_are_stable() {
+        assert_eq!(
+            LocalRuntimeConfigError::EmptyConfigId.code(),
+            "empty_config_id"
+        );
+        assert_eq!(
+            LocalRuntimeConfigError::EmptyWorkspaceId.code(),
+            "empty_workspace_id"
+        );
+        assert_eq!(
+            LocalRuntimeConfigError::EmptyWorkspaceRoot.code(),
+            "empty_workspace_root"
+        );
+        assert_eq!(
+            LocalRuntimeConfigError::EmptyOperatorLabel.code(),
+            "empty_operator_label"
+        );
+        assert_eq!(
+            LocalRuntimeConfigError::UnsafeDefaultEnabled.code(),
+            "unsafe_default_enabled"
+        );
+        assert_eq!(
+            LocalRuntimeConfigError::SecretsNotAllowed.code(),
+            "secrets_not_allowed"
+        );
+    }
+
+    #[test]
+    fn local_runtime_config_does_not_call_provider_or_controlled_flow() {
+        let workspace = LocalWorkspaceMetadata::new("workspace", "/root", "operator").unwrap();
+        let config = LocalRuntimeConfig::new(
+            "cfg",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Stub,
+            RuntimeSafetyLevel::Strict,
+            workspace,
+            RuntimeSafetyDefaults::strict(),
+        )
+        .unwrap();
+        assert_eq!(config.provider_mode, LocalProviderMode::Stub);
+    }
+
+    #[test]
+    fn local_runtime_config_does_not_read_or_canonicalize_workspace_path() {
+        let workspace =
+            LocalWorkspaceMetadata::new("workspace", "./relative/../caller-path", "operator")
+                .unwrap();
+        let config = LocalRuntimeConfig::new(
+            "cfg",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Disabled,
+            RuntimeSafetyLevel::Strict,
+            workspace,
+            RuntimeSafetyDefaults::strict(),
+        )
+        .unwrap();
+        assert_eq!(config.workspace.workspace_root, "./relative/../caller-path");
+    }
+
     #[test]
     fn integration_mapping_does_not_call_controlled_flow() {
         let r = IntegrationRequest::new("id", IntegrationSourceKind::LocalLlm, "p", "c").unwrap();
