@@ -97,6 +97,11 @@ impl LocalPersistenceValidationReason {
 pub enum LocalPersistenceError {
     InvalidPlan,
     PhysicalWriteNotImplemented,
+    EmptyPayload,
+    TargetAlreadyExists,
+    TempWriteFailed,
+    TempSyncFailed,
+    AtomicRenameFailed,
 }
 
 impl LocalPersistenceError {
@@ -104,6 +109,11 @@ impl LocalPersistenceError {
         match self {
             Self::InvalidPlan => "invalid_plan",
             Self::PhysicalWriteNotImplemented => "physical_write_not_implemented",
+            Self::EmptyPayload => "empty_payload",
+            Self::TargetAlreadyExists => "target_already_exists",
+            Self::TempWriteFailed => "temp_write_failed",
+            Self::TempSyncFailed => "temp_sync_failed",
+            Self::AtomicRenameFailed => "atomic_rename_failed",
         }
     }
 }
@@ -144,18 +154,47 @@ pub fn local_persistence_plan_allows_hidden_write(plan: &LocalPersistencePlan) -
 
 pub fn execute_local_persistence_plan(
     plan: &LocalPersistencePlan,
-    _payload_bytes: &[u8],
+    payload_bytes: &[u8],
 ) -> Result<(), LocalPersistenceError> {
     let validation = validate_local_persistence_plan(plan);
     if !validation.valid {
         return Err(LocalPersistenceError::InvalidPlan);
     }
-    Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+    if payload_bytes.is_empty() {
+        return Err(LocalPersistenceError::EmptyPayload);
+    }
+    if plan.write_mode == LocalPersistenceWriteMode::CreateNew
+        && std::path::Path::new(&plan.target_path).exists()
+    {
+        return Err(LocalPersistenceError::TargetAlreadyExists);
+    }
+
+    let mut temp_file = std::fs::File::create(&plan.temp_path)
+        .map_err(|_| LocalPersistenceError::TempWriteFailed)?;
+    use std::io::Write;
+    temp_file
+        .write_all(payload_bytes)
+        .map_err(|_| LocalPersistenceError::TempWriteFailed)?;
+    temp_file
+        .flush()
+        .map_err(|_| LocalPersistenceError::TempSyncFailed)?;
+    temp_file
+        .sync_all()
+        .map_err(|_| LocalPersistenceError::TempSyncFailed)?;
+    drop(temp_file);
+
+    std::fs::rename(&plan.temp_path, &plan.target_path)
+        .map_err(|_| LocalPersistenceError::AtomicRenameFailed)?;
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     fn valid_plan() -> LocalPersistencePlan {
         LocalPersistencePlan::new(
@@ -169,8 +208,60 @@ mod tests {
         )
     }
 
+    fn test_root(name: &str) -> PathBuf {
+        let mut p = std::env::temp_dir();
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time")
+            .as_nanos();
+        p.push(format!(
+            "ajentic_phase61_{name}_{}_{}",
+            std::process::id(),
+            unique
+        ));
+        p
+    }
+
+    fn build_plan(root: &Path, mode: LocalPersistenceWriteMode) -> LocalPersistencePlan {
+        LocalPersistencePlan::new(
+            "plan-1",
+            root.join("target.bin").to_string_lossy().to_string(),
+            root.join("temp.bin").to_string_lossy().to_string(),
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            mode,
+            LocalPersistenceAtomicity::Required,
+        )
+    }
+
     #[test]
-    fn invalid_plan_fails_closed_before_write_path() {
+    fn persistence_error_codes_are_stable_after_physical_write() {
+        assert_eq!(LocalPersistenceError::InvalidPlan.code(), "invalid_plan");
+        assert_eq!(
+            LocalPersistenceError::PhysicalWriteNotImplemented.code(),
+            "physical_write_not_implemented"
+        );
+        assert_eq!(LocalPersistenceError::EmptyPayload.code(), "empty_payload");
+        assert_eq!(
+            LocalPersistenceError::TargetAlreadyExists.code(),
+            "target_already_exists"
+        );
+        assert_eq!(
+            LocalPersistenceError::TempWriteFailed.code(),
+            "temp_write_failed"
+        );
+        assert_eq!(
+            LocalPersistenceError::TempSyncFailed.code(),
+            "temp_sync_failed"
+        );
+        assert_eq!(
+            LocalPersistenceError::AtomicRenameFailed.code(),
+            "atomic_rename_failed"
+        );
+    }
+
+    #[test]
+    fn execute_persistence_plan_rejects_invalid_plan_before_payload_check() {
         assert_eq!(
             execute_local_persistence_plan(
                 &LocalPersistencePlan::new(
@@ -182,18 +273,177 @@ mod tests {
                     LocalPersistenceWriteMode::CreateNew,
                     LocalPersistenceAtomicity::Required
                 ),
-                b"payload"
+                &[]
             ),
             Err(LocalPersistenceError::InvalidPlan)
         );
     }
+
     #[test]
-    fn valid_plan_returns_not_implemented() {
+    fn execute_persistence_plan_rejects_empty_payload() {
+        let root = test_root("empty_payload");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
         assert_eq!(
-            execute_local_persistence_plan(&valid_plan(), b"payload"),
-            Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+            execute_local_persistence_plan(&plan, &[]),
+            Err(LocalPersistenceError::EmptyPayload)
         );
+        let _ = fs::remove_dir_all(&root);
     }
+
+    #[test]
+    fn execute_persistence_plan_writes_payload_to_target_via_temp_path() {
+        let root = test_root("writes_payload");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        let payload = b"abc123";
+        execute_local_persistence_plan(&plan, payload).expect("write ok");
+        assert_eq!(fs::read(&plan.target_path).expect("read target"), payload);
+        assert!(!PathBuf::from(&plan.temp_path).exists());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_replaces_existing_target_when_write_mode_replace_existing() {
+        let root = test_root("replace_existing");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::ReplaceExisting);
+        fs::write(&plan.target_path, b"old").expect("seed target");
+        execute_local_persistence_plan(&plan, b"new").expect("write ok");
+        assert_eq!(fs::read(&plan.target_path).expect("read target"), b"new");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_create_new_fails_if_target_exists() {
+        let root = test_root("create_new_exists");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        fs::write(&plan.target_path, b"existing").expect("seed target");
+        assert_eq!(
+            execute_local_persistence_plan(&plan, b"new"),
+            Err(LocalPersistenceError::TargetAlreadyExists)
+        );
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_fails_when_temp_parent_missing() {
+        let root = test_root("temp_parent_missing");
+        fs::create_dir_all(&root).expect("mkdir");
+        let missing = root.join("missing");
+        let plan = LocalPersistencePlan::new(
+            "plan-1",
+            root.join("target.bin").to_string_lossy().to_string(),
+            missing.join("temp.bin").to_string_lossy().to_string(),
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            execute_local_persistence_plan(&plan, b"payload"),
+            Err(LocalPersistenceError::TempWriteFailed)
+        );
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_fails_when_target_parent_missing() {
+        let root = test_root("target_parent_missing");
+        fs::create_dir_all(&root).expect("mkdir");
+        let missing = root.join("missing");
+        let plan = LocalPersistencePlan::new(
+            "plan-1",
+            missing.join("target.bin").to_string_lossy().to_string(),
+            root.join("temp.bin").to_string_lossy().to_string(),
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            execute_local_persistence_plan(&plan, b"payload"),
+            Err(LocalPersistenceError::AtomicRenameFailed)
+        );
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_does_not_create_parent_directories() {
+        let root = test_root("no_parent_create");
+        let plan = LocalPersistencePlan::new(
+            "plan-1",
+            root.join("a/target.bin").to_string_lossy().to_string(),
+            root.join("b/temp.bin").to_string_lossy().to_string(),
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            execute_local_persistence_plan(&plan, b"payload"),
+            Err(LocalPersistenceError::TempWriteFailed)
+        );
+        assert!(!root.exists());
+    }
+
+    #[test]
+    fn execute_persistence_plan_does_not_infer_payload_kind_from_extension() {
+        let root = test_root("no_infer_kind");
+        fs::create_dir_all(&root).expect("mkdir");
+        let mut plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        plan.target_path = root.join("state.json").to_string_lossy().to_string();
+        plan.temp_path = root.join("state.tmp").to_string_lossy().to_string();
+        plan.payload_kind = LocalPersistencePayloadKind::RunRecord;
+        execute_local_persistence_plan(&plan, b"not-json").expect("write ok");
+        assert_eq!(fs::read(&plan.target_path).expect("read"), b"not-json");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_does_not_inspect_payload_bytes() {
+        let root = test_root("no_inspect_payload");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::ReplaceExisting);
+        execute_local_persistence_plan(&plan, &[0, 1, 2, 3]).expect("write ok");
+        assert_eq!(fs::read(&plan.target_path).expect("read"), vec![0, 1, 2, 3]);
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_does_not_serialize_local_application_state() {
+        let root = test_root("no_serialize_state");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        execute_local_persistence_plan(&plan, b"caller-supplied-bytes").expect("write ok");
+        assert_eq!(
+            fs::read(&plan.target_path).expect("read"),
+            b"caller-supplied-bytes"
+        );
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_does_not_repair_replay() {
+        let root = test_root("no_replay_repair");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        execute_local_persistence_plan(&plan, b"replay-bytes").expect("write ok");
+        assert_eq!(fs::read(&plan.target_path).expect("read"), b"replay-bytes");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn execute_persistence_plan_is_only_physical_write_boundary() {
+        let root = test_root("only_boundary");
+        fs::create_dir_all(&root).expect("mkdir");
+        let plan = build_plan(&root, LocalPersistenceWriteMode::CreateNew);
+        execute_local_persistence_plan(&plan, b"payload").expect("write ok");
+        assert!(PathBuf::from(&plan.target_path).exists());
+        let _ = fs::remove_dir_all(&root);
+    }
+
     #[test]
     fn same_target_temp_precedes_expected_revision() {
         let v = validate_local_persistence_plan(&LocalPersistencePlan::new(
@@ -210,6 +460,7 @@ mod tests {
             LocalPersistenceValidationReason::TargetAndTempPathSame
         );
     }
+
     #[test]
     fn missing_expected_revision_precedes_payload_write_atomicity_checks() {
         let v = validate_local_persistence_plan(&LocalPersistencePlan::new(
@@ -226,6 +477,7 @@ mod tests {
             LocalPersistenceValidationReason::MissingExpectedRevision
         );
     }
+
     #[test]
     fn secret_path_detection_is_deterministic_when_reached() {
         let mut p = valid_plan();
@@ -235,6 +487,7 @@ mod tests {
             LocalPersistenceValidationReason::PathLooksLikeSecret
         );
     }
+
     #[test]
     fn hidden_write_helper_true_for_invalid_false_for_valid() {
         assert!(local_persistence_plan_allows_hidden_write(
@@ -249,12 +502,5 @@ mod tests {
             )
         ));
         assert!(!local_persistence_plan_allows_hidden_write(&valid_plan()));
-    }
-    #[test]
-    fn execute_plan_does_not_inspect_payload_bytes() {
-        assert_eq!(
-            execute_local_persistence_plan(&valid_plan(), &[0, 1, 2]),
-            execute_local_persistence_plan(&valid_plan(), b"different bytes")
-        );
     }
 }
