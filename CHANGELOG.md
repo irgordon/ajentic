@@ -5,6 +5,22 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.65 - 2026-05-04
+**Status:** Phase 65 - Roadmap and Changelog Alignment Check
+
+### Added
+- Added `docs/operations/repository-audit-phase-65.md` with advisory alignment findings, Phase 61-64 boundary review, structural-risk assessment, and Phase 66 readiness decision.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 65 procedural truth, alignment checklists, structural-risk checklist, findings/deferred tables, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.65`.
+
+### Notes
+- Phase 65 reconciles Phases 61-64 across roadmap/changelog/checklist/audit surfaces.
+- Phase 65 assesses pre-Phase 66 structural risk and records whether Phase 66 can proceed directly, requires an inserted cleanup phase, or must restrict new code to a focused module.
+- Outcome recorded: proceed with Phase 66 while restricting authorization implementation to a new focused module to avoid worsening oversized-file risk.
+- No authorization implementation, refactor, runtime behavior, Rust behavior, UI behavior, provider execution, persistence behavior, API server, UI transport, script/workflow change, dependency change, release-candidate readiness claim, production-readiness claim, or public-usability claim was implemented.
+
 ## v0.0.64 - 2026-05-04
 **Status:** Phase 64 - Rust/TypeScript Contract Synchronization Boundary
 
