@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.62 - 2026-05-04
+**Status:** Phase 62 - Persistence Recovery and Corruption Detection
+
+### Added
+- Added `docs/operations/persistence-recovery-phase-62.md` with advisory scope, integrity metadata, read-only verification boundary, recovery model, deferred hardening, validation evidence, and non-readiness language.
+
+### Changed
+- Updated `core/src/api/persistence.rs` to add deterministic persisted-record envelope metadata, FNV-1a checksum helper, deterministic encode/decode helpers, and read-only path verification/recovery reporting.
+- Updated `checklists/current-phase.md` to Phase 62 procedural truth, boundary rules, task/validation checklists, findings, and deferred tables.
+- Updated `CHANGELOG.md` with `v0.0.62`.
+
+### Notes
+- Phase 62 adds deterministic persisted-record integrity metadata and read-only verification helpers.
+- Persisted bytes are treated as untrusted until verified.
+- The checksum model is deterministic corruption detection only, not cryptographic tamper-proofing.
+- Recovery is descriptive and fail-closed only.
+- Phase 62 does not auto-repair, delete, rewrite, roll back, restore, repair replay, mutate ledgers, serialize `LocalApplicationState`, decode application state, call providers, invoke models, wire UI/Rust transport, serve an API, change CLI behavior, add async/network/process behavior, add dependencies, or claim release-candidate/production/public usability.
+- Directory sync after rename remains deferred unless implemented and tested.
+- Phase 63 remains responsible for error-code family/context standardization.
+
 ## v0.0.61 - 2026-05-04
 **Status:** Phase 61 - Data Durability and Atomic Persistence Implementation
 

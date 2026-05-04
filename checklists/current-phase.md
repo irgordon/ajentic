@@ -3,81 +3,70 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-# Phase 61 - Data Durability and Atomic Persistence Implementation
+# Phase 62 - Persistence Recovery and Corruption Detection
 
 ## Phase name
-Phase 61 - Data Durability and Atomic Persistence Implementation
+Phase 62 - Persistence Recovery and Corruption Detection
 
 ## Phase goal
-Implement explicit fail-closed physical local persistence only through `execute_local_persistence_plan(...)` with temp-write, flush/sync, and rename semantics.
+Add deterministic persisted-record integrity metadata and read-only verification helpers; persisted bytes are untrusted until verified.
 
 ## Working-tree hygiene gate
-- [x] Ran `git status --short` before editing and classified working tree state.
+- [x] Ran `git status --short` before editing and confirmed clean state.
 
 ## Allowed surfaces
 - [x] `core/src/api/persistence.rs`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/persistence-atomicity-phase-61.md`
+- [x] `docs/operations/persistence-recovery-phase-62.md`
 
 ## Boundary rules
-- [x] Physical writes may exist only through `execute_local_persistence_plan(...)`.
-- [x] No serialization or payload inspection added.
-- [x] No hidden/automatic persistence added.
-- [x] No dry-run, local workflow, read projection, replay, provider, or UI persistence wiring added.
+- [x] `execute_local_persistence_plan(...)` remains the only physical write boundary.
+- [x] Verification helpers are read-only and do not repair/delete/rewrite/rollback.
+- [x] Dry-run/local-workflow/read-projection remain no-persistence verification callers.
 
 ## Task checklist
-- [x] Implemented physical write path in `execute_local_persistence_plan(...)`.
-- [x] Preserved plan validation ordering and validation reason codes.
-- [x] Added fail-closed physical-write error variants/codes.
-- [x] Added deterministic success/failure persistence tests.
-- [x] Created advisory Phase 61 operations document.
-- [x] Updated changelog for `v0.0.61`.
+- [x] Added typed persisted-record envelope metadata and errors.
+- [x] Added deterministic FNV-1a checksum helper.
+- [x] Added deterministic encode/decode helpers.
+- [x] Added read-only path verification helper with descriptive statuses.
+- [x] Added deterministic corruption/recovery tests including checksum-preserving-structure tamper case.
 
 ## Validation checklist
-- [ ] `./scripts/check.sh`
-- [ ] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [ ] `node scripts/test_lint_ui_boundaries.mjs`
-- [ ] `node scripts/lint_ui_boundaries.mjs`
-- [ ] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [ ] `wc -l core/src/api/mod.rs core/src/api/*.rs`
-- [ ] `rg -n "pub enum|pub struct|pub fn|impl |#\[cfg\(test\)\]|fn code\(" core/src/api/mod.rs`
-- [ ] required persistence/isolation/io/readiness/ui-lint scans
+- [x] `./scripts/check.sh`
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
+- [x] `node scripts/test_lint_ui_boundaries.mjs`
+- [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
+- [x] `wc -l core/src/api/mod.rs core/src/api/*.rs`
+- [x] `rg -n "pub enum|pub struct|pub fn|impl |#\[cfg\(test\)\]|fn code\(" core/src/api/mod.rs`
 
-## Atomic persistence checklist
-- [x] Non-empty payload required.
-- [x] Temp-path write uses caller-supplied bytes only.
-- [x] Flush and sync attempted before rename.
-- [x] Rename attempted only after successful write/sync.
-- [x] Errors fail closed.
+## Integrity metadata checklist
+- [x] `record_id`, `payload_kind`, `revision`, `payload_len`, `checksum`, `payload` present.
 
-## Isolation checklist
-- [x] Dry-run path remains no-persistence.
-- [x] Local workflow path remains no-persistence.
-- [x] Read projection/replay/provider/UI remain disconnected from persistence execution.
+## Read-only verification checklist
+- [x] Missing target and orphaned temp states detected.
+- [x] Decode errors mapped to required verification statuses.
+- [x] No write-path helper called during verification.
 
-## Failure behavior checklist
-- [x] Invalid plans fail as `invalid_plan`.
-- [x] Empty payload fails as `empty_payload`.
-- [x] Temp write failures fail as `temp_write_failed`.
-- [x] Temp flush/sync failures fail as `temp_sync_failed`.
-- [x] Rename failures fail as `atomic_rename_failed`.
+## Recovery status checklist
+- [x] Valid returns `None`.
+- [x] Corruption/mismatch/malformed states return `ManualReviewRequired`.
 
-## Deferred recovery checklist
-- [x] Recovery/corruption detection deferred to Phase 62.
+## Deferred platform-hardening checklist
+- [x] Directory sync after rename remains deferred.
 
 ## Findings table
 | Area | Finding | Status |
 | --- | --- | --- |
-| Roadmap title/scope | Phase 61 title matches requested title/scope. | Confirmed |
-| Physical write boundary | Implemented only in `execute_local_persistence_plan(...)`. | Confirmed |
+| Roadmap title | Phase 62 title matches roadmap. | Confirmed |
 
 ## Deferred items table
 | Item | Reason deferred |
 | --- | --- |
-| Recovery/corruption detection semantics | Explicitly Phase 62 scope. |
+| Directory sync after rename | Deferred platform-hardening item. |
 
 ## Validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| Required validation commands/scans | Pending | Run after edits |
+| Required validation/scans | Completed | See command log. |
