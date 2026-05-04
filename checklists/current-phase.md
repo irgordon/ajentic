@@ -4,50 +4,48 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 52 - UI Live Read Projection Integration
+# Phase 53 - UI Operator Intent Submission Boundary
 
 ## Phase name
 
-Phase 52 - UI Live Read Projection Integration
+Phase 53 - UI Operator Intent Submission Boundary
 
 ## Phase goal
 
-Replace fixture-only UI read data with a typed read-model boundary that consumes Rust-owned `ApplicationReadProjection`-shaped data while keeping the UI non-authoritative and side-effect-free.
+Convert request-preview UI intent data into typed submission-shaped preview data that remains non-executing and non-authoritative in the browser UI.
 
 ## Allowed surfaces
 
 - `ui/src/api/projections.ts`
 - `ui/src/api/fixtures.ts`
 - `ui/src/api/readModel.ts`
-- `ui/src/app/AppShell.tsx`
-- `ui/src/screens/*.tsx`
-- `ui/src/components/*.tsx`
+- `ui/src/app/AppShell.tsx` (if needed)
+- `ui/src/screens/OverviewScreen.tsx`
+- `ui/src/components/IntentPreviewPanel.tsx`
 - `checklists/current-phase.md`
 - `checklists/release.md` (only if evidence posture changes)
 - `CHANGELOG.md`
 
 ## Boundary rules
 
-- UI consumption boundary only; no runtime Rust bridge, fetch, API client, or server integration.
-- No UI mutation, no event handlers, no forms, no buttons, no anchor href wiring.
-- Operator intent preview remains request-preview-only and non-functional.
-- Provider and integration outputs remain untrusted and non-authoritative.
-- Raw provider/model output remains distinct from clean output.
-- `getUiReadModel` remains synchronous and side-effect-free.
+- UI submission sends typed intent-shaped data only; no functional submission transport is wired.
+- `UI_INTENT_SUBMISSION_ENABLED`, `UI_INTENT_EXECUTION_ENABLED`, and `UI_INTENT_LEDGER_RECORDING_ENABLED` remain `false`.
+- No Rust ingress call, including no `submit_operator_intent` wiring.
+- No event handlers, buttons, forms, anchor hrefs, fetch/API client calls, storage, sockets, timers, or mutation behavior.
+- Operator intent previews remain display-only and non-executing.
 - Release-candidate readiness is not claimed.
 - Production readiness is not claimed.
 
 ## Task checklist
 
-- [x] Update checklist to Phase 52 scope.
-- [x] Add/align `ApplicationUiProjection` and `RuntimeSafetyUiProjection` typed surfaces.
-- [x] Add pure synchronous `buildUiReadModelFromApplicationProjection(...)` helper.
-- [x] Keep explicit fixture fallback path.
-- [x] Keep `getUiReadModel` synchronous and side-effect-free.
-- [x] Update app/screens to consume typed projection-backed read model.
-- [x] Display runtime safety posture and trust posture in UI summaries.
-- [x] Preserve non-functional operator intent preview surface.
-- [x] Add `CHANGELOG.md` entry `v0.0.52`.
+- [x] Update checklist to Phase 53 scope.
+- [x] Add typed submission-shaped UI projection data for operator intent previews.
+- [x] Preserve request-preview-only behavior.
+- [x] Keep submission/execution/ledger intent constants explicitly disabled.
+- [x] Update fixtures with deterministic submission metadata for required preview intents.
+- [x] Update `IntentPreviewPanel` to display submission-shaped fields with explicit non-execution boundary text.
+- [x] Update overview copy to state no submission, no Rust ingress call, and no action execution.
+- [x] Add `CHANGELOG.md` entry `v0.0.53`.
 
 ## Validation checklist
 
@@ -57,6 +55,7 @@ Replace fixture-only UI read data with a typed read-model boundary that consumes
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 - [x] `rg -n "fetch|localStorage|sessionStorage|WebSocket|EventSource|setInterval|setTimeout|onClick|onSubmit|onChange|onInput|onKeyDown|onKeyUp|<form|<button|href=|type=\"submit\"|submit\\(|addEventListener" ui/src`
-- [x] `rg -n "intent submission|submit_operator_intent|operator_intent_ingress|ledger append|persist|provider call|run_controlled_model_flow|execute_local_persistence_plan|fetch|api client|server" ui/src CHANGELOG.md checklists/current-phase.md checklists/release.md`
-- [x] `rg -n "rawOutputTrusted|provider output remains untrusted|integration output remains untrusted|allowProviderNetwork|allowFileIo|allowUiMutation|release-candidate readiness is not claimed|production readiness is not claimed" ui/src CHANGELOG.md checklists/current-phase.md`
+- [x] `rg -n "submit_operator_intent|operator_intent_ingress|intent submission|submissionEnabled|UI_INTENT_SUBMISSION_ENABLED|UI_INTENT_EXECUTION_ENABLED|UI_INTENT_LEDGER_RECORDING_ENABLED|ledger append|persist|provider call|run_controlled_model_flow|execute_local_persistence_plan|fetch|api client|server" ui/src CHANGELOG.md checklists/current-phase.md checklists/release.md`
+- [x] `rg -n "No submission occurs|Rust ingress is not called|No action executes|submissionEnabled: false|requestPreviewEnabled" ui/src CHANGELOG.md checklists/current-phase.md`
+- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" ui/src CHANGELOG.md checklists/current-phase.md checklists/release.md`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`

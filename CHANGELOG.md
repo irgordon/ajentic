@@ -5,6 +5,31 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.53 - 2026-05-04
+
+**Status:** Phase 53 - UI Operator Intent Submission Boundary
+
+### Changed
+
+- Updated `ui/src/api/projections.ts` to add typed `IntentSubmissionUiProjection` metadata on operator intent previews.
+- Updated `ui/src/api/readModel.ts` to keep intent submission, execution, and ledger-recording constants explicitly disabled and to provide pure submission-preview shaping.
+- Updated `ui/src/api/fixtures.ts` to include deterministic submission-shaped metadata for approve, reject, retry, replay request, context rebuild request, and memory snapshot request preview intents.
+- Updated `ui/src/components/IntentPreviewPanel.tsx` to display submission-shaped metadata and explicit non-submission/non-execution boundary text without controls.
+- Updated `ui/src/screens/OverviewScreen.tsx` to state submission-shaped preview boundary and no Rust ingress/action execution behavior.
+- Updated `checklists/current-phase.md` to Phase 53 scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.53`.
+
+### Notes
+
+- Phase 53 adds typed UI operator intent submission-shaped data only.
+- UI intent previews remain non-functional and display-only.
+- `UI_INTENT_SUBMISSION_ENABLED`, `UI_INTENT_EXECUTION_ENABLED`, and `UI_INTENT_LEDGER_RECORDING_ENABLED` remain false.
+- The UI does not call Rust ingress or `submit_operator_intent`.
+- No action executes from UI previews.
+- No fetch/API client, Rust bridge, UI mutation, UI event handlers, forms, buttons, anchor hrefs, local/session storage, sockets, timers, provider call, model invocation, persistence, physical write, ledger append, replay repair, context rebuild, memory snapshot execution, audit writing, CLI live command, schema change, workflow change, lint weakening, Rust behavior change, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.52 - 2026-05-04
 
 **Status:** Phase 52 - UI Live Read Projection Integration

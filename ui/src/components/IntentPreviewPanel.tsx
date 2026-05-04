@@ -6,20 +6,28 @@ export type IntentPreviewPanelProps = Readonly<{
 }>;
 
 export function IntentPreviewPanel(props: IntentPreviewPanelProps): string {
-  const rows = props.intents.map((intent) =>
-    [
+  const rows = props.intents.map((intent) => {
+    const submission = intent.submissionPreview;
+
+    return [
       `Intent ${intent.id}`,
       `Type: ${intent.intentType}`,
       `Label: ${intent.label}`,
       `Preview summary: ${intent.description}`,
-      `Reason preview: ${intent.reasonPreview}`,
-      `Route preview: ${intent.routePreview}`,
-      `Authority text: ${intent.authority}`,
+      `Submission ID: ${submission.submissionId}`,
+      `Operator ID: ${submission.operatorId}`,
+      `Target kind: ${submission.targetKind}`,
+      `Target ID: ${submission.targetId}`,
+      `Reason: ${submission.reason}`,
+      `Request preview enabled: ${submission.requestPreviewEnabled}`,
+      `Submission enabled: ${submission.submissionEnabled}`,
+      `Authority text: ${submission.authority}`,
       `Status text: ${intent.status}`,
-      `Request-preview state: ${intent.disabled ? "disabled/request-preview-only" : "preview-only"}`,
-      "Intent is a request preview only. Rust decides whether any typed request is accepted."
-    ].join(" | ")
-  );
+      "No submission occurs in this phase.",
+      "Rust ingress is not called by the UI in this phase.",
+      "No action executes from this preview."
+    ].join(" | ");
+  });
 
   return ProjectionList({
     title: "Operator intent request previews",
