@@ -6,6 +6,28 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.44 - 2026-05-04
+
+**Status:** Phase 44 - Local Application State Container
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with in-memory typed local application state container surfaces, constructor validation for required state identity fields, side-effect-free projection derivation, and deterministic tests.
+- Updated `checklists/current-phase.md` to Phase 44 procedural scope and required validation checklist.
+- Updated `CHANGELOG.md` with `v0.0.44`.
+
+### Notes
+
+- Phase 44 adds an in-memory local application state container only.
+- LocalApplicationState owns supplied typed state; ApplicationReadProjection remains a derived read-only snapshot.
+- Reading or deriving projections is side-effect-free and does not execute controlled flow, call providers, verify or repair replay, persist or serialize state, read files, serve APIs, execute CLI commands, or wire UI behavior.
+- Runtime safety posture remains visible in derived projections.
+- Provider and integration outputs remain untrusted and non-authoritative.
+- Raw provider output remains untrusted.
+- No provider call, local model invocation, cloud model invocation, IDE connection, file IO, file watching, environment read, secrets storage, socket/HTTP behavior, async behavior, controlled-flow execution, ledger mutation, replay repair, persistence, serialization, API server, CLI command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.43 - 2026-05-04
 
 **Status:** Phase 43 - Rust Read Projection Boundary

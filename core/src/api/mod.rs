@@ -446,6 +446,200 @@ pub fn integration_output_is_authoritative(_output: &IntegrationOutput) -> bool 
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ApplicationStateError {
+    EmptyStateId,
+    EmptyProjectionId,
+    EmptyRunId,
+    EmptyContextPacketId,
+    EmptyMemorySnapshotId,
+    UnsafeRuntimeConfig,
+    ProjectionFailed,
+}
+
+impl ApplicationStateError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyStateId => "empty_state_id",
+            Self::EmptyProjectionId => "empty_projection_id",
+            Self::EmptyRunId => "empty_run_id",
+            Self::EmptyContextPacketId => "empty_context_packet_id",
+            Self::EmptyMemorySnapshotId => "empty_memory_snapshot_id",
+            Self::UnsafeRuntimeConfig => "unsafe_runtime_config",
+            Self::ProjectionFailed => "projection_failed",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ApplicationContextMetadata {
+    pub packet_id: String,
+    pub slice_count: usize,
+    pub source_count: usize,
+    pub budget_used: usize,
+    pub budget_max: usize,
+}
+
+impl ApplicationContextMetadata {
+    pub fn new(
+        packet_id: impl Into<String>,
+        slice_count: usize,
+        source_count: usize,
+        budget_used: usize,
+        budget_max: usize,
+    ) -> Result<Self, ApplicationStateError> {
+        let packet_id = packet_id.into();
+        if packet_id.is_empty() {
+            return Err(ApplicationStateError::EmptyContextPacketId);
+        }
+        Ok(Self {
+            packet_id,
+            slice_count,
+            source_count,
+            budget_used,
+            budget_max,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ApplicationMemoryMetadata {
+    pub snapshot_id: String,
+    pub active_entries: usize,
+    pub disabled_entries: usize,
+    pub rejected_entries: usize,
+}
+
+impl ApplicationMemoryMetadata {
+    pub fn new(
+        snapshot_id: impl Into<String>,
+        active_entries: usize,
+        disabled_entries: usize,
+        rejected_entries: usize,
+    ) -> Result<Self, ApplicationStateError> {
+        let snapshot_id = snapshot_id.into();
+        if snapshot_id.is_empty() {
+            return Err(ApplicationStateError::EmptyMemorySnapshotId);
+        }
+        Ok(Self {
+            snapshot_id,
+            active_entries,
+            disabled_entries,
+            rejected_entries,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalApplicationState {
+    pub state_id: String,
+    pub projection_id: String,
+    pub run_id: String,
+    pub runtime_config: LocalRuntimeConfig,
+    pub harness_state: crate::state::HarnessState,
+    pub controlled_run: crate::execution::ControlledRunResult,
+    pub provider_output: crate::execution::ProviderOutput,
+    pub integration_output: IntegrationOutput,
+    pub ledger: crate::ledger::Ledger,
+    pub replay_report: crate::replay::ReplayReport,
+    pub audit_projections: Vec<crate::audit::AuditProjection>,
+    pub context: ApplicationContextMetadata,
+    pub memory: ApplicationMemoryMetadata,
+}
+
+impl LocalApplicationState {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        state_id: impl Into<String>,
+        projection_id: impl Into<String>,
+        run_id: impl Into<String>,
+        runtime_config: LocalRuntimeConfig,
+        harness_state: crate::state::HarnessState,
+        controlled_run: crate::execution::ControlledRunResult,
+        provider_output: crate::execution::ProviderOutput,
+        integration_output: IntegrationOutput,
+        ledger: crate::ledger::Ledger,
+        replay_report: crate::replay::ReplayReport,
+        audit_projections: Vec<crate::audit::AuditProjection>,
+        context: ApplicationContextMetadata,
+        memory: ApplicationMemoryMetadata,
+    ) -> Result<Self, ApplicationStateError> {
+        let state_id = state_id.into();
+        if state_id.is_empty() {
+            return Err(ApplicationStateError::EmptyStateId);
+        }
+        let projection_id = projection_id.into();
+        if projection_id.is_empty() {
+            return Err(ApplicationStateError::EmptyProjectionId);
+        }
+        let run_id = run_id.into();
+        if run_id.is_empty() {
+            return Err(ApplicationStateError::EmptyRunId);
+        }
+        if local_runtime_config_allows_authority_bypass(&runtime_config) {
+            return Err(ApplicationStateError::UnsafeRuntimeConfig);
+        }
+        Ok(Self {
+            state_id,
+            projection_id,
+            run_id,
+            runtime_config,
+            harness_state,
+            controlled_run,
+            provider_output,
+            integration_output,
+            ledger,
+            replay_report,
+            audit_projections,
+            context,
+            memory,
+        })
+    }
+
+    pub fn state_id(&self) -> &str {
+        &self.state_id
+    }
+    pub fn run_id(&self) -> &str {
+        &self.run_id
+    }
+    pub fn ledger_event_count(&self) -> usize {
+        self.ledger.events().len()
+    }
+    pub fn last_ledger_revision(&self) -> Option<u64> {
+        self.ledger.last_revision()
+    }
+
+    pub fn derive_read_projection(
+        &self,
+    ) -> Result<ApplicationReadProjection, ApplicationStateError> {
+        ApplicationReadProjection::new(
+            self.projection_id.clone(),
+            self.run_id.clone(),
+            &self.runtime_config,
+            &self.harness_state,
+            &self.controlled_run,
+            &self.provider_output,
+            &self.integration_output,
+            &self.ledger,
+            &self.replay_report,
+            &self.audit_projections,
+            self.context.packet_id.clone(),
+            self.context.slice_count,
+            self.context.source_count,
+            self.context.budget_used,
+            self.context.budget_max,
+            self.memory.snapshot_id.clone(),
+            self.memory.active_entries,
+            self.memory.disabled_entries,
+            self.memory.rejected_entries,
+        )
+        .map_err(|error| match error {
+            ReadProjectionError::UnsafeRuntimeConfig => ApplicationStateError::UnsafeRuntimeConfig,
+            _ => ApplicationStateError::ProjectionFailed,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReadProjectionStatus {
     Ready,
     Blocked,
@@ -780,6 +974,30 @@ impl ApplicationReadProjection {
 mod tests {
     use super::*;
 
+    fn sample_runtime_config() -> LocalRuntimeConfig {
+        LocalRuntimeConfig::new(
+            "cfg-1",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Stub,
+            RuntimeSafetyLevel::Strict,
+            LocalWorkspaceMetadata::new("ws", "/tmp/ws", "op").unwrap(),
+            RuntimeSafetyDefaults::strict(),
+        )
+        .unwrap()
+    }
+    fn sample_controlled_run() -> crate::execution::ControlledRunResult {
+        crate::execution::ControlledRunResult {
+            status: crate::execution::ControlledRunStatus::Accepted,
+            reason: crate::execution::ControlledRunReason::RunAccepted,
+            execution_decision: crate::execution::ExecutionDecisionReport::allowed(),
+            promotion_decision: crate::execution::PromotionDecisionReport::allowed(),
+            ledger: crate::ledger::Ledger::empty(),
+            promotion_replay: crate::execution::PromotionReplayVerificationReport::verified(
+                0, 0, 0,
+            ),
+            clean_output_summary: Some("clean".to_string()),
+        }
+    }
     #[test]
     fn integration_request_requires_id() {
         assert_eq!(
@@ -2000,5 +2218,299 @@ mod tests {
         )
         .unwrap();
         assert_eq!(p.output.summary, "raw provider output remains untrusted");
+    }
+    fn sample_app_state() -> LocalApplicationState {
+        let provider_output = crate::execution::ProviderOutput::new_untrusted(
+            "po",
+            "pr",
+            crate::execution::ProviderKind::Local,
+            "raw",
+            crate::execution::ProviderOutputStatus::Received,
+        )
+        .unwrap();
+        let integration_output = IntegrationOutput::new_untrusted(
+            "io",
+            "pr",
+            IntegrationSourceKind::LocalLlm,
+            "raw",
+            IntegrationOutputStatus::Received,
+        )
+        .unwrap();
+        let actor =
+            crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::System, "actor")
+                .unwrap();
+        let payload = crate::ledger::LedgerPayload::new("summary").unwrap();
+        let event = crate::ledger::LedgerEvent::new(
+            "e1",
+            1,
+            crate::ledger::LedgerEventType::StateTransition,
+            actor,
+            vec!["ev".to_string()],
+            payload,
+        )
+        .unwrap();
+        let ledger = crate::ledger::Ledger::empty().append(event).unwrap();
+        let replay_report = crate::replay::ReplayReport::replayable(1);
+        let audit = crate::audit::AuditProjection::new(
+            crate::audit::AuditProjectionType::Timeline,
+            vec![crate::audit::AuditSourceRef::new(
+                crate::audit::AuditSourceType::LedgerEvent,
+                "e1",
+            )
+            .unwrap()],
+            "sum",
+            vec!["d".to_string()],
+        )
+        .unwrap();
+        LocalApplicationState::new(
+            "state-1",
+            "projection-1",
+            "run-1",
+            sample_runtime_config(),
+            crate::state::HarnessState::genesis(),
+            sample_controlled_run(),
+            provider_output,
+            integration_output,
+            ledger,
+            replay_report,
+            vec![audit],
+            ApplicationContextMetadata::new("pkt", 2, 3, 4, 5).unwrap(),
+            ApplicationMemoryMetadata::new("mem", 6, 7, 8).unwrap(),
+        )
+        .unwrap()
+    }
+    #[test]
+    fn application_state_error_codes_are_stable() {
+        assert_eq!(ApplicationStateError::EmptyStateId.code(), "empty_state_id");
+        assert_eq!(
+            ApplicationStateError::ProjectionFailed.code(),
+            "projection_failed"
+        );
+    }
+    #[test]
+    fn application_context_metadata_requires_packet_id() {
+        assert_eq!(
+            ApplicationContextMetadata::new("", 1, 1, 1, 1),
+            Err(ApplicationStateError::EmptyContextPacketId)
+        );
+    }
+    #[test]
+    fn application_memory_metadata_requires_snapshot_id() {
+        assert_eq!(
+            ApplicationMemoryMetadata::new("", 1, 1, 1),
+            Err(ApplicationStateError::EmptyMemorySnapshotId)
+        );
+    }
+    #[test]
+    fn local_application_state_requires_state_id() {
+        let s = sample_app_state();
+        assert_eq!(
+            LocalApplicationState::new(
+                "",
+                s.projection_id,
+                s.run_id,
+                s.runtime_config,
+                s.harness_state,
+                s.controlled_run,
+                s.provider_output,
+                s.integration_output,
+                s.ledger,
+                s.replay_report,
+                s.audit_projections,
+                s.context,
+                s.memory
+            ),
+            Err(ApplicationStateError::EmptyStateId)
+        );
+    }
+    #[test]
+    fn local_application_state_requires_projection_id() {
+        let s = sample_app_state();
+        assert_eq!(
+            LocalApplicationState::new(
+                "s",
+                "",
+                s.run_id,
+                s.runtime_config,
+                s.harness_state,
+                s.controlled_run,
+                s.provider_output,
+                s.integration_output,
+                s.ledger,
+                s.replay_report,
+                s.audit_projections,
+                s.context,
+                s.memory
+            ),
+            Err(ApplicationStateError::EmptyProjectionId)
+        );
+    }
+    #[test]
+    fn local_application_state_requires_run_id() {
+        let s = sample_app_state();
+        assert_eq!(
+            LocalApplicationState::new(
+                "s",
+                "p",
+                "",
+                s.runtime_config,
+                s.harness_state,
+                s.controlled_run,
+                s.provider_output,
+                s.integration_output,
+                s.ledger,
+                s.replay_report,
+                s.audit_projections,
+                s.context,
+                s.memory
+            ),
+            Err(ApplicationStateError::EmptyRunId)
+        );
+    }
+    #[test]
+    fn local_application_state_rejects_unsafe_runtime_config() {
+        let mut cfg = sample_runtime_config();
+        cfg.safety_defaults.allow_provider_network = true;
+        let s = sample_app_state();
+        assert_eq!(
+            LocalApplicationState::new(
+                "s",
+                "p",
+                "r",
+                cfg,
+                s.harness_state,
+                s.controlled_run,
+                s.provider_output,
+                s.integration_output,
+                s.ledger,
+                s.replay_report,
+                s.audit_projections,
+                s.context,
+                s.memory
+            ),
+            Err(ApplicationStateError::UnsafeRuntimeConfig)
+        );
+    }
+    #[test]
+    fn local_application_state_stores_runtime_config() {
+        assert_eq!(sample_app_state().runtime_config.config_id, "cfg-1");
+    }
+    #[test]
+    fn local_application_state_stores_harness_state() {
+        assert_eq!(sample_app_state().harness_state.revision, 0);
+    }
+    #[test]
+    fn local_application_state_stores_provider_and_integration_outputs_as_untrusted() {
+        let s = sample_app_state();
+        assert_eq!(
+            s.provider_output.trust,
+            crate::execution::ProviderOutputTrust::Untrusted
+        );
+        assert_eq!(s.integration_output.trust, IntegrationTrust::Untrusted);
+    }
+    #[test]
+    fn local_application_state_reports_ledger_event_count() {
+        assert_eq!(sample_app_state().ledger_event_count(), 1);
+    }
+    #[test]
+    fn local_application_state_reports_last_ledger_revision() {
+        assert_eq!(sample_app_state().last_ledger_revision(), Some(1));
+    }
+    #[test]
+    fn derive_read_projection_returns_runtime_safety_posture() {
+        assert_eq!(
+            sample_app_state()
+                .derive_read_projection()
+                .unwrap()
+                .safety
+                .safety_level,
+            RuntimeSafetyLevel::Strict
+        );
+    }
+    #[test]
+    fn derive_read_projection_returns_provider_untrusted_projection() {
+        assert_eq!(
+            sample_app_state()
+                .derive_read_projection()
+                .unwrap()
+                .provider
+                .output_trust,
+            crate::execution::ProviderOutputTrust::Untrusted
+        );
+    }
+    #[test]
+    fn derive_read_projection_returns_integration_untrusted_projection() {
+        assert_eq!(
+            sample_app_state()
+                .derive_read_projection()
+                .unwrap()
+                .integration
+                .output_trust,
+            IntegrationTrust::Untrusted
+        );
+    }
+    #[test]
+    fn derive_read_projection_returns_context_metadata() {
+        assert_eq!(
+            sample_app_state()
+                .derive_read_projection()
+                .unwrap()
+                .context
+                .packet_id,
+            "pkt"
+        );
+    }
+    #[test]
+    fn derive_read_projection_returns_memory_metadata() {
+        assert_eq!(
+            sample_app_state()
+                .derive_read_projection()
+                .unwrap()
+                .memory
+                .snapshot_id,
+            "mem"
+        );
+    }
+    #[test]
+    fn derive_read_projection_is_idempotent_for_same_state() {
+        let s = sample_app_state();
+        assert_eq!(
+            s.derive_read_projection().unwrap(),
+            s.derive_read_projection().unwrap()
+        );
+    }
+    #[test]
+    fn derive_read_projection_does_not_mutate_ledger() {
+        let s = sample_app_state();
+        let before = s.ledger.clone();
+        let _ = s.derive_read_projection().unwrap();
+        assert_eq!(s.ledger, before);
+    }
+    #[test]
+    fn derive_read_projection_does_not_mutate_audit_projection_count() {
+        let s = sample_app_state();
+        let before = s.audit_projections.len();
+        let _ = s.derive_read_projection().unwrap();
+        assert_eq!(s.audit_projections.len(), before);
+    }
+    #[test]
+    fn derive_read_projection_does_not_execute_controlled_flow() {
+        let s = sample_app_state();
+        let _ = s.derive_read_projection().unwrap();
+        assert_eq!(
+            s.controlled_run.status,
+            crate::execution::ControlledRunStatus::Accepted
+        );
+    }
+    #[test]
+    fn derive_read_projection_does_not_verify_or_repair_replay() {
+        let s = sample_app_state();
+        let _ = s.derive_read_projection().unwrap();
+        assert_eq!(s.replay_report.events_replayed, 1);
+    }
+    #[test]
+    fn derive_read_projection_does_not_read_files_or_call_network() {
+        let p = sample_app_state().derive_read_projection().unwrap();
+        assert!(!p.safety.allow_file_io && !p.safety.allow_provider_network);
     }
 }
