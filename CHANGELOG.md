@@ -5,6 +5,27 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.61 - 2026-05-04
+**Status:** Phase 61 - Data Durability and Atomic Persistence Implementation
+
+### Added
+- Added `docs/operations/persistence-atomicity-phase-61.md` with advisory scope, atomic-write boundary notes, deferred recovery posture, and explicit non-readiness language.
+
+### Changed
+- Updated `core/src/api/persistence.rs` to implement physical local persistence only through `execute_local_persistence_plan(...)` with typed-plan validation, non-empty payload enforcement, temp-path write, flush/sync, and fail-closed atomic rename behavior.
+- Updated `checklists/current-phase.md` to Phase 61 procedural truth, boundaries, checklists, and validation log structure.
+- Updated `CHANGELOG.md` with `v0.0.61`.
+
+### Notes
+- Phase 61 implements physical local persistence only through `execute_local_persistence_plan(...)`.
+- Persistence remains explicit, typed, caller-supplied, opt-in, and validated through `LocalPersistencePlan`.
+- The write path uses temp-path write, flush/sync, and rename semantics.
+- `execute_local_persistence_plan(...)` is the only physical write boundary.
+- Payload bytes are caller-supplied; Phase 61 does not serialize `LocalApplicationState` or infer payload meaning.
+- Dry-run, local workflow, read projection, replay verification, provider, integration, and UI paths do not call persistence.
+- Phase 62 remains responsible for recovery and corruption detection.
+- No automatic persistence, hidden writes, parent directory creation, path canonicalization, serialization, `LocalApplicationState` serialization, provider execution, model invocation, replay repair, UI/Rust transport, API server, CLI behavior change, schema change, workflow change, script change, lint weakening, dependency change, roadmap change, governance change, architecture change, central error registry, release-candidate readiness claim, production-readiness claim, or public-usability claim was implemented.
+
 ## v0.0.60 - 2026-05-04
 **Status:** Phase 60 - Roadmap and Changelog Alignment Check + Production-Path Expansion
 
