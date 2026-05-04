@@ -103,3 +103,20 @@ AJENTIC is intended for engineers and teams using model-assisted workflows who n
 This project is not an autonomous coding agent.
 
 It is a harness for controlling and reviewing model-driven work.
+### Local validation and dry-run commands
+
+Use the current safe local command surface:
+
+- `./scripts/check.sh`
+- `cargo run --manifest-path core/Cargo.toml -- dry-run`
+- `cd ui && npm run typecheck && npm run lint && npm run build`
+- `node scripts/test_lint_ui_boundaries.mjs`
+- `node scripts/lint_ui_boundaries.mjs`
+
+Current posture:
+
+- dry-run is deterministic and in-memory
+- no real provider/model call occurs
+- no persistence occurs
+- release-candidate readiness is not claimed
+- production readiness is not claimed

@@ -5,6 +5,31 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.57 - 2026-05-04
+
+**Status:** Phase 57 - Packaging and Startup Boundary
+
+### Added
+
+- Added `docs/operations/local-startup-boundary-phase-57.md` as an advisory startup/packaging boundary reference for local validation and dry-run only commands.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 57 procedural truth with startup boundary checks, API decomposition carry-forward checks, and validation/static-scan logs.
+- Updated `README.md` with a concise local validation and dry-run command reference and explicit non-readiness posture.
+- Updated `CHANGELOG.md` with `v0.0.57`.
+
+### Notes
+
+- Phase 57 defines the local startup/packaging boundary for current safe validation and dry-run commands.
+- The startup boundary is documentation and command-surface clarification only.
+- No real packaging, installer, release workflow, service, daemon, API server, UI transport, provider call, model invocation, persistence, physical write, workspace scanning, file IO, environment read, socket/HTTP behavior, async runtime, process spawning, replay repair, operator intent execution, schema change, workflow change, script change, lint weakening, dependency change, roadmap change, governance change, or architecture change was implemented.
+- Phase 46 dry-run remains deterministic, in-memory, no-provider-call, and no-persistence.
+- Phase 54 local harness workflow remains in-memory and is not wired into CLI live behavior.
+- Phase 56/56.5 API decomposition remains intact.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.56.5 - 2026-05-04
 
 **Status:** Phase 56.5 - API Decomposition Validation Closure
