@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.59 - 2026-05-04
+**Status:** Phase 59 - Failure Injection and Recovery Hardening
+
+### Added
+- Added `docs/operations/failure-hardening-phase-59.md` with advisory-only scope, deterministic failure-hardening focus, production-path risk carry-forward, deferred contract-sync evidence, and explicit non-readiness posture.
+
+### Changed
+- Added deterministic failure-injection boundary tests in `core/src/api/persistence.rs` for validation priority, fail-closed stubs, hidden-write guard behavior, and payload-agnostic execution stubs.
+- Added intent-ingress authority leakage tests in `core/src/api/operator_intent.rs` confirming non-execution behavior and pre-routing rejection boundaries.
+- Added runtime safety/config hardening tests in `core/src/api/runtime_config.rs` for strict/preview defaults and unsafe/secret validation boundaries.
+- Added application-state and local-workflow hardening tests in `core/src/api/application_state.rs` and `core/src/api/local_workflow.rs` for deterministic in-memory behavior and non-capability summary invariants.
+- Updated `checklists/current-phase.md` to Phase 59 procedural truth and validation/failure-injection/risk tracking.
+- Updated `CHANGELOG.md` with Phase 59 historical record.
+
+### Notes
+- Phase 59 adds deterministic failure-injection and recovery-hardening tests around existing in-memory boundaries.
+- Phase 59 records production-path risks for async determinism, persistence atomicity, intent authority leakage, wide projections, error-code family/registry ambiguity, and Rust/TypeScript contract drift.
+- The tests exercise existing fail-closed behavior and do not implement production recovery mechanisms.
+- No runtime harness behavior, Rust behavior outside tests, UI behavior, provider execution, physical persistence, file IO, network/socket behavior, async runtime, process spawning, API server, UI/Rust transport, CLI behavior change, replay repair, operator action execution, schema change, workflow change, script change, lint weakening, dependency change, roadmap change, governance change, architecture change, central error registry, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.58 - 2026-05-04
 
 **Status:** Phase 58 - Release-Candidate Evidence Pass

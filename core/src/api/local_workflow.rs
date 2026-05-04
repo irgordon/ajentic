@@ -570,3 +570,35 @@ impl ApplicationReadProjection {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn request() -> LocalHarnessWorkflowRequest {
+        LocalHarnessWorkflowRequest::new("wf", "run", "proj", "op", "prompt", "ctx", "mem")
+            .expect("valid")
+    }
+
+    #[test]
+    fn workflow_deterministic_for_identical_requests() {
+        assert_eq!(
+            run_local_harness_workflow(request()),
+            run_local_harness_workflow(request())
+        );
+    }
+
+    #[test]
+    fn workflow_summary_preserves_non_capability_statements() {
+        let result = run_local_harness_workflow(request());
+        assert!(result.summary.contains("no persistence occurred"));
+        assert!(result
+            .summary
+            .contains("release-candidate readiness is not claimed"));
+        assert!(result
+            .summary
+            .contains("production readiness is not claimed"));
+        assert!(result.summary.contains("no UI or API transport was used"));
+        assert!(!result.provider_output_trusted);
+        assert!(!result.provider_output_authoritative);
+    }
+}
