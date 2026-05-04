@@ -5,6 +5,28 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.58 - 2026-05-04
+
+**Status:** Phase 58 - Release-Candidate Evidence Pass
+
+### Added
+
+- Added `docs/operations/release-candidate-evidence-phase-58.md` as an advisory evidence-collection report for current validation and deterministic workflow outputs.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 58 procedural truth with evidence-only boundaries, required checklists, deferred-evidence tracking, and validation log.
+- Updated `checklists/release.md` with Phase 58 conservative evidence rows and deferred capability rows without readiness approval language.
+- Updated `CHANGELOG.md` with `v0.0.58`.
+
+### Notes
+
+- Phase 58 collects release-candidate evidence from current validation and dry-run/local workflow surfaces.
+- Phase 58 is evidence collection only and does not approve release-candidate readiness.
+- Evidence rows distinguish passed local validation from deferred functional capabilities.
+- Real provider/model invocation, physical persistence, live UI/Rust transport, API server behavior, operator action execution, release packaging/installer, and failure-injection/recovery hardening remain deferred.
+- No runtime harness behavior, Rust behavior, UI behavior, provider execution, persistence, physical write behavior, API server, CLI behavior change, UI transport, schema change, workflow change, script change, lint weakening, dependency change, roadmap change, governance change, architecture change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.57 - 2026-05-04
 
 **Status:** Phase 57 - Packaging and Startup Boundary
