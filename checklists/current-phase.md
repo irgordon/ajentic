@@ -4,11 +4,11 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 43 - Rust Read Projection Boundary
+# Phase 44 - Local Application State Container
 
 ## Phase goal
 
-Add Rust-owned read projection boundary structs for UI/API consumption using caller-supplied typed inputs only, without controlled-flow execution, provider calls, replay verification, file/network/API/CLI/UI behavior, persistence, or serialization.
+Add an in-memory Rust application state container that owns current typed local state and derives ApplicationReadProjection snapshots without controlled-flow execution, provider calls, replay verification/repair, file/network/API/CLI/UI behavior, persistence, or serialization.
 
 ## Allowed surfaces
 
@@ -21,13 +21,13 @@ Add Rust-owned read projection boundary structs for UI/API consumption using cal
 
 ## Task checklist
 
-- [x] Update checklist to Phase 43 scope.
+- [x] Update checklist to Phase 44 scope.
 - [x] Add Rust-owned typed read projection surfaces in Rust.
 - [x] Add deterministic constructor validation for required read projection identifiers.
 - [x] Keep projection metadata caller-supplied typed inputs only.
 - [x] Expose runtime safety level/defaults in read projection and reject unsafe runtime config bypass.
-- [x] Add deterministic tests for required Phase 43 behaviors.
-- [x] Add `CHANGELOG.md` entry `v0.0.43`.
+- [x] Add deterministic tests for required Phase 44 behaviors.
+- [x] Add `CHANGELOG.md` entry `v0.0.44`.
 
 ## Validation checklist
 
