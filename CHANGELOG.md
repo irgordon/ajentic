@@ -5,6 +5,27 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.67 - 2026-05-04
+**Status:** Phase 67 - Operator Intent Audit Record Boundary
+
+### Added
+- Added `core/src/api/intent_audit.rs` with typed operator-intent audit eligibility, deterministic record construction, and strict non-execution/non-persistence helpers.
+- Added `docs/operations/intent-audit-boundary-phase-67.md` documenting proof-object scope and deferred physical append/persistence boundaries.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare/re-export the new intent-audit module.
+- Updated `core/src/api/diagnostics.rs` with `OperatorIntentAudit` diagnostic family and `operator_intent_audit_reason_diagnostic(...)` mapping.
+- Updated `core/src/main.rs` dry-run coverage to assert no operator-intent audit record construction surface.
+- Updated `checklists/current-phase.md` to Phase 67 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.67`.
+
+### Notes
+- Audit record construction is not audit record persistence.
+- Phase 67 builds typed proof objects only.
+- Phase 67 does not append ledgers/audit records, persist state, execute actions, or call provider/model flows.
+- `core/src/execution/mod.rs` and `core/src/api/persistence.rs` were not expanded.
+- Later phases remain responsible for physical append, persistence, verification, and recovery.
+
 ## v0.0.66 - 2026-05-04
 **Status:** Phase 66 - Identity-Bound Operator Intent Authorization
 

@@ -154,6 +154,13 @@ mod tests {
     }
 
     #[test]
+    fn dry_run_does_not_construct_operator_intent_audit_record() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("audit record"));
+        assert!(!summary.contains("operator_intent_audit"));
+    }
+
+    #[test]
     fn cli_dry_run_does_not_submit_operator_intent() {
         let summary = run_dry_run_summary();
         assert!(!summary.contains("operator intent"));
