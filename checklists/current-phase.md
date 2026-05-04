@@ -4,42 +4,41 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 46 - Local CLI Dry-Run Entry
+# Phase 47 - Local Persistence Boundary
 
 ## Phase name
 
-Phase 46 - Local CLI Dry-Run Entry
+Phase 47 - Local Persistence Boundary
 
 ## Phase goal
 
-Add a minimal deterministic local CLI dry-run entry that composes in-memory typed fixtures and prints a safe summary without provider/model calls, file IO, persistence, replay repair, network/socket behavior, environment-variable reads, workspace scanning, API server startup, or background services.
+Add typed local persistence planning and deterministic validation boundaries with explicit atomic-write plan metadata, without wiring persistence into dry-run or any default runtime path.
 
 ## Allowed surfaces
 
+- `core/src/api/mod.rs`
 - `core/src/main.rs`
 - `checklists/current-phase.md`
 - `CHANGELOG.md`
 
 ## Boundary rules
 
-- Dry-run is deterministic local command composition only.
-- Provider output remains untrusted and non-authoritative.
-- No file reads/writes, persistence, network/socket behavior, environment-variable reads, replay repair, workspace scanning, API server startup, background services, process spawning, or UI behavior.
-- `LocalApplicationState` remains in-memory only.
-- Phase 47 remains the explicit local persistence boundary.
+- Persistence is explicit, typed, atomic-by-plan requirement, and opt-in.
+- No read-only, dry-run, replay verification, projection, or UI path writes to disk.
+- Local persistence paths remain caller-supplied metadata only.
+- Phase 46 dry-run remains no-persistence.
 - Release-candidate readiness is not claimed.
 - Production readiness is not claimed.
 
 ## Task checklist
 
-- [x] Update procedural checklist to Phase 46 scope.
-- [x] Add minimal CLI dry-run path in `core/src/main.rs`.
-- [x] Support `dry-run` command and default no-arg dry-run summary output.
-- [x] Handle unknown commands with a safe usage summary.
-- [x] Compose deterministic in-memory typed fixtures from Rust-owned surfaces.
-- [x] Print explicit non-readiness and non-side-effect statements in dry-run output.
-- [x] Add deterministic tests for dry-run summary and unknown command usage.
-- [x] Add `CHANGELOG.md` entry `v0.0.46`.
+- [x] Update procedural checklist to Phase 47 scope.
+- [x] Add typed local persistence plan surfaces in `core/src/api/mod.rs`.
+- [x] Add deterministic validation and stable validation/error codes.
+- [x] Add explicit atomic-write semantics as typed plan metadata.
+- [x] Add deterministic tests for required persistence boundary behavior.
+- [x] Keep CLI dry-run as no-persistence and no-write behavior.
+- [x] Add `CHANGELOG.md` entry `v0.0.47`.
 
 ## Validation checklist
 
@@ -48,8 +47,8 @@ Add a minimal deterministic local CLI dry-run entry that composes in-memory type
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] `cargo run --manifest-path core/Cargo.toml`
-- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\\(|write!|writeln!|serialize|serde|json|env::var|var\\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs`
+- [x] `rg -n "std::fs|File::|read_to_string|read_dir|canonicalize|metadata|watch|notify|walkdir|glob|write\\(|write!|writeln!|rename|sync_all|flush|serialize|serde|json|env::var|var\\(|std::net|TcpStream|UdpSocket|reqwest|ureq|hyper|tokio|async|await|fetch|http|https|Command::|std::process|thread::|sleep" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs`
+- [x] `rg -n "persist|persistence|write|rename|atomic|repair|replay repair|serialize|LocalApplicationState|dry-run|dry run|no persistence" core/src/main.rs core/src/api/mod.rs core/src/execution/mod.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
 - [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready" core/src/main.rs CHANGELOG.md checklists/current-phase.md checklists/release.md`
 - [x] `rg -n "lint_ui_boundaries|test_lint_ui_boundaries" scripts/check.sh .github/workflows/ci.yml`
 - [x] `git status --short`

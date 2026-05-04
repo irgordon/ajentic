@@ -6,6 +6,29 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.47 - 2026-05-04
+
+**Status:** Phase 47 - Local Persistence Boundary
+
+### Changed
+
+- Updated `core/src/api/mod.rs` with typed local persistence planning surfaces, deterministic validation, explicit atomicity plan requirements, opt-in execution boundary stub, and deterministic unit tests.
+- Updated `core/src/main.rs` tests to assert dry-run no-persistence text remains unchanged and dry-run does not call the persistence execution helper.
+- Updated `checklists/current-phase.md` to Phase 47 procedural scope and validation evidence.
+- Updated `CHANGELOG.md` with `v0.0.47`.
+
+### Notes
+
+- Phase 47 adds typed local persistence planning and validation boundaries only.
+- Persistence is explicit, typed, atomic by plan requirement, and opt-in.
+- No read-only, dry-run, replay verification, projection, or UI path writes to disk.
+- The Phase 47 execution helper returns `PhysicalWriteNotImplemented` for valid plans and does not perform physical writes.
+- Paths are caller-supplied metadata only and are not read, canonicalized, created, scanned, or checked for existence.
+- Phase 46 dry-run remains no-persistence.
+- No automatic persistence, file reading, file writing, path canonicalization, directory scanning, environment read, secrets storage, socket/HTTP behavior, async behavior, provider call, model invocation, controlled-flow execution, replay repair, audit writing, `LocalApplicationState` serialization, API server, CLI live command, UI behavior, schema change, workflow change, lint weakening, or new dependency was implemented.
+- Release-candidate readiness is not claimed.
+- Production readiness is not claimed.
+
 ## v0.0.46 - 2026-05-04
 
 **Status:** Phase 46 - Local CLI Dry-Run Entry

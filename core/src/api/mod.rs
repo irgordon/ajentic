@@ -446,6 +446,159 @@ pub fn integration_output_is_authoritative(_output: &IntegrationOutput) -> bool 
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalPersistencePayloadKind {
+    LedgerSnapshot,
+    RunRecord,
+    AuditProjection,
+    MemorySnapshot,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalPersistenceWriteMode {
+    CreateNew,
+    ReplaceExisting,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalPersistenceAtomicity {
+    Required,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalPersistencePlan {
+    pub plan_id: String,
+    pub target_path: String,
+    pub temp_path: String,
+    pub expected_revision: Option<u64>,
+    pub payload_kind: LocalPersistencePayloadKind,
+    pub write_mode: LocalPersistenceWriteMode,
+    pub atomicity: LocalPersistenceAtomicity,
+}
+
+impl LocalPersistencePlan {
+    pub fn new(
+        plan_id: impl Into<String>,
+        target_path: impl Into<String>,
+        temp_path: impl Into<String>,
+        expected_revision: Option<u64>,
+        payload_kind: LocalPersistencePayloadKind,
+        write_mode: LocalPersistenceWriteMode,
+        atomicity: LocalPersistenceAtomicity,
+    ) -> Self {
+        Self {
+            plan_id: plan_id.into(),
+            target_path: target_path.into(),
+            temp_path: temp_path.into(),
+            expected_revision,
+            payload_kind,
+            write_mode,
+            atomicity,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalPersistenceValidation {
+    pub plan_id: String,
+    pub valid: bool,
+    pub reason: LocalPersistenceValidationReason,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalPersistenceValidationReason {
+    Valid,
+    EmptyPlanId,
+    EmptyTargetPath,
+    EmptyTempPath,
+    TargetAndTempPathSame,
+    MissingExpectedRevision,
+    UnknownPayloadKind,
+    UnknownWriteMode,
+    AtomicityNotRequired,
+    PathLooksLikeSecret,
+}
+
+impl LocalPersistenceValidationReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Valid => "valid",
+            Self::EmptyPlanId => "empty_plan_id",
+            Self::EmptyTargetPath => "empty_target_path",
+            Self::EmptyTempPath => "empty_temp_path",
+            Self::TargetAndTempPathSame => "target_and_temp_path_same",
+            Self::MissingExpectedRevision => "missing_expected_revision",
+            Self::UnknownPayloadKind => "unknown_payload_kind",
+            Self::UnknownWriteMode => "unknown_write_mode",
+            Self::AtomicityNotRequired => "atomicity_not_required",
+            Self::PathLooksLikeSecret => "path_looks_like_secret",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalPersistenceError {
+    InvalidPlan,
+    PhysicalWriteNotImplemented,
+}
+
+impl LocalPersistenceError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::InvalidPlan => "invalid_plan",
+            Self::PhysicalWriteNotImplemented => "physical_write_not_implemented",
+        }
+    }
+}
+
+pub fn validate_local_persistence_plan(plan: &LocalPersistencePlan) -> LocalPersistenceValidation {
+    let reason = if plan.plan_id.is_empty() {
+        LocalPersistenceValidationReason::EmptyPlanId
+    } else if plan.target_path.is_empty() {
+        LocalPersistenceValidationReason::EmptyTargetPath
+    } else if plan.temp_path.is_empty() {
+        LocalPersistenceValidationReason::EmptyTempPath
+    } else if plan.target_path == plan.temp_path {
+        LocalPersistenceValidationReason::TargetAndTempPathSame
+    } else if plan.expected_revision.is_none() {
+        LocalPersistenceValidationReason::MissingExpectedRevision
+    } else if plan.payload_kind == LocalPersistencePayloadKind::Unknown {
+        LocalPersistenceValidationReason::UnknownPayloadKind
+    } else if plan.write_mode == LocalPersistenceWriteMode::Unknown {
+        LocalPersistenceValidationReason::UnknownWriteMode
+    } else if plan.atomicity != LocalPersistenceAtomicity::Required {
+        LocalPersistenceValidationReason::AtomicityNotRequired
+    } else if contains_secret_marker(&plan.target_path) || contains_secret_marker(&plan.temp_path) {
+        LocalPersistenceValidationReason::PathLooksLikeSecret
+    } else {
+        LocalPersistenceValidationReason::Valid
+    };
+
+    LocalPersistenceValidation {
+        plan_id: plan.plan_id.clone(),
+        valid: reason == LocalPersistenceValidationReason::Valid,
+        reason,
+    }
+}
+
+pub fn local_persistence_plan_allows_hidden_write(plan: &LocalPersistencePlan) -> bool {
+    !validate_local_persistence_plan(plan).valid
+}
+
+pub fn execute_local_persistence_plan(
+    plan: &LocalPersistencePlan,
+    _payload_bytes: &[u8],
+) -> Result<(), LocalPersistenceError> {
+    let validation = validate_local_persistence_plan(plan);
+    if !validation.valid {
+        return Err(LocalPersistenceError::InvalidPlan);
+    }
+    Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ApplicationStateError {
     EmptyStateId,
     EmptyProjectionId,
@@ -2512,5 +2665,279 @@ mod tests {
     fn derive_read_projection_does_not_read_files_or_call_network() {
         let p = sample_app_state().derive_read_projection().unwrap();
         assert!(!p.safety.allow_file_io && !p.safety.allow_provider_network);
+    }
+    fn sample_valid_persistence_plan() -> LocalPersistencePlan {
+        LocalPersistencePlan::new(
+            "plan-1",
+            "state/ledger.bin",
+            "state/ledger.bin.tmp",
+            Some(7),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        )
+    }
+
+    #[test]
+    fn persistence_validation_reason_codes_are_stable() {
+        assert_eq!(LocalPersistenceValidationReason::Valid.code(), "valid");
+        assert_eq!(
+            LocalPersistenceValidationReason::PathLooksLikeSecret.code(),
+            "path_looks_like_secret"
+        );
+    }
+
+    #[test]
+    fn persistence_error_codes_are_stable() {
+        assert_eq!(LocalPersistenceError::InvalidPlan.code(), "invalid_plan");
+        assert_eq!(
+            LocalPersistenceError::PhysicalWriteNotImplemented.code(),
+            "physical_write_not_implemented"
+        );
+    }
+
+    #[test]
+    fn persistence_plan_stores_paths_as_metadata_only() {
+        let plan = sample_valid_persistence_plan();
+        assert_eq!(plan.target_path, "state/ledger.bin");
+        assert_eq!(plan.temp_path, "state/ledger.bin.tmp");
+    }
+
+    #[test]
+    fn persistence_plan_does_not_infer_payload_kind_from_extension() {
+        let plan = LocalPersistencePlan::new(
+            "x",
+            "a.json",
+            "a.tmp",
+            Some(1),
+            LocalPersistencePayloadKind::RunRecord,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(plan.payload_kind, LocalPersistencePayloadKind::RunRecord);
+    }
+
+    #[test]
+    fn persistence_plan_requires_plan_id() {
+        let plan = LocalPersistencePlan::new(
+            "",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::EmptyPlanId
+        );
+    }
+
+    #[test]
+    fn persistence_plan_requires_target_path() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::EmptyTargetPath
+        );
+    }
+
+    #[test]
+    fn persistence_plan_requires_temp_path() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "a",
+            "",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::EmptyTempPath
+        );
+    }
+
+    #[test]
+    fn persistence_plan_rejects_same_target_and_temp_path() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "same",
+            "same",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::TargetAndTempPathSame
+        );
+    }
+
+    #[test]
+    fn persistence_plan_requires_expected_revision() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "a",
+            "b",
+            None,
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::MissingExpectedRevision
+        );
+    }
+
+    #[test]
+    fn persistence_plan_rejects_unknown_payload_kind() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::Unknown,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::UnknownPayloadKind
+        );
+    }
+
+    #[test]
+    fn persistence_plan_rejects_unknown_write_mode() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::Unknown,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::UnknownWriteMode
+        );
+    }
+
+    #[test]
+    fn persistence_plan_requires_atomicity() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Unknown,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::AtomicityNotRequired
+        );
+    }
+
+    #[test]
+    fn persistence_plan_rejects_secret_markers_in_paths() {
+        let plan = LocalPersistencePlan::new(
+            "p",
+            "path/Api_Key.txt",
+            "tmp/out",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            validate_local_persistence_plan(&plan).reason,
+            LocalPersistenceValidationReason::PathLooksLikeSecret
+        );
+    }
+
+    #[test]
+    fn valid_persistence_plan_passes_validation() {
+        let validation = validate_local_persistence_plan(&sample_valid_persistence_plan());
+        assert!(validation.valid);
+        assert_eq!(validation.reason, LocalPersistenceValidationReason::Valid);
+    }
+
+    #[test]
+    fn valid_persistence_plan_does_not_allow_hidden_write() {
+        assert!(!local_persistence_plan_allows_hidden_write(
+            &sample_valid_persistence_plan()
+        ));
+    }
+
+    #[test]
+    fn invalid_persistence_plan_allows_hidden_write() {
+        let plan = LocalPersistencePlan::new(
+            "",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert!(local_persistence_plan_allows_hidden_write(&plan));
+    }
+
+    #[test]
+    fn execute_persistence_plan_rejects_invalid_plan() {
+        let plan = LocalPersistencePlan::new(
+            "",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        assert_eq!(
+            execute_local_persistence_plan(&plan, b"payload"),
+            Err(LocalPersistenceError::InvalidPlan)
+        );
+    }
+
+    #[test]
+    fn execute_persistence_plan_is_not_implemented_for_valid_plan() {
+        assert_eq!(
+            execute_local_persistence_plan(&sample_valid_persistence_plan(), b"payload"),
+            Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+        );
+    }
+
+    #[test]
+    fn persistence_boundary_does_not_repair_replay() {
+        let result = execute_local_persistence_plan(&sample_valid_persistence_plan(), b"p");
+        assert_eq!(
+            result,
+            Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+        );
+    }
+
+    #[test]
+    fn persistence_boundary_does_not_serialize_application_state() {
+        let plan = sample_valid_persistence_plan();
+        assert_eq!(
+            plan.payload_kind,
+            LocalPersistencePayloadKind::LedgerSnapshot
+        );
     }
 }
