@@ -6,6 +6,30 @@ mutation_path: changelog_entry
 
 # CHANGELOG.md
 
+## v0.0.50 - 2026-05-04
+
+**Status:** Phase 50 - Roadmap and Changelog Alignment Check + Error-Code Registry Audit
+
+### Added
+
+- Added `docs/operations/repository-audit-phase-50.md` advisory report covering roadmap/changelog alignment, Phase 46-49 boundary review, Rust error-code string collision/ambiguity audit, and provider authority bridge risk findings.
+
+### Changed
+
+- Updated `checklists/current-phase.md` to Phase 50 procedural scope, alignment and boundary checklists, error-code audit checklist, provider authority bridge checklist, findings/deferred tables, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.50`.
+- Updated `docs/operations/repository-audit-phase-50.md` during Phase 50 audit finalization.
+
+### Notes
+
+- Phase 50 verifies roadmap/changelog alignment after Phases 46-49.
+- Phase 50 audits Rust error-code string mappings for collision, ambiguity, and future registry risk.
+- Phase 50 audits provider authority bridge risk and confirms provider capability metadata remains descriptive only.
+- `CHANGELOG.md` remains the authoritative historical record.
+- `docs/roadmap/phase-map.md` remains planned truth.
+- Phase 51 remains the next planned implementation phase.
+- No central error registry, runtime harness behavior, UI behavior, provider execution, real provider adapter, persistence, physical write behavior, API server, CLI live command, schema change, workflow change, script change, governance change, architecture change, lint-tooling change, dependency change, release-candidate readiness claim, or production-readiness claim was implemented.
+
 ## v0.0.49 - 2026-05-04
 
 **Status:** Phase 49 - Real Local Provider Adapter Boundary
