@@ -247,3 +247,57 @@ pub fn operator_intent_ingress_executes_actions(_report: &OperatorIntentIngressR
     false
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn high_risk_reason_text_only_routes_never_executes() {
+        for phrase in [
+            "skip policy",
+            "force promote",
+            "trust output",
+            "repair replay",
+            "write ledger",
+            "execute provider",
+        ] {
+            let submission = OperatorIntentSubmission::new(
+                "s1",
+                "op1",
+                OperatorIntent::new(OperatorIntentType::Approve, phrase),
+                OperatorIntentTargetKind::Run,
+                "run-1",
+            )
+            .expect("valid");
+            let report = submit_operator_intent(submission);
+            assert_eq!(report.status, OperatorIntentIngressStatus::Accepted);
+            assert!(!operator_intent_ingress_executes_actions(&report));
+        }
+    }
+
+    #[test]
+    fn malformed_submission_fails_before_routing() {
+        let err = OperatorIntentSubmission::new(
+            "",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, "ok"),
+            OperatorIntentTargetKind::Run,
+            "r",
+        )
+        .expect_err("must fail");
+        assert_eq!(err, OperatorIntentIngressReason::EmptySubmissionId);
+    }
+
+    #[test]
+    fn unknown_target_fails_before_route_execution() {
+        let err = OperatorIntentSubmission::new(
+            "s",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, "ok"),
+            OperatorIntentTargetKind::Unknown,
+            "r",
+        )
+        .expect_err("must fail");
+        assert_eq!(err, OperatorIntentIngressReason::UnsupportedIntentType);
+    }
+}

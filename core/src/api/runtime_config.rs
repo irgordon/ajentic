@@ -207,3 +207,49 @@ pub fn integration_output_is_authoritative(_output: &IntegrationOutput) -> bool 
     false
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn safety_defaults_strict_and_preview_disallow_network_file_ui() {
+        for d in [
+            RuntimeSafetyDefaults::strict(),
+            RuntimeSafetyDefaults::preview(),
+        ] {
+            assert!(!d.allow_provider_network);
+            assert!(!d.allow_file_io);
+            assert!(!d.allow_ui_mutation);
+        }
+    }
+
+    #[test]
+    fn new_rejects_unsafe_defaults_even_when_provider_disabled() {
+        let mut defaults = RuntimeSafetyDefaults::strict();
+        defaults.allow_file_io = true;
+        let err = LocalRuntimeConfig::new(
+            "cfg",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Disabled,
+            RuntimeSafetyLevel::Strict,
+            LocalWorkspaceMetadata::new("ws", "opaque://ws", "op").expect("valid"),
+            defaults,
+        )
+        .expect_err("must fail");
+        assert_eq!(err, LocalRuntimeConfigError::UnsafeDefaultEnabled);
+    }
+
+    #[test]
+    fn new_rejects_secret_markers_after_unsafe_gate_order() {
+        let err = LocalRuntimeConfig::new(
+            "cfg-secret",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Disabled,
+            RuntimeSafetyLevel::Strict,
+            LocalWorkspaceMetadata::new("ws", "opaque://ws", "op").expect("valid"),
+            RuntimeSafetyDefaults::strict(),
+        )
+        .expect_err("must fail");
+        assert_eq!(err, LocalRuntimeConfigError::SecretsNotAllowed);
+    }
+}

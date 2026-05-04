@@ -153,3 +153,108 @@ pub fn execute_local_persistence_plan(
     Err(LocalPersistenceError::PhysicalWriteNotImplemented)
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn valid_plan() -> LocalPersistencePlan {
+        LocalPersistencePlan::new(
+            "plan-1",
+            "state/target.bin",
+            "state/temp.bin",
+            Some(3),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        )
+    }
+
+    #[test]
+    fn invalid_plan_fails_closed_before_write_path() {
+        assert_eq!(
+            execute_local_persistence_plan(
+                &LocalPersistencePlan::new(
+                    "",
+                    "t",
+                    "x",
+                    Some(1),
+                    LocalPersistencePayloadKind::LedgerSnapshot,
+                    LocalPersistenceWriteMode::CreateNew,
+                    LocalPersistenceAtomicity::Required
+                ),
+                b"payload"
+            ),
+            Err(LocalPersistenceError::InvalidPlan)
+        );
+    }
+    #[test]
+    fn valid_plan_returns_not_implemented() {
+        assert_eq!(
+            execute_local_persistence_plan(&valid_plan(), b"payload"),
+            Err(LocalPersistenceError::PhysicalWriteNotImplemented)
+        );
+    }
+    #[test]
+    fn same_target_temp_precedes_expected_revision() {
+        let v = validate_local_persistence_plan(&LocalPersistencePlan::new(
+            "p",
+            "same",
+            "same",
+            None,
+            LocalPersistencePayloadKind::Unknown,
+            LocalPersistenceWriteMode::Unknown,
+            LocalPersistenceAtomicity::Unknown,
+        ));
+        assert_eq!(
+            v.reason,
+            LocalPersistenceValidationReason::TargetAndTempPathSame
+        );
+    }
+    #[test]
+    fn missing_expected_revision_precedes_payload_write_atomicity_checks() {
+        let v = validate_local_persistence_plan(&LocalPersistencePlan::new(
+            "p",
+            "t",
+            "x",
+            None,
+            LocalPersistencePayloadKind::Unknown,
+            LocalPersistenceWriteMode::Unknown,
+            LocalPersistenceAtomicity::Unknown,
+        ));
+        assert_eq!(
+            v.reason,
+            LocalPersistenceValidationReason::MissingExpectedRevision
+        );
+    }
+    #[test]
+    fn secret_path_detection_is_deterministic_when_reached() {
+        let mut p = valid_plan();
+        p.target_path = "secret-target".into();
+        assert_eq!(
+            validate_local_persistence_plan(&p).reason,
+            LocalPersistenceValidationReason::PathLooksLikeSecret
+        );
+    }
+    #[test]
+    fn hidden_write_helper_true_for_invalid_false_for_valid() {
+        assert!(local_persistence_plan_allows_hidden_write(
+            &LocalPersistencePlan::new(
+                "",
+                "t",
+                "x",
+                Some(1),
+                LocalPersistencePayloadKind::LedgerSnapshot,
+                LocalPersistenceWriteMode::CreateNew,
+                LocalPersistenceAtomicity::Required
+            )
+        ));
+        assert!(!local_persistence_plan_allows_hidden_write(&valid_plan()));
+    }
+    #[test]
+    fn execute_plan_does_not_inspect_payload_bytes() {
+        assert_eq!(
+            execute_local_persistence_plan(&valid_plan(), &[0, 1, 2]),
+            execute_local_persistence_plan(&valid_plan(), b"different bytes")
+        );
+    }
+}

@@ -194,3 +194,22 @@ impl LocalApplicationState {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unsafe_runtime_config_cannot_initialize_state() {
+        let mut defaults = RuntimeSafetyDefaults::strict();
+        defaults.allow_ui_mutation = true;
+        let cfg = LocalRuntimeConfig::new(
+            "cfg",
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Stub,
+            RuntimeSafetyLevel::Strict,
+            LocalWorkspaceMetadata::new("ws", "opaque://ws", "op").expect("valid"),
+            defaults,
+        );
+        assert!(cfg.is_err());
+    }
+}
