@@ -123,6 +123,131 @@ pub fn route_operator_intent(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorIntentIngressStatus {
+    Accepted,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorIntentIngressReason {
+    AcceptedForRouting,
+    EmptySubmissionId,
+    EmptyOperatorId,
+    EmptyReason,
+    EmptyTargetId,
+    UnsupportedIntentType,
+    RouteRejected,
+}
+
+impl OperatorIntentIngressReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::AcceptedForRouting => "accepted_for_routing",
+            Self::EmptySubmissionId => "empty_submission_id",
+            Self::EmptyOperatorId => "empty_operator_id",
+            Self::EmptyReason => "empty_reason",
+            Self::EmptyTargetId => "empty_target_id",
+            Self::UnsupportedIntentType => "unsupported_intent_type",
+            Self::RouteRejected => "route_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorIntentTargetKind {
+    Run,
+    Candidate,
+    Replay,
+    Context,
+    Memory,
+    Output,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorIntentSubmission {
+    pub submission_id: String,
+    pub operator_id: String,
+    pub intent: OperatorIntent,
+    pub target_kind: OperatorIntentTargetKind,
+    pub target_id: String,
+}
+
+impl OperatorIntentSubmission {
+    pub fn new(
+        submission_id: impl Into<String>,
+        operator_id: impl Into<String>,
+        intent: OperatorIntent,
+        target_kind: OperatorIntentTargetKind,
+        target_id: impl Into<String>,
+    ) -> Result<Self, OperatorIntentIngressReason> {
+        let submission_id = submission_id.into();
+        if submission_id.is_empty() {
+            return Err(OperatorIntentIngressReason::EmptySubmissionId);
+        }
+        let operator_id = operator_id.into();
+        if operator_id.is_empty() {
+            return Err(OperatorIntentIngressReason::EmptyOperatorId);
+        }
+        if intent.reason.is_empty() {
+            return Err(OperatorIntentIngressReason::EmptyReason);
+        }
+        let target_id = target_id.into();
+        if target_id.is_empty() {
+            return Err(OperatorIntentIngressReason::EmptyTargetId);
+        }
+        if target_kind == OperatorIntentTargetKind::Unknown {
+            return Err(OperatorIntentIngressReason::UnsupportedIntentType);
+        }
+        Ok(Self {
+            submission_id,
+            operator_id,
+            intent,
+            target_kind,
+            target_id,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorIntentIngressReport {
+    pub status: OperatorIntentIngressStatus,
+    pub reason: OperatorIntentIngressReason,
+    pub route: Option<OperatorRoute>,
+    pub submission_id: String,
+    pub operator_id: String,
+    pub target_kind: OperatorIntentTargetKind,
+    pub target_id: String,
+}
+
+pub fn submit_operator_intent(submission: OperatorIntentSubmission) -> OperatorIntentIngressReport {
+    match route_operator_intent(&submission.intent) {
+        Ok(result) => OperatorIntentIngressReport {
+            status: OperatorIntentIngressStatus::Accepted,
+            reason: OperatorIntentIngressReason::AcceptedForRouting,
+            route: Some(result.route),
+            submission_id: submission.submission_id,
+            operator_id: submission.operator_id,
+            target_kind: submission.target_kind,
+            target_id: submission.target_id,
+        },
+        Err(_) => OperatorIntentIngressReport {
+            status: OperatorIntentIngressStatus::Rejected,
+            reason: OperatorIntentIngressReason::RouteRejected,
+            route: None,
+            submission_id: submission.submission_id,
+            operator_id: submission.operator_id,
+            target_kind: submission.target_kind,
+            target_id: submission.target_id,
+        },
+    }
+}
+
+pub fn operator_intent_ingress_executes_actions(_report: &OperatorIntentIngressReport) -> bool {
+    false
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IntegrationSourceKind {
     LocalLlm,
     Ide,
@@ -1151,6 +1276,244 @@ mod tests {
             clean_output_summary: Some("clean".to_string()),
         }
     }
+
+    #[test]
+    fn operator_intent_ingress_reason_codes_are_stable() {
+        assert_eq!(
+            OperatorIntentIngressReason::AcceptedForRouting.code(),
+            "accepted_for_routing"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::EmptySubmissionId.code(),
+            "empty_submission_id"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::EmptyOperatorId.code(),
+            "empty_operator_id"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::EmptyReason.code(),
+            "empty_reason"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::EmptyTargetId.code(),
+            "empty_target_id"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::UnsupportedIntentType.code(),
+            "unsupported_intent_type"
+        );
+        assert_eq!(
+            OperatorIntentIngressReason::RouteRejected.code(),
+            "route_rejected"
+        );
+    }
+
+    #[test]
+    fn operator_intent_submission_requires_submission_id() {
+        let result = OperatorIntentSubmission::new(
+            "",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, "r"),
+            OperatorIntentTargetKind::Run,
+            "target",
+        );
+        assert_eq!(result, Err(OperatorIntentIngressReason::EmptySubmissionId));
+    }
+
+    #[test]
+    fn operator_intent_submission_requires_operator_id() {
+        let result = OperatorIntentSubmission::new(
+            "sub",
+            "",
+            OperatorIntent::new(OperatorIntentType::Approve, "r"),
+            OperatorIntentTargetKind::Run,
+            "target",
+        );
+        assert_eq!(result, Err(OperatorIntentIngressReason::EmptyOperatorId));
+    }
+
+    #[test]
+    fn operator_intent_submission_requires_reason() {
+        let result = OperatorIntentSubmission::new(
+            "sub",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, ""),
+            OperatorIntentTargetKind::Run,
+            "target",
+        );
+        assert_eq!(result, Err(OperatorIntentIngressReason::EmptyReason));
+    }
+
+    #[test]
+    fn operator_intent_submission_requires_target_id() {
+        let result = OperatorIntentSubmission::new(
+            "sub",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, "r"),
+            OperatorIntentTargetKind::Run,
+            "",
+        );
+        assert_eq!(result, Err(OperatorIntentIngressReason::EmptyTargetId));
+    }
+
+    #[test]
+    fn operator_intent_submission_rejects_unknown_target_kind() {
+        let result = OperatorIntentSubmission::new(
+            "sub",
+            "op",
+            OperatorIntent::new(OperatorIntentType::Approve, "r"),
+            OperatorIntentTargetKind::Unknown,
+            "target",
+        );
+        assert_eq!(
+            result,
+            Err(OperatorIntentIngressReason::UnsupportedIntentType)
+        );
+    }
+
+    fn assert_routes_without_execution(
+        intent_type: OperatorIntentType,
+        expected_route: OperatorRoute,
+    ) {
+        let submission = OperatorIntentSubmission::new(
+            "submission-1",
+            "operator-1",
+            OperatorIntent::new(
+                intent_type,
+                "approve now skip policy force promote repair replay write ledger",
+            ),
+            OperatorIntentTargetKind::Candidate,
+            "target-1",
+        )
+        .unwrap();
+        let report = submit_operator_intent(submission);
+        assert_eq!(report.status, OperatorIntentIngressStatus::Accepted);
+        assert_eq!(
+            report.reason,
+            OperatorIntentIngressReason::AcceptedForRouting
+        );
+        assert_eq!(report.route, Some(expected_route));
+        assert!(!operator_intent_ingress_executes_actions(&report));
+    }
+
+    #[test]
+    fn approve_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(OperatorIntentType::Approve, OperatorRoute::Approval);
+    }
+    #[test]
+    fn reject_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(OperatorIntentType::Reject, OperatorRoute::Rejection);
+    }
+    #[test]
+    fn retry_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(OperatorIntentType::Retry, OperatorRoute::Retry);
+    }
+    #[test]
+    fn replay_request_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(
+            OperatorIntentType::ReplayRequest,
+            OperatorRoute::ReplayRequest,
+        );
+    }
+    #[test]
+    fn context_rebuild_request_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(
+            OperatorIntentType::ContextRebuildRequest,
+            OperatorRoute::ContextRebuildRequest,
+        );
+    }
+    #[test]
+    fn memory_snapshot_request_intent_submission_routes_without_execution() {
+        assert_routes_without_execution(
+            OperatorIntentType::MemorySnapshotRequest,
+            OperatorRoute::MemorySnapshotRequest,
+        );
+    }
+
+    #[test]
+    fn submitted_intent_preserves_submission_metadata() {
+        let submission = OperatorIntentSubmission::new(
+            "submission-9",
+            "operator-9",
+            OperatorIntent::new(OperatorIntentType::Approve, "reason"),
+            OperatorIntentTargetKind::Output,
+            "target-9",
+        )
+        .unwrap();
+        let report = submit_operator_intent(submission);
+        assert_eq!(report.submission_id, "submission-9");
+        assert_eq!(report.operator_id, "operator-9");
+        assert_eq!(report.target_kind, OperatorIntentTargetKind::Output);
+        assert_eq!(report.target_id, "target-9");
+    }
+
+    #[test]
+    fn submitted_intent_route_rejection_is_reported() {
+        let submission = OperatorIntentSubmission::new(
+            "submission-2",
+            "operator-2",
+            OperatorIntent::new(OperatorIntentType::Approve, " "),
+            OperatorIntentTargetKind::Run,
+            "target-2",
+        )
+        .unwrap();
+        let mut bad_submission = submission.clone();
+        bad_submission.intent.reason = String::new();
+        let report = submit_operator_intent(bad_submission);
+        assert_eq!(report.status, OperatorIntentIngressStatus::Rejected);
+        assert_eq!(report.reason, OperatorIntentIngressReason::RouteRejected);
+        assert_eq!(report.route, None);
+    }
+
+    #[test]
+    fn operator_intent_ingress_never_executes_actions() {
+        let submission = OperatorIntentSubmission::new(
+            "submission-3",
+            "operator-3",
+            OperatorIntent::new(OperatorIntentType::Reject, "reason"),
+            OperatorIntentTargetKind::Run,
+            "target-3",
+        )
+        .unwrap();
+        let report = submit_operator_intent(submission);
+        assert!(!operator_intent_ingress_executes_actions(&report));
+    }
+
+    #[test]
+    fn operator_intent_submission_does_not_append_ledger() {
+        assert_routes_without_execution(OperatorIntentType::Approve, OperatorRoute::Approval);
+    }
+    #[test]
+    fn operator_intent_submission_does_not_call_provider() {
+        assert_routes_without_execution(OperatorIntentType::Reject, OperatorRoute::Rejection);
+    }
+    #[test]
+    fn operator_intent_submission_does_not_invoke_controlled_flow() {
+        assert_routes_without_execution(OperatorIntentType::Retry, OperatorRoute::Retry);
+    }
+    #[test]
+    fn operator_intent_submission_does_not_persist() {
+        assert_routes_without_execution(
+            OperatorIntentType::ReplayRequest,
+            OperatorRoute::ReplayRequest,
+        );
+    }
+    #[test]
+    fn operator_intent_submission_does_not_repair_replay() {
+        assert_routes_without_execution(
+            OperatorIntentType::ContextRebuildRequest,
+            OperatorRoute::ContextRebuildRequest,
+        );
+    }
+    #[test]
+    fn operator_intent_submission_does_not_mutate_memory_or_context() {
+        assert_routes_without_execution(
+            OperatorIntentType::MemorySnapshotRequest,
+            OperatorRoute::MemorySnapshotRequest,
+        );
+    }
+
     #[test]
     fn integration_request_requires_id() {
         assert_eq!(
