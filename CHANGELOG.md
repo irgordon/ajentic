@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.72 - 2026-05-05
+**Status:** Phase 72 - Provider Failure, Timeout, and Retry Boundary
+
+### Added
+- Added `core/src/execution/provider_failure.rs` with deterministic provider failure kind classification, typed retry policy validation, typed eligibility/reason reporting, and non-authority/non-scheduling helper functions.
+- Added `docs/operations/provider-failure-boundary-phase-72.md` documenting failure/retry scope, no-scheduling boundary, no-authority boundary, and Phase 73 relationship.
+
+### Changed
+- Updated `core/src/execution/mod.rs` to declare/re-export the focused provider failure module.
+- Updated `checklists/current-phase.md` to Phase 72 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.72`.
+
+### Notes
+- Phase 72 classifies provider failures and retry eligibility only.
+- Phase 72 does not schedule or execute retries and does not perform async/network/provider calls.
+- Phase 72 does not mutate authority, ledger, persistence, replay, or application state.
+- Phase 72 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.71.5 - 2026-05-05
 **Status:** Phase 71.5 - Provider Execution Structural Extraction
 

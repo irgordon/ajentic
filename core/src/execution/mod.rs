@@ -1,3 +1,5 @@
+pub mod provider_failure;
+pub use provider_failure::*;
 pub mod provider_execution;
 pub use provider_execution::*;
 
