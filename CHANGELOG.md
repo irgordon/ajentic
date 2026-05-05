@@ -5,6 +5,22 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.74 - 2026-05-05
+**Status:** Phase 74 - Application State Recovery Boundary
+
+### Added
+- Added `docs/operations/application-state-recovery-phase-74.md` documenting candidate-only recovery scope, verification relationship, and non-authority boundaries.
+
+### Changed
+- Updated `core/src/api/application_state.rs` with typed application recovery request/candidate/report/status/reason surfaces and deterministic `prepare_application_recovery_candidate(...)` mapping from verified ledger bytes.
+- Updated `checklists/current-phase.md` to Phase 74 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.74`.
+
+### Notes
+- Phase 74 prepares recovery candidates only from verified ledger bytes.
+- Phase 74 does not replace `LocalApplicationState`, promote recovered state, repair replay, execute providers, record provider retries, or mutate/write ledger persistence.
+- Phase 74 does not add UI/Rust transport, authorized action execution, CLI live recovery commands, or readiness/public-usability claims.
+
 ## v0.0.73 - 2026-05-05
 **Status:** Phase 73 - Durable Ledger Persistence Lifecycle
 

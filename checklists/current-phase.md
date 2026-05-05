@@ -5,12 +5,13 @@ mutation_path: checklist_revision
 ---
 # Current Phase Checklist
 
-## Phase 73 - Durable Ledger Persistence Lifecycle
-- [x] Confirmed roadmap scope and boundary for durable ledger persistence lifecycle only.
-- [x] Added typed ledger persistence prepare/write/verify/load helpers in `core/src/api/persistence.rs`.
-- [x] Kept writes constrained to Phase 61 `execute_local_persistence_plan(...)` boundary.
-- [x] Kept verification classification aligned with Phase 62 verification outcomes.
-- [x] Added deterministic tests covering prepare/write/verify/load and rejection mapping.
-- [x] Confirmed non-recovery and non-authority boundaries (no app-state recovery, no provider execution/retry recording, no replay repair, no promotion, no UI transport).
-- [x] Added Phase 73 operations documentation.
-- [x] Updated changelog with clean Phase 73 implementation entry.
+## Phase 74 - Application State Recovery Boundary
+- [x] Confirmed roadmap scope and boundary for application-state recovery candidate preparation only.
+- [x] Added typed application recovery request/candidate/report/status/reason surfaces.
+- [x] Implemented `prepare_application_recovery_candidate(...)` with verified-ledger-byte-only input handling and deterministic rejection mapping.
+- [x] Reused Phase 62 decode/verification semantics and enforced `LedgerSnapshot`-only candidate input.
+- [x] Kept explicit non-authority flags (`recovers_application_state=false`, `promotes_recovered_state=false`, `repairs_replay=false`, `mutates_ledger=false`).
+- [x] Added deterministic tests for valid candidate construction and required rejection paths.
+- [x] Confirmed no LocalApplicationState replacement, no replay repair, no promotion, no persistence write, and no provider execution/retry recording in this boundary.
+- [x] Added Phase 74 operations documentation.
+- [x] Updated changelog with clean Phase 74 implementation entry.
