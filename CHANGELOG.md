@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.80 - 2026-05-05
+**Status:** Phase 80 - Roadmap and Changelog Alignment Check + Production Candidate Gap Audit
+
+### Added
+- Added `docs/operations/repository-audit-phase-80.md` with advisory alignment findings, production-candidate gap audit sections, and non-readiness posture.
+
+### Changed
+- Updated `docs/roadmap/phase-map.md` as compact planned phase index through Phase 90.
+- Updated `docs/roadmap/phases.md` as active expanded catalog for Phases 81-90.
+- Updated `docs/roadmap/sequencing.md` with dependency chain rationale for Phases 81-90.
+- Updated `checklists/current-phase.md` to Phase 80 procedural truth including required alignment, gap, and validation checklists.
+- Updated `CHANGELOG.md` with `v0.0.80`.
+
+### Notes
+- Phase 80 is alignment, documentation hygiene, production-candidate gap audit, and next-block planning only.
+- Phase 80 does not implement runtime behavior.
+- Production Candidate status is not approved while listed mechanical/architectural gaps remain.
+- Roadmap files remain planned truth; `CHANGELOG.md` remains historical truth.
+
 ## v0.0.79 - 2026-05-05
 **Status:** Phase 79 - End-to-End Local Harness Run
 
