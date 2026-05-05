@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.73 - 2026-05-05
+**Status:** Phase 73 - Durable Ledger Persistence Lifecycle
+
+### Added
+- Added `core/src/api/ledger_persistence.rs` with typed prepare/write/verify/load lifecycle helpers for ledger record envelope bytes and deterministic non-recovery boundary tests.
+- Added `docs/operations/ledger-persistence-lifecycle-phase-73.md` documenting Phase 73 scope, Phase 61/62 relationship, and non-recovery boundary.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare and re-export the focused ledger persistence module.
+- Updated `checklists/current-phase.md` to Phase 73 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.73`.
+
+### Notes
+- Phase 73 persists and verifies typed ledger record bytes only.
+- Phase 73 does not recover application state and does not make verified bytes automatically authoritative state.
+- Phase 73 does not add provider output persistence, provider retry recording, UI/Rust transport, action execution, replay repair, or promotion.
+- Phase 74 remains responsible for application state recovery.
+
 ## v0.0.72 - 2026-05-05
 **Status:** Phase 72 - Provider Failure, Timeout, and Retry Boundary
 
