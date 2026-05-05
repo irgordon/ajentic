@@ -29,6 +29,14 @@ echo "Running shell script parse check..."
 find scripts -type f -name "*.sh" -print0 | xargs -0 -n1 bash -n
 echo "  scripts OK"
 
+echo "Running Rust boundary lint self-tests..."
+node scripts/test_rust_boundary_lint.mjs
+echo "  Rust boundary lint self-tests OK"
+
+echo "Running Rust boundary lint..."
+node scripts/rust_boundary_lint.mjs
+echo "  Rust boundary lint OK"
+
 echo "Running UI boundary AST lint self-tests..."
 node scripts/test_lint_ui_boundaries.mjs
 echo "  UI boundary lint self-tests OK"
