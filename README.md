@@ -3,19 +3,40 @@ truth_dimension: orientation
 authority_level: non_authoritative
 mutation_path: readme_update
 ---
-# AJENTIC
-**You, In Control**
 
-![Rust](https://img.shields.io/badge/Rust-authority-orange)
-![TypeScript](https://img.shields.io/badge/TypeScript-UI-blue)
-![Python](https://img.shields.io/badge/Python-adapters-yellow)
-![Bash](https://img.shields.io/badge/Bash-glue-lightgrey)
-![Status](https://img.shields.io/badge/status-pre--alpha-red)
-![Production](https://img.shields.io/badge/production-not%20ready-lightgrey)
+<div align="center">
 
-AJENTIC helps people use AI-generated work without giving the model control over the result.
+# **AJENTIC**  
+### **You, In Control**
 
-It gives teams a place to review what the model produced, check how it was handled, record what happened, and replay the work later. The goal is simple: move faster with AI while keeping the human operator in charge.
+![Rust](https://img.shields.io/badge/Rust-Authority-orange?logo=rust)
+![TypeScript](https://img.shields.io/badge/TypeScript-UI-blue?logo=typescript)
+![Python](https://img.shields.io/badge/Python-Adapters-yellow?logo=python)
+![Bash](https://img.shields.io/badge/Bash-Glue-lightgrey?logo=gnu-bash)
+![Status](https://img.shields.io/badge/Status-Pre--Alpha-red)
+![Production](https://img.shields.io/badge/Production-Not_Ready-lightgrey)
+![Open Source](https://img.shields.io/badge/Open%20Source-Yes-brightgreen?logo=opensourceinitiative)
+
+<br>
+
+<a href="#getting-started">
+  <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket" />
+</a>
+&nbsp;&nbsp;
+<a href="https://github.com/ajentic">
+  <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" />
+</a>
+
+</div>
+
+---
+
+AJENTIC helps teams use AI confidently **without giving the model control over the work**.
+
+Instead of letting an AI system act on its own, AJENTIC creates a **safe, governed workspace** where every step is visible, reviewable, and repeatable. You see what the model produced, how it was handled, and what changed along the way — with a full record you can replay at any time.
+
+The goal is simple:  
+**Move faster with AI while keeping humans in charge of decisions, outcomes, and accountability.**
 
 ## Why Use AJENTIC?
 
