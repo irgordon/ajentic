@@ -7,91 +7,84 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 82 - Provider Evidence Replay and Failure Trace Boundary
+Phase 82.5 - Out-of-Band Root Integration Test Harness Baseline
+
+## explicit out-of-band maintenance/testing note
+Phase 82.5 is an out-of-band maintenance/testing fix before Phase 83.
 
 ## phase goal
-Verify provider execution/failure evidence replay from explicit snapshots without live execution, authority creation, persistence, or state mutation.
+Establish the first root integration-test baseline for existing cross-boundary local harness/replay behavior before Phase 83 durable append work.
 
 ## working-tree hygiene gate
 - [x] `git status --short` reviewed before edits.
-- [x] Changes constrained to allowed Phase 82 files.
+- [x] Working changes constrained to approved Phase 82.5 surfaces.
 
 ## allowed surfaces
-- [x] `core/src/api/local_workflow.rs`
-- [x] `core/src/main.rs` (dry-run replay guard test only)
-- [x] `docs/operations/provider-evidence-replay-phase-82.md`
+- [x] `tests/`
+- [x] `core/Cargo.toml` (minimal integration test target wiring only)
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
+- [x] `docs/operations/integration-test-baseline-phase-82-5.md`
 
 ## boundary rules
-- [x] Replay verifies evidence only; no live provider execution.
-- [x] Replay helper does not call `execute_provider_adapter(...)`.
-- [x] Replay helper does not call `run_end_to_end_local_harness(...)`.
-- [x] Replay helper does not call `execute_operator_action_boundary(...)`.
-- [x] No persistence writes, ledger append, or audit append.
-- [x] No replay repair, no recovery acceptance, no state mutation.
+- [x] Testing scaffold/baseline only; no new runtime authority.
+- [x] No durable append implementation.
+- [x] No provider network execution, persistence writes, recovery acceptance, live UI transport, or action side effects.
+- [x] No roadmap/governance/architecture scope mutation.
 
 ## task checklist
-- [x] Added replay types, reasons, status, and mode.
-- [x] Added deterministic evidence checksum helper.
-- [x] Added replay verification helper from explicit evidence input.
-- [x] Added optional snapshot mapping helper from existing harness report.
-- [x] Added deterministic replay coverage tests for verify/reject/mismatch/non-authority.
-- [x] Added Phase 82 operations advisory doc.
-- [x] Added `CHANGELOG.md` `v0.0.82` entry.
+- [x] Updated checklist to Phase 82.5 procedural truth.
+- [x] Added operations advisory doc for Phase 82.5.
+- [x] Added root integration baseline test file under `tests/`.
+- [x] Added `CHANGELOG.md` entry `v0.0.82.5`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
-- [x] `node scripts/test_rust_boundary_lint.mjs`
-- [x] `node scripts/rust_boundary_lint.mjs`
-- [x] `node scripts/test_lint_ui_boundaries.mjs`
-- [x] `node scripts/lint_ui_boundaries.mjs`
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `find tests -maxdepth 2 -type f -print`
+- [x] Integration content scan command completed.
+- [x] No-append/no-authority scan command completed.
+- [x] Guarded-source diff command completed.
+- [x] Readiness wording scan completed.
+- [x] Out-of-band wording scan completed.
+- [x] Lint wiring scan completed.
 
-## replay evidence checklist
-- [x] Replay inputs are explicit snapshot fields with checksum.
-- [x] Replay rejects empty identifiers.
-- [x] Replay rejects source run mismatch.
-- [x] Replay rejects tampered evidence checksum.
-- [x] Replay report returns typed status/reason/provenance.
+## root integration-test checklist
+- [x] Root test asserts bounded completed local harness behavior.
+- [x] Root test asserts non-authority/non-effect flags.
+- [x] Root test asserts replay report mode is `Replay` and non-live execution.
+- [x] Root test avoids durable append/persistence/network/live transport assertions.
 
-## replay vs live-run checklist
-- [x] Replay report `mode=Replay`.
-- [x] Replay report `replayed_from_evidence=true`.
-- [x] Replay report `live_execution_performed=false`.
+## library/export surface checklist
+- [x] Existing `ajentic_core` API exports were sufficient for integration assertions.
+- [x] No `core/src/lib.rs` semantic/runtime behavior change required.
+- [x] `core/Cargo.toml` update is minimal test target wiring only.
 
-## non-authority checklist
-- [x] `new_authorization_created=false`
-- [x] `new_audit_record_created=false`
-- [x] `new_action_executed=false`
-- [x] `new_ledger_fact_created=false`
-- [x] `persisted=false`
-- [x] `repaired_replay=false`
-- [x] `mutated_application_state=false`
+## Phase 83 deferral checklist
+- [x] Phase 82.5 is an out-of-band maintenance/testing fix before Phase 83.
+- [x] Phase 82.5 does not implement durable append.
+- [x] Phase 83 remains responsible for durable audit/ledger append.
 
 ## zero-drift checklist
-- [x] Roadmap files unchanged.
-- [x] Disallowed module surfaces unchanged.
-- [x] No scripts/workflows/UI source changed.
+- [x] Roadmap docs unchanged.
+- [x] Guarded runtime/UI/scripts/workflow surfaces unchanged.
+- [x] No dependency additions.
 
 ## findings table
 | Finding | Result |
 | --- | --- |
-| Replay evidence boundary | Implemented deterministic evidence-only replay verification. |
-| Forensic distinction | Replay reports remain distinguishable from live harness reports. |
+| Root integration baseline presence | Added first compiled/runnable root integration test target and file. |
+| Cross-boundary non-authority invariants | Verified harness/replay remain bounded and non-authoritative. |
 
 ## deferred items table
 | Item | Phase |
 | --- | --- |
-| Durable append eligibility | Phase 83 |
-| Recovery candidate acceptance | Phase 84 |
-| Next alignment checkpoint | Phase 85 |
+| Durable audit/ledger append boundary | Phase 83 |
+| Recovery candidate acceptance boundary | Phase 84 |
 
 ## validation log table
 | Command | Result |
 | --- | --- |
 | `./scripts/check.sh` | pass |
-| boundary lint commands | pass |
-| UI validation commands | pass |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass |
+| Required scan commands | pass |
