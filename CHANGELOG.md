@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.84 - 2026-05-05
+**Status:** Phase 84 - Recovery Candidate Acceptance Boundary
+
+### Added
+- Added `docs/operations/recovery-acceptance-boundary-phase-84.md` documenting explicit in-memory-only recovery acceptance posture.
+
+### Changed
+- Updated `core/src/api/application_state.rs` with typed recovery acceptance status/reason/request/report surfaces, explicit acceptance gating, and deterministic non-authority tests.
+- Updated `tests/integration_smoke.rs` with root integration recovery acceptance in-memory/non-authority coverage.
+- Updated `checklists/current-phase.md` to Phase 84 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.84`.
+
+### Notes
+- Phase 84 accepts verified recovery candidates for in-memory use only.
+- Phase 84 does not silently recover, replace global application state, persist, append ledger/audit, repair replay, trust provider output, or execute actions.
+- Phase 85 remains the planned roadmap/changelog alignment checkpoint.
+- No public-usability, release-candidate-readiness, or production-readiness claim is made.
+
 ## v0.0.83 - 2026-05-05
 **Status:** Phase 83 - Durable Audit and Ledger Append Boundary
 
