@@ -788,6 +788,429 @@ fn ledger_rejected_report(
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DurableAppendStatus {
+    Prepared,
+    Written,
+    Verified,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DurableAppendReason {
+    PreparedForAppend,
+    WrittenThroughPersistenceBoundary,
+    VerifiedAppendTransaction,
+    EmptyAppendTransactionId,
+    EmptyAuditRecordId,
+    EmptyLedgerRecordId,
+    EmptyAuditPayload,
+    EmptyLedgerPayload,
+    InvalidRevisionChain,
+    TransactionIdMismatch,
+    AuditOnlyAppendRejected,
+    LedgerOnlyAppendRejected,
+    InvalidPersistencePlan,
+    AppendWriteFailed,
+    AppendVerificationFailed,
+    AppendChecksumMismatch,
+    MalformedAppendTransaction,
+    PromotionNotAllowed,
+    RecoveryNotAllowed,
+    ReplayRepairNotAllowed,
+    ActionExecutionNotAllowed,
+    ApplicationStateMutationNotAllowed,
+}
+impl DurableAppendReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::PreparedForAppend => "prepared_for_append",
+            Self::WrittenThroughPersistenceBoundary => "written_through_persistence_boundary",
+            Self::VerifiedAppendTransaction => "verified_append_transaction",
+            Self::EmptyAppendTransactionId => "empty_append_transaction_id",
+            Self::EmptyAuditRecordId => "empty_audit_record_id",
+            Self::EmptyLedgerRecordId => "empty_ledger_record_id",
+            Self::EmptyAuditPayload => "empty_audit_payload",
+            Self::EmptyLedgerPayload => "empty_ledger_payload",
+            Self::InvalidRevisionChain => "invalid_revision_chain",
+            Self::TransactionIdMismatch => "transaction_id_mismatch",
+            Self::AuditOnlyAppendRejected => "audit_only_append_rejected",
+            Self::LedgerOnlyAppendRejected => "ledger_only_append_rejected",
+            Self::InvalidPersistencePlan => "invalid_persistence_plan",
+            Self::AppendWriteFailed => "append_write_failed",
+            Self::AppendVerificationFailed => "append_verification_failed",
+            Self::AppendChecksumMismatch => "append_checksum_mismatch",
+            Self::MalformedAppendTransaction => "malformed_append_transaction",
+            Self::PromotionNotAllowed => "promotion_not_allowed",
+            Self::RecoveryNotAllowed => "recovery_not_allowed",
+            Self::ReplayRepairNotAllowed => "replay_repair_not_allowed",
+            Self::ActionExecutionNotAllowed => "action_execution_not_allowed",
+            Self::ApplicationStateMutationNotAllowed => "application_state_mutation_not_allowed",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DurableAppendTransaction {
+    pub append_transaction_id: String,
+    pub audit_record_id: String,
+    pub ledger_record_id: String,
+    pub prior_revision: u64,
+    pub next_revision: u64,
+    pub audit_payload: Vec<u8>,
+    pub ledger_payload: Vec<u8>,
+    pub checksum: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DurableAppendReport {
+    pub status: DurableAppendStatus,
+    pub reason: DurableAppendReason,
+    pub append_transaction_id: String,
+    pub audit_record_id: String,
+    pub ledger_record_id: String,
+    pub prior_revision: Option<u64>,
+    pub next_revision: Option<u64>,
+    pub audit_payload_len: Option<usize>,
+    pub ledger_payload_len: Option<usize>,
+    pub checksum: Option<String>,
+    pub committed: bool,
+    pub promoted: bool,
+    pub recovered_state: bool,
+    pub repaired_replay: bool,
+    pub trusted_provider_output: bool,
+    pub executed_action: bool,
+    pub mutated_application_state: bool,
+    pub summary: String,
+}
+
+fn compute_durable_append_checksum(content: &[u8]) -> String {
+    calculate_persisted_record_checksum(content)
+}
+
+pub fn prepare_durable_append_transaction(
+    append_transaction_id: impl Into<String>,
+    audit_record_id: impl Into<String>,
+    ledger_record_id: impl Into<String>,
+    prior_revision: u64,
+    next_revision: u64,
+    audit_payload: Vec<u8>,
+    ledger_payload: Vec<u8>,
+) -> Result<DurableAppendTransaction, DurableAppendReason> {
+    let append_transaction_id = append_transaction_id.into();
+    if append_transaction_id.is_empty() {
+        return Err(DurableAppendReason::EmptyAppendTransactionId);
+    }
+    let audit_record_id = audit_record_id.into();
+    if audit_record_id.is_empty() {
+        return Err(DurableAppendReason::EmptyAuditRecordId);
+    }
+    let ledger_record_id = ledger_record_id.into();
+    if ledger_record_id.is_empty() {
+        return Err(DurableAppendReason::EmptyLedgerRecordId);
+    }
+    if audit_payload.is_empty() {
+        return Err(DurableAppendReason::EmptyAuditPayload);
+    }
+    if ledger_payload.is_empty() {
+        return Err(DurableAppendReason::EmptyLedgerPayload);
+    }
+    if next_revision != prior_revision + 1 {
+        return Err(DurableAppendReason::InvalidRevisionChain);
+    }
+    let mut c = Vec::new();
+    c.extend_from_slice(
+        format!(
+            "{}
+{}
+{}
+{}
+{}
+{}
+{}",
+            append_transaction_id,
+            audit_record_id,
+            ledger_record_id,
+            prior_revision,
+            next_revision,
+            hex_encode(&audit_payload),
+            hex_encode(&ledger_payload)
+        )
+        .as_bytes(),
+    );
+    let checksum = compute_durable_append_checksum(&c);
+    Ok(DurableAppendTransaction {
+        append_transaction_id,
+        audit_record_id,
+        ledger_record_id,
+        prior_revision,
+        next_revision,
+        audit_payload,
+        ledger_payload,
+        checksum,
+    })
+}
+
+pub fn encode_durable_append_transaction(transaction: &DurableAppendTransaction) -> Vec<u8> {
+    format!(
+        "append_transaction_id={}
+audit_record_id={}
+ledger_record_id={}
+prior_revision={}
+next_revision={}
+audit_payload_hex={}
+ledger_payload_hex={}
+checksum={}
+",
+        transaction.append_transaction_id,
+        transaction.audit_record_id,
+        transaction.ledger_record_id,
+        transaction.prior_revision,
+        transaction.next_revision,
+        hex_encode(&transaction.audit_payload),
+        hex_encode(&transaction.ledger_payload),
+        transaction.checksum
+    )
+    .into_bytes()
+}
+
+pub fn decode_durable_append_transaction(
+    bytes: &[u8],
+) -> Result<DurableAppendTransaction, DurableAppendReason> {
+    let text =
+        std::str::from_utf8(bytes).map_err(|_| DurableAppendReason::MalformedAppendTransaction)?;
+    let mut tid = None;
+    let mut aid = None;
+    let mut lid = None;
+    let mut pr = None;
+    let mut nr = None;
+    let mut ahex = None;
+    let mut lhex = None;
+    let mut checksum = None;
+    for line in text.lines() {
+        if line.is_empty() {
+            continue;
+        }
+        let (k, v) = line
+            .split_once('=')
+            .ok_or(DurableAppendReason::MalformedAppendTransaction)?;
+        match k {
+            "append_transaction_id" => tid = Some(v.to_string()),
+            "audit_record_id" => aid = Some(v.to_string()),
+            "ledger_record_id" => lid = Some(v.to_string()),
+            "prior_revision" => {
+                pr = Some(
+                    v.parse::<u64>()
+                        .map_err(|_| DurableAppendReason::MalformedAppendTransaction)?,
+                )
+            }
+            "next_revision" => {
+                nr = Some(
+                    v.parse::<u64>()
+                        .map_err(|_| DurableAppendReason::MalformedAppendTransaction)?,
+                )
+            }
+            "audit_payload_hex" => ahex = Some(v.to_string()),
+            "ledger_payload_hex" => lhex = Some(v.to_string()),
+            "checksum" => checksum = Some(v.to_string()),
+            _ => return Err(DurableAppendReason::MalformedAppendTransaction),
+        }
+    }
+    let (tid, aid, lid, pr, nr, ahex, lhex, checksum) = (
+        tid.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        aid.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        lid.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        pr.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        nr.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        ahex.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        lhex.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+        checksum.ok_or(DurableAppendReason::MalformedAppendTransaction)?,
+    );
+    if ahex.is_empty() {
+        return Err(DurableAppendReason::AuditOnlyAppendRejected);
+    }
+    if lhex.is_empty() {
+        return Err(DurableAppendReason::LedgerOnlyAppendRejected);
+    }
+    let ap = hex_decode(&ahex).map_err(|_| DurableAppendReason::MalformedAppendTransaction)?;
+    let lp = hex_decode(&lhex).map_err(|_| DurableAppendReason::MalformedAppendTransaction)?;
+    let tx = prepare_durable_append_transaction(tid, aid, lid, pr, nr, ap, lp)?;
+    if tx.checksum != checksum {
+        return Err(DurableAppendReason::AppendChecksumMismatch);
+    }
+    Ok(DurableAppendTransaction { checksum, ..tx })
+}
+
+pub fn verify_durable_append_transaction_bytes(
+    bytes: &[u8],
+    expected_append_transaction_id: impl Into<String>,
+) -> DurableAppendReport {
+    let expected = expected_append_transaction_id.into();
+    match decode_durable_append_transaction(bytes) {
+        Ok(tx) => {
+            if tx.append_transaction_id != expected {
+                return durable_append_report_from_tx(
+                    &tx,
+                    DurableAppendStatus::Rejected,
+                    DurableAppendReason::TransactionIdMismatch,
+                    false,
+                    "append transaction id mismatch",
+                );
+            }
+            durable_append_report_from_tx(
+                &tx,
+                DurableAppendStatus::Verified,
+                DurableAppendReason::VerifiedAppendTransaction,
+                false,
+                "verified append transaction bytes",
+            )
+        }
+        Err(reason) => DurableAppendReport {
+            status: DurableAppendStatus::Rejected,
+            reason,
+            append_transaction_id: expected,
+            audit_record_id: String::new(),
+            ledger_record_id: String::new(),
+            prior_revision: None,
+            next_revision: None,
+            audit_payload_len: None,
+            ledger_payload_len: None,
+            checksum: None,
+            committed: false,
+            promoted: false,
+            recovered_state: false,
+            repaired_replay: false,
+            trusted_provider_output: false,
+            executed_action: false,
+            mutated_application_state: false,
+            summary: "append transaction verification failed".to_string(),
+        },
+    }
+}
+
+pub fn write_durable_append_transaction(
+    transaction: &DurableAppendTransaction,
+    plan: &LocalPersistencePlan,
+) -> DurableAppendReport {
+    let validation = validate_local_persistence_plan(plan);
+    if !validation.valid {
+        return durable_append_report_from_tx(
+            transaction,
+            DurableAppendStatus::Rejected,
+            DurableAppendReason::InvalidPersistencePlan,
+            false,
+            "invalid persistence plan",
+        );
+    }
+    let envelope = match PersistedRecordEnvelope::new(
+        transaction.append_transaction_id.clone(),
+        LocalPersistencePayloadKind::LedgerSnapshot,
+        transaction.next_revision,
+        encode_durable_append_transaction(transaction),
+    ) {
+        Ok(e) => e,
+        Err(_) => {
+            return durable_append_report_from_tx(
+                transaction,
+                DurableAppendStatus::Rejected,
+                DurableAppendReason::MalformedAppendTransaction,
+                false,
+                "malformed append envelope",
+            )
+        }
+    };
+    let encoded = encode_persisted_record_envelope(&envelope);
+    if execute_local_persistence_plan(plan, &encoded).is_err() {
+        return durable_append_report_from_tx(
+            transaction,
+            DurableAppendStatus::Rejected,
+            DurableAppendReason::AppendWriteFailed,
+            false,
+            "append write failed",
+        );
+    }
+    let verification = verify_persisted_record_paths(
+        &plan.target_path,
+        &plan.temp_path,
+        Some(transaction.next_revision),
+    );
+    if verification.status != PersistedRecordVerificationStatus::Valid {
+        return durable_append_report_from_tx(
+            transaction,
+            DurableAppendStatus::Rejected,
+            DurableAppendReason::AppendVerificationFailed,
+            false,
+            "append verification failed",
+        );
+    }
+    let read = std::fs::read(&plan.target_path).ok();
+    if let Some(bytes) = read {
+        if let Ok(env) = decode_persisted_record_envelope(&bytes) {
+            match verify_durable_append_transaction_bytes(
+                &env.payload,
+                transaction.append_transaction_id.clone(),
+            )
+            .reason
+            {
+                DurableAppendReason::VerifiedAppendTransaction => {
+                    return durable_append_report_from_tx(
+                        transaction,
+                        DurableAppendStatus::Verified,
+                        DurableAppendReason::VerifiedAppendTransaction,
+                        true,
+                        "combined append transaction written and verified",
+                    )
+                }
+                DurableAppendReason::AppendChecksumMismatch => {
+                    return durable_append_report_from_tx(
+                        transaction,
+                        DurableAppendStatus::Rejected,
+                        DurableAppendReason::AppendChecksumMismatch,
+                        false,
+                        "append checksum mismatch",
+                    )
+                }
+                _ => {}
+            }
+        }
+    }
+    durable_append_report_from_tx(
+        transaction,
+        DurableAppendStatus::Rejected,
+        DurableAppendReason::AppendVerificationFailed,
+        false,
+        "append verification failed",
+    )
+}
+
+fn durable_append_report_from_tx(
+    transaction: &DurableAppendTransaction,
+    status: DurableAppendStatus,
+    reason: DurableAppendReason,
+    committed: bool,
+    summary: &str,
+) -> DurableAppendReport {
+    DurableAppendReport {
+        status,
+        reason,
+        append_transaction_id: transaction.append_transaction_id.clone(),
+        audit_record_id: transaction.audit_record_id.clone(),
+        ledger_record_id: transaction.ledger_record_id.clone(),
+        prior_revision: Some(transaction.prior_revision),
+        next_revision: Some(transaction.next_revision),
+        audit_payload_len: Some(transaction.audit_payload.len()),
+        ledger_payload_len: Some(transaction.ledger_payload.len()),
+        checksum: Some(transaction.checksum.clone()),
+        committed,
+        promoted: false,
+        recovered_state: false,
+        repaired_replay: false,
+        trusted_provider_output: false,
+        executed_action: false,
+        mutated_application_state: false,
+        summary: summary.to_string(),
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1316,5 +1739,74 @@ mod diagnostic_tests {
         let error = PersistedRecordEnvelopeError::ChecksumMismatch;
         let diagnostic = crate::api::persisted_record_envelope_error_diagnostic(error.clone());
         assert_eq!(diagnostic.code, error.code());
+    }
+    #[test]
+    fn durable_append_reason_codes_are_stable() {
+        assert_eq!(
+            DurableAppendReason::PreparedForAppend.code(),
+            "prepared_for_append"
+        );
+    }
+    #[test]
+    fn prepare_append_requires_transaction_id() {
+        assert_eq!(
+            prepare_durable_append_transaction("", "a", "l", 1, 2, vec![1], vec![1]),
+            Err(DurableAppendReason::EmptyAppendTransactionId)
+        );
+    }
+    #[test]
+    fn prepare_append_requires_audit_record_id() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "", "l", 1, 2, vec![1], vec![1]),
+            Err(DurableAppendReason::EmptyAuditRecordId)
+        );
+    }
+    #[test]
+    fn prepare_append_requires_ledger_record_id() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "a", "", 1, 2, vec![1], vec![1]),
+            Err(DurableAppendReason::EmptyLedgerRecordId)
+        );
+    }
+    #[test]
+    fn prepare_append_requires_audit_payload() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![], vec![1]),
+            Err(DurableAppendReason::EmptyAuditPayload)
+        );
+    }
+    #[test]
+    fn prepare_append_requires_ledger_payload() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![]),
+            Err(DurableAppendReason::EmptyLedgerPayload)
+        );
+    }
+    #[test]
+    fn prepare_append_rejects_invalid_revision_chain() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "a", "l", 1, 3, vec![1], vec![1]),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+    #[test]
+    fn prepare_append_computes_deterministic_checksum() {
+        let a = prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![2]).unwrap();
+        let b = prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![2]).unwrap();
+        assert_eq!(a.checksum, b.checksum);
+    }
+    #[test]
+    fn encode_append_transaction_is_deterministic() {
+        let t = prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![2]).unwrap();
+        assert_eq!(
+            encode_durable_append_transaction(&t),
+            encode_durable_append_transaction(&t)
+        );
+    }
+    #[test]
+    fn decode_append_transaction_round_trips() {
+        let t = prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![2]).unwrap();
+        let d = decode_durable_append_transaction(&encode_durable_append_transaction(&t)).unwrap();
+        assert_eq!(t, d);
     }
 }

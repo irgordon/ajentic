@@ -7,80 +7,86 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 82.5 - Out-of-Band Root Integration Test Harness Baseline
-
-## explicit out-of-band maintenance/testing note
-Phase 82.5 is an out-of-band maintenance/testing fix before Phase 83.
+Phase 83 - Durable Audit and Ledger Append Boundary
 
 ## phase goal
-Establish the first root integration-test baseline for existing cross-boundary local harness/replay behavior before Phase 83 durable append work.
+Define one combined durable audit+ledger append transaction boundary committed only after combined verification.
 
 ## working-tree hygiene gate
 - [x] `git status --short` reviewed before edits.
-- [x] Working changes constrained to approved Phase 82.5 surfaces.
+- [x] Working changes constrained to approved Phase 83 surfaces.
 
 ## allowed surfaces
-- [x] `tests/`
-- [x] `core/Cargo.toml` (minimal integration test target wiring only)
+- [x] `core/src/api/persistence.rs`
+- [x] `tests/integration_smoke.rs` (deferred if public API not reachable)
 - [x] `checklists/current-phase.md`
+- [x] `checklists/release.md` (not required)
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/integration-test-baseline-phase-82-5.md`
+- [x] `docs/operations/durable-append-boundary-phase-83.md`
 
 ## boundary rules
-- [x] Testing scaffold/baseline only; no new runtime authority.
-- [x] No durable append implementation.
-- [x] No provider network execution, persistence writes, recovery acceptance, live UI transport, or action side effects.
-- [x] No roadmap/governance/architecture scope mutation.
+- [x] Single combined append transaction envelope only.
+- [x] Append is not promotion, recovery, replay repair, provider trust, action execution, or application-state mutation.
+- [x] No independent audit-only or ledger-only physical commit path.
 
 ## task checklist
-- [x] Updated checklist to Phase 82.5 procedural truth.
-- [x] Added operations advisory doc for Phase 82.5.
-- [x] Added root integration baseline test file under `tests/`.
-- [x] Added `CHANGELOG.md` entry `v0.0.82.5`.
+- [x] Added typed durable append status/reason/transaction/report surfaces.
+- [x] Added prepare/encode/decode/write/verify durable append helpers.
+- [x] Write path uses `execute_local_persistence_plan(...)` as the only physical boundary.
+- [x] Combined transaction verified via persisted-record verification before committed=true.
+- [x] Added deterministic durable append tests in `persistence.rs`.
+- [x] Added `docs/operations/durable-append-boundary-phase-83.md`.
+- [x] Added `CHANGELOG.md` entry `v0.0.83`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `find tests -maxdepth 2 -type f -print`
-- [x] Integration content scan command completed.
-- [x] No-append/no-authority scan command completed.
-- [x] Guarded-source diff command completed.
+- [x] Rust/UI boundary lint commands completed.
+- [x] CLI dry-run completed.
+- [x] Required append/atomicity/no-authority scans completed.
+- [x] Source-guard diff command completed.
 - [x] Readiness wording scan completed.
-- [x] Out-of-band wording scan completed.
-- [x] Lint wiring scan completed.
+
+## append transaction checklist
+- [x] Append transaction includes ids, revisions, audit/ledger payload hex, and checksum.
+- [x] Audit-only input rejected.
+- [x] Ledger-only input rejected.
+- [x] Transaction id mismatch rejected.
+- [x] Checksum mismatch rejected.
+
+## atomicity/partial-commit checklist
+- [x] Audit and ledger are encoded into one envelope payload.
+- [x] No separate independent append commits were introduced.
+- [x] Partial append is not authoritative.
+- [x] Commit requires combined verification.
 
 ## root integration-test checklist
-- [x] Root test asserts bounded completed local harness behavior.
-- [x] Root test asserts non-authority/non-effect flags.
-- [x] Root test asserts replay report mode is `Replay` and non-live execution.
-- [x] Root test avoids durable append/persistence/network/live transport assertions.
+- [x] Root integration append tests deferred; API remains module-local without export reshaping.
 
-## library/export surface checklist
-- [x] Existing `ajentic_core` API exports were sufficient for integration assertions.
-- [x] No `core/src/lib.rs` semantic/runtime behavior change required.
-- [x] `core/Cargo.toml` update is minimal test target wiring only.
-
-## Phase 83 deferral checklist
-- [x] Phase 82.5 is an out-of-band maintenance/testing fix before Phase 83.
-- [x] Phase 82.5 does not implement durable append.
-- [x] Phase 83 remains responsible for durable audit/ledger append.
+## non-authority checklist
+- [x] `promoted=false`
+- [x] `recovered_state=false`
+- [x] `repaired_replay=false`
+- [x] `trusted_provider_output=false`
+- [x] `executed_action=false`
+- [x] `mutated_application_state=false`
 
 ## zero-drift checklist
-- [x] Roadmap docs unchanged.
-- [x] Guarded runtime/UI/scripts/workflow surfaces unchanged.
-- [x] No dependency additions.
+- [x] Roadmap/governance/architecture files unchanged.
+- [x] Disallowed runtime/UI/scripts/workflow files unchanged.
+- [x] No dependency changes.
 
 ## findings table
 | Finding | Result |
 | --- | --- |
-| Root integration baseline presence | Added first compiled/runnable root integration test target and file. |
-| Cross-boundary non-authority invariants | Verified harness/replay remain bounded and non-authoritative. |
+| Single-envelope append boundary | Implemented in `core/src/api/persistence.rs`. |
+| Combined verification gate | `committed=true` only on write+verify success. |
 
 ## deferred items table
 | Item | Phase |
 | --- | --- |
-| Durable audit/ledger append boundary | Phase 83 |
 | Recovery candidate acceptance boundary | Phase 84 |
+| Roadmap/changelog alignment checkpoint | Phase 85 |
 
 ## validation log table
 | Command | Result |
