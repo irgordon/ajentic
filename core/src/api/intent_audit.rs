@@ -169,8 +169,8 @@ mod tests {
     use crate::api::{
         authorize_operator_intent, diagnostic_family_label,
         operator_authorization_executes_actions, operator_intent_ingress_executes_actions,
-        submit_operator_intent, OperatorAuthorizationReason, OperatorIdentity,
-        OperatorIntent, OperatorIntentIngressReason, OperatorIntentTargetKind, OperatorIntentType,
+        submit_operator_intent, OperatorAuthorizationReason, OperatorIdentity, OperatorIntent,
+        OperatorIntentIngressReason, OperatorIntentTargetKind, OperatorIntentType,
         OperatorSafetyContext, OperatorTargetContext,
     };
 
