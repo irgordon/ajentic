@@ -54,6 +54,7 @@ AJENTIC adds a controlled review boundary around model output:
 - human review  
 
 The goal is not autonomy.  
+
 The goal is **inspectable, repeatable, controlled AI‑assisted work**.
 
 ## Uses
@@ -95,18 +96,19 @@ Clean output is what has passed through the AJENTIC boundary.
 ## Project Status
 
 Pre‑Alpha and under active development.
-See the latest updates in [CHANGELOG.md].
+See the latest updates in [CHANGELOG](CHANGELOG.md).
 
 ## Technology Stack
 
 AJENTIC separates technology by responsibility:
 
-Layer	Role	
-Rust	authoritative core, validation, governance, replay, persistence	
-TypeScript	browser UI, non‑authoritative display surfaces	
-Python	repository validation, support scripts	
-Bash	local command orchestration	
-GitHub Actions	CI validation gates, schema/policy enforcement	
+| Layer            | Role                                                             |
+|------------------|------------------------------------------------------------------|
+| **Rust**         | authoritative core, validation, governance, replay, persistence  |
+| **TypeScript**   | browser UI, non‑authoritative display surfaces                   |
+| **Python**       | repository validation, support scripts                           |
+| **Bash**         | local command orchestration                                      |
+| **GitHub Actions** | CI validation gates, schema/policy enforcement                 |
 
 ## Architecture Overview
 
@@ -159,16 +161,17 @@ flowchart TB
 
 The repository separates different kinds of truth:
 
-• Governance — what must always be true
-• Architecture — how the system is organized
-• Roadmap — what may be attempted next
-• Changelog — what has been completed
-• Checklists — bounded execution steps
-• Tests & Code — executable behavior
-• Schemas — data contracts
-• Memory — governed data
-• README — human‑level orientation
-
+| Artifact        | Definition                                |
+|-----------------|--------------------------------------------|
+| Governance      | what must always be true                   |
+| Architecture    | how the system is organized                |
+| Roadmap         | what may be attempted next                 |
+| Changelog       | what has been completed                    |
+| Checklists      | bounded execution steps                    |
+| Tests & Code    | executable behavior                        |
+| Schemas         | data contracts                             |
+| Memory          | governed data                              |
+| README          | human‑level orientation                    |
 
 This README is orientation only. It is not an authority source.
 
