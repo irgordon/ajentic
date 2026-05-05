@@ -6,43 +6,38 @@ mutation_path: checklist_revision
 
 # Current Phase Checklist
 
-## Phase name
-Phase 85 - Roadmap and Changelog Alignment Check
+## phase name
+Phase 86 - User-Facing Local Workflow Documentation
 
-## Phase goal
-Reconcile Phase 81-84 outcomes and planning/history posture before outward-facing surfaces.
+## phase goal
+Document supported local workflows, commands, failure states, non-authority limits, and operator expectations using existing behavior only.
 
-## Working-tree hygiene gate
-- [x] Initial working tree reviewed with `git status --short`.
-- [x] Final working tree restricted to allowed surfaces only.
+## working-tree hygiene gate
+- [x] `git status --short` reviewed before edits.
+- [x] Only allowed Phase 86 documentation surfaces changed.
 
-## Allowed surfaces
-- [x] docs/roadmap/phase-map.md
-- [x] docs/roadmap/phases.md
-- [x] docs/roadmap/sequencing.md
-- [x] checklists/current-phase.md
-- [x] CHANGELOG.md
-- [x] docs/operations/repository-audit-phase-85.md
-- [x] checklists/release.md untouched unless evidence posture required update.
+## allowed surfaces
+- [x] `docs/operations/user-facing-local-workflow-phase-86.md`
+- [x] `docs/operations/local-workflow-guide.md`
+- [x] `checklists/current-phase.md`
+- [x] `CHANGELOG.md`
 
-## Boundary rules
-- [x] Phase 85 does not implement runtime behavior.
-- [x] Phase 85 does not approve Production Candidate status.
-- [x] Phase 85 does not approve release-candidate readiness or public usability.
-- [x] Roadmap files remain planned truth.
-- [x] `CHANGELOG.md` remains historical truth.
+## boundary rules
+- [x] Documentation only; no runtime capability added.
+- [x] No Rust/TypeScript/test/script/workflow/schema/roadmap/governance/architecture changes.
+- [x] Durable append documented as evidence only.
+- [x] Recovery acceptance documented as in-memory only.
+- [x] Replay documented as evidence verification only.
+- [x] UI contracts documented as non-authoritative.
 
-## Task checklist
-- [x] Confirmed Phase 85 title/scope from roadmap files.
-- [x] Reconciled Phase 81, Phase 82, Phase 82.5, Phase 83, and Phase 84 outcomes against `CHANGELOG.md`.
-- [x] Confirmed roadmap files do not mark Phase 81-84 as complete.
-- [x] Updated `docs/roadmap/phase-map.md` with compact planned entries through Phase 100.
-- [x] Updated `docs/roadmap/phases.md` as active expanded planning catalog for Phases 85-100.
-- [x] Updated `docs/roadmap/sequencing.md` with dependency rationale for the 85-100 expansion.
-- [x] Created `docs/operations/repository-audit-phase-85.md` with required sections and statements.
-- [x] Appended `CHANGELOG.md` with `v0.0.85` only.
+## task checklist
+- [x] Confirmed Phase 86 title/scope from roadmap files.
+- [x] Updated current-phase checklist to Phase 86 procedural truth.
+- [x] Added advisory phase report for Phase 86.
+- [x] Added user-facing local workflow guide in operations docs.
+- [x] Added `CHANGELOG.md` entry for `v0.0.86`.
 
-## Validation checklist
+## validation checklist
 - [x] `./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `node scripts/test_rust_boundary_lint.mjs`
@@ -52,57 +47,69 @@ Reconcile Phase 81-84 outcomes and planning/history posture before outward-facin
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
-## Roadmap-surface checklist
-- [x] `phase-map.md` kept as compact planned phase index.
-- [x] `phases.md` kept as active expanded planning catalog.
-- [x] `sequencing.md` kept as ordering rationale and dependency chain.
+## operator documentation checklist
+- [x] Scope included.
+- [x] Operator vocabulary included.
+- [x] Supported local commands included.
+- [x] Validation workflow included.
+- [x] Dry-run workflow included.
+- [x] Root integration-test workflow included.
+- [x] Durable append posture included.
+- [x] Recovery acceptance posture included.
+- [x] Replay posture included.
+- [x] UI contract posture included.
+- [x] Failure modes included.
+- [x] What this does not do included.
+- [x] Troubleshooting included.
+- [x] Non-readiness statement included.
 
-## Phase 81-84 alignment checklist
-- [x] Phase 81 hardening reflected as historical truth in `CHANGELOG.md`.
-- [x] Phase 82 replay boundary reflected as historical truth in `CHANGELOG.md`.
-- [x] Phase 82.5 integration baseline reflected as historical truth in `CHANGELOG.md`.
-- [x] Phase 83 append boundary reflected as historical truth in `CHANGELOG.md`.
-- [x] Phase 84 recovery acceptance boundary reflected as historical truth in `CHANGELOG.md`.
+## authority wording checklist
+- [x] No wording that append repairs/restores/promotes/recovers state.
+- [x] No wording that recovery acceptance fixes/repairs/restores/replaces global state.
+- [x] No wording that replay reruns provider execution.
+- [x] No wording that UI reaches live Rust ingress.
 
-## Phase 85-100 expansion checklist
-- [x] Phase 85-100 entries added to roadmap planning surfaces.
-- [x] Split rationale encoded for observability/export/hardening/startup/packaging/release/readiness boundaries.
-- [x] No future phases claimed complete.
+## future-surface wording checklist
+- [x] No observability/export/startup/packaging behavior described as present.
+- [x] Future surfaces explicitly marked not currently implemented where referenced.
 
-## Production-candidate status checklist
-- [x] Production Candidate status remains not approved.
-- [x] No release-candidate-ready wording added.
-- [x] No production-ready or publicly-usable wording added.
+## AST/boundary lint parity checklist
+- [x] AST/boundary lint parity guidance included in phase report.
+- [x] rg scan posture documented as discovery/evidence only.
+- [x] Blocking enforcement sources documented.
 
-## Zero-drift checklist
-- [x] No Rust source changes.
-- [x] No TypeScript source changes.
-- [x] No script/workflow/schema/governance/architecture/README/dependency changes.
-- [x] No generated artifact drift retained.
+## test fidelity checklist
+- [x] Test fidelity policy documented.
+- [x] Documentation-only phase states no new behavior tests expected.
+- [x] Full existing check/lint/test suite executed after edits.
 
-## Findings table
-| Item | Status | Notes |
+## zero-drift checklist
+- [x] No forbidden source/script/workflow/package/config/roadmap diffs.
+- [x] Changelog claims match actual file diffs.
+- [x] Checklist reflects completed work without stale unchecked closure items.
+
+## findings table
+| Finding | Status | Notes |
 | --- | --- | --- |
-| Roadmap truth surface alignment | pass | Planned truth remains in roadmap files only. |
-| Changelog truth surface alignment | pass | Historical truth remains in `CHANGELOG.md`. |
-| Phase 81-84 reconciliation | pass | Outcomes reconciled and documented in Phase 85 audit report. |
-| Production Candidate status | pass | Not approved. |
+| Phase 86 scope confirmation | pass | Roadmap files confirm documentation-only boundary for Phase 86. |
+| Operator vocabulary consistency | pass | Local workflow guide and phase report use approved vocabulary and non-authority posture. |
+| Workflow failure-state clarity | pass | Each workflow section includes success boundary, failure behavior, and non-capability statement. |
 
-## Deferred items table
-| Item | Status | Notes |
+## deferred items table
+| Item | Owner phase | Reason |
 | --- | --- | --- |
-| Runtime behavior changes | deferred | Out of Phase 85 scope. |
-| Readiness approval | deferred | Reserved for explicit future decision gate. |
-| Outward-facing release/usability claims | deferred | Not approved in this phase. |
+| Read-only observability snapshot boundary | Phase 87 | Out of Phase 86 documentation-only scope. |
+| Export encoding/write surfaces | Phases 88-89 | Future planned scope only. |
+| Startup and packaging surfaces | Phases 96-97 | Future planned scope only. |
 
-## Validation log table
-| Command | Result |
-| --- | --- |
-| `./scripts/check.sh` | pass |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass |
-| `node scripts/test_rust_boundary_lint.mjs` | pass |
-| `node scripts/rust_boundary_lint.mjs` | pass |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass |
-| `node scripts/lint_ui_boundaries.mjs` | pass |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass |
+## validation log table
+| Command | Result | Notes |
+| --- | --- | --- |
+| `./scripts/check.sh` | pass | Full repo validation gate succeeded. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Rust tests including integration succeeded. |
+| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-test succeeded. |
+| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint check succeeded. |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI boundary lint self-test succeeded. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | UI boundary lint check succeeded. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI validation suite succeeded. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Dry-run summary succeeded and remained non-executing. |

@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.86 - 2026-05-05
+**Status:** Phase 86 - User-Facing Local Workflow Documentation
+
+### Added
+- Added `docs/operations/user-facing-local-workflow-phase-86.md` documenting Phase 86 advisory workflow documentation scope, controls, and non-readiness posture.
+- Added `docs/operations/local-workflow-guide.md` as the user-facing local workflow command/failure-boundary guide for current supported behavior.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 86 procedural truth with required closure and validation sections.
+- Updated `CHANGELOG.md` with `v0.0.86`.
+
+### Notes
+- Phase 86 is documentation only and does not add runtime capability.
+- Phase 86 documents existing local workflows only.
+- Phase 86 does not add observability/export/startup/packaging behavior.
+- Phase 86 does not approve Production Candidate status.
+- Phase 87 remains responsible for read-only observability snapshot boundary.
+- No release-candidate-readiness, production-readiness, or public-usability claim is made.
+
 ## v0.0.85 - 2026-05-05
 **Status:** Phase 85 - Roadmap and Changelog Alignment Check
 
