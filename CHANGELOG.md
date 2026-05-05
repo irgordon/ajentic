@@ -5,6 +5,23 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.83 - 2026-05-05
+**Status:** Phase 83 - Durable Audit and Ledger Append Boundary
+
+### Added
+- Added `docs/operations/durable-append-boundary-phase-83.md` documenting single-envelope append atomicity and non-authority posture.
+
+### Changed
+- Updated `core/src/api/persistence.rs` with typed durable append transaction prepare/encode/decode/write/verify helpers and deterministic boundary tests.
+- Updated `checklists/current-phase.md` to Phase 83 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.83`.
+
+### Notes
+- Phase 83 uses a single combined append transaction envelope for audit and ledger proof bytes.
+- Append is committed only after combined envelope verification; partial append is not authoritative.
+- Phase 83 does not promote state, recover state, repair replay, trust provider output, execute actions, or mutate application state.
+- No public-usability, release-candidate-readiness, or production-readiness claim is made.
+
 ## v0.0.82.5 - 2026-05-05
 **Status:** Phase 82.5 - Out-of-Band Root Integration Test Harness Baseline
 
