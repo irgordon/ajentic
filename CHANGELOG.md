@@ -5,6 +5,23 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.68 - 2026-05-04
+**Status:** Phase 68 - Bounded Read Projection Slices
+
+### Added
+- Added `docs/operations/bounded-projection-phase-68.md` documenting Rust-owned bounded projection scope, read-only invariants, and deferred UI/transport mirrors.
+
+### Changed
+- Updated `core/src/api/read_projection.rs` with typed projection-slice surface/mode/status/reason/request/metadata/result models, deterministic request bounds, and in-memory bounded slice derivation helpers.
+- Added deterministic bounded projection tests including bounds validation, determinism checks, non-mutation checks, multi-surface coverage, and non-authority/non-side-effect assertions.
+- Updated `checklists/current-phase.md` to Phase 68 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.68`.
+
+### Notes
+- Projection slicing is Rust-owned and read-only.
+- Phase 68 does not add UI transport, UI caching/pagination, TypeScript mirrors, persistence reads, provider/model execution, replay repair, ledger append, or action execution.
+- `core/src/execution/mod.rs` and `core/src/api/persistence.rs` were not expanded.
+
 ## v0.0.67 - 2026-05-04
 **Status:** Phase 67 - Operator Intent Audit Record Boundary
 
