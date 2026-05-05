@@ -40,38 +40,41 @@ The goal is simple:
 
 ## Why Use AJENTIC?
 
-AI tools can produce useful work quickly, but their output should not be trusted just because it looks right.
+AI can produce convincing work, but convincing is not the same as correct.
 
-AJENTIC puts a controlled review system around that output:
-- clear inputs
-- bounded context
-- typed requests
-- validation checks
-- recorded events
-- replayable runs
-- audit-friendly results
-- human review
+AJENTIC adds a controlled review boundary around model output:
 
-The goal is not to make the model autonomous.
+- clear inputs  
+- bounded context  
+- typed requests  
+- validation checks  
+- recorded events  
+- replayable runs  
+- audit‑friendly results  
+- human review  
 
-The goal is to make AI-assisted work inspectable, repeatable, and controlled.
+The goal is not autonomy.  
+The goal is **inspectable, repeatable, controlled AI‑assisted work**.
 
-## Uses for 
+## Uses
 
-The planned application includes:
-- a Rust-controlled core
-- a browser-based TypeScript UI
-- local and cloud model workflow support
-- context review
-- memory and provenance review
-- policy and validation results
-- run history
-- replay view
-- clean output view
-- operator intent controls
-- audit and export surfaces
+AJENTIC is designed to support:
 
-## Core idea
+- a Rust‑governed core  
+- a browser‑based TypeScript UI  
+- local and cloud model workflows  
+- context review  
+- memory and provenance inspection  
+- policy and validation results  
+- run history  
+- replay visualization  
+- clean output surfaces  
+- operator intent controls  
+- audit and export paths  
+
+---
+
+## Core Idea
 
 ```text
 User intent + model output
@@ -87,61 +90,101 @@ User intent + model output
 ```
 
 Raw model output is not clean output.
+Clean output is what has passed through the AJENTIC boundary.
 
-Clean output is output that has passed through the AJENTIC boundary.
+## Project Status
 
-Project status
+Pre‑Alpha and under active development.
+See the latest updates in [CHANGELOG.md].
 
-This repository is in pre-alpha development.
-
-The project currently focuses on repository structure, governance boundaries, validation gates, replay evidence, durable proof boundaries, and non-authoritative UI contracts.
-
-Production readiness is not claimed.
-
-Release-candidate readiness is not claimed.
-
-Public usability is not claimed.
-
-Technology stack
+## Technology Stack
 
 AJENTIC separates technology by responsibility:
 
-Layer	Role
-Rust	authoritative core, validation, governance, replay, persistence boundaries
-TypeScript	browser UI and non-authoritative display surfaces
-Python	repository validation and support scripts
-Bash	local command orchestration
-GitHub Actions	CI validation gates
+Layer	Role	
+Rust	authoritative core, validation, governance, replay, persistence	
+TypeScript	browser UI, non‑authoritative display surfaces	
+Python	repository validation, support scripts	
+Bash	local command orchestration	
+GitHub Actions	CI validation gates, schema/policy enforcement	
 
-Repository model
+## Architecture Overview
+
+```mermaid
+flowchart TB
+
+    subgraph RustCore["Rust Core (Authoritative)"]
+    direction TB
+    A1[Validation]:::rust
+    A2[Governance Rules]:::rust
+    A3[Replay Engine]:::rust
+    A4[Persistence Boundaries]:::rust
+    end
+
+    subgraph PythonLayer["Python (Support Scripts)"]
+    direction TB
+    B1[Repo Validation]:::python
+    B2[Schema Checks]:::python
+    end
+
+    subgraph BashLayer["Bash (Local Ops)"]
+    C1[CLI Orchestration]:::bash
+    end
+
+    subgraph TSUILayer["TypeScript UI (Non‑Authoritative)"]
+    D1[Browser UI]:::ts
+    D2[Context Review]:::ts
+    D3[Output Display]:::ts
+    end
+
+    subgraph CI["GitHub Actions (CI Gates)"]
+    E1[Schema Enforcement]:::ci
+    E2[Policy Checks]:::ci
+    E3[Determinism Tests]:::ci
+    end
+
+    TSUILayer --> RustCore
+    PythonLayer --> RustCore
+    BashLayer --> RustCore
+    CI --> RustCore
+
+    classDef rust fill:#dea584,stroke:#000,stroke-width:1px;
+    classDef ts fill:#3178c6,stroke:#000,stroke-width:1px,color:#fff;
+    classDef python fill:#ffd43b,stroke:#000,stroke-width:1px;
+    classDef bash fill:#4e4e4e,stroke:#000,stroke-width:1px,color:#fff;
+    classDef ci fill:#6cc644,stroke:#000,stroke-width:1px;
+```
+
+## Repository Model
 
 The repository separates different kinds of truth:
 
-* Governance defines what must always be true.
-* Architecture defines how the system is organized.
-* Roadmap defines what may be attempted next.
-* Changelog records completed work.
-* Checklists guide bounded execution events.
-* Tests and code define executable behavior.
-* Schemas define data contracts.
-* Memory stores governed data.
-* This README explains the project for humans.
+• Governance — what must always be true
+• Architecture — how the system is organized
+• Roadmap — what may be attempted next
+• Changelog — what has been completed
+• Checklists — bounded execution steps
+• Tests & Code — executable behavior
+• Schemas — data contracts
+• Memory — governed data
+• README — human‑level orientation
+
 
 This README is orientation only. It is not an authority source.
 
-Intended users
+## Intended Users
 
-AJENTIC is intended for engineers and teams using AI-assisted workflows who need:
+AJENTIC is for engineers and teams who need:
 
-* controlled model runs
-* reviewable context
-* traceable decisions
-* replayable execution
-* clear operator controls
-* evidence that model output was not silently trusted
+• controlled model runs
+• reviewable context
+• traceable decisions
+• replayable execution
+• clear operator controls
+• evidence that model output was not silently trusted
 
-Project boundary
+## Project Boundary
 
 AJENTIC is not an autonomous coding agent.
 
-It is a control interface for reviewing, validating, recording, and replaying model-driven work.
+It is a control interface for reviewing, validating, recording, and replaying AI‑assisted work.
