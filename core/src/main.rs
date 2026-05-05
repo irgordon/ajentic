@@ -188,6 +188,13 @@ mod tests {
     }
 
     #[test]
+    fn dry_run_does_not_execute_operator_action_boundary() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("execute_operator_action_boundary"));
+        assert!(!summary.contains("execution_decision_recorded"));
+    }
+
+    #[test]
     fn dry_run_does_not_execute_provider_adapter() {
         let summary = run_dry_run_summary();
         assert!(!summary.contains("deterministic-local-output"));

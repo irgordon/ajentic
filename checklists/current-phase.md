@@ -6,10 +6,10 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 77 - UI Operator Intent Submission Wiring
+Phase 78 - Authorized Operator Action Execution Boundary
 
 ## phase goal
-Wire UI operator intent submission to Rust-owned ingress/authorization/audit-eligibility contract shape at the TypeScript boundary without execution, transport, persistence, or authority transfer.
+Define the first narrow Rust-owned authorized operator action execution boundary that accepts only authorized + audit-eligible proof sets and executes only a harmless in-memory decision report.
 
 ## working-tree hygiene gate
 - [x] `git status --short` run before edits and classified.
@@ -17,34 +17,36 @@ Wire UI operator intent submission to Rust-owned ingress/authorization/audit-eli
 - [x] Generated artifacts reviewed/reverted before staging.
 
 ## allowed surfaces
-- [x] `ui/src/api/projections.ts`
-- [x] `ui/src/api/readModel.ts`
-- [x] `ui/src/api/fixtures.ts`
+- [x] `core/src/api/operator_action.rs`
+- [x] `core/src/api/mod.rs`
+- [x] `core/src/main.rs`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/ui-intent-submission-phase-77.md`
-- [ ] Rust runtime execution surfaces
+- [x] `docs/operations/authorized-action-boundary-phase-78.md`
+- [ ] `core/src/execution/*`
+- [ ] `core/src/api/persistence.rs`
+- [ ] UI source
 - [ ] scripts/workflows/dependency/package/config files
 
 ## boundary rules
-- [x] Submission is not execution.
-- [x] No action execution/authorized-action boundary implementation.
-- [x] No live UI/Rust transport.
-- [x] No persistence/ledger/audit append.
-- [x] No provider execution/replay repair/state mutation.
-- [x] Phase 78 remains responsible for authorized action execution.
+- [x] Authorization alone is insufficient for execution.
+- [x] Audit eligibility alone is insufficient for execution.
+- [x] Execution requires authorized decision plus eligible audit proof with matching metadata.
+- [x] Phase 66 `execution_enabled=false` remains respected for proof-only composition.
+- [x] Only `RecordExecutionDecision` is executable in Phase 78.
+- [x] No persistence/ledger/audit append/provider/replay/state mutation/live transport behavior added.
 
 ## task checklist
-- [x] Updated checklist to Phase 77 procedural truth.
-- [x] Added operations documentation for submission wiring.
-- [x] Added submission request, ingress/authorization/audit status contract types.
-- [x] Added submission capability contract with all execution/mutation flags fixed false.
-- [x] Set `UI_INTENT_SUBMISSION_ENABLED=true` for local submission-shaped wiring only.
-- [x] Preserved `UI_INTENT_EXECUTION_ENABLED=false`.
-- [x] Preserved `UI_INTENT_LEDGER_RECORDING_ENABLED=false`.
-- [x] Preserved `UI_READ_MODEL_MUTATION_CAPABLE=false`.
-- [x] Added fixture-backed ingress-ready, authorization-ready, audit-eligible, and rejected previews.
-- [x] Added `CHANGELOG.md` entry for `v0.0.77`.
+- [x] Updated checklist to Phase 78 procedural truth.
+- [x] Added operations documentation for authorized action boundary.
+- [x] Added focused API module for operator action execution boundary.
+- [x] Added closed action kind set and execution reason code mapping.
+- [x] Implemented `execute_operator_action_boundary(...)` with fail-closed validation.
+- [x] Implemented exactly one harmless executable action: `RecordExecutionDecision`.
+- [x] Added no-side-effect authority helpers for action reports.
+- [x] Added required fail-closed and no-side-effect tests.
+- [x] Added dry-run test that action execution boundary is not executed.
+- [x] Added `CHANGELOG.md` entry for `v0.0.78`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
@@ -58,15 +60,14 @@ Wire UI operator intent submission to Rust-owned ingress/authorization/audit-eli
 ## findings table
 | Item | Finding |
 | --- | --- |
-| Submission wiring | Local, typed submission-shaped contract wiring is present for ingress/authorization/audit previews. |
-| Execution posture | Execution remains disabled and non-authoritative across all submission fixtures/capabilities. |
-| Transport posture | Live UI/Rust transport remains disabled; envelope usage is display/local only. |
-| Persistence posture | Persistence/ledger/audit append remain disabled. |
-| Phase relationship | Phase 78 remains deferred for authorized action execution. |
+| Action boundary | Rust-owned typed action boundary accepts only proof-composed harmless execution decision recording. |
+| Authorization + audit gate | Both authorization and audit eligibility are required and metadata must match exactly. |
+| Side-effect posture | All authority and real-world effect flags remain false in all paths. |
+| Unsupported actions | Persistence/provider/replay/state mutation actions are explicitly rejected. |
+| Phase relationship | Phase 79 remains deferred for broader end-to-end harness integration. |
 
 ## deferred items table
 | Deferred item | Owner phase |
 | --- | --- |
-| Authorized operator action execution boundary | Phase 78 |
-| Live UI/Rust intent transport | Future phase beyond 77 |
-
+| End-to-end local harness composition | Phase 79 |
+| Persistence/provider/replay/state mutation action implementations | Future phases beyond 78 |
