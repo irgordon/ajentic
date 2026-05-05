@@ -1,4 +1,4 @@
-import type { ApplicationUiProjection, UiReadModel } from "./projections";
+import type { ApplicationUiProjection, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability } from "./projections";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
   projectionId: "proj-fixture-0053",
@@ -59,4 +59,33 @@ export const uiReadModelFixture: UiReadModel = {
     { id: "intent-preview-context", intentType: "context_rebuild_request", label: "Context rebuild request", description: "Submission-shaped request preview only.", reasonPreview: "operator requests context rebuild review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-context-0001", operatorId: "operator-phase53", intentType: "context_rebuild_request", targetKind: "context", targetId: "ctx-fixture-0053", reason: "Request context rebuild review without UI execution.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
     { id: "intent-preview-memory", intentType: "memory_snapshot_request", label: "Memory snapshot request", description: "Submission-shaped request preview only.", reasonPreview: "operator requests memory snapshot review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-memory-0001", operatorId: "operator-phase53", intentType: "memory_snapshot_request", targetKind: "memory", targetId: "mem-fixture-0053", reason: "Request memory snapshot review without UI execution.", requestPreviewEnabled: false, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } }
   ]
+};
+
+
+export const uiRustTransportCapabilityFixture: UiRustTransportCapability = {
+  transportEnabled: false,
+  mutationEnabled: false,
+  submissionEnabled: false,
+  executionEnabled: false,
+  persistenceEnabled: false
+};
+
+export const uiRustReadProjectionResponseFixture: UiRustReadProjectionResponse = {
+  envelopeId: "transport-read-0053",
+  direction: "rust_to_ui",
+  status: "display_only",
+  payload: uiReadModelFixture,
+  capability: uiRustTransportCapabilityFixture,
+  diagnostic: uiReadModelFixture.diagnostics[1],
+  summary: "Transport-shaped read projection envelope only; live transport remains disabled."
+};
+
+export const uiRustIntentPreviewRequestFixture: UiRustIntentPreviewRequest = {
+  envelopeId: "transport-intent-preview-0053",
+  direction: "ui_to_rust",
+  status: "display_only",
+  payload: uiReadModelFixture.operatorIntentPreviews[0].submissionPreview,
+  capability: uiRustTransportCapabilityFixture,
+  diagnostic: uiReadModelFixture.diagnostics[0],
+  summary: "Transport-shaped intent preview request only; submission and execution remain disabled."
 };

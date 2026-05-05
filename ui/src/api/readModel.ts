@@ -1,5 +1,5 @@
-import { applicationProjectionFixture, uiReadModelFixture } from "./fixtures";
-import type { ApplicationUiProjection, IntentSubmissionUiProjection, OperatorIntentPreviewProjection, UiReadModel } from "./projections";
+import { applicationProjectionFixture, uiReadModelFixture, uiRustIntentPreviewRequestFixture, uiRustReadProjectionResponseFixture, uiRustTransportCapabilityFixture } from "./fixtures";
+import type { ApplicationUiProjection, IntentSubmissionUiProjection, OperatorIntentPreviewProjection, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse } from "./projections";
 
 export const UI_READ_MODEL_IS_SYNC = true as const;
 export const UI_READ_MODEL_SOURCE = "fixture_or_supplied_projection" as const;
@@ -44,4 +44,24 @@ export function getUiReadModel(projection?: ApplicationUiProjection): UiReadMode
     return buildUiReadModelFromApplicationProjection(projection);
   }
   return buildUiReadModelFromApplicationProjection(applicationProjectionFixture);
+}
+
+
+export function buildUiRustReadProjectionResponse(projection?: ApplicationUiProjection): UiRustReadProjectionResponse {
+  const payload = getUiReadModel(projection);
+  return {
+    ...uiRustReadProjectionResponseFixture,
+    payload,
+    capability: uiRustTransportCapabilityFixture,
+    summary: "Transport-shaped read projection envelope only; live transport remains disabled."
+  };
+}
+
+export function buildUiRustIntentPreviewRequest(preview: OperatorIntentPreviewProjection): UiRustIntentPreviewRequest {
+  return {
+    ...uiRustIntentPreviewRequestFixture,
+    payload: buildIntentSubmissionPreview(preview),
+    capability: uiRustTransportCapabilityFixture,
+    summary: "Transport-shaped intent preview request only; submission and execution remain disabled."
+  };
 }

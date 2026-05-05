@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.76 - 2026-05-05
+**Status:** Phase 76 - UI/Rust Transport Boundary
+
+### Added
+- Added `docs/operations/ui-rust-transport-boundary-phase-76.md` documenting transport-shaped contract scope and non-authority posture.
+- Added transport-shaped UI/Rust envelope types and fixtures for read-projection response and intent-preview request surfaces.
+
+### Changed
+- Updated `ui/src/api/projections.ts` with `UiRustTransport*` typed envelope contracts and capability model.
+- Updated `ui/src/api/readModel.ts` with display-only envelope builder helpers.
+- Updated `ui/src/api/fixtures.ts` with display-only transport envelope fixtures.
+- Updated `checklists/current-phase.md` to Phase 76 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.76`.
+
+### Notes
+- Phase 76 defines transport-shaped contracts only.
+- No live transport, submission wiring, mutation power, execution, persistence wiring, or authorized action behavior was added.
+- Phase 77 remains responsible for submission wiring.
+- Phase 78 remains responsible for authorized action execution boundary.
+
 ## v0.0.75.1 - 2026-05-05
 **Status:** Phase 75.1 - Out-of-Band Operations Audit Metadata and Terminology Correction
 

@@ -99,3 +99,30 @@ export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType:
 export type ApplicationUiProjection = Readonly<{ projectionId: string; runtimeConfigId: string; safety: RuntimeSafetyUiProjection; lifecycle: LifecycleProjection; run: RunOverviewProjection; provider: ProviderTrustProjection; integration: IntegrationTrustProjection; ledger: LedgerProjection; replay: ReplayProjection; audit: AuditProjectionSummary; context: ContextProjection; memory: MemoryProjection; output: OutputProjection; }>;
 
 export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; cleanOutput: CleanOutputProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; }>;
+
+
+export type UiRustTransportDirection = "ui_to_rust" | "rust_to_ui";
+
+export type UiRustTransportStatus = "prepared" | "display_only" | "disabled";
+
+export type UiRustTransportCapability = Readonly<{
+  transportEnabled: false;
+  mutationEnabled: false;
+  submissionEnabled: false;
+  executionEnabled: false;
+  persistenceEnabled: false;
+}>;
+
+export type UiRustTransportEnvelope<TPayload> = Readonly<{
+  envelopeId: string;
+  direction: UiRustTransportDirection;
+  status: UiRustTransportStatus;
+  payload: TPayload;
+  capability: UiRustTransportCapability;
+  diagnostic?: ErrorDiagnosticProjection;
+  summary: string;
+}>;
+
+export type UiRustReadProjectionResponse = UiRustTransportEnvelope<UiReadModel>;
+
+export type UiRustIntentPreviewRequest = UiRustTransportEnvelope<IntentSubmissionUiProjection>;
