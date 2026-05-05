@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.78 - 2026-05-05
+**Status:** Phase 78 - Authorized Operator Action Execution Boundary
+
+### Added
+- Added `core/src/api/operator_action.rs` with a closed operator action kind set, fail-closed execution boundary gate, harmless in-memory `RecordExecutionDecision` execution path, and no-side-effect report helpers.
+- Added `docs/operations/authorized-action-boundary-phase-78.md` documenting scope, proof-composition requirements, unsupported action rejections, and non-readiness posture.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare/re-export the focused operator action boundary module.
+- Updated `core/src/main.rs` dry-run tests to assert dry-run does not execute the operator action boundary.
+- Updated `checklists/current-phase.md` to Phase 78 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.78`.
+
+### Notes
+- Phase 78 defines the first narrow authorized operator action execution boundary.
+- Phase 78 executes only a harmless in-memory execution decision report and does not execute provider output.
+- Phase 78 does not persist, append ledger/audit records, repair replay, mutate application state, or add live UI/Rust transport.
+- Phase 78 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.77 - 2026-05-05
 **Status:** Phase 77 - UI Operator Intent Submission Wiring
 
