@@ -547,6 +547,247 @@ pub fn execute_local_persistence_plan(
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LedgerPersistenceStatus {
+    Prepared,
+    Written,
+    Verified,
+    Loaded,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LedgerPersistenceReason {
+    PreparedForPersistence,
+    WrittenThroughPersistenceBoundary,
+    VerifiedForLoad,
+    LoadedVerifiedBytes,
+    EmptyLifecycleId,
+    EmptyLedgerRecordId,
+    EmptyLedgerBytes,
+    InvalidPersistencePlan,
+    PersistenceWriteFailed,
+    VerificationFailed,
+    ChecksumMismatch,
+    MalformedRecord,
+    StaleRevision,
+    UnknownPayloadKind,
+    RecoveryNotImplemented,
+    StateRecoveryNotAllowed,
+}
+
+impl LedgerPersistenceReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::PreparedForPersistence => "prepared_for_persistence",
+            Self::WrittenThroughPersistenceBoundary => "written_through_persistence_boundary",
+            Self::VerifiedForLoad => "verified_for_load",
+            Self::LoadedVerifiedBytes => "loaded_verified_bytes",
+            Self::EmptyLifecycleId => "empty_lifecycle_id",
+            Self::EmptyLedgerRecordId => "empty_ledger_record_id",
+            Self::EmptyLedgerBytes => "empty_ledger_bytes",
+            Self::InvalidPersistencePlan => "invalid_persistence_plan",
+            Self::PersistenceWriteFailed => "persistence_write_failed",
+            Self::VerificationFailed => "verification_failed",
+            Self::ChecksumMismatch => "checksum_mismatch",
+            Self::MalformedRecord => "malformed_record",
+            Self::StaleRevision => "stale_revision",
+            Self::UnknownPayloadKind => "unknown_payload_kind",
+            Self::RecoveryNotImplemented => "recovery_not_implemented",
+            Self::StateRecoveryNotAllowed => "state_recovery_not_allowed",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LedgerPersistenceRecord {
+    pub lifecycle_id: String,
+    pub ledger_record_id: String,
+    pub revision: u64,
+    pub envelope: PersistedRecordEnvelope,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LedgerPersistenceReport {
+    pub status: LedgerPersistenceStatus,
+    pub reason: LedgerPersistenceReason,
+    pub lifecycle_id: String,
+    pub ledger_record_id: String,
+    pub revision: Option<u64>,
+    pub payload_len: Option<usize>,
+    pub checksum: Option<String>,
+    pub usable_for_state_recovery: bool,
+    pub mutates_application_state: bool,
+    pub summary: String,
+}
+
+pub fn prepare_ledger_persistence_record(
+    lifecycle_id: impl Into<String>,
+    ledger_record_id: impl Into<String>,
+    revision: u64,
+    ledger_bytes: Vec<u8>,
+) -> Result<LedgerPersistenceRecord, LedgerPersistenceReason> {
+    let lifecycle_id = lifecycle_id.into();
+    if lifecycle_id.is_empty() {
+        return Err(LedgerPersistenceReason::EmptyLifecycleId);
+    }
+    let ledger_record_id = ledger_record_id.into();
+    if ledger_record_id.is_empty() {
+        return Err(LedgerPersistenceReason::EmptyLedgerRecordId);
+    }
+    if ledger_bytes.is_empty() {
+        return Err(LedgerPersistenceReason::EmptyLedgerBytes);
+    }
+    let envelope = PersistedRecordEnvelope::new(
+        ledger_record_id.clone(),
+        LocalPersistencePayloadKind::LedgerSnapshot,
+        revision,
+        ledger_bytes,
+    )
+    .map_err(|_| LedgerPersistenceReason::MalformedRecord)?;
+    Ok(LedgerPersistenceRecord {
+        lifecycle_id,
+        ledger_record_id,
+        revision,
+        envelope,
+    })
+}
+
+pub fn write_ledger_persistence_record(
+    record: &LedgerPersistenceRecord,
+    plan: &LocalPersistencePlan,
+) -> LedgerPersistenceReport {
+    let validation = validate_local_persistence_plan(plan);
+    if !validation.valid {
+        return ledger_rejected_report(
+            record,
+            LedgerPersistenceReason::InvalidPersistencePlan,
+            "invalid persistence plan",
+        );
+    }
+    let encoded = encode_persisted_record_envelope(&record.envelope);
+    match execute_local_persistence_plan(plan, &encoded) {
+        Ok(()) => LedgerPersistenceReport {
+            status: LedgerPersistenceStatus::Written,
+            reason: LedgerPersistenceReason::WrittenThroughPersistenceBoundary,
+            lifecycle_id: record.lifecycle_id.clone(),
+            ledger_record_id: record.ledger_record_id.clone(),
+            revision: Some(record.revision),
+            payload_len: Some(record.envelope.payload_len),
+            checksum: Some(record.envelope.checksum.clone()),
+            usable_for_state_recovery: false,
+            mutates_application_state: false,
+            summary: "ledger record written through persistence boundary".to_string(),
+        },
+        Err(_) => ledger_rejected_report(
+            record,
+            LedgerPersistenceReason::PersistenceWriteFailed,
+            "persistence write failed",
+        ),
+    }
+}
+
+pub fn verify_ledger_persistence_paths(
+    lifecycle_id: impl Into<String>,
+    ledger_record_id: impl Into<String>,
+    target_path: impl AsRef<std::path::Path>,
+    temp_path: impl AsRef<std::path::Path>,
+    expected_revision: Option<u64>,
+) -> LedgerPersistenceReport {
+    let lifecycle_id = lifecycle_id.into();
+    let ledger_record_id = ledger_record_id.into();
+    let verification = verify_persisted_record_paths(target_path, temp_path, expected_revision);
+    let (status, reason) = match verification.status {
+        PersistedRecordVerificationStatus::Valid => (
+            LedgerPersistenceStatus::Verified,
+            LedgerPersistenceReason::VerifiedForLoad,
+        ),
+        PersistedRecordVerificationStatus::ChecksumMismatch => (
+            LedgerPersistenceStatus::Rejected,
+            LedgerPersistenceReason::ChecksumMismatch,
+        ),
+        PersistedRecordVerificationStatus::UnknownPayloadKind => (
+            LedgerPersistenceStatus::Rejected,
+            LedgerPersistenceReason::UnknownPayloadKind,
+        ),
+        PersistedRecordVerificationStatus::StaleRevision => (
+            LedgerPersistenceStatus::Rejected,
+            LedgerPersistenceReason::StaleRevision,
+        ),
+        PersistedRecordVerificationStatus::MalformedRecord
+        | PersistedRecordVerificationStatus::InvalidPayloadHex
+        | PersistedRecordVerificationStatus::PayloadLengthMismatch => (
+            LedgerPersistenceStatus::Rejected,
+            LedgerPersistenceReason::MalformedRecord,
+        ),
+        _ => (
+            LedgerPersistenceStatus::Rejected,
+            LedgerPersistenceReason::VerificationFailed,
+        ),
+    };
+    LedgerPersistenceReport {
+        status,
+        reason,
+        lifecycle_id,
+        ledger_record_id,
+        revision: verification.revision,
+        payload_len: verification.payload_len,
+        checksum: verification.checksum,
+        usable_for_state_recovery: false,
+        mutates_application_state: false,
+        summary: verification.summary,
+    }
+}
+
+pub fn load_verified_ledger_record_bytes(
+    envelope: &PersistedRecordEnvelope,
+    expected_revision: Option<u64>,
+) -> Result<Vec<u8>, LedgerPersistenceReason> {
+    let report = verify_persisted_record_envelope(envelope, expected_revision);
+    match report.status {
+        PersistedRecordVerificationStatus::Valid => {
+            if envelope.payload_kind == LocalPersistencePayloadKind::LedgerSnapshot {
+                Ok(envelope.payload.clone())
+            } else {
+                Err(LedgerPersistenceReason::UnknownPayloadKind)
+            }
+        }
+        PersistedRecordVerificationStatus::ChecksumMismatch => {
+            Err(LedgerPersistenceReason::ChecksumMismatch)
+        }
+        PersistedRecordVerificationStatus::UnknownPayloadKind => {
+            Err(LedgerPersistenceReason::UnknownPayloadKind)
+        }
+        PersistedRecordVerificationStatus::StaleRevision => {
+            Err(LedgerPersistenceReason::StaleRevision)
+        }
+        PersistedRecordVerificationStatus::PayloadLengthMismatch
+        | PersistedRecordVerificationStatus::MalformedRecord => {
+            Err(LedgerPersistenceReason::MalformedRecord)
+        }
+        _ => Err(LedgerPersistenceReason::VerificationFailed),
+    }
+}
+
+fn ledger_rejected_report(
+    record: &LedgerPersistenceRecord,
+    reason: LedgerPersistenceReason,
+    summary: &str,
+) -> LedgerPersistenceReport {
+    LedgerPersistenceReport {
+        status: LedgerPersistenceStatus::Rejected,
+        reason,
+        lifecycle_id: record.lifecycle_id.clone(),
+        ledger_record_id: record.ledger_record_id.clone(),
+        revision: Some(record.revision),
+        payload_len: Some(record.envelope.payload_len),
+        checksum: Some(record.envelope.checksum.clone()),
+        usable_for_state_recovery: false,
+        mutates_application_state: false,
+        summary: summary.to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -803,6 +1044,252 @@ mod tests {
             verify_persisted_record_envelope(&env(), None).recovery_action,
             PersistedRecordRecoveryAction::None
         );
+    }
+
+    fn ledger_record_fixture() -> LedgerPersistenceRecord {
+        prepare_ledger_persistence_record("lifecycle-1", "ledger-1", 3, b"ledger".to_vec()).unwrap()
+    }
+    #[test]
+    fn ledger_persistence_reason_codes_are_stable() {
+        assert_eq!(
+            LedgerPersistenceReason::PreparedForPersistence.code(),
+            "prepared_for_persistence"
+        );
+        assert_eq!(
+            LedgerPersistenceReason::StateRecoveryNotAllowed.code(),
+            "state_recovery_not_allowed"
+        );
+    }
+    #[test]
+    fn prepare_ledger_record_requires_lifecycle_id() {
+        assert_eq!(
+            prepare_ledger_persistence_record("", "a", 1, vec![1]),
+            Err(LedgerPersistenceReason::EmptyLifecycleId)
+        );
+    }
+    #[test]
+    fn prepare_ledger_record_requires_ledger_record_id() {
+        assert_eq!(
+            prepare_ledger_persistence_record("a", "", 1, vec![1]),
+            Err(LedgerPersistenceReason::EmptyLedgerRecordId)
+        );
+    }
+    #[test]
+    fn prepare_ledger_record_requires_ledger_bytes() {
+        assert_eq!(
+            prepare_ledger_persistence_record("a", "b", 1, vec![]),
+            Err(LedgerPersistenceReason::EmptyLedgerBytes)
+        );
+    }
+    #[test]
+    fn prepare_ledger_record_uses_ledger_snapshot_payload_kind() {
+        assert_eq!(
+            ledger_record_fixture().envelope.payload_kind,
+            LocalPersistencePayloadKind::LedgerSnapshot
+        );
+    }
+    #[test]
+    fn prepare_ledger_record_does_not_serialize_application_state() {
+        assert!(!String::from_utf8(encode_persisted_record_envelope(
+            &ledger_record_fixture().envelope
+        ))
+        .unwrap()
+        .contains("local_application_state"));
+    }
+    #[test]
+    fn write_ledger_record_uses_existing_persistence_boundary() {
+        let (d, t, tmp) = temp("ledger_write");
+        let record = ledger_record_fixture();
+        let plan = LocalPersistencePlan::new(
+            "p",
+            t.to_string_lossy(),
+            tmp.to_string_lossy(),
+            Some(record.revision),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        let report = write_ledger_persistence_record(&record, &plan);
+        assert_eq!(
+            report.reason,
+            LedgerPersistenceReason::WrittenThroughPersistenceBoundary
+        );
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn write_ledger_record_rejects_invalid_plan() {
+        let record = ledger_record_fixture();
+        let plan = LocalPersistencePlan::new(
+            "",
+            "a",
+            "b",
+            Some(1),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        let report = write_ledger_persistence_record(&record, &plan);
+        assert_eq!(
+            report.reason,
+            LedgerPersistenceReason::InvalidPersistencePlan
+        );
+    }
+    #[test]
+    fn write_ledger_record_writes_encoded_envelope() {
+        let (d, t, tmp) = temp("ledger_encoded");
+        let record = ledger_record_fixture();
+        let plan = LocalPersistencePlan::new(
+            "p2",
+            t.to_string_lossy(),
+            tmp.to_string_lossy(),
+            Some(record.revision),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::ReplaceExisting,
+            LocalPersistenceAtomicity::Required,
+        );
+        let _ = write_ledger_persistence_record(&record, &plan);
+        let on_disk = fs::read(&t).unwrap();
+        assert_eq!(on_disk, encode_persisted_record_envelope(&record.envelope));
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_accepts_valid_record() {
+        let (d, t, tmp) = temp("ledger_verify_valid");
+        let record = ledger_record_fixture();
+        fs::write(&t, encode_persisted_record_envelope(&record.envelope)).unwrap();
+        let report = verify_ledger_persistence_paths("l", "r", &t, &tmp, Some(record.revision));
+        assert_eq!(report.reason, LedgerPersistenceReason::VerifiedForLoad);
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_rejects_checksum_mismatch() {
+        let (d, t, tmp) = temp("ledger_verify_checksum");
+        let record = ledger_record_fixture();
+        let mut s = String::from_utf8(encode_persisted_record_envelope(&record.envelope)).unwrap();
+        s = s.replace("payload_hex:6c6564676572", "payload_hex:616263646566");
+        fs::write(&t, s).unwrap();
+        let report = verify_ledger_persistence_paths("l", "r", &t, &tmp, None);
+        assert_eq!(report.reason, LedgerPersistenceReason::ChecksumMismatch);
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_rejects_unknown_payload_kind() {
+        let (d, t, tmp) = temp("ledger_verify_unknown");
+        let s="AJENTIC_RECORD_V1\nrecord_id:r\npayload_kind:unknown\nrevision:1\npayload_len:1\nchecksum:af63bc4c8601b62c\npayload_hex:61\n";
+        fs::write(&t, s).unwrap();
+        let report = verify_ledger_persistence_paths("l", "r", &t, &tmp, None);
+        assert_eq!(report.reason, LedgerPersistenceReason::UnknownPayloadKind);
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_rejects_malformed_record() {
+        let (d, t, tmp) = temp("ledger_verify_malformed");
+        fs::write(&t, b"not-record").unwrap();
+        let report = verify_ledger_persistence_paths("l", "r", &t, &tmp, None);
+        assert_eq!(report.reason, LedgerPersistenceReason::MalformedRecord);
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_rejects_stale_revision() {
+        let (d, t, tmp) = temp("ledger_verify_stale");
+        let record = ledger_record_fixture();
+        fs::write(&t, encode_persisted_record_envelope(&record.envelope)).unwrap();
+        let report = verify_ledger_persistence_paths("l", "r", &t, &tmp, Some(record.revision + 1));
+        assert_eq!(report.reason, LedgerPersistenceReason::StaleRevision);
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn verify_ledger_paths_rejects_missing_or_orphaned_records_as_verification_failed() {
+        let (d, t, tmp) = temp("ledger_verify_missing");
+        let report_missing = verify_ledger_persistence_paths("l", "r", &t, &tmp, None);
+        assert_eq!(
+            report_missing.reason,
+            LedgerPersistenceReason::VerificationFailed
+        );
+        fs::write(&tmp, b"x").unwrap();
+        let report_orphan = verify_ledger_persistence_paths("l", "r", &t, &tmp, None);
+        assert_eq!(
+            report_orphan.reason,
+            LedgerPersistenceReason::VerificationFailed
+        );
+        let _ = fs::remove_dir_all(d);
+    }
+    #[test]
+    fn load_verified_ledger_record_bytes_returns_bytes_for_valid_envelope() {
+        let record = ledger_record_fixture();
+        let bytes =
+            load_verified_ledger_record_bytes(&record.envelope, Some(record.revision)).unwrap();
+        assert_eq!(bytes, b"ledger".to_vec());
+    }
+    #[test]
+    fn load_verified_ledger_record_bytes_rejects_non_ledger_payload_kind() {
+        let envelope = PersistedRecordEnvelope::new(
+            "r",
+            LocalPersistencePayloadKind::RunRecord,
+            1,
+            b"x".to_vec(),
+        )
+        .unwrap();
+        assert_eq!(
+            load_verified_ledger_record_bytes(&envelope, None),
+            Err(LedgerPersistenceReason::UnknownPayloadKind)
+        );
+    }
+    #[test]
+    fn load_verified_ledger_record_bytes_rejects_checksum_mismatch() {
+        let mut envelope = ledger_record_fixture().envelope;
+        envelope.checksum = "0000000000000000".into();
+        assert_eq!(
+            load_verified_ledger_record_bytes(&envelope, None),
+            Err(LedgerPersistenceReason::ChecksumMismatch)
+        );
+    }
+    #[test]
+    fn ledger_persistence_does_not_recover_application_state() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-a", "/tmp/missing-b", None);
+        assert!(!report.usable_for_state_recovery);
+    }
+    #[test]
+    fn ledger_persistence_does_not_mutate_application_state() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-c", "/tmp/missing-d", None);
+        assert!(!report.mutates_application_state);
+    }
+    #[test]
+    fn ledger_persistence_does_not_execute_provider_output() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-e", "/tmp/missing-f", None);
+        assert!(!report.summary.contains("provider execution"));
+    }
+    #[test]
+    fn ledger_persistence_does_not_record_provider_retry() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-g", "/tmp/missing-h", None);
+        assert!(!report.summary.contains("retry"));
+    }
+    #[test]
+    fn ledger_persistence_does_not_repair_replay() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-i", "/tmp/missing-j", None);
+        assert!(!report.summary.contains("repair"));
+    }
+    #[test]
+    fn ledger_persistence_does_not_promote() {
+        let report =
+            verify_ledger_persistence_paths("l", "r", "/tmp/missing-k", "/tmp/missing-l", None);
+        assert!(!report.summary.contains("promote"));
+    }
+    #[test]
+    fn dry_run_does_not_write_or_load_ledger_persistence() {
+        let report = verify_ledger_persistence_paths(
+            "dry-run",
+            "record",
+            "/tmp/missing-m",
+            "/tmp/missing-n",
+            None,
+        );
+        assert_eq!(report.status, LedgerPersistenceStatus::Rejected);
     }
 }
 
