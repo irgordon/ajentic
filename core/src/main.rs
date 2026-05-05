@@ -188,6 +188,13 @@ mod tests {
     }
 
     #[test]
+    fn dry_run_does_not_execute_provider_adapter() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("deterministic-local-output"));
+        assert!(!summary.contains("provider execution"));
+    }
+
+    #[test]
     fn unknown_command_usage_is_safe() {
         let output = run_from_args(["ajentic_core".to_string(), "unknown".to_string()]);
         assert!(output.contains("safe usage: ajentic_core [dry-run]"));

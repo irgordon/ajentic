@@ -5,6 +5,23 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.71 - 2026-05-05
+**Status:** Phase 71 - Provider Execution Adapter Implementation
+
+### Added
+- Added `docs/operations/provider-execution-adapter-phase-71.md` documenting bounded provider execution adapter scope, transport relationship, trust model, deterministic local behavior, and deferred real-provider execution posture.
+
+### Changed
+- Updated `core/src/execution/mod.rs` with bounded provider execution adapter request/result/mode/status/reason types, deterministic local execution path, and Phase-69 transport envelope validation composition.
+- Updated `core/src/main.rs` dry-run tests to assert dry-run does not execute the provider adapter path.
+- Updated `checklists/current-phase.md` to Phase 71 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.71`.
+
+### Notes
+- Provider execution output remains untrusted and non-authoritative candidate material.
+- Phase 71 does not add real network provider calls, persistence, ledger append, promotion, replay repair, UI/Rust transport, or live provider CLI wiring.
+- Phase 71 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.70 - 2026-05-05
 **Status:** Phase 70 - Roadmap Documentation Realignment and Production Candidate Gap Audit
 
