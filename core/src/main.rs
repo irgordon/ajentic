@@ -193,6 +193,12 @@ mod tests {
         assert!(!summary.contains("execute_operator_action_boundary"));
         assert!(!summary.contains("execution_decision_recorded"));
     }
+    #[test]
+    fn dry_run_does_not_run_end_to_end_local_harness() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("run_end_to_end_local_harness"));
+        assert!(!summary.contains("completed_bounded_local_run"));
+    }
 
     #[test]
     fn dry_run_does_not_execute_provider_adapter() {

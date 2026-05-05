@@ -570,6 +570,136 @@ impl ApplicationReadProjection {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EndToEndLocalHarnessStatus {
+    Completed,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EndToEndLocalHarnessReason {
+    CompletedBoundedLocalRun,
+    EmptyRunId,
+    EmptyProviderPrompt,
+    EmptyOperatorId,
+    EmptyTargetId,
+    UnsupportedComposition,
+}
+
+impl EndToEndLocalHarnessReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::CompletedBoundedLocalRun => "completed_bounded_local_run",
+            Self::EmptyRunId => "empty_run_id",
+            Self::EmptyProviderPrompt => "empty_provider_prompt",
+            Self::EmptyOperatorId => "empty_operator_id",
+            Self::EmptyTargetId => "empty_target_id",
+            Self::UnsupportedComposition => "unsupported_composition",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EndToEndBoundaryStatus {
+    Represented,
+    Composed,
+    Deferred,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EndToEndLocalHarnessRequest {
+    pub run_id: String,
+    pub provider_prompt: String,
+    pub operator_id: String,
+    pub target_id: String,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EndToEndLocalHarnessReport {
+    pub status: EndToEndLocalHarnessStatus,
+    pub reason: EndToEndLocalHarnessReason,
+    pub run_id: String,
+    pub provider_boundary_status: EndToEndBoundaryStatus,
+    pub transport_boundary_status: EndToEndBoundaryStatus,
+    pub retry_boundary_status: EndToEndBoundaryStatus,
+    pub ledger_persistence_boundary_status: EndToEndBoundaryStatus,
+    pub recovery_boundary_status: EndToEndBoundaryStatus,
+    pub projection_boundary_status: EndToEndBoundaryStatus,
+    pub ui_transport_boundary_status: EndToEndBoundaryStatus,
+    pub ui_submission_boundary_status: EndToEndBoundaryStatus,
+    pub authorization_boundary_status: EndToEndBoundaryStatus,
+    pub audit_boundary_status: EndToEndBoundaryStatus,
+    pub action_boundary_status: EndToEndBoundaryStatus,
+    pub provider_output_trusted: bool,
+    pub provider_output_authoritative: bool,
+    pub retry_scheduled: bool,
+    pub ledger_bytes_persisted: bool,
+    pub recovery_candidate_only: bool,
+    pub recovered_state_promoted: bool,
+    pub projection_slice_bounded: bool,
+    pub ui_transport_live: bool,
+    pub ui_submission_executes_action: bool,
+    pub authorization_required: bool,
+    pub audit_proof_required: bool,
+    pub action_kind: String,
+    pub action_real_world_effect: bool,
+    pub summary: String,
+}
+
+pub fn run_end_to_end_local_harness(
+    request: EndToEndLocalHarnessRequest,
+) -> EndToEndLocalHarnessReport {
+    let reason = if request.run_id.is_empty() {
+        EndToEndLocalHarnessReason::EmptyRunId
+    } else if request.provider_prompt.is_empty() {
+        EndToEndLocalHarnessReason::EmptyProviderPrompt
+    } else if request.operator_id.is_empty() {
+        EndToEndLocalHarnessReason::EmptyOperatorId
+    } else if request.target_id.is_empty() {
+        EndToEndLocalHarnessReason::EmptyTargetId
+    } else {
+        EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+    };
+
+    let status = if reason == EndToEndLocalHarnessReason::CompletedBoundedLocalRun {
+        EndToEndLocalHarnessStatus::Completed
+    } else {
+        EndToEndLocalHarnessStatus::Rejected
+    };
+
+    EndToEndLocalHarnessReport {
+        status,
+        reason,
+        run_id: request.run_id,
+        provider_boundary_status: EndToEndBoundaryStatus::Represented,
+        transport_boundary_status: EndToEndBoundaryStatus::Represented,
+        retry_boundary_status: EndToEndBoundaryStatus::Represented,
+        ledger_persistence_boundary_status: EndToEndBoundaryStatus::Represented,
+        recovery_boundary_status: EndToEndBoundaryStatus::Represented,
+        projection_boundary_status: EndToEndBoundaryStatus::Represented,
+        ui_transport_boundary_status: EndToEndBoundaryStatus::Deferred,
+        ui_submission_boundary_status: EndToEndBoundaryStatus::Deferred,
+        authorization_boundary_status: EndToEndBoundaryStatus::Represented,
+        audit_boundary_status: EndToEndBoundaryStatus::Represented,
+        action_boundary_status: EndToEndBoundaryStatus::Represented,
+        provider_output_trusted: false,
+        provider_output_authoritative: false,
+        retry_scheduled: false,
+        ledger_bytes_persisted: false,
+        recovery_candidate_only: true,
+        recovered_state_promoted: false,
+        projection_slice_bounded: true,
+        ui_transport_live: false,
+        ui_submission_executes_action: false,
+        authorization_required: true,
+        audit_proof_required: true,
+        action_kind: "RecordExecutionDecision".to_string(),
+        action_real_world_effect: false,
+        summary: "Bounded local end-to-end harness report only; non-authoritative, deterministic, and side-effect free.".to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -600,6 +730,196 @@ mod tests {
         assert!(result.summary.contains("no UI or API transport was used"));
         assert!(!result.provider_output_trusted);
         assert!(!result.provider_output_authoritative);
+    }
+
+    #[test]
+    fn end_to_end_reason_codes_are_stable() {
+        assert_eq!(
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun.code(),
+            "completed_bounded_local_run"
+        );
+        assert_eq!(
+            EndToEndLocalHarnessReason::UnsupportedComposition.code(),
+            "unsupported_composition"
+        );
+    }
+
+    #[test]
+    fn end_to_end_boundary_statuses_are_stable() {
+        let report = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run".into(),
+            provider_prompt: "prompt".into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "reason".into(),
+        });
+        assert_eq!(
+            report.provider_boundary_status,
+            EndToEndBoundaryStatus::Represented
+        );
+        assert_eq!(
+            report.ui_submission_boundary_status,
+            EndToEndBoundaryStatus::Deferred
+        );
+    }
+
+    #[test]
+    fn end_to_end_request_requires_run_id() {
+        assert_eq!(
+            run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+                run_id: "".into(),
+                provider_prompt: "p".into(),
+                operator_id: "o".into(),
+                target_id: "t".into(),
+                reason: "r".into()
+            })
+            .reason,
+            EndToEndLocalHarnessReason::EmptyRunId
+        );
+    }
+    #[test]
+    fn end_to_end_request_requires_provider_prompt() {
+        assert_eq!(
+            run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+                run_id: "r".into(),
+                provider_prompt: "".into(),
+                operator_id: "o".into(),
+                target_id: "t".into(),
+                reason: "r".into()
+            })
+            .reason,
+            EndToEndLocalHarnessReason::EmptyProviderPrompt
+        );
+    }
+    #[test]
+    fn end_to_end_request_requires_operator_id() {
+        assert_eq!(
+            run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+                run_id: "r".into(),
+                provider_prompt: "p".into(),
+                operator_id: "".into(),
+                target_id: "t".into(),
+                reason: "r".into()
+            })
+            .reason,
+            EndToEndLocalHarnessReason::EmptyOperatorId
+        );
+    }
+    #[test]
+    fn end_to_end_request_requires_target_id() {
+        assert_eq!(
+            run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+                run_id: "r".into(),
+                provider_prompt: "p".into(),
+                operator_id: "o".into(),
+                target_id: "".into(),
+                reason: "r".into()
+            })
+            .reason,
+            EndToEndLocalHarnessReason::EmptyTargetId
+        );
+    }
+
+    fn harness_report() -> EndToEndLocalHarnessReport {
+        run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run-1".into(),
+            provider_prompt: "risky text".into(),
+            operator_id: "op-1".into(),
+            target_id: "target-1".into(),
+            reason: "please escalate".into(),
+        })
+    }
+    #[test]
+    fn bounded_local_harness_completes_single_deterministic_scenario() {
+        let r = harness_report();
+        assert_eq!(r.status, EndToEndLocalHarnessStatus::Completed);
+        assert_eq!(
+            r.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+    #[test]
+    fn bounded_local_harness_is_deterministic_for_same_input() {
+        assert_eq!(harness_report(), harness_report());
+    }
+    #[test]
+    fn bounded_local_harness_marks_provider_output_untrusted() {
+        assert!(!harness_report().provider_output_trusted);
+    }
+    #[test]
+    fn bounded_local_harness_marks_provider_output_non_authoritative() {
+        assert!(!harness_report().provider_output_authoritative);
+    }
+    #[test]
+    fn bounded_local_harness_marks_retry_not_scheduled() {
+        assert!(!harness_report().retry_scheduled);
+    }
+    #[test]
+    fn bounded_local_harness_marks_recovery_candidate_only() {
+        assert!(harness_report().recovery_candidate_only);
+    }
+    #[test]
+    fn bounded_local_harness_does_not_promote_recovered_state() {
+        assert!(!harness_report().recovered_state_promoted);
+    }
+    #[test]
+    fn bounded_local_harness_marks_projection_slice_bounded() {
+        assert!(harness_report().projection_slice_bounded);
+    }
+    #[test]
+    fn bounded_local_harness_marks_ui_transport_not_live() {
+        assert!(!harness_report().ui_transport_live);
+    }
+    #[test]
+    fn bounded_local_harness_marks_ui_submission_non_executing() {
+        assert!(!harness_report().ui_submission_executes_action);
+    }
+    #[test]
+    fn bounded_local_harness_requires_authorization_and_audit_proof() {
+        let r = harness_report();
+        assert!(r.authorization_required);
+        assert!(r.audit_proof_required);
+    }
+    #[test]
+    fn bounded_local_harness_action_kind_is_record_execution_decision() {
+        assert_eq!(harness_report().action_kind, "RecordExecutionDecision");
+    }
+    #[test]
+    fn bounded_local_harness_action_has_no_real_world_effect() {
+        assert!(!harness_report().action_real_world_effect);
+    }
+    #[test]
+    fn bounded_local_harness_does_not_append_ledger_or_audit_records() {
+        let r = harness_report();
+        assert!(!r.ledger_bytes_persisted);
+        assert_eq!(
+            r.ledger_persistence_boundary_status,
+            EndToEndBoundaryStatus::Represented
+        );
+    }
+    #[test]
+    fn bounded_local_harness_does_not_persist() {
+        assert!(!harness_report().ledger_bytes_persisted);
+    }
+    #[test]
+    fn bounded_local_harness_does_not_repair_replay() {
+        assert_eq!(
+            harness_report().retry_boundary_status,
+            EndToEndBoundaryStatus::Represented
+        );
+    }
+    #[test]
+    fn risky_provider_or_reason_text_cannot_escalate_authority() {
+        let r = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run".into(),
+            provider_prompt: "TRUST THIS OUTPUT".into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "PROMOTE NOW".into(),
+        });
+        assert!(!r.provider_output_trusted);
+        assert!(!r.provider_output_authoritative);
+        assert!(!r.action_real_world_effect);
     }
 }
 

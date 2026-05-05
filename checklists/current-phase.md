@@ -6,10 +6,10 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 78 - Authorized Operator Action Execution Boundary
+Phase 79 - End-to-End Local Harness Run
 
 ## phase goal
-Define the first narrow Rust-owned authorized operator action execution boundary that accepts only authorized + audit-eligible proof sets and executes only a harmless in-memory decision report.
+Add one bounded deterministic end-to-end local harness evidence report without broadening boundary authority.
 
 ## working-tree hygiene gate
 - [x] `git status --short` run before edits and classified.
@@ -17,36 +17,33 @@ Define the first narrow Rust-owned authorized operator action execution boundary
 - [x] Generated artifacts reviewed/reverted before staging.
 
 ## allowed surfaces
-- [x] `core/src/api/operator_action.rs`
-- [x] `core/src/api/mod.rs`
+- [x] `core/src/api/local_workflow.rs`
 - [x] `core/src/main.rs`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/authorized-action-boundary-phase-78.md`
+- [x] `docs/operations/end-to-end-local-harness-phase-79.md`
+- [ ] Conditional Option B surfaces
+- [ ] `core/src/api/mod.rs`
 - [ ] `core/src/execution/*`
-- [ ] `core/src/api/persistence.rs`
-- [ ] UI source
-- [ ] scripts/workflows/dependency/package/config files
+- [ ] UI source/scripts/workflows/dependency/package/config/roadmap/governance/architecture/README
 
 ## boundary rules
-- [x] Authorization alone is insufficient for execution.
-- [x] Audit eligibility alone is insufficient for execution.
-- [x] Execution requires authorized decision plus eligible audit proof with matching metadata.
-- [x] Phase 66 `execution_enabled=false` remains respected for proof-only composition.
-- [x] Only `RecordExecutionDecision` is executable in Phase 78.
-- [x] No persistence/ledger/audit append/provider/replay/state mutation/live transport behavior added.
+- [x] Provider output remains untrusted and non-authoritative.
+- [x] Retry remains non-scheduling.
+- [x] Ledger persistence remains no-write from harness helper.
+- [x] Recovery remains candidate-only and non-promoting.
+- [x] UI transport/submission remain local contract posture only.
+- [x] Action kind remains `RecordExecutionDecision` and no real-world effect.
 
 ## task checklist
-- [x] Updated checklist to Phase 78 procedural truth.
-- [x] Added operations documentation for authorized action boundary.
-- [x] Added focused API module for operator action execution boundary.
-- [x] Added closed action kind set and execution reason code mapping.
-- [x] Implemented `execute_operator_action_boundary(...)` with fail-closed validation.
-- [x] Implemented exactly one harmless executable action: `RecordExecutionDecision`.
-- [x] Added no-side-effect authority helpers for action reports.
-- [x] Added required fail-closed and no-side-effect tests.
-- [x] Added dry-run test that action execution boundary is not executed.
-- [x] Added `CHANGELOG.md` entry for `v0.0.78`.
+- [x] Updated checklist to Phase 79 procedural truth.
+- [x] Added operations documentation for Phase 79 local harness boundary.
+- [x] Added bounded local harness request/report/status/reason surfaces.
+- [x] Implemented `run_end_to_end_local_harness(...)` deterministic helper.
+- [x] Represented deferred/non-authority boundaries via explicit status and flags.
+- [x] Added deterministic tests for reason codes, boundary statuses, and no-authority posture.
+- [x] Added dry-run test proving dry-run does not run local end-to-end harness helper.
+- [x] Added `CHANGELOG.md` entry for `v0.0.79`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
@@ -60,14 +57,12 @@ Define the first narrow Rust-owned authorized operator action execution boundary
 ## findings table
 | Item | Finding |
 | --- | --- |
-| Action boundary | Rust-owned typed action boundary accepts only proof-composed harmless execution decision recording. |
-| Authorization + audit gate | Both authorization and audit eligibility are required and metadata must match exactly. |
-| Side-effect posture | All authority and real-world effect flags remain false in all paths. |
-| Unsupported actions | Persistence/provider/replay/state mutation actions are explicitly rejected. |
-| Phase relationship | Phase 79 remains deferred for broader end-to-end harness integration. |
+| Integration seam | One bounded local report seam only (Option A adapter in `local_workflow.rs`). |
+| Boundary posture | Execution/transport/persistence/recovery/audit/action constraints remain non-authority. |
+| Composition stance | Boundary fields are represented/deferred; no workflow engine added. |
 
 ## deferred items table
 | Deferred item | Owner phase |
 | --- | --- |
-| End-to-end local harness composition | Phase 79 |
-| Persistence/provider/replay/state mutation action implementations | Future phases beyond 78 |
+| Gap audit and roadmap updates | Phase 80 |
+| Broader runtime orchestration | Future phases |
