@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.79 - 2026-05-05
+**Status:** Phase 79 - End-to-End Local Harness Run
+
+### Added
+- Added `docs/operations/end-to-end-local-harness-phase-79.md` documenting bounded local harness evidence posture and non-authority guarantees.
+
+### Changed
+- Updated `core/src/api/local_workflow.rs` with bounded deterministic end-to-end local harness report types and `run_end_to_end_local_harness(...)` helper plus deterministic non-authority tests.
+- Updated `core/src/main.rs` dry-run tests to assert dry-run does not run the end-to-end local harness helper.
+- Updated `checklists/current-phase.md` to Phase 79 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.79`.
+
+### Notes
+- Phase 79 introduces one bounded deterministic local harness report seam only.
+- Phase 79 uses Option A adapter shaping in `local_workflow.rs` and does not expand owning boundary modules.
+- Phase 79 does not trust provider output, schedule retries, write persistence, append ledger/audit facts, replace/promote state, add live UI transport, or add broad action execution.
+- Phase 80 remains a gap audit and does not represent readiness approval.
+
 ## v0.0.78 - 2026-05-05
 **Status:** Phase 78 - Authorized Operator Action Execution Boundary
 
