@@ -3,57 +3,63 @@ truth_dimension: orientation
 authority_level: non_authoritative
 mutation_path: readme_update
 ---
-
 # AJENTIC
+**You, In Control**
 
-AJENTIC is a deterministic control layer for model-driven work.
+![Rust](https://img.shields.io/badge/Rust-authority-orange)
+![TypeScript](https://img.shields.io/badge/TypeScript-UI-blue)
+![Python](https://img.shields.io/badge/Python-adapters-yellow)
+![Bash](https://img.shields.io/badge/Bash-glue-lightgrey)
+![Status](https://img.shields.io/badge/status-pre--alpha-red)
+![Production](https://img.shields.io/badge/production-not%20ready-lightgrey)
 
-It is designed for teams that want the speed of local or cloud large language models without surrendering review, validation, replay, or operator control.
+AJENTIC helps people use AI-generated work without giving the model control over the result.
 
-The harness treats model output as candidate material. It assembles bounded context, validates outputs, records accepted events, supports replay, and presents the run through a human-readable browser UI.
+It gives teams a place to review what the model produced, check how it was handled, record what happened, and replay the work later. The goal is simple: move faster with AI while keeping the human operator in charge.
 
-## Why AJENTIC exists
+## Why Use AJENTIC?
 
-Large language models can generate useful work, but raw model output is not a reliable execution boundary.
+AI tools can produce useful work quickly, but their output should not be trusted just because it looks right.
 
-AJENTIC exists to put a controlled system around that output:
-- clear context
+AJENTIC puts a controlled review system around that output:
+- clear inputs
+- bounded context
 - typed requests
-- governed memory
-- deterministic validation
-- ledgered events
+- validation checks
+- recorded events
 - replayable runs
-- audit-friendly output
+- audit-friendly results
 - human review
 
 The goal is not to make the model autonomous.
 
-The goal is to make model-driven work inspectable, repeatable, and controlled.
+The goal is to make AI-assisted work inspectable, repeatable, and controlled.
 
-## What it will provide
+## Uses for 
 
 The planned application includes:
-- Rust authoritative core
-- browser-based TypeScript UI
-- bounded context inspection
-- memory and provenance inspection
+- a Rust-controlled core
+- a browser-based TypeScript UI
+- local and cloud model workflow support
+- context review
+- memory and provenance review
 - policy and validation results
-- run timeline
+- run history
 - replay view
 - clean output view
-- typed operator intent controls
-- integration path for local and cloud model workflows
+- operator intent controls
+- audit and export surfaces
 
 ## Core idea
 
 ```text
 User intent + model output
-  → harness intake
-  → context assembly
+  → AJENTIC intake
+  → context review
   → policy and validation
-  → validated candidate output
-  → controlled task execution
-  → ledger
+  → candidate output
+  → controlled action boundary
+  → recorded evidence
   → replay
   → audit
   → clean human-readable output
@@ -61,17 +67,32 @@ User intent + model output
 
 Raw model output is not clean output.
 
-Clean output is output that has passed through the harness boundary.
+Clean output is output that has passed through the AJENTIC boundary.
 
-### Project status
+Project status
 
 This repository is in pre-alpha development.
 
-The initial work establishes the repository structure, governance boundaries, and validation gates needed before runtime behavior is implemented.
+The project currently focuses on repository structure, governance boundaries, validation gates, replay evidence, durable proof boundaries, and non-authoritative UI contracts.
 
-No production runtime capability should be assumed from placeholder files.
+Production readiness is not claimed.
 
-### Repository model
+Release-candidate readiness is not claimed.
+
+Public usability is not claimed.
+
+Technology stack
+
+AJENTIC separates technology by responsibility:
+
+Layer	Role
+Rust	authoritative core, validation, governance, replay, persistence boundaries
+TypeScript	browser UI and non-authoritative display surfaces
+Python	repository validation and support scripts
+Bash	local command orchestration
+GitHub Actions	CI validation gates
+
+Repository model
 
 The repository separates different kinds of truth:
 
@@ -87,36 +108,19 @@ The repository separates different kinds of truth:
 
 This README is orientation only. It is not an authority source.
 
-### Intended users
+Intended users
 
-AJENTIC is intended for engineers and teams using model-assisted workflows who need:
+AJENTIC is intended for engineers and teams using AI-assisted workflows who need:
 
 * controlled model runs
 * reviewable context
 * traceable decisions
 * replayable execution
 * clear operator controls
-* confidence that model output is not silently trusted
+* evidence that model output was not silently trusted
 
-### Project boundary
+Project boundary
 
-This project is not an autonomous coding agent.
+AJENTIC is not an autonomous coding agent.
 
-It is a harness for controlling and reviewing model-driven work.
-### Local validation and dry-run commands
-
-Use the current safe local command surface:
-
-- `./scripts/check.sh`
-- `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- `cd ui && npm run typecheck && npm run lint && npm run build`
-- `node scripts/test_lint_ui_boundaries.mjs`
-- `node scripts/lint_ui_boundaries.mjs`
-
-Current posture:
-
-- dry-run is deterministic and in-memory
-- no real provider/model call occurs
-- no persistence occurs
-- release-candidate readiness is not claimed
-- production readiness is not claimed
+It is a control interface for reviewing, validating, recording, and replaying model-driven work.
