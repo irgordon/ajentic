@@ -58,9 +58,9 @@ The repository now presents a coherent hardened substrate with bounded local com
 ## Production Candidate status
 Production Candidate status: not approved.
 
-Production Candidate status is not approved if the listed mechanical/architectural gaps remain.
+Production Candidate status is not approved while the listed mechanical and architectural gaps remain unresolved.
 
-Phase 80 does not approve Production Candidate status unless evidence unexpectedly supports full closure.
+Phase 80 does not approve Production Candidate status because the listed gaps remain unresolved.
 
 ## Phase 81-90 roadmap expansion
 - Phase 81 - Local Harness Composition Hardening
@@ -86,9 +86,15 @@ Phase 80 does not approve Production Candidate status unless evidence unexpected
 ## Required follow-ups
 - Execute Phases 81-90 in sequence while preserving Rust-owned authority boundaries.
 - Keep roadmap/changelog truth-surface separation explicit in each alignment checkpoint.
-- Maintain conservative non-readiness vocabulary until gaps are demonstrably closed.
+- Maintain conservative non-readiness vocabulary until each gap is closed by committed evidence and passing validation.
 
 ## Deferred items
+- Real network/provider transport.
+- Live UI/Rust transport.
+- Durable audit/ledger append authority.
+- Recovery candidate acceptance into application state.
+- Observability/export surfaces.
+- Packaging/startup surfaces.
 - Production approval.
 - Release-candidate approval.
 - Public-usability approval.
@@ -105,6 +111,6 @@ Phase 80 does not approve Production Candidate status unless evidence unexpected
 ## Non-readiness statement
 Phase 80 does not implement runtime behavior.
 
-Phase 80 does not approve Production Candidate status unless evidence unexpectedly supports it.
+Phase 80 does not approve Production Candidate status because the listed gaps remain unresolved.
 
 Production Candidate status remains not approved.
