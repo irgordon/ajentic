@@ -9,6 +9,8 @@ mutation_path: readme_update
 ## Scope
 Phase 75 is alignment, documentation hygiene, and automation audit only.
 
+Phase 75.1 is an out-of-band maintenance fix before Phase 76.
+
 Phase 75 does not implement UI/Rust transport.
 
 Phase 75 does not implement runtime behavior.
@@ -28,7 +30,7 @@ Phase 75 does not implement runtime behavior.
 
 ## Script and workflow alignment audit
 - `scripts/check.sh` ordering is coherent: repo/doc/schema/script syntax gates, then boundary-lint self-tests and production lint, then Rust fmt/check/test/clippy.
-- Rust boundary lint and Rust boundary lint self-tests are wired in local validation (`check.sh`) and CI (`.github/workflows/ci.yml` for repository checks where Rust exists).
+- Rust boundary lint and Rust boundary lint self-tests are wired through `scripts/check.sh`; CI coverage is present where workflows invoke that script or equivalent lint commands.
 - UI AST boundary lint and UI AST lint self-tests are wired in local validation and CI UI job.
 - CI rust job covers `cargo fmt --check`, `cargo check --all-targets`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings`.
 - UI job covers `npm run typecheck`, `npm run lint`, and `npm run build`.
@@ -43,7 +45,7 @@ Phase 75 does not implement runtime behavior.
 ## Automation drift findings
 - No minimal enforcement correction was required in `scripts/check.sh` or `.github/workflows/*.yml`.
 - No stale enforcement references found for required lint/check commands.
-- No current-codebase conflicts found with existing no-runtime/no-dependency boundary posture.
+- No current script/workflow conflict was found with the repository's current no-network/no-async/no-unsanctioned-runtime boundary posture.
 
 ## Phase 76-79 ordering assessment
 - Ordering still appears valid:
@@ -57,7 +59,7 @@ Phase 75 does not implement runtime behavior.
 ## Phase 80 preparation notes
 - Phase 80 should remain a gap audit and not be treated as release or production approval.
 - Additional pre-80 maintenance/enforcement phases may be considered if risk posture requires:
-  - stricter CI policy around unconditional execution surfaces for critical boundary lint,
+  - stricter CI policy around new executable integration surfaces for critical boundary lint,
   - explicit evidence gating for dry-run boundary posture in CI,
   - targeted hardening scans for evolving transport/action surfaces (post-76 to 78).
 - Production-candidate gap categories may need expansion around transport abuse cases, submission misuse patterns, and authorization-execution linkage evidence once Phases 76-79 land.
