@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# check.sh - Run local validation checks.
-# This script runs deterministic local checks and formats Rust before verifying it.
+# check.sh - Run deterministic non-mutating local validation checks.
 # This script does not implement policy or mutate authoritative runtime state.
 
 echo "Running bootstrap idempotence check..."
@@ -45,8 +44,16 @@ echo "Running UI boundary AST lint..."
 node scripts/lint_ui_boundaries.mjs
 echo "  UI boundary lint OK"
 
-echo "Running Rust formatting..."
-cargo fmt --manifest-path core/Cargo.toml
+echo "Running UI validation..."
+(
+  cd ui
+  npm run typecheck
+  npm run lint
+  npm run build
+)
+echo "  UI validation OK"
+
+echo "Running Rust formatting check..."
 cargo fmt --manifest-path core/Cargo.toml -- --check
 echo "  Rust formatting OK"
 

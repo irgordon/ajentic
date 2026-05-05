@@ -5,6 +5,19 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.76.5 - 2026-05-05
+**Status:** Phase 76.5 - Out-of-Band Validation Gate Non-Mutation and Coverage Alignment
+
+### Changed
+- Updated `scripts/check.sh` to remove mutating Rust auto-formatting from the validation path.
+- Added UI typecheck, lint, and build commands to `scripts/check.sh` so local validation reflects the full whole-repo validation bundle.
+- Added documentation for the structure/docs validator split and operations frontmatter convention.
+
+### Notes
+- Phase 76.5 is an out-of-band maintenance fix before Phase 77.
+- Phase 76.5 changes validation tooling only and does not change Rust behavior, TypeScript behavior, UI/Rust transport behavior, UI submission behavior, runtime behavior, roadmap sequencing, governance, architecture, dependencies, release-candidate readiness, production readiness, or public usability.
+- Phase 77 remains responsible for UI operator intent submission wiring.
+
 ## v0.0.76 - 2026-05-05
 **Status:** Phase 76 - UI/Rust Transport Boundary
 
