@@ -6,13 +6,13 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 76.5 - Out-of-Band Validation Gate Non-Mutation and Coverage Alignment
+Phase 76.6 - Out-of-Band Formatting Drift Closure
 
 ## explicit out-of-band maintenance note
-Phase 76.5 is an out-of-band maintenance fix before Phase 77.
+Phase 76.6 is an out-of-band maintenance fix before Phase 77.
 
 ## phase goal
-Make `scripts/check.sh` accurately represent the whole-repo non-mutating validation bundle before Phase 77 UI intent submission wiring.
+Close Rust formatting drift exposed by the non-mutating Phase 76.5 validation gate and prove the full validation gate passes cleanly without changing behavior.
 
 ## working-tree hygiene gate
 - [x] `git status --short` run before edits and classified.
@@ -20,66 +20,63 @@ Make `scripts/check.sh` accurately represent the whole-repo non-mutating validat
 - [x] Generated artifacts reviewed/reverted before staging.
 
 ## allowed surfaces
-- [x] `scripts/check.sh`
+- [x] `core/src/api/intent_audit.rs` (rustfmt output only)
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/validation-gate-alignment-phase-76-5.md`
-- [ ] Rust source
+- [x] `docs/operations/formatting-drift-closure-phase-76-6.md`
 - [ ] TypeScript source
+- [ ] scripts
+- [ ] workflows
 - [ ] roadmap/governance/architecture sources
 - [ ] package/dependency files
 
 ## boundary rules
-- [x] Validation tooling maintenance only.
-- [x] No UI submission wiring or event handlers.
+- [x] Formatting drift closure only.
+- [x] No new authority path is created.
 - [x] No runtime behavior changes.
-- [x] No Rust behavior changes.
-- [x] No TypeScript behavior changes.
+- [x] No validation tooling changes.
+- [x] No Phase 77 UI submission wiring.
 - [x] Phase 77 scope remains unchanged.
 
 ## task checklist
-- [x] Updated checklist to Phase 76.5 procedural truth.
-- [x] Added operations documentation for validation-gate alignment.
-- [x] Added `CHANGELOG.md` entry for `v0.0.76.5`.
-- [x] Removed mutating Rust format command from `scripts/check.sh`.
-- [x] Kept Rust formatting check command in `scripts/check.sh`.
-- [x] Added UI typecheck/lint/build commands to `scripts/check.sh`.
+- [x] Updated checklist to Phase 76.6 procedural truth.
+- [x] Added operations documentation for formatting drift closure.
+- [x] Added `CHANGELOG.md` entry for `v0.0.76.6`.
+- [x] Ran `cargo fmt --manifest-path core/Cargo.toml` intentionally.
+- [x] Inspected Rust diff and confirmed rustfmt-only output.
+- [x] Kept logic unchanged in `core/src/api/intent_audit.rs`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `node scripts/test_rust_boundary_lint.mjs`
 - [x] `node scripts/rust_boundary_lint.mjs`
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 
-## check.sh non-mutation checklist
-- [x] No standalone `cargo fmt --manifest-path core/Cargo.toml` remains.
-- [x] `cargo fmt --manifest-path core/Cargo.toml -- --check` remains.
-- [x] `set -euo pipefail` fail-fast posture preserved.
-- [x] Rust boundary lint self-tests run before Rust boundary lint.
-- [x] UI AST lint self-tests run before UI AST lint.
+## formatting drift checklist
+- [x] Phase 76.6 closes formatting drift exposed by the Phase 76.5 non-mutating check gate.
+- [x] Rust source diff is rustfmt output only.
+- [x] No non-rustfmt Rust logic edits were introduced.
 
-## UI validation coverage checklist
-- [x] `npm run typecheck` included.
-- [x] `npm run lint` included.
-- [x] `npm run build` included.
-- [x] UI validation runs before Rust formatting/Rust check-test-clippy stage.
+## authority path checklist
+- [x] No new authority path is created.
+- [x] Existing authority boundaries remain unchanged.
+- [x] Phase 76.6 does not change authorization, persistence, provider, or transport authority.
 
-## validator split/frontmatter convention checklist
-- [x] Documented structure/docs validator overlap and division.
-- [x] Documented `docs/operations/*` uses `mutation_path: readme_update` convention.
-- [x] Confirmed `scripts/validate_structure.py` unchanged.
-- [x] Confirmed `scripts/validate_docs.py` unchanged.
+## Phase 77 non-wiring checklist
+- [x] UI operator intent submission wiring remains intentionally absent.
+- [x] No UI event handlers or transport behavior added.
+- [x] Phase 77 remains responsible for UI operator intent submission wiring.
 
 ## findings table
 | Item | Finding |
 | --- | --- |
-| Validation mutation behavior | `scripts/check.sh` now performs non-mutating Rust format verification only. |
-| UI coverage parity | Local check gate now includes UI typecheck, lint, and build. |
-| Validator overlap | `validate_structure.py` enforces placement/required frontmatter presence and truth-dimension compatibility; `validate_docs.py` enforces exact frontmatter values and truth-surface contamination checks. |
-| Operations frontmatter convention | `docs/operations/*` uses `mutation_path: readme_update` and remains enforced by docs validator expectations. |
-| Phase relationship | Phase 76.5 is an out-of-band maintenance fix before Phase 77; Phase 77 scope remains unchanged. |
+| Out-of-band status | Phase 76.6 is an out-of-band maintenance fix before Phase 77. |
+| Formatting drift | `core/src/api/intent_audit.rs` had formatting drift surfaced by the Phase 76.5 non-mutating gate and was normalized by rustfmt. |
+| Authority path | No new authority path is created and no authority surface changed. |
+| Validation tooling | Validation tooling is unchanged; only source formatting drift was corrected. |
+| Phase relationship | Phase 77 scope remains unchanged and still owns UI operator intent submission wiring. |
 
 ## deferred items table
 | Deferred item | Owner phase |
@@ -91,9 +88,11 @@ Make `scripts/check.sh` accurately represent the whole-repo non-mutating validat
 | Command | Result | Notes |
 | --- | --- | --- |
 | `git status --short` | pass | Uncommitted files classified before edits. |
-| `./scripts/check.sh` | pass | Whole-repo validation completed with non-mutating formatting check and UI coverage. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI parity re-run completed. |
+| `cargo fmt --manifest-path core/Cargo.toml` | pass | Applied rustfmt output; no hand-edited logic changes. |
+| `git diff -- core/src/api/intent_audit.rs` | pass | Confirmed rustfmt-only import wrapping change. |
+| `./scripts/check.sh` | pass | Full non-mutating validation gate passed cleanly. |
 | `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
-| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed. |
+| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed with zero blocking findings. |
 | `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-tests passed. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed with zero blocking findings. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed; no Phase 77 wiring introduced. |

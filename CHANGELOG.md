@@ -5,6 +5,18 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.76.6 - 2026-05-05
+**Status:** Phase 76.6 - Out-of-Band Formatting Drift Closure
+
+### Changed
+- Applied required Rust formatting output exposed by the non-mutating Phase 76.5 validation gate.
+- Added procedural evidence documenting that the formatting closure does not change authority, runtime behavior, validation tooling, or Phase 77 scope.
+
+### Notes
+- Phase 76.6 is an out-of-band maintenance fix before Phase 77.
+- No TypeScript, script, workflow, roadmap, governance, architecture, dependency, UI submission, UI/Rust transport behavior, provider behavior, persistence behavior, authorization behavior, release-candidate readiness claim, production-readiness claim, or public-usability claim was changed.
+- Phase 77 remains responsible for UI operator intent submission wiring.
+
 ## v0.0.76.5 - 2026-05-05
 **Status:** Phase 76.5 - Out-of-Band Validation Gate Non-Mutation and Coverage Alignment
 
