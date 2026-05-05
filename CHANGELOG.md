@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.69 - 2026-05-05
+**Status:** Phase 69 - Async Provider Transport Boundary
+
+### Added
+- Added `core/src/api/provider_transport.rs` with typed provider transport envelope/cursor/report/status/reason/trust models, deterministic sequence validation, and non-authority/non-execution helper functions.
+- Added `docs/operations/provider-transport-boundary-phase-69.md` documenting async-origin ingress scope, sequencing/trust invariants, and deferred runtime/network/provider execution work.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare/re-export the new provider transport module.
+- Updated `core/src/main.rs` dry-run tests to assert dry-run does not invoke provider transport validation.
+- Updated `checklists/current-phase.md` to Phase 69 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.69`.
+
+### Notes
+- Phase 69 is async boundary without async runtime.
+- Provider output remains untrusted.
+- Sequencing validation is deterministic and non-mutating.
+- Phase 69 does not add tokio, async/await, sockets, HTTP, provider execution, background tasks, channels, threads, UI/Rust transport, ledger mutation, or persistence.
+- `core/src/execution/mod.rs` and `core/src/api/persistence.rs` were not expanded.
+
 ## v0.0.68 - 2026-05-04
 **Status:** Phase 68 - Bounded Read Projection Slices
 

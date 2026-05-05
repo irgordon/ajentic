@@ -175,6 +175,13 @@ mod tests {
     }
 
     #[test]
+    fn dry_run_does_not_validate_provider_transport_envelope() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("validate_provider_transport_envelope"));
+        assert!(!summary.contains("provider transport"));
+    }
+
+    #[test]
     fn cli_dry_run_does_not_call_local_harness_workflow() {
         let summary = run_dry_run_summary();
         assert!(!summary.contains("workflow completed in memory"));
