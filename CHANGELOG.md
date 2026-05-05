@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.82 - 2026-05-05
+**Status:** Phase 82 - Provider Evidence Replay and Failure Trace Boundary
+
+### Added
+- Added `docs/operations/provider-evidence-replay-phase-82.md` with advisory replay evidence boundary, forensic posture, tamper detection, and non-readiness statement.
+
+### Changed
+- Updated `core/src/api/local_workflow.rs` with deterministic provider evidence replay status/reason/mode types, snapshot/report shapes, checksum helper, replay verification helper, snapshot derivation helper, and replay/non-authority tests.
+- Updated `core/src/main.rs` dry-run tests to assert dry-run does not verify provider evidence replay.
+- Updated `checklists/current-phase.md` to Phase 82 procedural truth and replay boundary closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.82`.
+
+### Notes
+- Phase 82 verifies replay evidence shape and failure trace posture from explicit evidence snapshots only.
+- Phase 82 does not perform live provider execution and does not run the end-to-end harness inside replay verification.
+- Phase 82 does not create new authorization, audit proof, action execution, ledger facts, persistence writes, replay repair, or application-state mutation.
+- Replay reports are forensically distinguishable from live runs and remain non-authoritative.
+- Public usability, release-candidate readiness, and production readiness are not claimed.
+
 ## v0.0.81 - 2026-05-05
 **Status:** Phase 81 - Local Harness Composition Hardening
 

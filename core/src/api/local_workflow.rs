@@ -700,6 +700,292 @@ pub fn run_end_to_end_local_harness(
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderEvidenceReplayStatus {
+    Verified,
+    Rejected,
+    Mismatch,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderEvidenceReplayReason {
+    VerifiedAgainstEvidence,
+    EmptyReplayId,
+    EmptySourceRunId,
+    EmptyEvidenceId,
+    EvidenceRunIdMismatch,
+    ProviderOutputTrustMismatch,
+    ProviderOutputAuthorityMismatch,
+    RetryScheduleMismatch,
+    RecoveryPromotionMismatch,
+    UiTransportMismatch,
+    UiSubmissionExecutionMismatch,
+    ActionKindMismatch,
+    ActionEffectMismatch,
+    AuthorizationRequirementMismatch,
+    AuditRequirementMismatch,
+    TamperedEvidenceRejected,
+    UnsupportedReplayInput,
+}
+
+impl ProviderEvidenceReplayReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::VerifiedAgainstEvidence => "verified_against_evidence",
+            Self::EmptyReplayId => "empty_replay_id",
+            Self::EmptySourceRunId => "empty_source_run_id",
+            Self::EmptyEvidenceId => "empty_evidence_id",
+            Self::EvidenceRunIdMismatch => "evidence_run_id_mismatch",
+            Self::ProviderOutputTrustMismatch => "provider_output_trust_mismatch",
+            Self::ProviderOutputAuthorityMismatch => "provider_output_authority_mismatch",
+            Self::RetryScheduleMismatch => "retry_schedule_mismatch",
+            Self::RecoveryPromotionMismatch => "recovery_promotion_mismatch",
+            Self::UiTransportMismatch => "ui_transport_mismatch",
+            Self::UiSubmissionExecutionMismatch => "ui_submission_execution_mismatch",
+            Self::ActionKindMismatch => "action_kind_mismatch",
+            Self::ActionEffectMismatch => "action_effect_mismatch",
+            Self::AuthorizationRequirementMismatch => "authorization_requirement_mismatch",
+            Self::AuditRequirementMismatch => "audit_requirement_mismatch",
+            Self::TamperedEvidenceRejected => "tampered_evidence_rejected",
+            Self::UnsupportedReplayInput => "unsupported_replay_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProviderEvidenceReplayMode {
+    Replay,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderEvidenceSnapshot {
+    pub evidence_id: String,
+    pub source_run_id: String,
+    pub expected_action_kind: String,
+    pub expected_action_reason_code: String,
+    pub expected_authorization_status_code: String,
+    pub expected_audit_eligibility_code: String,
+    pub provider_output_trusted: bool,
+    pub provider_output_authoritative: bool,
+    pub retry_scheduled: bool,
+    pub recovery_candidate_only: bool,
+    pub recovered_state_promoted: bool,
+    pub ui_transport_live: bool,
+    pub ui_submission_executes_action: bool,
+    pub action_real_world_effect: bool,
+    pub evidence_checksum: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProviderEvidenceReplayReport {
+    pub status: ProviderEvidenceReplayStatus,
+    pub reason: ProviderEvidenceReplayReason,
+    pub replay_id: String,
+    pub source_run_id: String,
+    pub evidence_id: String,
+    pub mode: ProviderEvidenceReplayMode,
+    pub replayed_from_evidence: bool,
+    pub live_execution_performed: bool,
+    pub new_authorization_created: bool,
+    pub new_audit_record_created: bool,
+    pub new_action_executed: bool,
+    pub new_ledger_fact_created: bool,
+    pub persisted: bool,
+    pub repaired_replay: bool,
+    pub mutated_application_state: bool,
+    pub provider_output_trusted: bool,
+    pub provider_output_authoritative: bool,
+    pub retry_scheduled: bool,
+    pub action_kind: String,
+    pub action_reason_code: String,
+    pub authorization_status_code: String,
+    pub audit_eligibility_code: String,
+    pub action_real_world_effect: bool,
+    pub summary: String,
+}
+
+pub fn compute_provider_evidence_checksum(snapshot: &ProviderEvidenceSnapshot) -> String {
+    let text = format!(
+        "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}",
+        snapshot.evidence_id,
+        snapshot.source_run_id,
+        snapshot.expected_action_kind,
+        snapshot.expected_action_reason_code,
+        snapshot.expected_authorization_status_code,
+        snapshot.expected_audit_eligibility_code,
+        snapshot.provider_output_trusted,
+        snapshot.provider_output_authoritative,
+        snapshot.retry_scheduled,
+        snapshot.recovery_candidate_only,
+        snapshot.recovered_state_promoted,
+        snapshot.ui_transport_live,
+        snapshot.ui_submission_executes_action,
+        snapshot.action_real_world_effect
+    );
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for byte in text.as_bytes() {
+        hash ^= *byte as u64;
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    format!("{hash:016x}")
+}
+
+pub fn provider_evidence_snapshot_from_harness_report(
+    evidence_id: impl Into<String>,
+    report: &EndToEndLocalHarnessReport,
+) -> ProviderEvidenceSnapshot {
+    let mut snapshot = ProviderEvidenceSnapshot {
+        evidence_id: evidence_id.into(),
+        source_run_id: report.run_id.clone(),
+        expected_action_kind: report.action_kind.clone(),
+        expected_action_reason_code: report.reason.code().to_string(),
+        expected_authorization_status_code: if report.authorization_required {
+            "authorization_required".to_string()
+        } else {
+            "authorization_not_required".to_string()
+        },
+        expected_audit_eligibility_code: if report.audit_proof_required {
+            "audit_proof_required".to_string()
+        } else {
+            "audit_proof_not_required".to_string()
+        },
+        provider_output_trusted: report.provider_output_trusted,
+        provider_output_authoritative: report.provider_output_authoritative,
+        retry_scheduled: report.retry_scheduled,
+        recovery_candidate_only: report.recovery_candidate_only,
+        recovered_state_promoted: report.recovered_state_promoted,
+        ui_transport_live: report.ui_transport_live,
+        ui_submission_executes_action: report.ui_submission_executes_action,
+        action_real_world_effect: report.action_real_world_effect,
+        evidence_checksum: String::new(),
+    };
+    snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+    snapshot
+}
+
+pub fn verify_provider_evidence_replay(
+    replay_id: impl Into<String>,
+    expected_source_run_id: impl Into<String>,
+    snapshot: ProviderEvidenceSnapshot,
+) -> ProviderEvidenceReplayReport {
+    let replay_id = replay_id.into();
+    let expected_source_run_id = expected_source_run_id.into();
+    let recomputed_checksum = compute_provider_evidence_checksum(&snapshot);
+
+    let (status, reason) = if replay_id.is_empty() {
+        (
+            ProviderEvidenceReplayStatus::Rejected,
+            ProviderEvidenceReplayReason::EmptyReplayId,
+        )
+    } else if expected_source_run_id.is_empty() {
+        (
+            ProviderEvidenceReplayStatus::Rejected,
+            ProviderEvidenceReplayReason::EmptySourceRunId,
+        )
+    } else if snapshot.evidence_id.is_empty() {
+        (
+            ProviderEvidenceReplayStatus::Rejected,
+            ProviderEvidenceReplayReason::EmptyEvidenceId,
+        )
+    } else if snapshot.source_run_id != expected_source_run_id {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::EvidenceRunIdMismatch,
+        )
+    } else if recomputed_checksum != snapshot.evidence_checksum {
+        (
+            ProviderEvidenceReplayStatus::Rejected,
+            ProviderEvidenceReplayReason::TamperedEvidenceRejected,
+        )
+    } else if snapshot.provider_output_trusted {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::ProviderOutputTrustMismatch,
+        )
+    } else if snapshot.provider_output_authoritative {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::ProviderOutputAuthorityMismatch,
+        )
+    } else if snapshot.retry_scheduled {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::RetryScheduleMismatch,
+        )
+    } else if snapshot.recovered_state_promoted {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::RecoveryPromotionMismatch,
+        )
+    } else if snapshot.ui_transport_live {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::UiTransportMismatch,
+        )
+    } else if snapshot.ui_submission_executes_action {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::UiSubmissionExecutionMismatch,
+        )
+    } else if snapshot.expected_action_kind != "RecordExecutionDecision" {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::ActionKindMismatch,
+        )
+    } else if snapshot.action_real_world_effect {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::ActionEffectMismatch,
+        )
+    } else if snapshot
+        .expected_authorization_status_code
+        .trim()
+        .is_empty()
+    {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::AuthorizationRequirementMismatch,
+        )
+    } else if snapshot.expected_audit_eligibility_code.trim().is_empty() {
+        (
+            ProviderEvidenceReplayStatus::Mismatch,
+            ProviderEvidenceReplayReason::AuditRequirementMismatch,
+        )
+    } else {
+        (
+            ProviderEvidenceReplayStatus::Verified,
+            ProviderEvidenceReplayReason::VerifiedAgainstEvidence,
+        )
+    };
+
+    ProviderEvidenceReplayReport {
+        status,
+        reason,
+        replay_id,
+        source_run_id: snapshot.source_run_id.clone(),
+        evidence_id: snapshot.evidence_id.clone(),
+        mode: ProviderEvidenceReplayMode::Replay,
+        replayed_from_evidence: true,
+        live_execution_performed: false,
+        new_authorization_created: false,
+        new_audit_record_created: false,
+        new_action_executed: false,
+        new_ledger_fact_created: false,
+        persisted: false,
+        repaired_replay: false,
+        mutated_application_state: false,
+        provider_output_trusted: snapshot.provider_output_trusted,
+        provider_output_authoritative: snapshot.provider_output_authoritative,
+        retry_scheduled: snapshot.retry_scheduled,
+        action_kind: snapshot.expected_action_kind.clone(),
+        action_reason_code: snapshot.expected_action_reason_code.clone(),
+        authorization_status_code: snapshot.expected_authorization_status_code.clone(),
+        audit_eligibility_code: snapshot.expected_audit_eligibility_code.clone(),
+        action_real_world_effect: snapshot.action_real_world_effect,
+        summary: "Provider evidence replay verified against supplied evidence snapshot; no live execution was performed.".to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1122,6 +1408,294 @@ mod tests {
         assert!(!harness_report()
             .summary
             .contains("run_end_to_end_local_harness"));
+    }
+
+    fn valid_snapshot() -> ProviderEvidenceSnapshot {
+        provider_evidence_snapshot_from_harness_report("evidence-1", &harness_report())
+    }
+
+    #[test]
+    fn provider_evidence_replay_reason_codes_are_stable() {
+        assert_eq!(
+            ProviderEvidenceReplayReason::VerifiedAgainstEvidence.code(),
+            "verified_against_evidence"
+        );
+        assert_eq!(
+            ProviderEvidenceReplayReason::TamperedEvidenceRejected.code(),
+            "tampered_evidence_rejected"
+        );
+    }
+
+    #[test]
+    fn provider_evidence_replay_mode_is_replay_only() {
+        assert_eq!(
+            ProviderEvidenceReplayMode::Replay,
+            ProviderEvidenceReplayMode::Replay
+        );
+    }
+
+    #[test]
+    fn provider_evidence_checksum_is_deterministic() {
+        let snapshot = valid_snapshot();
+        assert_eq!(
+            compute_provider_evidence_checksum(&snapshot),
+            compute_provider_evidence_checksum(&snapshot)
+        );
+    }
+
+    #[test]
+    fn provider_evidence_snapshot_from_harness_report_preserves_action_kind() {
+        assert_eq!(
+            valid_snapshot().expected_action_kind,
+            "RecordExecutionDecision".to_string()
+        );
+    }
+
+    #[test]
+    fn provider_evidence_snapshot_from_harness_report_preserves_authorization_status_code() {
+        assert_eq!(
+            valid_snapshot().expected_authorization_status_code,
+            "authorization_required".to_string()
+        );
+    }
+
+    #[test]
+    fn provider_evidence_snapshot_from_harness_report_preserves_audit_eligibility_code() {
+        assert_eq!(
+            valid_snapshot().expected_audit_eligibility_code,
+            "audit_proof_required".to_string()
+        );
+    }
+
+    #[test]
+    fn provider_evidence_replay_verifies_valid_snapshot() {
+        let snapshot = valid_snapshot();
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Verified);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::VerifiedAgainstEvidence
+        );
+    }
+
+    #[test]
+    fn provider_evidence_replay_rejects_empty_replay_id() {
+        let replay = verify_provider_evidence_replay("", "run-1", valid_snapshot());
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(replay.reason, ProviderEvidenceReplayReason::EmptyReplayId);
+    }
+
+    #[test]
+    fn provider_evidence_replay_rejects_empty_source_run_id() {
+        let replay = verify_provider_evidence_replay("replay-1", "", valid_snapshot());
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::EmptySourceRunId
+        );
+    }
+
+    #[test]
+    fn provider_evidence_replay_rejects_empty_evidence_id() {
+        let mut snapshot = valid_snapshot();
+        snapshot.evidence_id = String::new();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(replay.reason, ProviderEvidenceReplayReason::EmptyEvidenceId);
+    }
+
+    #[test]
+    fn provider_evidence_replay_rejects_source_run_mismatch() {
+        let replay = verify_provider_evidence_replay("replay-1", "run-2", valid_snapshot());
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Mismatch);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::EvidenceRunIdMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_tampered_checksum() {
+        let mut snapshot = valid_snapshot();
+        snapshot.evidence_checksum = "bad".to_string();
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::TamperedEvidenceRejected
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_trusted_provider_output() {
+        let mut snapshot = valid_snapshot();
+        snapshot.provider_output_trusted = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::ProviderOutputTrustMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_authoritative_provider_output() {
+        let mut snapshot = valid_snapshot();
+        snapshot.provider_output_authoritative = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::ProviderOutputAuthorityMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_scheduled_retry() {
+        let mut snapshot = valid_snapshot();
+        snapshot.retry_scheduled = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::RetryScheduleMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_recovered_state_promotion() {
+        let mut snapshot = valid_snapshot();
+        snapshot.recovered_state_promoted = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::RecoveryPromotionMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_live_ui_transport() {
+        let mut snapshot = valid_snapshot();
+        snapshot.ui_transport_live = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::UiTransportMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_submission_execution() {
+        let mut snapshot = valid_snapshot();
+        snapshot.ui_submission_executes_action = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::UiSubmissionExecutionMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_action_kind_mismatch() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_action_kind = "DoSomethingElse".to_string();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::ActionKindMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_rejects_action_real_world_effect() {
+        let mut snapshot = valid_snapshot();
+        snapshot.action_real_world_effect = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::ActionEffectMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_requires_authorization_status_code() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_authorization_status_code = String::new();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::AuthorizationRequirementMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_requires_audit_eligibility_code() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_audit_eligibility_code = String::new();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        assert_eq!(
+            verify_provider_evidence_replay("replay-1", "run-1", snapshot).reason,
+            ProviderEvidenceReplayReason::AuditRequirementMismatch
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_is_forensically_distinguishable_from_live_run() {
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot());
+        assert_eq!(replay.mode, ProviderEvidenceReplayMode::Replay);
+        assert!(replay.replayed_from_evidence);
+        assert!(!replay.live_execution_performed);
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_run_live_harness() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .summary
+                .contains("run_end_to_end_local_harness")
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_execute_operator_action_boundary() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .summary
+                .contains("execute_operator_action_boundary")
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_create_new_authorization() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_authorization_created
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_create_new_audit_record() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_audit_record_created
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_append_ledger_fact() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_ledger_fact_created
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_persist() {
+        assert!(!verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot()).persisted);
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_repair_replay() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot()).repaired_replay
+        );
+    }
+    #[test]
+    fn provider_evidence_replay_does_not_mutate_application_state() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .mutated_application_state
+        );
+    }
+    #[test]
+    fn risky_evidence_text_cannot_turn_replay_into_authority() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_action_reason_code =
+            "trusted persist append promote execute recovery".to_string();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Verified);
+        assert!(!replay.new_authorization_created);
+        assert!(!replay.new_action_executed);
     }
 }
 
