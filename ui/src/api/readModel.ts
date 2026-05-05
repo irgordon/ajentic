@@ -1,10 +1,10 @@
-import { applicationProjectionFixture, uiReadModelFixture, uiRustIntentPreviewRequestFixture, uiRustReadProjectionResponseFixture, uiRustTransportCapabilityFixture } from "./fixtures";
-import type { ApplicationUiProjection, IntentSubmissionUiProjection, OperatorIntentPreviewProjection, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse } from "./projections";
+import { applicationProjectionFixture, uiOperatorIntentSubmissionContractFixtures, uiOperatorIntentSubmissionEnvelopeFixture, uiReadModelFixture, uiRustIntentPreviewRequestFixture, uiRustReadProjectionResponseFixture, uiRustTransportCapabilityFixture } from "./fixtures";
+import type { ApplicationUiProjection, IntentSubmissionUiProjection, OperatorIntentPreviewProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse } from "./projections";
 
 export const UI_READ_MODEL_IS_SYNC = true as const;
 export const UI_READ_MODEL_SOURCE = "fixture_or_supplied_projection" as const;
 export const UI_READ_MODEL_MUTATION_CAPABLE = false as const;
-export const UI_INTENT_SUBMISSION_ENABLED = false as const;
+export const UI_INTENT_SUBMISSION_ENABLED = true as const;
 export const UI_INTENT_EXECUTION_ENABLED = false as const;
 export const UI_INTENT_LEDGER_RECORDING_ENABLED = false as const;
 
@@ -63,5 +63,19 @@ export function buildUiRustIntentPreviewRequest(preview: OperatorIntentPreviewPr
     payload: buildIntentSubmissionPreview(preview),
     capability: uiRustTransportCapabilityFixture,
     summary: "Transport-shaped intent preview request only; submission and execution remain disabled."
+  };
+}
+
+export function getUiOperatorIntentSubmissionContracts(): readonly UiOperatorIntentSubmissionContract[] {
+  return uiOperatorIntentSubmissionContractFixtures;
+}
+
+export function buildUiOperatorIntentSubmissionEnvelope(
+  contract: UiOperatorIntentSubmissionContract
+): UiOperatorIntentSubmissionEnvelope {
+  return {
+    ...uiOperatorIntentSubmissionEnvelopeFixture,
+    payload: contract,
+    summary: "Submission-shaped envelope is local-only contract construction; no live transport or action execution occurs."
   };
 }

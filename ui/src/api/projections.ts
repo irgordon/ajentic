@@ -92,7 +92,42 @@ export type IntentTypeProjection =
 
 export type IntentTargetKindProjection = "run" | "candidate" | "replay" | "context" | "memory" | "output" | "unknown";
 
-export type IntentSubmissionUiProjection = Readonly<{ submissionId: string; operatorId: string; intentType: IntentTypeProjection; targetKind: IntentTargetKindProjection; targetId: string; reason: string; requestPreviewEnabled: boolean; submissionEnabled: false; authority: AuthoritySurface; summary: string; }>;
+export type IntentSubmissionUiProjection = Readonly<{ submissionId: string; operatorId: string; intentType: IntentTypeProjection; targetKind: IntentTargetKindProjection; targetId: string; reason: string; requestPreviewEnabled: boolean; submissionEnabled: boolean; authority: AuthoritySurface; summary: string; }>;
+
+export type UiOperatorIntentSubmissionStatus =
+  | "draft"
+  | "submission_shaped"
+  | "ingress_ready"
+  | "authorization_ready"
+  | "audit_eligible"
+  | "rejected";
+
+export type UiOperatorIntentSubmissionCapability = Readonly<{
+  submissionShapeEnabled: boolean;
+  liveTransportEnabled: false;
+  executionEnabled: false;
+  persistenceEnabled: false;
+  ledgerRecordingEnabled: false;
+  auditAppendEnabled: false;
+  providerExecutionEnabled: false;
+  replayRepairEnabled: false;
+  mutatesApplicationState: false;
+}>;
+
+export type UiOperatorIntentSubmissionContract = Readonly<{
+  submissionId: string;
+  operatorId: string;
+  targetKind: IntentTargetKindProjection;
+  targetId: string;
+  intentType: IntentTypeProjection;
+  reason: string;
+  status: UiOperatorIntentSubmissionStatus;
+  capability: UiOperatorIntentSubmissionCapability;
+  diagnostic?: ErrorDiagnosticProjection;
+  summary: string;
+}>;
+
+export type UiOperatorIntentSubmissionEnvelope = UiRustTransportEnvelope<UiOperatorIntentSubmissionContract>;
 
 export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType: IntentTypeProjection; label: string; description: string; reasonPreview: string; routePreview: string; authority: AuthoritySurface; status: ProjectionStatus; disabled: boolean; submissionPreview: IntentSubmissionUiProjection; }>;
 
@@ -108,7 +143,7 @@ export type UiRustTransportStatus = "prepared" | "display_only" | "disabled";
 export type UiRustTransportCapability = Readonly<{
   transportEnabled: false;
   mutationEnabled: false;
-  submissionEnabled: false;
+  submissionEnabled: boolean;
   executionEnabled: false;
   persistenceEnabled: false;
 }>;

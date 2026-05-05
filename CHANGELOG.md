@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.77 - 2026-05-05
+**Status:** Phase 77 - UI Operator Intent Submission Wiring
+
+### Added
+- Added `docs/operations/ui-intent-submission-phase-77.md` documenting submission-shaped UI wiring scope, boundaries, and deferred Phase 78 execution ownership.
+- Added UI submission-shaped contract types for submission status, capability, contract payload, and local envelope alias.
+- Added fixture-backed submission wiring examples for ingress-ready, authorization-ready, audit-eligible, and rejected/ineligible previews.
+
+### Changed
+- Updated `ui/src/api/readModel.ts` to enable local submission-shaped wiring (`UI_INTENT_SUBMISSION_ENABLED=true`) while preserving non-execution/non-mutation capability flags.
+- Updated `checklists/current-phase.md` to Phase 77 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.77`.
+
+### Notes
+- Phase 77 wires submission-shaped UI contracts only and does not implement live UI/Rust transport.
+- Phase 77 does not execute actions, persist state, append ledger/audit records, call providers, repair replay, or mutate application state.
+- Phase 78 remains responsible for authorized action execution.
+
 ## v0.0.76.6 - 2026-05-05
 **Status:** Phase 76.6 - Out-of-Band Formatting Drift Closure
 
