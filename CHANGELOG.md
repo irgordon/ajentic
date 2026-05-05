@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.70 - 2026-05-05
+**Status:** Phase 70 - Roadmap Documentation Realignment and Production Candidate Gap Audit
+
+### Added
+- Added `docs/operations/repository-audit-phase-70.md` with advisory documentation drift findings, roadmap-surface role separation, hardened-shell assessment, and production-candidate gap audit.
+
+### Changed
+- Updated `docs/roadmap/phase-map.md` into a compact planned phase index and confirmed planned sequence through Phase 80.
+- Updated `docs/roadmap/phases.md` as active phase catalog with expanded planning details for Phases 70-80.
+- Updated `docs/roadmap/sequencing.md` with production-path dependency rationale and explicit Phase 80 gap-audit posture.
+- Updated `checklists/current-phase.md` to Phase 70 procedural truth with required validation/role/alignment/gap-audit checklists.
+- Updated `CHANGELOG.md` with `v0.0.70`.
+
+### Notes
+- Phase 70 is documentation realignment, governance hygiene, and production-candidate gap audit only.
+- No runtime behavior, provider execution wiring, UI/Rust transport wiring, or action execution behavior was implemented.
+- `CHANGELOG.md` remains historical truth, roadmap files remain planned truth, and checklist remains procedural truth.
+- Phase 70 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.69 - 2026-05-05
 **Status:** Phase 69 - Async Provider Transport Boundary
 
