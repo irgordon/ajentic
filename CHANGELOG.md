@@ -5,6 +5,18 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.75.1 - 2026-05-05
+**Status:** Phase 75.1 - Out-of-Band Operations Audit Metadata and Terminology Correction
+
+### Changed
+- Corrected Phase 75 operations audit wording to avoid overstating CI wiring, runtime posture, or mutation scope.
+- Preserved Phase 75 alignment/audit conclusions and Phase 76 planning boundary.
+
+### Notes
+- Phase 75.1 is an out-of-band maintenance fix before Phase 76.
+- Phase 75.1 inspected Phase 75 operations audit frontmatter and left it unchanged because it matched the repository’s accepted convention.
+- No Rust, TypeScript, script, workflow, roadmap, governance, architecture, dependency, runtime behavior, UI/Rust transport, release-candidate readiness claim, production-readiness claim, or public-usability claim was changed.
+
 ## v0.0.75 - 2026-05-05
 **Status:** Phase 75 - Roadmap and Changelog Alignment Check + Script/Workflow Alignment Audit
 
