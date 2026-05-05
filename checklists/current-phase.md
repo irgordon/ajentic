@@ -3,40 +3,42 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
+
 # Current Phase Checklist
 
 ## phase name
-Phase 81 - Local Harness Composition Hardening
+Phase 82 - Provider Evidence Replay and Failure Trace Boundary
 
 ## phase goal
-Harden the bounded Phase 79 local harness composition with negative-path and mismatch coverage without adding runtime authority.
+Verify provider execution/failure evidence replay from explicit snapshots without live execution, authority creation, persistence, or state mutation.
 
 ## working-tree hygiene gate
-- [x] `git status --short` run before edits and classified.
-- [x] Modified files constrained to allowed surfaces for Phase 81.
-- [x] Generated artifacts reviewed/reverted before staging.
+- [x] `git status --short` reviewed before edits.
+- [x] Changes constrained to allowed Phase 82 files.
 
 ## allowed surfaces
 - [x] `core/src/api/local_workflow.rs`
-- [ ] `core/src/main.rs` (only if dry-run no-harness hardening required)
+- [x] `core/src/main.rs` (dry-run replay guard test only)
+- [x] `docs/operations/provider-evidence-replay-phase-82.md`
 - [x] `checklists/current-phase.md`
-- [ ] `checklists/release.md` (only if evidence posture changes)
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/local-harness-hardening-phase-81.md`
 
 ## boundary rules
-- [x] Hardening only; no new runtime authority.
-- [x] No new runtime execution paths.
-- [x] No owning boundary module changes.
-- [x] No roadmap updates in Phase 81.
+- [x] Replay verifies evidence only; no live provider execution.
+- [x] Replay helper does not call `execute_provider_adapter(...)`.
+- [x] Replay helper does not call `run_end_to_end_local_harness(...)`.
+- [x] Replay helper does not call `execute_operator_action_boundary(...)`.
+- [x] No persistence writes, ledger append, or audit append.
+- [x] No replay repair, no recovery acceptance, no state mutation.
 
 ## task checklist
-- [x] Updated checklist to Phase 81 procedural truth.
-- [x] Added Phase 81 operations note.
-- [x] Added required negative-path tests.
-- [x] Added required mismatch/seam tests.
-- [x] Added Phase 79 non-regression tests.
-- [x] Added `CHANGELOG.md` entry `v0.0.81`.
+- [x] Added replay types, reasons, status, and mode.
+- [x] Added deterministic evidence checksum helper.
+- [x] Added replay verification helper from explicit evidence input.
+- [x] Added optional snapshot mapping helper from existing harness report.
+- [x] Added deterministic replay coverage tests for verify/reject/mismatch/non-authority.
+- [x] Added Phase 82 operations advisory doc.
+- [x] Added `CHANGELOG.md` `v0.0.82` entry.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
@@ -47,65 +49,49 @@ Harden the bounded Phase 79 local harness composition with negative-path and mis
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
-## negative-path hardening checklist
-- [x] bounded_local_harness_rejects_empty_reason_if_reason_is_required_or_documents_optional_reason
-- [x] bounded_local_harness_rejects_or_neutralizes_provider_prompt_authority_phrases
-- [x] bounded_local_harness_rejects_or_neutralizes_operator_reason_authority_phrases
-- [x] bounded_local_harness_does_not_change_flags_on_rejected_requests
-- [x] bounded_local_harness_rejected_paths_remain_non_authoritative
-- [x] bounded_local_harness_rejected_paths_do_not_schedule_retry
-- [x] bounded_local_harness_rejected_paths_do_not_mark_ui_transport_live
-- [x] bounded_local_harness_rejected_paths_do_not_mark_submission_executing
-- [x] bounded_local_harness_rejected_paths_do_not_mark_action_effectful
-- [x] bounded_local_harness_rejected_paths_do_not_persist_or_append
-- [x] bounded_local_harness_summary_contains_non_authoritative_boundary_language
-- [x] bounded_local_harness_completed_report_contains_non_authoritative_boundary_language
-- [x] bounded_local_harness_no_generalized_workflow_engine_markers
+## replay evidence checklist
+- [x] Replay inputs are explicit snapshot fields with checksum.
+- [x] Replay rejects empty identifiers.
+- [x] Replay rejects source run mismatch.
+- [x] Replay rejects tampered evidence checksum.
+- [x] Replay report returns typed status/reason/provenance.
 
-## mismatch/seam hardening checklist
-- [x] bounded_local_harness_authorization_and_audit_requirements_remain_true_for_completed_report
-- [x] bounded_local_harness_action_kind_cannot_be_overridden_by_request_text
-- [x] bounded_local_harness_projection_slice_remains_bounded_for_long_prompt
-- [x] bounded_local_harness_boundary_statuses_are_stable_for_same_input
-- [x] bounded_local_harness_represented_boundaries_do_not_become_composed_without_explicit_code_change
-- [x] bounded_local_harness_deferred_boundaries_do_not_become_live_without_explicit_code_change
+## replay vs live-run checklist
+- [x] Replay report `mode=Replay`.
+- [x] Replay report `replayed_from_evidence=true`.
+- [x] Replay report `live_execution_performed=false`.
 
-## Phase 79 preservation checklist
-- [x] phase79_existing_completed_report_shape_is_preserved
-- [x] phase79_existing_empty_field_rejections_are_preserved
-- [x] phase79_existing_determinism_is_preserved
-- [x] phase79_existing_no_authority_flags_are_preserved
-- [x] phase79_existing_dry_run_absence_is_preserved
+## non-authority checklist
+- [x] `new_authorization_created=false`
+- [x] `new_audit_record_created=false`
+- [x] `new_action_executed=false`
+- [x] `new_ledger_fact_created=false`
+- [x] `persisted=false`
+- [x] `repaired_replay=false`
+- [x] `mutated_application_state=false`
 
 ## zero-drift checklist
-- [x] No diffs outside allowed surfaces.
-- [x] No roadmap diffs.
-- [x] No generated artifacts staged.
-- [x] No dependency/package/config drift.
-- [x] No readiness/public-usability claim added.
+- [x] Roadmap files unchanged.
+- [x] Disallowed module surfaces unchanged.
+- [x] No scripts/workflows/UI source changed.
 
 ## findings table
-| Item | Finding |
+| Finding | Result |
 | --- | --- |
-| Phase 81 scope | Hardening-only coverage added for bounded local harness composition seams. |
-| Runtime authority | Unchanged; non-authoritative and side-effect-free posture preserved. |
-| Boundary ownership | Owning boundary modules were not changed. |
+| Replay evidence boundary | Implemented deterministic evidence-only replay verification. |
+| Forensic distinction | Replay reports remain distinguishable from live harness reports. |
 
 ## deferred items table
-| Deferred item | Owner phase |
+| Item | Phase |
 | --- | --- |
-| Replay evidence boundary | Phase 82 |
-| Durable append boundary | Phase 83 |
-| Recovery acceptance boundary | Phase 84 |
-| Alignment checkpoint | Phase 85 |
+| Durable append eligibility | Phase 83 |
+| Recovery candidate acceptance | Phase 84 |
+| Next alignment checkpoint | Phase 85 |
 
 ## validation log table
 | Command | Result |
 | --- | --- |
 | `./scripts/check.sh` | pass |
-| `node scripts/test_rust_boundary_lint.mjs` | pass |
-| `node scripts/rust_boundary_lint.mjs` | pass |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass |
-| `node scripts/lint_ui_boundaries.mjs` | pass |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass |
+| boundary lint commands | pass |
+| UI validation commands | pass |
 | `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass |

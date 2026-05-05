@@ -206,6 +206,12 @@ mod tests {
         assert!(!summary.contains("deterministic-local-output"));
         assert!(!summary.contains("provider execution"));
     }
+    #[test]
+    fn dry_run_does_not_verify_provider_evidence_replay() {
+        let summary = run_dry_run_summary();
+        assert!(!summary.contains("verify_provider_evidence_replay"));
+        assert!(!summary.contains("verified_against_evidence"));
+    }
 
     #[test]
     fn unknown_command_usage_is_safe() {
