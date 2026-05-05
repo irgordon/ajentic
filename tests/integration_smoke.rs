@@ -1,9 +1,10 @@
 use ajentic_core::api::{
-    accept_recovery_candidate_for_in_memory_use, provider_evidence_snapshot_from_harness_report,
+    accept_recovery_candidate_for_in_memory_use, observability_snapshot_from_supplied_evidence,
+    observability_snapshot_mutates_authority, provider_evidence_snapshot_from_harness_report,
     recovery_acceptance_mutates_authority, run_end_to_end_local_harness,
     verify_provider_evidence_replay, ApplicationRecoveryCandidate, EndToEndLocalHarnessRequest,
-    EndToEndLocalHarnessStatus, ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    EndToEndLocalHarnessStatus, ObservedDiagnosticSummary, ProviderEvidenceReplayMode,
+    ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 #[test]
@@ -96,4 +97,54 @@ fn root_integration_recovery_acceptance_does_not_mutate_authority() {
         },
     });
     assert!(!recovery_acceptance_mutates_authority(&report));
+}
+
+#[test]
+fn root_integration_observability_snapshot_is_read_only() {
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "obs-root-1",
+        None,
+        None,
+        None,
+        None,
+        None,
+        vec![ObservedDiagnosticSummary {
+            family: "diag".into(),
+            code: "ok".into(),
+            key: "k".into(),
+            summary: "read-only".into(),
+        }],
+    );
+    assert!(!snapshot.reads_persistence);
+    assert!(!snapshot.writes_persistence);
+    assert!(!snapshot.exports_data);
+    assert!(!observability_snapshot_mutates_authority(&snapshot));
+}
+
+#[test]
+fn root_integration_observability_snapshot_observes_harness_and_replay_without_authority() {
+    let harness = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+        run_id: "obs-root-run".to_string(),
+        provider_prompt: "deterministic local harness prompt".to_string(),
+        operator_id: "operator-1".to_string(),
+        target_id: "target-1".to_string(),
+        reason: "obs".to_string(),
+    });
+    let replay = verify_provider_evidence_replay(
+        "obs-replay",
+        "obs-root-run",
+        provider_evidence_snapshot_from_harness_report("obs-evidence", &harness),
+    );
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "obs-root-2",
+        Some(&harness),
+        None,
+        None,
+        Some(&replay),
+        None,
+        vec![],
+    );
+    assert!(snapshot.harness.is_some());
+    assert!(snapshot.replay.is_some());
+    assert!(!observability_snapshot_mutates_authority(&snapshot));
 }
