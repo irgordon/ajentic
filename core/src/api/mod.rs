@@ -6,6 +6,7 @@ mod intent_audit;
 mod local_workflow;
 mod operator_intent;
 mod persistence;
+mod provider_transport;
 mod read_projection;
 mod runtime_config;
 
@@ -17,5 +18,6 @@ pub use intent_audit::*;
 pub use local_workflow::*;
 pub use operator_intent::*;
 pub use persistence::*;
+pub use provider_transport::*;
 pub use read_projection::*;
 pub use runtime_config::*;
