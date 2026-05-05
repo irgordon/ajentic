@@ -1,10 +1,11 @@
 use ajentic_core::api::{
-    accept_recovery_candidate_for_in_memory_use, observability_snapshot_from_supplied_evidence,
-    observability_snapshot_mutates_authority, provider_evidence_snapshot_from_harness_report,
-    recovery_acceptance_mutates_authority, run_end_to_end_local_harness,
-    verify_provider_evidence_replay, ApplicationRecoveryCandidate, EndToEndLocalHarnessRequest,
-    EndToEndLocalHarnessStatus, ObservedDiagnosticSummary, ProviderEvidenceReplayMode,
-    ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    accept_recovery_candidate_for_in_memory_use, encode_audit_export_snapshot,
+    observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
+    provider_evidence_snapshot_from_harness_report, recovery_acceptance_mutates_authority,
+    run_end_to_end_local_harness, verify_provider_evidence_replay, ApplicationRecoveryCandidate,
+    AuditExportEncodingLimits, EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus,
+    ObservedDiagnosticSummary, ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus,
+    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 #[test]
@@ -147,4 +148,69 @@ fn root_integration_observability_snapshot_observes_harness_and_replay_without_a
     assert!(snapshot.harness.is_some());
     assert!(snapshot.replay.is_some());
     assert!(!observability_snapshot_mutates_authority(&snapshot));
+}
+
+#[test]
+fn root_integration_audit_export_encoding_is_deterministic() {
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "audit-root-1",
+        None,
+        None,
+        None,
+        None,
+        None,
+        vec![ObservedDiagnosticSummary {
+            family: "diagnostic".into(),
+            code: "ok".into(),
+            key: "root".into(),
+            summary: "deterministic".into(),
+        }],
+    );
+    let first = match encode_audit_export_snapshot(
+        "export-root-1",
+        &snapshot,
+        AuditExportEncodingLimits::strict_defaults(),
+    ) {
+        Ok(envelope) => envelope,
+        Err(_) => panic!("first root encoding should pass"),
+    };
+    let second = match encode_audit_export_snapshot(
+        "export-root-1",
+        &snapshot,
+        AuditExportEncodingLimits::strict_defaults(),
+    ) {
+        Ok(envelope) => envelope,
+        Err(_) => panic!("second root encoding should pass"),
+    };
+    assert_eq!(first.encoded_bytes, second.encoded_bytes);
+}
+
+#[test]
+fn root_integration_audit_export_encoding_is_non_authoritative() {
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "audit-root-2",
+        None,
+        None,
+        None,
+        None,
+        None,
+        vec![ObservedDiagnosticSummary {
+            family: "diagnostic".into(),
+            code: "ok".into(),
+            key: "root".into(),
+            summary: "non-authoritative".into(),
+        }],
+    );
+    let envelope = match encode_audit_export_snapshot(
+        "export-root-2",
+        &snapshot,
+        AuditExportEncodingLimits::strict_defaults(),
+    ) {
+        Ok(envelope) => envelope,
+        Err(_) => panic!("root encoding should pass"),
+    };
+    assert!(!envelope.writes_files);
+    assert!(!envelope.reads_persistence);
+    assert!(!envelope.writes_persistence);
+    assert!(!envelope.mutates_authority);
 }
