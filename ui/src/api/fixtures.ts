@@ -1,4 +1,4 @@
-import type { ApplicationUiProjection, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability } from "./projections";
+import type { ApplicationUiProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability } from "./projections";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
   projectionId: "proj-fixture-0053",
@@ -88,4 +88,73 @@ export const uiRustIntentPreviewRequestFixture: UiRustIntentPreviewRequest = {
   capability: uiRustTransportCapabilityFixture,
   diagnostic: uiReadModelFixture.diagnostics[0],
   summary: "Transport-shaped intent preview request only; submission and execution remain disabled."
+};
+
+export const uiOperatorIntentSubmissionCapabilityFixture: UiOperatorIntentSubmissionCapability = {
+  submissionShapeEnabled: true,
+  liveTransportEnabled: false,
+  executionEnabled: false,
+  persistenceEnabled: false,
+  ledgerRecordingEnabled: false,
+  auditAppendEnabled: false,
+  providerExecutionEnabled: false,
+  replayRepairEnabled: false,
+  mutatesApplicationState: false
+};
+
+export const uiOperatorIntentSubmissionContractFixtures: readonly UiOperatorIntentSubmissionContract[] = [
+  {
+    submissionId: "sub-phase77-ingress-ready",
+    operatorId: "operator-phase77",
+    targetKind: "run",
+    targetId: "run-fixture-0053",
+    intentType: "approve",
+    reason: "Route for ingress eligibility preview only.",
+    status: "ingress_ready",
+    capability: uiOperatorIntentSubmissionCapabilityFixture,
+    summary: "Accepted-for-routing style local submission contract preview only; no action execution occurs."
+  },
+  {
+    submissionId: "sub-phase77-auth-ready",
+    operatorId: "operator-phase77",
+    targetKind: "run",
+    targetId: "run-fixture-0053",
+    intentType: "policy_check",
+    reason: "Prepare authorization-shape preview only.",
+    status: "authorization_ready",
+    capability: uiOperatorIntentSubmissionCapabilityFixture,
+    summary: "Authorization-ready local submission contract preview only; no action execution occurs."
+  },
+  {
+    submissionId: "sub-phase77-audit-eligible",
+    operatorId: "operator-phase77",
+    targetKind: "replay",
+    targetId: "replay-fixture-0053",
+    intentType: "replay_request",
+    reason: "Prepare audit-eligibility preview only.",
+    status: "audit_eligible",
+    capability: uiOperatorIntentSubmissionCapabilityFixture,
+    summary: "Audit-eligible local submission contract preview only; no action execution occurs."
+  },
+  {
+    submissionId: "sub-phase77-rejected",
+    operatorId: "operator-phase77",
+    targetKind: "unknown",
+    targetId: "",
+    intentType: "retry",
+    reason: "Deliberate ineligible preview fixture.",
+    status: "rejected",
+    capability: uiOperatorIntentSubmissionCapabilityFixture,
+    diagnostic: { family: "operator_intent", code: "route_missing", summary: "Submission preview is ineligible because routing context is unavailable.", key: "operator_intent.route_missing" },
+    summary: "Rejected local submission contract preview only; no action execution occurs."
+  }
+];
+
+export const uiOperatorIntentSubmissionEnvelopeFixture: UiOperatorIntentSubmissionEnvelope = {
+  envelopeId: "transport-intent-submission-0077",
+  direction: "ui_to_rust",
+  status: "display_only",
+  payload: uiOperatorIntentSubmissionContractFixtures[0],
+  capability: uiRustTransportCapabilityFixture,
+  summary: "Submission-shaped envelope is local display data only; no live transport or action execution occurs."
 };

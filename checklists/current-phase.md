@@ -6,13 +6,10 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 76.6 - Out-of-Band Formatting Drift Closure
-
-## explicit out-of-band maintenance note
-Phase 76.6 is an out-of-band maintenance fix before Phase 77.
+Phase 77 - UI Operator Intent Submission Wiring
 
 ## phase goal
-Close Rust formatting drift exposed by the non-mutating Phase 76.5 validation gate and prove the full validation gate passes cleanly without changing behavior.
+Wire UI operator intent submission to Rust-owned ingress/authorization/audit-eligibility contract shape at the TypeScript boundary without execution, transport, persistence, or authority transfer.
 
 ## working-tree hygiene gate
 - [x] `git status --short` run before edits and classified.
@@ -20,31 +17,34 @@ Close Rust formatting drift exposed by the non-mutating Phase 76.5 validation ga
 - [x] Generated artifacts reviewed/reverted before staging.
 
 ## allowed surfaces
-- [x] `core/src/api/intent_audit.rs` (rustfmt output only)
+- [x] `ui/src/api/projections.ts`
+- [x] `ui/src/api/readModel.ts`
+- [x] `ui/src/api/fixtures.ts`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/formatting-drift-closure-phase-76-6.md`
-- [ ] TypeScript source
-- [ ] scripts
-- [ ] workflows
-- [ ] roadmap/governance/architecture sources
-- [ ] package/dependency files
+- [x] `docs/operations/ui-intent-submission-phase-77.md`
+- [ ] Rust runtime execution surfaces
+- [ ] scripts/workflows/dependency/package/config files
 
 ## boundary rules
-- [x] Formatting drift closure only.
-- [x] No new authority path is created.
-- [x] No runtime behavior changes.
-- [x] No validation tooling changes.
-- [x] No Phase 77 UI submission wiring.
-- [x] Phase 77 scope remains unchanged.
+- [x] Submission is not execution.
+- [x] No action execution/authorized-action boundary implementation.
+- [x] No live UI/Rust transport.
+- [x] No persistence/ledger/audit append.
+- [x] No provider execution/replay repair/state mutation.
+- [x] Phase 78 remains responsible for authorized action execution.
 
 ## task checklist
-- [x] Updated checklist to Phase 76.6 procedural truth.
-- [x] Added operations documentation for formatting drift closure.
-- [x] Added `CHANGELOG.md` entry for `v0.0.76.6`.
-- [x] Ran `cargo fmt --manifest-path core/Cargo.toml` intentionally.
-- [x] Inspected Rust diff and confirmed rustfmt-only output.
-- [x] Kept logic unchanged in `core/src/api/intent_audit.rs`.
+- [x] Updated checklist to Phase 77 procedural truth.
+- [x] Added operations documentation for submission wiring.
+- [x] Added submission request, ingress/authorization/audit status contract types.
+- [x] Added submission capability contract with all execution/mutation flags fixed false.
+- [x] Set `UI_INTENT_SUBMISSION_ENABLED=true` for local submission-shaped wiring only.
+- [x] Preserved `UI_INTENT_EXECUTION_ENABLED=false`.
+- [x] Preserved `UI_INTENT_LEDGER_RECORDING_ENABLED=false`.
+- [x] Preserved `UI_READ_MODEL_MUTATION_CAPABLE=false`.
+- [x] Added fixture-backed ingress-ready, authorization-ready, audit-eligible, and rejected previews.
+- [x] Added `CHANGELOG.md` entry for `v0.0.77`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
@@ -53,46 +53,20 @@ Close Rust formatting drift exposed by the non-mutating Phase 76.5 validation ga
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
-
-## formatting drift checklist
-- [x] Phase 76.6 closes formatting drift exposed by the Phase 76.5 non-mutating check gate.
-- [x] Rust source diff is rustfmt output only.
-- [x] No non-rustfmt Rust logic edits were introduced.
-
-## authority path checklist
-- [x] No new authority path is created.
-- [x] Existing authority boundaries remain unchanged.
-- [x] Phase 76.6 does not change authorization, persistence, provider, or transport authority.
-
-## Phase 77 non-wiring checklist
-- [x] UI operator intent submission wiring remains intentionally absent.
-- [x] No UI event handlers or transport behavior added.
-- [x] Phase 77 remains responsible for UI operator intent submission wiring.
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
 ## findings table
 | Item | Finding |
 | --- | --- |
-| Out-of-band status | Phase 76.6 is an out-of-band maintenance fix before Phase 77. |
-| Formatting drift | `core/src/api/intent_audit.rs` had formatting drift surfaced by the Phase 76.5 non-mutating gate and was normalized by rustfmt. |
-| Authority path | No new authority path is created and no authority surface changed. |
-| Validation tooling | Validation tooling is unchanged; only source formatting drift was corrected. |
-| Phase relationship | Phase 77 scope remains unchanged and still owns UI operator intent submission wiring. |
+| Submission wiring | Local, typed submission-shaped contract wiring is present for ingress/authorization/audit previews. |
+| Execution posture | Execution remains disabled and non-authoritative across all submission fixtures/capabilities. |
+| Transport posture | Live UI/Rust transport remains disabled; envelope usage is display/local only. |
+| Persistence posture | Persistence/ledger/audit append remain disabled. |
+| Phase relationship | Phase 78 remains deferred for authorized action execution. |
 
 ## deferred items table
 | Deferred item | Owner phase |
 | --- | --- |
-| UI operator intent submission wiring | Phase 77 |
-| Authorized action execution boundary | Phase 78 |
+| Authorized operator action execution boundary | Phase 78 |
+| Live UI/Rust intent transport | Future phase beyond 77 |
 
-## validation log table
-| Command | Result | Notes |
-| --- | --- | --- |
-| `git status --short` | pass | Uncommitted files classified before edits. |
-| `cargo fmt --manifest-path core/Cargo.toml` | pass | Applied rustfmt output; no hand-edited logic changes. |
-| `git diff -- core/src/api/intent_audit.rs` | pass | Confirmed rustfmt-only import wrapping change. |
-| `./scripts/check.sh` | pass | Full non-mutating validation gate passed cleanly. |
-| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
-| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed with zero blocking findings. |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-tests passed. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed with zero blocking findings. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed; no Phase 77 wiring introduced. |
