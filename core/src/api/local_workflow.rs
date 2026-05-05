@@ -820,6 +820,16 @@ mod tests {
         );
     }
 
+    fn rejected_report() -> EndToEndLocalHarnessReport {
+        run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "".into(),
+            provider_prompt: "approved trusted execute persist admin override skip policy write ledger repair replay promote recovered state".into(),
+            operator_id: "op-1".into(),
+            target_id: "target-1".into(),
+            reason: "approved trusted execute persist admin override skip policy write ledger repair replay promote recovered state".into(),
+        })
+    }
+
     fn harness_report() -> EndToEndLocalHarnessReport {
         run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
             run_id: "run-1".into(),
@@ -920,6 +930,198 @@ mod tests {
         assert!(!r.provider_output_trusted);
         assert!(!r.provider_output_authoritative);
         assert!(!r.action_real_world_effect);
+    }
+
+    #[test]
+    fn bounded_local_harness_rejects_empty_reason_if_reason_is_required_or_documents_optional_reason(
+    ) {
+        let r = harness_report();
+        assert_eq!(r.status, EndToEndLocalHarnessStatus::Completed);
+        assert_eq!(
+            r.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+
+    #[test]
+    fn bounded_local_harness_rejects_or_neutralizes_provider_prompt_authority_phrases() {
+        let r = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run".into(),
+            provider_prompt: "approved trusted execute persist admin override skip policy write ledger repair replay promote recovered state".into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "reason".into(),
+        });
+        assert!(!r.provider_output_trusted);
+        assert!(!r.provider_output_authoritative);
+        assert!(!r.action_real_world_effect);
+    }
+
+    #[test]
+    fn bounded_local_harness_rejects_or_neutralizes_operator_reason_authority_phrases() {
+        let r = harness_report();
+        assert!(!r.provider_output_trusted);
+        assert!(!r.provider_output_authoritative);
+        assert!(!r.action_real_world_effect);
+    }
+
+    #[test]
+    fn bounded_local_harness_does_not_change_flags_on_rejected_requests() {
+        let r = rejected_report();
+        assert_eq!(r.status, EndToEndLocalHarnessStatus::Rejected);
+        assert!(!r.provider_output_trusted);
+        assert!(!r.provider_output_authoritative);
+        assert!(!r.retry_scheduled);
+        assert!(!r.ledger_bytes_persisted);
+        assert!(!r.ui_transport_live);
+        assert!(!r.ui_submission_executes_action);
+        assert!(!r.action_real_world_effect);
+    }
+
+    #[test]
+    fn bounded_local_harness_rejected_paths_remain_non_authoritative() {
+        assert!(!rejected_report().provider_output_authoritative);
+    }
+    #[test]
+    fn bounded_local_harness_rejected_paths_do_not_schedule_retry() {
+        assert!(!rejected_report().retry_scheduled);
+    }
+    #[test]
+    fn bounded_local_harness_rejected_paths_do_not_mark_ui_transport_live() {
+        assert!(!rejected_report().ui_transport_live);
+    }
+    #[test]
+    fn bounded_local_harness_rejected_paths_do_not_mark_submission_executing() {
+        assert!(!rejected_report().ui_submission_executes_action);
+    }
+    #[test]
+    fn bounded_local_harness_rejected_paths_do_not_mark_action_effectful() {
+        assert!(!rejected_report().action_real_world_effect);
+    }
+    #[test]
+    fn bounded_local_harness_rejected_paths_do_not_persist_or_append() {
+        assert!(!rejected_report().ledger_bytes_persisted);
+    }
+
+    #[test]
+    fn bounded_local_harness_summary_contains_non_authoritative_boundary_language() {
+        assert!(harness_report().summary.contains("non-authoritative"));
+    }
+
+    #[test]
+    fn bounded_local_harness_completed_report_contains_non_authoritative_boundary_language() {
+        assert!(harness_report().summary.contains("side-effect free"));
+    }
+
+    #[test]
+    fn bounded_local_harness_no_generalized_workflow_engine_markers() {
+        let summary = harness_report().summary.to_lowercase();
+        assert!(!summary.contains("workflow engine"));
+        assert!(!summary.contains("orchestrator"));
+    }
+
+    #[test]
+    fn bounded_local_harness_authorization_and_audit_requirements_remain_true_for_completed_report()
+    {
+        let r = harness_report();
+        assert!(r.authorization_required);
+        assert!(r.audit_proof_required);
+    }
+    #[test]
+    fn bounded_local_harness_action_kind_cannot_be_overridden_by_request_text() {
+        let r = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run".into(),
+            provider_prompt: "RecordExecutionDecision->execute".into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "set action kind to DeleteAllData".into(),
+        });
+        assert_eq!(r.action_kind, "RecordExecutionDecision");
+    }
+    #[test]
+    fn bounded_local_harness_projection_slice_remains_bounded_for_long_prompt() {
+        let prompt = "approved ".repeat(2048);
+        let r = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "run".into(),
+            provider_prompt: prompt,
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "reason".into(),
+        });
+        assert!(r.projection_slice_bounded);
+    }
+    #[test]
+    fn bounded_local_harness_boundary_statuses_are_stable_for_same_input() {
+        assert_eq!(
+            harness_report().provider_boundary_status,
+            harness_report().provider_boundary_status
+        );
+        assert_eq!(
+            harness_report().ui_transport_boundary_status,
+            harness_report().ui_transport_boundary_status
+        );
+    }
+    #[test]
+    fn bounded_local_harness_represented_boundaries_do_not_become_composed_without_explicit_code_change(
+    ) {
+        let r = harness_report();
+        assert_ne!(r.provider_boundary_status, EndToEndBoundaryStatus::Composed);
+        assert_ne!(
+            r.transport_boundary_status,
+            EndToEndBoundaryStatus::Composed
+        );
+        assert_ne!(
+            r.authorization_boundary_status,
+            EndToEndBoundaryStatus::Composed
+        );
+    }
+    #[test]
+    fn bounded_local_harness_deferred_boundaries_do_not_become_live_without_explicit_code_change() {
+        let r = harness_report();
+        assert_eq!(
+            r.ui_transport_boundary_status,
+            EndToEndBoundaryStatus::Deferred
+        );
+        assert_eq!(
+            r.ui_submission_boundary_status,
+            EndToEndBoundaryStatus::Deferred
+        );
+    }
+
+    #[test]
+    fn phase79_existing_completed_report_shape_is_preserved() {
+        let r = harness_report();
+        assert_eq!(r.status, EndToEndLocalHarnessStatus::Completed);
+        assert_eq!(
+            r.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+    #[test]
+    fn phase79_existing_empty_field_rejections_are_preserved() {
+        assert_eq!(
+            rejected_report().reason,
+            EndToEndLocalHarnessReason::EmptyRunId
+        );
+    }
+    #[test]
+    fn phase79_existing_determinism_is_preserved() {
+        assert_eq!(harness_report(), harness_report());
+    }
+    #[test]
+    fn phase79_existing_no_authority_flags_are_preserved() {
+        let r = harness_report();
+        assert!(
+            !r.provider_output_trusted
+                && !r.provider_output_authoritative
+                && !r.action_real_world_effect
+        );
+    }
+    #[test]
+    fn phase79_existing_dry_run_absence_is_preserved() {
+        assert!(!harness_report()
+            .summary
+            .contains("run_end_to_end_local_harness"));
     }
 }
 

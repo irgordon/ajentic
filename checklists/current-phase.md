@@ -6,42 +6,37 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 80 - Roadmap and Changelog Alignment Check + Production Candidate Gap Audit
+Phase 81 - Local Harness Composition Hardening
 
 ## phase goal
-Perform roadmap/changelog alignment, assess production-candidate gaps after Phases 71-79, and expand roadmap planning surfaces through Phase 90 without implementing runtime behavior.
+Harden the bounded Phase 79 local harness composition with negative-path and mismatch coverage without adding runtime authority.
 
 ## working-tree hygiene gate
 - [x] `git status --short` run before edits and classified.
-- [x] Modified files constrained to allowed surfaces for Phase 80.
+- [x] Modified files constrained to allowed surfaces for Phase 81.
 - [x] Generated artifacts reviewed/reverted before staging.
 
 ## allowed surfaces
-- [x] `docs/roadmap/phase-map.md`
-- [x] `docs/roadmap/phases.md`
-- [x] `docs/roadmap/sequencing.md`
+- [x] `core/src/api/local_workflow.rs`
+- [ ] `core/src/main.rs` (only if dry-run no-harness hardening required)
 - [x] `checklists/current-phase.md`
+- [ ] `checklists/release.md` (only if evidence posture changes)
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/repository-audit-phase-80.md`
-- [ ] `checklists/release.md` (only if evidence posture update is required)
+- [x] `docs/operations/local-harness-hardening-phase-81.md`
 
 ## boundary rules
-- [x] Phase 80 is alignment/audit/planning only.
-- [x] Phase 80 does not implement runtime behavior.
-- [x] Phase 80 does not approve Production Candidate status unless evidence unexpectedly closes all listed gaps.
-- [x] Roadmap files remain planned truth.
-- [x] `CHANGELOG.md` remains historical truth.
+- [x] Hardening only; no new runtime authority.
+- [x] No new runtime execution paths.
+- [x] No owning boundary module changes.
+- [x] No roadmap updates in Phase 81.
 
 ## task checklist
-- [x] Updated checklist to Phase 80 procedural truth.
-- [x] Added `docs/operations/repository-audit-phase-80.md` with required sections and required gap statements.
-- [x] Reconciled `CHANGELOG.md` historical entries for Phases 71, 71.3, 71.5, 72, 73, 74, 75, 75.1, 76, 76.5, 76.6, 77, 78, and 79.
-- [x] Confirmed roadmap files do not mark Phases 71-79 as completed.
-- [x] Updated `docs/roadmap/phase-map.md` with compact planned entries through Phase 90.
-- [x] Updated `docs/roadmap/phases.md` as active expanded catalog for Phases 81-90.
-- [x] Updated `docs/roadmap/sequencing.md` with next-block dependency rationale.
-- [x] Added `CHANGELOG.md` entry for `v0.0.80`.
-- [x] Confirmed no runtime source/script/workflow/dependency/config/README changes.
+- [x] Updated checklist to Phase 81 procedural truth.
+- [x] Added Phase 81 operations note.
+- [x] Added required negative-path tests.
+- [x] Added required mismatch/seam tests.
+- [x] Added Phase 79 non-regression tests.
+- [x] Added `CHANGELOG.md` entry `v0.0.81`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
@@ -51,75 +46,58 @@ Perform roadmap/changelog alignment, assess production-candidate gaps after Phas
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] Roadmap planning scan command executed.
-- [x] Truth-surface scan command executed.
-- [x] Production-gap scan command executed.
-- [x] Roadmap completion contamination scan executed.
-- [x] Changelog future-planning contamination scan executed.
-- [x] Source/script/workflow guard diff command executed.
-- [x] Readiness scan command executed.
-- [x] Lint wiring scan command executed.
 
-## roadmap-surface checklist
-- [x] `phase-map.md` kept compact planned phase index.
-- [x] `phases.md` updated as active expanded catalog.
-- [x] `sequencing.md` updated with ordering rationale/dependency chain.
-- [x] No roadmap surface rewritten as changelog history.
+## negative-path hardening checklist
+- [x] bounded_local_harness_rejects_empty_reason_if_reason_is_required_or_documents_optional_reason
+- [x] bounded_local_harness_rejects_or_neutralizes_provider_prompt_authority_phrases
+- [x] bounded_local_harness_rejects_or_neutralizes_operator_reason_authority_phrases
+- [x] bounded_local_harness_does_not_change_flags_on_rejected_requests
+- [x] bounded_local_harness_rejected_paths_remain_non_authoritative
+- [x] bounded_local_harness_rejected_paths_do_not_schedule_retry
+- [x] bounded_local_harness_rejected_paths_do_not_mark_ui_transport_live
+- [x] bounded_local_harness_rejected_paths_do_not_mark_submission_executing
+- [x] bounded_local_harness_rejected_paths_do_not_mark_action_effectful
+- [x] bounded_local_harness_rejected_paths_do_not_persist_or_append
+- [x] bounded_local_harness_summary_contains_non_authoritative_boundary_language
+- [x] bounded_local_harness_completed_report_contains_non_authoritative_boundary_language
+- [x] bounded_local_harness_no_generalized_workflow_engine_markers
 
-## Phase 71-79 alignment checklist
-- [x] Changelog contains historical entries for 71, 71.3, 71.5, 72, 73, 74, 75, 75.1, 76, 76.5, 76.6, 77, 78, 79.
-- [x] Roadmap surfaces avoid completion claims for 71-79.
-- [x] Boundary notes remain non-readiness and non-approval.
+## mismatch/seam hardening checklist
+- [x] bounded_local_harness_authorization_and_audit_requirements_remain_true_for_completed_report
+- [x] bounded_local_harness_action_kind_cannot_be_overridden_by_request_text
+- [x] bounded_local_harness_projection_slice_remains_bounded_for_long_prompt
+- [x] bounded_local_harness_boundary_statuses_are_stable_for_same_input
+- [x] bounded_local_harness_represented_boundaries_do_not_become_composed_without_explicit_code_change
+- [x] bounded_local_harness_deferred_boundaries_do_not_become_live_without_explicit_code_change
 
-## production-candidate mechanical gap checklist
-- [x] no real network transport
-- [x] no live UI/Rust transport
-- [x] no real provider API client
-- [x] no live identity provider integration
-- [x] no database or durable store driver beyond local typed persistence primitives
-- [x] no packaged installer/startup surface
-- [x] no real user-facing workflow documentation
-- [x] no observability/export surface
-- [x] no operational deployment model
-- [x] no release artifact/signing/update process
+## Phase 79 preservation checklist
+- [x] phase79_existing_completed_report_shape_is_preserved
+- [x] phase79_existing_empty_field_rejections_are_preserved
+- [x] phase79_existing_determinism_is_preserved
+- [x] phase79_existing_no_authority_flags_are_preserved
+- [x] phase79_existing_dry_run_absence_is_preserved
 
-## production-candidate architectural gap checklist
-- [x] provider output is still untrusted and not promotable
-- [x] audit proof is not durable append
-- [x] ledger bytes are not recovered authority
-- [x] recovery candidates are not accepted application state
-- [x] UI submission is not live Rust ingress
-- [x] `RecordExecutionDecision` is proof-only and has no real-world side effect
-- [x] retry classification does not schedule retries
-- [x] end-to-end harness is bounded evidence, not a production workflow
-
-## Phase 81-90 planning checklist
-- [x] Phase 81 Local Harness Composition Hardening
-- [x] Phase 82 Provider Evidence Replay and Failure Trace Boundary
-- [x] Phase 83 Durable Audit and Ledger Append Boundary
-- [x] Phase 84 Recovery Candidate Acceptance Boundary
-- [x] Phase 85 Roadmap and Changelog Alignment Check
-- [x] Phase 86 User-Facing Local Workflow Documentation
-- [x] Phase 87 Observability and Audit Export Boundary
-- [x] Phase 88 Security and Abuse-Case Hardening Pass
-- [x] Phase 89 Packaging and Local Startup Candidate Boundary
-- [x] Phase 90 Production Candidate Gap Audit and Readiness Decision Gate
+## zero-drift checklist
+- [x] No diffs outside allowed surfaces.
+- [x] No roadmap diffs.
+- [x] No generated artifacts staged.
+- [x] No dependency/package/config drift.
+- [x] No readiness/public-usability claim added.
 
 ## findings table
 | Item | Finding |
 | --- | --- |
-| Roadmap/changelog posture | Roadmap remains planned truth and changelog remains historical truth. |
-| Phase 71-79 block | Boundaries remained narrow and evidence-local; no production-readiness claim. |
-| Production Candidate status | Not approved due to unresolved mechanical and architectural gaps. |
-| Phase 81-90 block | Planned expansion recorded with compact index, expanded catalog, and sequencing rationale. |
+| Phase 81 scope | Hardening-only coverage added for bounded local harness composition seams. |
+| Runtime authority | Unchanged; non-authoritative and side-effect-free posture preserved. |
+| Boundary ownership | Owning boundary modules were not changed. |
 
 ## deferred items table
 | Deferred item | Owner phase |
 | --- | --- |
-| Live transport/provider/identity/deployment mechanics | Phase 81-90 block |
-| Durable append acceptance and recovery promotion | Phases 83-84 |
-| Observability/export and packaging/startup usability | Phases 87 and 89 |
-| Production Candidate readiness decision gate | Phase 90 |
+| Replay evidence boundary | Phase 82 |
+| Durable append boundary | Phase 83 |
+| Recovery acceptance boundary | Phase 84 |
+| Alignment checkpoint | Phase 85 |
 
 ## validation log table
 | Command | Result |

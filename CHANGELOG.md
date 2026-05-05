@@ -5,6 +5,22 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.81 - 2026-05-05
+**Status:** Phase 81 - Local Harness Composition Hardening
+
+### Added
+- Added `docs/operations/local-harness-hardening-phase-81.md` with advisory hardening scope, coverage, zero-drift, and non-readiness posture.
+
+### Changed
+- Updated `core/src/api/local_workflow.rs` with deterministic Phase 81 negative-path, mismatch/seam, and Phase 79 preservation tests for the bounded local harness report.
+- Updated `checklists/current-phase.md` to Phase 81 procedural truth and required hardening/validation closure sections.
+- Updated `CHANGELOG.md` with `v0.0.81`.
+
+### Notes
+- Phase 81 hardens the Phase 79 bounded local harness composition only.
+- Phase 81 does not add runtime authority, provider execution, live transport, persistence writes, ledger/audit append, replay repair, recovery acceptance, or broad action execution.
+- Public usability, release-candidate readiness, and production readiness are not claimed.
+
 ## v0.0.80 - 2026-05-05
 **Status:** Phase 80 - Roadmap and Changelog Alignment Check + Production Candidate Gap Audit
 
