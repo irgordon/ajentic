@@ -5,6 +5,27 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.85 - 2026-05-05
+**Status:** Phase 85 - Roadmap and Changelog Alignment Check
+
+### Added
+- Added `docs/operations/repository-audit-phase-85.md` documenting Phase 81-84 reconciliation, roadmap/truth-surface alignment, and the Phase 85-100 expansion rationale.
+
+### Changed
+- Updated `docs/roadmap/phase-map.md` as the compact planned phase index for Phases 85-100.
+- Updated `docs/roadmap/phases.md` as the active expanded planning catalog for Phases 85-100.
+- Updated `docs/roadmap/sequencing.md` with ordering rationale and dependency chain for the 85-100 split.
+- Updated `checklists/current-phase.md` to Phase 85 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.85`.
+
+### Notes
+- Phase 85 is alignment, documentation hygiene, roadmap expansion, and planning-truth correction only.
+- Phase 85 does not implement runtime behavior.
+- Phase 85 does not approve Production Candidate status.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+- No release-candidate-readiness, production-readiness, or public-usability claim is made.
+
 ## v0.0.84 - 2026-05-05
 **Status:** Phase 84 - Recovery Candidate Acceptance Boundary
 

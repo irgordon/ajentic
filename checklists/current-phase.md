@@ -6,81 +6,103 @@ mutation_path: checklist_revision
 
 # Current Phase Checklist
 
-## phase name
-Phase 84 - Recovery Candidate Acceptance Boundary
+## Phase name
+Phase 85 - Roadmap and Changelog Alignment Check
 
-## phase goal
-Define explicit fail-closed acceptance of verified recovery candidates for in-memory use only.
+## Phase goal
+Reconcile Phase 81-84 outcomes and planning/history posture before outward-facing surfaces.
 
-## working-tree hygiene gate
-- [x] `git status --short` reviewed before edits.
-- [x] Working changes constrained to approved Phase 84 surfaces.
+## Working-tree hygiene gate
+- [x] Initial working tree reviewed with `git status --short`.
+- [x] Final working tree restricted to allowed surfaces only.
 
-## allowed surfaces
-- [x] `core/src/api/application_state.rs`
-- [x] `tests/integration_smoke.rs`
-- [x] `checklists/current-phase.md`
-- [x] `CHANGELOG.md`
-- [x] `docs/operations/recovery-acceptance-boundary-phase-84.md`
+## Allowed surfaces
+- [x] docs/roadmap/phase-map.md
+- [x] docs/roadmap/phases.md
+- [x] docs/roadmap/sequencing.md
+- [x] checklists/current-phase.md
+- [x] CHANGELOG.md
+- [x] docs/operations/repository-audit-phase-85.md
+- [x] checklists/release.md untouched unless evidence posture required update.
 
-## boundary rules
-- [x] No silent recovery.
-- [x] No automatic or global LocalApplicationState replacement.
-- [x] No persistence write, ledger/audit append, replay repair, provider trust promotion, or action execution.
+## Boundary rules
+- [x] Phase 85 does not implement runtime behavior.
+- [x] Phase 85 does not approve Production Candidate status.
+- [x] Phase 85 does not approve release-candidate readiness or public usability.
+- [x] Roadmap files remain planned truth.
+- [x] `CHANGELOG.md` remains historical truth.
 
-## task checklist
-- [x] Added typed recovery acceptance status/reason/request/report surfaces.
-- [x] Added explicit `accept_recovery_candidate_for_in_memory_use(...)` gate.
-- [x] Added `recovery_acceptance_replaces_global_state(...)` helper.
-- [x] Added `recovery_acceptance_mutates_authority(...)` helper.
-- [x] Added deterministic unit tests for acceptance boundary behavior.
-- [x] Added root integration smoke acceptance coverage.
-- [x] Added operations doc for Phase 84 posture.
-- [x] Added changelog entry `v0.0.84`.
+## Task checklist
+- [x] Confirmed Phase 85 title/scope from roadmap files.
+- [x] Reconciled Phase 81, Phase 82, Phase 82.5, Phase 83, and Phase 84 outcomes against `CHANGELOG.md`.
+- [x] Confirmed roadmap files do not mark Phase 81-84 as complete.
+- [x] Updated `docs/roadmap/phase-map.md` with compact planned entries through Phase 100.
+- [x] Updated `docs/roadmap/phases.md` as active expanded planning catalog for Phases 85-100.
+- [x] Updated `docs/roadmap/sequencing.md` with dependency rationale for the 85-100 expansion.
+- [x] Created `docs/operations/repository-audit-phase-85.md` with required sections and statements.
+- [x] Appended `CHANGELOG.md` with `v0.0.85` only.
 
-## validation checklist
+## Validation checklist
 - [x] `./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] Rust/UI boundary lints and self-tests
-- [x] UI typecheck/lint/build
+- [x] `node scripts/test_rust_boundary_lint.mjs`
+- [x] `node scripts/rust_boundary_lint.mjs`
+- [x] `node scripts/test_lint_ui_boundaries.mjs`
+- [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
-## recovery acceptance checklist
-- [x] Acceptance is explicit and fail-closed.
-- [x] Candidate identity and revision checks are enforced.
-- [x] Accepted report may set `accepted_for_in_memory_use=true` only.
+## Roadmap-surface checklist
+- [x] `phase-map.md` kept as compact planned phase index.
+- [x] `phases.md` kept as active expanded planning catalog.
+- [x] `sequencing.md` kept as ordering rationale and dependency chain.
 
-## non-authority checklist
-- [x] `replaced_global_state=false`
-- [x] `persisted=false`
-- [x] `appended_ledger=false`
-- [x] `appended_audit=false`
-- [x] `repaired_replay=false`
-- [x] `promoted_provider_output=false`
-- [x] `executed_action=false`
+## Phase 81-84 alignment checklist
+- [x] Phase 81 hardening reflected as historical truth in `CHANGELOG.md`.
+- [x] Phase 82 replay boundary reflected as historical truth in `CHANGELOG.md`.
+- [x] Phase 82.5 integration baseline reflected as historical truth in `CHANGELOG.md`.
+- [x] Phase 83 append boundary reflected as historical truth in `CHANGELOG.md`.
+- [x] Phase 84 recovery acceptance boundary reflected as historical truth in `CHANGELOG.md`.
 
-## root integration-test checklist
-- [x] `root_integration_recovery_candidate_acceptance_is_in_memory_only`
-- [x] `root_integration_recovery_acceptance_does_not_mutate_authority`
+## Phase 85-100 expansion checklist
+- [x] Phase 85-100 entries added to roadmap planning surfaces.
+- [x] Split rationale encoded for observability/export/hardening/startup/packaging/release/readiness boundaries.
+- [x] No future phases claimed complete.
 
-## zero-drift checklist
-- [x] No disallowed files changed.
-- [x] No roadmap/governance/architecture/scripts/workflow/package drift.
+## Production-candidate status checklist
+- [x] Production Candidate status remains not approved.
+- [x] No release-candidate-ready wording added.
+- [x] No production-ready or publicly-usable wording added.
 
-## findings table
-| finding | status |
-| --- | --- |
-| explicit in-memory acceptance gate implemented | confirmed |
-| authority side effects remain false | confirmed |
+## Zero-drift checklist
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No script/workflow/schema/governance/architecture/README/dependency changes.
+- [x] No generated artifact drift retained.
 
-## deferred items table
-| item | phase |
-| --- | --- |
-| roadmap/changelog alignment checkpoint | 85 |
+## Findings table
+| Item | Status | Notes |
+| --- | --- | --- |
+| Roadmap truth surface alignment | pass | Planned truth remains in roadmap files only. |
+| Changelog truth surface alignment | pass | Historical truth remains in `CHANGELOG.md`. |
+| Phase 81-84 reconciliation | pass | Outcomes reconciled and documented in Phase 85 audit report. |
+| Production Candidate status | pass | Not approved. |
 
-## validation log table
-| command | result |
+## Deferred items table
+| Item | Status | Notes |
+| --- | --- | --- |
+| Runtime behavior changes | deferred | Out of Phase 85 scope. |
+| Readiness approval | deferred | Reserved for explicit future decision gate. |
+| Outward-facing release/usability claims | deferred | Not approved in this phase. |
+
+## Validation log table
+| Command | Result |
 | --- | --- |
 | `./scripts/check.sh` | pass |
 | `cargo test --manifest-path core/Cargo.toml --all-targets` | pass |
-| boundary scans/source guard/readiness scans | pass |
+| `node scripts/test_rust_boundary_lint.mjs` | pass |
+| `node scripts/rust_boundary_lint.mjs` | pass |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass |
+| `node scripts/lint_ui_boundaries.mjs` | pass |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass |

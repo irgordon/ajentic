@@ -6,58 +6,82 @@ mutation_path: roadmap_update
 
 # Phases
 
-This document is the active expanded catalog.
+This document is the active expanded planning catalog.
 
 - Compact planned phase index: `docs/roadmap/phase-map.md`
 - Ordering rationale: `docs/roadmap/sequencing.md`
 - Historical truth: `CHANGELOG.md`
 
-## Current planning block: Phases 81-90
-
-### Phase 81 - Local Harness Composition Hardening
-Goal: harden the bounded Phase 79 local harness composition with negative-path and mismatch tests.
-Boundary: hardening only; no new runtime authority.
-
-### Phase 82 - Provider Evidence Replay and Failure Trace Boundary
-Goal: make provider execution/failure evidence replayable for local harness runs.
-Boundary: replay does not trust provider output or mutate state.
-
-### Phase 83 - Durable Audit and Ledger Append Boundary
-Goal: define which audit and ledger proof records may be durably appended.
-Boundary: append eligibility is explicit; append is not promotion or recovery.
-
-### Phase 84 - Recovery Candidate Acceptance Boundary
-Goal: define how a verified recovery candidate may become accepted in-memory state under Rust-owned gates.
-Boundary: acceptance is explicit and fail-closed; no silent recovery.
+## Current planning block: Phases 85-100
 
 ### Phase 85 - Roadmap and Changelog Alignment Check
-Goal: reconcile post-harness hardening, evidence replay, durable append, and recovery-acceptance work.
+Goal: reconcile Phase 81-84 outcomes and planning/history posture before outward-facing surfaces.
 Boundary: alignment only; no readiness approval.
 
 ### Phase 86 - User-Facing Local Workflow Documentation
-Goal: document supported local commands, boundaries, failure modes, and operator expectations.
+Goal: document supported local workflows, commands, failure states, non-authority limits, and operator expectations.
+Boundary: documentation only; no runtime capability change.
+
+### Phase 87 - Read-Only Observability Snapshot Boundary
+Goal: define typed, local, read-only observability snapshots for diagnostics, recovery, append, replay, and action decision status.
+Boundary: snapshot is read-only and non-authoritative; no export files, no transport, no persistence.
+
+### Phase 88 - Audit Export Encoding Boundary
+Goal: define deterministic export encoding for audit/replay/append/recovery evidence.
+Boundary: encoding only; no filesystem export, no network export, no authority mutation.
+
+### Phase 89 - Local Export Write Boundary
+Goal: write verified export bundles through the existing persistence boundary.
+Boundary: export write is not ledger append, not recovery, not promotion, and not live telemetry.
+
+### Phase 90 - Roadmap and Production Candidate Gap Audit
+Goal: reconcile Phases 85-89 and determine whether the next block can pursue startup/package usability.
+Boundary: gap audit only; not approval.
+
+### Phase 91 - Transport Abuse and Submission Spoofing Hardening
+Goal: add negative-path tests for UI/Rust transport contracts, submission-shaped requests, spoofed operators, and disabled execution flags.
+Boundary: hardening only; no live transport.
+
+### Phase 92 - Authorization/Audit/Action Mismatch Hardening
+Goal: add negative-path tests for authorization/audit/action proof mismatch, stale proof reuse, identity mismatch, and action-kind escalation.
+Boundary: hardening only; no new action authority.
+
+### Phase 93 - Persistence Corruption and Append Drift Hardening
+Goal: add negative-path tests for corrupted append envelopes, stale revisions, partial writes, replay drift, and recovery candidate mismatch.
+Boundary: hardening only; no new persistence authority.
+
+### Phase 94 - Provider Output Injection and Replay Abuse Hardening
+Goal: add negative-path tests for provider-output injection, replay tampering, failure trace spoofing, and retry escalation attempts.
+Boundary: hardening only; provider output remains untrusted.
+
+### Phase 95 - Roadmap and Changelog Alignment Check
+Goal: reconcile Phase 91-94 hardening outcomes and decide whether local startup/package work is safe.
+Boundary: alignment only; no readiness approval.
+
+### Phase 96 - Local Startup Command Boundary
+Goal: define the minimal local startup command surface for operator testing.
+Boundary: startup command does not imply production service, daemon, network, or public usability.
+
+### Phase 97 - Packaging Artifact Definition
+Goal: define what local artifacts are built, named, versioned, and excluded.
+Boundary: packaging definition only; no distribution/release approval.
+
+### Phase 98 - Operator Documentation and Troubleshooting Guide
+Goal: document startup, validation, expected outputs, failure modes, and rollback expectations for local operators.
 Boundary: documentation only; no runtime capability.
 
-### Phase 87 - Observability and Audit Export Boundary
-Goal: define local read-only export/report surfaces for diagnostics, audit, recovery, and execution decisions.
-Boundary: export is read-only and non-authoritative.
+### Phase 99 - Release Engineering Dry Run
+Goal: validate release checklist mechanics, artifact inventory, changelog/version consistency, and CI gate completeness without publishing.
+Boundary: dry run only; no release, no production-candidate approval.
 
-### Phase 88 - Security and Abuse-Case Hardening Pass
-Goal: add negative-path tests for transport abuse, submission spoofing, authorization/action mismatch, corrupted persistence, recovery drift, and provider-output injection.
-Boundary: hardening only; no broad new capability.
-
-### Phase 89 - Packaging and Local Startup Candidate Boundary
-Goal: define minimal local startup/package surfaces for operator testing.
-Boundary: startup/package usability does not imply production readiness.
-
-### Phase 90 - Production Candidate Gap Audit and Readiness Decision Gate
-Goal: determine whether a production-candidate path is supported by evidence or more hardening is required.
-Boundary: decision gate only; not automatic approval.
+### Phase 100 - Production Candidate Readiness Decision Gate
+Goal: determine whether evidence supports a production-candidate branch/tag or whether another hardening block is required.
+Boundary: decision gate only; approval only if evidence is complete.
 
 ## Planning notes for this block
 
 - This catalog is planned truth and does not duplicate completion claims from `CHANGELOG.md`.
-- Phase 80 is an alignment and audit checkpoint only and does not approve Production Candidate status unless evidence unexpectedly closes all required gaps.
-- Production Candidate status remains not approved while mechanical and architectural gaps remain open.
 - Roadmap remains planned truth.
 - `CHANGELOG.md` remains historical truth.
+- This expansion reduces composition density before outward-facing surfaces.
+- Production Candidate status remains not approved unless a future decision gate explicitly approves it with complete evidence.
