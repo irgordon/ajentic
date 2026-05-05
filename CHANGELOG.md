@@ -5,6 +5,23 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.82.5 - 2026-05-05
+**Status:** Phase 82.5 - Out-of-Band Root Integration Test Harness Baseline
+
+### Added
+- Added the first root integration-test baseline under `tests/` for cross-boundary bounded harness/replay invariants.
+- Added `docs/operations/integration-test-baseline-phase-82-5.md` documenting out-of-band integration baseline scope and non-authority posture.
+
+### Changed
+- Documented the root integration-test role and Phase 83 durable append deferral.
+- Added the minimum library export surface required for root integration tests, without changing runtime behavior.
+
+### Notes
+- Phase 82.5 is an out-of-band maintenance/testing fix before Phase 83.
+- Root integration tests are for cross-boundary behavior; module-local tests remain the unit-test surface.
+- Phase 83 remains responsible for durable audit/ledger append.
+- No durable audit/ledger append, runtime authority, provider network execution, live UI/Rust transport, recovery acceptance, action side effect, release-candidate readiness claim, production-readiness claim, or public-usability claim was added.
+
 ## v0.0.82 - 2026-05-05
 **Status:** Phase 82 - Provider Evidence Replay and Failure Trace Boundary
 
