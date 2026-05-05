@@ -5,6 +5,24 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.87 - 2026-05-05
+**Status:** Phase 87 - Read-Only Observability Snapshot Boundary
+
+### Added
+- Added `core/src/api/observability.rs` with read-only supplied-evidence observability snapshot types, helpers, and deterministic tests.
+- Added `docs/operations/observability-snapshot-boundary-phase-87.md` documenting Phase 87 boundary posture.
+
+### Changed
+- Updated `core/src/api/mod.rs` to declare/re-export observability API surfaces.
+- Updated `tests/integration_smoke.rs` with root integration observability snapshot coverage.
+- Updated `checklists/current-phase.md` to Phase 87 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.87`.
+
+### Notes
+- Phase 87 adds read-only supplied-evidence snapshots only.
+- Phase 87 does not implement export encoding, export writes, persistence reads/writes, recomputation, mutation, replay repair, provider execution, action execution, or live transport.
+- No public-usability, release-candidate-readiness, production-readiness, or Production Candidate approval claim is made.
+
 ## v0.0.86 - 2026-05-05
 **Status:** Phase 86 - User-Facing Local Workflow Documentation
 
