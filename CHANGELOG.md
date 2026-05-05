@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.71.3 - 2026-05-05
+**Status:** Phase 71.3 - Rust Boundary Enforcement Baseline
+
+### Added
+- Added `scripts/rust_boundary_lint.mjs` with dependency-free Rust boundary enforcement checks, IDE-friendly diagnostics, warning-only ProviderExecution grandfathering, and nonzero failure on blocking violations.
+- Added `scripts/test_rust_boundary_lint.mjs` self-tests that validate pass/fail/warning behavior with temporary Rust fixtures.
+- Added `docs/operations/rust-boundary-lint-baseline-phase-71-3.md` documenting scope, deferred AST work, and Phase 71.5 extraction relationship.
+
+### Changed
+- Updated `scripts/check.sh` to run Rust boundary lint self-tests before production Rust boundary lint.
+- Updated `checklists/current-phase.md` to Phase 71.3 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.71.3`.
+
+### Notes
+- Phase 71.3 is an out-of-band enforcement tooling insertion before Phase 71.5 and Phase 72.
+- Phase 71.3 does not refactor Rust code and does not implement provider retry/failure logic.
+- ProviderExecution in `core/src/execution/mod.rs` remains warning-only and deferred to out-of-band fix Phase 71.5.
+- Phase 71.3 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.71 - 2026-05-05
 **Status:** Phase 71 - Provider Execution Adapter Implementation
 
