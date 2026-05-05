@@ -5,6 +5,21 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.75 - 2026-05-05
+**Status:** Phase 75 - Roadmap and Changelog Alignment Check + Script/Workflow Alignment Audit
+
+### Added
+- Added `docs/operations/repository-audit-phase-75.md` with advisory roadmap/changelog reconciliation, boundary enforcement coverage, script/workflow alignment audit findings, and Phase 80 preparation notes.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 75 procedural truth including allowed surfaces, boundary rules, alignment/audit checklists, findings/deferred/validation tables, and required validation evidence logs.
+- Updated `CHANGELOG.md` with `v0.0.75`.
+
+### Notes
+- Phase 75 is alignment, documentation hygiene, and automation audit only.
+- Phase 75 does not implement UI/Rust transport, provider behavior changes, persistence behavior changes, recovery behavior changes, action execution wiring, or runtime behavior.
+- Phase 75 does not approve release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.74 - 2026-05-05
 **Status:** Phase 74 - Application State Recovery Boundary
 
