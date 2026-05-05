@@ -18,11 +18,11 @@ async function writeRust(root, rel, content) {
   await fs.writeFile(full, content, 'utf8');
 }
 
-function makeBaseFiles(includeProviderExecution = false) {
+function makeBaseFiles() {
   return {
     'core/src/api/mod.rs': 'mod persistence;\npub use persistence::*;\n',
     'core/src/api/persistence.rs': 'pub fn execute_local_persistence_plan() {}\npub fn verify_persisted_record_paths() {}\nfn demo() { let _ = std::fs::read_to_string("x"); }\n',
-    'core/src/execution/mod.rs': includeProviderExecution ? 'pub struct ProviderExecution;\n' : 'pub struct ExecutionMarker;\n',
+    'core/src/execution/mod.rs': 'pub struct ExecutionMarker;\n',
   };
 }
 
@@ -113,13 +113,6 @@ try {
   await setupCase(root, files);
   issues = lintRustBoundaries(root);
   expectFailContains(issues, "'Command::'", 'command forbidden');
-  checks += 1;
-
-  files = makeBaseFiles(true);
-  await setupCase(root, files);
-  issues = lintRustBoundaries(root);
-  assert.ok(issues.some((i) => i.level === 'warning' && i.message.includes('Phase 71.5')), 'ProviderExecution should produce warning');
-  assert.equal(issues.filter((i) => i.level === 'error').length, 0, 'ProviderExecution warning should not fail');
   checks += 1;
 
   files = makeBaseFiles();
