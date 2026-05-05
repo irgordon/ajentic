@@ -1,7 +1,9 @@
 use ajentic_core::api::{
-    provider_evidence_snapshot_from_harness_report, run_end_to_end_local_harness,
-    verify_provider_evidence_replay, EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus,
-    ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus,
+    accept_recovery_candidate_for_in_memory_use, provider_evidence_snapshot_from_harness_report,
+    recovery_acceptance_mutates_authority, run_end_to_end_local_harness,
+    verify_provider_evidence_replay, ApplicationRecoveryCandidate, EndToEndLocalHarnessRequest,
+    EndToEndLocalHarnessStatus, ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus,
+    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 #[test]
@@ -50,4 +52,48 @@ fn root_integration_provider_replay_is_distinguishable_from_live_run() {
     assert!(!replay.persisted);
     assert!(!replay.repaired_replay);
     assert!(!replay.mutated_application_state);
+}
+
+#[test]
+fn root_integration_recovery_candidate_acceptance_is_in_memory_only() {
+    let candidate = ApplicationRecoveryCandidate {
+        recovery_id: "recovery-84".into(),
+        ledger_record_id: "ledger-84".into(),
+        revision: 2,
+        payload_len: 3,
+        checksum: "abc".into(),
+        candidate_bytes: b"abc".to_vec(),
+    };
+    let report = accept_recovery_candidate_for_in_memory_use(RecoveryAcceptanceRequest {
+        acceptance_id: "acceptance-84".into(),
+        expected_recovery_id: "recovery-84".into(),
+        expected_ledger_record_id: "ledger-84".into(),
+        expected_revision: Some(2),
+        candidate,
+    });
+    assert_eq!(report.status, RecoveryAcceptanceStatus::Accepted);
+    assert!(report.accepted_for_in_memory_use);
+    assert!(!report.replaced_global_state);
+    assert!(!report.persisted);
+    assert!(!report.appended_ledger);
+    assert!(!report.appended_audit);
+}
+
+#[test]
+fn root_integration_recovery_acceptance_does_not_mutate_authority() {
+    let report = accept_recovery_candidate_for_in_memory_use(RecoveryAcceptanceRequest {
+        acceptance_id: "acceptance-84-b".into(),
+        expected_recovery_id: "recovery-84-b".into(),
+        expected_ledger_record_id: "ledger-84-b".into(),
+        expected_revision: None,
+        candidate: ApplicationRecoveryCandidate {
+            recovery_id: "recovery-84-b".into(),
+            ledger_record_id: "ledger-84-b".into(),
+            revision: 7,
+            payload_len: 4,
+            checksum: "seed".into(),
+            candidate_bytes: b"seed".to_vec(),
+        },
+    });
+    assert!(!recovery_acceptance_mutates_authority(&report));
 }

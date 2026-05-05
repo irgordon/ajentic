@@ -7,90 +7,80 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 83 - Durable Audit and Ledger Append Boundary
+Phase 84 - Recovery Candidate Acceptance Boundary
 
 ## phase goal
-Define one combined durable audit+ledger append transaction boundary committed only after combined verification.
+Define explicit fail-closed acceptance of verified recovery candidates for in-memory use only.
 
 ## working-tree hygiene gate
 - [x] `git status --short` reviewed before edits.
-- [x] Working changes constrained to approved Phase 83 surfaces.
+- [x] Working changes constrained to approved Phase 84 surfaces.
 
 ## allowed surfaces
-- [x] `core/src/api/persistence.rs`
-- [x] `tests/integration_smoke.rs` (deferred if public API not reachable)
+- [x] `core/src/api/application_state.rs`
+- [x] `tests/integration_smoke.rs`
 - [x] `checklists/current-phase.md`
-- [x] `checklists/release.md` (not required)
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/durable-append-boundary-phase-83.md`
+- [x] `docs/operations/recovery-acceptance-boundary-phase-84.md`
 
 ## boundary rules
-- [x] Single combined append transaction envelope only.
-- [x] Append is not promotion, recovery, replay repair, provider trust, action execution, or application-state mutation.
-- [x] No independent audit-only or ledger-only physical commit path.
+- [x] No silent recovery.
+- [x] No automatic or global LocalApplicationState replacement.
+- [x] No persistence write, ledger/audit append, replay repair, provider trust promotion, or action execution.
 
 ## task checklist
-- [x] Added typed durable append status/reason/transaction/report surfaces.
-- [x] Added prepare/encode/decode/write/verify durable append helpers.
-- [x] Write path uses `execute_local_persistence_plan(...)` as the only physical boundary.
-- [x] Combined transaction verified via persisted-record verification before committed=true.
-- [x] Added deterministic durable append tests in `persistence.rs`.
-- [x] Added `docs/operations/durable-append-boundary-phase-83.md`.
-- [x] Added `CHANGELOG.md` entry `v0.0.83`.
+- [x] Added typed recovery acceptance status/reason/request/report surfaces.
+- [x] Added explicit `accept_recovery_candidate_for_in_memory_use(...)` gate.
+- [x] Added `recovery_acceptance_replaces_global_state(...)` helper.
+- [x] Added `recovery_acceptance_mutates_authority(...)` helper.
+- [x] Added deterministic unit tests for acceptance boundary behavior.
+- [x] Added root integration smoke acceptance coverage.
+- [x] Added operations doc for Phase 84 posture.
+- [x] Added changelog entry `v0.0.84`.
 
 ## validation checklist
 - [x] `./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] Rust/UI boundary lint commands completed.
-- [x] CLI dry-run completed.
-- [x] Required append/atomicity/no-authority scans completed.
-- [x] Source-guard diff command completed.
-- [x] Readiness wording scan completed.
+- [x] Rust/UI boundary lints and self-tests
+- [x] UI typecheck/lint/build
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 
-## append transaction checklist
-- [x] Append transaction includes ids, revisions, audit/ledger payload hex, and checksum.
-- [x] Audit-only input rejected.
-- [x] Ledger-only input rejected.
-- [x] Transaction id mismatch rejected.
-- [x] Checksum mismatch rejected.
-
-## atomicity/partial-commit checklist
-- [x] Audit and ledger are encoded into one envelope payload.
-- [x] No separate independent append commits were introduced.
-- [x] Partial append is not authoritative.
-- [x] Commit requires combined verification.
-
-## root integration-test checklist
-- [x] Root integration append tests deferred; API remains module-local without export reshaping.
+## recovery acceptance checklist
+- [x] Acceptance is explicit and fail-closed.
+- [x] Candidate identity and revision checks are enforced.
+- [x] Accepted report may set `accepted_for_in_memory_use=true` only.
 
 ## non-authority checklist
-- [x] `promoted=false`
-- [x] `recovered_state=false`
+- [x] `replaced_global_state=false`
+- [x] `persisted=false`
+- [x] `appended_ledger=false`
+- [x] `appended_audit=false`
 - [x] `repaired_replay=false`
-- [x] `trusted_provider_output=false`
+- [x] `promoted_provider_output=false`
 - [x] `executed_action=false`
-- [x] `mutated_application_state=false`
+
+## root integration-test checklist
+- [x] `root_integration_recovery_candidate_acceptance_is_in_memory_only`
+- [x] `root_integration_recovery_acceptance_does_not_mutate_authority`
 
 ## zero-drift checklist
-- [x] Roadmap/governance/architecture files unchanged.
-- [x] Disallowed runtime/UI/scripts/workflow files unchanged.
-- [x] No dependency changes.
+- [x] No disallowed files changed.
+- [x] No roadmap/governance/architecture/scripts/workflow/package drift.
 
 ## findings table
-| Finding | Result |
+| finding | status |
 | --- | --- |
-| Single-envelope append boundary | Implemented in `core/src/api/persistence.rs`. |
-| Combined verification gate | `committed=true` only on write+verify success. |
+| explicit in-memory acceptance gate implemented | confirmed |
+| authority side effects remain false | confirmed |
 
 ## deferred items table
-| Item | Phase |
+| item | phase |
 | --- | --- |
-| Recovery candidate acceptance boundary | Phase 84 |
-| Roadmap/changelog alignment checkpoint | Phase 85 |
+| roadmap/changelog alignment checkpoint | 85 |
 
 ## validation log table
-| Command | Result |
+| command | result |
 | --- | --- |
 | `./scripts/check.sh` | pass |
 | `cargo test --manifest-path core/Cargo.toml --all-targets` | pass |
-| Required scan commands | pass |
+| boundary scans/source guard/readiness scans | pass |
