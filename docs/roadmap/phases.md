@@ -6,60 +6,58 @@ mutation_path: roadmap_update
 
 # Phases
 
-This document is the active phase catalog.
+This document is the active expanded catalog.
 
-- Compact index: `docs/roadmap/phase-map.md`
+- Compact planned phase index: `docs/roadmap/phase-map.md`
 - Ordering rationale: `docs/roadmap/sequencing.md`
 - Historical truth: `CHANGELOG.md`
 
-## Current planning block: Phases 70-80
+## Current planning block: Phases 81-90
 
-### Phase 70 - Roadmap Documentation Realignment and Production Candidate Gap Audit
-Goal: realign roadmap planning surfaces (`phase-map.md`, `phases.md`, `sequencing.md`), refresh current-phase procedural truth, and publish an advisory production-candidate gap audit.
-Boundary: documentation realignment and governance hygiene only; no runtime behavior implementation.
+### Phase 81 - Local Harness Composition Hardening
+Goal: harden the bounded Phase 79 local harness composition with negative-path and mismatch tests.
+Boundary: hardening only; no new runtime authority.
 
-### Phase 71 - Provider Execution Adapter Implementation
-Goal: implement a real local/provider execution path behind the Phase 69 transport boundary.
-Boundary: provider output remains untrusted; no direct promotion, persistence, or ledger authority.
+### Phase 82 - Provider Evidence Replay and Failure Trace Boundary
+Goal: make provider execution/failure evidence replayable for local harness runs.
+Boundary: replay does not trust provider output or mutate state.
 
-### Phase 72 - Provider Failure, Timeout, and Retry Boundary
-Goal: add deterministic handling for provider timeout, cancellation, malformed output, and retry classification.
-Boundary: retries do not mutate authoritative state unless recorded through Rust-owned sequencing.
+### Phase 83 - Durable Audit and Ledger Append Boundary
+Goal: define which audit and ledger proof records may be durably appended.
+Boundary: append eligibility is explicit; append is not promotion or recovery.
 
-### Phase 73 - Durable Ledger Persistence Lifecycle
-Goal: define and implement which ledger records are persisted, verified, and loaded.
-Boundary: persisted ledger records become usable only after Phase 62-style verification.
+### Phase 84 - Recovery Candidate Acceptance Boundary
+Goal: define how a verified recovery candidate may become accepted in-memory state under Rust-owned gates.
+Boundary: acceptance is explicit and fail-closed; no silent recovery.
 
-### Phase 74 - Application State Recovery Boundary
-Goal: rehydrate in-memory state from verified persisted records.
-Boundary: recovery is explicit, typed, and fail-closed; no silent repair.
+### Phase 85 - Roadmap and Changelog Alignment Check
+Goal: reconcile post-harness hardening, evidence replay, durable append, and recovery-acceptance work.
+Boundary: alignment only; no readiness approval.
 
-### Phase 75 - Roadmap and Changelog Alignment Check
-Goal: reconcile provider execution and durable recovery work.
-Boundary: alignment checkpoint only; no readiness approval.
+### Phase 86 - User-Facing Local Workflow Documentation
+Goal: document supported local commands, boundaries, failure modes, and operator expectations.
+Boundary: documentation only; no runtime capability.
 
-### Phase 76 - UI/Rust Transport Boundary
-Goal: add the transport boundary between UI and Rust-owned read/intent surfaces.
-Boundary: UI remains non-authoritative; transport carries typed requests/responses only.
+### Phase 87 - Observability and Audit Export Boundary
+Goal: define local read-only export/report surfaces for diagnostics, audit, recovery, and execution decisions.
+Boundary: export is read-only and non-authoritative.
 
-### Phase 77 - UI Operator Intent Submission Wiring
-Goal: wire UI intent submission to Rust ingress/authorization without action execution.
-Boundary: submission does not execute action; Rust owns validation, authorization, and audit eligibility.
+### Phase 88 - Security and Abuse-Case Hardening Pass
+Goal: add negative-path tests for transport abuse, submission spoofing, authorization/action mismatch, corrupted persistence, recovery drift, and provider-output injection.
+Boundary: hardening only; no broad new capability.
 
-### Phase 78 - Authorized Operator Action Execution Boundary
-Goal: define the first narrow executable operator action path.
-Boundary: only explicitly authorized, audit-eligible actions can execute; no broad “apply any output” behavior.
+### Phase 89 - Packaging and Local Startup Candidate Boundary
+Goal: define minimal local startup/package surfaces for operator testing.
+Boundary: startup/package usability does not imply production readiness.
 
-### Phase 79 - End-to-End Local Harness Run
-Goal: connect provider execution, authorization, audit record, persistence, recovery, and read projection into one bounded local workflow.
-Boundary: still local-first; no public production claim.
-
-### Phase 80 - Roadmap and Changelog Alignment Check + Production Candidate Gap Audit
-Goal: determine what remains before public usability or release-candidate status can be considered.
-Boundary: gap audit only; not approval.
+### Phase 90 - Production Candidate Gap Audit and Readiness Decision Gate
+Goal: determine whether a production-candidate path is supported by evidence or more hardening is required.
+Boundary: decision gate only; not automatic approval.
 
 ## Planning notes for this block
 
-- The 60s block is completed historical work and remains recorded in `CHANGELOG.md` only.
-- This catalog intentionally avoids duplicating changelog completion claims.
-- Production-candidate posture is deferred pending successful delivery/validation of phases 71-79 plus follow-on hardening/documentation/security/observability work.
+- This catalog is planned truth and does not duplicate completion claims from `CHANGELOG.md`.
+- Phase 80 is an alignment and audit checkpoint only and does not approve Production Candidate status unless evidence unexpectedly closes all required gaps.
+- Production Candidate status remains not approved while mechanical and architectural gaps remain open.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
