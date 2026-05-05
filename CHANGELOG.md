@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.71.5 - 2026-05-05
+**Status:** Phase 71.5 - Provider Execution Structural Extraction
+
+### Added
+- Added `core/src/execution/provider_execution.rs` as focused ownership for provider execution adapter request/result/mode/status/reason types, execution function, and provider-execution tests.
+- Added `docs/operations/provider-execution-extraction-phase-71-5.md` documenting out-of-band maintenance scope, lint impact, and deferred boundaries.
+
+### Changed
+- Updated `core/src/execution/mod.rs` to declare/re-export `provider_execution` while removing in-file provider execution implementation ownership.
+- Updated `scripts/rust_boundary_lint.mjs` to remove warning-only grandfathering for ProviderExecution in `core/src/execution/mod.rs` after extraction.
+- Updated `scripts/test_rust_boundary_lint.mjs` self-tests to align with post-extraction lint behavior.
+- Updated `checklists/current-phase.md` to Phase 71.5 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.71.5`.
+
+### Notes
+- Phase 71.5 is an out-of-band maintenance extraction before Phase 72.
+- Phase 71.5 is structural extraction only and does not add provider failure/timeout/retry behavior.
+- Phase 71.5 does not add real provider execution, async runtime, network I/O, persistence, ledger append, replay repair, UI/Rust transport, or CLI live command behavior.
+- Phase 71.5 does not claim release-candidate readiness, production readiness, or public usability.
+
 ## v0.0.71.3 - 2026-05-05
 **Status:** Phase 71.3 - Rust Boundary Enforcement Baseline
 

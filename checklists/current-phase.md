@@ -3,41 +3,88 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-# Phase 71.3 - Rust Boundary Enforcement Baseline
+# Phase 71.5 - Provider Execution Structural Extraction
 
 ## phase name
-Phase 71.3 - Rust Boundary Enforcement Baseline
+Phase 71.5 - Provider Execution Structural Extraction
 
 ## phase goal
-Add dependency-free Rust boundary enforcement tooling with self-tests and local/CI wiring before additional provider execution logic.
+Extract Phase 71 provider execution implementation from `core/src/execution/mod.rs` into a focused module without behavior changes.
 
-## boundary checklist
-- [x] Enforcement tooling only; no Rust behavior changes.
-- [x] No provider execution extraction or retry/failure implementation.
-- [x] Rust source and TypeScript source remain unchanged.
-- [x] ProviderExecution in `core/src/execution/mod.rs` is warning-only and deferred to Phase 71.5 extraction.
+## out-of-band maintenance note
+Phase 71.5 is an intentional out-of-band maintenance insertion after Phase 71.3 and before Phase 72 to reduce structural risk.
+
+## working-tree hygiene gate
+- [x] `git status --short` reviewed before edits.
+- [x] Generated artifacts reverted or excluded before commit.
+
+## allowed surfaces
+- [x] `core/src/execution/mod.rs`
+- [x] `core/src/execution/provider_execution.rs`
+- [x] `scripts/rust_boundary_lint.mjs`
+- [x] `scripts/test_rust_boundary_lint.mjs`
+- [x] `checklists/current-phase.md`
+- [x] `CHANGELOG.md`
+- [x] `docs/operations/provider-execution-extraction-phase-71-5.md`
+
+## boundary rules
+- [x] Structural extraction only.
+- [x] No provider retry/timeout/failure implementation.
+- [x] No async/runtime/network/process behavior.
+- [x] No persistence/ledger/promotion/replay-repair/UI transport/CLI live wiring.
 
 ## task checklist
-- [x] Classified uncommitted files and confirmed Phase 71.3 out-of-band insertion intent.
-- [x] Added `scripts/rust_boundary_lint.mjs` with file/path ownership and targeted call-site checks.
-- [x] Added `scripts/test_rust_boundary_lint.mjs` self-tests using temporary Rust files only.
-- [x] Wired Rust boundary self-test and production lint into `scripts/check.sh` (self-test before production lint).
-- [x] Confirmed CI coverage remains through `scripts/check.sh` usage or explicit commands (explicit commands not required this phase).
-- [x] Added `docs/operations/rust-boundary-lint-baseline-phase-71-3.md`.
-- [x] Added `CHANGELOG.md` entry `v0.0.71.3`.
-- [x] Recorded Phase 71.5 as out-of-band extraction follow-up.
+- [x] Created focused provider execution module.
+- [x] Re-exported moved symbols from execution module.
+- [x] Moved provider execution tests with extracted module.
+- [x] Added Phase 71.5 operations note.
+- [x] Added `CHANGELOG.md` entry `v0.0.71.5`.
 
-## validation log
-- [x] `node scripts/test_rust_boundary_lint.mjs`
-- [x] `node scripts/rust_boundary_lint.mjs`
-- [x] `./scripts/check.sh`
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [x] `node scripts/test_lint_ui_boundaries.mjs`
-- [x] `node scripts/lint_ui_boundaries.mjs`
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] `rg -n "rust_boundary_lint|test_rust_boundary_lint" scripts/check.sh .github/workflows/ci.yml scripts docs/operations/rust-boundary-lint-baseline-phase-71-3.md CHANGELOG.md checklists/current-phase.md`
-- [x] `git diff -- '*.rs' '*.ts' '*.tsx' README.md ui/package.json ui/package-lock.json ui/tsconfig.json`
-- [x] `rg -n "release candidate ready|release-candidate ready|RC ready|ready for production|production-ready|production ready|publicly usable|public usability" CHANGELOG.md checklists/current-phase.md docs/operations/rust-boundary-lint-baseline-phase-71-3.md README.md`
+## extraction checklist
+- [x] `ProviderExecutionMode` moved.
+- [x] `ProviderExecutionStatus` moved.
+- [x] `ProviderExecutionRejectionReason` moved.
+- [x] `ProviderExecutionRequest` moved.
+- [x] `ProviderExecutionResult` moved.
+- [x] `execute_provider_adapter(...)` moved.
 
-## non-readiness statement
-Phase 71.3 does not claim release-candidate readiness, production readiness, or public usability.
+## behavior-preservation checklist
+- [x] Validation order unchanged.
+- [x] Code strings unchanged.
+- [x] Deterministic local output unchanged.
+- [x] Transport-envelope validation unchanged.
+- [x] Output remains untrusted, non-authoritative, non-mutating.
+- [x] Dry-run behavior unchanged.
+
+## Rust boundary lint checklist
+- [x] Removed warning-only ProviderExecution grandfathering from `core/src/execution/mod.rs` lint path.
+- [x] Rust boundary lint self-tests updated and passing.
+- [x] Production Rust boundary lint passing without ProviderExecution warning in execution.rs.
+
+## validation checklist
+- [x] Required validation command suite executed.
+- [x] Guard scans executed for prohibited surfaces.
+- [x] No readiness/public-usability claim added.
+
+## findings table
+| Finding | Status | Notes |
+| --- | --- | --- |
+| Phase 71.5 is not explicitly listed in roadmap docs | Confirmed intentional | Treated as out-of-band maintenance insertion before Phase 72. |
+| Provider execution implementation ownership in `execution/mod.rs` increased structural risk | Resolved | Provider execution now lives in focused module. |
+
+## deferred items table
+| Item | Deferred to | Reason |
+| --- | --- | --- |
+| Provider failure/timeout/retry behavior | Phase 72+ | Out of scope for structural extraction. |
+| Real provider execution wiring | Later phase | Out of scope and still explicitly disabled. |
+
+## validation log table
+| Command | Result |
+| --- | --- |
+| `node scripts/test_rust_boundary_lint.mjs` | pass |
+| `node scripts/rust_boundary_lint.mjs` | pass |
+| `./scripts/check.sh` | pass |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass |
+| `node scripts/lint_ui_boundaries.mjs` | pass |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass |
