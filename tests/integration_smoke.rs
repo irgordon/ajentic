@@ -1,17 +1,20 @@
 use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
-    encode_audit_export_snapshot, execute_operator_action_boundary,
-    observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
-    operator_action_report_mutates_authority, provider_evidence_snapshot_from_harness_report,
+    encode_audit_export_snapshot, encode_durable_append_transaction,
+    execute_operator_action_boundary, observability_snapshot_from_supplied_evidence,
+    observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
+    prepare_durable_append_transaction, provider_evidence_snapshot_from_harness_report,
     recovery_acceptance_mutates_authority, run_end_to_end_local_harness, submit_operator_intent,
-    verify_provider_evidence_replay, write_local_export_bundle, ApplicationRecoveryCandidate,
-    AuditExportEncodingLimits, EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus,
-    LocalExportWriteReason, LocalExportWriteRequest, LocalExportWriteStatus,
-    ObservedDiagnosticSummary, OperatorActionExecutionReason, OperatorActionExecutionRequest,
-    OperatorActionExecutionStatus, OperatorActionKind, OperatorAuthorizationRequest,
-    OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord, OperatorIntentTargetKind,
-    OperatorIntentType, OperatorSafetyContext, OperatorTargetContext, ProviderEvidenceReplayMode,
-    ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    verify_durable_append_transaction_bytes, verify_provider_evidence_replay,
+    write_local_export_bundle, ApplicationRecoveryCandidate, AuditExportEncodingLimits,
+    DurableAppendReason, DurableAppendStatus, EndToEndLocalHarnessRequest,
+    EndToEndLocalHarnessStatus, LocalExportWriteReason, LocalExportWriteRequest,
+    LocalExportWriteStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
+    OperatorActionExecutionRequest, OperatorActionExecutionStatus, OperatorActionKind,
+    OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
+    OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
+    ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest,
+    RecoveryAcceptanceStatus,
 };
 
 fn root_operator_action_request() -> OperatorActionExecutionRequest {
@@ -132,6 +135,120 @@ fn root_integration_operator_action_rejects_action_kind_escalation_without_side_
     assert!(!report.called_provider);
     assert!(!report.executed_real_world_effect);
     assert!(!operator_action_report_mutates_authority(&report));
+}
+
+#[test]
+fn root_integration_durable_append_rejects_tampered_transaction() {
+    let transaction = prepare_durable_append_transaction(
+        "root-append-93",
+        "root-audit-93",
+        "root-ledger-93",
+        1,
+        2,
+        b"audit".to_vec(),
+        b"ledger".to_vec(),
+    )
+    .expect("root append transaction");
+    let tampered = String::from_utf8(encode_durable_append_transaction(&transaction))
+        .expect("append utf8")
+        .replace(
+            "ledger_payload_hex=6c6564676572",
+            "ledger_payload_hex=6c6564676573",
+        );
+
+    let report = verify_durable_append_transaction_bytes(tampered.as_bytes(), "root-append-93");
+
+    assert_eq!(report.status, DurableAppendStatus::Rejected);
+    assert_eq!(report.reason, DurableAppendReason::AppendChecksumMismatch);
+    assert!(!report.committed);
+    assert!(!report.promoted);
+    assert!(!report.recovered_state);
+    assert!(!report.repaired_replay);
+}
+
+#[test]
+fn root_integration_recovery_acceptance_rejects_mismatched_candidate() {
+    let report = accept_recovery_candidate_for_in_memory_use(RecoveryAcceptanceRequest {
+        acceptance_id: "root-acceptance-93".into(),
+        expected_recovery_id: "root-recovery-93".into(),
+        expected_ledger_record_id: "root-ledger-93".into(),
+        expected_revision: Some(3),
+        candidate: ApplicationRecoveryCandidate {
+            recovery_id: "root-recovery-other".into(),
+            ledger_record_id: "root-ledger-93".into(),
+            revision: 3,
+            payload_len: 3,
+            checksum: "abc".into(),
+            candidate_bytes: b"abc".to_vec(),
+        },
+    });
+
+    assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+    assert!(!report.accepted_for_in_memory_use);
+    assert!(!report.replaced_global_state);
+    assert!(!report.persisted);
+    assert!(!report.appended_ledger);
+    assert!(!report.appended_audit);
+    assert!(!report.repaired_replay);
+}
+
+#[test]
+fn root_integration_export_bundle_is_not_authoritative_state() {
+    let envelope = root_integration_export_envelope();
+    assert!(!envelope.mutates_authority);
+    let append_report =
+        verify_durable_append_transaction_bytes(&envelope.encoded_bytes, "export-is-not-append-93");
+
+    assert_eq!(append_report.status, DurableAppendStatus::Rejected);
+    assert!(!append_report.committed);
+    assert!(!append_report.promoted);
+    assert!(!append_report.recovered_state);
+    assert!(!append_report.repaired_replay);
+}
+
+#[test]
+fn export_bundle_is_not_ledger_state() {
+    let envelope = root_integration_export_envelope();
+    assert!(!envelope.writes_persistence);
+    assert!(!envelope.mutates_authority);
+}
+
+#[test]
+fn export_bundle_is_not_recovery_input() {
+    let report = write_local_export_bundle(LocalExportWriteRequest {
+        export_directory: root_integration_export_directory("not_recovery_input"),
+        export_file_name: root_integration_export_file_name("not-recovery-input"),
+        envelope: root_integration_export_envelope(),
+    });
+
+    assert_eq!(report.status, LocalExportWriteStatus::Written);
+    assert!(report.export_not_authoritative);
+    assert!(!report.recovery_import_allowed);
+}
+
+#[test]
+fn export_bundle_is_not_replay_repair_evidence() {
+    let report = write_local_export_bundle(LocalExportWriteRequest {
+        export_directory: root_integration_export_directory("not_replay_repair"),
+        export_file_name: root_integration_export_file_name("not-replay-repair"),
+        envelope: root_integration_export_envelope(),
+    });
+
+    assert_eq!(report.status, LocalExportWriteStatus::Written);
+    assert!(report.export_not_authoritative);
+    assert!(!report.replay_repair_allowed);
+}
+
+#[test]
+fn export_write_artifact_cannot_be_verified_as_durable_append_transaction() {
+    let envelope = root_integration_export_envelope();
+    let report = verify_durable_append_transaction_bytes(
+        &envelope.encoded_bytes,
+        "export-not-durable-append-93",
+    );
+
+    assert_eq!(report.status, DurableAppendStatus::Rejected);
+    assert!(!report.committed);
 }
 
 #[test]
