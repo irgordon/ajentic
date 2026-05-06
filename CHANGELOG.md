@@ -5,6 +5,36 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.93.5 - 2026-05-06
+**Status:** Phase 93.5 - Out-of-Band Persistence Semantics Edge-Case Hardening
+
+### Added
+- Added `docs/operations/persistence-semantics-edge-hardening-phase-93-5.md` documenting unsupported format/version posture, write-time verification posture, paired audit/ledger append model, single-writer revision assumption, export-not-ledger/recovery/replay-repair posture, recovery context posture, replay verification-only posture, corrupted read posture, non-repair guarantees, non-authority guarantees, root integration coverage, lint parity, test fidelity, and non-readiness.
+- Added persistence hardening tests in `core/src/api/persistence.rs` for unknown payload kind and unsupported envelope marker posture, unsupported durable append transaction-kind input, audit-only and ledger-only rejection, out-of-order revision drift, write-time-only append verification, corrupted read failure, export bytes not verifying as append transactions, paired append preservation, single-writer assumptions, replay non-repair, and non-repair posture.
+- Added recovery hardening tests in `core/src/api/application_state.rs` for export bytes not decoding as recovery candidates, export bytes not being ledger state/recovery input/replay repair evidence, export-shaped candidate rejection, expected recovery/ledger/revision context matching, and mismatch non-replacement.
+- Added root integration smoke coverage in `tests/integration_smoke.rs` for export bytes not becoming recovery candidates, export bytes not verifying as durable append transactions, append verification being write-time-only rather than continuous integrity proof, and paired append model requirements.
+
+### Changed
+- Updated `core/src/api/application_state.rs` with minimal fail-closed rejection for export-shaped bytes at the recovery acceptance boundary while preserving valid non-export Phase 84 in-memory recovery acceptance behavior.
+- Updated `core/src/api/persistence.rs` to reject duplicate durable append transaction fields as malformed transaction drift without adding new append authority.
+- Updated `checklists/current-phase.md` to Phase 93.5 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.93.5`.
+
+### Boundaries
+- Phase 93.5 is an out-of-band persistence semantics edge-case hardening pass before Phase 94.
+- Phase 93.5 is hardening and documentation only.
+- Phase 93.5 adds no new persistence authority.
+- Phase 93.5 does not repair corrupted records.
+- Phase 93.5 does not add continuous integrity monitoring.
+- Phase 93.5 does not support concurrent writers.
+- Phase 93.5 does not add audit-only or ledger-only append support.
+- Phase 93.5 does not treat export bundles as ledger state, recovery input, or replay repair evidence.
+- Phase 93.5 does not promote recovery candidates to global state.
+- Phase 93.5 does not repair replay drift.
+- Phase 94 remains responsible for provider output injection and replay abuse hardening.
+- Roadmap files were not changed, and Phase 94 or later phases were not renumbered.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.93 - 2026-05-06
 **Status:** Phase 93 - Persistence Corruption and Append Drift Hardening
 

@@ -1053,24 +1053,60 @@ pub fn decode_durable_append_transaction(
             .split_once('=')
             .ok_or(DurableAppendReason::MalformedAppendTransaction)?;
         match k {
-            "append_transaction_id" => tid = Some(v.to_string()),
-            "audit_record_id" => aid = Some(v.to_string()),
-            "ledger_record_id" => lid = Some(v.to_string()),
+            "append_transaction_id" => {
+                if tid.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                tid = Some(v.to_string());
+            }
+            "audit_record_id" => {
+                if aid.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                aid = Some(v.to_string());
+            }
+            "ledger_record_id" => {
+                if lid.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                lid = Some(v.to_string());
+            }
             "prior_revision" => {
+                if pr.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
                 pr = Some(
                     v.parse::<u64>()
                         .map_err(|_| DurableAppendReason::MalformedAppendTransaction)?,
                 )
             }
             "next_revision" => {
+                if nr.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
                 nr = Some(
                     v.parse::<u64>()
                         .map_err(|_| DurableAppendReason::MalformedAppendTransaction)?,
                 )
             }
-            "audit_payload_hex" => ahex = Some(v.to_string()),
-            "ledger_payload_hex" => lhex = Some(v.to_string()),
-            "checksum" => checksum = Some(v.to_string()),
+            "audit_payload_hex" => {
+                if ahex.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                ahex = Some(v.to_string());
+            }
+            "ledger_payload_hex" => {
+                if lhex.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                lhex = Some(v.to_string());
+            }
+            "checksum" => {
+                if checksum.is_some() {
+                    return Err(DurableAppendReason::MalformedAppendTransaction);
+                }
+                checksum = Some(v.to_string());
+            }
             _ => return Err(DurableAppendReason::MalformedAppendTransaction),
         }
     }
@@ -2174,5 +2210,176 @@ payload_hex:zz
         let t = prepare_durable_append_transaction("t", "a", "l", 1, 2, vec![1], vec![2]).unwrap();
         let d = decode_durable_append_transaction(&encode_durable_append_transaction(&t)).unwrap();
         assert_eq!(t, d);
+    }
+    #[test]
+    fn persisted_record_rejects_unknown_payload_kind_or_documents_no_version_field() {
+        let text = "AJENTIC_RECORD_V1\nrecord_id:r\npayload_kind:future_payload\nrevision:1\npayload_len:1\nchecksum:af63bc4c8601b62c\npayload_hex:61\n";
+        assert_eq!(
+            decode_persisted_record_envelope(text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::UnknownPayloadKind)
+        );
+        let versioned_text = text.replace("AJENTIC_RECORD_V1", "AJENTIC_RECORD_V2");
+        assert_eq!(
+            decode_persisted_record_envelope(versioned_text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::MalformedRecord)
+        );
+    }
+
+    #[test]
+    fn durable_append_rejects_unsupported_transaction_kind_if_representable() {
+        let text = format!("transaction_kind=future_append\n{}", encoded_append_text());
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::MalformedAppendTransaction)
+        );
+    }
+
+    #[test]
+    fn durable_append_audit_only_remains_unsupported() {
+        let text =
+            encoded_append_text().replace("ledger_payload_hex=6c6564676572", "ledger_payload_hex=");
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::LedgerOnlyAppendRejected);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_ledger_only_remains_unsupported() {
+        let text =
+            encoded_append_text().replace("audit_payload_hex=6175646974", "audit_payload_hex=");
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::AuditOnlyAppendRejected);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_out_of_order_revision_is_drift() {
+        let text = encoded_append_text().replace("next_revision=8", "next_revision=9");
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::InvalidRevisionChain);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_success_does_not_claim_continuous_integrity() {
+        let tx = append_tx();
+        let (directory, plan) = append_plan("write_time_not_continuous");
+        let report = write_durable_append_transaction(&tx, &plan);
+        assert_eq!(report.status, DurableAppendStatus::Verified);
+        assert!(report.committed);
+
+        fs::write(
+            &plan.target_path,
+            b"external tampering after write-time verification",
+        )
+        .unwrap();
+        let later = verify_persisted_record_paths(&plan.target_path, &plan.temp_path, Some(8));
+        assert_eq!(
+            later.status,
+            PersistedRecordVerificationStatus::MalformedRecord
+        );
+        let _ = fs::remove_dir_all(directory);
+    }
+
+    #[test]
+    fn corrupted_persisted_record_decode_does_not_silently_skip() {
+        let text = "AJENTIC_RECORD_V1\nrecord_id:r\npayload_kind:ledger_snapshot\nrevision:1\npayload_len:1\nchecksum:af63bc4c8601b62c\npayload_hex:61\ncorrupted read line without delimiter\n";
+        assert_eq!(
+            decode_persisted_record_envelope(text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::MalformedRecord)
+        );
+    }
+
+    #[test]
+    fn export_bundle_bytes_cannot_verify_as_durable_append_transaction() {
+        let export_bundle_bytes = b"audit_export.format_version=audit-export-v1\naudit_export.record_kind=observability-snapshot\n";
+        let report = verify_durable_append_transaction_bytes(export_bundle_bytes, "export-bundle");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn paired_audit_ledger_append_model_is_preserved() {
+        let tx = append_tx();
+        assert!(!tx.audit_payload.is_empty());
+        assert!(!tx.ledger_payload.is_empty());
+        let report = verify_durable_append_transaction_bytes(
+            &encode_durable_append_transaction(&tx),
+            "append-93",
+        );
+        assert_eq!(
+            report.reason,
+            DurableAppendReason::VerifiedAppendTransaction
+        );
+    }
+
+    #[test]
+    fn single_writer_revision_assumption_is_documented() {
+        assert_eq!(
+            prepare_durable_append_transaction(
+                "stale_revision",
+                "audit",
+                "ledger",
+                2,
+                2,
+                vec![1],
+                vec![2]
+            ),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+
+    #[test]
+    fn concurrent_writer_support_is_not_implemented() {
+        let first = prepare_durable_append_transaction(
+            "writer-a",
+            "audit-a",
+            "ledger-a",
+            4,
+            5,
+            vec![1],
+            vec![2],
+        )
+        .unwrap();
+        let second = prepare_durable_append_transaction(
+            "writer-b",
+            "audit-b",
+            "ledger-b",
+            4,
+            5,
+            vec![3],
+            vec![4],
+        )
+        .unwrap();
+        assert_eq!(first.prior_revision, second.prior_revision);
+        assert_eq!(first.next_revision, second.next_revision);
+        assert_ne!(first.append_transaction_id, second.append_transaction_id);
+    }
+
+    #[test]
+    fn replay_verification_does_not_repair_persistence_drift() {
+        let report = verify_durable_append_transaction_bytes(
+            b"replay verification evidence only",
+            "append-93",
+        );
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert!(!report.repaired_replay);
+        assert!(!report.mutated_application_state);
+    }
+
+    #[test]
+    fn non_repair_posture_is_preserved() {
+        let mut envelope = persisted_env();
+        envelope.checksum = "0000000000000000".into();
+        let before = envelope.clone();
+        let report = verify_persisted_record_envelope(&envelope, None);
+        assert_eq!(
+            report.status,
+            PersistedRecordVerificationStatus::ChecksumMismatch
+        );
+        assert_eq!(envelope, before);
     }
 }
