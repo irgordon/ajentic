@@ -94,6 +94,59 @@ export type IntentTargetKindProjection = "run" | "candidate" | "replay" | "conte
 
 export type IntentSubmissionUiProjection = Readonly<{ submissionId: string; operatorId: string; intentType: IntentTypeProjection; targetKind: IntentTargetKindProjection; targetId: string; reason: string; requestPreviewEnabled: boolean; submissionEnabled: boolean; authority: AuthoritySurface; summary: string; }>;
 
+
+export type UiSubmissionBoundaryStatus = "accepted_for_preview" | "rejected";
+
+export type UiSubmissionBoundaryReasonCode =
+  | "accepted_for_preview"
+  | "empty_operator_id"
+  | "empty_target_id"
+  | "empty_intent_kind"
+  | "unknown_intent_kind"
+  | "authority_escalation_text_rejected"
+  | "live_transport_flag_spoof_rejected"
+  | "execution_flag_spoof_rejected"
+  | "persistence_flag_spoof_rejected"
+  | "ledger_recording_flag_spoof_rejected"
+  | "audit_append_flag_spoof_rejected"
+  | "provider_execution_flag_spoof_rejected"
+  | "replay_repair_flag_spoof_rejected"
+  | "authority_mutation_flag_spoof_rejected"
+  | "malformed_submission_rejected";
+
+export type UiSubmissionBoundaryInput = Readonly<{
+  operatorId?: unknown;
+  targetId?: unknown;
+  intentKind?: unknown;
+  intentType?: unknown;
+  reason?: unknown;
+  executionEnabled?: unknown;
+  liveTransportEnabled?: unknown;
+  persistenceEnabled?: unknown;
+  ledgerRecordingEnabled?: unknown;
+  auditAppendEnabled?: unknown;
+  providerExecutionEnabled?: unknown;
+  replayRepairEnabled?: unknown;
+  mutatesAuthority?: unknown;
+  mutatesApplicationState?: unknown;
+}>;
+
+export type UiSubmissionBoundaryResult = Readonly<{
+  status: UiSubmissionBoundaryStatus;
+  reasonCode: UiSubmissionBoundaryReasonCode;
+  transportEligible: boolean;
+  liveTransportCalled: boolean;
+  liveTransportEnabled: boolean;
+  executionEnabled: boolean;
+  persistenceEnabled: boolean;
+  ledgerRecordingEnabled: boolean;
+  auditAppendEnabled: boolean;
+  providerExecutionEnabled: boolean;
+  replayRepairEnabled: boolean;
+  mutatesAuthority: boolean;
+  summary: string;
+}>;
+
 export type UiOperatorIntentSubmissionStatus =
   | "draft"
   | "submission_shaped"
