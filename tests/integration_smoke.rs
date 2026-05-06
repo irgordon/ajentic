@@ -47,6 +47,59 @@ fn root_operator_action_request() -> OperatorActionExecutionRequest {
 }
 
 #[test]
+fn root_integration_operator_action_missing_authorization_rejects_without_side_effects() {
+    let mut request = root_operator_action_request();
+    request.authorization_decision.authorization_id.clear();
+    request.audit_record.submission_id = "root-sub-other".into();
+
+    let report = execute_operator_action_boundary(request);
+
+    assert_eq!(report.status, OperatorActionExecutionStatus::Rejected);
+    assert_eq!(
+        report.reason,
+        OperatorActionExecutionReason::MissingAuthorizationProof
+    );
+    assert!(!report.executed_real_world_effect);
+    assert!(!operator_action_report_mutates_authority(&report));
+}
+
+#[test]
+fn root_integration_operator_action_exact_identity_matching_is_strict() {
+    let mut request = root_operator_action_request();
+    request.audit_record.target_id = "root-run-92 ".into();
+
+    let report = execute_operator_action_boundary(request);
+
+    assert_eq!(report.status, OperatorActionExecutionStatus::Rejected);
+    assert_eq!(
+        report.reason,
+        OperatorActionExecutionReason::AuditTargetMismatch
+    );
+    assert!(!report.executed_real_world_effect);
+    assert!(!operator_action_report_mutates_authority(&report));
+}
+
+#[test]
+fn root_integration_operator_action_combined_mismatch_reason_is_deterministic() {
+    let mut request = root_operator_action_request();
+    request.authorization_decision.authorization_id.clear();
+    request.audit_record.audit_record_id.clear();
+    request.action_kind = OperatorActionKind::ExecuteProvider;
+    request.audit_record.operator_id = "root-op-other".into();
+
+    let report = execute_operator_action_boundary(request);
+
+    assert_eq!(report.status, OperatorActionExecutionStatus::Rejected);
+    assert_eq!(
+        report.reason,
+        OperatorActionExecutionReason::MissingAuthorizationProof
+    );
+    assert!(!report.called_provider);
+    assert!(!report.executed_real_world_effect);
+    assert!(!operator_action_report_mutates_authority(&report));
+}
+
+#[test]
 fn root_integration_operator_action_rejects_mismatched_authorization_chain() {
     let mut request = root_operator_action_request();
     request.authorization_decision.authorization_id = "root-auth-other".into();

@@ -5,6 +5,30 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.92.5 - 2026-05-06
+**Status:** Phase 92.5 - Out-of-Band Proof-Chain Edge-Case Hardening
+
+### Added
+- Added `docs/operations/proof-chain-edge-hardening-phase-92-5.md` documenting proof absence vs mismatch, exact identity matching, unsupported action-kind fallback, deterministic mismatch ordering, reason-code behavior, proof-only acceptance, parameter escalation posture, stale proof posture, namespace assumptions, root integration coverage, lint parity, and non-readiness.
+- Added Rust operator action edge-case tests for missing authorization proof, missing audit proof, both proofs missing, partial proof chains, unknown/unsupported action kinds, exact no-case-fold/no-trim matching, combined mismatch ordering, reason-code-over-summary-text behavior, proof-only acceptance, structurally valid proof reuse posture, stale proof exclusion, parameter escalation deferral, namespace alias rejection, Phase 92 mismatch preservation, and Phase 78 success preservation.
+- Added root integration smoke tests for missing authorization rejection without side effects, strict exact identity matching, and deterministic combined mismatch primary reason.
+
+### Changed
+- Updated `core/src/api/operator_action.rs` with minimal fail-closed missing-proof and partial-proof-chain classification while preserving existing proof-only `RecordExecutionDecision` success and non-authority flags.
+- Updated `tests/integration_smoke.rs` with public proof-chain edge-case coverage.
+- Updated `checklists/current-phase.md` to Phase 92.5 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.92.5`.
+
+### Boundaries
+- Phase 92.5 is an out-of-band proof-chain edge-case hardening pass before Phase 93.
+- Phase 92.5 is hardening only.
+- Phase 92.5 adds no new action authority.
+- Phase 92.5 does not add time-based expiry.
+- Phase 92.5 does not add persistence, durable append, ledger/audit append, recovery, replay repair, provider execution, live transport, or authority mutation.
+- Phase 93 remains responsible for persistence corruption and append drift hardening.
+- Roadmap files were not changed, and Phase 93 or later phases were not renumbered.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.92 - 2026-05-06
 **Status:** Phase 92 - Authorization/Audit/Action Mismatch Hardening
 
