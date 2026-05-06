@@ -6,6 +6,33 @@ mutation_path: changelog_entry
 # CHANGELOG.md
 
 
+## v0.0.99 - 2026-05-06
+**Status:** Phase 99 - Release Engineering Dry Run
+
+### Added
+- Added `docs/operations/release-engineering-dry-run-phase-99.md` documenting Phase 99 scope, dry-run model, evidence-only rule, release dry-run evidence set, command interpretation, prohibited artifacts/actions, dry-run pass meaning, dry-run non-approval meaning, version/changelog posture, release checklist posture, validation-gate integrity posture, artifact cleanup posture, non-authority guarantees, Phase 96/97/98/100 relationships, AST/boundary lint parity, test fidelity, validation evidence, confirmed-vs-suspected posture, deferred items, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 99 procedural truth, including working-tree hygiene, allowed surfaces, boundary rules, task closure, validation checklist, evidence-only checklist, release dry-run evidence checklist, prohibited artifact checklist, command interpretation checklist, version/changelog posture, release checklist posture, validation-gate integrity, artifact cleanup, non-authority posture, AST/boundary lint parity, test fidelity, zero-drift posture, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.99`.
+
+### Boundaries
+- Phase 99 is a release-engineering dry-run boundary only.
+- Phase 99 is a simulation, not a release.
+- A release dry-run pass means only that the release-evidence checklist can be assembled locally at that moment.
+- Phase 99 does not create a release.
+- Phase 99 does not approve a release candidate.
+- Phase 99 does not approve Production Candidate status.
+- Phase 99 does not approve public usability.
+- Phase 99 does not approve startup/package readiness.
+- Phase 99 does not approve installer, signing, distribution, publishing, or auto-update behavior.
+- Phase 99 does not create git tags, GitHub releases, release branches, uploaded artifacts, signed artifacts, checksums for release distribution, SBOMs for release distribution, installers, archives intended for distribution, Docker/container images, package-registry artifacts, npm packages, cargo packages, update channels, auto-update manifests, or public download assets.
+- Phase 99 adds no runtime behavior, new CLI, release tooling, provider/model calls, persistence, durable append, export writes, replay repair, recovery acceptance, action execution, live transport, or authority.
+- Phase 99 does not implement Phase 100 and does not make the Phase 100 Production Candidate decision gate.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, roadmap docs, README, AGENTS, package files, dependency files, lockfiles, UI config files, or release publishing infrastructure were changed.
+
 ## v0.0.98 - 2026-05-06
 **Status:** Phase 98 - Operator Documentation and Troubleshooting Guide / Operator Documentation and Troubleshooting Boundary
 

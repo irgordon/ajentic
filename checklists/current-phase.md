@@ -4,273 +4,271 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current phase checklist - Phase 98 Operator Documentation and Troubleshooting Boundary
+# Current phase checklist - Phase 99 Release Engineering Dry Run
 
 ## Phase name
-Phase 98 - Operator Documentation and Troubleshooting Guide / Operator Documentation and Troubleshooting Boundary.
+- [x] Phase 99 - Release Engineering Dry Run.
 
 ## Phase goal
-Document how an operator should run, interpret, and troubleshoot the existing local validation, dry-run, UI behavioral, golden invariant, adversarial corpus, build, and packaging-boundary commands.
-
-Roadmap planned truth names Phase 98 **Operator Documentation and Troubleshooting Guide** and scopes it to documenting startup, validation, expected outputs, failure modes, and rollback expectations for local operators. This checklist records Phase 98 procedural truth as documentation-only, operator-facing only, and introducing no new capability.
+- [x] Define and validate a dry-run release-engineering process that checks evidence collection, checklist completeness, version/changelog consistency, validation commands, and artifact boundaries without creating or publishing release artifacts.
+- [x] Confirm Phase 99 title and scope from roadmap planned truth.
 
 ## Working-tree hygiene gate
 - [x] Ran `git status --short` before edits.
-- [x] Classified the initial working tree as clean.
-- [x] Found no pre-existing uncommitted generated artifact drift requiring cleanup before edits.
-- [x] Recorded cleanup: no cleanup was required before edits.
-- [x] Reviewed generated artifact hygiene after validation.
-- [x] Removed post-validation generated artifact drift: reverted `core/target/.rustc_info.json` and removed `scripts/__pycache__`.
-- [x] Confirmed no generated compiler metadata, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, `scripts/__pycache__`, or unrelated tool output were staged.
+- [x] Classified uncommitted files before edits: no uncommitted files were present.
+- [x] Checked for generated artifact drift before edits.
+- [x] Cleanup recorded: no pre-edit cleanup was required.
+- [x] Final generated artifact drift cleanup must remove or exclude `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, `scripts/__pycache__`, Cargo target drift if tracked, and other generated artifact drift.
 
 ## Allowed surfaces
-- [x] `docs/operations/operator-troubleshooting-phase-98.md` was created.
-- [x] `checklists/current-phase.md` was updated for Phase 98 procedural truth.
-- [x] `CHANGELOG.md` was updated with `v0.0.98` historical truth.
-- [x] `docs/operations/local-workflow-guide.md` was not changed because the Phase 98 operations doc was sufficient.
-- [x] `checklists/release.md` was not changed because release evidence posture did not change.
-- [x] Rust source was not changed.
-- [x] TypeScript source was not changed.
-- [x] Tests were not changed.
-- [x] Scripts were not changed.
-- [x] Workflows were not changed.
-- [x] Schemas were not changed.
-- [x] Governance docs were not changed.
-- [x] Architecture docs were not changed.
-- [x] `README.md` was not changed.
-- [x] `AGENTS.md` was not changed.
-- [x] Package files, dependency files, lockfiles, UI config, and roadmap docs were not changed.
+- [x] Allowed: `docs/operations/release-engineering-dry-run-phase-99.md`.
+- [x] Allowed: `checklists/current-phase.md`.
+- [x] Allowed: `CHANGELOG.md`.
+- [x] Conditional: `checklists/release.md` only if dry-run evidence posture clarification is strictly required.
+- [x] Decision: `checklists/release.md` was not modified because its existing posture already states future release-candidate evidence only and does not claim readiness.
 
 ## Boundary rules
-- [x] Phase 98 is documentation-only.
-- [x] Phase 98 is operator-facing only.
-- [x] Phase 98 introduces no new capability.
-- [x] Phase 98 adds no runtime behavior.
-- [x] Phase 98 adds no new CLI surface.
-- [x] Phase 98 adds no packaging.
-- [x] Phase 98 adds no installer.
-- [x] Phase 98 adds no distribution.
-- [x] Phase 98 adds no signing.
-- [x] Phase 98 adds no release engineering.
-- [x] Phase 98 adds no readiness claims.
-- [x] Phase 98 adds no authority surfaces.
-- [x] Phase 98 adds no transport behavior.
-- [x] Phase 98 adds no provider behavior.
-- [x] Phase 98 adds no persistence behavior.
-- [x] Phase 98 adds no replay behavior.
-- [x] Phase 98 adds no recovery behavior.
-- [x] Phase 98 adds no export behavior.
-- [x] Phase 98 adds no action behavior.
-- [x] Phase 98 does not improve, fix, rename, wire, or add commands.
-- [x] Phase 98 does not approve startup, packaging, public usability, release-candidate readiness, production readiness, or Production Candidate status.
-- [x] Phase 99 remains responsible for release engineering dry-run boundary work if Phase 98 evidence permits it.
+- [x] Phase 99 is a release-engineering dry-run boundary only.
+- [x] Phase 99 is a simulation, not a release.
+- [x] Phase 99 is not release-candidate approval.
+- [x] Phase 99 is not Production Candidate approval.
+- [x] Phase 99 is not public-usability approval.
+- [x] Phase 99 is not startup/package readiness approval.
+- [x] Phase 99 is not installer, signing, distribution, publishing, or auto-update approval.
+- [x] Phase 99 adds no runtime behavior.
+- [x] Phase 99 adds no new CLI.
+- [x] Phase 99 adds no release tooling.
+- [x] Phase 99 creates no release artifacts.
+- [x] Phase 99 does not tag, sign, publish, upload, distribute, package, install, or auto-update.
+- [x] Phase 99 does not add provider/model calls, persistence, durable append, export writes, replay repair, recovery acceptance, action execution, live transport, or authority.
+- [x] Phase 100 remains responsible for the final Production Candidate gap audit and readiness decision gate.
+- [x] Phase 99 does not make the Phase 100 decision.
 - [x] Roadmap remains planned truth.
 - [x] `CHANGELOG.md` remains historical truth.
 
 ## Task checklist
-- [x] Ran initial `git status --short` and classified uncommitted files.
-- [x] Cleaned or reverted generated artifact drift before edits where required; no cleanup was required.
-- [x] Read `docs/roadmap/phase-map.md`, `docs/roadmap/phases.md`, and `docs/roadmap/sequencing.md`.
-- [x] Read `CHANGELOG.md`, `checklists/current-phase.md`, `checklists/release.md`, `README.md`, and `AGENTS.md`.
-- [x] Read required operations docs for Phases 86, 95.1, 95.2, 95.3, 95.4, 96, 97, and the local workflow guide.
-- [x] Inspected current command surfaces for documentation accuracy only: `scripts/check.sh`, `core/Cargo.toml`, `core/src/main.rs`, `ui/package.json`, and `ui/run-api-behavior-tests.mjs`.
-- [x] Confirmed Phase 98 title and scope from roadmap files.
-- [x] Created `docs/operations/operator-troubleshooting-phase-98.md` with required frontmatter.
-- [x] Documented validation gate troubleshooting.
-- [x] Documented dry-run troubleshooting.
-- [x] Documented Rust test troubleshooting.
-- [x] Documented golden invariant troubleshooting.
-- [x] Documented adversarial corpus troubleshooting.
-- [x] Documented UI behavioral test troubleshooting.
-- [x] Documented UI typecheck/lint/build troubleshooting.
-- [x] Documented local build artifact troubleshooting.
-- [x] Documented generated artifact drift cleanup.
-- [x] Documented frontmatter/checklist validation failures.
-- [x] Documented boundary lint failures.
-- [x] Documented npm non-failing environment warning posture.
-- [x] Documented Cargo-generated metadata drift.
-- [x] Documented what not to infer from passing commands.
-- [x] Updated `CHANGELOG.md` with `v0.0.98`.
-- [x] Did not update roadmap files.
-- [x] Did not start Phase 99.
+- [x] Read required roadmap, changelog, checklist, release checklist, README, and AGENTS surfaces.
+- [x] Read required Phase 95.2, Phase 95.3, Phase 95.4, Phase 96, Phase 97, and Phase 98 operations docs.
+- [x] Inspected validation and release-adjacent surfaces for documentation accuracy only: `scripts/check.sh`, `core/Cargo.toml`, `ui/package.json`, `ui/run-api-behavior-tests.mjs`, `.github/workflows/ci.yml`, and workflow files.
+- [x] Created `docs/operations/release-engineering-dry-run-phase-99.md` with required frontmatter and sections.
+- [x] Documented the release dry-run evidence set.
+- [x] Documented what a dry-run pass means.
+- [x] Documented what a dry-run pass does not mean.
+- [x] Documented prohibited artifacts and actions.
+- [x] Documented evidence-only, non-releasing command interpretation.
+- [x] Documented version/changelog posture.
+- [x] Documented release checklist posture.
+- [x] Documented validation-gate integrity posture.
+- [x] Documented artifact cleanup posture.
+- [x] Documented AST/boundary lint parity posture.
+- [x] Documented test fidelity posture.
+- [x] Added `CHANGELOG.md` `v0.0.99`.
+- [x] Did not implement Phase 100.
+- [x] Did not perform a release.
+- [x] Did not modify scripts or workflows.
 
 ## Validation checklist
-- [x] `./scripts/check.sh` passed after final edits.
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` passed after final edits.
-- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` passed after final edits.
-- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` passed after final edits.
-- [x] `cd ui && npm run test:api` passed after final edits.
-- [x] `node scripts/test_rust_boundary_lint.mjs` passed after final edits.
-- [x] `node scripts/rust_boundary_lint.mjs` passed after final edits.
-- [x] `node scripts/test_lint_ui_boundaries.mjs` passed after final edits.
-- [x] `node scripts/lint_ui_boundaries.mjs` passed after final edits.
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build` passed after final edits.
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` passed after final edits.
-- [x] `cargo build --manifest-path core/Cargo.toml` passed after final edits.
-- [x] `cd ui && npm run build` passed after final edits.
-- [x] Command coverage scan passed.
-- [x] Troubleshooting topic scan passed.
-- [x] No-capability scan passed.
-- [x] Source/script/workflow guard showed no prohibited diffs.
-- [x] Readiness scan showed no approval claim; matches were explicit non-approval/prohibition language.
-- [x] Roadmap/changelog scan passed.
-- [x] Lint wiring scan passed.
-- [x] Final `git status --short` was reviewed before commit.
-- [x] Final staged file list matched allowed Phase 98 surfaces.
+- [x] `./scripts/check.sh` passed after final documentation edits.
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` passed after final documentation edits.
+- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` passed after final documentation edits.
+- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` passed after final documentation edits.
+- [x] `cd ui && npm run test:api` passed after final documentation edits.
+- [x] `node scripts/test_rust_boundary_lint.mjs` passed after final documentation edits.
+- [x] `node scripts/rust_boundary_lint.mjs` passed after final documentation edits.
+- [x] `node scripts/test_lint_ui_boundaries.mjs` passed after final documentation edits.
+- [x] `node scripts/lint_ui_boundaries.mjs` passed after final documentation edits.
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build` passed after final documentation edits.
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` passed after final documentation edits.
+- [x] `cargo build --manifest-path core/Cargo.toml` passed after final documentation edits.
+- [x] `cd ui && npm run build` passed after final documentation edits.
+- [x] Evidence scans completed.
+- [x] Final `git status --short` completed before staging and commit.
 
-## Operator documentation checklist
-- [x] Required Scope section included.
-- [x] Required Operator troubleshooting model section included.
-- [x] Required Command interpretation rule section included.
-- [x] Required Validation gate troubleshooting section included.
-- [x] Required Dry-run troubleshooting section included.
-- [x] Required Rust test troubleshooting section included.
-- [x] Required Golden invariant troubleshooting section included.
-- [x] Required Adversarial corpus troubleshooting section included.
-- [x] Required UI behavioral test troubleshooting section included.
-- [x] Required UI typecheck/lint/build troubleshooting section included.
-- [x] Required Local build artifact troubleshooting section included.
-- [x] Required Generated artifact drift cleanup section included.
-- [x] Required Frontmatter and checklist validation failures section included.
-- [x] Required Boundary lint failures section included.
-- [x] Required Non-failing npm warning posture section included.
-- [x] Required What passing checks do not mean section included.
-- [x] Required What operators should not do section included.
-- [x] Required Phase 96 relationship section included.
-- [x] Required Phase 97 relationship section included.
-- [x] Required Phase 99 relationship section included.
-- [x] Required AST/boundary lint parity section included.
-- [x] Required Test fidelity section included.
-- [x] Required Validation evidence section included.
-- [x] Required Confirmed vs suspected section included.
-- [x] Required Deferred items section included.
-- [x] Required Non-readiness statement section included.
+## Evidence-only checklist
+- [x] Evidence is local command output only.
+- [x] Evidence commands are non-releasing.
+- [x] Evidence does not grant authority.
+- [x] Evidence does not create release approval.
+- [x] Evidence defects are documented and deferred rather than repaired in Phase 99.
 
-## Command coverage checklist
-- [x] `./scripts/check.sh` documented.
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` documented.
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` documented.
-- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` documented.
-- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` documented.
-- [x] `cd ui && npm run test:api` documented.
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build` documented.
-- [x] `cargo build --manifest-path core/Cargo.toml` documented.
-- [x] `cd ui && npm run build` documented as part of local build artifact troubleshooting.
-- [x] Each documented command includes what it checks.
-- [x] Each documented command includes what a pass means.
-- [x] Each documented command includes what a pass does not mean.
-- [x] Each documented command includes common failure signals.
-- [x] Each documented command includes what to inspect next.
-- [x] Each documented command includes what not to infer.
+## Release dry-run evidence checklist
+- [x] `./scripts/check.sh` included.
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` included.
+- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` included.
+- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` included.
+- [x] `cd ui && npm run test:api` included.
+- [x] `node scripts/test_rust_boundary_lint.mjs` included.
+- [x] `node scripts/rust_boundary_lint.mjs` included.
+- [x] `node scripts/test_lint_ui_boundaries.mjs` included.
+- [x] `node scripts/lint_ui_boundaries.mjs` included.
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build` included.
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` included.
+- [x] `cargo build --manifest-path core/Cargo.toml` included.
+- [x] `cd ui && npm run build` included.
+- [x] `git status --short` included.
+- [x] Roadmap/changelog truth-surface scans included.
+- [x] Readiness/non-approval scans included.
+- [x] Source/script/workflow/package guard scans included.
 
-## Non-claim checklist
-- [x] Documentation states that a passing command means only that the checked local boundary passed at that moment.
-- [x] Documentation states that passing commands do not approve production readiness.
-- [x] Documentation states that passing commands do not approve release-candidate readiness.
-- [x] Documentation states that passing commands do not approve public usability.
-- [x] Documentation states that passing commands do not approve packaging.
-- [x] Documentation states that passing commands do not approve distribution.
-- [x] Documentation states that passing commands do not approve installer use.
-- [x] Documentation states that passing commands do not approve provider execution.
-- [x] Documentation states that passing commands do not approve persistence authority.
-- [x] Documentation states that passing commands do not approve replay repair.
-- [x] Documentation states that passing commands do not approve recovery promotion.
-- [x] Documentation states that passing commands do not approve action execution.
-- [x] Documentation states Phase 98 has no runtime behavior, no new CLI, no packaging, no installer, no distribution, no signing, no release engineering, no readiness claims, no authority surfaces, no transport, no provider, no persistence, no replay, no recovery, no export, and no action behavior.
+## Prohibited artifact checklist
+- [x] No git tags created.
+- [x] No GitHub releases created.
+- [x] No release branches created.
+- [x] No uploaded artifacts created.
+- [x] No signed artifacts created.
+- [x] No checksums for release distribution created.
+- [x] No SBOMs for release distribution created.
+- [x] No installers created.
+- [x] No archives intended for distribution created.
+- [x] No Docker/container images created.
+- [x] No package-registry artifacts created.
+- [x] No npm packages created.
+- [x] No cargo packages created.
+- [x] No update channels created.
+- [x] No auto-update manifests created.
+- [x] No public download assets created.
 
-## Generated artifact cleanup checklist
-- [x] `git status --short` was used to classify initial uncommitted files.
-- [x] No initial generated artifact drift was present.
-- [x] Post-validation generated artifact drift was inspected.
-- [x] Post-validation `core/target/.rustc_info.json` drift was reverted.
-- [x] Post-validation `scripts/__pycache__` drift was removed.
-- [x] Cargo-generated metadata drift, including `core/target/.rustc_info.json`, was not staged.
-- [x] UI build artifacts were not staged.
-- [x] Node build artifacts were not staged.
-- [x] Coverage output was not staged.
-- [x] Test temp files were not staged.
-- [x] Export temp files were not staged.
-- [x] `scripts/__pycache__` was not staged.
-- [x] Package/lockfile drift was not staged.
+## Command interpretation checklist
+- [x] Documented exactly: a release dry-run pass means only that the release-evidence checklist can be assembled locally at that moment.
+- [x] Documented that a dry-run pass does not create a release.
+- [x] Documented that a dry-run pass does not approve a release candidate.
+- [x] Documented that a dry-run pass does not approve Production Candidate status.
+- [x] Documented that a dry-run pass does not approve public usability.
+- [x] Documented that a dry-run pass does not approve startup/package readiness.
+- [x] Documented that a dry-run pass does not approve installer behavior.
+- [x] Documented that a dry-run pass does not approve signing behavior.
+- [x] Documented that a dry-run pass does not approve distribution behavior.
+- [x] Documented that a dry-run pass does not approve publishing behavior.
+- [x] Documented that a dry-run pass does not approve auto-update behavior.
 
-## Frontmatter/checklist failure checklist
-- [x] Phase 98 operations doc has required frontmatter.
-- [x] Checklist frontmatter remains procedural/authoritative/checklist_revision.
-- [x] Changelog frontmatter remains historical/authoritative/changelog_entry.
-- [x] Current-phase checklist has no stale Phase 97 unchecked completion items.
-- [x] Completed Phase 98 task and validation items are checked.
-- [x] Changelog claims match actual changed surfaces.
+## Version/changelog posture checklist
+- [x] `CHANGELOG.md` records historical truth only.
+- [x] `CHANGELOG.md` `v0.0.99` lists only actual changed files/surfaces.
+- [x] No package version changed.
+- [x] No dependency version changed.
+- [x] No lockfile changed.
+- [x] No tag, branch, registry, download, or update-channel version posture changed.
 
-## Boundary lint troubleshooting checklist
-- [x] Rust boundary lint commands are documented as blocking enforcement surfaces.
-- [x] UI AST boundary lint commands are documented as blocking enforcement surfaces.
-- [x] Documentation says not to patch lint behavior in Phase 98.
-- [x] Documentation says new source/tooling patterns should be deferred rather than fixed in Phase 98.
-- [x] Lint self-test changes are deferred to a separate maintenance phase if needed.
+## Release checklist posture checklist
+- [x] Reviewed `checklists/release.md`.
+- [x] Determined no Phase 99 change to `checklists/release.md` was required.
+- [x] Did not mark release readiness complete.
+- [x] Did not mark release-candidate readiness complete.
+- [x] Did not mark production readiness complete.
+- [x] Did not mark public usability complete.
+- [x] Did not mark Production Candidate status complete.
+- [x] Did not mark installer, signing, distribution, publishing, or auto-update approval complete.
+- [x] Did not claim release artifacts exist.
+
+## Validation-gate integrity checklist
+- [x] Required validation commands returned 0 after final edits.
+- [x] No validation command printed assertion failure, panic, traceback, failed assertion, partial pass count, or masked failure.
+- [x] Any future validation-gate defect found by a dry run must be documented and deferred rather than repaired in Phase 99.
+
+## Artifact cleanup checklist
+- [x] Removed or excluded generated compiler metadata before commit.
+- [x] Removed or excluded UI build artifacts before commit.
+- [x] Removed or excluded Cargo target drift before commit.
+- [x] Removed or excluded test temp files before commit.
+- [x] Removed or excluded export temp files before commit.
+- [x] Removed or excluded coverage output before commit.
+- [x] Removed or excluded `scripts/__pycache__` before commit.
+- [x] Confirmed no release artifacts were created.
+
+## Non-authority checklist
+- [x] No runtime behavior added.
+- [x] No CLI surface added.
+- [x] No release tooling added.
+- [x] No packaging behavior added.
+- [x] No installer behavior added.
+- [x] No distribution behavior added.
+- [x] No signing behavior added.
+- [x] No publishing behavior added.
+- [x] No auto-update behavior added.
+- [x] No authority surface added.
+- [x] No transport added.
+- [x] No provider/model call added.
+- [x] No persistence added.
+- [x] No durable append added.
+- [x] No export write added.
+- [x] No replay repair added.
+- [x] No recovery acceptance added.
+- [x] No action behavior added.
 
 ## AST/boundary lint parity checklist
-- [x] Documentation says not to rely on `rg` scans as enforcement.
-- [x] Documentation says `rg` scans are discovery/evidence only.
-- [x] Blocking enforcement is assigned to `./scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, UI behavioral tests, and Rust tests.
-- [x] No lint behavior was changed.
-- [x] No lint self-tests were added or changed.
+- [x] Did not rely on `rg` scans as enforcement.
+- [x] Treated `rg` scans as discovery/evidence only.
+- [x] Blocking enforcement remained `./scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, UI behavioral tests, and Rust tests.
+- [x] Did not change lint behavior in Phase 99.
+- [x] Did not add lint self-tests in Phase 99.
+- [x] No new source/tooling pattern requiring deferred lint maintenance was found.
 
 ## Test fidelity checklist
-- [x] Phase 98 is documentation-only, so no new Rust tests were added.
-- [x] Phase 98 is documentation-only, so no new TypeScript tests were added.
+- [x] No new Rust tests were added.
+- [x] No new TypeScript tests were added.
 - [x] Full existing test/lint/check suite passed after final documentation edits.
-- [x] No validation command was skipped after final edits.
-- [x] No validation command printed assertion failure, panic, traceback, failed assertion, partial pass count, or masked failure while returning zero.
+- [x] No required validation command was skipped after final edits.
+- [x] No validation command returned 0 while printing masked failure output.
 
 ## Zero-drift checklist
-- [x] Final source/script/workflow guard showed no Rust source diffs.
-- [x] Final source/script/workflow guard showed no TypeScript source diffs.
-- [x] Final source/script/workflow guard showed no test diffs.
-- [x] Final source/script/workflow guard showed no script diffs.
-- [x] Final source/script/workflow guard showed no workflow diffs.
-- [x] Final source/script/workflow guard showed no README or AGENTS diffs.
-- [x] Final source/script/workflow guard showed no package, lockfile, UI config, or roadmap diffs.
-- [x] Final staged files exactly matched allowed Phase 98 surfaces.
+- [x] No Rust source diff.
+- [x] No TypeScript source diff.
+- [x] No test diff.
+- [x] No script diff.
+- [x] No workflow diff.
+- [x] No schema diff.
+- [x] No governance doc diff.
+- [x] No architecture doc diff.
+- [x] No README diff.
+- [x] No AGENTS diff.
+- [x] No package/dependency/lockfile diff.
+- [x] No UI config diff.
+- [x] No roadmap diff.
+- [x] No release publishing infrastructure diff.
 
 ## Findings table
-| Finding | Evidence | Classification |
+| Finding | Evidence | Disposition |
 | --- | --- | --- |
-| Phase 98 roadmap title is Operator Documentation and Troubleshooting Guide. | `docs/roadmap/phase-map.md`, `docs/roadmap/phases.md` | Confirmed planned truth. |
-| Phase 98 is documentation-only and operator-facing only. | Phase 98 task boundary and operations doc | Confirmed boundary. |
-| Existing commands were documented without command changes. | Final diff | Confirmed no capability change. |
-| No generated artifact cleanup was needed before edits. | Initial `git status --short` | Confirmed hygiene finding. |
-| Post-validation generated artifact drift was cleaned. | Final hygiene review | Reverted `core/target/.rustc_info.json`; removed `scripts/__pycache__`. |
-| Roadmap remains planned truth. | Roadmap files and operations doc | Confirmed truth posture. |
-| `CHANGELOG.md` remains historical truth. | Changelog and operations doc | Confirmed truth posture. |
+| Phase 99 title and scope confirmed. | Roadmap files name Phase 99 as Release Engineering Dry Run with dry-run/no-release/no-production-candidate-approval boundary. | Documented. |
+| Pre-edit working tree was clean. | Initial `git status --short` produced no entries. | No cleanup required before edits. |
+| Release dry-run evidence set is command-result only. | Phase 99 operations doc and checklist enumerate local evidence commands. | Documented. |
+| `checklists/release.md` did not require modification. | Existing checklist states future release-candidate evidence only and does not claim readiness. | No change. |
+| No release artifacts or release actions were created. | Prohibited artifact and no-release-action scans plus final git status. | Confirmed. |
+| No runtime or authority behavior was added. | Source/script/workflow/package guard and no-runtime/no-authority scans. | Confirmed. |
 
 ## Deferred items table
-| Item | Reason deferred | Target posture |
+| Item | Reason | Later owner |
 | --- | --- | --- |
-| Broken validation gate repair, if ever observed later | Phase 98 must document, not fix, gates. | Later out-of-band maintenance phase. |
-| New lint source/tooling pattern, if discovered later | Phase 98 must not patch lint behavior. | Later maintenance phase with lint self-tests. |
-| New Rust or TypeScript tests for troubleshooting behavior | Phase 98 is documentation-only. | Later implementation or maintenance phase if approved. |
-| Release engineering dry-run boundary work | Phase 99 owns release engineering dry-run work if Phase 98 evidence permits it. | Phase 99. |
+| Release tooling, signing, publishing, installer, distribution, update-channel, checksum distribution, SBOM release generation, and package-registry work. | Explicitly prohibited in Phase 99. | Later release-engineering phase, if approved. |
+| Production Candidate readiness decision. | Phase 100 owns the decision gate. | Phase 100. |
+| Any future lint behavior expansion. | Phase 99 is documentation-only and does not patch lint behavior. | Separate maintenance phase if concrete need is found. |
 
 ## Validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | Passed | Main validation gate completed after final edits. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | Passed | Explicit Rust all-target tests completed. |
-| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Passed | Explicit golden filter completed. |
-| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Passed | Explicit adversarial filter completed. |
-| `cd ui && npm run test:api` | Passed | Explicit UI behavioral harness completed. |
-| `node scripts/test_rust_boundary_lint.mjs` | Passed | Rust boundary lint self-test completed. |
-| `node scripts/rust_boundary_lint.mjs` | Passed | Rust boundary lint completed. |
-| `node scripts/test_lint_ui_boundaries.mjs` | Passed | UI AST lint self-test completed. |
-| `node scripts/lint_ui_boundaries.mjs` | Passed | UI AST lint completed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Passed | Explicit UI validation completed. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Passed | CLI dry-run completed. |
-| `cargo build --manifest-path core/Cargo.toml` | Passed | Rust local build completed. |
-| `cd ui && npm run build` | Passed | UI local build completed. |
-| Command coverage scan | Passed | Required commands present in Phase 98 documentation/checklist/changelog. |
-| Troubleshooting topic scan | Passed | Required troubleshooting topics present. |
-| No-capability scan | Passed | Required non-capability language present. |
-| Source/script/workflow guard | Passed | No prohibited diffs. |
-| Readiness scan | Passed | Matches are explicit non-approval/prohibition language only. |
-| Roadmap/changelog scan | Passed | Planned/historical truth language present. |
-| Lint wiring scan | Passed | Existing lint wiring references found. |
+| `./scripts/check.sh` | pass | Full local validation gate passed. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Explicit Rust tests passed. |
+| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | pass | Explicit golden filter passed. |
+| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | pass | Explicit adversarial filter passed. |
+| `cd ui && npm run test:api` | pass | UI behavioral tests passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
+| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST boundary lint self-tests passed. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST boundary lint passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | Existing local startup dry-run passed as evidence only. |
+| `cargo build --manifest-path core/Cargo.toml` | pass | Local Rust build passed; no release artifact created. |
+| `cd ui && npm run build` | pass | Local UI build passed; no release artifact created. |
+| Command/evidence scan | pass | Required command strings documented. |
+| Dry-run interpretation scan | pass | Required interpretation strings documented. |
+| Prohibited artifact scan | pass | Matches are documentation/checklist/changelog prohibitions or existing non-release surfaces only. |
+| No-release-action scan | pass | Matches are documentation/checklist/changelog prohibitions or existing non-release references only. |
+| No-runtime/no-authority scan | pass | Matches are existing source/runtime names or Phase 99 prohibitions; no Phase 99 runtime diff. |
+| Source/script/workflow/package guard | pass | No prohibited surface diffs. |
+| Readiness scan | pass | Matches are explicit non-approval/prohibition language only. |
+| Roadmap/changelog scan | pass | Planned/historical truth and Phase 99/100 posture present. |
+| Roadmap completion contamination scan | pass | No roadmap completion contamination found. |
+| Changelog future-planning contamination scan | pass | No changelog future-planning contamination found. |
+| Lint wiring scan | pass | Existing lint wiring and Phase 99 documentation references observed. |
+| `git status --short` | pass | Final status reviewed before commit. |
+| `git diff --name-only --cached` | pass | Staged files matched allowed surfaces. |
