@@ -5,6 +5,38 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.95 - 2026-05-06
+**Status:** Phase 95 - Roadmap and Hardening Depth Alignment Check
+
+### Added
+- Added `docs/operations/repository-audit-phase-95.md` documenting the Phase 91-94 hardening-depth audit, committed-evidence rule, required decision statuses, residual authority seams, UI behavioral harness gap, cross-boundary golden invariant gap, adversarial LLM-output corpus gap, AST/boundary lint parity posture, Phase 96 gate decision, recommended intermediate phases, roadmap/changelog alignment, Production Candidate status, follow-ups, deferrals, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 95 procedural truth, evidence-only closure, finding tables, deferrals, validation closure, and zero-drift posture.
+- Updated `CHANGELOG.md` with `v0.0.95`.
+
+### Boundaries
+- Phase 95 is audit and planning only.
+- Phase 95 does not implement runtime behavior.
+- Phase 95 does not add tests.
+- Phase 95 does not repair tooling.
+- Phase 95 does not begin startup/package work.
+- Phase 95 does not implement Phase 96.
+- Phase 95 does not implement Phase 95.1, 95.2, 95.3, or 95.4.
+- Phase 95 counts committed evidence only.
+- Plans, architecture rationale alone, and future roadmap items do not count as closure.
+- Phase 91 is conditionally sufficient for the current pre-bridge UI submission/transport spoofing boundary, but UI behavioral test coverage is missing before startup/package work.
+- Phase 92/92.5 are sufficient for the current authorization/audit/action proof-chain boundary; stale proof lifecycle remains deferred and is not claimed solved.
+- Phase 93/93.5 are sufficient for the current persistence/export/recovery semantics boundary; continuous integrity monitoring and concurrent writers remain deferred.
+- Phase 94 is conditionally sufficient for the current provider/replay/failure spoofing boundary, but broader adversarial corpus depth is missing before startup/package work.
+- Cross-boundary golden invariant evidence is missing before startup/package work.
+- Phase 96 is not approved to start.
+- Startup/package work is not approved.
+- Production Candidate status is not approved.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+- No Rust, TypeScript, test, script, workflow, schema, governance, architecture, README, AGENTS, dependency/package, lockfile, or UI config files were changed.
+
 ## v0.0.94 - 2026-05-06
 **Status:** Phase 94 - Provider Output Injection and Replay Abuse Hardening
 
