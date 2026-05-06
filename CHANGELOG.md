@@ -5,6 +5,38 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.97 - 2026-05-06
+**Status:** Phase 97 - Packaging Artifact Definition / Packaging Boundary Candidate
+
+### Added
+- Added `docs/operations/packaging-boundary-phase-97.md` documenting Phase 97 scope, packaging boundary decision, supported local build/package commands, command behavior, failure posture, non-authority guarantees, artifact posture, Phase 96 relationship, Phase 98 relationship, validation evidence, AST/boundary lint parity, test fidelity, confirmed-vs-suspected findings, deferred items, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 97 procedural truth, phase goal, working-tree hygiene gate, allowed surfaces, boundary rules, task checklist, validation checklist, packaging decision checklist, local build/package command checklist, artifact posture checklist, non-authority checklist, operator documentation checklist, AST/boundary lint parity checklist, test fidelity checklist, zero-drift checklist, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.97`.
+
+### Findings
+- Option B was selected: existing build artifact boundary using existing commands only.
+- Supported local build/package commands are `cargo build --manifest-path core/Cargo.toml` and `cd ui && npm run build`.
+- Existing build outputs are local only and operator-test only.
+- No package/build behavior, package metadata, dependency, lockfile, runtime, script, workflow, README, Rust source, TypeScript source, test, schema, governance, architecture, or roadmap changes were made.
+- No new tests were required because Phase 97 is documentation-only and reuses existing build commands without behavior changes.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+
+### Boundaries
+- Phase 97 is a packaging boundary candidate only.
+- Phase 97 does not approve production readiness.
+- Phase 97 does not approve release-candidate readiness.
+- Phase 97 does not approve public usability.
+- Phase 97 does not approve installer or distribution behavior.
+- Phase 97 does not approve auto-update behavior.
+- Phase 97 does not approve Production Candidate status.
+- Phase 97 does not add runtime authority.
+- Phase 97 does not create release artifacts, installer artifacts, signed artifacts, update channels, public downloads, package registry publishing, GitHub Release automation, cargo publish, npm publish, Docker/container packaging, service registration, daemon behavior, server behavior, browser launch, live UI/Rust transport, provider/model calls, persistence writes, durable appends, export writes, import behavior, replay repair, recovery promotion, action execution, or dependency changes.
+- The task boundary names Phase 98 as responsible for release dry-run boundary work if Phase 97 evidence permits it; roadmap planned truth currently names Phase 98 operator documentation/troubleshooting and Phase 99 release dry run, and Phase 97 starts neither later phase.
+
+
 ## v0.0.96 - 2026-05-06
 **Status:** Phase 96 - Local Startup Command Boundary
 
