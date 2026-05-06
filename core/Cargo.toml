@@ -8,3 +8,7 @@ edition = "2021"
 [[test]]
 name = "integration_smoke"
 path = "../tests/integration_smoke.rs"
+
+[[test]]
+name = "adversarial_corpus"
+path = "../tests/adversarial_corpus.rs"

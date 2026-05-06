@@ -5,6 +5,34 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.95.3 - 2026-05-06
+**Status:** Phase 95.3 - Out-of-Band LLM Output Adversarial Corpus Hardening
+
+### Added
+- Added `docs/operations/llm-output-adversarial-corpus-phase-95-3.md` documenting scope, adversarial corpus model, provider output coverage, replay evidence coverage, failure trace/retry coverage, export summary coverage, operator intent/UI submission coverage, reason-code-over-text posture, path-like text posture, readiness/approval text posture, non-authority guarantees, phase relationships, lint parity, test fidelity, validation evidence, deferred items, and non-readiness statement.
+- Added `tests/adversarial_corpus.rs` with `root_integration_adversarial_llm_output_corpus_remains_data_not_authority`, covering adversarial provider output, replay evidence, failure/retry text, export diagnostic summaries, recovery rejection text, operator action summary text, path-like text, readiness/approval text, and non-authority flags.
+- Added adversarial UI behavior tests in `ui/src/api/submissionBoundary.behavior.test.ts` for JSON-looking authority injection, YAML-looking authority injection, Markdown instruction injection, path-like export/import bait, fake approval/status text, and prompt-leak/system-message bait before transport.
+
+### Changed
+- Updated `core/Cargo.toml` only to explicitly register the new root integration test file.
+- Updated `checklists/current-phase.md` to Phase 95.3 procedural truth, explicit out-of-band adversarial corpus scope, allowed surfaces, boundary rules, task closure, adversarial corpus checklists, provider/replay/failure/export/operator/UI/path/readiness/non-authority checklists, root/UI test coverage, lint parity, test fidelity, zero-drift posture, findings, deferrals, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.95.3`.
+
+### Boundaries
+- Phase 95.3 is an out-of-band LLM-output adversarial corpus hardening phase before Phase 96.
+- Phase 95.3 adds adversarial fixtures/tests only.
+- Phase 95.3 adds no runtime capability.
+- Phase 95.3 does not execute providers.
+- Phase 95.3 does not add live transport.
+- Phase 95.3 does not add persistence authority.
+- Phase 95.3 does not add export writes.
+- Phase 95.3 does not treat path-like text as paths.
+- Phase 95.3 does not treat approval/readiness text as approval.
+- Phase 95.3 does not start Phase 96 or change Phase 96 scope.
+- Phase 95.4 remains responsible for lint coverage expansion only if concrete uncovered patterns are found.
+- No Rust runtime source, runtime UI source, scripts, workflows, schemas, roadmap docs, governance docs, architecture docs, README, AGENTS, package files, dependency files, or lockfiles were changed.
+- Public usability, production readiness, Production Candidate approval, startup/package approval, package approval, and release-candidate readiness are not claimed.
+
 ## v0.0.95.2 - 2026-05-06
 **Status:** Phase 95.2 - Out-of-Band Cross-Boundary Golden Invariant Tests
 
