@@ -5,6 +5,28 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.89 - 2026-05-06
+**Status:** Phase 89 - Local Export Write Boundary
+
+### Added
+- Added `docs/operations/local-export-write-boundary-phase-89.md` documenting local export write scope, path safety, verification posture, non-authority guarantees, root integration coverage, validation evidence, and non-readiness posture.
+
+### Changed
+- Updated `core/src/api/observability.rs` with local export write status/reason/report/request types, `.ajentic-export` file-name validation, create-new/no-overwrite export writing through the persistence filesystem boundary, readback verification, forbidden directory checks, and module-local boundary tests.
+- Updated `core/src/api/persistence.rs` with a minimal create-new verified local export file helper required by Rust filesystem boundary lint, without changing ledger append semantics.
+- Updated `tests/integration_smoke.rs` with root integration smoke coverage for verified non-authoritative export writes and path traversal rejection.
+- Updated `checklists/current-phase.md` to Phase 89 procedural truth and closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.89`.
+
+### Notes
+- Phase 89 writes already encoded Phase 88 audit export bundle bytes only.
+- Phase 89 does not change Phase 88 canonical encoding semantics.
+- Phase 89 does not implement export import, ledger/audit append, recovery input, replay repair, promotion, live telemetry, provider/model execution, action execution, or authority mutation.
+- Phase 89 rejects path traversal, unsafe file names, forbidden export targets, symlink targets when detectable, and overwrite attempts.
+- Phase 89 does not delete, rotate, or manage export retention.
+- Phase 90 remains responsible for roadmap and Production Candidate gap audit.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.88 - 2026-05-05
 **Status:** Phase 88 - Audit Export Encoding Boundary
 
