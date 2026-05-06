@@ -5,6 +5,28 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.90.1 - 2026-05-06
+**Status:** Phase 90.1 - Out-of-Band Validation Gate Repair
+
+### Added
+- Added `docs/operations/validation-gate-repair-phase-90-1.md` documenting the out-of-band validation gate repair, Rust boundary lint self-test repair, `check.sh` propagation assessment, lint-rule preservation, failure-propagation proof, AST/boundary lint parity, test fidelity, validation evidence, and non-readiness posture.
+
+### Changed
+- Updated `scripts/test_rust_boundary_lint.mjs` so Rust boundary lint self-tests execute from an explicit deterministic named test list, derive the expected total from that list, reject partial pass counts, print failing test names, and exit nonzero on any self-test/count failure.
+- Updated `checklists/current-phase.md` to Phase 90.1 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.90.1`.
+
+### Boundaries
+- Phase 90.1 is an out-of-band validation gate repair before Phase 91.
+- Phase 90.1 repairs validation tooling only.
+- Phase 90.1 does not implement Phase 91 hardening.
+- Phase 90.1 does not change runtime behavior.
+- Phase 90.1 does not weaken Rust boundary lint rules.
+- Phase 91 remains responsible for transport abuse and submission spoofing hardening.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+- `scripts/check.sh` was not changed because `set -euo pipefail` already propagates the repaired Rust boundary lint self-test failure.
+- Roadmap files were not changed, and Phase 91 or later phases were not renumbered.
+
 ## v0.0.90 - 2026-05-06
 **Status:** Phase 90 - Roadmap and Production Candidate Gap Audit
 
