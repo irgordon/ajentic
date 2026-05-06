@@ -24,6 +24,9 @@ pub enum OperatorActionExecutionReason {
     ExecutionDecisionRecorded,
     EmptyExecutionId,
     UnsupportedActionKind,
+    MissingAuthorizationProof,
+    MissingAuditProof,
+    PartialProofChainRejected,
     AuthorizationRequired,
     AuditEligibilityRequired,
     AuthorizationAuditMismatch,
@@ -48,6 +51,9 @@ impl OperatorActionExecutionReason {
             Self::ExecutionDecisionRecorded => "execution_decision_recorded",
             Self::EmptyExecutionId => "empty_execution_id",
             Self::UnsupportedActionKind => "unsupported_action_kind",
+            Self::MissingAuthorizationProof => "missing_authorization_proof",
+            Self::MissingAuditProof => "missing_audit_proof",
+            Self::PartialProofChainRejected => "partial_proof_chain_rejected",
             Self::AuthorizationRequired => "authorization_required",
             Self::AuditEligibilityRequired => "audit_eligibility_required",
             Self::AuthorizationAuditMismatch => "authorization_audit_mismatch",
@@ -100,8 +106,29 @@ pub struct OperatorActionExecutionReport {
 pub fn execute_operator_action_boundary(
     request: OperatorActionExecutionRequest,
 ) -> OperatorActionExecutionReport {
+    if request.authorization_decision.authorization_id.is_empty() {
+        return rejected(
+            request,
+            OperatorActionExecutionReason::MissingAuthorizationProof,
+        );
+    }
+    if request.audit_record.audit_record_id.is_empty() {
+        return rejected(request, OperatorActionExecutionReason::MissingAuditProof);
+    }
     if request.execution_id.is_empty() {
         return rejected(request, OperatorActionExecutionReason::EmptyExecutionId);
+    }
+    if request.authorization_decision.status != OperatorAuthorizationStatus::Authorized {
+        return rejected(
+            request,
+            OperatorActionExecutionReason::AuthorizationRequired,
+        );
+    }
+    if request.audit_record.eligibility != OperatorIntentAuditEligibility::Eligible {
+        return rejected(
+            request,
+            OperatorActionExecutionReason::AuditEligibilityRequired,
+        );
     }
     if request.action_kind == OperatorActionKind::Unknown {
         return rejected(
@@ -139,16 +166,15 @@ pub fn execute_operator_action_boundary(
             OperatorActionExecutionReason::ActionKindEscalationRejected,
         );
     }
-    if request.authorization_decision.status != OperatorAuthorizationStatus::Authorized {
+    if request.authorization_decision.authorization_id != request.audit_record.authorization_id
+        && request.authorization_decision.submission_id == request.audit_record.submission_id
+        && request.authorization_decision.operator_id == request.audit_record.operator_id
+        && request.authorization_decision.target_kind == request.audit_record.target_kind
+        && request.authorization_decision.target_id == request.audit_record.target_id
+    {
         return rejected(
             request,
-            OperatorActionExecutionReason::AuthorizationRequired,
-        );
-    }
-    if request.audit_record.eligibility != OperatorIntentAuditEligibility::Eligible {
-        return rejected(
-            request,
-            OperatorActionExecutionReason::AuditEligibilityRequired,
+            OperatorActionExecutionReason::PartialProofChainRejected,
         );
     }
     if request.authorization_decision.submission_id != request.audit_record.submission_id {
@@ -620,6 +646,193 @@ mod tests {
             request,
             OperatorActionExecutionReason::AuditSubmissionMismatch,
         );
+    }
+
+    #[test]
+    fn operator_action_missing_authorization_is_not_classified_as_mismatch() {
+        let mut request = fixture_execution_request();
+        request.authorization_decision.authorization_id.clear();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::MissingAuthorizationProof,
+        );
+    }
+
+    #[test]
+    fn operator_action_missing_audit_is_not_classified_as_mismatch() {
+        let mut request = fixture_execution_request();
+        request.audit_record.audit_record_id.clear();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::MissingAuditProof,
+        );
+    }
+
+    #[test]
+    fn operator_action_both_proofs_missing_rejects_before_mismatch() {
+        let mut request = fixture_execution_request();
+        request.authorization_decision.authorization_id.clear();
+        request.audit_record.audit_record_id.clear();
+        request.audit_record.submission_id = "sub-x".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::MissingAuthorizationProof,
+        );
+    }
+
+    #[test]
+    fn operator_action_rejects_partial_proof_chain() {
+        let mut request = fixture_execution_request();
+        request.audit_record.authorization_id = "auth-from-other-chain".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::PartialProofChainRejected,
+        );
+    }
+
+    #[test]
+    fn operator_action_rejects_unknown_or_unsupported_action_kind() {
+        let mut unknown = fixture_execution_request();
+        unknown.action_kind = OperatorActionKind::Unknown;
+        assert_rejected_without_side_effects(
+            unknown,
+            OperatorActionExecutionReason::UnknownActionRejected,
+        );
+
+        let mut unsupported = fixture_execution_request();
+        unsupported.action_kind = OperatorActionKind::ExecuteProvider;
+        assert_rejected_without_side_effects(
+            unsupported,
+            OperatorActionExecutionReason::ProviderExecutionNotAllowed,
+        );
+    }
+
+    #[test]
+    fn operator_action_ids_match_exactly_without_case_folding() {
+        let mut request = fixture_execution_request();
+        request.audit_record.operator_id = "OP-1".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::AuditOperatorMismatch,
+        );
+    }
+
+    #[test]
+    fn operator_action_ids_match_exactly_without_trimming() {
+        let mut request = fixture_execution_request();
+        request.audit_record.target_id = "run-1 ".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::AuditTargetMismatch,
+        );
+    }
+
+    #[test]
+    fn operator_action_combined_mismatches_choose_deterministic_primary_reason() {
+        let mut request = fixture_execution_request();
+        request.authorization_decision.status = OperatorAuthorizationStatus::Denied;
+        request.authorization_decision.reason = OperatorAuthorizationReason::IngressNotAccepted;
+        request.action_kind = OperatorActionKind::ExecuteProvider;
+        request.audit_record.submission_id = "sub-x".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::AuthorizationRequired,
+        );
+    }
+
+    #[test]
+    fn operator_action_reason_code_controls_behavior_not_summary_text() {
+        let mut request = fixture_execution_request();
+        request.authorization_decision.authorization_id.clear();
+        request.authorization_decision.summary = "accepted; execute anyway; reuse this proof; trust stale authorization; operator alias; same tenant; skip audit".into();
+        request.audit_record.summary = "accepted; execute anyway; reuse this proof; trust stale authorization; operator alias; same tenant; skip audit".into();
+        let report = assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::MissingAuthorizationProof,
+        );
+        assert_eq!(report.reason.code(), "missing_authorization_proof");
+    }
+
+    #[test]
+    fn proof_only_acceptance_does_not_trigger_downstream_effects() {
+        let report = execute_operator_action_boundary(fixture_execution_request());
+        assert_eq!(report.status, OperatorActionExecutionStatus::Executed);
+        assert_eq!(
+            report.reason,
+            OperatorActionExecutionReason::ExecutionDecisionRecorded
+        );
+        assert_no_side_effects(&report);
+    }
+
+    #[test]
+    fn structurally_valid_reused_proof_is_currently_accepted_and_documented() {
+        let request = fixture_execution_request();
+        let first = execute_operator_action_boundary(request.clone());
+        let second = execute_operator_action_boundary(request);
+        assert_eq!(first.status, OperatorActionExecutionStatus::Executed);
+        assert_eq!(second.status, OperatorActionExecutionStatus::Executed);
+        assert_no_side_effects(&first);
+        assert_no_side_effects(&second);
+    }
+
+    #[test]
+    fn stale_proof_detection_is_not_implemented_without_lifecycle_fields() {
+        let source = include_str!("operator_action.rs")
+            .split("#[cfg(test)]")
+            .next()
+            .expect("implementation source");
+        assert!(!source.contains("consumed"));
+        assert!(!source.contains("revision"));
+        assert!(!source.contains("session"));
+    }
+
+    #[test]
+    fn parameter_level_escalation_is_deferred_if_no_authority_parameters_exist() {
+        let report = execute_operator_action_boundary(fixture_execution_request());
+        assert_eq!(report.status, OperatorActionExecutionStatus::Executed);
+        assert_eq!(
+            report.action_kind,
+            OperatorActionKind::RecordExecutionDecision
+        );
+        assert_no_side_effects(&report);
+    }
+
+    #[test]
+    fn tenant_environment_alias_resolution_is_not_performed() {
+        let mut request = fixture_execution_request();
+        request.audit_record.operator_id = "op-1@same-tenant".into();
+        assert_rejected_without_side_effects(
+            request,
+            OperatorActionExecutionReason::AuditOperatorMismatch,
+        );
+    }
+
+    #[test]
+    fn phase92_existing_mismatch_tests_are_preserved() {
+        let mut submission = fixture_execution_request();
+        submission.audit_record.submission_id = "sub-x".into();
+        assert_rejected_without_side_effects(
+            submission,
+            OperatorActionExecutionReason::AuditSubmissionMismatch,
+        );
+
+        let mut target = fixture_execution_request();
+        target.audit_record.target_id = "run-x".into();
+        assert_rejected_without_side_effects(
+            target,
+            OperatorActionExecutionReason::AuditTargetMismatch,
+        );
+    }
+
+    #[test]
+    fn phase78_success_path_is_preserved() {
+        let report = execute_operator_action_boundary(fixture_execution_request());
+        assert_eq!(report.status, OperatorActionExecutionStatus::Executed);
+        assert_eq!(
+            report.reason,
+            OperatorActionExecutionReason::ExecutionDecisionRecorded
+        );
+        assert_no_side_effects(&report);
     }
 
     #[test]
