@@ -5,6 +5,36 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.96 - 2026-05-06
+**Status:** Phase 96 - Local Startup Command Boundary
+
+### Added
+- Added `docs/operations/local-startup-boundary-phase-96.md` documenting Phase 96 scope, startup boundary decision, supported local startup command, command behavior, failure posture, non-authority guarantees, Phase 95.4 relationship, Phase 97 packaging relationship, validation evidence, AST/boundary lint parity, test fidelity, confirmed-vs-suspected findings, deferred items, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 96 procedural truth, phase goal, working-tree hygiene gate, allowed surfaces, boundary rules, task checklist, validation checklist, startup command decision checklist, local startup non-authority checklist, CLI/test coverage checklist, operator documentation checklist, AST/boundary lint parity checklist, test fidelity checklist, zero-drift checklist, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.96`.
+
+### Findings
+- Option A was selected: the existing `cargo run --manifest-path core/Cargo.toml -- dry-run` remains the supported local startup boundary.
+- No new runtime behavior, CLI alias/report, helper export, tests, script gate, UI startup path, package entry, README section, dependency, or lockfile was added.
+- Existing dry-run remains sufficient because it reports that provider output remains untrusted, no provider/model was called, no persistence occurred, no files were read or written, and release/production readiness is not claimed.
+- No new tests were required because Phase 96 is documentation-only and does not change behavior.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+
+### Boundaries
+- Phase 96 is a local startup boundary candidate only.
+- Phase 96 is a usability boundary only.
+- Phase 96 does not approve startup/package readiness.
+- Phase 96 does not approve public usability.
+- Phase 96 does not approve release-candidate readiness.
+- Phase 96 does not approve production readiness.
+- Phase 96 does not approve Production Candidate status.
+- Phase 96 does not add live transport, provider/model calls, persistence writes, server behavior, daemon behavior, package artifacts, installer behavior, background processes, browser launch, export writes, import behavior, replay repair, recovery promotion, global state replacement, action execution, action authority, or dependency changes.
+- Phase 97 remains responsible for packaging boundary work if Phase 96 evidence permits it.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, roadmap docs, README, AGENTS, package files, dependency files, lockfiles, or UI config files were changed.
+
 ## v0.0.95.4 - 2026-05-06
 **Status:** Phase 95.4 - Out-of-Band Post-Hardening Evidence Alignment Check
 
