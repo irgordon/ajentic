@@ -5,6 +5,33 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.94 - 2026-05-06
+**Status:** Phase 94 - Provider Output Injection and Replay Abuse Hardening
+
+### Added
+- Added `docs/operations/provider-output-replay-abuse-hardening-phase-94.md` documenting provider-output injection, replay tampering, failure trace spoofing, retry escalation, reason-code-over-text, non-authority guarantees, root integration coverage, AST/boundary lint parity, test fidelity, validation evidence, deferrals, and non-readiness posture.
+- Added negative-path hardening tests in `core/src/api/local_workflow.rs` for provider-output injection, replay tampering, failure trace spoofing, retry escalation attempts, reason-code-over-text behavior, provider-untrusted invariants, replay verification-only invariants, retry non-scheduling invariants, and non-authority flags.
+- Added root integration smoke coverage in `tests/integration_smoke.rs` for provider output injection remaining non-authoritative, replay tampering rejecting without side effects, and failure trace spoofing not scheduling retry.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 94 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.94`.
+
+### Boundaries
+- Phase 94 is hardening only.
+- Phase 94 adds no new provider authority.
+- Phase 94 does not execute providers.
+- Phase 94 does not repair replay.
+- Phase 94 does not schedule retries.
+- Phase 94 does not persist, append ledger/audit records, recover global state, execute actions, or mutate application state.
+- Provider output remains untrusted and non-authoritative.
+- Replay remains verification-only and non-mutating.
+- Retry classification remains report-only and non-scheduling.
+- Risky text cannot override typed status/reason fields or non-authority flags.
+- Phase 95 remains responsible for roadmap/changelog alignment after the hardening block.
+- Roadmap files were not changed, and Phase 95 remains the next alignment checkpoint.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.93.5 - 2026-05-06
 **Status:** Phase 93.5 - Out-of-Band Persistence Semantics Edge-Case Hardening
 

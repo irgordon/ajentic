@@ -4,224 +4,202 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist
+# Current Phase Checklist - Phase 94
 
 ## phase name
-Phase 93.5 - Out-of-Band Persistence Semantics Edge-Case Hardening
-
-## explicit out-of-band hardening note
-- [x] Phase 93.5 is an out-of-band persistence semantics edge-case hardening pass before Phase 94.
-- [x] Phase 93.5 is hardening and documentation only.
-- [x] Phase 93.5 is not described as a planned roadmap phase.
-- [x] Phase 94 and later phases were not renumbered.
-- [x] Phase 94 remains responsible for provider output injection and replay abuse hardening.
-- [x] Phase 93.5 adds no new persistence authority.
+Phase 94 - Provider Output Injection and Replay Abuse Hardening
 
 ## phase goal
-Harden and document persistence/recovery/export semantic edge cases discovered after Phase 93, especially unsupported format/version posture, paired audit+ledger append assumptions, single-writer revision assumptions, export-as-recovery rejection, export-as-ledger rejection, replay verification-only posture, and write-time-only integrity verification.
+Add negative-path hardening for provider-output injection, replay tampering, failure trace spoofing, retry escalation attempts, and reason-code-over-text behavior while preserving non-authority boundaries.
 
 ## working-tree hygiene gate
-- [x] `git status --short` reviewed before edits; initial working tree was clean.
-- [x] Uncommitted files classified before edits: none.
-- [x] Generated artifact drift checked before edits; none appeared initially.
-- [x] Required roadmap, history, checklist, release, operations, workflow, persistence/recovery/export, integration smoke, and validation surfaces read or inspected.
-- [x] Roadmap files were read only; Phase 93.5 absence from roadmap was not treated as an error.
+- [x] Ran `git status --short` before edits.
+- [x] Classified uncommitted files before edits: clean working tree; no uncommitted source files and no generated artifact drift were present.
+- [x] No pre-edit cleanup was required for `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, or other generated artifacts.
 
 ## allowed surfaces
-- [x] `core/src/api/persistence.rs`
-- [x] `core/src/api/application_state.rs`
-- [x] `core/src/api/observability.rs` was inspected but not changed.
-- [x] `tests/integration_smoke.rs`
-- [x] `checklists/current-phase.md`
-- [x] `CHANGELOG.md`
-- [x] `docs/operations/persistence-semantics-edge-hardening-phase-93-5.md`
-- [x] `checklists/release.md` was read but not changed because release evidence posture did not change.
-- [x] `core/src/api/local_workflow.rs` was not changed.
+- [x] `core/src/api/local_workflow.rs` for local hardening tests.
+- [x] `tests/integration_smoke.rs` for public integration coverage.
+- [x] `checklists/current-phase.md` for Phase 94 procedural truth.
+- [x] `CHANGELOG.md` for `v0.0.94` historical entry.
+- [x] `docs/operations/provider-output-replay-abuse-hardening-phase-94.md` for Phase 94 operations evidence.
+- [x] Conditional surfaces were not required.
 
 ## boundary rules
-- [x] No new persistence authority was added.
-- [x] No new record import behavior was added.
-- [x] No export import behavior was added.
-- [x] No ledger import behavior was added.
-- [x] No recovery import behavior was added.
-- [x] No replay repair behavior was added.
-- [x] No corrupted record repair was added.
-- [x] No continuous monitoring was added.
-- [x] No concurrent writer support was added.
-- [x] No audit-only append feature was added.
-- [x] No ledger-only append feature was added.
-- [x] No migration framework was added.
-- [x] No cross-domain recovery was added.
-- [x] No recovery promotion was added.
-- [x] No global state replacement was added.
-- [x] No provider/model execution was added.
-- [x] No action execution was added.
-- [x] No live UI/Rust transport was added.
-- [x] No async/network/process/thread behavior was added by Phase 93.5 source changes.
-- [x] No dependency changes were made.
-- [x] Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+- [x] Phase 94 is hardening only.
+- [x] Provider output remains untrusted.
+- [x] Replay remains verification only.
+- [x] Failure classification remains descriptive only.
+- [x] Retry classification remains non-scheduling.
+- [x] No provider output can create authority.
+- [x] No replay evidence can become live execution.
+- [x] No failure trace can schedule retry or change lifecycle.
+- [x] No risky text can override typed status/reason fields.
 
 ## task checklist
-- [x] Updated this checklist to Phase 93.5 procedural truth.
-- [x] Created `docs/operations/persistence-semantics-edge-hardening-phase-93-5.md`.
-- [x] Added/strengthened persistence tests for unsupported payload kind, unsupported envelope marker, malformed durable append transaction kind field, audit-only append, ledger-only append, out-of-order revision drift, write-time-only verification, corrupted decode, export-not-append, paired append model, single-writer assumption, no concurrent writer support, replay verification-only posture, and non-repair posture.
-- [x] Added/strengthened recovery tests for export bytes not decoding as recovery candidates, export bytes not being ledger state/recovery input/replay repair evidence, export-shaped candidate rejection, expected context matching, and mismatch non-replacement.
-- [x] Added root integration smoke coverage for export bytes not being recovery candidates, export bytes not verifying as durable append, append verification being write-time-only, and paired append requirement.
-- [x] Preserved Phase 83 durable append success behavior.
-- [x] Preserved Phase 84 recovery acceptance success behavior for valid non-export candidates.
-- [x] Preserved Phase 89 local export write success behavior.
-- [x] Added `CHANGELOG.md` v0.0.93.5.
-- [x] Roadmap files were not updated.
+- [x] Confirmed Phase 94 title/scope from roadmap files.
+- [x] Read required roadmap, checklist, changelog, and operations documents.
+- [x] Inspected current provider/replay/failure surfaces.
+- [x] Added provider-output injection tests.
+- [x] Added replay tampering tests.
+- [x] Added failure trace spoofing tests.
+- [x] Added retry escalation tests.
+- [x] Added reason-code-over-text tests.
+- [x] Added root integration smoke coverage using current public APIs.
+- [x] Created Phase 94 operations documentation.
+- [x] Added `CHANGELOG.md` `v0.0.94`.
+- [x] Did not update roadmap files; Phase 95 remains the next alignment checkpoint.
 
 ## validation checklist
-- [x] `./scripts/check.sh`
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `node scripts/test_rust_boundary_lint.mjs`
-- [x] `node scripts/rust_boundary_lint.mjs`
-- [x] `node scripts/test_lint_ui_boundaries.mjs`
-- [x] `node scripts/lint_ui_boundaries.mjs`
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] Version/format scans run and reviewed.
-- [x] Write-time verification scans run and reviewed.
-- [x] Paired append scans run and reviewed.
-- [x] Single-writer/revision scans run and reviewed.
-- [x] Export/recovery/replay scans run and reviewed.
-- [x] Corrupted-read/non-repair scans run and reviewed.
-- [x] No-authority scans run and reviewed.
-- [x] Source guard run and reviewed.
-- [x] Out-of-band wording scan run and reviewed.
-- [x] Readiness scan run and reviewed.
-- [x] Lint wiring scan run and reviewed.
-- [x] Final `git status --short` reviewed before commit.
-- [x] `git diff --name-only --cached` reviewed before commit.
+- [x] `./scripts/check.sh` passed after final edits.
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` passed after final edits.
+- [x] `node scripts/test_rust_boundary_lint.mjs` passed after final edits.
+- [x] `node scripts/rust_boundary_lint.mjs` passed after final edits.
+- [x] `node scripts/test_lint_ui_boundaries.mjs` passed after final edits.
+- [x] `node scripts/lint_ui_boundaries.mjs` passed after final edits.
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build` passed after final edits.
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` passed after final edits.
+- [x] Required provider injection scans passed/reviewed.
+- [x] Required replay tampering scans passed/reviewed.
+- [x] Required failure/retry spoofing scans passed/reviewed.
+- [x] Required reason-code-over-text scans passed/reviewed.
+- [x] Required no-authority scans passed/reviewed.
+- [x] Source guard showed no disallowed diffs.
+- [x] Readiness scan reviewed with no new readiness approval claim.
+- [x] Lint wiring scan reviewed.
 
-## version/unsupported-format checklist
-- [x] `persisted_record_rejects_unknown_payload_kind_or_documents_no_version_field`
-- [x] `durable_append_rejects_unsupported_transaction_kind_if_representable`
-- [x] Explicit persistence format versioning remains deferred.
-- [x] Current hardening covers envelope marker, payload kind, checksum, length, and transaction field drift, not legacy migration.
+## provider-output injection checklist
+- [x] Provider output text cannot mark output trusted.
+- [x] Provider output text cannot mark output authoritative.
+- [x] Provider output text cannot schedule retry.
+- [x] Provider output text cannot trigger recovery promotion.
+- [x] Provider output text cannot trigger persistence.
+- [x] Provider output text cannot trigger audit or ledger append.
+- [x] Provider output text cannot trigger action execution.
+- [x] Provider output text cannot trigger replay repair.
+- [x] Provider output text cannot mutate application state.
+- [x] Risky provider output text preserves non-authority flags.
 
-## write-time verification checklist
-- [x] `durable_append_success_does_not_claim_continuous_integrity`
-- [x] `root_integration_append_success_is_write_time_only_not_continuous_integrity`
-- [x] Successful append/write verification documented as write-time verification only.
-- [x] Later external tampering remains detectable on later verification and is not covered by the earlier success report.
+## replay tampering checklist
+- [x] Tampered evidence checksum rejects.
+- [x] Tampered source run id mismatches.
+- [x] Tampered provider status/reason evidence rejects when checksum evidence is stale.
+- [x] Tampered action kind mismatches.
+- [x] Tampered authority flags mismatch.
+- [x] Missing evidence snapshot identifier rejects.
+- [x] Replay does not rerun provider execution.
+- [x] Replay does not create new authorization.
+- [x] Replay does not create new audit record.
+- [x] Replay does not execute new action.
+- [x] Replay does not create new ledger fact.
+- [x] Replay does not persist.
+- [x] Replay does not repair replay.
+- [x] Replay does not mutate application state.
+- [x] Tampering rejection is diagnostic-only.
 
-## paired append-model checklist
-- [x] `durable_append_audit_only_remains_unsupported`
-- [x] `durable_append_ledger_only_remains_unsupported`
-- [x] `paired_audit_ledger_append_model_is_preserved`
-- [x] `root_integration_paired_append_model_remains_required`
-- [x] Paired audit + ledger payloads remain required in one combined transaction.
-- [x] Audit-only append remains unsupported.
-- [x] Ledger-only append remains unsupported.
+## failure trace spoofing checklist
+- [x] Failure trace text cannot force retry eligibility.
+- [x] Failure trace text cannot schedule retry.
+- [x] Failure trace text cannot override failure classification.
+- [x] Failure trace text cannot create provider authority.
+- [x] Failure trace text cannot trigger lifecycle transition.
 
-## single-writer assumption checklist
-- [x] `durable_append_out_of_order_revision_is_drift`
-- [x] `single_writer_revision_assumption_is_documented`
-- [x] `concurrent_writer_support_is_not_implemented`
-- [x] Current revision hardening assumes a single writer.
-- [x] Concurrent writers remain unsupported.
+## retry escalation checklist
+- [x] Retry escalation text remains report-only.
+- [x] Retry classification has no scheduler side effect.
+- [x] No retry scheduler was added.
+- [x] No retry execution was added.
+- [x] No lifecycle transition from retry classification was added.
 
-## export-not-ledger checklist
-- [x] `export_bundle_bytes_cannot_verify_as_durable_append_transaction`
-- [x] `export_bundle_bytes_are_not_ledger_state`
-- [x] `root_integration_export_bytes_cannot_verify_as_durable_append`
-- [x] Export bundles remain operator-readable artifacts only.
-- [x] Export bundles are not ledger state.
+## reason-code-over-text checklist
+- [x] Provider summary text cannot override typed status.
+- [x] Replay summary text cannot override typed status.
+- [x] Failure summary text cannot override typed reason.
+- [x] Risky text cannot override non-authority flags.
+- [x] Programmatic behavior depends on typed status/reason fields.
 
-## export-not-recovery checklist
-- [x] `export_bundle_bytes_cannot_decode_as_recovery_candidate`
-- [x] `export_bundle_bytes_are_not_recovery_input`
-- [x] `recovery_rejects_export_bundle_bytes_as_candidate`
-- [x] `root_integration_export_bytes_cannot_be_recovery_candidate`
-- [x] Export bundles are not recovery input.
-
-## export-not-replay-repair checklist
-- [x] `export_bundle_bytes_are_not_replay_repair_evidence`
-- [x] Export bundles are not replay repair evidence.
-
-## recovery-context checklist
-- [x] `recovery_candidates_require_expected_context`
-- [x] `recovery_candidate_mismatch_does_not_replace_global_state_again`
-- [x] Recovery candidates remain tied to expected recovery/ledger/revision context.
-- [x] Recovery candidate mismatches do not replace global state.
+## provider-untrusted checklist
+- [x] Provider output remains untrusted.
+- [x] Provider output remains non-authoritative.
+- [x] Provider output text cannot trigger persistence, recovery, replay repair, audit append, ledger append, action execution, provider execution, or authority mutation.
 
 ## replay verification-only checklist
-- [x] `replay_verification_does_not_repair_persistence_drift`
-- [x] Replay verifies evidence and does not repair persistence drift.
-- [x] Phase 94 remains responsible for provider output injection and replay abuse hardening.
+- [x] Replay verifies supplied evidence only.
+- [x] Replay does not rerun provider execution.
+- [x] Replay evidence cannot create authorization, audit, action, ledger, persistence, recovery, replay repair, or state mutation.
 
-## corrupted-read checklist
-- [x] `corrupted_persisted_record_decode_does_not_silently_skip`
-- [x] Corrupted reads fail or surface corruption explicitly.
-- [x] Corrupted records are not silently skipped.
-
-## non-repair checklist
-- [x] `non_repair_posture_is_preserved`
-- [x] Phase 93.5 does not repair corrupted records.
-- [x] Phase 93.5 does not repair replay drift.
-- [x] Phase 93.5 does not add continuous integrity monitoring.
+## retry non-scheduling checklist
+- [x] Retry classification remains report-only.
+- [x] Retry classification remains non-scheduling.
+- [x] Spoofed retry text cannot schedule retry.
 
 ## non-authority checklist
-- [x] Phase 93.5 adds no new persistence authority.
-- [x] Phase 93.5 does not promote recovery candidates to global state.
-- [x] Rejected paths remain side-effect-free.
-- [x] Export artifacts remain non-authoritative.
+- [x] No new provider authority.
+- [x] No provider/model execution expansion.
+- [x] No replay repair.
+- [x] No replay-to-execution path.
+- [x] No retry scheduler.
+- [x] No lifecycle transition from retry classification.
+- [x] No persistence writes.
+- [x] No durable append.
+- [x] No ledger/audit append.
+- [x] No recovery acceptance.
+- [x] No global state replacement.
+- [x] No action execution.
+- [x] No live UI/Rust transport.
+- [x] No async/network/process/thread behavior.
+- [x] No dependency changes.
+- [x] No readiness approval claim.
 
 ## root integration-test checklist
-- [x] `root_integration_export_bytes_cannot_be_recovery_candidate`
-- [x] `root_integration_export_bytes_cannot_verify_as_durable_append`
-- [x] `root_integration_append_success_is_write_time_only_not_continuous_integrity`
-- [x] `root_integration_paired_append_model_remains_required`
-- [x] No export reshaping was required.
+- [x] `root_integration_provider_output_injection_remains_non_authoritative` added.
+- [x] `root_integration_replay_tampering_rejects_without_side_effects` added.
+- [x] `root_integration_failure_trace_spoofing_does_not_schedule_retry` added.
+- [x] No public API reshaping was required.
 
 ## AST/boundary lint parity checklist
-- [x] `rg` scans treated as discovery/evidence only.
-- [x] Blocking enforcement remains in `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, and tests.
-- [x] Phase 93.5 did not change lint behavior.
+- [x] `rg` scans were used only as discovery/evidence.
+- [x] Blocking enforcement remains scripts/check, Rust boundary lint, UI AST lint, compiler/type checks, and tests.
+- [x] No lint behavior changed.
 - [x] No lint self-test update was required.
 
 ## test fidelity checklist
-- [x] New hardening behavior has same-phase tests.
-- [x] Public cross-boundary behavior has root integration coverage.
+- [x] New hardening behavior has tests in the same phase.
+- [x] Cross-boundary behavior has root integration coverage.
 - [x] Test names describe the invariant being protected.
-- [x] Final validation was not skipped after final edits.
-- [x] Tests do not add network, async, process, thread, dependency, import, repair, continuous monitoring, or concurrent writer behavior.
+- [x] No tests were skipped after final edits.
 
 ## zero-drift checklist
 - [x] Generated compiler metadata and target drift checked before commit.
 - [x] UI build artifacts checked before commit.
 - [x] Test temp files and export temp files checked before commit.
-- [x] Source guard confirmed no diffs outside allowed/conditional surfaces.
+- [x] Source guard confirmed no diffs outside allowed surfaces.
 
 ## findings table
 | Area | Finding | Closure |
 | --- | --- | --- |
-| Unsupported payload/version | Unknown payload kinds reject explicitly; unsupported record marker rejects fail-closed; broad versioning remains deferred. | Covered by tests and operations doc. |
-| Durable append kind/version | No transaction-kind/version field exists; unexpected transaction-kind field rejects as malformed. | Covered by tests and operations doc. |
-| Write-time verification | Append success proves write-time verification only, not continuous integrity. | Covered by module and root tests. |
-| Paired append | Audit-only and ledger-only append remain unsupported. | Covered by module and root tests. |
-| Revision | Revision chain hardening assumes a single writer; concurrent writers remain unsupported. | Covered by tests and documentation. |
-| Export authority | Export bytes are not ledger, recovery, or replay repair input. | Covered by module and root tests. |
-| Recovery context | Expected recovery/ledger/revision context remains required. | Covered by tests. |
-| Replay | Replay remains verification-only and non-repairing. | Covered by tests and documentation. |
-| Corrupted reads | Corrupted persisted record bytes do not silently skip. | Covered by tests. |
+| Provider output injection | Risky provider prompt text remains inert and cannot set trust, authority, retry, persistence, recovery, action, or state-mutation flags. | Covered by local workflow and root integration tests. |
+| Replay tampering | Checksum, source run, action kind, authority flags, and missing evidence id reject or mismatch diagnostically. | Covered by local workflow and root integration tests. |
+| Failure trace spoofing | Reason/failure text cannot force retry eligibility, schedule retry, change typed classification, create provider authority, or trigger lifecycle transition. | Covered by local workflow and root integration tests. |
+| Retry escalation | Retry posture remains represented/report-only and non-scheduling. | Covered by tests and operations doc. |
+| Reason-code-over-text | Typed status/reason fields control behavior; risky text cannot override non-authority flags. | Covered by local workflow tests. |
+| Root integration | Public APIs express the required Phase 94 abuse cases without broad export reshaping. | Root smoke tests added. |
+| AST/boundary lint parity | No lint behavior changes were needed. | Existing lint gates passed. |
 
 ## deferred items table
 | Item | Reason |
 | --- | --- |
-| Explicit broad persistence format versioning | Deferred; not required for current envelope/payload kind hardening. |
-| Legacy migration framework | Out of scope; no migration support added. |
-| Continuous integrity monitoring | Out of scope; verification remains write-time only. |
-| Concurrent writer support | Out of scope; single-writer assumption documented. |
+| Retry scheduler/runtime | Out of scope; retry classification remains non-scheduling. |
 | Replay repair | Out of scope; replay remains verification-only. |
+| Provider status field expansion in replay snapshots | Out of scope; current replay types cover checksum, source run, evidence id, action kind, reason code, and non-authority flags without broad replay reshaping. |
+| New lint rule maintenance | Not required; no new Rust source pattern needed prohibition in Phase 94. |
 
 ## validation log table
 | Command/check | Result |
 | --- | --- |
 | `git status --short` before edits | Clean. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets local_workflow --quiet` | Passed during development. |
+| `cargo test --manifest-path core/Cargo.toml --test integration_smoke --quiet` | Passed during development. |
 | `./scripts/check.sh` | Passed. |
 | `cargo test --manifest-path core/Cargo.toml --all-targets` | Passed. |
 | `node scripts/test_rust_boundary_lint.mjs` | Passed. |
@@ -230,6 +208,13 @@ Harden and document persistence/recovery/export semantic edge cases discovered a
 | `node scripts/lint_ui_boundaries.mjs` | Passed. |
 | `cd ui && npm run typecheck && npm run lint && npm run build` | Passed. |
 | `cargo run --manifest-path core/Cargo.toml -- dry-run` | Passed. |
-| Required evidence scans | Passed/reviewed. |
+| Provider injection scan | Passed/reviewed. |
+| Replay tampering scan | Passed/reviewed. |
+| Failure/retry spoofing scan | Passed/reviewed. |
+| Reason-code-over-text scan | Passed/reviewed. |
+| No-authority scan | Passed/reviewed. |
 | Source guard | No disallowed diffs. |
-| Final staged-file review | Allowed surfaces only. |
+| Readiness scan | No new readiness approval claim. |
+| Lint wiring scan | Passed/reviewed. |
+| `git status --short` before commit | Allowed surfaces only plus generated artifacts removed. |
+| `git diff --name-only --cached` before commit | Allowed staged surfaces only. |
