@@ -5,6 +5,39 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.95.4 - 2026-05-06
+**Status:** Phase 95.4 - Out-of-Band Post-Hardening Evidence Alignment Check
+
+### Added
+- Added `docs/operations/post-hardening-evidence-alignment-phase-95-4.md` documenting scope, evidence rule, decision status model, Phase 95.1 closure, Phase 95.2 closure, Phase 95.3 closure, lint coverage review, validation-gate integrity review, Phase 96 gate decision, Production Candidate status, roadmap/changelog alignment, required follow-ups, deferred items, confirmed-vs-suspected findings, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 95.4 procedural truth, explicit out-of-band alignment note, working-tree hygiene gate, allowed surfaces, boundary rules, task closure, validation checklist, evidence-only checklist, Phase 95.1/95.2/95.3 closure checklists, lint coverage checklist, validation-gate integrity checklist, Phase 96 gate checklist, Production Candidate status checklist, roadmap/changelog alignment checklist, AST/boundary lint parity checklist, zero-drift checklist, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.95.4`.
+
+### Findings
+- Phase 95.1 is sufficient: committed UI behavioral harness evidence closes the Phase 95 blocker that typecheck, lint, and build were not behavioral coverage.
+- Phase 95.2 is sufficient: committed cross-boundary golden invariant evidence closes the Phase 95 blocker that same-input determinism lacked end-to-end proof.
+- Phase 95.3 is sufficient: committed adversarial LLM-output corpus evidence closes the Phase 95 blocker that adversarial text coverage was too shallow.
+- Lint coverage is sufficient for the current boundary: no concrete uncovered Rust boundary lint or UI AST lint pattern requires Phase 95.5 before Phase 96.
+- Validation-gate integrity is sufficient: required validation passed without observed masked failures, partial pass counts, assertion failures, panics, tracebacks, or failed assertions.
+- Phase 96 may start only as the next bounded planned non-readiness phase.
+- Production Candidate status remains not approved.
+
+### Boundaries
+- Phase 95.4 is an out-of-band post-hardening evidence alignment check before Phase 96.
+- Phase 95.4 is audit-only.
+- Phase 95.4 does not implement runtime behavior.
+- Phase 95.4 does not repair tooling.
+- Phase 95.4 does not add tests.
+- Phase 95.4 does not start Phase 96.
+- Phase 95.4 does not approve Production Candidate status.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+- Phase 95.4 does not change Phase 96 scope and does not renumber Phase 96 or later phases.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, roadmap docs, README, AGENTS, package files, dependency files, lockfiles, or UI config files were changed.
+- Public usability, production readiness, startup/package approval, package approval, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.95.3 - 2026-05-06
 **Status:** Phase 95.3 - Out-of-Band LLM Output Adversarial Corpus Hardening
 
