@@ -4,223 +4,193 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 95
+# Current Phase Checklist - Phase 95.1 Out-of-Band UI Behavioral Test Harness Baseline
 
-## phase name
-Phase 95 - Roadmap and Hardening Depth Alignment Check
+Phase 95.1 is an out-of-band UI behavioral test harness baseline before Phase 96.
 
-## phase goal
-Audit committed Phase 91-94 hardening evidence, decide whether Phase 96 may start, and record the smallest necessary out-of-band follow-up phases without implementing runtime behavior, tests, tooling repairs, startup, packaging, or Production Candidate approval.
+## Phase name
+Phase 95.1 - Out-of-Band UI Behavioral Test Harness Baseline.
 
-## working-tree hygiene gate
+## Explicit out-of-band testing note
+- [x] Phase 95.1 is documented as inserted after Phase 95 and before Phase 96.
+- [x] Phase 95.1 is not described as a planned roadmap phase.
+- [x] Phase 96 and later phases are not renumbered.
+- [x] Phase 95.1 does not change Phase 96 scope.
+
+## Phase goal
+Add a real UI behavioral test harness baseline for the TypeScript submission/transport contract boundary so Phase 91 behavior is tested directly, not inferred from typecheck, lint, AST lint, or build output.
+
+## Working-tree hygiene gate
 - [x] Ran `git status --short` before edits.
-- [x] Classified uncommitted files before edits: clean working tree; no uncommitted source files and no generated artifact drift were present.
-- [x] No pre-edit cleanup was required for `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, or other generated artifacts.
+- [x] Classified the initial working tree as clean with no uncommitted generated artifact drift.
+- [x] Confirmed no cleanup was required for `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, or other generated artifact drift before edits.
 
-## allowed surfaces
-- [x] `docs/operations/repository-audit-phase-95.md` for Phase 95 advisory evidence audit.
-- [x] `checklists/current-phase.md` for Phase 95 procedural truth.
-- [x] `CHANGELOG.md` for `v0.0.95` historical entry.
-- [x] `checklists/release.md` was allowed if evidence posture required update; no update was required.
-- [x] Roadmap files were allowed only for small corrections; no roadmap correction was required.
+## Allowed surfaces
+- [x] `ui/src/api/submissionBoundary.behavior.test.ts` added for behavior tests.
+- [x] `ui/run-api-behavior-tests.mjs` added as a minimal no-dependency UI behavior test runner.
+- [x] `ui/package.json` updated only to add the no-dependency `test:api` script.
+- [x] `scripts/check.sh` updated only to run the stable no-dependency UI behavior command during UI validation.
+- [x] `docs/operations/ui-behavioral-test-harness-phase-95-1.md` added.
+- [x] `checklists/current-phase.md` updated to Phase 95.1 procedural truth.
+- [x] `CHANGELOG.md` updated with `v0.0.95.1`.
 
-## boundary rules
-- [x] Phase 95 is audit and planning only.
-- [x] Phase 95 does not implement runtime behavior.
-- [x] Phase 95 does not add tests.
-- [x] Phase 95 does not repair tooling.
-- [x] Phase 95 does not begin startup/package work.
-- [x] Phase 95 does not implement Phase 96.
-- [x] Phase 95 does not implement Phase 95.1, 95.2, 95.3, or 95.4.
-- [x] Phase 95 does not approve Production Candidate status.
-- [x] Phase 95 counts committed evidence only.
-- [x] Plans, architecture rationale alone, future phases, and speculative safety claims do not count as closure.
+## Boundary rules
+- [x] Phase 95.1 adds behavioral tests only.
+- [x] Phase 95.1 does not add live transport.
+- [x] Phase 95.1 does not add UI authority.
+- [x] Phase 95.1 does not add a Rust bridge.
+- [x] Phase 95.1 does not add runtime execution behavior.
+- [x] Phase 95.1 does not start Phase 96.
+- [x] Phase 95.1 does not approve startup/package work.
+- [x] No Rust source, root tests, workflows, schemas, roadmap docs, governance docs, architecture docs, README, AGENTS, package lockfiles, or dependency lockfiles were changed.
 
-## task checklist
-- [x] Confirmed Phase 95 title/scope from roadmap files.
-- [x] Read required roadmap, changelog, checklist, README, AGENTS, and Phase 90-94 operations documents.
-- [x] Inspected committed implementation/test evidence only as needed.
-- [x] Created `docs/operations/repository-audit-phase-95.md` with required frontmatter and sections.
-- [x] Reconciled committed evidence from Phases 91, 92, 92.5, 93, 93.5, and 94.
-- [x] Answered every Phase 95 core question with `Sufficient`, `Insufficient`, or `Conditionally sufficient`.
-- [x] Decided Phase 96 is not approved to start.
-- [x] Recommended intermediate hardening/testing phases as planning statements only.
-- [x] Audited startup/package hardening depth.
-- [x] Audited UI behavioral test harness gap.
-- [x] Audited cross-boundary golden invariant gap.
-- [x] Audited adversarial LLM-output fixture depth.
-- [x] Audited AST/boundary lint parity.
-- [x] Added `CHANGELOG.md` `v0.0.95`.
-- [x] Did not modify Rust, TypeScript, tests, scripts, workflows, schemas, governance docs, architecture docs, README, AGENTS, dependency/package files, lockfiles, or UI config files.
+## Task checklist
+- [x] Read required Phase 95, Phase 91, Phase 76, Phase 77, roadmap, checklist, release, and changelog surfaces.
+- [x] Inspected UI contract surfaces in `ui/src/api/` and UI config.
+- [x] Inspected existing validation tooling and lint self-tests.
+- [x] Added dependency-free UI behavioral test harness.
+- [x] Added behavior tests for malformed submissions, spoofed flags, risky text, accepted preview, bridge non-call, envelope non-creation, user-supplied capability flags, and harness failure propagation.
+- [x] Added `npm run test:api` without dependency or lockfile changes.
+- [x] Wired `npm run test:api` into `scripts/check.sh` because the command is stable, dependency-free, and must fail the main gate if behavioral assertions fail.
+- [x] Documented Phase 95.1 scope and evidence posture.
+- [x] Added `CHANGELOG.md` `v0.0.95.1`.
+- [x] Did not update roadmap files.
 
-## validation checklist
-- [x] `./scripts/check.sh` passed after final edits.
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` passed after final edits.
-- [x] `node scripts/test_rust_boundary_lint.mjs` passed after final edits.
-- [x] `node scripts/rust_boundary_lint.mjs` passed after final edits.
-- [x] `node scripts/test_lint_ui_boundaries.mjs` passed after final edits.
-- [x] `node scripts/lint_ui_boundaries.mjs` passed after final edits.
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build` passed after final edits.
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` passed after final edits.
-- [x] Required evidence scans passed/reviewed.
-- [x] Required UI behavioral harness scans passed/reviewed.
-- [x] Required golden invariant scans passed/reviewed.
-- [x] Required adversarial corpus scans passed/reviewed.
-- [x] Required lint parity scans passed/reviewed.
-- [x] Required roadmap/changelog scans passed/reviewed.
-- [x] Roadmap completion contamination scan produced no matches.
-- [x] Changelog future-planning contamination scan produced no matches.
-- [x] Source/script/workflow guard showed no disallowed diffs.
-- [x] Readiness scan reviewed with no approval claim.
-- [x] Lint wiring scan reviewed.
-- [x] Final `git status --short` reviewed before commit.
-- [x] Final staged-file list matched allowed surfaces.
-
-## evidence-only checklist
-- [x] Counted committed unit tests, integration tests, root integration tests, lints, `scripts/check.sh`, operations docs, checklists, source diffs, and validation logs only.
-- [x] Did not count plans, intended hardening, architecture rationale alone, future roadmap items, unmerged/non-history agent runs, speculative safety claims, or prompt intent.
-- [x] Classified missing or mixed evidence as not approved.
-
-## Phase 91 evidence checklist
-- [x] Status recorded as `Conditionally sufficient`.
-- [x] TypeScript submission boundary evidence reviewed.
-- [x] Spoofed capability/authority flag rejection evidence reviewed.
-- [x] Risky submission text rejection evidence reviewed.
-- [x] Pre-bridge/no-live-transport boundary preserved.
-- [x] UI behavioral harness gap recorded as blocker before Phase 96.
-
-## Phase 92/92.5 evidence checklist
-- [x] Status recorded as `Sufficient`.
-- [x] Authorization/audit/action mismatch evidence reviewed.
-- [x] Missing proof and combined mismatch evidence reviewed.
-- [x] Exact identity and ordering edge evidence reviewed.
-- [x] Rejected proof-chain requests remain non-executing and non-mutating.
-- [x] Stale proof lifecycle remains deferred and not claimed solved.
-
-## Phase 93/93.5 evidence checklist
-- [x] Status recorded as `Sufficient`.
-- [x] Persistence corruption and append drift evidence reviewed.
-- [x] Export-not-ledger and export-not-recovery evidence reviewed.
-- [x] Recovery mismatch fail-closed evidence reviewed.
-- [x] Non-repair and no-authority-leakage posture reviewed.
-- [x] Continuous integrity monitoring and concurrent writers remain deferred.
-
-## Phase 94 evidence checklist
-- [x] Status recorded as `Conditionally sufficient`.
-- [x] Provider-output injection evidence reviewed.
-- [x] Replay tampering evidence reviewed.
-- [x] Failure-trace spoofing evidence reviewed.
-- [x] Retry escalation and reason-code-over-text evidence reviewed.
-- [x] Adversarial corpus depth gap recorded as blocker before Phase 96.
-
-## residual seam checklist
-- [x] Status recorded as `Insufficient`.
-- [x] LLM output residual seam reviewed.
-- [x] Replay evidence residual seam reviewed.
-- [x] Export file and recovery byte residual seams reviewed.
-- [x] UI submission data residual seam reviewed.
-- [x] Cross-boundary golden invariant gap recorded as blocker before Phase 96.
-
-## lint parity checklist
-- [x] Status recorded as `Conditionally sufficient`.
-- [x] Rust boundary lint reviewed as blocking enforcement.
-- [x] UI AST lint reviewed as blocking enforcement.
-- [x] `scripts/check.sh` reviewed as blocking gate.
-- [x] `rg` scans treated as discovery/evidence only, not enforcement.
-- [x] No concrete uncovered lint pattern found in Phase 95.
-- [x] Phase 95.4 recorded as conditional follow-up if concrete uncovered patterns appear.
+## Validation checklist
+- [x] `./scripts/check.sh` returns 0 after final edits.
+- [x] `cd ui && npm run test:api` returns 0 after final edits.
+- [x] `cd ui && node run-api-behavior-tests.mjs --self-test-failure-propagation` returns 0 after final edits.
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` returns 0 after final edits.
+- [x] Explicit Rust and UI boundary lint commands return 0 after final edits.
+- [x] Explicit UI typecheck/lint/build returns 0 after final edits.
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` returns 0 after final edits.
+- [x] Required discovery/evidence scans were run after final edits.
+- [x] No validation command printed panic, traceback, failed assertion, or partial pass count after final edits.
 
 ## UI behavioral harness checklist
-- [x] Status recorded as `Insufficient`.
-- [x] Absence of UI behavioral test harness recorded as blocker.
-- [x] Typecheck/lint/build not counted as behavioral coverage.
-- [x] Phase 95.1 required before Phase 96.
+- [x] Harness runs without Vitest, Jest, Mocha, or new dependencies.
+- [x] Harness compiles TypeScript behavior tests into an OS temporary directory.
+- [x] Harness removes temporary compile output after the run.
+- [x] Harness exits nonzero on normal behavior test failure.
+- [x] Harness prints a clear pass count for normal behavior tests.
 
-## cross-boundary golden invariant checklist
-- [x] Status recorded as `Insufficient`.
-- [x] Absence of same-input end-to-end deterministic invariant coverage recorded.
-- [x] Phase 95.2 required before Phase 96.
+## Malformed submission checklist
+- [x] Empty operator id rejects before transport.
+- [x] Empty target id rejects before transport.
+- [x] Empty intent kind rejects before transport.
+- [x] Unknown intent kind rejects before transport.
+- [x] Non-object malformed input rejects before transport.
+- [x] Malformed input does not create a sendable transport envelope.
 
-## adversarial corpus checklist
-- [x] Status recorded as `Insufficient`.
-- [x] Existing Phase 94 adversarial text coverage acknowledged.
-- [x] Provider output, replay evidence, failure trace, export summary, operator intent, risky text, and UI submission breadth gap recorded.
-- [x] Phase 95.3 required before Phase 96.
+## Spoofed flag checklist
+- [x] `executionEnabled: true` rejects before transport.
+- [x] `liveTransportEnabled: true` rejects before transport.
+- [x] `persistenceEnabled: true` rejects before transport.
+- [x] `ledgerRecordingEnabled: true` rejects before transport.
+- [x] `auditAppendEnabled: true` rejects before transport.
+- [x] `providerExecutionEnabled: true` rejects before transport.
+- [x] `replayRepairEnabled: true` rejects before transport.
+- [x] `mutatesAuthority: true` rejects before transport.
+- [x] Combined user-supplied capability flags are rejected, not trusted.
 
-## Phase 96 gate checklist
-- [x] Phase 96 is not approved to start.
-- [x] Startup/package work is not approved.
-- [x] Phase 95.1 required before Phase 96.
-- [x] Phase 95.2 required before Phase 96.
-- [x] Phase 95.3 required before Phase 96.
-- [x] Phase 95.4 conditional only if concrete uncovered lint patterns are found.
+## Risky text checklist
+- [x] `admin override` rejects before transport.
+- [x] `skip policy` rejects before transport.
+- [x] `execute now` rejects before transport.
+- [x] `write ledger` rejects before transport.
+- [x] `append audit` rejects before transport.
+- [x] `repair replay` rejects before transport.
+- [x] `trust provider output` rejects before transport.
+- [x] `promote recovered state` rejects before transport.
 
-## roadmap/changelog alignment checklist
-- [x] Roadmap remains planned truth.
-- [x] `CHANGELOG.md` remains historical truth.
-- [x] Roadmap files were not changed because no correction was required.
-- [x] `CHANGELOG.md` records completed Phase 95 audit work only.
-- [x] Plans do not count as closure.
-- [x] Architecture rationale alone does not count as closure.
+## Bridge non-call checklist
+- [x] Stubbed bridge counter remains zero for malformed submission rejection.
+- [x] No test invokes, simulates, or implies a live Rust bridge.
+- [x] Accepted preview submissions remain non-live and non-executing.
 
-## production-candidate status checklist
-- [x] Production Candidate status is not approved.
-- [x] Public usability is not approved.
-- [x] Production readiness is not approved.
-- [x] Release-candidate readiness is not approved.
-- [x] No Production Candidate approval claim was added.
+## Failure propagation checklist
+- [x] Normal behavior runner exits nonzero on counted failures.
+- [x] Self-test mode intentionally runs a failing probe internally and exits 0 only after proving the failure was counted.
+- [x] Normal behavior run has no enabled failing test.
 
-## zero-drift checklist
-- [x] No generated compiler metadata was staged.
-- [x] No UI build artifacts were staged.
-- [x] No test temp files were staged.
-- [x] No export temp files were staged.
-- [x] No incidental formatter drift was staged.
-- [x] No package/lock/config drift was staged.
-- [x] Staged files exactly matched allowed Phase 95 surfaces.
+## check.sh integration checklist
+- [x] `scripts/check.sh` retains `set -euo pipefail`.
+- [x] `scripts/check.sh` runs `npm run test:api` inside existing UI validation.
+- [x] The check integration is limited to the stable no-dependency behavior command.
+- [x] Failure propagation remains enforced by shell exit status.
 
-## findings table
-| Area | Status | Finding |
+## AST/boundary lint parity checklist
+- [x] `rg` scans are treated as discovery/evidence only, not enforcement.
+- [x] Blocking enforcement remains with `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, and tests.
+- [x] No new UI source pattern requires lint expansion in this phase.
+- [x] No lint behavior changed, so no lint self-test update was required.
+
+## Test fidelity checklist
+- [x] This phase records that typecheck/lint/build is not behavioral coverage.
+- [x] Behavior test names describe the invariant being protected.
+- [x] Tests were not skipped after final edits.
+- [x] The behavioral command cannot print a normal failed assertion and exit 0.
+
+## Zero-drift checklist
+- [x] No UI build output was left in the repository.
+- [x] No core target metadata was staged.
+- [x] No lockfile drift was introduced.
+- [x] No test temp, export temp, node build, or coverage output was left in the repository.
+- [x] Staged files match the Phase 95.1 allowed surfaces plus the documented `scripts/check.sh` integration.
+
+## Findings table
+
+| Finding | Status | Evidence |
 | --- | --- | --- |
-| Phase 91 | Conditionally sufficient | Pre-bridge UI contract spoofing is hardened, but actual UI behavioral test coverage is missing before Phase 96. |
-| Phase 92/92.5 | Sufficient | Current proof-chain mismatch, absence, exactness, and ordering scope is covered; stale proof lifecycle remains deferred. |
-| Phase 93/93.5 | Sufficient | Current persistence/export/recovery fail-closed semantics are covered; continuous monitoring and concurrent writers remain deferred. |
-| Phase 94 | Conditionally sufficient | Current provider/replay/failure spoofing scope is covered; broader adversarial corpus depth is needed before Phase 96. |
-| Residual seams | Insufficient | Same-input cross-boundary golden invariant evidence is missing. |
-| Lint parity | Conditionally sufficient | Current lints are wired and no concrete uncovered pattern was found; expand only if later phases expose a pattern. |
-| UI behavioral harness | Insufficient | Missing behavioral harness blocks startup/package work. |
-| Cross-boundary golden invariants | Insufficient | Missing deterministic end-to-end invariant tests block startup/package work. |
-| Adversarial corpus | Insufficient | Fixture depth is too shallow across startup/package-facing surfaces. |
-| Phase 96 gate | Insufficient | Phase 96 is not approved to start. |
-| Production Candidate | Insufficient | Production Candidate status is not approved. |
+| UI behavioral harness gap from Phase 95 | closed for Phase 91 UI boundary behavior | `npm run test:api` runs 18 behavior tests. |
+| Malformed submissions | covered | Empty fields, unknown kind, and non-object input reject before transport. |
+| Spoofed capability flags | covered | Individual and combined spoof attempts reject before transport. |
+| Risky authority text | covered | All required risky text examples reject before transport. |
+| Bridge non-call | covered | Stub counter remains zero and no live bridge is added. |
+| Failure propagation | covered | Self-test mode proves the runner counts failures. |
+| Cross-boundary golden invariants | deferred | Phase 95.2 remains responsible. |
 
-## deferred items table
-| Item | Disposition |
-| --- | --- |
-| Phase 95.1 UI Behavioral Test Harness Baseline | Required before Phase 96. |
-| Phase 95.2 Cross-Boundary Golden Invariant Tests | Required before Phase 96. |
-| Phase 95.3 LLM Output Adversarial Corpus Hardening | Required before Phase 96. |
-| Phase 95.4 Boundary Lint Coverage Expansion | Conditional if concrete uncovered lint patterns are found. |
-| Stale proof lifecycle | Deferred; not solved by Phase 92/92.5. |
-| Continuous persistence integrity monitoring | Deferred; not solved by Phase 93/93.5. |
-| Concurrent writers | Deferred; not solved by Phase 93/93.5. |
-| Startup/package implementation | Blocked; not implemented in Phase 95. |
-| Production Candidate approval | Not approved. |
+## Deferred items table
 
-## validation log table
-| Command | Result | Notes |
+| Deferred item | Owner | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | Pass | Returned 0 after final edits. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Returned 0 after final edits. |
-| `node scripts/test_rust_boundary_lint.mjs` | Pass | Returned 0 after final edits. |
-| `node scripts/rust_boundary_lint.mjs` | Pass | Returned 0 after final edits. |
-| `node scripts/test_lint_ui_boundaries.mjs` | Pass | Returned 0 after final edits. |
-| `node scripts/lint_ui_boundaries.mjs` | Pass | Returned 0 after final edits. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | Returned 0 after final edits. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Pass | Returned 0 after final edits. |
-| Required `rg` evidence scans | Pass/reviewed | Discovery/evidence only, not enforcement. |
-| Roadmap completion contamination scan | Pass | No matches. |
-| Changelog future-planning contamination scan | Pass | No matches. |
-| Source/script/workflow guard | Pass | No disallowed diffs. |
-| Readiness scan | Pass/reviewed | No approval claim added. |
-| Lint wiring scan | Pass/reviewed | Wiring evidence reviewed. |
+| Cross-boundary golden invariant tests | Phase 95.2 | Phase 95.1 does not claim this closure. |
+| Broader adversarial LLM-output corpus depth | Phase 95.3 | Not part of UI behavior harness baseline. |
+| Future AST/boundary lint expansion | Phase 95.4 if needed | No lint expansion needed for this diff. |
+| Local startup command boundary | Phase 96 | Phase 95.1 does not start Phase 96. |
+
+## Validation log table
+
+| Command | Status | Notes |
+| --- | --- | --- |
+| `git status --short` | pass | Initial tree was clean; final tree contained only intended edits before staging. |
+| `./scripts/check.sh` | pass | Includes `npm run test:api` through UI validation. |
+| `cd ui && npm run test:api` | pass | 18/18 behavior tests passed. |
+| `cd ui && node run-api-behavior-tests.mjs --self-test-failure-propagation` | pass | Failure propagation proof passed without leaving a normal failing test enabled. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Explicit cargo test gate passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
+| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-tests passed. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | CLI dry-run passed. |
+| Required discovery/evidence scans | pass | Scans matched expected test/docs/checklist evidence only. |
+| Package drift scan | pass | Only `ui/package.json` changed; no lockfile drift. |
+| Source guard | pass | Only documented `scripts/check.sh` integration appeared in guarded surfaces. |
+
+## Non-readiness statement
+Phase 95.1 is an out-of-band UI behavioral test harness baseline before Phase 96.
+
+Phase 95.1 adds behavioral tests only.
+
+Phase 95.1 does not add live transport.
+
+Phase 95.1 does not add UI authority.
+
+Phase 95.1 does not add a Rust bridge.
+
+Phase 95.1 does not start Phase 96.
+
+Phase 95.2 remains responsible for cross-boundary golden invariant tests.
+
+Public usability, production readiness, Production Candidate approval, startup/package approval, and release-candidate readiness are not claimed.
