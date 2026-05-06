@@ -5,6 +5,32 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.95.2 - 2026-05-06
+**Status:** Phase 95.2 - Out-of-Band Cross-Boundary Golden Invariant Tests
+
+### Added
+- Added `docs/operations/cross-boundary-golden-invariants-phase-95-2.md` documenting Phase 95.2 scope, golden invariant model, representative input, determinism guarantees, exact-byte export assertion, non-authority posture, export-not-ledger/recovery/replay posture, recovery rejection posture, replay verification-only posture, Phase 95 and Phase 95.1 relationships, Phase 95.3 deferral, lint parity, test fidelity, validation evidence, and non-readiness statement.
+- Added root integration golden coverage in `tests/integration_smoke.rs` with `root_integration_golden_cross_boundary_chain_is_deterministic_and_non_authoritative` for repeated-run determinism across the bounded local harness, provider evidence checksum, replay verification, read-only observability snapshot, exact audit export bytes, export/recovery rejection boundaries, recovery mismatch rejection, replay tamper rejection, risky-text stability, and non-authority flags.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 95.2 procedural truth, out-of-band deterministic test scope, task closure, representative input checklist, repeated-run determinism checklist, exact-byte export checklist, non-authority checklist, export-not-ledger/recovery/replay checklist, recovery rejection checklist, replay verification-only checklist, lint parity posture, test fidelity, zero-drift posture, findings, deferrals, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.95.2`.
+
+### Boundaries
+- Phase 95.2 is an out-of-band cross-boundary golden invariant test phase before Phase 96.
+- Phase 95.2 adds deterministic tests only.
+- Phase 95.2 does not add runtime capability.
+- Phase 95.2 does not add live transport.
+- Phase 95.2 does not add provider execution.
+- Phase 95.2 does not add persistence authority.
+- Phase 95.2 does not add import behavior.
+- Phase 95.2 does not repair replay.
+- Phase 95.2 does not promote recovery candidates.
+- Phase 95.2 does not start Phase 96 or change Phase 96 scope.
+- Phase 95.3 remains responsible for broader adversarial LLM-output corpus hardening.
+- No Rust runtime source, TypeScript source, UI source, scripts, workflows, schemas, roadmap docs, governance docs, architecture docs, README, AGENTS, package files, dependency files, or lockfiles were changed.
+- Public usability, production readiness, Production Candidate approval, startup/package approval, and release-candidate readiness are not claimed.
+
 ## v0.0.95.1 - 2026-05-06
 **Status:** Phase 95.1 - Out-of-Band UI Behavioral Test Harness Baseline
 
