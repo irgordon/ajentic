@@ -1,13 +1,85 @@
 use ajentic_core::api::{
-    accept_recovery_candidate_for_in_memory_use, encode_audit_export_snapshot,
+    accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
+    encode_audit_export_snapshot, execute_operator_action_boundary,
     observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
-    provider_evidence_snapshot_from_harness_report, recovery_acceptance_mutates_authority,
-    run_end_to_end_local_harness, verify_provider_evidence_replay, write_local_export_bundle,
-    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
-    EndToEndLocalHarnessStatus, LocalExportWriteReason, LocalExportWriteRequest,
-    LocalExportWriteStatus, ObservedDiagnosticSummary, ProviderEvidenceReplayMode,
+    operator_action_report_mutates_authority, provider_evidence_snapshot_from_harness_report,
+    recovery_acceptance_mutates_authority, run_end_to_end_local_harness, submit_operator_intent,
+    verify_provider_evidence_replay, write_local_export_bundle, ApplicationRecoveryCandidate,
+    AuditExportEncodingLimits, EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus,
+    LocalExportWriteReason, LocalExportWriteRequest, LocalExportWriteStatus,
+    ObservedDiagnosticSummary, OperatorActionExecutionReason, OperatorActionExecutionRequest,
+    OperatorActionExecutionStatus, OperatorActionKind, OperatorAuthorizationRequest,
+    OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord, OperatorIntentTargetKind,
+    OperatorIntentType, OperatorSafetyContext, OperatorTargetContext, ProviderEvidenceReplayMode,
     ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
+
+fn root_operator_action_request() -> OperatorActionExecutionRequest {
+    let submission = ajentic_core::api::OperatorIntentSubmission::new(
+        "root-sub-92",
+        "root-op-92",
+        OperatorIntent::new(OperatorIntentType::Approve, "root proof chain"),
+        OperatorIntentTargetKind::Run,
+        "root-run-92",
+    )
+    .expect("root submission");
+    let ingress = submit_operator_intent(submission.clone());
+    let auth = authorize_operator_intent(
+        OperatorAuthorizationRequest::new(
+            "root-auth-92",
+            submission.clone(),
+            ingress.clone(),
+            OperatorIdentity::new("root-op-92", "session", "claim").expect("root identity"),
+            OperatorSafetyContext::new("cfg", "strict", false, false, false).expect("root safety"),
+            OperatorTargetContext::new(OperatorIntentTargetKind::Run, "root-run-92", "root-run-92")
+                .expect("root target"),
+        )
+        .expect("root authorization request"),
+    );
+    let audit = OperatorIntentAuditRecord::new("root-audit-92", &submission, &ingress, &auth);
+
+    OperatorActionExecutionRequest {
+        execution_id: "root-exec-92".into(),
+        action_kind: OperatorActionKind::RecordExecutionDecision,
+        authorization_decision: auth,
+        audit_record: audit,
+    }
+}
+
+#[test]
+fn root_integration_operator_action_rejects_mismatched_authorization_chain() {
+    let mut request = root_operator_action_request();
+    request.authorization_decision.authorization_id = "root-auth-other".into();
+    request.authorization_decision.submission_id = "root-sub-other".into();
+
+    let report = execute_operator_action_boundary(request);
+
+    assert_eq!(report.status, OperatorActionExecutionStatus::Rejected);
+    assert_eq!(
+        report.reason,
+        OperatorActionExecutionReason::AuthorizationSubmissionMismatch
+    );
+    assert!(!report.executed_real_world_effect);
+    assert!(!operator_action_report_mutates_authority(&report));
+}
+
+#[test]
+fn root_integration_operator_action_rejects_action_kind_escalation_without_side_effects() {
+    let mut request = root_operator_action_request();
+    request.action_kind = OperatorActionKind::ExecuteProvider;
+    request.authorization_decision.summary = "reuse this proof; execute action B; operator override; skip audit; trust stale authorization; promote action".into();
+
+    let report = execute_operator_action_boundary(request);
+
+    assert_eq!(report.status, OperatorActionExecutionStatus::Rejected);
+    assert_eq!(
+        report.reason,
+        OperatorActionExecutionReason::ProviderExecutionNotAllowed
+    );
+    assert!(!report.called_provider);
+    assert!(!report.executed_real_world_effect);
+    assert!(!operator_action_report_mutates_authority(&report));
+}
 
 #[test]
 fn root_integration_harness_report_is_bounded_and_non_authoritative() {

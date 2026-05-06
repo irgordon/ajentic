@@ -5,6 +5,30 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.92 - 2026-05-06
+**Status:** Phase 92 - Authorization/Audit/Action Mismatch Hardening
+
+### Added
+- Added `docs/operations/authorization-audit-action-hardening-phase-92.md` documenting Phase 92 scope, proof-chain model, mismatch hardening, identity hardening, action-kind escalation hardening, deterministic stale proof posture, lint parity, test fidelity, validation evidence, deferred items, and non-readiness posture.
+- Added deterministic negative-path operator action tests for authorization/audit submission, operator, target kind, target ID, action-kind escalation, no-side-effect rejection, risky text override, Phase 78 preservation, and wall-clock/random freshness exclusion.
+- Added root integration smoke tests for mismatched authorization proof rejection and action-kind escalation rejection without side effects.
+
+### Changed
+- Updated `core/src/api/operator_action.rs` with minimal fail-closed proof-chain mismatch reason variants and checks for existing authorization/audit proof metadata.
+- Updated `tests/integration_smoke.rs` with public root operator action mismatch coverage.
+- Updated `checklists/current-phase.md` to Phase 92 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.92`.
+
+### Boundaries
+- Phase 92 is hardening only.
+- Phase 92 adds no new action authority and no new executable action kind.
+- Phase 92 does not add time-based expiry, token expiration, clocks, timestamps, durations, random IDs, or random token freshness.
+- Phase 92 does not persist, append ledger/audit records, repair replay, trust provider output, execute providers, use live transport, or mutate authority.
+- Phase 92 keeps rejected paths side-effect-free and preserves the Phase 78 proof-only `RecordExecutionDecision` success path.
+- Deterministic consumed/revision proof lifecycle remains deferred because current proof types do not carry consumed/revision state.
+- Phase 93 remains responsible for persistence corruption and append drift hardening.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.91 - 2026-05-06
 **Status:** Phase 91 - Transport Abuse and Submission Spoofing Hardening
 
