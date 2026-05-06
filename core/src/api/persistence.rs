@@ -548,6 +548,64 @@ pub fn execute_local_persistence_plan(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalExportPersistenceWriteError {
+    TargetAlreadyExists,
+    TargetIsSymlink,
+    EmptyPayload,
+    CreateFailed,
+    WriteFailed,
+    SyncFailed,
+    ReadbackFailed,
+    VerificationFailed,
+}
+
+pub fn create_new_verified_local_export_file(
+    target_path: &std::path::Path,
+    payload_bytes: &[u8],
+) -> Result<usize, LocalExportPersistenceWriteError> {
+    if payload_bytes.is_empty() {
+        return Err(LocalExportPersistenceWriteError::EmptyPayload);
+    }
+    if target_path.exists() {
+        return Err(LocalExportPersistenceWriteError::TargetAlreadyExists);
+    }
+    if target_path
+        .symlink_metadata()
+        .map(|metadata| metadata.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        return Err(LocalExportPersistenceWriteError::TargetIsSymlink);
+    }
+
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(target_path)
+        .map_err(|_| {
+            if target_path.exists() {
+                LocalExportPersistenceWriteError::TargetAlreadyExists
+            } else {
+                LocalExportPersistenceWriteError::CreateFailed
+            }
+        })?;
+    use std::io::Write;
+    file.write_all(payload_bytes)
+        .map_err(|_| LocalExportPersistenceWriteError::WriteFailed)?;
+    file.flush()
+        .map_err(|_| LocalExportPersistenceWriteError::SyncFailed)?;
+    file.sync_all()
+        .map_err(|_| LocalExportPersistenceWriteError::SyncFailed)?;
+    drop(file);
+
+    let written_bytes =
+        std::fs::read(target_path).map_err(|_| LocalExportPersistenceWriteError::ReadbackFailed)?;
+    if written_bytes != payload_bytes {
+        return Err(LocalExportPersistenceWriteError::VerificationFailed);
+    }
+    Ok(written_bytes.len())
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LedgerPersistenceStatus {
     Prepared,
     Written,

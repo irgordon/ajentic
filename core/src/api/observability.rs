@@ -1,8 +1,10 @@
+use std::path::{Component, Path, PathBuf};
+
 use super::{
-    DurableAppendReport, DurableAppendStatus, EndToEndLocalHarnessReport,
-    EndToEndLocalHarnessStatus, OperatorActionExecutionReport, OperatorActionKind,
-    ProviderEvidenceReplayReport, ProviderEvidenceReplayStatus, RecoveryAcceptanceReport,
-    RecoveryAcceptanceStatus,
+    create_new_verified_local_export_file, DurableAppendReport, DurableAppendStatus,
+    EndToEndLocalHarnessReport, EndToEndLocalHarnessStatus, LocalExportPersistenceWriteError,
+    OperatorActionExecutionReport, OperatorActionKind, ProviderEvidenceReplayReport,
+    ProviderEvidenceReplayStatus, RecoveryAcceptanceReport, RecoveryAcceptanceStatus,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -401,6 +403,345 @@ impl AuditExportEncodingReason {
             Self::AuthorityMutationNotAllowed => "authority_mutation_not_allowed",
         }
     }
+}
+
+pub const AJENTIC_EXPORT_EXTENSION: &str = ".ajentic-export";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalExportWriteStatus {
+    Written,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalExportWriteReason {
+    WrittenVerifiedExportBundle,
+    EmptyExportDirectory,
+    EmptyExportFileName,
+    AbsoluteExportFileNameRejected,
+    PathSeparatorRejected,
+    ParentTraversalRejected,
+    WindowsDrivePrefixRejected,
+    InvalidExportFileNameCharacter,
+    MissingExportExtension,
+    ExportDirectoryDoesNotExist,
+    ExportDirectoryNotDirectory,
+    ExportDirectoryCanonicalizationFailed,
+    ExportDirectoryForbidden,
+    ExportFileAlreadyExists,
+    ExportSymlinkRejected,
+    ExportWriteFailed,
+    ExportVerificationFailed,
+    EncodedEnvelopeEmpty,
+    ExportNotAuthoritative,
+    LedgerImportNotAllowed,
+    RecoveryImportNotAllowed,
+    ReplayRepairNotAllowed,
+    PromotionNotAllowed,
+    AuthorityMutationNotAllowed,
+}
+
+impl LocalExportWriteReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::WrittenVerifiedExportBundle => "written_verified_export_bundle",
+            Self::EmptyExportDirectory => "empty_export_directory",
+            Self::EmptyExportFileName => "empty_export_file_name",
+            Self::AbsoluteExportFileNameRejected => "absolute_export_file_name_rejected",
+            Self::PathSeparatorRejected => "path_separator_rejected",
+            Self::ParentTraversalRejected => "parent_traversal_rejected",
+            Self::WindowsDrivePrefixRejected => "windows_drive_prefix_rejected",
+            Self::InvalidExportFileNameCharacter => "invalid_export_file_name_character",
+            Self::MissingExportExtension => "missing_export_extension",
+            Self::ExportDirectoryDoesNotExist => "export_directory_does_not_exist",
+            Self::ExportDirectoryNotDirectory => "export_directory_not_directory",
+            Self::ExportDirectoryCanonicalizationFailed => {
+                "export_directory_canonicalization_failed"
+            }
+            Self::ExportDirectoryForbidden => "export_directory_forbidden",
+            Self::ExportFileAlreadyExists => "export_file_already_exists",
+            Self::ExportSymlinkRejected => "export_symlink_rejected",
+            Self::ExportWriteFailed => "export_write_failed",
+            Self::ExportVerificationFailed => "export_verification_failed",
+            Self::EncodedEnvelopeEmpty => "encoded_envelope_empty",
+            Self::ExportNotAuthoritative => "export_not_authoritative",
+            Self::LedgerImportNotAllowed => "ledger_import_not_allowed",
+            Self::RecoveryImportNotAllowed => "recovery_import_not_allowed",
+            Self::ReplayRepairNotAllowed => "replay_repair_not_allowed",
+            Self::PromotionNotAllowed => "promotion_not_allowed",
+            Self::AuthorityMutationNotAllowed => "authority_mutation_not_allowed",
+        }
+    }
+}
+
+pub struct LocalExportWriteRequest {
+    pub export_directory: PathBuf,
+    pub export_file_name: String,
+    pub envelope: AuditExportEnvelope,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+pub struct LocalExportWriteReport {
+    pub status: LocalExportWriteStatus,
+    pub reason: LocalExportWriteReason,
+    pub export_file_name: String,
+    pub written_path: Option<PathBuf>,
+    pub byte_len: Option<usize>,
+    pub written: bool,
+    pub verified_after_write: bool,
+    pub export_not_authoritative: bool,
+    pub ledger_import_allowed: bool,
+    pub recovery_import_allowed: bool,
+    pub replay_repair_allowed: bool,
+    pub promoted: bool,
+    pub mutated_authority: bool,
+    pub summary: String,
+}
+
+pub fn validate_export_file_name(
+    export_file_name: impl Into<String>,
+) -> Result<String, LocalExportWriteReason> {
+    let export_file_name = export_file_name.into();
+    if export_file_name.is_empty() {
+        return Err(LocalExportWriteReason::EmptyExportFileName);
+    }
+    let export_path = Path::new(&export_file_name);
+    if export_path.is_absolute() {
+        return Err(LocalExportWriteReason::AbsoluteExportFileNameRejected);
+    }
+    if export_file_name.contains('/') || export_file_name.contains('\\') {
+        return Err(LocalExportWriteReason::PathSeparatorRejected);
+    }
+    if export_file_name == "." || export_file_name == ".." || export_file_name.contains("..") {
+        return Err(LocalExportWriteReason::ParentTraversalRejected);
+    }
+    if export_file_name.contains(':') {
+        return Err(LocalExportWriteReason::WindowsDrivePrefixRejected);
+    }
+    if !export_file_name
+        .bytes()
+        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-'))
+    {
+        return Err(LocalExportWriteReason::InvalidExportFileNameCharacter);
+    }
+    if !export_file_name.ends_with(AJENTIC_EXPORT_EXTENSION) {
+        return Err(LocalExportWriteReason::MissingExportExtension);
+    }
+    Ok(export_file_name)
+}
+
+pub fn write_local_export_bundle(request: LocalExportWriteRequest) -> LocalExportWriteReport {
+    let requested_export_file_name = request.export_file_name;
+    if request.export_directory.as_os_str().is_empty() {
+        return rejected_local_export_report(
+            LocalExportWriteReason::EmptyExportDirectory,
+            requested_export_file_name,
+            None,
+            None,
+        );
+    }
+
+    let export_file_name = match validate_export_file_name(requested_export_file_name) {
+        Ok(export_file_name) => export_file_name,
+        Err(reason) => {
+            return rejected_local_export_report(reason, String::new(), None, None);
+        }
+    };
+
+    let canonical_export_directory = match request.export_directory.canonicalize() {
+        Ok(path) => path,
+        Err(_) if !request.export_directory.exists() => {
+            return rejected_local_export_report(
+                LocalExportWriteReason::ExportDirectoryDoesNotExist,
+                export_file_name,
+                None,
+                None,
+            );
+        }
+        Err(_) => {
+            return rejected_local_export_report(
+                LocalExportWriteReason::ExportDirectoryCanonicalizationFailed,
+                export_file_name,
+                None,
+                None,
+            );
+        }
+    };
+
+    if !canonical_export_directory.is_dir() {
+        return rejected_local_export_report(
+            LocalExportWriteReason::ExportDirectoryNotDirectory,
+            export_file_name,
+            None,
+            None,
+        );
+    }
+    if export_directory_is_forbidden(&canonical_export_directory) {
+        return rejected_local_export_report(
+            LocalExportWriteReason::ExportDirectoryForbidden,
+            export_file_name,
+            None,
+            None,
+        );
+    }
+
+    let written_path = canonical_export_directory.join(&export_file_name);
+    let parent_matches_export_directory = written_path
+        .parent()
+        .and_then(|parent| parent.canonicalize().ok())
+        .is_some_and(|parent| parent == canonical_export_directory);
+    if !parent_matches_export_directory {
+        return rejected_local_export_report(
+            LocalExportWriteReason::ExportDirectoryForbidden,
+            export_file_name,
+            None,
+            None,
+        );
+    }
+
+    if written_path.exists() {
+        return rejected_local_export_report(
+            LocalExportWriteReason::ExportFileAlreadyExists,
+            export_file_name,
+            Some(written_path),
+            None,
+        );
+    }
+    if written_path
+        .symlink_metadata()
+        .map(|metadata| metadata.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        return rejected_local_export_report(
+            LocalExportWriteReason::ExportSymlinkRejected,
+            export_file_name,
+            Some(written_path),
+            None,
+        );
+    }
+    if request.envelope.encoded_bytes.is_empty() {
+        return rejected_local_export_report(
+            LocalExportWriteReason::EncodedEnvelopeEmpty,
+            export_file_name,
+            Some(written_path),
+            None,
+        );
+    }
+
+    let byte_len =
+        match create_new_verified_local_export_file(&written_path, &request.envelope.encoded_bytes)
+        {
+            Ok(byte_len) => byte_len,
+            Err(LocalExportPersistenceWriteError::TargetAlreadyExists) => {
+                return rejected_local_export_report(
+                    LocalExportWriteReason::ExportFileAlreadyExists,
+                    export_file_name,
+                    Some(written_path),
+                    None,
+                );
+            }
+            Err(LocalExportPersistenceWriteError::TargetIsSymlink) => {
+                return rejected_local_export_report(
+                    LocalExportWriteReason::ExportSymlinkRejected,
+                    export_file_name,
+                    Some(written_path),
+                    None,
+                );
+            }
+            Err(LocalExportPersistenceWriteError::VerificationFailed)
+            | Err(LocalExportPersistenceWriteError::ReadbackFailed) => {
+                return rejected_local_export_report(
+                    LocalExportWriteReason::ExportVerificationFailed,
+                    export_file_name,
+                    Some(written_path),
+                    None,
+                );
+            }
+            Err(LocalExportPersistenceWriteError::EmptyPayload) => {
+                return rejected_local_export_report(
+                    LocalExportWriteReason::EncodedEnvelopeEmpty,
+                    export_file_name,
+                    Some(written_path),
+                    None,
+                );
+            }
+            Err(LocalExportPersistenceWriteError::CreateFailed)
+            | Err(LocalExportPersistenceWriteError::WriteFailed)
+            | Err(LocalExportPersistenceWriteError::SyncFailed) => {
+                return rejected_local_export_report(
+                    LocalExportWriteReason::ExportWriteFailed,
+                    export_file_name,
+                    Some(written_path),
+                    None,
+                );
+            }
+        };
+
+    LocalExportWriteReport {
+        status: LocalExportWriteStatus::Written,
+        reason: LocalExportWriteReason::WrittenVerifiedExportBundle,
+        export_file_name,
+        written_path: Some(written_path),
+        byte_len: Some(byte_len),
+        written: true,
+        verified_after_write: true,
+        export_not_authoritative: true,
+        ledger_import_allowed: false,
+        recovery_import_allowed: false,
+        replay_repair_allowed: false,
+        promoted: false,
+        mutated_authority: false,
+        summary: "wrote verified local operator-readable export bundle only; export is non-authoritative and is not ledger, recovery, replay repair, or promotion input".to_string(),
+    }
+}
+
+fn rejected_local_export_report(
+    reason: LocalExportWriteReason,
+    export_file_name: String,
+    written_path: Option<PathBuf>,
+    byte_len: Option<usize>,
+) -> LocalExportWriteReport {
+    LocalExportWriteReport {
+        status: LocalExportWriteStatus::Rejected,
+        reason,
+        export_file_name,
+        written_path,
+        byte_len,
+        written: false,
+        verified_after_write: false,
+        export_not_authoritative: true,
+        ledger_import_allowed: false,
+        recovery_import_allowed: false,
+        replay_repair_allowed: false,
+        promoted: false,
+        mutated_authority: false,
+        summary: format!(
+            "local export write rejected: {}; export remains non-authoritative and cannot import ledger, recovery, replay repair, promotion, or authority",
+            reason.code()
+        ),
+    }
+}
+
+fn export_directory_is_forbidden(export_directory: &Path) -> bool {
+    if let Ok(repository_root) = std::env::current_dir().and_then(|path| path.canonicalize()) {
+        if export_directory == repository_root {
+            return true;
+        }
+        for forbidden_name in ["docs", "schema", "schemas", "ledger", "audit", "memory"] {
+            if export_directory == repository_root.join(forbidden_name) {
+                return true;
+            }
+        }
+    }
+
+    export_directory
+        .components()
+        .any(|component| match component {
+            Component::Normal(value) => value
+                .to_str()
+                .is_some_and(|value| matches!(value, "ledger" | "audit" | "memory")),
+            _ => false,
+        })
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -1764,6 +2105,428 @@ mod tests {
         };
         assert!(!envelope.writes_files);
         assert!(!envelope.mutates_authority);
+    }
+
+    fn local_export_test_directory(_test_name: &str) -> PathBuf {
+        std::env::temp_dir()
+    }
+
+    fn local_export_test_file_name(test_name: &str) -> String {
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        format!("ajentic-phase-89-{}-{}.ajentic-export", test_name, nanos)
+    }
+
+    fn local_export_report(test_name: &str, _file_name: &str) -> LocalExportWriteReport {
+        let directory = local_export_test_directory(test_name);
+        write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: local_export_test_file_name(test_name),
+            envelope: encode_minimal_snapshot(),
+        })
+    }
+
+    fn local_export_report_with_envelope(
+        test_name: &str,
+        file_name: &str,
+        envelope: AuditExportEnvelope,
+    ) -> LocalExportWriteReport {
+        let directory = local_export_test_directory(test_name);
+        write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: file_name.into(),
+            envelope,
+        })
+    }
+
+    fn assert_local_export_rejected(
+        report: &LocalExportWriteReport,
+        reason: LocalExportWriteReason,
+    ) {
+        assert!(report.status == LocalExportWriteStatus::Rejected);
+        assert!(report.reason == reason);
+        assert!(!report.written);
+        assert!(!report.verified_after_write);
+    }
+
+    #[test]
+    fn local_export_reason_codes_are_stable() {
+        let expected = [
+            (
+                LocalExportWriteReason::WrittenVerifiedExportBundle,
+                "written_verified_export_bundle",
+            ),
+            (
+                LocalExportWriteReason::EmptyExportDirectory,
+                "empty_export_directory",
+            ),
+            (
+                LocalExportWriteReason::EmptyExportFileName,
+                "empty_export_file_name",
+            ),
+            (
+                LocalExportWriteReason::AbsoluteExportFileNameRejected,
+                "absolute_export_file_name_rejected",
+            ),
+            (
+                LocalExportWriteReason::PathSeparatorRejected,
+                "path_separator_rejected",
+            ),
+            (
+                LocalExportWriteReason::ParentTraversalRejected,
+                "parent_traversal_rejected",
+            ),
+            (
+                LocalExportWriteReason::WindowsDrivePrefixRejected,
+                "windows_drive_prefix_rejected",
+            ),
+            (
+                LocalExportWriteReason::InvalidExportFileNameCharacter,
+                "invalid_export_file_name_character",
+            ),
+            (
+                LocalExportWriteReason::MissingExportExtension,
+                "missing_export_extension",
+            ),
+            (
+                LocalExportWriteReason::ExportDirectoryDoesNotExist,
+                "export_directory_does_not_exist",
+            ),
+            (
+                LocalExportWriteReason::ExportDirectoryNotDirectory,
+                "export_directory_not_directory",
+            ),
+            (
+                LocalExportWriteReason::ExportDirectoryCanonicalizationFailed,
+                "export_directory_canonicalization_failed",
+            ),
+            (
+                LocalExportWriteReason::ExportDirectoryForbidden,
+                "export_directory_forbidden",
+            ),
+            (
+                LocalExportWriteReason::ExportFileAlreadyExists,
+                "export_file_already_exists",
+            ),
+            (
+                LocalExportWriteReason::ExportSymlinkRejected,
+                "export_symlink_rejected",
+            ),
+            (
+                LocalExportWriteReason::ExportWriteFailed,
+                "export_write_failed",
+            ),
+            (
+                LocalExportWriteReason::ExportVerificationFailed,
+                "export_verification_failed",
+            ),
+            (
+                LocalExportWriteReason::EncodedEnvelopeEmpty,
+                "encoded_envelope_empty",
+            ),
+            (
+                LocalExportWriteReason::ExportNotAuthoritative,
+                "export_not_authoritative",
+            ),
+            (
+                LocalExportWriteReason::LedgerImportNotAllowed,
+                "ledger_import_not_allowed",
+            ),
+            (
+                LocalExportWriteReason::RecoveryImportNotAllowed,
+                "recovery_import_not_allowed",
+            ),
+            (
+                LocalExportWriteReason::ReplayRepairNotAllowed,
+                "replay_repair_not_allowed",
+            ),
+            (
+                LocalExportWriteReason::PromotionNotAllowed,
+                "promotion_not_allowed",
+            ),
+            (
+                LocalExportWriteReason::AuthorityMutationNotAllowed,
+                "authority_mutation_not_allowed",
+            ),
+        ];
+        for (reason, code) in expected {
+            assert_eq!(reason.code(), code);
+        }
+    }
+
+    #[test]
+    fn export_file_name_requires_value() {
+        assert!(validate_export_file_name("") == Err(LocalExportWriteReason::EmptyExportFileName));
+    }
+
+    #[test]
+    fn export_file_name_rejects_absolute_path() {
+        let name = std::env::temp_dir()
+            .join("unsafe.ajentic-export")
+            .to_string_lossy()
+            .to_string();
+        assert!(
+            validate_export_file_name(name)
+                == Err(LocalExportWriteReason::AbsoluteExportFileNameRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_forward_slash_path_separator() {
+        assert!(
+            validate_export_file_name("nested/export.ajentic-export")
+                == Err(LocalExportWriteReason::PathSeparatorRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_backslash_path_separator() {
+        assert!(
+            validate_export_file_name("nested\\export.ajentic-export")
+                == Err(LocalExportWriteReason::PathSeparatorRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_current_directory() {
+        assert!(
+            validate_export_file_name(".") == Err(LocalExportWriteReason::ParentTraversalRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_parent_directory() {
+        assert!(
+            validate_export_file_name("..") == Err(LocalExportWriteReason::ParentTraversalRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_parent_traversal_substring() {
+        assert!(
+            validate_export_file_name("safe..name.ajentic-export")
+                == Err(LocalExportWriteReason::ParentTraversalRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_windows_drive_prefix() {
+        assert!(
+            validate_export_file_name("C:unsafe.ajentic-export")
+                == Err(LocalExportWriteReason::WindowsDrivePrefixRejected)
+        );
+    }
+
+    #[test]
+    fn export_file_name_rejects_invalid_characters() {
+        assert!(
+            validate_export_file_name("unsafe name.ajentic-export")
+                == Err(LocalExportWriteReason::InvalidExportFileNameCharacter)
+        );
+    }
+
+    #[test]
+    fn export_file_name_requires_export_extension() {
+        assert!(
+            validate_export_file_name("safe.txt")
+                == Err(LocalExportWriteReason::MissingExportExtension)
+        );
+    }
+
+    #[test]
+    fn export_file_name_accepts_safe_name() {
+        assert_eq!(
+            validate_export_file_name("safe-name_1.ajentic-export"),
+            Ok("safe-name_1.ajentic-export".into())
+        );
+    }
+
+    #[test]
+    fn export_write_rejects_missing_export_directory() {
+        let directory = std::env::temp_dir().join(format!(
+            "ajentic-phase-89-missing-directory-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: "missing.ajentic-export".into(),
+            envelope: encode_minimal_snapshot(),
+        });
+        assert_local_export_rejected(&report, LocalExportWriteReason::ExportDirectoryDoesNotExist);
+    }
+
+    #[test]
+    fn export_write_rejects_non_directory_target() {
+        let directory = local_export_test_directory("non_directory_parent");
+        let file_target = directory.join(local_export_test_file_name("not-directory-target"));
+        create_new_verified_local_export_file(&file_target, b"not a directory").unwrap();
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: file_target,
+            export_file_name: "non-directory.ajentic-export".into(),
+            envelope: encode_minimal_snapshot(),
+        });
+        assert_local_export_rejected(&report, LocalExportWriteReason::ExportDirectoryNotDirectory);
+    }
+
+    #[test]
+    fn export_write_rejects_existing_file_overwrite_target() {
+        let directory = local_export_test_directory("existing_file");
+        let file_name = local_export_test_file_name("existing-file");
+        let file_path = directory.join(&file_name);
+        create_new_verified_local_export_file(&file_path, b"existing bytes").unwrap();
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: file_name,
+            envelope: encode_minimal_snapshot(),
+        });
+        assert_local_export_rejected(&report, LocalExportWriteReason::ExportFileAlreadyExists);
+        assert!(file_path.exists());
+    }
+
+    #[test]
+    fn export_write_rejects_empty_envelope_bytes() {
+        let mut envelope = encode_minimal_snapshot();
+        envelope.encoded_bytes.clear();
+        envelope.byte_len = 0;
+        let report =
+            local_export_report_with_envelope("empty_envelope", "empty.ajentic-export", envelope);
+        assert_local_export_rejected(&report, LocalExportWriteReason::EncodedEnvelopeEmpty);
+    }
+
+    #[test]
+    fn export_write_writes_only_encoded_bytes() {
+        let envelope = encode_minimal_snapshot();
+        let expected = envelope.encoded_bytes.clone();
+        let directory = local_export_test_directory("writes_only_encoded_bytes");
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: local_export_test_file_name("encoded-only"),
+            envelope,
+        });
+        assert!(report.status == LocalExportWriteStatus::Written);
+        assert_eq!(report.byte_len, Some(expected.len()));
+        assert!(report.written_path.unwrap().exists());
+    }
+
+    #[test]
+    fn export_write_verifies_written_bytes() {
+        let report = local_export_report("verifies_written_bytes", "verified.ajentic-export");
+        assert!(report.written);
+        assert!(report.verified_after_write);
+        assert!(report.reason == LocalExportWriteReason::WrittenVerifiedExportBundle);
+    }
+
+    #[test]
+    fn export_write_reports_non_authoritative_export() {
+        let report = local_export_report("non_authoritative", "non-authoritative.ajentic-export");
+        assert!(report.export_not_authoritative);
+        assert!(report.summary.contains("non-authoritative"));
+    }
+
+    #[test]
+    fn export_write_does_not_allow_ledger_import() {
+        assert!(
+            !local_export_report("ledger_import", "ledger-import.ajentic-export")
+                .ledger_import_allowed
+        );
+    }
+
+    #[test]
+    fn export_write_does_not_allow_recovery_import() {
+        assert!(
+            !local_export_report("recovery_import", "recovery-import.ajentic-export")
+                .recovery_import_allowed
+        );
+    }
+
+    #[test]
+    fn export_write_does_not_allow_replay_repair() {
+        assert!(
+            !local_export_report("replay_repair", "replay-repair.ajentic-export")
+                .replay_repair_allowed
+        );
+    }
+
+    #[test]
+    fn export_write_does_not_promote() {
+        assert!(!local_export_report("promote", "promote.ajentic-export").promoted);
+    }
+
+    #[test]
+    fn export_write_does_not_mutate_authority() {
+        assert!(!local_export_report("authority", "authority.ajentic-export").mutated_authority);
+    }
+
+    #[test]
+    fn export_bundle_is_not_ledger_append() {
+        let report = local_export_report("not_ledger_append", "not-ledger-append.ajentic-export");
+        assert!(report.written);
+        assert!(!report.ledger_import_allowed);
+        assert!(!report.mutated_authority);
+    }
+
+    #[test]
+    fn export_bundle_is_not_recovery_input() {
+        let report = local_export_report("not_recovery_input", "not-recovery-input.ajentic-export");
+        assert!(report.written);
+        assert!(!report.recovery_import_allowed);
+    }
+
+    #[test]
+    fn export_bundle_is_not_replay_repair_evidence() {
+        let report = local_export_report("not_replay_repair", "not-replay-repair.ajentic-export");
+        assert!(report.written);
+        assert!(!report.replay_repair_allowed);
+    }
+
+    #[test]
+    fn export_write_does_not_delete_or_rotate_exports() {
+        let directory = local_export_test_directory("retention_operator_managed");
+        let untouched_path = directory.join(local_export_test_file_name("untouched"));
+        create_new_verified_local_export_file(&untouched_path, b"operator managed").unwrap();
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: local_export_test_file_name("new"),
+            envelope: encode_minimal_snapshot(),
+        });
+        assert!(report.written);
+        assert!(untouched_path.exists());
+    }
+
+    #[test]
+    fn export_write_uses_create_new_no_overwrite_semantics() {
+        let directory = local_export_test_directory("create_new_no_overwrite");
+        let file_name = local_export_test_file_name("create-new");
+        let first = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory.clone(),
+            export_file_name: file_name.clone(),
+            envelope: encode_minimal_snapshot(),
+        });
+        let second = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory,
+            export_file_name: file_name,
+            envelope: encode_minimal_snapshot(),
+        });
+        assert!(first.written);
+        assert_local_export_rejected(&second, LocalExportWriteReason::ExportFileAlreadyExists);
+    }
+
+    #[test]
+    fn export_write_path_traversal_attempt_does_not_create_file() {
+        let directory = local_export_test_directory("path_traversal_attempt");
+        let report = write_local_export_bundle(LocalExportWriteRequest {
+            export_directory: directory.clone(),
+            export_file_name: "../escape.ajentic-export".into(),
+            envelope: encode_minimal_snapshot(),
+        });
+        assert_local_export_rejected(&report, LocalExportWriteReason::PathSeparatorRejected);
+        assert!(!directory.join("escape.ajentic-export").exists());
+        assert!(!directory.join("..").join("escape.ajentic-export").exists());
     }
 
     fn append_report() -> DurableAppendReport {

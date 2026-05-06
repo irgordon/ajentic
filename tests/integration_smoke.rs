@@ -2,10 +2,11 @@ use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, encode_audit_export_snapshot,
     observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
     provider_evidence_snapshot_from_harness_report, recovery_acceptance_mutates_authority,
-    run_end_to_end_local_harness, verify_provider_evidence_replay, ApplicationRecoveryCandidate,
-    AuditExportEncodingLimits, EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus,
-    ObservedDiagnosticSummary, ProviderEvidenceReplayMode, ProviderEvidenceReplayStatus,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    run_end_to_end_local_harness, verify_provider_evidence_replay, write_local_export_bundle,
+    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
+    EndToEndLocalHarnessStatus, LocalExportWriteReason, LocalExportWriteRequest,
+    LocalExportWriteStatus, ObservedDiagnosticSummary, ProviderEvidenceReplayMode,
+    ProviderEvidenceReplayStatus, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 #[test]
@@ -213,4 +214,87 @@ fn root_integration_audit_export_encoding_is_non_authoritative() {
     assert!(!envelope.reads_persistence);
     assert!(!envelope.writes_persistence);
     assert!(!envelope.mutates_authority);
+}
+
+fn root_integration_export_envelope() -> ajentic_core::api::AuditExportEnvelope {
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "audit-root-write",
+        None,
+        None,
+        None,
+        None,
+        None,
+        vec![ObservedDiagnosticSummary {
+            family: "diagnostic".into(),
+            code: "ok".into(),
+            key: "root-write".into(),
+            summary: "local export write".into(),
+        }],
+    );
+    match encode_audit_export_snapshot(
+        "export-root-write",
+        &snapshot,
+        AuditExportEncodingLimits::strict_defaults(),
+    ) {
+        Ok(envelope) => envelope,
+        Err(_) => panic!("root export encoding should pass"),
+    }
+}
+
+fn root_integration_export_directory(_test_name: &str) -> std::path::PathBuf {
+    std::env::temp_dir()
+}
+
+fn root_integration_export_file_name(test_name: &str) -> String {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    format!(
+        "ajentic-root-phase-89-{}-{}.ajentic-export",
+        test_name, nanos
+    )
+}
+
+#[test]
+fn root_integration_local_export_write_creates_verified_non_authoritative_bundle() {
+    let envelope = root_integration_export_envelope();
+    let expected = envelope.encoded_bytes.clone();
+    let report = write_local_export_bundle(LocalExportWriteRequest {
+        export_directory: root_integration_export_directory("creates_verified"),
+        export_file_name: root_integration_export_file_name("verified"),
+        envelope,
+    });
+
+    assert_eq!(report.status, LocalExportWriteStatus::Written);
+    assert_eq!(
+        report.reason,
+        LocalExportWriteReason::WrittenVerifiedExportBundle
+    );
+    assert!(report.written);
+    assert!(report.verified_after_write);
+    assert!(report.export_not_authoritative);
+    assert!(!report.ledger_import_allowed);
+    assert!(!report.recovery_import_allowed);
+    assert!(!report.replay_repair_allowed);
+    assert!(!report.promoted);
+    assert!(!report.mutated_authority);
+    assert_eq!(report.byte_len, Some(expected.len()));
+    assert!(report.written_path.unwrap().exists());
+}
+
+#[test]
+fn root_integration_local_export_write_rejects_path_traversal_name() {
+    let directory = root_integration_export_directory("rejects_traversal");
+    let report = write_local_export_bundle(LocalExportWriteRequest {
+        export_directory: directory.clone(),
+        export_file_name: "../root-escape.ajentic-export".into(),
+        envelope: root_integration_export_envelope(),
+    });
+
+    assert_eq!(report.status, LocalExportWriteStatus::Rejected);
+    assert_eq!(report.reason, LocalExportWriteReason::PathSeparatorRejected);
+    assert!(!report.written);
+    assert!(!report.verified_after_write);
+    assert!(!directory.join("root-escape.ajentic-export").exists());
 }
