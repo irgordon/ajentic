@@ -1777,6 +1777,8 @@ mod tests {
 #[cfg(test)]
 mod diagnostic_tests {
     use super::*;
+    use std::fs;
+    use std::path::PathBuf;
 
     #[test]
     fn local_persistence_validation_reason_diagnostic_preserves_code() {
@@ -1798,6 +1800,312 @@ mod diagnostic_tests {
         let diagnostic = crate::api::persisted_record_envelope_error_diagnostic(error.clone());
         assert_eq!(diagnostic.code, error.code());
     }
+
+    fn diagnostic_temp(name: &str) -> (PathBuf, PathBuf, PathBuf) {
+        let mut directory = std::env::temp_dir();
+        directory.push(format!("aj93_{name}"));
+        let _ = fs::create_dir_all(&directory);
+        (
+            directory.clone(),
+            directory.join("target.rec"),
+            directory.join("temp.rec"),
+        )
+    }
+
+    fn persisted_env() -> PersistedRecordEnvelope {
+        PersistedRecordEnvelope::new(
+            "r1",
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            2,
+            b"abc".to_vec(),
+        )
+        .unwrap()
+    }
+
+    fn append_tx() -> DurableAppendTransaction {
+        prepare_durable_append_transaction(
+            "append-93",
+            "audit-93",
+            "ledger-93",
+            7,
+            8,
+            b"audit".to_vec(),
+            b"ledger".to_vec(),
+        )
+        .unwrap()
+    }
+
+    fn append_plan(name: &str) -> (PathBuf, LocalPersistencePlan) {
+        let (d, target, temp) = diagnostic_temp(name);
+        let plan = LocalPersistencePlan::new(
+            format!("plan-{name}"),
+            target.to_string_lossy().to_string(),
+            temp.to_string_lossy().to_string(),
+            Some(8),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        (d, plan)
+    }
+
+    fn encoded_append_text() -> String {
+        String::from_utf8(encode_durable_append_transaction(&append_tx())).unwrap()
+    }
+
+    #[test]
+    fn persisted_record_rejects_payload_length_mismatch() {
+        let e = persisted_env();
+        let text = String::from_utf8(encode_persisted_record_envelope(&e))
+            .unwrap()
+            .replace("payload_len:3", "payload_len:4");
+        assert_eq!(
+            decode_persisted_record_envelope(text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::PayloadLengthMismatch)
+        );
+    }
+
+    #[test]
+    fn persisted_record_rejects_invalid_payload_hex() {
+        let text = "AJENTIC_RECORD_V1
+record_id:r
+payload_kind:ledger_snapshot
+revision:1
+payload_len:1
+checksum:af63bc4c8601b62c
+payload_hex:zz
+";
+        assert_eq!(
+            decode_persisted_record_envelope(text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::InvalidPayloadHex)
+        );
+    }
+
+    #[test]
+    fn persisted_record_rejects_checksum_mismatch() {
+        let e = persisted_env();
+        let text = String::from_utf8(encode_persisted_record_envelope(&e))
+            .unwrap()
+            .replace(
+                &format!("checksum:{}", e.checksum),
+                "checksum:0000000000000000",
+            );
+        assert_eq!(
+            decode_persisted_record_envelope(text.as_bytes()),
+            Err(PersistedRecordEnvelopeError::ChecksumMismatch)
+        );
+    }
+
+    #[test]
+    fn durable_append_decode_rejects_checksum_drift() {
+        let text = encoded_append_text().replace("checksum=", "checksum=0");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::AppendChecksumMismatch)
+        );
+    }
+
+    #[test]
+    fn durable_append_decode_rejects_missing_audit_payload() {
+        let text =
+            encoded_append_text().replace("audit_payload_hex=6175646974", "audit_payload_hex=");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::AuditOnlyAppendRejected)
+        );
+    }
+
+    #[test]
+    fn durable_append_decode_rejects_missing_ledger_payload() {
+        let text =
+            encoded_append_text().replace("ledger_payload_hex=6c6564676572", "ledger_payload_hex=");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::LedgerOnlyAppendRejected)
+        );
+    }
+
+    #[test]
+    fn durable_append_decode_rejects_malformed_revision() {
+        let text =
+            encoded_append_text().replace("prior_revision=7", "prior_revision=not-a-revision");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::MalformedAppendTransaction)
+        );
+    }
+
+    #[test]
+    fn durable_append_decode_rejects_stale_revision_chain() {
+        let text = encoded_append_text().replace("next_revision=8", "next_revision=9");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+
+    #[test]
+    fn durable_append_verify_rejects_transaction_id_mismatch() {
+        let report = verify_durable_append_transaction_bytes(
+            &encode_durable_append_transaction(&append_tx()),
+            "other-append",
+        );
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::TransactionIdMismatch);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_tampered_bytes_are_not_committed() {
+        let text = encoded_append_text().replace(
+            "audit_payload_hex=6175646974",
+            "audit_payload_hex=6175646975",
+        );
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.reason, DurableAppendReason::AppendChecksumMismatch);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_partial_write_is_not_committed_if_simulatable() {
+        let (d, target, temp_path) = diagnostic_temp("append_partial_write");
+        fs::write(&temp_path, b"partial append bytes").unwrap();
+        let verification = verify_persisted_record_paths(&target, &temp_path, Some(8));
+        assert_eq!(
+            verification.status,
+            PersistedRecordVerificationStatus::OrphanedTemp
+        );
+        assert!(!target.exists());
+        let _ = fs::remove_dir_all(d);
+    }
+
+    #[test]
+    fn durable_append_failed_write_is_not_committed() {
+        let tx = append_tx();
+        let plan = LocalPersistencePlan::new(
+            "bad-plan",
+            "",
+            "",
+            Some(8),
+            LocalPersistencePayloadKind::LedgerSnapshot,
+            LocalPersistenceWriteMode::CreateNew,
+            LocalPersistenceAtomicity::Required,
+        );
+        let report = write_durable_append_transaction(&tx, &plan);
+        assert_eq!(report.reason, DurableAppendReason::InvalidPersistencePlan);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_verification_failure_is_not_committed() {
+        let report =
+            verify_durable_append_transaction_bytes(b"not an append transaction", "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(
+            report.reason,
+            DurableAppendReason::MalformedAppendTransaction
+        );
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn durable_append_success_path_still_requires_complete_audit_and_ledger_payloads() {
+        let tx = append_tx();
+        assert!(!tx.audit_payload.is_empty());
+        assert!(!tx.ledger_payload.is_empty());
+        let (d, plan) = append_plan("append_success_complete");
+        let report = write_durable_append_transaction(&tx, &plan);
+        assert_eq!(report.status, DurableAppendStatus::Verified);
+        assert_eq!(
+            report.reason,
+            DurableAppendReason::VerifiedAppendTransaction
+        );
+        assert!(report.committed);
+        let _ = fs::remove_dir_all(d);
+    }
+
+    #[test]
+    fn append_revision_must_advance_by_one() {
+        assert_eq!(
+            prepare_durable_append_transaction("t", "a", "l", 4, 6, vec![1], vec![2]),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+
+    #[test]
+    fn append_prior_revision_mismatch_rejects() {
+        let text = encoded_append_text().replace("prior_revision=7", "prior_revision=6");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+
+    #[test]
+    fn append_next_revision_mismatch_rejects() {
+        let text = encoded_append_text().replace("next_revision=8", "next_revision=10");
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::InvalidRevisionChain)
+        );
+    }
+
+    #[test]
+    fn append_audit_payload_change_after_checksum_rejects() {
+        let text = encoded_append_text().replace(
+            "audit_payload_hex=6175646974",
+            "audit_payload_hex=6175646975",
+        );
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::AppendChecksumMismatch)
+        );
+    }
+
+    #[test]
+    fn append_ledger_payload_change_after_checksum_rejects() {
+        let text = encoded_append_text().replace(
+            "ledger_payload_hex=6c6564676572",
+            "ledger_payload_hex=6c6564676573",
+        );
+        assert_eq!(
+            decode_durable_append_transaction(text.as_bytes()),
+            Err(DurableAppendReason::AppendChecksumMismatch)
+        );
+    }
+
+    #[test]
+    fn append_audit_only_transaction_never_verifies() {
+        let text =
+            encoded_append_text().replace("ledger_payload_hex=6c6564676572", "ledger_payload_hex=");
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::LedgerOnlyAppendRejected);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn append_ledger_only_transaction_never_verifies() {
+        let text =
+            encoded_append_text().replace("audit_payload_hex=6175646974", "audit_payload_hex=");
+        let report = verify_durable_append_transaction_bytes(text.as_bytes(), "append-93");
+        assert_eq!(report.status, DurableAppendStatus::Rejected);
+        assert_eq!(report.reason, DurableAppendReason::AuditOnlyAppendRejected);
+        assert!(!report.committed);
+    }
+
+    #[test]
+    fn append_report_does_not_promote_recover_or_repair() {
+        let report = verify_durable_append_transaction_bytes(
+            &encode_durable_append_transaction(&append_tx()),
+            "append-93",
+        );
+        assert_eq!(report.status, DurableAppendStatus::Verified);
+        assert!(!report.promoted);
+        assert!(!report.recovered_state);
+        assert!(!report.repaired_replay);
+    }
+
     #[test]
     fn durable_append_reason_codes_are_stable() {
         assert_eq!(

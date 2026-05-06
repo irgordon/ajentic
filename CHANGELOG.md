@@ -5,6 +5,28 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.93 - 2026-05-06
+**Status:** Phase 93 - Persistence Corruption and Append Drift Hardening
+
+### Added
+- Added Phase 93 persistence corruption and durable append drift negative-path tests in `core/src/api/persistence.rs` for corrupted persisted records, checksum drift, missing audit/ledger payloads, malformed revisions, stale revision chains, transaction ID mismatch, tampered bytes, partial-write posture, failed writes, verification failures, audit-only/ledger-only transactions, and non-promotion/non-recovery/non-repair reports.
+- Added recovery candidate mismatch tests in `core/src/api/application_state.rs` for recovery ID mismatch, ledger record ID mismatch, revision mismatch, empty candidate bytes, non-replacement, non-persistence/non-append, and non-replay-repair.
+- Added root integration smoke coverage in `tests/integration_smoke.rs` for durable append tamper rejection, recovery acceptance mismatch rejection, export bundle non-authority, export-not-ledger posture, export-not-recovery-input posture, export-not-replay-repair posture, and export artifact rejection as durable append transactions.
+- Added `docs/operations/persistence-corruption-append-drift-phase-93.md` documenting Phase 93 scope, corruption/drift models, non-repair guarantees, non-authority guarantees, relationships to Phases 83/84/89/94, validation evidence, and deferred items.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 93 procedural truth and closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.93`.
+
+### Notes
+- Phase 93 is hardening only and adds no new persistence authority.
+- Phase 93 does not repair corrupted records, replay drift, partial writes, append drift, or recovery mismatches.
+- Phase 93 does not treat export bundles as ledger state, recovery input, or replay repair evidence.
+- Phase 93 does not promote recovery candidates to global state.
+- Phase 93 does not persist new authority, append new authority, execute providers/actions, use live transport, or mutate application state.
+- Phase 94 remains responsible for provider output injection and replay abuse hardening.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.92.5 - 2026-05-06
 **Status:** Phase 92.5 - Out-of-Band Proof-Chain Edge-Case Hardening
 

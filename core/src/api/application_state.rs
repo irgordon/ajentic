@@ -845,6 +845,81 @@ payload_hex:61
             candidate_bytes: bytes,
         }
     }
+
+    #[test]
+    fn recovery_acceptance_rejects_candidate_recovery_id_mismatch() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.recovery_id = "mismatched-recovery".into();
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(
+            report.reason,
+            RecoveryAcceptanceReason::CandidateNotVerified
+        );
+        assert!(!report.accepted_for_in_memory_use);
+    }
+
+    #[test]
+    fn recovery_acceptance_rejects_candidate_ledger_record_id_mismatch() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.ledger_record_id = "mismatched-ledger".into();
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(
+            report.reason,
+            RecoveryAcceptanceReason::CandidateNotVerified
+        );
+        assert!(!report.accepted_for_in_memory_use);
+    }
+
+    #[test]
+    fn recovery_acceptance_rejects_candidate_revision_mismatch() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.revision = 99;
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(report.reason, RecoveryAcceptanceReason::RevisionMismatch);
+        assert!(!report.accepted_for_in_memory_use);
+    }
+
+    #[test]
+    fn recovery_acceptance_rejects_empty_candidate_bytes() {
+        let report = accept_recovery_candidate_for_in_memory_use(acceptance_request(
+            acceptance_candidate(Vec::new()),
+        ));
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(report.reason, RecoveryAcceptanceReason::EmptyCandidateBytes);
+        assert!(!report.accepted_for_in_memory_use);
+    }
+
+    #[test]
+    fn recovery_candidate_mismatch_does_not_replace_global_state() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.recovery_id = "mismatched-recovery".into();
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert!(!report.replaced_global_state);
+        assert!(!recovery_acceptance_replaces_global_state(&report));
+    }
+
+    #[test]
+    fn recovery_candidate_mismatch_does_not_persist_or_append() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.ledger_record_id = "mismatched-ledger".into();
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert!(!report.persisted);
+        assert!(!report.appended_ledger);
+        assert!(!report.appended_audit);
+        assert!(!recovery_acceptance_mutates_authority(&report));
+    }
+
+    #[test]
+    fn recovery_candidate_mismatch_does_not_repair_replay() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.candidate.revision = 99;
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert!(!report.repaired_replay);
+    }
+
     #[test]
     fn recovery_acceptance_reason_codes_are_stable() {
         assert_eq!(
