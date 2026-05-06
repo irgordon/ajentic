@@ -5,6 +5,31 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.91 - 2026-05-06
+**Status:** Phase 91 - Transport Abuse and Submission Spoofing Hardening
+
+### Added
+- Added `docs/operations/transport-abuse-hardening-phase-91.md` documenting Phase 91 scope, transport abuse model, submission spoofing model, contract gate behavior, malformed and spoofed flag handling, stubbed bridge non-call guarantee, UI test-harness gap, lint parity, validation evidence, and non-readiness posture.
+- Added TypeScript UI submission boundary result/input/reason types for accepted-preview or rejected outcomes before bridge eligibility.
+- Added `buildUiSubmissionBoundaryResult` to reject malformed submissions, risky authority-escalation text, and user-supplied capability/authority flags while keeping all live transport, execution, persistence, ledger, audit, provider, replay, and authority flags false.
+- Added static UI API fixtures for accepted preview input, malformed submissions, risky text examples, and a spoofed capability payload.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 91 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.91`.
+
+### Boundaries
+- Phase 91 is hardening only.
+- Phase 91 does not add live transport.
+- Phase 91 does not add a Rust bridge.
+- Phase 91 does not make UI submissions executable.
+- Malformed or spoofed submissions reject before bridge eligibility and never construct a sendable transport envelope.
+- User-supplied capability and authority flags are rejected, not trusted.
+- No Rust source, root tests, scripts, workflows, package or lock files, UI config files, roadmap docs, governance docs, architecture docs, README, or AGENTS changes were made.
+- No UI unit test harness exists, so Phase 91 does not claim typecheck/lint/build as behavioral test coverage and does not add dependencies or package changes.
+- Phase 92 remains responsible for authorization/audit/action mismatch hardening.
+- Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
+
 ## v0.0.90.1 - 2026-05-06
 **Status:** Phase 90.1 - Out-of-Band Validation Gate Repair
 

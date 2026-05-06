@@ -1,4 +1,4 @@
-import type { ApplicationUiProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability } from "./projections";
+import type { ApplicationUiProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability, UiSubmissionBoundaryInput } from "./projections";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
   projectionId: "proj-fixture-0053",
@@ -157,4 +157,45 @@ export const uiOperatorIntentSubmissionEnvelopeFixture: UiOperatorIntentSubmissi
   payload: uiOperatorIntentSubmissionContractFixtures[0],
   capability: uiRustTransportCapabilityFixture,
   summary: "Submission-shaped envelope is local display data only; no live transport or action execution occurs."
+};
+
+
+export const uiSubmissionBoundaryAcceptedPreviewFixture: UiSubmissionBoundaryInput = {
+  operatorId: "operator-phase91",
+  targetId: "run-fixture-0053",
+  intentKind: "policy_check",
+  reason: "Prepare local preview without execution."
+};
+
+export const uiSubmissionBoundaryMalformedFixtures: readonly UiSubmissionBoundaryInput[] = [
+  { operatorId: "", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "empty operator" },
+  { operatorId: "operator-phase91", targetId: "", intentKind: "policy_check", reason: "empty target" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "", reason: "empty intent" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "root_override", reason: "unknown intent" }
+];
+
+export const uiSubmissionBoundaryRiskyTextFixtures: readonly UiSubmissionBoundaryInput[] = [
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "admin override" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "skip policy" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "execute now" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "write ledger" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "append audit" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "repair replay" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "trust provider output" },
+  { operatorId: "operator-phase91", targetId: "run-fixture-0053", intentKind: "policy_check", reason: "promote recovered state" }
+];
+
+export const uiSubmissionBoundarySpoofedCapabilityFixture: UiSubmissionBoundaryInput = {
+  operatorId: "operator-phase91",
+  targetId: "run-fixture-0053",
+  intentKind: "policy_check",
+  reason: "Attempt spoofed capability flags.",
+  executionEnabled: true,
+  liveTransportEnabled: true,
+  persistenceEnabled: true,
+  ledgerRecordingEnabled: true,
+  auditAppendEnabled: true,
+  providerExecutionEnabled: true,
+  replayRepairEnabled: true,
+  mutatesAuthority: true
 };

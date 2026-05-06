@@ -7,174 +7,164 @@ mutation_path: checklist_revision
 # Current Phase Checklist
 
 ## phase name
-Phase 90.1 - Out-of-Band Validation Gate Repair
-
-## explicit out-of-band validation gate repair note
-Phase 90.1 is an out-of-band validation gate repair before Phase 91.
-
-Phase 90.1 is not a planned roadmap phase, does not change Phase 91 scope, and does not renumber Phase 91 or any later phase.
+Phase 91 - Transport Abuse and Submission Spoofing Hardening
 
 ## phase goal
-Repair the Rust boundary lint self-test/check.sh fidelity defect discovered during Phase 90 so the self-test count and process exit code agree and the local validation gate exits 0 only when all required self-tests, production lints, compiler/type checks, clippy, and tests pass.
+Add negative-path hardening for UI/Rust transport contracts, submission-shaped requests, spoofed operators, and disabled execution flags while keeping the UI local, non-live, non-executing, non-persistent, and non-authoritative.
 
 ## working-tree hygiene gate
 - [x] `git status --short` reviewed before edits; initial working tree was clean.
-- [x] Prior generated artifact drift was checked before edits; no `core/target/.rustc_info.json`, test temp files, export temp files, or other generated artifact drift was present in git status.
-- [x] Required Phase 90.1 input surfaces were read or inspected: `CHANGELOG.md`, `checklists/current-phase.md`, `docs/operations/repository-audit-phase-90.md`, `scripts/check.sh`, `scripts/rust_boundary_lint.mjs`, `scripts/test_rust_boundary_lint.mjs`, `scripts/lint_ui_boundaries.mjs`, `scripts/test_lint_ui_boundaries.mjs`, `scripts/validate_structure.py`, `scripts/validate_docs.py`, and `.github/workflows/*.yml`.
-- [x] Roadmap docs were not changed; absence of an explicit Phase 90.1 roadmap entry was not treated as an error.
+- [x] Uncommitted files classified before edits: none.
+- [x] Prior generated artifact drift checked before edits; no tracked `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, or other generated artifact drift appeared in initial git status.
+- [x] Required roadmap/history/checklist/operations inputs read or inspected.
+- [x] UI contract surfaces inspected: `ui/src/api/projections.ts`, `ui/src/api/readModel.ts`, and `ui/src/api/fixtures.ts`.
+- [x] Existing UI tests/config inspected; no UI unit test harness was found.
+- [x] Validation tooling inspected: `scripts/check.sh`, `scripts/lint_ui_boundaries.mjs`, and `scripts/test_lint_ui_boundaries.mjs`.
+- [x] Phase 91 title/scope confirmed from roadmap files.
 
 ## allowed surfaces
-- [x] `scripts/test_rust_boundary_lint.mjs`
+- [x] `ui/src/api/projections.ts`
+- [x] `ui/src/api/readModel.ts`
+- [x] `ui/src/api/fixtures.ts`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
-- [x] `docs/operations/validation-gate-repair-phase-90-1.md`
-- [x] `scripts/rust_boundary_lint.mjs` not changed because production lint behavior did not require repair.
-- [x] `scripts/check.sh` not changed because `set -euo pipefail` already propagates nonzero node exits.
+- [x] `docs/operations/transport-abuse-hardening-phase-91.md`
+- [x] `checklists/release.md` not changed because evidence posture did not change.
+- [x] `ui/package.json` not changed because no package/test script change was required or allowed.
+- [x] UI AST lint scripts not changed because no Phase 91 lint behavior gap was found.
 
 ## boundary rules
-- [x] Phase 90.1 is an out-of-band validation gate repair before Phase 91.
-- [x] Phase 90.1 repairs validation tooling only.
-- [x] Phase 90.1 does not change runtime behavior.
-- [x] Phase 90.1 does not implement Phase 91 hardening.
-- [x] Phase 90.1 does not weaken Rust boundary lint rules.
-- [x] Phase 91 remains responsible for transport abuse and submission spoofing hardening.
+- [x] Phase 91 is hardening only.
+- [x] No live transport added.
+- [x] No Rust bridge added.
+- [x] UI submissions were not made executable.
+- [x] No runtime authority added.
+- [x] No `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, beacon, FFI, wasm, native bridge, server endpoint, event handler, button, form, persistence, ledger/audit append, recovery acceptance, replay repair, provider/model execution, action execution, or authority mutation behavior added.
+- [x] User-supplied capability and authority flags are rejected before preview acceptance.
+- [x] Phase 92 remains responsible for authorization/audit/action mismatch hardening.
 - [x] Public usability, production readiness, Production Candidate approval, and release-candidate readiness are not claimed.
 
 ## task checklist
-- [x] Updated this checklist to Phase 90.1 procedural truth.
-- [x] Created `docs/operations/validation-gate-repair-phase-90-1.md` with required advisory frontmatter and sections.
-- [x] Reproduced the direct defect before repair.
-- [x] Inspected the Rust boundary lint self-test harness and identified a hard-coded expected total with only 12 incremented checks.
-- [x] Converted Rust boundary lint self-tests into an explicit deterministic named test array.
-- [x] Derived the expected total from the test list.
-- [x] Ensured each expected self-test is executed and counted once.
-- [x] Ensured failed self-tests exit nonzero and print failing test names.
-- [x] Added harness-level coverage proving partial pass counts are rejected.
-- [x] Preserved production Rust boundary lint behavior.
-- [x] Documented that no `scripts/check.sh` change was required.
-- [x] Added `CHANGELOG.md` v0.0.90.1.
-- [x] Did not update roadmap files.
+- [x] Updated this checklist to Phase 91 procedural truth.
+- [x] Created `docs/operations/transport-abuse-hardening-phase-91.md` with required advisory frontmatter and sections.
+- [x] Added local TypeScript contract result/input/reason types for the submission boundary.
+- [x] Added `buildUiSubmissionBoundaryResult` to reject malformed/spoofed submissions before bridge eligibility.
+- [x] Added static malformed, risky text, spoofed capability, and accepted preview fixtures.
+- [x] Preserved `UI_READ_MODEL_MUTATION_CAPABLE=false`.
+- [x] Preserved `UI_INTENT_EXECUTION_ENABLED=false`.
+- [x] Preserved `UI_INTENT_LEDGER_RECORDING_ENABLED=false`.
+- [x] Kept Phase 77 submission shaping local and non-executing.
+- [x] Added `CHANGELOG.md` v0.0.91.
+- [x] Roadmap files were not changed; Phase 95 remains the next alignment checkpoint.
 
 ## validation checklist
-- [x] `node scripts/test_rust_boundary_lint.mjs` run before repair and reproduced `Rust boundary lint self-tests passed (12/13).` with exit 0.
-- [x] `node scripts/test_rust_boundary_lint.mjs` run after repair.
-- [x] `node scripts/rust_boundary_lint.mjs`
 - [x] `./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `node scripts/test_rust_boundary_lint.mjs`
+- [x] `node scripts/rust_boundary_lint.mjs`
 - [x] `node scripts/test_lint_ui_boundaries.mjs`
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
-- [x] Self-test repair scan run.
-- [x] Lint-rule preservation scan run.
-- [x] check.sh propagation scan run.
+- [x] Transport hardening scan run.
+- [x] No-live-transport scan run.
+- [x] UI authority scan run.
 - [x] Source guard run.
 - [x] Readiness scan run.
-- [x] Out-of-band wording scan run.
 - [x] Lint wiring scan run.
 - [x] Final `git status --short` reviewed before commit.
 - [x] `git diff --name-only --cached` reviewed before commit.
 
-## defect investigation checklist
-- [x] Direct reproduction command run: `node scripts/test_rust_boundary_lint.mjs`.
-- [x] Pre-repair output captured as `Rust boundary lint self-tests passed (12/13).` with exit 0.
-- [x] Harness inspected for why partial pass count exited 0.
-- [x] Confirmed all ad hoc self-test blocks present in the old harness were executed but only 12 checks were incremented against a hard-coded denominator of 13.
-- [x] Missing test classified as a counting/harness defect rather than a broken fixture, stale Phase 89 expectation, async bug, Promise bug, or child-process handling bug.
-- [x] Root cause repaired in the harness.
+## malformed submission checklist
+- [x] Non-object and array inputs reject as `malformed_submission_rejected`.
+- [x] Empty operator ID rejects as `empty_operator_id`.
+- [x] Empty target ID rejects as `empty_target_id`.
+- [x] Empty intent kind rejects as `empty_intent_kind`.
+- [x] Unknown intent kind rejects as `unknown_intent_kind`.
+- [x] Risky authority-escalation text rejects as `authority_escalation_text_rejected`.
+- [x] Rejected results keep all live/execution/persistence/authority flags false.
+- [x] Rejected results keep `transportEligible=false`.
 
-## self-test count/exit-code checklist
-- [x] Expected total is derived deterministically from the explicit test list.
-- [x] Harness fails if `passed_count !== expected_total`.
-- [x] Harness fails if any individual self-test fails.
-- [x] Harness fails if an expected-fail fixture unexpectedly passes.
-- [x] Harness fails if an expected-pass fixture unexpectedly fails.
-- [x] Harness fails on uncaught assertion errors.
-- [x] Harness fails on rejected promises.
-- [x] Harness prints `Rust boundary lint self-tests passed (N/N)` only on success.
-- [x] Harness prints failing test names and exits nonzero on failure.
+## spoofed flag checklist
+- [x] `liveTransportEnabled` spoofing rejects as `live_transport_flag_spoof_rejected`.
+- [x] `executionEnabled` spoofing rejects as `execution_flag_spoof_rejected`.
+- [x] `persistenceEnabled` spoofing rejects as `persistence_flag_spoof_rejected`.
+- [x] `ledgerRecordingEnabled` spoofing rejects as `ledger_recording_flag_spoof_rejected`.
+- [x] `auditAppendEnabled` spoofing rejects as `audit_append_flag_spoof_rejected`.
+- [x] `providerExecutionEnabled` spoofing rejects as `provider_execution_flag_spoof_rejected`.
+- [x] `replayRepairEnabled` spoofing rejects as `replay_repair_flag_spoof_rejected`.
+- [x] `mutatesAuthority` and prior UI mutation spelling reject as `authority_mutation_flag_spoof_rejected`.
+- [x] User-supplied capability flags are rejected, not trusted.
 
-## check.sh propagation checklist
-- [x] `scripts/check.sh` contains `set -euo pipefail`.
-- [x] `scripts/check.sh` directly invokes `node scripts/test_rust_boundary_lint.mjs`.
-- [x] `scripts/check.sh` directly invokes `node scripts/rust_boundary_lint.mjs`.
-- [x] Repaired nonzero self-test exits would stop `./scripts/check.sh` at the Rust boundary lint self-test command.
-- [x] No `scripts/check.sh` change was required.
+## bridge non-call checklist
+- [x] Boundary result always reports `liveTransportCalled=false`.
+- [x] Accepted preview result remains `transportEligible=false`.
+- [x] Malformed/spoofed results remain `transportEligible=false`.
+- [x] No helper calls or simulates live Rust transport.
+- [x] No sendable transport envelope is constructed for malformed/spoofed submissions.
 
-## lint-rule preservation checklist
-- [x] `scripts/rust_boundary_lint.mjs` was inspected.
-- [x] Production Rust boundary lint rules were not weakened.
-- [x] No suppression-only fix was added.
-- [x] No negative-path self-test was removed.
-- [x] No failing test was changed into a skipped test.
-- [x] No expected coverage was reduced to make counts pass.
+## UI test coverage or test-harness gap checklist
+- [x] Existing UI test/config pattern inspected.
+- [x] No UI unit test harness found.
+- [x] No dependencies added.
+- [x] No package or lock files changed.
+- [x] Typecheck/lint/build are not claimed as behavioral test coverage.
+- [x] Missing UI unit test harness documented as a Phase 91 finding and deferred to Phase 95 or an out-of-band testing phase.
 
 ## AST/boundary lint parity checklist
-- [x] `rg` scans treated as discovery/evidence only, not enforcement.
-- [x] Blocking enforcement remains `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, and tests.
-- [x] UI AST lint self-tests and production lint were run after final edits.
-- [x] Production Rust lint behavior was preserved because this phase only repaired the self-test harness.
+- [x] Existing UI AST lint self-tests passed.
+- [x] Existing UI AST lint production scan passed.
+- [x] No Phase 91 UI AST lint behavior change was required.
+- [x] `rg` scans used only as discovery/evidence, not blocking enforcement.
+- [x] Blocking enforcement remains `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, and tests.
 
 ## test fidelity checklist
-- [x] New validation behavior has self-tests in the same phase.
-- [x] Test names describe the invariant being protected.
-- [x] No validation command was skipped after final edits.
-- [x] No final validation command printed assertion failure, panic, traceback, failed assertion, or partial pass count.
+- [x] Test names requirement could not be applied to UI unit tests because no UI unit test harness exists.
+- [x] No fake UI test command was added.
+- [x] Existing full validation gate was run after final edits.
+- [x] Cross-boundary behavior remains not publicly reachable because Phase 91 adds no live transport or bridge.
+- [x] Behavioral UI harness gap is explicitly documented.
 
 ## zero-drift checklist
-- [x] No Rust source diffs.
-- [x] No TypeScript source diffs.
-- [x] No test diffs outside the allowed self-test harness.
-- [x] No UI source diffs.
-- [x] No workflow diffs.
-- [x] No schema diffs.
-- [x] No roadmap diffs.
-- [x] No governance doc diffs.
-- [x] No architecture doc diffs.
-- [x] No README or AGENTS diffs.
-- [x] No dependency, package, lockfile, or UI config diffs.
-- [x] Generated artifacts removed before commit.
+- [x] `core/target/.rustc_info.json` drift checked after validation and before commit.
+- [x] UI build/test temp files checked after validation and before commit.
+- [x] Export temp files checked after validation and before commit.
+- [x] Generated artifacts and unrelated tool output removed or absent before commit.
+- [x] Source guard confirmed no disallowed source/config/roadmap/package/script diffs.
 
 ## findings table
-| Area | Finding | Status |
+| Finding | Evidence | Status |
 | --- | --- | --- |
-| Defect reproduction | `node scripts/test_rust_boundary_lint.mjs` printed `Rust boundary lint self-tests passed (12/13).` and exited 0 before repair. | confirmed |
-| Root cause | The old harness used ad hoc check increments and a hard-coded denominator; only 12 checks were incremented for a printed expected total of 13. | confirmed |
-| Missing test classification | Counting/harness defect; not a broken fixture, stale Phase 89 expectation, async/Promise bug, or child-process exit-code handling bug. | confirmed |
-| Repair | The harness now uses an explicit named test array, deterministic expected total, failure aggregation, failing test names, and explicit process exits. | complete |
-| check.sh propagation | `set -euo pipefail` already propagates the repaired nonzero harness exit. | confirmed |
-| Lint rules | Production Rust boundary lint behavior was preserved. | confirmed |
+| Phase 91 scope | Roadmap files list transport abuse and submission spoofing hardening with no live transport. | confirmed |
+| Initial working tree | `git status --short` had no output before edits. | confirmed |
+| UI unit test harness | `ui/package.json` has no test script and no test files/config were found. | confirmed gap |
+| Boundary helper | `buildUiSubmissionBoundaryResult` rejects malformed/spoofed submissions before transport eligibility. | implemented |
+| Spoofed flags | User-supplied live/execution/persistence/ledger/audit/provider/replay/authority flags reject with dedicated reasons. | implemented |
+| AST lint parity | No new UI AST lint rule was required; existing lint passed. | confirmed |
 
 ## deferred items table
 | Deferred item | Owning planned phase |
 | --- | --- |
-| Transport abuse and submission spoofing hardening | Phase 91 |
+| UI behavioral unit test harness for API contract helpers | Phase 95 or out-of-band testing phase |
 | Authorization/audit/action mismatch hardening | Phase 92 |
 | Persistence corruption and append drift hardening | Phase 93 |
 | Provider output injection and replay abuse hardening | Phase 94 |
-| Evidence realignment after hardening | Phase 95 |
-| Local startup command boundary | Phase 96 |
-| Packaging artifact definition | Phase 97 |
-| Operator troubleshooting documentation | Phase 98 |
-| Release engineering dry run | Phase 99 |
-| Final Production Candidate readiness decision evidence | Phase 100 |
+| Hardening outcome realignment | Phase 95 |
 
 ## validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| `node scripts/test_rust_boundary_lint.mjs` | pre-repair pass with fidelity defect | Printed `Rust boundary lint self-tests passed (12/13).` and exited 0. |
-| `node scripts/test_rust_boundary_lint.mjs` | pass | Repaired output printed full `N/N` with exit 0. |
-| `node scripts/rust_boundary_lint.mjs` | pass | Production Rust boundary lint passed. |
-| `./scripts/check.sh` | pass | Full local gate passed after repair. |
+| `./scripts/check.sh` | pass | Full local gate passed after final edits. |
 | `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Explicit Rust tests passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
+| `node scripts/rust_boundary_lint.mjs` | pass | Production Rust boundary lint passed. |
 | `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-tests passed. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint production scan passed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed. |
+| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Existing UI validation commands passed; not behavioral test coverage. |
 | `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | CLI dry-run passed. |
-| Self-test repair scan | pass | Harness and docs evidence present. |
-| Lint-rule preservation scan | pass | Production Rust lint preserved; evidence reviewed. |
-| check.sh propagation scan | pass | `set -euo pipefail` and lint commands documented. |
-| Source guard | pass | No disallowed source, workflow, package, config, README, AGENTS, or roadmap diffs. |
-| Readiness scan | pass | No readiness approval claim added. |
-| Out-of-band wording scan | pass | Required Phase 90.1 wording present on affected documentation surfaces. |
+| Transport hardening scan | pass | Phase 91 boundary names/reasons found on intended surfaces. |
+| No-live-transport scan | pass | No new UI source live transport/event bridge behavior found; documentation matches are prohibitions/evidence. |
+| UI authority scan | pass | Disabled constants and risky examples found on intended surfaces. |
+| Source guard | pass | No disallowed source, root test, script, workflow, README, AGENTS, package, lock, UI config, or roadmap diffs. |
+| Readiness scan | pass | Matches are negative non-readiness statements only. |
 | Lint wiring scan | pass | Local and CI lint wiring evidence reviewed. |
