@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "echo \"ui lint placeholder\"",
     "typecheck": "tsc --noEmit",
-    "build": "echo \"ui build placeholder\""
+    "build": "echo \"ui build placeholder\"",
+    "test:api": "node run-api-behavior-tests.mjs"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

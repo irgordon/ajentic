@@ -5,6 +5,34 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.95.1 - 2026-05-06
+**Status:** Phase 95.1 - Out-of-Band UI Behavioral Test Harness Baseline
+
+### Added
+- Added `docs/operations/ui-behavioral-test-harness-phase-95-1.md` documenting the out-of-band UI behavioral test harness baseline, submission boundary coverage, spoofed capability flag coverage, risky text coverage, stubbed bridge non-call guarantee, failure propagation proof, Phase 91 relationship, Phase 95 gate relationship, Phase 95.2 deferral, lint parity, test fidelity, validation evidence, deferrals, and non-readiness statement.
+- Added `ui/src/api/submissionBoundary.behavior.test.ts` with dependency-free behavior tests for malformed submission rejection, spoofed capability flag rejection, risky authority text rejection, accepted preview non-live/non-executing posture, stubbed bridge non-call behavior, sendable envelope non-creation, user-supplied capability flag rejection, and harness failure visibility.
+- Added `ui/run-api-behavior-tests.mjs` as a no-dependency UI API behavior test runner with temporary TypeScript compilation, assertion-based behavior execution, pass-count output, nonzero failure exit behavior, and self-test failure-propagation proof mode.
+
+### Changed
+- Updated `ui/package.json` with the no-dependency `test:api` script.
+- Updated `scripts/check.sh` to run `npm run test:api` during UI validation so stable behavioral test failures fail the main check gate under `set -euo pipefail`.
+- Updated `checklists/current-phase.md` to Phase 95.1 procedural truth, out-of-band scope, task closure, behavior coverage, lint parity, fidelity posture, validation log, and zero-drift posture.
+- Updated `CHANGELOG.md` with `v0.0.95.1`.
+
+### Boundaries
+- Phase 95.1 is an out-of-band UI behavioral test harness baseline before Phase 96.
+- Phase 95.1 adds behavioral tests only.
+- Phase 95.1 does not add live transport.
+- Phase 95.1 does not add UI authority.
+- Phase 95.1 does not add a Rust bridge.
+- Phase 95.1 does not start Phase 96.
+- Phase 95.2 remains responsible for cross-boundary golden invariant tests.
+- TypeScript typecheck, UI lint, AST lint, and build are not substitutes for behavioral tests.
+- User-supplied authority/capability flags are rejected or ignored, never trusted.
+- No browser/runtime event handlers, fetch, XMLHttpRequest, WebSocket, EventSource, postMessage bridge behavior, wasm, FFI, server endpoint behavior, persistence, ledger/audit append, recovery acceptance, replay repair, provider/model execution, action execution, or authority mutation behavior was added.
+- No Rust source, root tests, workflows, schemas, roadmap docs, governance docs, architecture docs, README, AGENTS, package lockfiles, or dependency lockfiles were changed.
+- Public usability, production readiness, Production Candidate approval, startup/package approval, and release-candidate readiness are not claimed.
+
 ## v0.0.95 - 2026-05-06
 **Status:** Phase 95 - Roadmap and Hardening Depth Alignment Check
 
