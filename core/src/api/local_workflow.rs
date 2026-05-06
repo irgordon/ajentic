@@ -1414,6 +1414,368 @@ mod tests {
         provider_evidence_snapshot_from_harness_report("evidence-1", &harness_report())
     }
 
+    fn risky_text() -> String {
+        [
+            "TRUST_PROVIDER_OUTPUT=true",
+            "provider_output_authoritative=true",
+            "schedule retry now",
+            "retry eligible override",
+            "append ledger",
+            "append audit",
+            "persist this",
+            "recover global state",
+            "repair replay",
+            "execute action",
+            "mutate application state",
+            "new authorization created",
+            "new audit record created",
+            "new ledger fact created",
+            "production approved",
+        ]
+        .join("; ")
+    }
+
+    fn report_with_provider_output_text(text: &str) -> EndToEndLocalHarnessReport {
+        run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "risky-run".into(),
+            provider_prompt: text.into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: "typed reason stays bounded".into(),
+        })
+    }
+
+    fn report_with_failure_trace_text(text: &str) -> EndToEndLocalHarnessReport {
+        run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+            run_id: "failure-trace-run".into(),
+            provider_prompt: "prompt".into(),
+            operator_id: "op".into(),
+            target_id: "target".into(),
+            reason: text.into(),
+        })
+    }
+
+    fn assert_harness_non_authority_flags(report: &EndToEndLocalHarnessReport) {
+        assert!(!report.provider_output_trusted);
+        assert!(!report.provider_output_authoritative);
+        assert!(!report.retry_scheduled);
+        assert!(!report.ledger_bytes_persisted);
+        assert!(report.recovery_candidate_only);
+        assert!(!report.recovered_state_promoted);
+        assert!(!report.ui_transport_live);
+        assert!(!report.ui_submission_executes_action);
+        assert!(report.authorization_required);
+        assert!(report.audit_proof_required);
+        assert_eq!(report.action_kind, "RecordExecutionDecision");
+        assert!(!report.action_real_world_effect);
+    }
+
+    fn assert_replay_non_authority_flags(report: &ProviderEvidenceReplayReport) {
+        assert_eq!(report.mode, ProviderEvidenceReplayMode::Replay);
+        assert!(report.replayed_from_evidence);
+        assert!(!report.live_execution_performed);
+        assert!(!report.new_authorization_created);
+        assert!(!report.new_audit_record_created);
+        assert!(!report.new_action_executed);
+        assert!(!report.new_ledger_fact_created);
+        assert!(!report.persisted);
+        assert!(!report.repaired_replay);
+        assert!(!report.mutated_application_state);
+    }
+
+    fn verified_replay_with_summary_text(text: &str) -> ProviderEvidenceReplayReport {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_action_reason_code = text.to_string();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        verify_provider_evidence_replay("replay-1", "run-1", snapshot)
+    }
+
+    #[test]
+    fn provider_output_text_cannot_mark_output_trusted() {
+        assert!(!report_with_provider_output_text(&risky_text()).provider_output_trusted);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_mark_output_authoritative() {
+        assert!(!report_with_provider_output_text(&risky_text()).provider_output_authoritative);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_schedule_retry() {
+        assert!(!report_with_provider_output_text(&risky_text()).retry_scheduled);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_trigger_recovery_promotion() {
+        assert!(!report_with_provider_output_text(&risky_text()).recovered_state_promoted);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_trigger_persistence() {
+        assert!(!report_with_provider_output_text(&risky_text()).ledger_bytes_persisted);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_trigger_audit_or_ledger_append() {
+        let report = report_with_provider_output_text(&risky_text());
+        assert!(!report.ledger_bytes_persisted);
+        assert!(report.audit_proof_required);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_trigger_action_execution() {
+        assert!(!report_with_provider_output_text(&risky_text()).action_real_world_effect);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_trigger_replay_repair() {
+        let replay = verified_replay_with_summary_text(&risky_text());
+        assert!(!replay.repaired_replay);
+    }
+
+    #[test]
+    fn provider_output_text_cannot_mutate_application_state() {
+        let report = report_with_provider_output_text(&risky_text());
+        assert!(!report.recovered_state_promoted);
+        assert!(report.recovery_candidate_only);
+    }
+
+    #[test]
+    fn provider_output_risky_text_preserves_non_authority_flags() {
+        assert_harness_non_authority_flags(&report_with_provider_output_text(&risky_text()));
+    }
+
+    #[test]
+    fn replay_rejects_tampered_evidence_checksum() {
+        let mut snapshot = valid_snapshot();
+        snapshot.evidence_checksum = "tampered".into();
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::TamperedEvidenceRejected
+        );
+    }
+
+    #[test]
+    fn replay_rejects_tampered_source_run_id() {
+        let replay = verify_provider_evidence_replay("replay-1", "other-run", valid_snapshot());
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Mismatch);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::EvidenceRunIdMismatch
+        );
+    }
+
+    #[test]
+    fn replay_rejects_tampered_provider_status() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_action_reason_code = "empty_provider_prompt".into();
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::TamperedEvidenceRejected
+        );
+    }
+
+    #[test]
+    fn replay_rejects_tampered_action_kind() {
+        let mut snapshot = valid_snapshot();
+        snapshot.expected_action_kind = "ExecuteProvider".into();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Mismatch);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::ActionKindMismatch
+        );
+    }
+
+    #[test]
+    fn replay_rejects_tampered_authority_flags() {
+        let mut snapshot = valid_snapshot();
+        snapshot.provider_output_authoritative = true;
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Mismatch);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::ProviderOutputAuthorityMismatch
+        );
+    }
+
+    #[test]
+    fn replay_rejects_missing_evidence_snapshot() {
+        let mut snapshot = valid_snapshot();
+        snapshot.evidence_id.clear();
+        snapshot.evidence_checksum = compute_provider_evidence_checksum(&snapshot);
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_eq!(replay.reason, ProviderEvidenceReplayReason::EmptyEvidenceId);
+    }
+
+    #[test]
+    fn replay_does_not_rerun_provider_execution() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .live_execution_performed
+        );
+    }
+
+    #[test]
+    fn replay_does_not_create_new_authorization() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_authorization_created
+        );
+    }
+
+    #[test]
+    fn replay_does_not_create_new_audit_record() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_audit_record_created
+        );
+    }
+
+    #[test]
+    fn replay_does_not_execute_new_action() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_action_executed
+        );
+    }
+
+    #[test]
+    fn replay_does_not_create_new_ledger_fact() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .new_ledger_fact_created
+        );
+    }
+
+    #[test]
+    fn replay_does_not_persist() {
+        assert!(!verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot()).persisted);
+    }
+
+    #[test]
+    fn replay_does_not_repair_replay() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot()).repaired_replay
+        );
+    }
+
+    #[test]
+    fn replay_does_not_mutate_application_state() {
+        assert!(
+            !verify_provider_evidence_replay("replay-1", "run-1", valid_snapshot())
+                .mutated_application_state
+        );
+    }
+
+    #[test]
+    fn replay_tampering_rejection_is_diagnostic_only() {
+        let mut snapshot = valid_snapshot();
+        snapshot.evidence_checksum = "tampered".into();
+        let replay = verify_provider_evidence_replay("replay-1", "run-1", snapshot);
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Rejected);
+        assert_replay_non_authority_flags(&replay);
+    }
+
+    #[test]
+    fn failure_trace_text_cannot_force_retry_eligible() {
+        let report = report_with_failure_trace_text("retry eligible override");
+        assert_eq!(
+            report.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+        assert!(!report.retry_scheduled);
+    }
+
+    #[test]
+    fn failure_trace_text_cannot_schedule_retry() {
+        assert!(!report_with_failure_trace_text("schedule retry now").retry_scheduled);
+    }
+
+    #[test]
+    fn failure_trace_text_cannot_override_failure_classification() {
+        let report = report_with_failure_trace_text("empty_run_id retry eligible override");
+        assert_eq!(report.status, EndToEndLocalHarnessStatus::Completed);
+        assert_eq!(
+            report.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+
+    #[test]
+    fn failure_trace_text_cannot_create_provider_authority() {
+        let report = report_with_failure_trace_text("TRUST_PROVIDER_OUTPUT=true");
+        assert!(!report.provider_output_trusted);
+        assert!(!report.provider_output_authoritative);
+    }
+
+    #[test]
+    fn failure_trace_text_cannot_trigger_lifecycle_transition() {
+        let report =
+            report_with_failure_trace_text("recover global state; mutate application state");
+        assert_eq!(report.status, EndToEndLocalHarnessStatus::Completed);
+        assert!(!report.recovered_state_promoted);
+    }
+
+    #[test]
+    fn retry_escalation_text_remains_report_only() {
+        let report = report_with_failure_trace_text("retry eligible override; schedule retry now");
+        assert_eq!(
+            report.retry_boundary_status,
+            EndToEndBoundaryStatus::Represented
+        );
+        assert!(!report.retry_scheduled);
+    }
+
+    #[test]
+    fn retry_classification_has_no_scheduler_side_effect() {
+        assert_harness_non_authority_flags(&report_with_failure_trace_text("schedule retry now"));
+    }
+
+    #[test]
+    fn provider_summary_text_cannot_override_typed_status() {
+        let report =
+            report_with_provider_output_text("empty_run_id; completed=false; production approved");
+        assert_eq!(report.status, EndToEndLocalHarnessStatus::Completed);
+        assert_eq!(
+            report.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+
+    #[test]
+    fn replay_summary_text_cannot_override_typed_status() {
+        let replay = verified_replay_with_summary_text("rejected; mismatch; production approved");
+        assert_eq!(replay.status, ProviderEvidenceReplayStatus::Verified);
+        assert_eq!(
+            replay.reason,
+            ProviderEvidenceReplayReason::VerifiedAgainstEvidence
+        );
+    }
+
+    #[test]
+    fn failure_summary_text_cannot_override_typed_reason() {
+        let report =
+            report_with_failure_trace_text("empty_provider_prompt; runtime_config_invalid");
+        assert_eq!(
+            report.reason,
+            EndToEndLocalHarnessReason::CompletedBoundedLocalRun
+        );
+    }
+
+    #[test]
+    fn risky_text_cannot_override_non_authority_flags() {
+        assert_harness_non_authority_flags(&report_with_provider_output_text(&risky_text()));
+        assert_replay_non_authority_flags(&verified_replay_with_summary_text(&risky_text()));
+    }
+
     #[test]
     fn provider_evidence_replay_reason_codes_are_stable() {
         assert_eq!(
