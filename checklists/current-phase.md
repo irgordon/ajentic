@@ -4,193 +4,193 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 95.1 Out-of-Band UI Behavioral Test Harness Baseline
+# Current Phase Checklist - Phase 95.2 Out-of-Band Cross-Boundary Golden Invariant Tests
 
-Phase 95.1 is an out-of-band UI behavioral test harness baseline before Phase 96.
+Phase 95.2 is an out-of-band cross-boundary golden invariant test phase before Phase 96.
 
 ## Phase name
-Phase 95.1 - Out-of-Band UI Behavioral Test Harness Baseline.
+Phase 95.2 - Out-of-Band Cross-Boundary Golden Invariant Tests.
 
-## Explicit out-of-band testing note
-- [x] Phase 95.1 is documented as inserted after Phase 95 and before Phase 96.
-- [x] Phase 95.1 is not described as a planned roadmap phase.
+## Explicit out-of-band deterministic test note
+- [x] Phase 95.2 is documented as inserted after Phase 95.1 and before Phase 96.
+- [x] Phase 95.2 is not described as a planned roadmap phase.
 - [x] Phase 96 and later phases are not renumbered.
-- [x] Phase 95.1 does not change Phase 96 scope.
+- [x] Phase 95.2 does not change Phase 96 scope.
+- [x] Phase 95.2 adds deterministic tests only.
 
 ## Phase goal
-Add a real UI behavioral test harness baseline for the TypeScript submission/transport contract boundary so Phase 91 behavior is tested directly, not inferred from typecheck, lint, AST lint, or build output.
+Add deterministic golden invariant coverage proving the same representative input yields stable local harness posture, provider evidence checksum, replay verification result, observability snapshot posture, audit export bytes, and rejection/non-authority outcomes across repeated runs.
 
 ## Working-tree hygiene gate
 - [x] Ran `git status --short` before edits.
-- [x] Classified the initial working tree as clean with no uncommitted generated artifact drift.
-- [x] Confirmed no cleanup was required for `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, or other generated artifact drift before edits.
+- [x] Classified the initial working tree as clean with no uncommitted files.
+- [x] Confirmed no cleanup was required for `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, `scripts/__pycache__`, or other generated artifact drift before edits.
 
 ## Allowed surfaces
-- [x] `ui/src/api/submissionBoundary.behavior.test.ts` added for behavior tests.
-- [x] `ui/run-api-behavior-tests.mjs` added as a minimal no-dependency UI behavior test runner.
-- [x] `ui/package.json` updated only to add the no-dependency `test:api` script.
-- [x] `scripts/check.sh` updated only to run the stable no-dependency UI behavior command during UI validation.
-- [x] `docs/operations/ui-behavioral-test-harness-phase-95-1.md` added.
-- [x] `checklists/current-phase.md` updated to Phase 95.1 procedural truth.
-- [x] `CHANGELOG.md` updated with `v0.0.95.1`.
+- [x] `tests/integration_smoke.rs` updated with the root golden invariant integration test.
+- [x] `docs/operations/cross-boundary-golden-invariants-phase-95-2.md` added.
+- [x] `checklists/current-phase.md` updated to Phase 95.2 procedural truth.
+- [x] `CHANGELOG.md` updated with `v0.0.95.2`.
+- [x] No Rust runtime source helper was required.
+- [x] No `core/Cargo.toml` test registration change was required.
 
 ## Boundary rules
-- [x] Phase 95.1 adds behavioral tests only.
-- [x] Phase 95.1 does not add live transport.
-- [x] Phase 95.1 does not add UI authority.
-- [x] Phase 95.1 does not add a Rust bridge.
-- [x] Phase 95.1 does not add runtime execution behavior.
-- [x] Phase 95.1 does not start Phase 96.
-- [x] Phase 95.1 does not approve startup/package work.
-- [x] No Rust source, root tests, workflows, schemas, roadmap docs, governance docs, architecture docs, README, AGENTS, package lockfiles, or dependency lockfiles were changed.
+- [x] Phase 95.2 adds deterministic tests only.
+- [x] Phase 95.2 adds no runtime capability.
+- [x] Phase 95.2 does not add live transport.
+- [x] Phase 95.2 does not add provider execution.
+- [x] Phase 95.2 does not add persistence authority.
+- [x] Phase 95.2 does not add import behavior.
+- [x] Phase 95.2 does not repair replay.
+- [x] Phase 95.2 does not promote recovery candidates.
+- [x] Phase 95.2 does not start Phase 96.
+- [x] Phase 95.2 does not approve startup/package work.
+- [x] Public usability, production readiness, Production Candidate approval, startup/package approval, and release-candidate readiness are not claimed.
 
 ## Task checklist
-- [x] Read required Phase 95, Phase 91, Phase 76, Phase 77, roadmap, checklist, release, and changelog surfaces.
-- [x] Inspected UI contract surfaces in `ui/src/api/` and UI config.
-- [x] Inspected existing validation tooling and lint self-tests.
-- [x] Added dependency-free UI behavioral test harness.
-- [x] Added behavior tests for malformed submissions, spoofed flags, risky text, accepted preview, bridge non-call, envelope non-creation, user-supplied capability flags, and harness failure propagation.
-- [x] Added `npm run test:api` without dependency or lockfile changes.
-- [x] Wired `npm run test:api` into `scripts/check.sh` because the command is stable, dependency-free, and must fail the main gate if behavioral assertions fail.
-- [x] Documented Phase 95.1 scope and evidence posture.
-- [x] Added `CHANGELOG.md` `v0.0.95.1`.
+- [x] Read required Phase 95, 95.1, 94, 93.5, 93, 88, 87, 82, 79, changelog, checklist, release, and roadmap surfaces.
+- [x] Inspected required implementation/test surfaces in `core/src/api/`, `tests/integration_smoke.rs`, and `scripts/check.sh`.
+- [x] Treated Phase 95.2 as inserted out-of-band after Phase 95.1 and before Phase 96.
+- [x] Added one root integration test named `root_integration_golden_cross_boundary_chain_is_deterministic_and_non_authoritative`.
+- [x] Asserted every required golden invariant inside the single test.
+- [x] Used the required deterministic representative input values.
+- [x] Added inline exact-byte audit export assertion.
+- [x] Documented Phase 95.2 scope, evidence, and non-readiness posture.
+- [x] Added `CHANGELOG.md` `v0.0.95.2`.
 - [x] Did not update roadmap files.
 
 ## Validation checklist
 - [x] `./scripts/check.sh` returns 0 after final edits.
-- [x] `cd ui && npm run test:api` returns 0 after final edits.
-- [x] `cd ui && node run-api-behavior-tests.mjs --self-test-failure-propagation` returns 0 after final edits.
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets` returns 0 after final edits.
+- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` returns 0 after final edits.
+- [x] `cd ui && npm run test:api` returns 0 after final edits.
 - [x] Explicit Rust and UI boundary lint commands return 0 after final edits.
 - [x] Explicit UI typecheck/lint/build returns 0 after final edits.
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` returns 0 after final edits.
-- [x] Required discovery/evidence scans were run after final edits.
-- [x] No validation command printed panic, traceback, failed assertion, or partial pass count after final edits.
+- [x] Required golden, non-authority, rejection, no-live-behavior, readiness, out-of-band wording, and lint-wiring scans were run after final edits.
+- [x] Source guards confirmed no prohibited source, script, workflow, package, lockfile, README, AGENTS, roadmap, UI source, or Rust source diffs.
+- [x] No validation command printed assertion failure, panic, traceback, failed assertion, or validation-defect output after final edits.
 
-## UI behavioral harness checklist
-- [x] Harness runs without Vitest, Jest, Mocha, or new dependencies.
-- [x] Harness compiles TypeScript behavior tests into an OS temporary directory.
-- [x] Harness removes temporary compile output after the run.
-- [x] Harness exits nonzero on normal behavior test failure.
-- [x] Harness prints a clear pass count for normal behavior tests.
+## Representative input checklist
+- [x] `run_id` is `golden-run-001`.
+- [x] `operator_id` is `operator-golden`.
+- [x] `target_kind` is represented as `code_patch` in the golden diagnostic key.
+- [x] `target_id` is `target-golden`.
+- [x] `provider_prompt` contains `TRUST_PROVIDER_OUTPUT=true` as untrusted text.
+- [x] Action kind remains `RecordExecutionDecision`.
+- [x] `export_id` is `golden-export-001`.
+- [x] `snapshot_id` is `golden-snapshot-001`.
 
-## Malformed submission checklist
-- [x] Empty operator id rejects before transport.
-- [x] Empty target id rejects before transport.
-- [x] Empty intent kind rejects before transport.
-- [x] Unknown intent kind rejects before transport.
-- [x] Non-object malformed input rejects before transport.
-- [x] Malformed input does not create a sendable transport envelope.
+## Repeated-run determinism checklist
+- [x] Same harness status/reason/posture fields match across repeated runs.
+- [x] Same provider evidence checksum matches across repeated runs.
+- [x] Same replay status/reason/non-authority fields match across repeated runs.
+- [x] Same observability snapshot posture matches across repeated runs.
+- [x] Same audit export bytes match exactly across repeated runs.
+- [x] Same audit export byte length matches across repeated runs.
+- [x] Same authority flags remain false across repeated runs.
 
-## Spoofed flag checklist
-- [x] `executionEnabled: true` rejects before transport.
-- [x] `liveTransportEnabled: true` rejects before transport.
-- [x] `persistenceEnabled: true` rejects before transport.
-- [x] `ledgerRecordingEnabled: true` rejects before transport.
-- [x] `auditAppendEnabled: true` rejects before transport.
-- [x] `providerExecutionEnabled: true` rejects before transport.
-- [x] `replayRepairEnabled: true` rejects before transport.
-- [x] `mutatesAuthority: true` rejects before transport.
-- [x] Combined user-supplied capability flags are rejected, not trusted.
+## Exact-byte export checklist
+- [x] Inline `GOLDEN_AUDIT_EXPORT_BYTES` byte literal uses LF line endings only.
+- [x] Encoded audit export bytes are asserted equal to the exact inline byte literal.
+- [x] Export byte length is asserted equal to `encoded_bytes.len()`.
+- [x] No external golden file was added.
 
-## Risky text checklist
-- [x] `admin override` rejects before transport.
-- [x] `skip policy` rejects before transport.
-- [x] `execute now` rejects before transport.
-- [x] `write ledger` rejects before transport.
-- [x] `append audit` rejects before transport.
-- [x] `repair replay` rejects before transport.
-- [x] `trust provider output` rejects before transport.
-- [x] `promote recovered state` rejects before transport.
+## Non-authority checklist
+- [x] `provider_output_trusted` is false.
+- [x] `provider_output_authoritative` is false.
+- [x] `retry_scheduled` is false.
+- [x] `recovered_state_promoted` is false.
+- [x] `ui_transport_live` is false.
+- [x] `ui_submission_executes_action` is false.
+- [x] `action_real_world_effect` is false.
+- [x] `live_execution_performed` is false.
+- [x] `new_authorization_created` is false.
+- [x] `new_audit_record_created` is false.
+- [x] `new_action_executed` is false.
+- [x] `new_ledger_fact_created` is false.
+- [x] `persisted` is false.
+- [x] `repaired_replay` is false.
+- [x] `mutated_application_state` is false.
+- [x] `writes_files` is false.
+- [x] `reads_persistence` is false.
+- [x] `writes_persistence` is false.
+- [x] `mutates_authority` is false.
+- [x] `replaced_global_state` is false.
+- [x] `appended_ledger` is false.
+- [x] `appended_audit` is false.
 
-## Bridge non-call checklist
-- [x] Stubbed bridge counter remains zero for malformed submission rejection.
-- [x] No test invokes, simulates, or implies a live Rust bridge.
-- [x] Accepted preview submissions remain non-live and non-executing.
+## Export-not-ledger/recovery/replay checklist
+- [x] Export bytes cannot verify as a durable append transaction.
+- [x] Export bytes cannot prepare a recovery candidate.
+- [x] Export bytes cannot be accepted as recovery candidate bytes.
+- [x] Export bytes are not ledger state.
+- [x] Export bytes are not recovery input.
+- [x] Export bytes are not replay repair evidence.
 
-## Failure propagation checklist
-- [x] Normal behavior runner exits nonzero on counted failures.
-- [x] Self-test mode intentionally runs a failing probe internally and exits 0 only after proving the failure was counted.
-- [x] Normal behavior run has no enabled failing test.
+## Recovery rejection checklist
+- [x] Recovery mismatch rejects.
+- [x] Recovery mismatch does not replace global state.
+- [x] Recovery mismatch does not persist.
+- [x] Recovery mismatch does not append ledger records.
+- [x] Recovery mismatch does not append audit records.
+- [x] Recovery mismatch does not repair replay.
+- [x] Recovery mismatch does not mutate authority.
 
-## check.sh integration checklist
-- [x] `scripts/check.sh` retains `set -euo pipefail`.
-- [x] `scripts/check.sh` runs `npm run test:api` inside existing UI validation.
-- [x] The check integration is limited to the stable no-dependency behavior command.
-- [x] Failure propagation remains enforced by shell exit status.
+## Replay verification-only checklist
+- [x] Replay verifies supplied evidence only.
+- [x] Replay does not rerun providers.
+- [x] Replay does not perform live execution.
+- [x] Replay does not create authorization, audit, action, or ledger facts.
+- [x] Replay tampering rejects without side effects.
 
 ## AST/boundary lint parity checklist
-- [x] `rg` scans are treated as discovery/evidence only, not enforcement.
-- [x] Blocking enforcement remains with `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, and tests.
-- [x] No new UI source pattern requires lint expansion in this phase.
-- [x] No lint behavior changed, so no lint self-test update was required.
+- [x] `rg` scans are treated as discovery/evidence only.
+- [x] Blocking enforcement remains `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, UI behavioral tests, and Rust tests.
+- [x] No lint behavior changed in Phase 95.2.
+- [x] No lint self-test update was required.
+- [x] No new source pattern requiring Phase 95.4 lint expansion was introduced.
 
 ## Test fidelity checklist
-- [x] This phase records that typecheck/lint/build is not behavioral coverage.
-- [x] Behavior test names describe the invariant being protected.
+- [x] Phase 95.2 exists because Phase 95 found missing cross-boundary deterministic golden invariant coverage.
+- [x] New golden invariant behavior is tested in this phase.
+- [x] The test name describes the invariant being protected.
 - [x] Tests were not skipped after final edits.
-- [x] The behavioral command cannot print a normal failed assertion and exit 0.
+- [x] No validation command printed a failed assertion while exiting 0.
 
 ## Zero-drift checklist
-- [x] No UI build output was left in the repository.
-- [x] No core target metadata was staged.
-- [x] No lockfile drift was introduced.
-- [x] No test temp, export temp, node build, or coverage output was left in the repository.
-- [x] Staged files match the Phase 95.1 allowed surfaces plus the documented `scripts/check.sh` integration.
+- [x] No generated compiler metadata, UI build artifacts, target files, package/lock drift, coverage output, export temp files, or unrelated tool output were staged.
+- [x] No TypeScript source, UI source, scripts/workflows, package lockfiles, dependency lockfiles, README/AGENTS, roadmap files, or Rust source files were staged.
+- [x] Staged files exactly match allowed Phase 95.2 surfaces.
+- [x] `CHANGELOG.md` file/surface claims match the actual final diff.
 
 ## Findings table
-
 | Finding | Status | Evidence |
 | --- | --- | --- |
-| UI behavioral harness gap from Phase 95 | closed for Phase 91 UI boundary behavior | `npm run test:api` runs 18 behavior tests. |
-| Malformed submissions | covered | Empty fields, unknown kind, and non-object input reject before transport. |
-| Spoofed capability flags | covered | Individual and combined spoof attempts reject before transport. |
-| Risky authority text | covered | All required risky text examples reject before transport. |
-| Bridge non-call | covered | Stub counter remains zero and no live bridge is added. |
-| Failure propagation | covered | Self-test mode proves the runner counts failures. |
-| Cross-boundary golden invariants | deferred | Phase 95.2 remains responsible. |
+| Cross-boundary golden invariant gap | closed | Root integration golden test added and passed. |
+| Provider output trust risk in representative text | closed | Risky prompt text does not change non-authority flags or export bytes. |
+| Export/recovery/replay boundary confusion | closed | Export bytes reject as append/recovery and are not replay repair evidence. |
+| Lint parity | unchanged | Existing boundary lints remain enforcement; no lint behavior changed. |
 
 ## Deferred items table
-
-| Deferred item | Owner | Notes |
+| Item | Status | Reason |
 | --- | --- | --- |
-| Cross-boundary golden invariant tests | Phase 95.2 | Phase 95.1 does not claim this closure. |
-| Broader adversarial LLM-output corpus depth | Phase 95.3 | Not part of UI behavior harness baseline. |
-| Future AST/boundary lint expansion | Phase 95.4 if needed | No lint expansion needed for this diff. |
-| Local startup command boundary | Phase 96 | Phase 95.1 does not start Phase 96. |
+| Broader adversarial LLM-output corpus hardening | deferred | Phase 95.3 remains responsible for broader adversarial LLM-output corpus hardening. |
+| Startup/package work | deferred | Phase 95.2 does not start Phase 96 or approve startup/package work. |
+| New lint prohibitions | not_applicable | Phase 95.2 stayed within existing lint rules. |
 
 ## Validation log table
-
 | Command | Status | Notes |
 | --- | --- | --- |
-| `git status --short` | pass | Initial tree was clean; final tree contained only intended edits before staging. |
-| `./scripts/check.sh` | pass | Includes `npm run test:api` through UI validation. |
-| `cd ui && npm run test:api` | pass | 18/18 behavior tests passed. |
-| `cd ui && node run-api-behavior-tests.mjs --self-test-failure-propagation` | pass | Failure propagation proof passed without leaving a normal failing test enabled. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Explicit cargo test gate passed. |
-| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-tests passed. |
+| `./scripts/check.sh` | pass | Full repository gate passed after final edits. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Rust unit, binary, and root integration tests passed. |
+| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | pass | Golden-specific tests passed. |
+| `cd ui && npm run test:api` | pass | UI behavioral tests passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-test passed. |
 | `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed. |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-tests passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST lint self-test passed. |
 | `node scripts/lint_ui_boundaries.mjs` | pass | UI AST lint passed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | UI validation passed. |
 | `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | CLI dry-run passed. |
-| Required discovery/evidence scans | pass | Scans matched expected test/docs/checklist evidence only. |
-| Package drift scan | pass | Only `ui/package.json` changed; no lockfile drift. |
-| Source guard | pass | Only documented `scripts/check.sh` integration appeared in guarded surfaces. |
-
-## Non-readiness statement
-Phase 95.1 is an out-of-band UI behavioral test harness baseline before Phase 96.
-
-Phase 95.1 adds behavioral tests only.
-
-Phase 95.1 does not add live transport.
-
-Phase 95.1 does not add UI authority.
-
-Phase 95.1 does not add a Rust bridge.
-
-Phase 95.1 does not start Phase 96.
-
-Phase 95.2 remains responsible for cross-boundary golden invariant tests.
-
-Public usability, production readiness, Production Candidate approval, startup/package approval, and release-candidate readiness are not claimed.
+| Required `rg` evidence scans | pass | Discovery/evidence scans completed. |
+| Source guards | pass | Prohibited surfaces had no diffs. |

@@ -16,7 +16,7 @@ use ajentic_core::api::{
     OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
     OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
     ProviderEvidenceReplayMode, ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    RecoveryAcceptanceReason, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 fn root_operator_action_request() -> OperatorActionExecutionRequest {
@@ -537,6 +537,336 @@ fn root_integration_observability_snapshot_observes_harness_and_replay_without_a
     assert!(snapshot.replay.is_some());
     assert!(!observability_snapshot_mutates_authority(&snapshot));
 }
+
+#[derive(Clone, PartialEq, Eq)]
+struct GoldenChain {
+    harness: ajentic_core::api::EndToEndLocalHarnessReport,
+    provider_checksum: String,
+    replay: ajentic_core::api::ProviderEvidenceReplayReport,
+    snapshot: ajentic_core::api::ObservabilitySnapshot,
+    envelope: ajentic_core::api::AuditExportEnvelope,
+    export_as_append: ajentic_core::api::DurableAppendReport,
+    export_as_recovery: ajentic_core::api::ApplicationRecoveryReport,
+    export_as_recovery_acceptance: ajentic_core::api::RecoveryAcceptanceReport,
+    recovery_mismatch: ajentic_core::api::RecoveryAcceptanceReport,
+    tampered_replay: ajentic_core::api::ProviderEvidenceReplayReport,
+}
+
+fn run_golden_cross_boundary_chain(provider_prompt: &str) -> GoldenChain {
+    let harness = run_end_to_end_local_harness(EndToEndLocalHarnessRequest {
+        run_id: "golden-run-001".into(),
+        provider_prompt: provider_prompt.into(),
+        operator_id: "operator-golden".into(),
+        target_id: "target-golden".into(),
+        reason: "same input deterministic golden chain".into(),
+    });
+    let evidence = provider_evidence_snapshot_from_harness_report("golden-evidence-001", &harness);
+    let provider_checksum = compute_provider_evidence_checksum(&evidence);
+    let replay =
+        verify_provider_evidence_replay("golden-replay-001", "golden-run-001", evidence.clone());
+    let mut tampered_evidence = evidence.clone();
+    tampered_evidence.expected_action_kind = "ExecuteProvider".into();
+    tampered_evidence.evidence_checksum = compute_provider_evidence_checksum(&tampered_evidence);
+    let tampered_replay = verify_provider_evidence_replay(
+        "golden-replay-tamper-001",
+        "golden-run-001",
+        tampered_evidence,
+    );
+    let recovery_mismatch =
+        accept_recovery_candidate_for_in_memory_use(RecoveryAcceptanceRequest {
+            acceptance_id: "golden-acceptance-001".into(),
+            expected_recovery_id: "golden-recovery-001".into(),
+            expected_ledger_record_id: "golden-ledger-001".into(),
+            expected_revision: Some(1),
+            candidate: ApplicationRecoveryCandidate {
+                recovery_id: "golden-recovery-other".into(),
+                ledger_record_id: "golden-ledger-001".into(),
+                revision: 1,
+                payload_len: 3,
+                checksum: "golden-checksum".into(),
+                candidate_bytes: b"abc".to_vec(),
+            },
+        });
+    let snapshot = observability_snapshot_from_supplied_evidence(
+        "golden-snapshot-001",
+        Some(&harness),
+        None,
+        Some(&recovery_mismatch),
+        Some(&replay),
+        None,
+        vec![ObservedDiagnosticSummary {
+            family: "golden".into(),
+            code: "same_input".into(),
+            key: "code_patch:target-golden".into(),
+            summary: "same input deterministic golden chain".into(),
+        }],
+    );
+    let envelope = match encode_audit_export_snapshot(
+        "golden-export-001",
+        &snapshot,
+        AuditExportEncodingLimits::strict_defaults(),
+    ) {
+        Ok(envelope) => envelope,
+        Err(_) => panic!("golden audit export encoding should pass"),
+    };
+    let export_as_append =
+        verify_durable_append_transaction_bytes(&envelope.encoded_bytes, "golden-export-001");
+    let export_as_recovery = prepare_application_recovery_candidate(ApplicationRecoveryRequest {
+        recovery_id: "golden-recovery-001".into(),
+        ledger_record_id: "golden-ledger-001".into(),
+        expected_revision: Some(1),
+        ledger_bytes: envelope.encoded_bytes.clone(),
+    });
+    let export_as_recovery_acceptance =
+        accept_recovery_candidate_for_in_memory_use(RecoveryAcceptanceRequest {
+            acceptance_id: "golden-export-recovery-acceptance-001".into(),
+            expected_recovery_id: "golden-recovery-001".into(),
+            expected_ledger_record_id: "golden-ledger-001".into(),
+            expected_revision: Some(1),
+            candidate: ApplicationRecoveryCandidate {
+                recovery_id: "golden-recovery-001".into(),
+                ledger_record_id: "golden-ledger-001".into(),
+                revision: 1,
+                payload_len: envelope.byte_len,
+                checksum: "golden-export-checksum".into(),
+                candidate_bytes: envelope.encoded_bytes.clone(),
+            },
+        });
+
+    GoldenChain {
+        harness,
+        provider_checksum,
+        replay,
+        snapshot,
+        envelope,
+        export_as_append,
+        export_as_recovery,
+        export_as_recovery_acceptance,
+        recovery_mismatch,
+        tampered_replay,
+    }
+}
+
+fn assert_golden_chain_non_authority_flags(chain: &GoldenChain) {
+    assert!(!chain.harness.provider_output_trusted);
+    assert!(!chain.harness.provider_output_authoritative);
+    assert!(!chain.harness.retry_scheduled);
+    assert!(!chain.harness.recovered_state_promoted);
+    assert!(!chain.harness.ui_transport_live);
+    assert!(!chain.harness.ui_submission_executes_action);
+    assert!(!chain.harness.action_real_world_effect);
+    assert!(!chain.harness.ledger_bytes_persisted);
+    assert!(!chain.replay.live_execution_performed);
+    assert!(!chain.replay.new_authorization_created);
+    assert!(!chain.replay.new_audit_record_created);
+    assert!(!chain.replay.new_action_executed);
+    assert!(!chain.replay.new_ledger_fact_created);
+    assert!(!chain.replay.persisted);
+    assert!(!chain.replay.repaired_replay);
+    assert!(!chain.replay.mutated_application_state);
+    assert!(!chain.replay.provider_output_trusted);
+    assert!(!chain.replay.provider_output_authoritative);
+    assert!(!chain.replay.retry_scheduled);
+    assert!(!chain.snapshot.mutates_application_state);
+    assert!(!chain.snapshot.reads_persistence);
+    assert!(!chain.snapshot.writes_persistence);
+    assert!(!chain.snapshot.recomputes_authority);
+    assert!(!chain.snapshot.repairs_state);
+    assert!(!chain.snapshot.exports_data);
+    assert!(!chain.envelope.writes_files);
+    assert!(!chain.envelope.reads_persistence);
+    assert!(!chain.envelope.writes_persistence);
+    assert!(!chain.envelope.mutates_authority);
+    assert!(!chain.export_as_append.committed);
+    assert!(!chain.export_as_append.repaired_replay);
+    assert!(!chain.export_as_recovery.recovers_application_state);
+    assert!(!chain.export_as_recovery.promotes_recovered_state);
+    assert!(!chain.export_as_recovery.repairs_replay);
+    assert!(!chain.export_as_recovery.mutates_ledger);
+    assert!(
+        !chain
+            .export_as_recovery_acceptance
+            .accepted_for_in_memory_use
+    );
+    assert!(!chain.export_as_recovery_acceptance.replaced_global_state);
+    assert!(!chain.export_as_recovery_acceptance.persisted);
+    assert!(!chain.export_as_recovery_acceptance.appended_ledger);
+    assert!(!chain.export_as_recovery_acceptance.appended_audit);
+    assert!(!chain.export_as_recovery_acceptance.repaired_replay);
+    assert!(!chain.recovery_mismatch.accepted_for_in_memory_use);
+    assert!(!chain.recovery_mismatch.replaced_global_state);
+    assert!(!chain.recovery_mismatch.persisted);
+    assert!(!chain.recovery_mismatch.appended_ledger);
+    assert!(!chain.recovery_mismatch.appended_audit);
+    assert!(!chain.recovery_mismatch.repaired_replay);
+    assert!(!recovery_acceptance_mutates_authority(
+        &chain.recovery_mismatch
+    ));
+    assert!(!chain.tampered_replay.live_execution_performed);
+    assert!(!chain.tampered_replay.new_authorization_created);
+    assert!(!chain.tampered_replay.new_audit_record_created);
+    assert!(!chain.tampered_replay.new_action_executed);
+    assert!(!chain.tampered_replay.new_ledger_fact_created);
+    assert!(!chain.tampered_replay.persisted);
+    assert!(!chain.tampered_replay.repaired_replay);
+    assert!(!chain.tampered_replay.mutated_application_state);
+}
+
+#[test]
+fn root_integration_golden_cross_boundary_chain_is_deterministic_and_non_authoritative() {
+    let first = run_golden_cross_boundary_chain(
+        "same input prompt with TRUST_PROVIDER_OUTPUT=true kept as untrusted text",
+    );
+    let second = run_golden_cross_boundary_chain(
+        "same input prompt with TRUST_PROVIDER_OUTPUT=true kept as untrusted text",
+    );
+    let risky_text = run_golden_cross_boundary_chain(
+        "same input prompt with TRUST_PROVIDER_OUTPUT=true and provider_output_authoritative=true kept as untrusted text",
+    );
+
+    assert_eq!(first.harness.status, EndToEndLocalHarnessStatus::Completed);
+    assert_eq!(first.harness.reason, second.harness.reason);
+    assert_eq!(first.harness, second.harness);
+    assert_eq!(first.provider_checksum, second.provider_checksum);
+    assert_eq!(first.replay.status, ProviderEvidenceReplayStatus::Verified);
+    assert_eq!(
+        first.replay.reason,
+        ProviderEvidenceReplayReason::VerifiedAgainstEvidence
+    );
+    assert_eq!(first.replay, second.replay);
+    assert!(first.snapshot == second.snapshot);
+    assert!(!observability_snapshot_mutates_authority(&first.snapshot));
+    assert_eq!(first.envelope.encoded_bytes, second.envelope.encoded_bytes);
+    assert_eq!(first.envelope.byte_len, second.envelope.byte_len);
+    assert_eq!(first.envelope.byte_len, first.envelope.encoded_bytes.len());
+    assert_eq!(first.envelope.encoded_bytes, GOLDEN_AUDIT_EXPORT_BYTES);
+    assert_eq!(
+        &first.envelope.encoded_bytes[..76],
+        b"format_version=audit-export-v1\nrecord_kind=observability-snapshot\nexport_id="
+    );
+
+    assert_eq!(first.export_as_append.status, DurableAppendStatus::Rejected);
+    assert_eq!(
+        first.export_as_recovery.status,
+        ApplicationRecoveryStatus::Rejected
+    );
+    assert_eq!(
+        first.export_as_recovery.reason,
+        ApplicationRecoveryReason::LedgerMalformed
+    );
+    assert!(first.export_as_recovery.candidate.is_none());
+    assert_eq!(
+        first.export_as_recovery_acceptance.status,
+        RecoveryAcceptanceStatus::Rejected
+    );
+    assert_eq!(
+        first.export_as_recovery_acceptance.reason,
+        RecoveryAcceptanceReason::CandidateNotVerified
+    );
+    assert_eq!(
+        first.recovery_mismatch.status,
+        RecoveryAcceptanceStatus::Rejected
+    );
+    assert_eq!(
+        first.recovery_mismatch.reason,
+        RecoveryAcceptanceReason::CandidateNotVerified
+    );
+    assert_eq!(
+        first.tampered_replay.status,
+        ProviderEvidenceReplayStatus::Mismatch
+    );
+    assert_eq!(
+        first.tampered_replay.reason,
+        ProviderEvidenceReplayReason::ActionKindMismatch
+    );
+    assert_golden_chain_non_authority_flags(&first);
+    assert_golden_chain_non_authority_flags(&second);
+
+    assert_eq!(
+        risky_text.envelope.encoded_bytes,
+        first.envelope.encoded_bytes
+    );
+    assert_eq!(risky_text.provider_checksum, first.provider_checksum);
+    assert_eq!(risky_text.replay, first.replay);
+}
+
+const GOLDEN_AUDIT_EXPORT_BYTES: &[u8] = br#"format_version=audit-export-v1
+record_kind=observability-snapshot
+export_id=golden-export-001
+snapshot_id=golden-snapshot-001
+snapshot_mode=supplied_evidence_snapshot
+snapshot_status=built
+snapshot_reason=built_from_supplied_evidence
+harness.present=true
+harness.run_id=golden-run-001
+harness.status_code=completed
+harness.reason_code=completed_bounded_local_run
+harness.provider_output_trusted=false
+harness.provider_output_authoritative=false
+harness.retry_scheduled=false
+harness.recovery_candidate_only=true
+harness.recovered_state_promoted=false
+harness.ui_transport_live=false
+harness.ui_submission_executes_action=false
+harness.action_kind=RecordExecutionDecision
+harness.action_real_world_effect=false
+durable_append.present=false
+durable_append.append_transaction_id=none
+durable_append.status_code=none
+durable_append.reason_code=none
+durable_append.committed=false
+durable_append.promoted=false
+durable_append.recovered_state=false
+durable_append.repaired_replay=false
+durable_append.trusted_provider_output=false
+durable_append.executed_action=false
+durable_append.mutated_application_state=false
+recovery.present=true
+recovery.acceptance_id=golden-acceptance-001
+recovery.status_code=rejected
+recovery.reason_code=candidate_not_verified
+recovery.accepted_for_in_memory_use=false
+recovery.replaced_global_state=false
+recovery.persisted=false
+recovery.appended_ledger=false
+recovery.appended_audit=false
+recovery.repaired_replay=false
+recovery.promoted_provider_output=false
+recovery.executed_action=false
+replay.present=true
+replay.replay_id=golden-replay-001
+replay.source_run_id=golden-run-001
+replay.evidence_id=golden-evidence-001
+replay.status_code=verified
+replay.reason_code=verified_against_evidence
+replay.replayed_from_evidence=true
+replay.live_execution_performed=false
+replay.new_authorization_created=false
+replay.new_audit_record_created=false
+replay.new_action_executed=false
+replay.new_ledger_fact_created=false
+replay.persisted=false
+replay.repaired_replay=false
+replay.mutated_application_state=false
+action.present=false
+action.action_kind=none
+action.action_reason_code=none
+action.action_real_world_effect=false
+diagnostics.count=1
+diagnostics.0.family=golden
+diagnostics.0.code=same_input
+diagnostics.0.key=code_patch:target-golden
+diagnostics.0.summary=same input deterministic golden chain
+contains_raw_provider_payload=false
+contains_secret_material=false
+mutates_application_state=false
+reads_persistence=false
+writes_persistence=false
+recomputes_authority=false
+repairs_state=false
+exports_data=false
+summary=read-only observability snapshot built from caller-supplied evidence only; snapshot is non-authoritative and does not mutate authority
+"#;
 
 #[test]
 fn root_integration_audit_export_encoding_is_deterministic() {
