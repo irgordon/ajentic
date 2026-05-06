@@ -487,6 +487,10 @@ pub fn accept_recovery_candidate_for_in_memory_use(
         report.reason = RecoveryAcceptanceReason::EmptyCandidateBytes;
         return report;
     }
+    if recovery_candidate_bytes_look_like_export_bundle(&request.candidate.candidate_bytes) {
+        report.reason = RecoveryAcceptanceReason::CandidateNotVerified;
+        return report;
+    }
     if request.candidate.recovery_id != request.expected_recovery_id {
         report.reason = RecoveryAcceptanceReason::CandidateNotVerified;
         return report;
@@ -507,6 +511,14 @@ pub fn accept_recovery_candidate_for_in_memory_use(
     report.accepted_for_in_memory_use = true;
     report.summary = "recovery acceptance is explicit, in-memory only, and does not replace global application state".to_string();
     report
+}
+
+fn recovery_candidate_bytes_look_like_export_bundle(bytes: &[u8]) -> bool {
+    bytes.starts_with(
+        b"format_version=audit-export-v1
+record_kind=observability-snapshot
+",
+    )
 }
 
 pub fn recovery_acceptance_replaces_global_state(report: &RecoveryAcceptanceReport) -> bool {
@@ -1124,6 +1136,117 @@ payload_hex:61
         r.acceptance_id = "".into();
         let report = accept_recovery_candidate_for_in_memory_use(r);
         assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+    }
+    fn export_bundle_bytes() -> Vec<u8> {
+        let snapshot = observability_snapshot_from_supplied_evidence(
+            "phase-93-5-export-snapshot",
+            None,
+            None,
+            None,
+            None,
+            None,
+            vec![ObservedDiagnosticSummary {
+                family: "persistence".into(),
+                code: "export_not_recovery".into(),
+                key: "phase-93-5".into(),
+                summary: "export bundle bytes are operator-readable artifacts only".into(),
+            }],
+        );
+        match encode_audit_export_snapshot(
+            "phase-93-5-export",
+            &snapshot,
+            AuditExportEncodingLimits::strict_defaults(),
+        ) {
+            Ok(envelope) => envelope.encoded_bytes,
+            Err(_) => panic!("export bundle encodes"),
+        }
+    }
+
+    #[test]
+    fn export_bundle_bytes_cannot_decode_as_recovery_candidate() {
+        let report =
+            prepare_application_recovery_candidate(recovery_request(export_bundle_bytes()));
+        assert_eq!(report.status, ApplicationRecoveryStatus::Rejected);
+        assert_eq!(report.reason, ApplicationRecoveryReason::LedgerMalformed);
+        assert!(report.candidate.is_none());
+    }
+
+    #[test]
+    fn export_bundle_bytes_are_not_ledger_state() {
+        let report =
+            prepare_application_recovery_candidate(recovery_request(export_bundle_bytes()));
+        assert_ne!(
+            report.reason,
+            ApplicationRecoveryReason::CandidatePreparedFromVerifiedLedgerBytes
+        );
+        assert!(!report.mutates_ledger);
+    }
+
+    #[test]
+    fn export_bundle_bytes_are_not_recovery_input() {
+        let report =
+            prepare_application_recovery_candidate(recovery_request(export_bundle_bytes()));
+        assert_eq!(report.status, ApplicationRecoveryStatus::Rejected);
+        assert!(!report.recovers_application_state);
+        assert!(!report.promotes_recovered_state);
+    }
+
+    #[test]
+    fn export_bundle_bytes_are_not_replay_repair_evidence() {
+        let report =
+            prepare_application_recovery_candidate(recovery_request(export_bundle_bytes()));
+        assert_eq!(report.status, ApplicationRecoveryStatus::Rejected);
+        assert!(!report.repairs_replay);
+    }
+
+    #[test]
+    fn recovery_rejects_export_bundle_bytes_as_candidate() {
+        let bytes = export_bundle_bytes();
+        let candidate = ApplicationRecoveryCandidate {
+            recovery_id: "recovery-1".into(),
+            ledger_record_id: "ledger-1".into(),
+            revision: 3,
+            payload_len: bytes.len(),
+            checksum: calculate_persisted_record_checksum(&bytes),
+            candidate_bytes: bytes,
+        };
+        let report = accept_recovery_candidate_for_in_memory_use(acceptance_request(candidate));
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(
+            report.reason,
+            RecoveryAcceptanceReason::CandidateNotVerified
+        );
+        assert!(!report.accepted_for_in_memory_use);
+        assert!(!report.replaced_global_state);
+        assert!(!report.persisted);
+        assert!(!report.appended_ledger);
+        assert!(!report.appended_audit);
+        assert!(!report.repaired_replay);
+    }
+
+    #[test]
+    fn recovery_candidates_require_expected_context() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.expected_recovery_id = "other-recovery-context".into();
+        request.expected_ledger_record_id = "other-ledger-context".into();
+        request.expected_revision = Some(99);
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert_eq!(
+            report.reason,
+            RecoveryAcceptanceReason::CandidateNotVerified
+        );
+        assert!(!report.replaced_global_state);
+    }
+
+    #[test]
+    fn recovery_candidate_mismatch_does_not_replace_global_state_again() {
+        let mut request = acceptance_request(acceptance_candidate(b"abc".to_vec()));
+        request.expected_ledger_record_id = "unexpected-ledger".into();
+        let report = accept_recovery_candidate_for_in_memory_use(request);
+        assert_eq!(report.status, RecoveryAcceptanceStatus::Rejected);
+        assert!(!report.replaced_global_state);
+        assert!(!recovery_acceptance_mutates_authority(&report));
     }
 }
 
