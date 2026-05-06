@@ -37,10 +37,36 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 98 | Operator Documentation and Troubleshooting Guide | Milestone 8 | Document startup, validation, expected outputs, failure modes, and rollback expectations for local operators. | Documentation only; no runtime capability. |
 | 99 | Release Engineering Dry Run | Milestone 8 | Validate release checklist mechanics, artifact inventory, version/changelog consistency, and CI gate completeness without publishing. | Dry run only; no release and no production-candidate approval. |
 | 100 | Production Candidate Readiness Decision Gate | Milestone 8 | Determine whether evidence supports a production-candidate branch/tag or whether another hardening block is required. | Decision gate only; approval only if evidence is complete. |
+| 101 | Production Use Gap Decomposition | Milestone 9 | Decompose remaining blockers for human use. | Audit/planning only. |
+| 102 | Human Operator Workflow Contract | Milestone 9 | Define operator workflows, roles, and expected states. | Documentation/contract only. |
+| 103 | UI Runtime Review Surface Activation Boundary | Milestone 9 | Activate the browser review surface for human operator visibility. | UI usability only; no Rust authority and no live mutation. |
+| 104 | UI-to-Rust Local Transport Prototype Boundary | Milestone 9 | Prototype local UI-to-Rust communication under non-authoritative constraints. | Local transport prototype only; no provider execution and no persistence authority. |
+| 105 | Transport Abuse Hardening for Live Local Bridge | Milestone 9 | Harden the live local bridge against malformed, spoofed, replayed, or hostile transport input. | Hardening only; no broad capability. |
+| 106 | Provider Configuration Contract | Milestone 9 | Define provider configuration contracts without executing providers. | Configuration contract only; no live provider execution. |
+| 107 | Provider Execution Sandbox Boundary | Milestone 9 | Introduce bounded provider execution under sandboxed constraints. | Bounded provider execution only; provider output remains untrusted. |
+| 108 | Provider Timeout and Resource Limit Boundary | Milestone 9 | Add provider timeout and resource-limit enforcement. | Provider hardening only; no promotion authority. |
+| 109 | Durable Persistence Authority Decision Gate | Milestone 9 | Determine whether local persistence can become authoritative. | Decision/audit only. |
+| 110 | Authoritative Persistence Activation Boundary | Milestone 9 | Activate authoritative persistence only under Phase 109 evidence constraints. | Narrow persistence authority only if Phase 109 permits it. |
+| 111 | Recovery Lifecycle Hardening | Milestone 10 | Harden recovery lifecycle behavior without silent repair or implicit promotion. | Recovery lifecycle only; no silent recovery. |
+| 112 | Policy Versioning and Governance Evidence Boundary | Milestone 10 | Add policy versioning and governance evidence traceability. | Policy/governance versioning only. |
+| 113 | Deployment Configuration Contract | Milestone 10 | Define deployment configuration contracts without deployment automation. | Deployment config only; no deployment automation. |
+| 114 | Local Deployment Candidate Boundary | Milestone 10 | Define a local deployment candidate boundary for controlled testing. | Local deployment candidate only; no public release. |
+| 115 | Security Threat Model and Abuse-Case Audit | Milestone 10 | Audit threat model, abuse cases, trust boundaries, and residual attack surfaces. | Security audit only. |
+| 116 | Operator Documentation for Human Trial | Milestone 10 | Prepare operator documentation for controlled human-trial use. | Operator docs only; no readiness approval. |
+| 117 | Human Trial Dry Run | Milestone 10 | Rehearse controlled human-trial procedures without public availability. | Dry run only; no public availability. |
+| 118 | Release Candidate Evidence Assembly | Milestone 10 | Assemble release-candidate evidence without approval. | Evidence assembly only; no automatic approval. |
+| 119 | Production Candidate Reassessment | Milestone 10 | Reassess Production Candidate posture after controlled evidence assembly. | Decision gate only. |
+| 120 | Early Human-Use Candidate Gate | Milestone 10 | Decide whether controlled early human use is permitted. | Final gate for controlled human use; not general public release. |
 
 ## Boundary reminder
 
 Roadmap entries are planned truth and boundaries only.
+
+Phase 100 remains the immediate Production Candidate gap audit and readiness decision gate.
+
+Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
+
+The staged production-human-use ladder is: Local operator testing; Controlled human trial; Early human-use candidate; Release candidate; Production candidate; Public/general use.
 
 Roadmap remains planned truth.
 
