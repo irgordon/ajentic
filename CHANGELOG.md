@@ -5,6 +5,26 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.90 - 2026-05-06
+**Status:** Phase 90 - Roadmap and Production Candidate Gap Audit
+
+### Added
+- Added `docs/operations/repository-audit-phase-90.md` documenting Phase 85-89 reconciliation, Production Candidate gap posture, Phase 91-94 hardening-only decision, validation/lint fidelity audit, and non-readiness posture.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 90 procedural truth and validation closure evidence.
+- Updated `CHANGELOG.md` with `v0.0.90`.
+
+### Boundaries
+- Phase 90 is a gap audit only.
+- Phase 90 does not implement runtime behavior.
+- Phase 90 does not approve Production Candidate status.
+- Production Candidate status remains not approved.
+- Phase 91-94 remains hardening-only unless future committed evidence proves otherwise.
+- Rust boundary lint self-test reporting needs an out-of-band validation-gate repair before Phase 91.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+
 ## v0.0.89 - 2026-05-06
 **Status:** Phase 89 - Local Export Write Boundary
 
