@@ -6,6 +6,38 @@ mutation_path: changelog_entry
 # CHANGELOG.md
 
 
+## v0.0.99.5 - 2026-05-06
+**Status:** Phase 99.5 - Production Use Roadmap Expansion Check / roadmap expansion planning only
+
+### Added
+- Added planned Phases 101-120 to `docs/roadmap/phase-map.md` as compact planned truth entries with goals and boundaries.
+- Added expanded planned descriptions for Phases 101-120 to `docs/roadmap/phases.md`, including goal, boundary, non-goals, and evidence-gate posture.
+- Added post-100 ordering rationale to `docs/roadmap/sequencing.md`, including staged production human use and separation of UI activation, local transport, provider configuration/execution, persistence authority, deployment, security audit, human trial, release-candidate evidence, Production Candidate reassessment, and early human-use gate work.
+- Added `docs/operations/production-use-roadmap-expansion-phase-99-5.md` documenting Phase 99.5 scope, evidence-only planning, staged production human-use ladder, Phase 100 relationship, planned Phases 101-120, sequencing rationale, roadmap/changelog truth posture, non-approval guarantees, validation evidence, AST/boundary lint parity, test fidelity, confirmed-vs-suspected posture, deferred items, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 99.5 procedural truth, including working-tree hygiene, allowed surfaces, boundary rules, task closure, validation checklist, roadmap expansion checklist, staged human-use ladder checklist, Phase 100 relationship checklist, Phases 101-120 checklist, truth-dimension checklist, non-approval checklist, AST/boundary lint parity, test fidelity, zero-drift posture, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.99.5`.
+
+### Notes
+- Phase 99.5 is planning and alignment only.
+- Phase 99.5 adds no runtime behavior.
+- Phase 99.5 adds no new capability.
+- Phase 99.5 does not approve production human use.
+- Phase 99.5 does not approve Production Candidate status.
+- Phase 99.5 does not approve release-candidate readiness.
+- Phase 99.5 does not approve public usability.
+- Phase 99.5 does not approve startup/package readiness.
+- Phase 99.5 does not start Phase 100.
+- Phase 99.5 does not implement Phases 101-120.
+- Production human use is not approved.
+- Phase 100 remains the immediate Production Candidate gap audit and readiness decision gate.
+- Phases 101-120 are planned truth only.
+- Roadmap remains planned truth.
+- CHANGELOG.md remains historical truth.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, README, AGENTS, package files, dependency files, lockfiles, UI config files, release publishing infrastructure, runtime behavior, CLI surface, release tooling, packaging behavior, installer behavior, distribution behavior, signing behavior, publishing behavior, auto-update behavior, authority surface, transport, provider/model call, persistence, durable append, export write, replay repair, recovery acceptance, or action behavior was changed.
+
+
 ## v0.0.99 - 2026-05-06
 **Status:** Phase 99 - Release Engineering Dry Run
 
