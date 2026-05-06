@@ -5,6 +5,25 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.88 - 2026-05-05
+**Status:** Phase 88 - Audit Export Encoding Boundary
+
+### Added
+- Added deterministic audit export encoding types, constants, checked append helpers, bounded limits, typed rejection reports, and module-local golden-style tests in `core/src/api/observability.rs`.
+- Added root integration smoke coverage for deterministic and non-authoritative audit export encoding in `tests/integration_smoke.rs`.
+- Added `docs/operations/audit-export-encoding-phase-88.md` documenting the Phase 88 encoding-only boundary.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 88 procedural truth.
+- Updated `CHANGELOG.md` with `v0.0.88`.
+
+### Notes
+- Phase 88 implements canonical byte encoding only.
+- Phase 88 does not write export files, read/write persistence, append ledger/audit records, accept recovery, repair replay, execute providers, execute actions, mutate authority, or create live transport.
+- Phase 88 does not expose raw provider payloads, raw ledger/audit bytes, recovery candidate bytes, filesystem paths, environment data, or secret material.
+- Phase 89 remains responsible for local export write behavior.
+- No public-usability, release-candidate-readiness, production-readiness, or Production Candidate approval claim is made.
+
 ## v0.0.87 - 2026-05-05
 **Status:** Phase 87 - Read-Only Observability Snapshot Boundary
 
