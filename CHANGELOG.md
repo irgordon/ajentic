@@ -5,6 +5,37 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+
+## v0.0.98 - 2026-05-06
+**Status:** Phase 98 - Operator Documentation and Troubleshooting Guide / Operator Documentation and Troubleshooting Boundary
+
+### Added
+- Added `docs/operations/operator-troubleshooting-phase-98.md` documenting Phase 98 scope, operator troubleshooting model, command interpretation rule, validation gate troubleshooting, dry-run troubleshooting, Rust test troubleshooting, golden invariant troubleshooting, adversarial corpus troubleshooting, UI behavioral test troubleshooting, UI typecheck/lint/build troubleshooting, local build artifact troubleshooting, generated artifact drift cleanup, frontmatter/checklist validation failures, boundary lint failures, non-failing npm warning posture, non-claim language, Phase 96 relationship, Phase 97 relationship, Phase 99 relationship, AST/boundary lint parity, test fidelity, validation evidence, confirmed-vs-suspected posture, deferred items, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 98 procedural truth, phase goal, working-tree hygiene gate, allowed surfaces, boundary rules, task checklist, validation checklist, operator documentation checklist, command coverage checklist, non-claim checklist, generated artifact cleanup checklist, frontmatter/checklist failure checklist, boundary lint troubleshooting checklist, AST/boundary lint parity checklist, test fidelity checklist, zero-drift checklist, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.98`.
+
+### Findings
+- Phase 98 is documentation-only, operator-facing only, and introduces no new capability.
+- Existing validation, dry-run, Rust test, golden invariant, adversarial corpus, UI behavioral, UI typecheck/lint/build, Rust build, and UI build commands were documented without changing command behavior or wiring.
+- A passing command means only that the checked local boundary passed at that moment.
+- A passing command does not approve production readiness, release-candidate readiness, public usability, packaging, distribution, installer use, provider execution, persistence authority, replay repair, recovery promotion, or action execution.
+- No generated artifact drift was present before edits; post-validation generated artifact drift was cleaned by reverting `core/target/.rustc_info.json` and removing `scripts/__pycache__`, and no generated artifact drift was staged.
+- Roadmap remains planned truth.
+- `CHANGELOG.md` remains historical truth.
+
+### Boundaries
+- Phase 98 does not add runtime behavior.
+- Phase 98 does not add a new CLI surface.
+- Phase 98 does not add packaging, installer, distribution, signing, or release engineering.
+- Phase 98 does not add readiness claims or authority surfaces.
+- Phase 98 does not add transport, provider, persistence, replay, recovery, export, or action behavior.
+- Phase 98 does not approve startup, packaging, public usability, release-candidate readiness, production readiness, Production Candidate status, provider execution, persistence authority, replay repair, recovery promotion, export behavior, action execution, installer use, distribution, signing, or release engineering.
+- Phase 98 did not improve, fix, rename, wire, or add commands.
+- Phase 99 remains responsible for release engineering dry-run boundary work if Phase 98 evidence permits it.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, roadmap docs, README, AGENTS, package files, dependency files, lockfiles, or UI config files were changed.
+
 ## v0.0.97 - 2026-05-06
 **Status:** Phase 97 - Packaging Artifact Definition / Packaging Boundary Candidate
 
