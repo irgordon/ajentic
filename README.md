@@ -6,10 +6,10 @@ mutation_path: readme_update
 
 <div align="center">
 
-# **AJENTIC**  
-### **You, In Control**
+# AJENTIC
+### You, In Control
 
-![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-B7410E?style=for-the-badge&logo=rust&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
@@ -19,10 +19,10 @@ mutation_path: readme_update
 <br>
 
 <a href="https://ajentic.dev/#getting-started">
-  <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket" />
-</a>  
+  <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket&logoColor=white" alt="Get Started" />
+</a>&nbsp;&nbsp;
 <a href="https://github.com/irgordon/ajentic">
-  <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" />
+  <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repo" />
 </a>
 
 </div>
