@@ -18,6 +18,33 @@ Archive guarantees:
 - CHANGELOG surfaces remain historical truth.
 
 
+## v0.0.106 - 2026-05-07
+**Status:** Phase 106 - Provider Configuration Contract
+
+### Added
+- Deterministic provider configuration contracts, parser, validation reason codes, and disabled/untrusted/non-ready posture reports.
+- Behavioral and adversarial coverage for malformed, duplicate, unsupported, authority-bearing, execution-enabled, transport-enabled, trust-enabled, auto-selection, fallback, and invalid resource provider configuration payloads.
+- Phase 106 operations report and current-phase checklist evidence.
+
+### Changed
+- UI API projections now include descriptive provider configuration validation types while remaining non-authoritative.
+- Current-phase procedural truth now tracks Phase 106 provider configuration contract work.
+
+### Notes
+- Deterministic provider configuration contracts only.
+- No provider execution.
+- No inference execution.
+- No persistence authority.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 107 implementation.
+
 ## v0.0.105 - 2026-05-07
 **Status:** Phase 105 - Transport Abuse Hardening for Live Local Bridge
 

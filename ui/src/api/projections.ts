@@ -184,6 +184,68 @@ export type UiOperatorIntentSubmissionEnvelope = UiRustTransportEnvelope<UiOpera
 
 export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType: IntentTypeProjection; label: string; description: string; reasonPreview: string; routePreview: string; authority: AuthoritySurface; status: ProjectionStatus; disabled: boolean; submissionPreview: IntentSubmissionUiProjection; }>;
 
+
+export type ProviderConfigurationStatusProjection = "accepted" | "rejected";
+
+export type ProviderConfigurationRejectionReasonCode =
+  | "malformed_configuration"
+  | "oversized_configuration"
+  | "missing_required_field"
+  | "invalid_provider_identifier"
+  | "unsupported_provider_type"
+  | "invalid_capability_declaration"
+  | "invalid_timeout_resource_declaration"
+  | "invalid_isolation_declaration"
+  | "execution_enabled_rejected"
+  | "transport_enabled_rejected"
+  | "trust_enabled_rejected"
+  | "readiness_claim_rejected"
+  | "duplicate_provider_identifier"
+  | "auto_selection_rejected"
+  | "fallback_rejected"
+  | "authority_bearing_configuration_rejected";
+
+export type ProviderCapabilityDeclarationProjection =
+  | "configuration_review"
+  | "text_generation_declared"
+  | "embedding_declared";
+
+export type ProviderIsolationDeclarationProjection =
+  | "local_only"
+  | "no_network"
+  | "no_filesystem"
+  | "no_background_execution";
+
+export type ProviderConfigurationProjection = Readonly<{
+  providerId: string;
+  providerType: "local_only_declared";
+  capabilities: readonly ProviderCapabilityDeclarationProjection[];
+  isolation: readonly ProviderIsolationDeclarationProjection[];
+  executionEnabled: false;
+  transportEnabled: false;
+  localOnly: true;
+  untrusted: true;
+  readinessApproved: false;
+  autoSelect: false;
+  fallbackEnabled: false;
+  authority: "provider";
+  summary: string;
+}>;
+
+export type ProviderConfigurationValidationProjection = Readonly<{
+  status: ProviderConfigurationStatusProjection;
+  reasons: readonly ProviderConfigurationRejectionReasonCode[];
+  providerCount: number;
+  executionEnabled: false;
+  transportEnabled: false;
+  providerTrusted: false;
+  readinessApproved: false;
+  mutatesAuthority: false;
+  persistsProviderState: false;
+  appendsAuditOrLedger: false;
+  summary: string;
+}>;
+
 export type ApplicationUiProjection = Readonly<{ projectionId: string; runtimeConfigId: string; safety: RuntimeSafetyUiProjection; lifecycle: LifecycleProjection; run: RunOverviewProjection; provider: ProviderTrustProjection; integration: IntegrationTrustProjection; ledger: LedgerProjection; replay: ReplayProjection; audit: AuditProjectionSummary; context: ContextProjection; memory: MemoryProjection; output: OutputProjection; }>;
 
 export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; cleanOutput: CleanOutputProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; localRuntimeReview: LocalRuntimeReviewSurface; }>;
