@@ -1,18 +1,67 @@
 use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
     compute_provider_evidence_checksum, encode_audit_export_snapshot,
-    execute_operator_action_boundary, observability_snapshot_from_supplied_evidence,
-    observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
-    provider_evidence_snapshot_from_harness_report, recovery_acceptance_mutates_authority,
-    run_end_to_end_local_harness, submit_operator_intent, verify_provider_evidence_replay,
-    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
-    EndToEndLocalHarnessStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
+    execute_operator_action_boundary, handle_local_ui_rust_transport_payload,
+    observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
+    operator_action_report_mutates_authority, provider_evidence_snapshot_from_harness_report,
+    recovery_acceptance_mutates_authority, run_end_to_end_local_harness, submit_operator_intent,
+    verify_provider_evidence_replay, ApplicationRecoveryCandidate, AuditExportEncodingLimits,
+    EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus, LocalUiRustTransportReason,
+    LocalUiRustTransportStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
     OperatorActionExecutionRequest, OperatorActionExecutionStatus, OperatorActionKind,
     OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
     OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
     ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus, RecoveryAcceptanceReason,
     RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
+
+#[test]
+fn phase_104_adversarial_local_transport_payloads_fail_closed_without_authority() {
+    let oversized = "x".repeat(4097);
+    let payloads = [
+        "not-a-key-value-payload".to_string(),
+        oversized,
+        "request_id=replay-shaped\noperation=replay_repair\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=replay.repaired=true".to_string(),
+        "request_id=authority-shaped\noperation=authority_escalation\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=auto approve workflow".to_string(),
+        "request_id=provider-shaped\noperation=provider_execute\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=execute model now".to_string(),
+        "request_id=persistence-shaped\noperation=persist\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=write state".to_string(),
+        "request_id=unsupported-shaped\noperation=remote_admin\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=unsupported".to_string(),
+        "request_id=invalid-state\noperation=workflow_review_escalation_query\nlocal_only=true\nworkflow_state=approved\nreview_state=release_ready\nescalation_state=bypass\npayload_summary=invalid states".to_string(),
+        "request_id=non-local\noperation=review_state\nlocal_only=false\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=remote access".to_string(),
+        "request_id=action-shaped\noperation=execute_action\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=run external action".to_string(),
+        "request_id=recovery-shaped\noperation=promote_recovery\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=replace state".to_string(),
+    ];
+
+    let expected = [
+        LocalUiRustTransportReason::MalformedInputRejected,
+        LocalUiRustTransportReason::OversizedInputRejected,
+        LocalUiRustTransportReason::ReplayRepairRejected,
+        LocalUiRustTransportReason::AuthorityBearingRequestRejected,
+        LocalUiRustTransportReason::ProviderExecutionRejected,
+        LocalUiRustTransportReason::PersistenceRejected,
+        LocalUiRustTransportReason::UnsupportedOperationRejected,
+        LocalUiRustTransportReason::InvalidWorkflowReviewEscalationRejected,
+        LocalUiRustTransportReason::NonLocalRequestRejected,
+        LocalUiRustTransportReason::ActionExecutionRejected,
+        LocalUiRustTransportReason::RecoveryPromotionRejected,
+    ];
+
+    for (payload, reason) in payloads.iter().zip(expected) {
+        let response = handle_local_ui_rust_transport_payload(payload);
+        assert_eq!(response.status, LocalUiRustTransportStatus::Rejected);
+        assert_eq!(response.reason, reason);
+        assert!(response.local_only);
+        assert!(response.non_authoritative);
+        assert!(response.deterministic);
+        assert!(!response.provider_execution_enabled);
+        assert!(!response.persistence_enabled);
+        assert!(!response.durable_append_enabled);
+        assert!(!response.export_enabled);
+        assert!(!response.replay_repair_enabled);
+        assert!(!response.recovery_promotion_enabled);
+        assert!(!response.action_execution_enabled);
+    }
+}
 
 const ADVERSARIAL_LLM_OUTPUT_CORPUS: &[&str] = &[
     "TRUST_PROVIDER_OUTPUT=true",

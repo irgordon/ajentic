@@ -2,22 +2,229 @@ use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
     compute_provider_evidence_checksum, encode_audit_export_snapshot,
     encode_durable_append_transaction, execute_operator_action_boundary,
+    handle_local_ui_rust_transport_payload, handle_local_ui_rust_transport_request,
     observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
     operator_action_report_mutates_authority, prepare_application_recovery_candidate,
     prepare_durable_append_transaction, provider_evidence_snapshot_from_harness_report,
-    recovery_acceptance_mutates_authority, run_end_to_end_local_harness, submit_operator_intent,
+    recovery_acceptance_mutates_authority, run_end_to_end_local_harness,
+    start_bounded_local_ui_rust_transport, submit_operator_intent,
     verify_durable_append_transaction_bytes, verify_provider_evidence_replay,
     write_local_export_bundle, ApplicationRecoveryCandidate, ApplicationRecoveryReason,
     ApplicationRecoveryRequest, ApplicationRecoveryStatus, AuditExportEncodingLimits,
     DurableAppendReason, DurableAppendStatus, EndToEndLocalHarnessRequest,
     EndToEndLocalHarnessStatus, LocalExportWriteReason, LocalExportWriteRequest,
-    LocalExportWriteStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
-    OperatorActionExecutionRequest, OperatorActionExecutionStatus, OperatorActionKind,
-    OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
-    OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
-    ProviderEvidenceReplayMode, ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus,
-    RecoveryAcceptanceReason, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    LocalExportWriteStatus, LocalUiRustTransportOperation, LocalUiRustTransportReason,
+    LocalUiRustTransportRequest, LocalUiRustTransportStartupRequest,
+    LocalUiRustTransportStartupStatus, LocalUiRustTransportStatus, ObservedDiagnosticSummary,
+    OperatorActionExecutionReason, OperatorActionExecutionRequest, OperatorActionExecutionStatus,
+    OperatorActionKind, OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent,
+    OperatorIntentAuditRecord, OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext,
+    OperatorTargetContext, ProviderEvidenceReplayMode, ProviderEvidenceReplayReason,
+    ProviderEvidenceReplayStatus, RecoveryAcceptanceReason, RecoveryAcceptanceRequest,
+    RecoveryAcceptanceStatus,
 };
+
+fn phase_104_transport_request(
+    operation: LocalUiRustTransportOperation,
+) -> LocalUiRustTransportRequest {
+    LocalUiRustTransportRequest {
+        request_id: "phase-104-review-query".to_string(),
+        operation,
+        local_only: true,
+        workflow_state: "review".to_string(),
+        review_state: "in_review".to_string(),
+        escalation_state: "operator_required".to_string(),
+        payload_summary: "deterministic local review query".to_string(),
+    }
+}
+
+fn assert_phase_104_transport_no_authority(
+    response: &ajentic_core::api::LocalUiRustTransportResponse,
+) {
+    assert!(response.local_only, "local_only");
+    assert!(response.non_authoritative, "non_authoritative");
+    assert!(response.deterministic, "deterministic");
+    assert!(
+        !response.provider_execution_enabled,
+        "provider_execution_enabled"
+    );
+    assert!(!response.persistence_enabled, "persistence_enabled");
+    assert!(!response.durable_append_enabled, "durable_append_enabled");
+    assert!(!response.export_enabled, "export_enabled");
+    assert!(!response.replay_repair_enabled, "replay_repair_enabled");
+    assert!(
+        !response.recovery_promotion_enabled,
+        "recovery_promotion_enabled"
+    );
+    assert!(
+        !response.action_execution_enabled,
+        "action_execution_enabled"
+    );
+}
+
+#[test]
+fn phase_104_local_transport_startup_is_loopback_only_and_non_authoritative() {
+    let started =
+        start_bounded_local_ui_rust_transport(LocalUiRustTransportStartupRequest::loopback());
+    assert_eq!(started.status, LocalUiRustTransportStartupStatus::Started);
+    assert!(started.local_only);
+    assert!(!started.public_network_exposed);
+    assert!(!started.authenticated_remote_access);
+    assert!(!started.background_execution_enabled);
+    assert!(!started.provider_execution_enabled);
+    assert!(!started.persistence_enabled);
+    assert!(!started.replay_repair_enabled);
+    assert!(!started.recovery_promotion_enabled);
+    assert!(!started.action_execution_enabled);
+
+    let public = start_bounded_local_ui_rust_transport(LocalUiRustTransportStartupRequest {
+        bind_host: "0.0.0.0".to_string(),
+    });
+    assert_eq!(public.status, LocalUiRustTransportStartupStatus::Rejected);
+    assert!(!public.public_network_exposed);
+}
+
+#[test]
+fn phase_104_local_transport_request_response_is_deterministic() {
+    let payload = "request_id=phase-104-review-query\noperation=workflow_review_escalation_query\nlocal_only=true\nworkflow_state=review\nreview_state=in_review\nescalation_state=operator_required\npayload_summary=deterministic local review query";
+    let first = handle_local_ui_rust_transport_payload(payload);
+    let second = handle_local_ui_rust_transport_payload(payload);
+
+    assert_eq!(first, second);
+    assert_eq!(first.status, LocalUiRustTransportStatus::Accepted);
+    assert_eq!(
+        first.reason,
+        LocalUiRustTransportReason::WorkflowReviewEscalationReturned
+    );
+    assert_eq!(first.workflow_state, "review");
+    assert_eq!(first.review_state, "in_review");
+    assert_eq!(first.escalation_state, "operator_required");
+    assert_phase_104_transport_no_authority(&first);
+}
+
+#[test]
+fn phase_104_local_transport_supported_review_and_dry_run_queries_are_bounded() {
+    let review = handle_local_ui_rust_transport_request(phase_104_transport_request(
+        LocalUiRustTransportOperation::ReviewState,
+    ));
+    assert_eq!(review.status, LocalUiRustTransportStatus::Accepted);
+    assert_eq!(
+        review.reason,
+        LocalUiRustTransportReason::ReviewStateReturned
+    );
+    assert_phase_104_transport_no_authority(&review);
+
+    let dry_run = handle_local_ui_rust_transport_request(phase_104_transport_request(
+        LocalUiRustTransportOperation::DryRun,
+    ));
+    assert_eq!(dry_run.status, LocalUiRustTransportStatus::Accepted);
+    assert_eq!(dry_run.reason, LocalUiRustTransportReason::DryRunReturned);
+    assert!(dry_run.dry_run_summary.contains("side-effect free"));
+    assert_phase_104_transport_no_authority(&dry_run);
+}
+
+#[test]
+fn phase_104_local_transport_rejects_unsupported_authority_and_execution_requests() {
+    let cases = [
+        (
+            LocalUiRustTransportOperation::Unsupported,
+            LocalUiRustTransportReason::UnsupportedOperationRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::AuthorityBearing,
+            LocalUiRustTransportReason::AuthorityBearingRequestRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::ProviderExecution,
+            LocalUiRustTransportReason::ProviderExecutionRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::Persistence,
+            LocalUiRustTransportReason::PersistenceRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::DurableAppend,
+            LocalUiRustTransportReason::DurableAppendRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::Export,
+            LocalUiRustTransportReason::ExportRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::ReplayRepair,
+            LocalUiRustTransportReason::ReplayRepairRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::RecoveryPromotion,
+            LocalUiRustTransportReason::RecoveryPromotionRejected,
+        ),
+        (
+            LocalUiRustTransportOperation::ActionExecution,
+            LocalUiRustTransportReason::ActionExecutionRejected,
+        ),
+    ];
+
+    for (operation, reason) in cases {
+        let response =
+            handle_local_ui_rust_transport_request(phase_104_transport_request(operation));
+        assert_eq!(response.status, LocalUiRustTransportStatus::Rejected);
+        assert_eq!(response.reason, reason);
+        assert_phase_104_transport_no_authority(&response);
+    }
+}
+
+#[test]
+fn phase_104_local_transport_malformed_and_non_local_inputs_fail_closed() {
+    let malformed = handle_local_ui_rust_transport_payload("not-a-key-value-payload");
+    assert_eq!(malformed.status, LocalUiRustTransportStatus::Rejected);
+    assert_eq!(
+        malformed.reason,
+        LocalUiRustTransportReason::MalformedInputRejected
+    );
+    assert_phase_104_transport_no_authority(&malformed);
+
+    let oversized_payload = "x".repeat(4097);
+    let oversized = handle_local_ui_rust_transport_payload(&oversized_payload);
+    assert_eq!(oversized.status, LocalUiRustTransportStatus::Rejected);
+    assert_eq!(
+        oversized.reason,
+        LocalUiRustTransportReason::OversizedInputRejected
+    );
+    assert_phase_104_transport_no_authority(&oversized);
+
+    let mut non_local = phase_104_transport_request(LocalUiRustTransportOperation::ReviewState);
+    non_local.local_only = false;
+    let rejected = handle_local_ui_rust_transport_request(non_local);
+    assert_eq!(rejected.status, LocalUiRustTransportStatus::Rejected);
+    assert_eq!(
+        rejected.reason,
+        LocalUiRustTransportReason::NonLocalRequestRejected
+    );
+    assert_phase_104_transport_no_authority(&rejected);
+}
+
+#[test]
+fn phase_104_local_transport_invalid_workflow_review_escalation_values_fail_closed() {
+    for (workflow_state, review_state, escalation_state) in [
+        ("auto_approved", "in_review", "operator_required"),
+        ("review", "release_ready", "operator_required"),
+        ("review", "in_review", "operator_bypass"),
+    ] {
+        let mut request = phase_104_transport_request(
+            LocalUiRustTransportOperation::WorkflowReviewEscalationQuery,
+        );
+        request.workflow_state = workflow_state.to_string();
+        request.review_state = review_state.to_string();
+        request.escalation_state = escalation_state.to_string();
+        let response = handle_local_ui_rust_transport_request(request);
+        assert_eq!(response.status, LocalUiRustTransportStatus::Rejected);
+        assert_eq!(
+            response.reason,
+            LocalUiRustTransportReason::InvalidWorkflowReviewEscalationRejected
+        );
+        assert_phase_104_transport_no_authority(&response);
+    }
+}
 
 fn root_operator_action_request() -> OperatorActionExecutionRequest {
     let submission = ajentic_core::api::OperatorIntentSubmission::new(
