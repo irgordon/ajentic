@@ -113,10 +113,10 @@ AJENTIC separates technology by responsibility:
 ```mermaid
 flowchart LR
 
-    %% Group 1: User & System Interfaces
-    subgraph InteractionLayer ["Interaction Layer (Non-Authoritative)"]
+    %% Group 1: User Interfaces
+    subgraph InteractionLayer ["User Interfaces"]
         direction TB
-        subgraph TSUILayer ["TypeScript UI"]
+        subgraph TSUILayer ["TypeScript UI (Review Surface)"]
             direction TB
             D1[Browser UI]:::ts
             D2[Context Review]:::ts
@@ -129,7 +129,7 @@ flowchart LR
     end
 
     %% Group 2: The Core Engine
-    subgraph CoreLayer ["Central Authority"]
+    subgraph CoreLayer ["Central Authority (Runtime Governance)"]
         direction TB
         subgraph RustCore ["Rust Core"]
             direction TB
@@ -140,8 +140,8 @@ flowchart LR
         end
     end
 
-    %% Group 3: Tooling & Enforcement
-    subgraph SupportLayer ["Validation & CI Gates"]
+    %% Group 3: Tooling & Codebase Gates
+    subgraph SupportLayer ["Static Repository Gates"]
         direction TB
         subgraph PythonLayer ["Python (Support Scripts)"]
             B1[Repo Validation]:::python
@@ -156,8 +156,10 @@ flowchart LR
     end
 
     %% Define the data/control flow 
-    InteractionLayer == "Executes Commands" ==> CoreLayer
-    SupportLayer -. "Enforces Rules" .-> CoreLayer
+    BashLayer == "Executes CLI Commands" ==> RustCore
+    RustCore -. "Projects State for Review" .-> TSUILayer
+    
+    SupportLayer -. "Validates Codebase (Pre-Runtime)" .-> RustCore
 
     %% Styling configurations
     classDef rust fill:#B7410E,stroke:#fff,stroke-width:2px,color:#fff;
