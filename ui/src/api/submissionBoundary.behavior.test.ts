@@ -1,4 +1,5 @@
-import { buildUiSubmissionBoundaryResult } from "./readModel";
+import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
+import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { UiSubmissionBoundaryInput, UiSubmissionBoundaryResult } from "./projections";
 
 type BehaviorTest = Readonly<{
@@ -92,6 +93,47 @@ function assertNonLiveNonExecutingBoundary(result: UiSubmissionBoundaryResult): 
   assertEqual(result.mutatesAuthority, false, "mutatesAuthority");
 }
 
+
+function assertContains(text: string, expected: string, message: string): void {
+  if (!text.includes(expected)) {
+    throw new Error(`${message}: expected text to include ${expected}`);
+  }
+}
+
+function assertDeterministicRender(): void {
+  assertEqual(renderLocalRuntimeReviewSurface(), renderLocalRuntimeReviewSurface(), "runtime review deterministic render");
+}
+
+function assertLocalRuntimeReviewSurface(): void {
+  const rendered = renderLocalRuntimeReviewSurface();
+  assertContains(rendered, "Phase 103 Local Runtime Review Surface", "review surface title");
+  assertContains(rendered, "local-only", "local-only indicator");
+  assertContains(rendered, "non-authoritative", "non-authority indicator");
+  assertContains(rendered, "review-only", "review-only indicator");
+  assertContains(rendered, "not production-ready", "readiness prohibition indicator");
+  assertContains(rendered, "transport disabled", "transport disabled indicator");
+  assertContains(rendered, "provider execution disabled", "provider disabled indicator");
+  assertContains(rendered, "persistence authority disabled", "persistence disabled indicator");
+  assertContains(rendered, "action execution disabled", "action disabled indicator");
+  assertContains(rendered, "Workflow state:", "workflow-state rendering");
+  assertContains(rendered, "Review state:", "review-state rendering");
+  assertContains(rendered, "Escalation state:", "escalation-state rendering");
+  assertContains(rendered, "Failure state:", "failure-state rendering");
+  assertContains(rendered, "Evidence state:", "evidence-state rendering");
+  assertContains(rendered, "Dry-run result:", "dry-run rendering");
+  assertContains(rendered, "Validation status:", "validation-status rendering");
+}
+
+function assertRuntimeReviewModelHasNoAuthorityMutation(): void {
+  const runtimeReview = getUiReadModel().localRuntimeReview;
+  for (const interaction of runtimeReview.interactions) {
+    assertNonLiveNonExecutingBoundary(interaction.result);
+  }
+  for (const capability of runtimeReview.disabledCapabilities) {
+    assertEqual(capability.status, "disabled", `${capability.id} capability status`);
+  }
+}
+
 function assertAssertionFailureIsObservable(): void {
   let observedFailure = false;
   try {
@@ -178,6 +220,19 @@ export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "user_supplied_capability_flags_are_rejected_not_trusted",
     run: () => assertRejectedBeforeTransport(buildUiSubmissionBoundaryResult(allSpoofedCapabilityFlags))
+  },
+
+  {
+    name: "local_runtime_review_surface_renders_explicit_boundary_indicators",
+    run: assertLocalRuntimeReviewSurface
+  },
+  {
+    name: "local_runtime_review_surface_renders_deterministically",
+    run: assertDeterministicRender
+  },
+  {
+    name: "local_runtime_review_interactions_do_not_enable_authority_or_execution",
+    run: assertRuntimeReviewModelHasNoAuthorityMutation
   },
   {
     name: "ui_behavioral_test_harness_fails_on_failed_assertion",

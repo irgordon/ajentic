@@ -4,310 +4,243 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 102 Human Operator Workflow Contract
+# Current Phase Checklist - Phase 103 UI Runtime Review Surface Activation Boundary
 
 ## Phase name
-Phase 102 - Human Operator Workflow Contract.
+Phase 103 - UI Runtime Review Surface Activation Boundary.
 
 ## Phase goal
-Define the human operator workflow contract for controlled human use preparation, including operator roles, workflow states, review responsibilities, escalation ownership, stop conditions, evidence capture expectations, approval-language boundaries, and expected state transitions.
+Activate a bounded local-only UI runtime review surface for operator visibility and review interaction without introducing transport authority, provider execution authority, persistence authority, recovery authority, replay repair authority, or action execution authority.
 
 ## Working-tree hygiene gate
 - [x] Ran `git status --short` before edits.
-- [x] Classified the initial working tree as clean with no uncommitted source, docs, generated artifact, dependency, or release-artifact drift.
-- [x] Recorded cleanup posture: no prior generated artifact drift required removal before Phase 102 edits.
-- [x] Confirmed `core/target/.rustc_info.json`, UI build artifacts, test temp files, export temp files, node build artifacts, coverage output, `scripts/__pycache__`, Cargo target drift, and unrelated tool output must be absent from the final diff.
-- [x] Rechecked generated artifact drift after validation and before commit.
+- [x] Classified uncommitted files: none were present before Phase 103 edits.
+- [x] Generated artifact cleanup before edits: no prior generated artifact drift required removal.
+- [x] Re-run `git status --short` after validation.
+- [x] Removed generated artifacts from final working tree (`scripts/__pycache__` and temporary UI runtime/test output).
 
 ## Allowed surfaces
-- [x] `docs/operations/human-operator-workflow-contract-phase-102.md` may be created.
+- [x] `ui/src/**` may change for bounded local UI runtime review surface and behavioral tests.
+- [x] `ui/package.json` may change only for the local runtime launch script.
+- [x] `docs/operations/ui-runtime-review-surface-phase-103.md` may be created.
 - [x] `checklists/current-phase.md` may be updated.
 - [x] `CHANGELOG.md` may be updated.
-- [x] `docs/operations/local-workflow-guide.md` was not modified because a pointer was not strictly required.
-- [x] `checklists/release.md` was not modified because Phase 102 non-approval posture required no release-checklist clarification.
-- [x] Roadmap files were not modified because Phase 102 and Phase 103 title/scope were consistent.
-- [x] Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, README.md, AGENTS.md, package files, dependency files, lockfiles, UI config, and release infrastructure were not modified.
+- [x] Conditional Rust/test/script/README/release surfaces are not required for Phase 103.
 
 ## Boundary rules
-- [x] Phase 102 is documentation/contract only.
-- [x] Phase 102 adds no runtime behavior.
-- [x] Phase 102 adds no new capability.
-- [x] Phase 102 does not activate UI runtime review.
-- [x] Phase 102 does not add live transport.
-- [x] Phase 102 does not add provider execution.
-- [x] Phase 102 does not add persistence authority.
-- [x] Phase 102 does not add recovery behavior.
-- [x] Phase 102 does not add action execution.
-- [x] Phase 102 does not approve readiness.
-- [x] Phase 102 does not approve Production Candidate status.
-- [x] Phase 102 does not approve release-candidate readiness.
-- [x] Phase 102 does not approve production readiness.
-- [x] Phase 102 does not approve public usability.
-- [x] Phase 102 does not implement Phase 103.
-- [x] Phase 103, if recommended, is the next planned UI usability phase only.
+- [x] UI usability/runtime activation only.
+- [x] No readiness approval.
+- [x] No Production Candidate approval.
+- [x] No release-candidate approval.
+- [x] No public-usability approval.
+- [x] No production-human-use approval.
+- [x] No live network transport.
+- [x] No provider/model execution.
+- [x] No persistence authority.
+- [x] No durable append authority.
+- [x] No export authority.
+- [x] No recovery promotion.
+- [x] No replay repair.
+- [x] No action execution.
+- [x] No daemon/server/background behavior.
+- [x] No Phase 104 implementation.
 
 ## Task checklist
-- [x] Read `docs/roadmap/phase-map.md`.
-- [x] Read `docs/roadmap/phases.md`.
-- [x] Read `docs/roadmap/sequencing.md`.
-- [x] Read `CHANGELOG.md`.
-- [x] Read `checklists/current-phase.md`.
-- [x] Read `checklists/release.md`.
-- [x] Read `README.md`.
-- [x] Read `AGENTS.md`.
-- [x] Read required operations docs from Phases 86, 96, 98, 99.5, 100, and 101.
-- [x] Inspected current operator-adjacent Rust, UI, integration smoke, and adversarial evidence files without modifying them.
-- [x] Confirmed Phase 102 title/scope from roadmap files.
-- [x] Created `docs/operations/human-operator-workflow-contract-phase-102.md` with required frontmatter and sections.
-- [x] Defined required roles, responsibilities, workflow states, review states, stop conditions, approval-language boundaries, handoff expectations, and evidence capture expectations.
-- [x] Tied the contract to Phase 101 blockers without claiming closure for runtime, UI, transport, provider, persistence, deployment, recovery, action, release-candidate, or production phases.
-- [x] Decided Phase 103 may begin as the next planned UI usability phase only if Phase 102 is accepted for next bounded phase; this is not readiness approval.
-- [x] Added `CHANGELOG.md` v0.0.102.
-- [x] Did not implement Phase 103.
-- [x] Did not change runtime/source/test/script/workflow/package surfaces.
-- [x] Did not create release artifacts.
+- [x] Confirmed Phase 103 title/scope from roadmap planned truth.
+- [x] Reviewed Phase 102 workflow contract and prior operations docs.
+- [x] Added a local runtime review surface under UI source.
+- [x] Added local launch instruction via `cd ui && npm run dev`.
+- [x] Rendered deterministic read-model/mock data.
+- [x] Rendered dry-run posture text.
+- [x] Rendered validation status.
+- [x] Rendered explicit non-authority, local-only, non-readiness, and disabled-capability indicators.
+- [x] Rendered bounded operator review interactions.
+- [x] Created Phase 103 operations report.
+- [x] Updated CHANGELOG.md v0.0.103.
+- [x] Decided Phase 104 may begin only as the next planned local transport boundary phase.
+- [x] Did not implement Phase 104.
 
 ## Validation checklist
-- [x] `./scripts/check.sh` passed after final documentation edits.
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets` passed.
-- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets` passed.
-- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` passed.
-- [x] `(cd ui && npm run test:api)` passed.
-- [x] `node scripts/test_rust_boundary_lint.mjs` passed.
-- [x] `node scripts/rust_boundary_lint.mjs` passed.
-- [x] `node scripts/test_lint_ui_boundaries.mjs` passed.
-- [x] `node scripts/lint_ui_boundaries.mjs` passed.
-- [x] `(cd ui && npm run typecheck && npm run lint && npm run build)` passed.
-- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run` passed.
-- [x] `cargo build --manifest-path core/Cargo.toml` passed.
-- [x] `(cd ui && npm run build)` passed.
-- [x] Required discovery scans completed and were not used as blocking enforcement.
-- [x] No validation command printed assertion failure, panic, traceback, failed assertion, partial pass count, or masked failure.
+- [x] `./scripts/check.sh`
+- [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets`
+- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets`
+- [x] `cd ui && npm run test:api`
+- [x] `node scripts/test_rust_boundary_lint.mjs`
+- [x] `node scripts/rust_boundary_lint.mjs`
+- [x] `node scripts/test_lint_ui_boundaries.mjs`
+- [x] `node scripts/lint_ui_boundaries.mjs`
+- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
+- [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
+- [x] `cargo build --manifest-path core/Cargo.toml`
+- [x] `cd ui && npm run build`
+- [x] `cd ui && npm run dev`
+- [x] No-runtime-authority scan reviewed; matches were pre-existing historical/test authority names or required non-authority prose, with no new runtime authority behavior in Phase 103 UI code.
+- [x] Readiness scan reviewed; matches are non-readiness/prohibition wording, not approval claims.
+- [x] Roadmap/changelog truth scan reviewed.
+- [x] Source/workflow guard reviewed for no unauthorized surface drift.
 
-## Evidence-only checklist
-- [x] Counted only committed evidence: source files, tests, UI behavioral tests, golden/adversarial tests, validation logs, lint gates, operations docs, checklists, and roadmap/changelog truth surfaces.
-- [x] Did not count future roadmap entries as implemented workflow.
-- [x] Did not count intended UI behavior as implemented workflow.
-- [x] Did not count intended transport behavior as implemented workflow.
-- [x] Did not count architecture rationale alone as implemented workflow.
-- [x] Did not count unmerged/non-history agent runs.
-- [x] Did not count speculative operator assumptions.
-- [x] Did not count prompt intent without committed files.
+## Runtime-boundary checklist
+- [x] Runtime surface renders local review information.
+- [x] Runtime surface renders static/deterministic projections.
+- [x] Runtime surface renders bounded local state.
+- [x] Runtime surface renders local dry-run result text.
+- [x] Runtime surface renders deterministic read-model data.
+- [x] Runtime surface allows local operator review interactions that remain non-authoritative.
 
-## Role model checklist
-- [x] Operator role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-- [x] Reviewer role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-- [x] Maintainer role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-- [x] Release steward role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-- [x] Security reviewer role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-- [x] Trial coordinator role defines scope, responsibility, may decide, may not decide, evidence the role must inspect, and escalation trigger.
-
-## Workflow state checklist
-- [x] Intake defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Local validation defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Dry-run review defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Evidence review defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Human review defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Rejected defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Deferred defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Escalated defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Accepted for next bounded phase defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-- [x] Not approved for readiness defines entry condition, required evidence, allowed action, prohibited action, exit condition, and stop condition.
-
-## Review state checklist
-- [x] Not reviewed is defined.
-- [x] Under review is defined.
-- [x] Changes requested is defined.
-- [x] Evidence sufficient for current boundary is defined.
-- [x] Evidence insufficient is defined.
-- [x] Escalated for security review is defined.
-- [x] Escalated for release review is defined.
-- [x] Closed without approval is defined.
-
-## State-transition checklist
-- [x] `Intake -> Local validation -> Dry-run review -> Evidence review -> Human review -> Accepted for next bounded phase` is documented.
-- [x] `Intake -> Local validation -> Rejected` is documented.
-- [x] `Local validation -> Dry-run review` is documented.
-- [x] `Dry-run review -> Evidence review` is documented.
-- [x] `Evidence review -> Human review` is documented.
-- [x] `Human review -> Accepted for next bounded phase` is documented.
-- [x] `Evidence review -> Deferred` is documented.
-- [x] `Evidence review -> Escalated` is documented.
-- [x] `Escalated -> Rejected` is documented.
-- [x] `Any state -> Not approved for readiness` is documented.
-- [x] No code or schema state machine was added.
-
-## Evidence capture checklist
-- [x] Operator evidence capture responsibility is defined.
-- [x] Reviewer evidence capture responsibility is defined.
-- [x] Maintainer evidence capture responsibility is defined.
-- [x] Release steward evidence capture responsibility is defined.
-- [x] Security reviewer evidence capture responsibility is defined.
-- [x] Trial coordinator evidence capture responsibility is defined.
-- [x] Validation logs and discovery scans are distinguished from blocking enforcement.
-
-## Escalation ownership checklist
-- [x] validation gate failure ownership is defined.
-- [x] boundary lint failure ownership is defined.
-- [x] UI behavioral test failure ownership is defined.
-- [x] generated artifact drift ownership is defined.
-- [x] readiness language drift ownership is defined.
-- [x] release artifact creation ownership is defined.
-- [x] live transport introduced outside phase ownership is defined.
-- [x] provider/model call introduced outside phase ownership is defined.
-- [x] persistence authority introduced outside phase ownership is defined.
-- [x] recovery promotion introduced outside phase ownership is defined.
-- [x] replay repair introduced outside phase ownership is defined.
-- [x] action execution introduced outside phase ownership is defined.
-- [x] unclear operator ownership ownership is defined.
-- [x] unreviewed evidence gap ownership is defined.
-- [x] security concern ownership is defined.
-- [x] human-trial safety concern ownership is defined.
-
-## Stop condition checklist
-- [x] validation gate failure is documented.
-- [x] boundary lint failure is documented.
-- [x] UI behavioral test failure is documented.
-- [x] golden test failure is documented.
-- [x] adversarial test failure is documented.
-- [x] generated artifact drift is documented.
-- [x] source/surface drift is documented.
-- [x] readiness language drift is documented.
-- [x] release artifact creation is documented.
-- [x] live transport introduced outside phase is documented.
-- [x] provider/model call introduced outside phase is documented.
-- [x] persistence authority introduced outside phase is documented.
-- [x] recovery promotion introduced outside phase is documented.
-- [x] replay repair introduced outside phase is documented.
-- [x] action execution introduced outside phase is documented.
-- [x] unclear operator ownership is documented.
-- [x] unreviewed evidence gap is documented.
-- [x] security concern is documented.
-- [x] human-trial safety concern is documented.
-
-## Approval language checklist
-- [x] accepted for next bounded phase is distinguished from readiness approval.
-- [x] accepted for local operator testing is distinguished from production/public approval.
-- [x] evidence sufficient for current boundary is distinguished from readiness approval.
-- [x] not approved for readiness is stated.
-- [x] not approved for Production Candidate status is stated.
-- [x] not approved for release-candidate readiness is stated.
-- [x] not approved for public usability is stated.
-- [x] not approved for production human use is stated.
-
-## Handoff expectation checklist
-- [x] Handoff expectations include the Phase 102 contract document.
-- [x] Handoff expectations include checklist closure.
-- [x] Handoff expectations include CHANGELOG.md historical truth.
-- [x] Handoff expectations include validation evidence.
-- [x] Handoff expectations include role ownership for unresolved issues.
-- [x] Handoff expectations include stop-condition disposition.
-- [x] Handoff expectations include explicit non-readiness language.
-- [x] Handoff expectations include confirmation that Phase 102 does not implement Phase 103.
+## Local-only runtime checklist
+- [x] Local runtime launch instruction is visible.
+- [x] Runtime command renders locally and does not start a service.
+- [x] Browser auto-open behavior is not added.
+- [x] Local HTTP server behavior is not added.
+- [x] Hidden transport behavior is not added.
 
 ## Non-authority checklist
-- [x] Phase 102 does not add runtime behavior, CLI surface, release tooling, packaging behavior, installer behavior, distribution behavior, signing behavior, publishing behavior, auto-update behavior, authority surface, transport, provider/model call, persistence, durable append, export write, replay repair, recovery acceptance, recovery behavior, action behavior, or action execution.
-- [x] Phase 102 does not activate UI runtime review.
-- [x] Phase 102 does not add live transport.
-- [x] Phase 102 does not add provider execution.
-- [x] Phase 102 does not add persistence authority.
-- [x] Phase 102 does not add recovery behavior.
-- [x] Phase 102 does not add action execution.
+- [x] UI remains non-authoritative.
+- [x] Rust remains runtime authority.
+- [x] Operator interactions are preview/review only.
+- [x] UI does not mutate authoritative state.
+- [x] UI does not auto-approve workflow states.
 
-## Prohibited inference checklist
-- [x] Roadmap planned truth is not inferred as implemented workflow.
-- [x] CHANGELOG.md historical truth is not inferred as future-phase approval.
-- [x] Local validation success is not inferred as release approval.
-- [x] Dry-run success is not inferred as Production Candidate approval.
-- [x] accepted for next bounded phase is not inferred as production human-use approval.
-- [x] accepted for local operator testing is not inferred as public usability.
-- [x] evidence sufficient for current boundary is not inferred as production readiness.
-- [x] Phase 103 is not inferred as implemented by Phase 102.
+## Disabled-capability checklist
+- [x] Transport disabled indicator renders.
+- [x] Provider execution disabled indicator renders.
+- [x] Persistence authority disabled indicator renders.
+- [x] Recovery/replay mutation disabled indicator renders.
+- [x] Action execution disabled indicator renders.
 
-## Phase 103 gate checklist
-- [x] Phase 103 is identified as UI Runtime Review Surface Activation Boundary in roadmap planned truth.
-- [x] Phase 103 may begin only as the next planned UI usability phase after Phase 102 acceptance.
-- [x] Phase 103 gate language is not readiness approval.
-- [x] Phase 102 does not implement Phase 103.
+## Deterministic-rendering checklist
+- [x] Review surface uses deterministic fixture/read-model data.
+- [x] Behavioral test asserts deterministic repeated render output.
+- [x] Read-model source remains typed and local.
+
+## Review/workflow/escalation rendering checklist
+- [x] Review state renders.
+- [x] Workflow state renders.
+- [x] Escalation state renders.
+- [x] Bounded local review interaction results render.
+
+## Failure/evidence rendering checklist
+- [x] Failure state renders.
+- [x] Evidence state renders.
+- [x] Rejected authority-escalation interaction renders fail-closed result.
+
+## Behavioral-test checklist
+- [x] Tests prove no network behavior via no transport eligibility/calls.
+- [x] Tests prove no authority mutation.
+- [x] Tests prove no provider execution.
+- [x] Tests prove no persistence execution.
+- [x] Tests prove no action execution.
+- [x] Tests prove explicit non-authority rendering.
+- [x] Tests prove explicit local-only rendering.
+- [x] Tests prove explicit readiness prohibition rendering.
+- [x] Tests prove deterministic rendering behavior.
+- [x] Tests prove bounded review interaction behavior.
+
+## Transport-isolation checklist
+- [x] No live UI-to-Rust transport added.
+- [x] Transport-shaped data remains display/preview only.
+- [x] Phase 104 local transport boundary is not implemented.
+
+## Provider-isolation checklist
+- [x] Provider execution disabled.
+- [x] Provider output remains untrusted.
+- [x] UI runtime does not invoke provider/model paths.
+
+## Persistence-isolation checklist
+- [x] Persistence authority disabled.
+- [x] UI runtime does not write, append, export, or persist authority state.
+- [x] Ledger/audit append authority is not added.
+
+## Recovery/replay-isolation checklist
+- [x] Recovery promotion disabled.
+- [x] Replay repair disabled.
+- [x] Replay posture remains verification/display only.
+
+## Action-execution-isolation checklist
+- [x] Action execution disabled.
+- [x] Operator interactions remain local review previews/rejections.
+- [x] No action execution path is invoked.
+
+## Phase 104 gate checklist
+- [x] Phase 104 may begin only as the next planned local transport boundary phase after Phase 103 acceptance.
+- [x] Phase 104 gate decision is not readiness approval.
+- [x] Phase 103 does not implement Phase 104.
 
 ## Production Candidate status checklist
-- [x] Production Candidate status: not approved.
-- [x] Phase 102 does not approve Production Candidate status.
-- [x] Phase 102 creates no Production Candidate branch, tag, artifact, or release.
+- [x] Production Candidate status is not approved.
+- [x] No Production Candidate branch, tag, artifact, or release is created.
 
-## release-candidate/public-use status checklist
-- [x] release-candidate readiness: not approved.
-- [x] production readiness: not approved.
-- [x] public usability: not approved.
-- [x] production human use is not approved.
-- [x] public/general use is not approved.
-- [x] Phase 102 creates no release artifacts and no public download assets.
+## Release-candidate/public-use status checklist
+- [x] Release-candidate readiness is not approved.
+- [x] Production readiness is not approved.
+- [x] Public usability is not approved.
+- [x] Production human use is not approved.
+- [x] No release artifacts or public download assets are created.
 
-## roadmap/changelog truth checklist
+## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
 - [x] CHANGELOG.md remains historical truth.
-- [x] Phase 102 was recorded in CHANGELOG.md as historical documentation/contract work only.
-- [x] No roadmap file changes were made.
+- [x] Phase 103 is recorded in CHANGELOG.md as bounded local-only UI runtime review surface activation only.
 
 ## AST/boundary lint parity checklist
-- [x] Phase 102 does not rely on `rg` scans as enforcement.
-- [x] `rg` scans are discovery/evidence only.
-- [x] Blocking enforcement remains `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, UI behavioral tests, and Rust tests.
-- [x] Phase 102 did not change lint behavior.
-- [x] No lint gap was discovered that required a Phase 102 deferred follow-up.
+- [x] Phase 103 does not weaken lint gates.
+- [x] Existing Rust and UI boundary lint commands pass after final edits.
+- [x] No lint gap requires a Phase 103 deferred follow-up.
 
 ## Test fidelity checklist
-- [x] Phase 102 is documentation/contract only, so no new Rust or TypeScript tests were added.
-- [x] Full existing test/lint/check suite passed after final documentation edits.
-- [x] No tests were skipped after final edits.
-- [x] No validation command printed failure output while returning 0.
+- [x] UI behavioral tests include positive and negative local review surface checks.
+- [x] Tests assert values rather than only snapshots.
+- [x] Full requested validation suite passes after final edits.
 
 ## Zero-drift checklist
-- [x] `git status --short` was clean before edits.
-- [x] Final generated artifact drift was removed or absent before commit.
-- [x] Staged files exactly matched the allowed Phase 102 surfaces.
-- [x] No release artifacts were created.
-- [x] `git diff --name-only --cached` was reviewed before commit.
+- [x] Staged files exactly match allowed Phase 103 surfaces.
+- [x] Generated artifacts are removed.
+- [x] Source/workflow guard shows no unauthorized drift.
+- [x] CHANGELOG matches final diff truthfully.
+- [x] No unauthorized runtime authority behavior exists.
+- [x] No readiness approval claims exist.
+- [x] Phase 104 is not implemented.
 
 ## Findings table
-| Finding | Phase 102 disposition |
+| Finding | Phase 103 disposition |
 | --- | --- |
-| Phase 102 title/scope | Confirmed from roadmap planned truth as Human Operator Workflow Contract; documentation/contract only. |
-| Phase 101 blockers | Tied to workflow contract without claiming closure for runtime/UI/transport/provider/persistence/deployment phases. |
-| Role model | Operator, Reviewer, Maintainer, Release steward, Security reviewer, and Trial coordinator are defined. |
-| Workflow states | Intake, Local validation, Dry-run review, Evidence review, Human review, Rejected, Deferred, Escalated, Accepted for next bounded phase, and Not approved for readiness are defined. |
-| Review states | Not reviewed, Under review, Changes requested, Evidence sufficient for current boundary, Evidence insufficient, Escalated for security review, Escalated for release review, and Closed without approval are defined. |
-| Phase 103 gate | Phase 103 may begin as the next planned UI usability phase only; not readiness approval. |
-| Production Candidate status | Not approved. |
-| Release-candidate/public-use status | release-candidate readiness, production readiness, public usability, production human use, and public/general use are not approved. |
+| Phase 103 title/scope | Confirmed from roadmap planned truth as UI Runtime Review Surface Activation Boundary; UI usability only, no Rust authority and no live mutation. |
+| Initial working tree | Clean before edits; no generated artifact cleanup required. |
+| Runtime review surface | Added deterministic local-only UI review surface with explicit boundary indicators. |
+| Bounded interactions | Preview/rejection results render with all live/execution/persistence/provider/replay/action flags disabled. |
+| Phase 104 | May begin next only as planned local transport boundary; not implemented here. |
+| Readiness | Not approved for Production Candidate, release-candidate, production, public usability, or production human use. |
 
 ## Deferred items table
-| Deferred item | Reason | Later owner |
+| Item | Status | Reason |
 | --- | --- | --- |
-| UI runtime review activation | Phase 102 is documentation/contract only. | Maintainer and Reviewer. |
-| Live local transport | Phase 102 does not add live transport. | Maintainer and Security reviewer. |
-| Provider/model execution | Phase 102 does not add provider execution. | Security reviewer. |
-| Persistence authority | Phase 102 does not add persistence authority. | Maintainer and Security reviewer. |
-| Recovery behavior and replay repair | Phase 102 does not add recovery behavior or replay repair. | Maintainer and Security reviewer. |
-| Action execution | Phase 102 does not add action execution. | Maintainer and Security reviewer. |
-| Controlled human trial | production human use is not approved. | Trial coordinator. |
-| Release-candidate readiness | release-candidate readiness: not approved. | Release steward. |
-| Production Candidate status | Production Candidate status: not approved. | Release steward and Maintainer. |
+| Live UI-to-Rust transport | Deferred to Phase 104 | Phase 103 is UI usability only. |
+| Provider/model execution | Deferred | Prohibited by Phase 103 boundary. |
+| Persistence authority/export/durable append | Deferred | Prohibited by Phase 103 boundary. |
+| Recovery promotion/replay repair | Deferred | Prohibited by Phase 103 boundary. |
+| Action execution | Deferred | Prohibited by Phase 103 boundary. |
+| Production Candidate/release/public-use approvals | Deferred | Phase 103 does not approve readiness. |
 
 ## Validation log table
-| Command | Result | Notes |
+| Command | Status | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | Pass | Final validation gate passed. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Explicit cargo test suite passed. |
-| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Pass | Explicit golden filter passed. |
-| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Pass | Explicit adversarial filter passed. |
-| `(cd ui && npm run test:api)` | Pass | Explicit UI behavioral tests passed. |
-| `node scripts/test_rust_boundary_lint.mjs` | Pass | Rust boundary lint test passed. |
+| `git status --short` | Pass | Clean before edits. |
+| `./scripts/check.sh` | Pass | All checks passed. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | 813 lib tests, 22 main tests, 1 adversarial integration test, and 30 smoke integration tests passed. |
+| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Pass | Golden-filtered tests passed. |
+| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Pass | Adversarial-filtered tests passed. |
+| `cd ui && npm run test:api` | Pass | 27/27 UI API behavior tests passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | Pass | 15/15 self-tests passed. |
 | `node scripts/rust_boundary_lint.mjs` | Pass | Rust boundary lint passed. |
-| `node scripts/test_lint_ui_boundaries.mjs` | Pass | UI boundary lint test passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | Pass | 12/12 self-tests passed. |
 | `node scripts/lint_ui_boundaries.mjs` | Pass | UI boundary lint passed. |
-| `(cd ui && npm run typecheck && npm run lint && npm run build)` | Pass | Explicit UI validation passed. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Pass | CLI dry-run passed. |
-| `cargo build --manifest-path core/Cargo.toml` | Pass | Core local build passed. |
-| `(cd ui && npm run build)` | Pass | UI local build passed. |
-| Required discovery scans | Pass | Scans confirmed required phrases and no disallowed final diffs. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | Typecheck, lint placeholder, and build placeholder passed. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Pass | Dry-run completed and reported non-executing posture. |
+| `cargo build --manifest-path core/Cargo.toml` | Pass | Build completed. |
+| `cd ui && npm run build` | Pass | Build placeholder passed. |
+| `cd ui && npm run dev` | Pass | Local deterministic review surface rendered; no server started. |
+| No-runtime-authority scan | Pass | Reviewed matches as pre-existing historical/test authority names or required non-authority prose; no new runtime authority behavior. |
+| Readiness scan | Pass | Matches are non-readiness/prohibition wording, not approval claims. |
+| Roadmap/changelog truth scan | Pass | Planned/historical truth posture present. |
+| Source/workflow guard | Pass | No unauthorized guarded surface drift. |
