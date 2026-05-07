@@ -4,8 +4,21 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const localTypescriptPath = path.resolve('ui/node_modules/typescript/lib/typescript.js');
-const globalTypescriptPath = path.resolve('/root/.nvm/versions/node/v22.21.1/lib/node_modules/typescript/lib/typescript.js');
-const typescriptPath = fs.existsSync(localTypescriptPath) ? localTypescriptPath : globalTypescriptPath;
+const nodeVersionGlobalTypescriptPath = path.resolve(
+  path.dirname(process.execPath),
+  '..',
+  'lib',
+  'node_modules',
+  'typescript',
+  'lib',
+  'typescript.js',
+);
+const fallbackGlobalTypescriptPath = path.resolve('/root/.nvm/versions/node/v22.21.1/lib/node_modules/typescript/lib/typescript.js');
+const typescriptPath = fs.existsSync(localTypescriptPath)
+  ? localTypescriptPath
+  : fs.existsSync(nodeVersionGlobalTypescriptPath)
+    ? nodeVersionGlobalTypescriptPath
+    : fallbackGlobalTypescriptPath;
 const ts = await import(pathToFileURL(typescriptPath).href);
 const typescript = ts.default ?? ts;
 

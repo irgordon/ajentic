@@ -3,129 +3,186 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-# Current Phase Checklist - Phase 104.5 Historical Truth Partitioning
+# Current Phase Checklist - Phase 105 Transport Abuse Hardening for Live Local Bridge
 
 ## Phase name
-Phase 104.5 - Historical Truth Partitioning
+Phase 105 - Transport Abuse Hardening for Live Local Bridge
 
 ## Phase goal
-Partition the historical changelog into deterministic archive ranges while preserving historical truth, ordering, wording, timestamps, headings, and semantic interpretation.
+Harden the bounded live local UI-to-Rust bridge against malformed, spoofed, replay-shaped, oversized, authority-bearing, unsupported, hostile, or state-corrupting transport input without broadening capability.
 
 ## Working-tree hygiene gate
 - [x] Ran `git status --short` before edits.
 - [x] Classified uncommitted files before edits.
 - [x] Confirmed no generated artifact drift required cleanup before edits.
-- [x] Read `CHANGELOG.md` fully before modification.
-- [x] Read required roadmap, checklist, README, AGENTS, and Phase 101 through Phase 104 operations documents before modification.
+- [x] Read `CHANGELOG.md` and `docs/changelog/*` before modification.
+- [x] Read roadmap, current checklist, README, AGENTS, and required operations docs before modification.
+- [x] Inspected implementation surfaces only as evidence.
 
 ## Allowed surfaces
-- [x] `CHANGELOG.md`
-- [x] `docs/changelog/**`
-- [x] `docs/operations/historical-truth-partitioning-phase-104-5.md`
+- [x] `core/src/api/**`
+- [x] `ui/src/api/**`
+- [x] `tests/**`
+- [x] `docs/operations/transport-abuse-hardening-phase-105.md`
 - [x] `checklists/current-phase.md`
-- [x] Validation compatibility deviation: `scripts/validate_structure.py` and `scripts/validate_docs.py` were updated so required `docs/changelog/` historical archives are accepted by existing repository validators.
+- [x] `CHANGELOG.md`
+- [x] Conditional validation support: `scripts/lint_ui_boundaries.mjs` updated to resolve the active Node global TypeScript path so required validation can run.
 
 ## Boundary rules
-- [x] Phase 104.5 is repository historical-truth maintenance only.
-- [x] Phase 104.5 does not add runtime behavior.
-- [x] Phase 104.5 does not add new capability.
-- [x] Phase 104.5 does not add transport behavior.
-- [x] Phase 104.5 does not add provider execution.
-- [x] Phase 104.5 does not add persistence authority.
-- [x] Phase 104.5 does not add durable append authority.
-- [x] Phase 104.5 does not add export authority.
-- [x] Phase 104.5 does not add replay repair.
-- [x] Phase 104.5 does not add recovery promotion.
-- [x] Phase 104.5 does not add action execution.
-- [x] Phase 104.5 does not implement Phase 105.
+- [x] Phase 105 is transport abuse hardening only.
+- [x] Phase 105 does not broaden transport capability.
+- [x] Phase 105 does not add provider execution.
+- [x] Phase 105 does not add persistence authority.
+- [x] Phase 105 does not add durable append authority.
+- [x] Phase 105 does not add export authority.
+- [x] Phase 105 does not add replay repair.
+- [x] Phase 105 does not add recovery promotion.
+- [x] Phase 105 does not add action execution.
+- [x] Phase 105 does not add deployment automation.
+- [x] Phase 105 does not add remote/public transport.
+- [x] Phase 105 does not approve readiness, Production Candidate status, release-candidate readiness, production readiness, public usability, or production human use.
+- [x] Phase 105 does not implement Phase 106.
 
 ## Task checklist
-- [x] Create `docs/changelog/CHANGELOG-0001-0055.md`.
-- [x] Create `docs/changelog/CHANGELOG-0056-0104.md`.
-- [x] Convert `CHANGELOG.md` into the active rolling historical-truth surface.
-- [x] Add the v0.0.104.5 changelog entry.
-- [x] Add deterministic archive index references.
-- [x] Create the Phase 104.5 operations report.
-- [ ] Avoid runtime, source, test, script, workflow, schema, package, lockfile, README, AGENTS, governance, and architecture changes.
-- [x] Runtime, source, test, workflow, schema, package, lockfile, README, AGENTS, governance, and architecture surfaces were avoided.
-- [x] Script validator compatibility was changed only to recognize the required `docs/changelog/` historical-truth archive location.
+- [x] Harden local transport parser and request handling against hostile input.
+- [x] Preserve deterministic fail-closed behavior.
+- [x] Preserve local-only transport posture.
+- [x] Add adversarial transport abuse tests.
+- [x] Add deterministic rejection tests.
+- [x] Create `docs/operations/transport-abuse-hardening-phase-105.md`.
+- [x] Update this checklist to Phase 105 procedural truth.
+- [x] Add `CHANGELOG.md` v0.0.105.
+- [x] Decide Phase 106 may begin only as the next planned provider configuration contract phase.
+- [x] Avoid Phase 106 implementation.
 
 ## Validation checklist
 - [x] Run `./scripts/check.sh`.
-- [x] Run `git diff --check`.
-- [x] Run `git status --short`.
-- [x] Run version-heading scan.
-- [x] Run duplicate-version scan.
-- [x] Run archive-range scan.
+- [x] Run `cargo test --manifest-path core/Cargo.toml --all-targets`.
+- [x] Run `cargo test --manifest-path core/Cargo.toml golden --all-targets`.
+- [x] Run `cargo test --manifest-path core/Cargo.toml adversarial --all-targets`.
+- [x] Run `cargo test --manifest-path core/Cargo.toml phase_105 --all-targets`.
+- [x] Run `cd ui && npm run test:api`.
+- [x] Run Rust/UI boundary lint commands.
+- [x] Run `cd ui && npm run typecheck && npm run lint && npm run build`.
+- [x] Run deterministic rejection validation.
+- [x] Run locality validation.
+- [x] Run no-authority scan.
 - [x] Run readiness scan.
 - [x] Run source/workflow guard.
 
-## Historical-truth checklist
-- [x] Historical entries remain semantically identical.
-- [x] Historical wording is not rewritten.
-- [x] Historical timestamps are not modified.
-- [x] Historical version headings are not renamed.
-- [x] Historical sections are not collapsed.
-- [x] Historical meaning is not reinterpreted.
+## Transport-hardening checklist
+- [x] Bridge remains local-only.
+- [x] Bridge remains bounded.
+- [x] Bridge remains deterministic.
+- [x] Bridge remains non-authoritative.
+- [x] Bridge remains fail-closed.
 
-## Archival-range checklist
-- [x] `CHANGELOG-0001-0055.md` contains the v0.0.1 through v0.0.55 range.
-- [x] `CHANGELOG-0001-0055.md` retains the legacy v0.0.0 bootstrap entry to prevent omission.
-- [x] `CHANGELOG-0056-0104.md` contains the v0.0.56 through v0.0.104 range.
-- [x] `CHANGELOG.md` begins with v0.0.104.5 and later active entries only.
+## Malformed-input checklist
+- [x] Malformed payload rejection covered.
+- [x] Truncated payload rejection covered.
+- [x] Empty payload rejection covered.
+- [x] Malformed structured payload rejection covered.
+- [x] Malformed typed-field rejection covered.
+- [x] Invalid enum rejection covered.
 
-## Byte-preservation checklist
-- [x] Archived historical entry text was copied from the former root changelog.
-- [x] Archive wrapper text is outside historical entries.
-- [x] No editorial cleanup was applied to archived entries.
+## Oversized-payload checklist
+- [x] Oversized payload rejection occurs before parsing.
+- [x] Oversized hostile payload ordering is deterministic.
 
-## Duplicate-prevention checklist
-- [x] Archived entries are not duplicated in the active changelog.
-- [x] Version-heading scan confirms each heading appears once across active and archive surfaces.
+## Replay-shaped-payload checklist
+- [x] Replay-shaped metadata rejection covered.
+- [x] Replay repair remains rejected.
+- [x] Replay verification-only posture preserved.
 
-## Omission-prevention checklist
-- [x] Historical version headings are retained across active and archive surfaces.
-- [x] The legacy v0.0.0 bootstrap entry remains present in an archive.
-- [x] No historical entries are silently omitted.
+## Duplicate-request checklist
+- [x] Duplicate `request_id` field rejection covered.
+- [x] Duplicate identifier rejection does not create deduplication or replay repair authority.
 
-## Deterministic-ordering checklist
-- [x] Archive filenames use deterministic zero-padded range names.
-- [x] Historical entries remain in recorded extraction order within each archive.
-- [x] Active changelog begins after the archived range with v0.0.104.5.
+## Authority-escalation checklist
+- [x] Authority-bearing fields rejected.
+- [x] Authority escalation operations rejected.
+- [x] Credentials/admin claims rejected.
 
-## Grep/search continuity checklist
-- [x] Version headings remain Markdown `##` headings.
-- [x] Archive files live under `docs/changelog/`.
-- [x] Search command remains simple: `rg -n "^## v0\.0\." CHANGELOG.md docs/changelog/*.md`.
+## Unsupported-operation checklist
+- [x] Unsupported typed operation rejected.
+- [x] Unknown payload operation enum rejected deterministically.
 
-## Active-changelog checklist
-- [x] Active changelog preserves historical-truth posture.
-- [x] Active changelog contains an archive index.
-- [x] Active changelog contains archive-location references.
-- [x] Active changelog contains v0.0.104.5.
-- [x] Active changelog contains no duplicated archived entries.
-- [x] Active changelog clearly states archive ranges.
+## Invalid-state checklist
+- [x] Invalid workflow state rejected.
+- [x] Invalid review state rejected.
+- [x] Invalid escalation state rejected.
+- [x] No malformed state auto-correction added.
 
-## Archive-index checklist
-- [x] Archive index lists `docs/changelog/CHANGELOG-0001-0055.md`.
-- [x] Archive index lists `docs/changelog/CHANGELOG-0056-0104.md`.
-- [x] Archive index avoids Markdown tables.
-- [x] Archive index remains mechanically simple and grep-friendly.
+## Hostile-payload checklist
+- [x] Hostile/noise payload rejected.
+- [x] Null-containing payload rejected.
+- [x] Structured injection-shaped payload rejected.
+
+## Deterministic-rejection checklist
+- [x] Identical hostile payloads produce identical rejection results.
+- [x] Reason codes remain deterministic.
+- [x] Rejection ordering remains deterministic.
+- [x] No partial authority path activation occurs.
+- [x] No silent fallback path occurs.
+
+## Non-authority checklist
+- [x] No authoritative state mutation.
+- [x] No durable ledger append.
+- [x] No audit append.
+- [x] No export write.
+- [x] No silent recovery or repair.
+
+## Provider-isolation checklist
+- [x] Provider execution attempts rejected.
+- [x] Provider execution remains disabled.
+- [x] Provider output remains untrusted.
+
+## Persistence-isolation checklist
+- [x] Persistence attempts rejected.
+- [x] Persistence remains disabled.
+- [x] Durable append/export authority remains disabled.
+
+## Recovery/replay-isolation checklist
+- [x] Replay repair attempts rejected.
+- [x] Recovery promotion attempts rejected.
+- [x] No replay repair or recovery promotion authority added.
+
+## Action-execution-isolation checklist
+- [x] Action execution attempts rejected.
+- [x] Action execution remains disabled.
+
+## Adversarial-test checklist
+- [x] Malformed payloads covered.
+- [x] Replay-shaped payloads covered.
+- [x] Duplicate request identifiers covered.
+- [x] Malformed enum values covered.
+- [x] Oversized payloads covered.
+- [x] Authority escalation attempts covered.
+- [x] Provider, persistence, replay repair, recovery promotion, and action execution attempts covered.
+- [x] Hostile/noise payloads covered.
+- [x] Invalid transport metadata and locality claims covered.
+- [x] Invalid review/workflow/escalation values covered.
+- [x] Malformed structured request bodies covered.
+
+## Behavioral-test checklist
+- [x] UI API behavior tests cover Phase 105 hostile payloads.
+- [x] Rust integration behavior tests cover Phase 105 hostile payloads.
+- [x] Deterministic failure ordering is covered.
 
 ## Roadmap/changelog truth checklist
+- [x] Confirmed Phase 105 title/scope from roadmap files.
 - [x] Roadmap remains planned truth.
 - [x] CHANGELOG surfaces remain historical truth.
-- [x] Phase 104.5 does not convert roadmap plans into completed work.
-- [x] Evidence counting uses committed truth surfaces only.
+- [x] Phase 105 changelog entry reflects final behavior.
 
-## Phase 105 gate checklist
-- [x] Phase 105 remains the next planned transport abuse hardening phase.
-- [x] Phase 104.5 does not implement Phase 105.
-- [x] Phase 104.5 does not approve Phase 105 readiness outcomes.
+## Phase 106 gate checklist
+- [x] Phase 106 may begin next only as the planned provider configuration contract phase.
+- [x] Phase 106 is not implemented.
+- [x] Phase 106 is not provider execution.
 
 ## Production Candidate status checklist
 - [x] Production Candidate status is not approved.
-- [x] Phase 104.5 does not approve Production Candidate status.
+- [x] Phase 105 does not approve Production Candidate status.
 
 ## Release-candidate/public-use status checklist
 - [x] Release-candidate readiness is not approved.
@@ -134,52 +191,45 @@ Partition the historical changelog into deterministic archive ranges while prese
 - [x] Production human use is not approved.
 
 ## Zero-drift checklist
-- [x] No Rust source drift.
-- [x] No TypeScript source drift.
-- [x] No tests drift.
-- [ ] No scripts drift.
-- [x] Script drift is limited to validation compatibility for the required `docs/changelog/` historical-truth surface.
-- [x] No workflow drift.
-- [x] No schema drift.
+- [x] Staged files are limited to allowed surfaces.
+- [x] No generated artifacts remain staged.
 - [x] No package or lockfile drift.
-- [x] No README or AGENTS drift.
-- [x] Generated artifacts remain cleaned.
+- [x] No roadmap/governance/README/AGENTS drift.
+- [ ] No scripts drift.
+- [x] Script drift is limited to validation support for the required UI boundary lint gate under the active Node runtime.
+- [x] Source/workflow guard checked.
 
 ## Findings table
 | Finding | Evidence | Status |
 | --- | --- | --- |
 | Initial working tree had no uncommitted files. | `git status --short` before edits produced no paths. | Confirmed |
-| Existing validators did not recognize the new required `docs/changelog/` location. | First `./scripts/check.sh` run failed on `docs/changelog/` structure/truth-location checks. | Confirmed |
-| Validator compatibility required script drift beyond the requested allowed surfaces. | `scripts/validate_structure.py` and `scripts/validate_docs.py` were updated to recognize `docs/changelog/` as historical truth. | Confirmed deviation |
-| No generated artifact drift required cleanup before edits. | Initial status showed no generated artifact paths. | Confirmed |
-| Historical changelog required partitioning for scalability and merge-conflict reduction. | Former root changelog contained all historical entries through v0.0.104. | Confirmed |
-| Legacy v0.0.0 exists outside the named requested ranges. | The entry is retained in the first archive to prevent omission. | Confirmed |
-| A historically recorded v0.0.63 entry appears in its committed recorded extraction position. | The entry is preserved in the v0.0.56 through v0.0.104 archive. | Confirmed |
+| No generated artifact cleanup was required before edits. | Initial status showed no generated artifact paths. | Confirmed |
+| Phase 105 title/scope is planned. | Roadmap lists Phase 105 as transport abuse hardening for live local bridge. | Confirmed |
+| Transport hardening rejects malformed, oversized, replay-shaped, duplicate identifier, authority-bearing, invalid enum, invalid typed-field, invalid state, non-local, unsupported, and hostile inputs. | Rust and UI tests plus implementation changes. | Confirmed |
+| No new authority behavior was added. | Authority flags remain disabled and no-authority scan was reviewed. | Confirmed |
+| UI boundary lint needed runtime-compatible TypeScript resolution. | `scripts/lint_ui_boundaries.mjs` now checks the active Node global module path before the legacy fallback. | Confirmed validation-support drift |
 
 ## Deferred items table
 | Item | Reason |
 | --- | --- |
-| Runtime behavior | Outside Phase 104.5 boundary. |
-| Transport behavior | Outside Phase 104.5 boundary. |
-| Provider execution | Outside Phase 104.5 boundary. |
-| Persistence authority | Outside Phase 104.5 boundary. |
-| Durable append authority | Outside Phase 104.5 boundary. |
-| Export authority | Outside Phase 104.5 boundary. |
-| Replay repair | Outside Phase 104.5 boundary. |
-| Recovery promotion | Outside Phase 104.5 boundary. |
-| Action execution | Outside Phase 104.5 boundary. |
-| Phase 105 implementation | Deferred to Phase 105. |
-| Readiness approvals | Not approved by Phase 104.5. |
+| Provider execution | Deferred to later provider execution phases; not Phase 105. |
+| Persistence authority | Deferred to future persistence authority decision/activation phases. |
+| Durable append authority | Outside Phase 105 boundary. |
+| Export authority | Outside Phase 105 boundary. |
+| Replay repair | Outside Phase 105 boundary. |
+| Recovery promotion | Outside Phase 105 boundary. |
+| Action execution | Outside Phase 105 boundary. |
+| Deployment automation | Outside Phase 105 boundary. |
+| Remote/public transport | Outside Phase 105 boundary. |
+| Readiness approvals | Not approved by Phase 105. |
+| Phase 106 implementation | Deferred to Phase 106. |
 
 ## Validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| `git status --short` | Passed | Initial status had no uncommitted paths. |
-| `./scripts/check.sh` | Passed | Full project validation completed. |
-| `git diff --check` | Passed | No whitespace errors. |
-| `git status --short` | Warning | Required changelog/checklist/operations/archive surfaces changed; validator compatibility scripts also changed as a deviation required for `./scripts/check.sh` to recognize `docs/changelog/`. |
-| `rg -n "^## v0\.0\." CHANGELOG.md docs/changelog/*.md` | Passed | Version headings remain searchable. |
-| `rg -n "^## v0\.0\." CHANGELOG.md docs/changelog/*.md \| sort` | Passed | Duplicate-version scan completed. |
-| `rg -n "v0\.0\.1\|v0\.0\.55\|v0\.0\.56\|v0\.0\.104\|v0\.0\.104\.5" CHANGELOG.md docs/changelog/*.md` | Passed | Archive boundary headings are present. |
-| readiness approval phrase scan | Passed | No approval claims found. |
-| `git diff -- source/workflow guard paths` | Warning | No Rust, TypeScript, tests, workflows, README, AGENTS, package, or lockfile drift; script validator compatibility drift is present. |
+| `git status --short` | Passed | Initial status had no paths. |
+| `cargo test --manifest-path core/Cargo.toml phase_105 --all-targets` | Passed | Phase 105 Rust tests passed. |
+| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Passed | Adversarial Rust tests passed. |
+| `cd ui && npm run test:api` | Passed | UI API behavior tests passed. |
+| `./scripts/check.sh` | Passed | Full validation passed after final edits. |
+| Full required validation command set | Passed | See final response for exact commands. |

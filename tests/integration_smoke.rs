@@ -226,6 +226,178 @@ fn phase_104_local_transport_invalid_workflow_review_escalation_values_fail_clos
     }
 }
 
+#[test]
+fn phase_105_local_transport_adversarial_payloads_fail_closed_with_deterministic_reasons() {
+    let cases = [
+        (
+            "malformed",
+            "not-a-key-value-payload",
+            LocalUiRustTransportReason::MalformedInputRejected,
+        ),
+        (
+            "truncated",
+            "request_id=phase-105
+operation=review_state
+local_only=true",
+            LocalUiRustTransportReason::MalformedInputRejected,
+        ),
+        (
+            "empty",
+            "",
+            LocalUiRustTransportReason::MalformedInputRejected,
+        ),
+        (
+            "hostile_noise",
+            "%%%%%
+@@@@@",
+            LocalUiRustTransportReason::MalformedInputRejected,
+        ),
+        (
+            "malformed_structured",
+            r#"{"request_id":"phase-105","operation":"review_state""#,
+            LocalUiRustTransportReason::MalformedStructuredPayloadRejected,
+        ),
+        (
+            "duplicate_request_id",
+            "request_id=phase-105
+request_id=phase-105-replay
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=duplicate id",
+            LocalUiRustTransportReason::DuplicateRequestIdentifierRejected,
+        ),
+        (
+            "replay_shaped",
+            "request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+replay_id=replay-1
+payload_summary=replay shaped",
+            LocalUiRustTransportReason::ReplayShapedPayloadRejected,
+        ),
+        (
+            "authority_field",
+            "request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+payload_summary=authority attempt",
+            LocalUiRustTransportReason::AuthorityBearingRequestRejected,
+        ),
+        (
+            "invalid_enum",
+            "request_id=phase-105
+operation=delete_everything
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=invalid enum",
+            LocalUiRustTransportReason::InvalidEnumRejected,
+        ),
+        (
+            "invalid_typed_field",
+            "request_id=phase-105
+operation=review_state
+local_only=maybe
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=invalid bool",
+            LocalUiRustTransportReason::InvalidTypedFieldRejected,
+        ),
+    ];
+
+    for (name, payload, reason) in cases {
+        let first = handle_local_ui_rust_transport_payload(payload);
+        let second = handle_local_ui_rust_transport_payload(payload);
+        assert_eq!(first, second, "{name} deterministic response");
+        assert_eq!(
+            first.status,
+            LocalUiRustTransportStatus::Rejected,
+            "{name} status"
+        );
+        assert_eq!(first.reason, reason, "{name} reason");
+        assert_phase_104_transport_no_authority(&first);
+    }
+}
+
+#[test]
+fn phase_105_local_transport_rejection_ordering_is_deterministic() {
+    let oversized_with_replay_shape = format!(
+        "request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+replay_id=replay-1
+payload_summary={} ",
+        "x".repeat(4097)
+    );
+    let oversized = handle_local_ui_rust_transport_payload(&oversized_with_replay_shape);
+    assert_eq!(
+        oversized.reason,
+        LocalUiRustTransportReason::OversizedInputRejected
+    );
+
+    let duplicate_with_authority = "request_id=phase-105
+request_id=phase-105-duplicate
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+payload_summary=duplicate before authority";
+    let duplicate = handle_local_ui_rust_transport_payload(duplicate_with_authority);
+    assert_eq!(
+        duplicate.reason,
+        LocalUiRustTransportReason::DuplicateRequestIdentifierRejected
+    );
+
+    let authority_with_replay = "request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+replay_id=replay-1
+payload_summary=authority before replay";
+    let authority = handle_local_ui_rust_transport_payload(authority_with_replay);
+    assert_eq!(
+        authority.reason,
+        LocalUiRustTransportReason::AuthorityBearingRequestRejected
+    );
+    assert_phase_104_transport_no_authority(&oversized);
+    assert_phase_104_transport_no_authority(&duplicate);
+    assert_phase_104_transport_no_authority(&authority);
+}
+
+#[test]
+fn phase_105_local_transport_startup_rejects_invalid_locality_claims() {
+    for bind_host in ["", " ", "0.0.0.0", "192.168.1.20", "example.com"] {
+        let response = start_bounded_local_ui_rust_transport(LocalUiRustTransportStartupRequest {
+            bind_host: bind_host.to_string(),
+        });
+        assert_eq!(response.status, LocalUiRustTransportStartupStatus::Rejected);
+        assert!(!response.public_network_exposed);
+        assert!(!response.provider_execution_enabled);
+        assert!(!response.persistence_enabled);
+        assert!(!response.action_execution_enabled);
+    }
+}
+
 fn root_operator_action_request() -> OperatorActionExecutionRequest {
     let submission = ajentic_core::api::OperatorIntentSubmission::new(
         "root-sub-92",
