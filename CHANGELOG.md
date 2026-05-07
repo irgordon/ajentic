@@ -5,6 +5,33 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.104 - 2026-05-07
+**Status:** Phase 104 - UI-to-Rust Local Transport Prototype Boundary
+
+### Added
+- Added a bounded local-only UI-to-Rust transport prototype with typed local startup, request, response, deterministic dry-run/review query handling, local-only indicators, non-authority indicators, disabled-capability indicators, and fail-closed rejection reasons.
+- Added behavioral and adversarial coverage for malformed payloads, oversized payloads, unsupported operations, authority-bearing operations, provider-execution requests, persistence-shaped requests, durable-append/export-shaped requests, replay-repair requests, recovery-promotion requests, action-execution requests, local-only posture, deterministic response behavior, and workflow/review/escalation query determinism.
+- Added `docs/operations/ui-rust-local-transport-phase-104.md` as the Phase 104 operations report.
+
+### Changed
+- Updated the current-phase checklist to Phase 104 procedural truth, including local transport, deterministic transport, rejection behavior, non-authority, isolation, Phase 105 gate, readiness-status, lint parity, test fidelity, zero-drift, findings, deferred items, and validation-log sections.
+
+### Notes
+- Phase 104 is a bounded local-only transport prototype only.
+- No provider execution is added.
+- No persistence authority is added.
+- No durable append authority is added.
+- No export authority is added.
+- No recovery promotion is added.
+- No replay repair is added.
+- No action execution is added.
+- No readiness approval is granted.
+- No Production Candidate approval is granted.
+- No release-candidate approval is granted.
+- No public-usability approval is granted.
+- No production-human-use approval is granted.
+- No Phase 105 implementation is included.
+
 ## v0.0.103 - 2026-05-07
 **Status:** Phase 103 - UI Runtime Review Surface Activation Boundary
 
