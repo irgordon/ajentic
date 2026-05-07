@@ -17,6 +17,36 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+
+## v0.0.105 - 2026-05-07
+**Status:** Phase 105 - Transport Abuse Hardening for Live Local Bridge
+
+### Added
+- Added `docs/operations/transport-abuse-hardening-phase-105.md` as the Phase 105 operations report.
+- Added Rust and UI adversarial transport tests for malformed, truncated, oversized, replay-shaped, duplicate-identifier, authority-bearing, unsupported, invalid-state, invalid enum, invalid typed-field, non-local, and hostile/noise inputs.
+
+### Changed
+- Hardened the bounded local UI-to-Rust transport parser and request handling with deterministic fail-closed rejection for hostile transport input.
+- Updated `checklists/current-phase.md` to Phase 105 procedural truth.
+- Updated `scripts/lint_ui_boundaries.mjs` to resolve TypeScript from the active Node global module path before the legacy fallback so required validation can run.
+
+### Notes
+- Phase 105 is transport abuse hardening only.
+- Phase 105 includes no transport capability expansion.
+- Phase 105 adds no provider execution.
+- Phase 105 adds no persistence authority.
+- Phase 105 adds no durable append authority.
+- Phase 105 adds no export authority.
+- Phase 105 adds no replay repair.
+- Phase 105 adds no recovery promotion.
+- Phase 105 adds no action execution.
+- Phase 105 grants no readiness approval.
+- Phase 105 grants no Production Candidate approval.
+- Phase 105 grants no release-candidate approval.
+- Phase 105 grants no public-usability approval.
+- Phase 105 grants no production-human-use approval.
+- Phase 105 includes no Phase 106 implementation.
+
 ## v0.0.104.5 - 2026-05-07
 **Status:** Phase 104.5 - Historical Truth Partitioning
 

@@ -32,7 +32,12 @@ export type LocalUiRustTransportReason =
   | "replay_repair_rejected"
   | "recovery_promotion_rejected"
   | "action_execution_rejected"
-  | "invalid_workflow_review_escalation_rejected";
+  | "invalid_workflow_review_escalation_rejected"
+  | "replay_shaped_payload_rejected"
+  | "duplicate_request_identifier_rejected"
+  | "malformed_structured_payload_rejected"
+  | "invalid_typed_field_rejected"
+  | "invalid_enum_rejected";
 
 export type LocalUiRustTransportRequest = Readonly<{
   requestId: string;
@@ -107,9 +112,9 @@ export function encodeLocalUiRustTransportRequest(request: LocalUiRustTransportR
 }
 
 export function handleLocalUiRustTransportPayload(payload: string): LocalUiRustTransportResponse {
-  if (payload.length > MAX_LOCAL_TRANSPORT_PAYLOAD_BYTES) return rejection("unknown", "oversized_input_rejected");
+  if (new TextEncoder().encode(payload).length > MAX_LOCAL_TRANSPORT_PAYLOAD_BYTES) return rejection("unknown", "oversized_input_rejected");
   const request = parsePayload(payload);
-  if (request === null) return rejection("unknown", "malformed_input_rejected");
+  if ("status" in request) return request;
   return handleLocalUiRustTransportRequest(request);
 }
 
@@ -151,17 +156,27 @@ export function handleLocalUiRustTransportRequest(request: LocalUiRustTransportR
   return rejection(request.requestId, rejectionReasons[request.operation]);
 }
 
-function parsePayload(payload: string): LocalUiRustTransportRequest | null {
-  if (payload.trim().length === 0 || payload.includes("\0")) return null;
+function parsePayload(payload: string): LocalUiRustTransportResponse | LocalUiRustTransportRequest {
+  if (payload.trim().length === 0 || payload.includes("\0")) return rejection("unknown", "malformed_input_rejected");
+  const trimmed = payload.trimStart();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return rejection("unknown", "malformed_structured_payload_rejected");
+
   const fields = new Map<string, string>();
   for (const line of payload.split("\n")) {
     const separator = line.indexOf("=");
-    if (separator <= 0) return null;
+    if (separator <= 0) return rejection("unknown", "malformed_input_rejected");
     const key = line.slice(0, separator);
     const value = line.slice(separator + 1);
-    if (key.trim() !== key || value.trim() !== value) return null;
+    if (key.trim() !== key || value.trim() !== value) return rejection("unknown", "malformed_input_rejected");
+    if (fields.has(key)) {
+      if (key === "request_id") return rejection("unknown", "duplicate_request_identifier_rejected");
+      return rejection("unknown", "malformed_input_rejected");
+    }
     fields.set(key, value);
   }
+
+  if (containsAuthorityBearingField(fields)) return rejection("unknown", "authority_bearing_request_rejected");
+  if (containsReplayShapedField(fields)) return rejection("unknown", "replay_shaped_payload_rejected");
 
   const requestId = fields.get("request_id");
   const operation = fields.get("operation");
@@ -170,18 +185,58 @@ function parsePayload(payload: string): LocalUiRustTransportRequest | null {
   const reviewState = fields.get("review_state");
   const escalationState = fields.get("escalation_state");
   const payloadSummary = fields.get("payload_summary") ?? "none";
-  if (!requestId || !operation || !localOnly || !workflowState || !reviewState || !escalationState || !payloadSummary) return null;
-  if (localOnly !== "true" && localOnly !== "false") return null;
+  if (!requestId || !operation || !localOnly || !workflowState || !reviewState || !escalationState || !payloadSummary) return rejection("unknown", "malformed_input_rejected");
+  const parsedOperation = parseOperation(operation);
+  if (parsedOperation === "unsupported" && operation !== "unsupported") return rejection("unknown", "invalid_enum_rejected");
+  if (localOnly !== "true" && localOnly !== "false") return rejection("unknown", "invalid_typed_field_rejected");
+  if (!isSafeTransportToken(requestId)
+    || !isSafeTransportToken(workflowState)
+    || !isSafeTransportToken(reviewState)
+    || !isSafeTransportToken(escalationState)
+    || !isSafePayloadSummary(payloadSummary)) {
+    return rejection("unknown", "invalid_typed_field_rejected");
+  }
 
   return {
     requestId,
-    operation: parseOperation(operation),
+    operation: parsedOperation,
     localOnly: localOnly === "true",
     workflowState,
     reviewState,
     escalationState,
     payloadSummary
   };
+}
+
+function containsAuthorityBearingField(fields: ReadonlyMap<string, string>): boolean {
+  const authorityTerms = new Set([
+    "authority",
+    "authorization",
+    "admin",
+    "token",
+    "secret",
+    "credential",
+    "execute_provider_adapter",
+    "write_durable_append_transaction",
+    "write_local_export_bundle",
+    "execute_local_persistence_plan",
+    "accept_recovery_candidate_for_in_memory_use",
+    "action_executed"
+  ]);
+  return [...fields].some(([key, value]) => authorityTerms.has(key) || authorityTerms.has(value));
+}
+
+function containsReplayShapedField(fields: ReadonlyMap<string, string>): boolean {
+  const replayTerms = new Set(["replay_id", "replay_nonce", "previous_request_id", "request_sequence", "recorded_response", "replay_checksum", "replay_repaired", "replay"]);
+  return [...fields].some(([key, value]) => replayTerms.has(key) || replayTerms.has(value));
+}
+
+function isSafeTransportToken(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value);
+}
+
+function isSafePayloadSummary(value: string): boolean {
+  return /^[\x20-\x7e]+$/.test(value);
 }
 
 function parseOperation(operation: string): LocalUiRustTransportOperation {

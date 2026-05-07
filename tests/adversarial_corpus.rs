@@ -39,7 +39,7 @@ fn phase_104_adversarial_local_transport_payloads_fail_closed_without_authority(
         LocalUiRustTransportReason::AuthorityBearingRequestRejected,
         LocalUiRustTransportReason::ProviderExecutionRejected,
         LocalUiRustTransportReason::PersistenceRejected,
-        LocalUiRustTransportReason::UnsupportedOperationRejected,
+        LocalUiRustTransportReason::InvalidEnumRejected,
         LocalUiRustTransportReason::InvalidWorkflowReviewEscalationRejected,
         LocalUiRustTransportReason::NonLocalRequestRejected,
         LocalUiRustTransportReason::ActionExecutionRejected,

@@ -138,6 +138,11 @@ pub enum LocalUiRustTransportReason {
     RecoveryPromotionRejected,
     ActionExecutionRejected,
     InvalidWorkflowReviewEscalationRejected,
+    ReplayShapedPayloadRejected,
+    DuplicateRequestIdentifierRejected,
+    MalformedStructuredPayloadRejected,
+    InvalidTypedFieldRejected,
+    InvalidEnumRejected,
 }
 
 impl LocalUiRustTransportReason {
@@ -162,6 +167,11 @@ impl LocalUiRustTransportReason {
             Self::InvalidWorkflowReviewEscalationRejected => {
                 "invalid_workflow_review_escalation_rejected"
             }
+            Self::ReplayShapedPayloadRejected => "replay_shaped_payload_rejected",
+            Self::DuplicateRequestIdentifierRejected => "duplicate_request_identifier_rejected",
+            Self::MalformedStructuredPayloadRejected => "malformed_structured_payload_rejected",
+            Self::InvalidTypedFieldRejected => "invalid_typed_field_rejected",
+            Self::InvalidEnumRejected => "invalid_enum_rejected",
         }
     }
 }
@@ -318,6 +328,11 @@ fn parse_local_transport_payload(
         return Err(LocalUiRustTransportReason::MalformedInputRejected);
     }
 
+    let trimmed = payload.trim_start();
+    if trimmed.starts_with('{') || trimmed.starts_with('[') {
+        return Err(LocalUiRustTransportReason::MalformedStructuredPayloadRejected);
+    }
+
     let mut fields = BTreeMap::new();
     for line in payload.lines() {
         let Some((key, value)) = line.split_once('=') else {
@@ -326,15 +341,34 @@ fn parse_local_transport_payload(
         if key.trim().is_empty() || key != key.trim() || value != value.trim() {
             return Err(LocalUiRustTransportReason::MalformedInputRejected);
         }
+        if fields.contains_key(key) {
+            if key == "request_id" {
+                return Err(LocalUiRustTransportReason::DuplicateRequestIdentifierRejected);
+            }
+            return Err(LocalUiRustTransportReason::MalformedInputRejected);
+        }
         fields.insert(key.to_string(), value.to_string());
     }
 
+    if contains_authority_bearing_field(&fields) {
+        return Err(LocalUiRustTransportReason::AuthorityBearingRequestRejected);
+    }
+    if contains_replay_shaped_field(&fields) {
+        return Err(LocalUiRustTransportReason::ReplayShapedPayloadRejected);
+    }
+
     let request_id = required_field(&fields, "request_id")?;
-    let operation = parse_operation(required_field(&fields, "operation")?.as_str());
+    let operation_text = required_field(&fields, "operation")?;
+    let operation = parse_operation(operation_text.as_str());
+    if matches!(operation, LocalUiRustTransportOperation::Unsupported)
+        && !matches!(operation_text.as_str(), "unsupported")
+    {
+        return Err(LocalUiRustTransportReason::InvalidEnumRejected);
+    }
     let local_only = match required_field(&fields, "local_only")?.as_str() {
         "true" => true,
         "false" => false,
-        _ => return Err(LocalUiRustTransportReason::MalformedInputRejected),
+        _ => return Err(LocalUiRustTransportReason::InvalidTypedFieldRejected),
     };
     let workflow_state = required_field(&fields, "workflow_state")?;
     let review_state = required_field(&fields, "review_state")?;
@@ -353,6 +387,15 @@ fn parse_local_transport_payload(
         return Err(LocalUiRustTransportReason::MalformedInputRejected);
     }
 
+    if !is_safe_transport_token(&request_id)
+        || !is_safe_transport_token(&workflow_state)
+        || !is_safe_transport_token(&review_state)
+        || !is_safe_transport_token(&escalation_state)
+        || !is_safe_payload_summary(&payload_summary)
+    {
+        return Err(LocalUiRustTransportReason::InvalidTypedFieldRejected);
+    }
+
     Ok(LocalUiRustTransportRequest {
         request_id,
         operation,
@@ -362,6 +405,68 @@ fn parse_local_transport_payload(
         escalation_state,
         payload_summary,
     })
+}
+
+fn contains_authority_bearing_field(fields: &BTreeMap<String, String>) -> bool {
+    fields.iter().any(|(key, value)| {
+        matches!(
+            key.as_str(),
+            "authority"
+                | "authorization"
+                | "admin"
+                | "token"
+                | "secret"
+                | "credential"
+                | "execute_provider_adapter"
+                | "write_durable_append_transaction"
+                | "write_local_export_bundle"
+                | "execute_local_persistence_plan"
+                | "accept_recovery_candidate_for_in_memory_use"
+                | "action_executed"
+        ) || matches!(
+            value.as_str(),
+            "authority"
+                | "authority_escalation"
+                | "auto_approve"
+                | "admin"
+                | "root"
+                | "execute_provider_adapter"
+                | "write_durable_append_transaction"
+                | "write_local_export_bundle"
+                | "execute_local_persistence_plan"
+                | "accept_recovery_candidate_for_in_memory_use"
+        )
+    })
+}
+
+fn contains_replay_shaped_field(fields: &BTreeMap<String, String>) -> bool {
+    fields.iter().any(|(key, value)| {
+        matches!(
+            key.as_str(),
+            "replay_id"
+                | "replay_nonce"
+                | "previous_request_id"
+                | "request_sequence"
+                | "recorded_response"
+                | "replay_checksum"
+                | "replay_repaired"
+        ) || matches!(
+            value.as_str(),
+            "replay" | "replay_repaired" | "recorded_response"
+        )
+    })
+}
+
+fn is_safe_transport_token(value: &str) -> bool {
+    value
+        .chars()
+        .all(|character| character.is_ascii_alphanumeric() || matches!(character, '_' | '-'))
+}
+
+fn is_safe_payload_summary(value: &str) -> bool {
+    value
+        .chars()
+        .all(|character| character.is_ascii_graphic() || character == ' ')
 }
 
 fn required_field(

@@ -265,6 +265,98 @@ export const behaviorTests: readonly BehaviorTest[] = [
       assertTransportRejected(handleLocalUiRustTransportRequest({ ...acceptedLocalTransportRequest, escalationState: "bypass_operator" }), "invalid_workflow_review_escalation_rejected");
     }
   },
+
+  {
+    name: "phase_105_transport_adversarial_payloads_fail_closed_deterministically",
+    run: () => {
+      const cases: ReadonlyArray<readonly [string, LocalUiRustTransportResponse["reason"]]> = [
+        ["not-a-key-value-payload", "malformed_input_rejected"],
+        [String.raw`request_id=phase-105
+operation=review_state
+local_only=true`, "malformed_input_rejected"],
+        ["", "malformed_input_rejected"],
+        [String.raw`%%%%%
+@@@@@`, "malformed_input_rejected"],
+        [String.raw`{"request_id":"phase-105","operation":"review_state"`, "malformed_structured_payload_rejected"],
+        [String.raw`request_id=phase-105
+request_id=phase-105-replay
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=duplicate id`, "duplicate_request_identifier_rejected"],
+        [String.raw`request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+replay_id=replay-1
+payload_summary=replay shaped`, "replay_shaped_payload_rejected"],
+        [String.raw`request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+payload_summary=authority attempt`, "authority_bearing_request_rejected"],
+        [String.raw`request_id=phase-105
+operation=delete_everything
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=invalid enum`, "invalid_enum_rejected"],
+        [String.raw`request_id=phase-105
+operation=review_state
+local_only=maybe
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+payload_summary=invalid bool`, "invalid_typed_field_rejected"]
+      ];
+      for (const [payload, reason] of cases) {
+        const first = handleLocalUiRustTransportPayload(payload);
+        const second = handleLocalUiRustTransportPayload(payload);
+        assertEqual(JSON.stringify(first), JSON.stringify(second), `deterministic ${reason}`);
+        assertTransportRejected(first, reason);
+      }
+    }
+  },
+  {
+    name: "phase_105_transport_rejection_ordering_is_deterministic",
+    run: () => {
+      const oversizedWithReplay = String.raw`request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+replay_id=replay-1
+payload_summary=${"x".repeat(4097)}`;
+      assertTransportRejected(handleLocalUiRustTransportPayload(oversizedWithReplay), "oversized_input_rejected");
+      assertTransportRejected(handleLocalUiRustTransportPayload(String.raw`request_id=phase-105
+request_id=phase-105-duplicate
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+payload_summary=duplicate before authority`), "duplicate_request_identifier_rejected");
+      assertTransportRejected(handleLocalUiRustTransportPayload(String.raw`request_id=phase-105
+operation=review_state
+local_only=true
+workflow_state=review
+review_state=in_review
+escalation_state=operator_required
+authority=admin
+replay_id=replay-1
+payload_summary=authority before replay`), "authority_bearing_request_rejected");
+    }
+  },
   {
     name: "ui_submission_rejects_empty_operator_id_before_transport",
     run: () => assertRejectedBeforeTransport(buildUiSubmissionBoundaryResult({ ...acceptedPreviewSubmission, operatorId: "" }))
