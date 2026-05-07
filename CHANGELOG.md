@@ -5,6 +5,34 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.100 - 2026-05-06
+**Status:** Phase 100 - Production Candidate gap audit and readiness decision gate only
+
+### Added
+- Added `docs/operations/production-candidate-gap-audit-phase-100.md` documenting Phase 100 scope, committed-evidence rule, decision status model, required readiness-area assessments, Production Candidate gap findings, Phase 101 gate decision, roadmap/changelog truth posture, required follow-ups, deferred items, confirmed-vs-suspected posture, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 100 procedural truth, including working-tree hygiene, allowed surfaces, boundary rules, task closure, validation checklist, evidence-only checklist, required readiness-area checklists, AST/boundary lint parity, test fidelity, zero-drift posture, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.100`.
+
+### Notes
+- Phase 100 is evidence-only.
+- Phase 100 is audit-only.
+- Phase 100 is a decision gate, not an implementation phase.
+- Phase 100 adds no runtime behavior.
+- Phase 100 adds no new capability.
+- Phase 100 makes no source/test/script/workflow/package/README/AGENTS changes.
+- Phase 100 creates no release artifacts.
+- Production Candidate status: not approved.
+- Release-candidate readiness: not approved.
+- Production readiness: not approved.
+- Public usability: not approved.
+- Startup/package/distribution/installer/publishing/signing readiness: not approved.
+- Phase 100 does not implement Phase 101 and does not start Phase 101.
+- Phase 101 may be recommended only as the next planned audit/planning phase, which does not approve readiness or implementation beyond Phase 101 boundaries.
+- Roadmap remains planned truth.
+- CHANGELOG.md remains historical truth.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, README, AGENTS, package files, dependency files, lockfiles, UI config files, release publishing infrastructure, runtime behavior, CLI surface, release tooling, packaging behavior, installer behavior, distribution behavior, signing behavior, publishing behavior, auto-update behavior, authority surface, transport, provider/model call, persistence, durable append, export write, replay repair, recovery acceptance, or action behavior was changed.
 
 ## v0.0.99.5 - 2026-05-06
 **Status:** Phase 99.5 - Production Use Roadmap Expansion Check / roadmap expansion planning only
