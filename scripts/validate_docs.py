@@ -44,6 +44,7 @@ ROOT_EXPECTED = {
 LOCATION_EXPECTED = [
     ("docs/governance/", "normative", "authoritative", "governance_pr"),
     ("docs/architecture/", "structural", "authoritative", "architecture_pr"),
+    ("docs/changelog/", "historical", "authoritative", "changelog_entry"),
     ("docs/roadmap/", "planned", None, "roadmap_update"),
     ("docs/operations/", "orientation", None, "readme_update"),
     ("docs/examples/", "example", "non_authoritative", "example_update"),
