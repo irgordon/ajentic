@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(".")
@@ -60,6 +61,8 @@ TRUTH_ROOTS = {
     "orientation": [Path("README.md"), Path("docs/operations")],
     "navigation": [Path("AGENTS.md")],
 }
+
+CHANGELOG_ARCHIVE_PATTERN = re.compile(r"^CHANGELOG-\d{4}-\d{4}\.md$")
 
 
 def fail(message: str) -> None:
@@ -139,13 +142,25 @@ for child in ROOT.iterdir():
     if child.is_file() and name not in ALLOWED_TOP_LEVEL_FILES:
         fail(f"Unexpected top-level file: {name}")
 
-
 docs = Path("docs")
 if docs.exists():
     for child in docs.iterdir():
         if child.is_dir() and child.name not in ALLOWED_DOCS_DIRS:
             fail(f"Unexpected docs/ subdirectory: {child.as_posix()}")
 
+changelog_archive_dir = Path("docs/changelog")
+if changelog_archive_dir.exists():
+    for path in changelog_archive_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        if path.suffix != ".md":
+            fail(f"{path.as_posix()}: changelog archive directory may contain Markdown files only")
+            continue
+        if not CHANGELOG_ARCHIVE_PATTERN.fullmatch(path.name):
+            fail(
+                f"{path.as_posix()}: changelog archive files must use "
+                "CHANGELOG-0001-0055.md naming"
+            )
 
 anchor_locations = {
     "GOVERNANCE.md": Path("docs/governance/GOVERNANCE.md"),
