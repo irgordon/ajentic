@@ -111,48 +111,65 @@ AJENTIC separates technology by responsibility:
 ## Architecture Overview
 
 ```mermaid
-flowchart TB
+flowchart LR
 
-    subgraph RustCore["Rust Core (Authoritative)"]
-    direction TB
-    A1[Validation]:::rust
-    A2[Governance Rules]:::rust
-    A3[Replay Engine]:::rust
-    A4[Persistence Boundaries]:::rust
+    %% Group 1: User & System Interfaces
+    subgraph InteractionLayer ["Interaction Layer (Non-Authoritative)"]
+        direction TB
+        subgraph TSUILayer ["TypeScript UI"]
+            direction TB
+            D1[Browser UI]:::ts
+            D2[Context Review]:::ts
+            D3[Output Display]:::ts
+        end
+        
+        subgraph BashLayer ["Bash (Local Ops)"]
+            C1[CLI Orchestration]:::bash
+        end
     end
 
-    subgraph PythonLayer["Python (Support Scripts)"]
-    direction TB
-    B1[Repo Validation]:::python
-    B2[Schema Checks]:::python
+    %% Group 2: The Core Engine
+    subgraph CoreLayer ["Central Authority"]
+        direction TB
+        subgraph RustCore ["Rust Core"]
+            direction TB
+            A1[Validation]:::rust
+            A2[Governance Rules]:::rust
+            A3[Replay Engine]:::rust
+            A4[Persistence Boundaries]:::rust
+        end
     end
 
-    subgraph BashLayer["Bash (Local Ops)"]
-    C1[CLI Orchestration]:::bash
+    %% Group 3: Tooling & Enforcement
+    subgraph SupportLayer ["Validation & CI Gates"]
+        direction TB
+        subgraph PythonLayer ["Python (Support Scripts)"]
+            B1[Repo Validation]:::python
+            B2[Schema Checks]:::python
+        end
+        
+        subgraph CI ["GitHub Actions"]
+            E1[Schema Enforcement]:::ci
+            E2[Policy Checks]:::ci
+            E3[Determinism Tests]:::ci
+        end
     end
 
-    subgraph TSUILayer["TypeScript UI (Non‑Authoritative)"]
-    D1[Browser UI]:::ts
-    D2[Context Review]:::ts
-    D3[Output Display]:::ts
-    end
+    %% Define the data/control flow 
+    InteractionLayer == "Executes Commands" ==> CoreLayer
+    SupportLayer -. "Enforces Rules" .-> CoreLayer
 
-    subgraph CI["GitHub Actions (CI Gates)"]
-    E1[Schema Enforcement]:::ci
-    E2[Policy Checks]:::ci
-    E3[Determinism Tests]:::ci
-    end
-
-    TSUILayer --> RustCore
-    PythonLayer --> RustCore
-    BashLayer --> RustCore
-    CI --> RustCore
-
+    %% Styling configurations
     classDef rust fill:#B7410E,stroke:#fff,stroke-width:2px,color:#fff;
     classDef ts fill:#3178C6,stroke:#fff,stroke-width:2px,color:#fff;
     classDef python fill:#FFD43B,stroke:#333,stroke-width:2px,color:#111;
     classDef bash fill:#4EAA25,stroke:#fff,stroke-width:2px,color:#fff;
     classDef ci fill:#24292E,stroke:#fff,stroke-width:2px,color:#fff;
+    
+    %% Remove borders from the layout wrappers to keep it clean
+    style InteractionLayer fill:none,stroke:none,color:#fff
+    style CoreLayer fill:none,stroke:none,color:#fff
+    style SupportLayer fill:none,stroke:none,color:#fff
 ```
 
 ## Repository Model
