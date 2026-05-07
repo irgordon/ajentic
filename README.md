@@ -9,21 +9,19 @@ mutation_path: readme_update
 # **AJENTIC**  
 ### **You, In Control**
 
-![Rust](https://img.shields.io/badge/Rust-Authority-orange?logo=rust)
-![TypeScript](https://img.shields.io/badge/TypeScript-UI-blue?logo=typescript)
-![Python](https://img.shields.io/badge/Python-Adapters-yellow?logo=python)
-![Bash](https://img.shields.io/badge/Bash-Glue-lightgrey?logo=gnu-bash)
-![Status](https://img.shields.io/badge/Status-Pre--Alpha-red)
-![Production](https://img.shields.io/badge/Production-Not_Ready-lightgrey)
-![Open Source](https://img.shields.io/badge/Open%20Source-Yes-brightgreen?logo=opensourceinitiative)
+![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Pre--Alpha-8B0000?style=for-the-badge)
+![Open Source](https://img.shields.io/badge/Open_Source-Yes-28A745?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
 
 <br>
 
-<a href="#getting-started">
+<a href="https://ajentic.dev/#getting-started">
   <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket" />
-</a>
-&nbsp;&nbsp;
-<a href="https://github.com/ajentic">
+</a>  
+<a href="https://github.com/irgordon/ajentic">
   <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" />
 </a>
 
