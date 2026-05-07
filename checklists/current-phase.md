@@ -4,70 +4,63 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 100 - Production Candidate Gap Audit and Readiness Decision Gate
+# Current Phase Checklist - Phase 101 Production Use Gap Decomposition
 
 ## Phase name
-Phase 100 - Production Candidate Gap Audit and Readiness Decision Gate.
-
-Roadmap title confirmed as Phase 100 - Production Candidate Readiness Decision Gate.
+Phase 101 - Production Use Gap Decomposition.
 
 ## Phase goal
-Determine, using committed evidence only, whether the project can claim Production Candidate status or must continue into a later audit/planning boundary.
-
-Phase 100 decision: Production Candidate status: not approved.
-
-Phase 100 decision: release-candidate readiness: not approved.
-
-Phase 100 decision: production readiness: not approved.
-
-Phase 100 decision: public usability: not approved.
-
-Phase 100 decision: startup/package/distribution/installer/publishing/signing readiness: not approved.
-
-Phase 100 decision: Phase 101 may be recommended as the next planned audit/planning phase only. This does not approve readiness and does not start Phase 101.
+Decompose remaining blockers for human use into bounded evidence categories, dependency order, and stop conditions using committed evidence only.
 
 ## Working-tree hygiene gate
-- [x] Ran initial `git status --short` before edits.
-- [x] Classified initial uncommitted files: none.
-- [x] Removed no prior generated artifact drift because none was present in the initial status output.
-- [x] Rechecked working-tree status before final staging.
-- [x] Reverted/removed generated artifact drift from validation runs before commit.
+- [x] Ran `git status --short` before edits.
+- [x] Classified the initial working tree as clean with no uncommitted source, docs, generated artifact, or dependency drift.
+- [x] Checked for tracked `core/target/.rustc_info.json` presence before edits.
+- [x] Recorded cleanup posture: no prior generated artifact drift required removal before Phase 101 edits.
+- [x] Rechecked generated artifact drift after validation and restored tracked compiler metadata before commit.
 
 ## Allowed surfaces
-- [x] `docs/operations/production-candidate-gap-audit-phase-100.md` may be created.
+- [x] `docs/operations/production-use-gap-decomposition-phase-101.md` may be created.
 - [x] `checklists/current-phase.md` may be updated.
 - [x] `CHANGELOG.md` may be updated.
-- [x] `checklists/release.md` may be updated only for audit posture clarification without readiness approval.
-- [x] Roadmap files are not modified because no small audit correction was required.
-- [x] Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, README, AGENTS, package files, dependency files, lockfiles, UI config files, and release publishing infrastructure are not modified.
+- [x] `checklists/release.md` was not modified because no release-checklist clarification was required.
+- [x] Roadmap files were not modified because Phase 101 title/scope were consistent.
 
 ## Boundary rules
-- [x] Phase 100 is evidence-only.
-- [x] Phase 100 is audit-only.
-- [x] Phase 100 is a decision gate, not an implementation phase.
-- [x] Phase 100 adds no runtime behavior.
-- [x] Phase 100 adds no new capability.
-- [x] Phase 100 does not create release artifacts.
-- [x] Phase 100 does not approve Production Candidate status.
-- [x] Phase 100 does not approve release-candidate readiness.
-- [x] Phase 100 does not approve production readiness.
-- [x] Phase 100 does not approve public usability.
-- [x] Phase 100 does not approve startup/package/distribution/installer/publishing/signing readiness.
-- [x] Phase 100 does not start Phase 101.
-- [x] Phase 100 does not implement Phase 101.
+- [x] Phase 101 is audit/planning only.
+- [x] Phase 101 adds no runtime behavior.
+- [x] Phase 101 adds no new capability.
+- [x] Phase 101 does not approve readiness.
+- [x] Phase 101 does not approve Production Candidate status.
+- [x] Phase 101 does not approve release-candidate readiness.
+- [x] Phase 101 does not approve production readiness.
+- [x] Phase 101 does not approve public usability.
+- [x] Phase 101 does not implement Phase 102.
+- [x] Phase 101 does not implement any later phase.
+- [x] Phase 102, if recommended, is the next planned documentation/contract phase only.
+- [x] Phase 102 recommendation is not readiness approval.
 
 ## Task checklist
-- [x] Read roadmap, changelog, checklist, release checklist, README, and AGENTS navigation surfaces.
-- [x] Read late evidence operations docs for Phases 95.1, 95.2, 95.3, 95.4, 96, 97, 98, 99, and 99.5.
-- [x] Read earlier hardening operations docs for Phases 91, 92, 92.5, 93, 93.5, and 94.
-- [x] Inspected committed implementation/test evidence only as needed.
-- [x] Confirmed Phase 100 title and scope from roadmap files.
-- [x] Created the Phase 100 advisory operations report.
-- [x] Assessed all required readiness areas using committed evidence only.
-- [x] Decided Production Candidate status is not approved.
-- [x] Decided Phase 101 may be recommended as the next planned audit/planning phase only.
-- [x] Did not implement Phase 101.
-- [x] Added `CHANGELOG.md` v0.0.100.
+- [x] Read `docs/roadmap/phase-map.md`.
+- [x] Read `docs/roadmap/phases.md`.
+- [x] Read `docs/roadmap/sequencing.md`.
+- [x] Read `CHANGELOG.md`.
+- [x] Read `checklists/current-phase.md`.
+- [x] Read `checklists/release.md`.
+- [x] Read `README.md`.
+- [x] Read `AGENTS.md`.
+- [x] Read required Phase 95.4 through Phase 100 operations docs.
+- [x] Inspected committed evidence only as needed in Rust API files, root tests, UI behavioral tests, and `scripts/check.sh`.
+- [x] Confirmed Phase 101 title/scope from roadmap files.
+- [x] Created Phase 101 advisory operations report.
+- [x] Decomposed all required categories using committed evidence only.
+- [x] Identified dependency order and stop conditions.
+- [x] Identified blockers by controlled human trial, early human-use candidate, release candidate, Production Candidate, and public/general use stages.
+- [x] Decided Phase 102 may begin only as the next planned documentation/contract phase and not as readiness approval.
+- [x] Added `CHANGELOG.md` v0.0.101.
+- [x] Did not implement Phase 102.
+- [x] Did not change runtime/source/test/script/workflow/package surfaces.
+- [x] Did not create release artifacts.
 
 ## Validation checklist
 - [x] `./scripts/check.sh`
@@ -83,211 +76,216 @@ Phase 100 decision: Phase 101 may be recommended as the next planned audit/plann
 - [x] `cargo run --manifest-path core/Cargo.toml -- dry-run`
 - [x] `cargo build --manifest-path core/Cargo.toml`
 - [x] `cd ui && npm run build`
-- [x] Evidence scan.
-- [x] Decision-status scan.
-- [x] Readiness-area scan.
-- [x] No-approval scan.
-- [x] Release artifact scan interpreted docs/checklist/changelog matches as prohibited-artifact references only.
-- [x] No-release-action scan interpreted docs/checklist/changelog matches as prohibited-action references only.
-- [x] No-runtime/no-authority scan interpreted existing source/test matches and docs/checklist/changelog prohibition references as expected only.
-- [x] Source/script/workflow guard showed no guarded surface diffs.
-- [x] Roadmap completion contamination scan showed no prohibited matches.
-- [x] Changelog future-planning contamination scan showed no prohibited matches.
-- [x] Readiness scan showed no approval claims.
-- [x] Roadmap/changelog truth scan found required truth posture.
-- [x] Lint wiring scan found existing lint and harness wiring.
+- [x] Decomposition category scan completed.
+- [x] Decision-status scan completed.
+- [x] Stage/blocker scan completed.
+- [x] Phase 102 gate scan completed.
+- [x] Non-approval scan completed.
+- [x] No-runtime/no-authority scan completed as discovery/evidence only.
+- [x] Source/script/workflow guard completed.
+- [x] Roadmap completion contamination scan completed.
+- [x] Changelog future-planning contamination scan completed.
+- [x] Readiness scan completed.
+- [x] Roadmap/changelog truth scan completed.
+- [x] Lint wiring scan completed.
 
 ## Evidence-only checklist
-- [x] Counted committed tests and validation gates only.
-- [x] Counted operations docs, checklists, changelog, local validation logs, and roadmap/changelog truth-surface evidence only.
-- [x] Did not count plans as closure.
-- [x] Did not count architecture rationale alone.
-- [x] Did not count future roadmap items as implementation.
-- [x] Did not count dry-run evidence as release approval.
-- [x] Did not count unmerged or non-history agent runs.
+- [x] Counted source files only as committed evidence.
+- [x] Counted tests only as committed evidence.
+- [x] Counted UI behavioral tests only as committed evidence.
+- [x] Counted golden/adversarial tests only as committed evidence.
+- [x] Counted validation logs only as command-run evidence.
+- [x] Counted lint gates only as committed/runtime command evidence.
+- [x] Counted operations docs only as committed evidence.
+- [x] Counted checklists only as committed procedural evidence.
+- [x] Counted roadmap/changelog truth surfaces only according to planned/historical truth posture.
+- [x] Did not count roadmap plans as closure.
+- [x] Did not count future phase titles as evidence of completion.
+- [x] Did not count architecture rationale alone as closure.
+- [x] Did not count intended hardening.
+- [x] Did not count unmerged/non-history agent runs.
+- [x] Did not count speculative safety claims.
+- [x] Did not count prompt intent without committed files.
 
-## Deterministic core posture checklist
-- [x] Status: Sufficient for current pre-production boundary.
-- [x] Evidence reviewed: Rust tests, root integration tests, golden tests, CLI dry-run, local build, and relevant source surfaces.
-- [x] Non-readiness: deterministic local evidence does not approve production readiness.
+## Decomposition category checklist
+- [x] Human operator workflow and role clarity — Evidence present, blocker remains.
+- [x] UI runtime review surface activation — Evidence present, blocker remains.
+- [x] UI-to-Rust local transport — Evidence present, blocker remains.
+- [x] Transport abuse hardening for live local bridge — Evidence present, blocker remains.
+- [x] Provider configuration contract — Evidence present, blocker remains.
+- [x] Provider execution sandbox — Evidence present, blocker remains.
+- [x] Provider timeout and resource limits — Evidence absent, blocker remains.
+- [x] Durable persistence authority — Evidence present, blocker remains.
+- [x] Authoritative persistence activation — Outside current boundary.
+- [x] Recovery lifecycle hardening — Evidence present, blocker remains.
+- [x] Policy versioning and governance evidence — Evidence present, blocker remains.
+- [x] Deployment configuration — Evidence present, blocker remains.
+- [x] Local deployment candidate — Evidence present, blocker remains.
+- [x] Security threat model and abuse-case audit — Evidence present, blocker remains.
+- [x] Operator documentation for controlled human trial — Evidence present, blocker remains.
+- [x] Human trial dry run — Evidence absent, blocker remains.
+- [x] Release-candidate evidence assembly — Outside current boundary.
+- [x] Production Candidate reassessment — Outside current boundary.
+- [x] Early controlled human-use gate — Outside current boundary.
+- [x] Public/general use blockers — Outside current boundary.
 
-## UI behavioral coverage checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: UI API behavior tests, UI behavior harness, and `scripts/check.sh` wiring.
-- [x] Follow-up: broader UI coverage required after later UI activation or live transport work.
+## Dependency order checklist
+- [x] Phase 101 decomposition precedes contracts.
+- [x] Phase 102 Human Operator Workflow Contract precedes UI activation.
+- [x] Phase 103 UI runtime review surface activation precedes live local transport.
+- [x] Phase 104 UI-to-Rust local transport prototype precedes live transport hardening.
+- [x] Phase 105 live transport abuse hardening precedes provider configuration/execution expansion.
+- [x] Phase 106 provider configuration precedes provider execution.
+- [x] Phase 107 provider sandbox precedes provider timeout/resource enforcement.
+- [x] Phase 108 provider timeout/resource enforcement precedes broader authority questions.
+- [x] Phase 109 durable persistence authority decision precedes activation.
+- [x] Phase 110 authoritative persistence activation precedes recovery lifecycle hardening.
+- [x] Phase 111 recovery lifecycle hardening precedes policy/deployment/trial gates.
+- [x] Phase 112 policy/governance evidence precedes deployment contracts.
+- [x] Phase 113 deployment configuration precedes local deployment candidate.
+- [x] Phase 114 local deployment candidate precedes security/trial gates.
+- [x] Phase 115 security threat model precedes controlled trial documentation.
+- [x] Phase 116 controlled-trial operator docs precede trial dry run.
+- [x] Phase 117 human trial dry run precedes release-candidate evidence assembly.
+- [x] Phase 118 release-candidate evidence assembly precedes Production Candidate reassessment.
+- [x] Phase 119 Production Candidate reassessment precedes early controlled human-use gate.
+- [x] Phase 120 early controlled human-use gate precedes any public/general-use consideration.
 
-## Golden invariant checklist
-- [x] Status: Sufficient for current pre-production boundary.
-- [x] Evidence reviewed: root integration golden invariant tests and explicit `golden` Cargo filter.
-- [x] Non-readiness: golden evidence is not release, deployment, installer, public-use, or production proof.
+## Stop condition checklist
+- [x] Documented stop conditions for operator workflow ambiguity.
+- [x] Documented stop conditions for inactive/inadequate UI review surface.
+- [x] Documented stop conditions for missing or unsafe local transport.
+- [x] Documented stop conditions for live transport abuse gaps.
+- [x] Documented stop conditions for provider configuration gaps.
+- [x] Documented stop conditions for provider sandbox gaps.
+- [x] Documented stop conditions for provider timeout/resource gaps.
+- [x] Documented stop conditions for persistence authority gaps.
+- [x] Documented stop conditions for persistence activation gaps.
+- [x] Documented stop conditions for recovery lifecycle gaps.
+- [x] Documented stop conditions for governance evidence attribution gaps.
+- [x] Documented stop conditions for deployment configuration gaps.
+- [x] Documented stop conditions for local deployment candidate gaps.
+- [x] Documented stop conditions for security threat-model gaps.
+- [x] Documented stop conditions for controlled human trial documentation gaps.
+- [x] Documented stop conditions for human trial dry-run gaps.
+- [x] Documented stop conditions for release-candidate evidence gaps.
+- [x] Documented stop conditions for Production Candidate reassessment gaps.
+- [x] Documented stop conditions for early controlled human-use gate gaps.
+- [x] Documented stop conditions for public/general-use gate gaps.
 
-## Adversarial corpus checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: root adversarial corpus tests and UI adversarial behavior cases.
-- [x] Follow-up: expand adversarial coverage when live transport, provider execution, persistence authority, deployment, or human-trial procedures exist.
+## Human-use stage blocker checklist
+- [x] Controlled human trial remains blocked by workflow, UI activation, local transport, live transport hardening, deployment candidate, security audit, trial documentation, and trial dry run gaps.
+- [x] Early human-use candidate remains blocked by all prerequisite workflow, UI, transport, provider, persistence, recovery, governance, deployment, security, trial, evidence assembly, and gate gaps.
+- [x] Release candidate remains blocked by prerequisite evidence and release-candidate evidence assembly gaps.
+- [x] Production Candidate remains blocked by release-candidate evidence and Production Candidate reassessment gaps.
+- [x] Public/general use remains blocked by all prior gates and a separate public/general-use approval gate.
 
-## Transport spoofing hardening checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 91 and Phase 95.1 transport/submission spoofing hardening docs and tests.
-- [x] Follow-up: live transport requires future implementation evidence and negative-path tests.
-
-## Proof-chain hardening checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 92 and Phase 92.5 authorization/audit/action proof-chain hardening docs and tests.
-- [x] Follow-up: production action authority remains unapproved.
-
-## Persistence/export/recovery checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 93, Phase 93.5, Phase 88, Phase 89, persistence, export, and recovery evidence.
-- [x] Follow-up: production persistence, recovery, deployment storage, and distribution-grade export handling remain unapproved.
-
-## Provider/replay/failure spoofing checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 94 and Phase 95.3 provider, replay, failure, and adversarial evidence.
-- [x] Follow-up: real provider execution, retry scheduling, live model calls, and production incident handling remain unapproved.
-
-## Lint/validation-gate integrity checklist
-- [x] Status: Sufficient for current pre-production boundary.
-- [x] Blocking enforcement remains `scripts/check.sh`, Rust boundary lint, UI AST lint, compiler/type checks, clippy, UI behavioral tests, and Rust tests.
-- [x] `rg` scans are discovery/evidence only, not enforcement.
-- [x] Phase 100 changes no lint behavior.
-- [x] No validation command printed masked failure output while returning success.
-
-## Local startup checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 96 local startup boundary documentation and local command evidence.
-- [x] Follow-up: no production service, daemon, network service, deployment runtime, or public usability approval.
-
-## Packaging boundary checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 97 packaging boundary documentation and local build evidence.
-- [x] Follow-up: startup/package/distribution/installer/publishing/signing readiness remains not approved.
-
-## Operator troubleshooting checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 98 operator troubleshooting documentation.
-- [x] Follow-up: operator docs do not approve public usability, production human use, release-candidate readiness, or Production Candidate status.
-
-## Release dry-run checklist
-- [x] Status: Conditionally sufficient with documented follow-up.
-- [x] Evidence reviewed: Phase 99 release engineering dry-run documentation and validation evidence.
-- [x] Dry-run evidence is not release approval.
-- [x] No release artifacts were created.
-
-## Post-100 roadmap checklist
-- [x] Status: Sufficient for current pre-production boundary.
-- [x] Evidence reviewed: Phase 99.5 planned roadmap expansion documentation.
-- [x] Roadmap remains planned truth.
-- [x] Roadmap expansion is not implementation.
+## Phase 102 gate checklist
+- [x] Phase 102 may begin only as Human Operator Workflow Contract.
+- [x] Phase 102 may begin only as the next planned documentation/contract phase.
+- [x] Phase 102 gate language is not readiness approval.
+- [x] Phase 101 does not implement Phase 102.
 
 ## Production Candidate status checklist
-- [x] Status: Insufficient / blocker.
 - [x] Production Candidate status: not approved.
-- [x] Release-candidate readiness: not approved.
-- [x] Production readiness: not approved.
-- [x] Public usability: not approved.
-- [x] Startup/package/distribution/installer/publishing/signing readiness: not approved.
+- [x] production human use is not approved.
+- [x] No Production Candidate approval claim was added.
 
-## Phase 101 gate checklist
-- [x] Status: Sufficient for current pre-production boundary.
-- [x] Phase 101 may be recommended as the next planned audit/planning phase only.
-- [x] This recommendation does not approve readiness.
-- [x] This recommendation does not approve implementation beyond Phase 101 boundaries.
-- [x] Phase 100 does not start Phase 101.
+## Release-candidate/public-use status checklist
+- [x] release-candidate readiness: not approved.
+- [x] production readiness: not approved.
+- [x] public usability: not approved.
+- [x] public/general use is not approved.
+- [x] No release-candidate, production-readiness, public-usability, human-use, or public-use approval claim was added.
 
 ## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
-- [x] CHANGELOG.md remains historical truth.
-- [x] Phase 100 report is advisory orientation.
-- [x] Current-phase checklist is procedural truth for the phase.
+- [x] `CHANGELOG.md` remains historical truth.
+- [x] Future phase titles were used only as dependency labels, not evidence of completion.
+- [x] `CHANGELOG.md` records Phase 101 historical work without future-plan completion language.
 
 ## AST/boundary lint parity checklist
-- [x] Did not rely on `rg` scans as enforcement.
-- [x] Rust boundary lint remains the Rust boundary enforcement surface.
-- [x] UI AST lint remains the UI boundary enforcement surface.
-- [x] No Phase 100 lint behavior changes were made.
-- [x] No concrete lint gap was repaired in Phase 100.
+- [x] `rg` scans were used only for discovery/evidence, not enforcement.
+- [x] Blocking enforcement remains `scripts/check.sh`.
+- [x] Blocking enforcement remains Rust boundary lint.
+- [x] Blocking enforcement remains UI AST lint.
+- [x] Blocking enforcement remains compiler/type checks.
+- [x] Blocking enforcement remains clippy.
+- [x] Blocking enforcement remains UI behavioral tests.
+- [x] Blocking enforcement remains Rust tests.
+- [x] Phase 101 did not change lint behavior.
+- [x] No lint gap requiring Phase 101 repair was discovered.
 
 ## Test fidelity checklist
-- [x] Phase 100 is audit/documentation only, so no new Rust or TypeScript tests were added.
-- [x] Full existing test/lint/check suite passed after final documentation edits.
-- [x] Explicit validation commands passed after final documentation edits.
-- [x] No skipped final validation state was used to close Phase 100.
+- [x] No new Rust tests were added because Phase 101 is audit/planning only.
+- [x] No new TypeScript tests were added because Phase 101 is audit/planning only.
+- [x] Full existing test/lint/check suite was run after final documentation edits.
+- [x] No validation command printed assertion failure, panic, traceback, failed assertion, partial pass count, or masked failure.
 
 ## Zero-drift checklist
-- [x] No Rust source diffs.
-- [x] No TypeScript source diffs.
-- [x] No test diffs.
-- [x] No script diffs.
-- [x] No workflow diffs.
-- [x] No schema diffs.
-- [x] No README or AGENTS diffs.
-- [x] No package, dependency, lockfile, or UI config diffs.
-- [x] No roadmap diffs.
-- [x] Generated Cargo/UI artifacts from validation were not staged.
-- [x] `core/target/.rustc_info.json` drift was removed before commit if present after validation.
+- [x] Source/script/workflow guard showed no Rust, TypeScript, test, script, workflow, README, AGENTS, package, lockfile, UI config, or roadmap diff.
+- [x] Generated artifact drift was removed/restored before commit.
+- [x] No release artifacts were created.
+- [x] Staged files matched allowed surfaces.
 
 ## Findings table
-| Area | Decision status | Finding |
+| Category | Decision status | Blocks |
 | --- | --- | --- |
-| Deterministic core posture | Sufficient for current pre-production boundary | Current committed Rust and integration evidence supports deterministic local pre-production behavior. |
-| UI behavioral coverage | Conditionally sufficient with documented follow-up | Current UI submission behavior is covered; broader UI activation needs later evidence. |
-| Cross-boundary golden invariant coverage | Sufficient for current pre-production boundary | Golden invariant evidence covers current local cross-boundary chain. |
-| Adversarial LLM-output coverage | Conditionally sufficient with documented follow-up | Current adversarial corpus is meaningful but must expand with future live surfaces. |
-| UI submission/transport spoofing hardening | Conditionally sufficient with documented follow-up | Current no-live-transport submission boundary is hardened; live transport remains future evidence. |
-| Authorization/audit/action proof-chain hardening | Conditionally sufficient with documented follow-up | Current proof-chain mismatch hardening is supported; production action authority is not approved. |
-| Persistence/export/recovery semantics | Conditionally sufficient with documented follow-up | Current local semantics are supported; production persistence/export/recovery remains unapproved. |
-| Provider/replay/failure spoofing hardening | Conditionally sufficient with documented follow-up | Current spoofing evidence keeps provider/replay/failure text non-authoritative. |
-| Boundary lint and validation-gate integrity | Sufficient for current pre-production boundary | Existing blocking lints and tests remain wired and passing. |
-| Local startup boundary | Conditionally sufficient with documented follow-up | Local startup docs exist; startup readiness is not approved. |
-| Packaging boundary | Conditionally sufficient with documented follow-up | Local packaging boundary docs exist; distribution/installer/publishing/signing readiness is not approved. |
-| Operator troubleshooting documentation | Conditionally sufficient with documented follow-up | Local operator troubleshooting docs exist; public usability is not approved. |
-| Release engineering dry-run evidence | Conditionally sufficient with documented follow-up | Dry-run mechanics exist; dry-run evidence is not release approval. |
-| Post-100 roadmap expansion | Sufficient for current pre-production boundary | Planned decomposition exists as planned truth only. |
-| Remaining Production Candidate gaps | Insufficient / blocker | Production Candidate status is not approved. |
-| Phase 101 gate decision | Sufficient for current pre-production boundary | Phase 101 may be recommended only as the next planned audit/planning phase. |
+| Human operator workflow and role clarity | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| UI runtime review surface activation | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| UI-to-Rust local transport | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Transport abuse hardening for live local bridge | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Provider configuration contract | Evidence present, blocker remains | Provider-backed controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Provider execution sandbox | Evidence present, blocker remains | Provider-backed controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Provider timeout and resource limits | Evidence absent, blocker remains | Provider-backed controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Durable persistence authority | Evidence present, blocker remains | Durable controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Authoritative persistence activation | Outside current boundary | Durable controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Recovery lifecycle hardening | Evidence present, blocker remains | Durable controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Policy versioning and governance evidence | Evidence present, blocker remains | Evidence-attributed controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Deployment configuration | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Local deployment candidate | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Security threat model and abuse-case audit | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Operator documentation for controlled human trial | Evidence present, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Human trial dry run | Evidence absent, blocker remains | Controlled human trial; early human-use candidate; release candidate; Production Candidate; public/general use |
+| Release-candidate evidence assembly | Outside current boundary | Release candidate; Production Candidate; public/general use |
+| Production Candidate reassessment | Outside current boundary | Production Candidate; public/general use |
+| Early controlled human-use gate | Outside current boundary | Early human-use candidate; public/general use |
+| Public/general use blockers | Outside current boundary | Public/general use |
 
 ## Deferred items table
-| Deferred item | Reason |
+| Item | Reason |
 | --- | --- |
-| Production-use gap decomposition closure | Not completed in Phase 100. |
-| UI activation evidence | Outside Phase 100. |
-| Live local transport contracts and tests | Outside Phase 100. |
-| Real provider configuration/execution evidence | Outside Phase 100. |
-| Production persistence/recovery/export evidence | Outside Phase 100. |
-| Deployment and security audit evidence | Outside Phase 100. |
-| Controlled human-trial evidence | Outside Phase 100. |
-| Release-candidate evidence assembly | Outside Phase 100. |
-| Distribution, installer, publishing, signing, auto-update, and public download evidence | Outside Phase 100 and not approved. |
-| Runtime/source/test/script/workflow/package changes | Prohibited by Phase 100. |
-| Phase 101 implementation | Phase 100 does not start Phase 101. |
+| Runtime behavior | Phase 101 is audit/planning only. |
+| New capability | Phase 101 adds no new capability. |
+| Phase 102 implementation | Phase 101 does not implement Phase 102. |
+| Readiness approval | Phase 101 does not approve readiness. |
+| Release artifacts | Phase 101 does not create release artifacts. |
 
 ## Validation log table
 | Command | Result | Notes |
 | --- | --- | --- |
-| `./scripts/check.sh` | pass | Full local validation gate passed after final edits. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | pass | Explicit Rust tests passed. |
-| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | pass | Explicit golden filter passed. |
-| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | pass | Explicit adversarial filter passed. |
-| `cd ui && npm run test:api` | pass | Explicit UI behavioral tests passed. |
-| `node scripts/test_rust_boundary_lint.mjs` | pass | Rust boundary lint self-test passed. |
-| `node scripts/rust_boundary_lint.mjs` | pass | Rust boundary lint passed. |
-| `node scripts/test_lint_ui_boundaries.mjs` | pass | UI AST boundary lint self-test passed. |
-| `node scripts/lint_ui_boundaries.mjs` | pass | UI AST boundary lint passed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | pass | Explicit UI validation passed. |
-| `cargo run --manifest-path core/Cargo.toml -- dry-run` | pass | CLI dry-run passed as evidence only. |
-| `cargo build --manifest-path core/Cargo.toml` | pass | Local Rust build passed. |
-| `cd ui && npm run build` | pass | Local UI build passed. |
-| Evidence scan | pass | Required Phase/evidence terms found. |
-| Decision-status scan | pass | Required decision statuses found. |
-| Readiness-area scan | pass | Required readiness areas found. |
-| No-approval scan | pass | Required non-approval statements found. |
-| Release artifact scan | pass | Matches were prohibited-artifact references only. |
-| No-release-action scan | pass | Matches were prohibited-action references only. |
-| No-runtime/no-authority scan | pass | Matches were existing source/test evidence or prohibition references only. |
-| Source/script/workflow guard | pass | No guarded surface diffs. |
-| Roadmap completion contamination scan | pass | No prohibited matches. |
-| Changelog future-planning contamination scan | pass | No prohibited matches. |
-| Readiness scan | pass | No approval claims found. |
-| Roadmap/changelog truth scan | pass | Required truth posture found. |
-| Lint wiring scan | pass | Existing lint wiring found. |
+| `./scripts/check.sh` | Pass | Full gate completed after final docs edits. |
+| `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Rust tests passed. |
+| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Pass | Golden filter passed. |
+| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Pass | Adversarial filter passed. |
+| `cd ui && npm run test:api` | Pass | UI API behavioral tests passed. |
+| `node scripts/test_rust_boundary_lint.mjs` | Pass | Rust boundary lint self-test passed. |
+| `node scripts/rust_boundary_lint.mjs` | Pass | Rust boundary lint passed. |
+| `node scripts/test_lint_ui_boundaries.mjs` | Pass | UI AST lint self-test passed. |
+| `node scripts/lint_ui_boundaries.mjs` | Pass | UI AST lint passed. |
+| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI validation passed. |
+| `cargo run --manifest-path core/Cargo.toml -- dry-run` | Pass | CLI dry run completed. |
+| `cargo build --manifest-path core/Cargo.toml` | Pass | Core build passed. |
+| `cd ui && npm run build` | Pass | UI build passed. |
+| Decomposition category scan | Pass | Required category terms present. |
+| Decision-status scan | Pass | Required decision statuses present. |
+| Stage/blocker scan | Pass | Stage/blocker terms present. |
+| Phase 102 gate scan | Pass | Phase 102 non-readiness language present. |
+| Non-approval scan | Pass | Required non-approval terms present. |
+| No-runtime/no-authority scan | Pass | Discovery only; matches are existing source/tests or documentation prohibitions/evidence references. |
+| Source/script/workflow guard | Pass | No disallowed diffs. |
+| Roadmap completion contamination scan | Pass | No matches. |
+| Changelog future-planning contamination scan | Pass | No matches. |
+| Readiness scan | Pass | No approval claims; matches are non-approval/prohibition language. |
+| Roadmap/changelog truth scan | Pass | Required truth posture terms present. |
+| Lint wiring scan | Pass | Lint wiring evidence present. |

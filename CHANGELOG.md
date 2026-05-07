@@ -5,6 +5,36 @@ mutation_path: changelog_entry
 ---
 # CHANGELOG.md
 
+## v0.0.101 - 2026-05-07
+**Status:** Phase 101 - Production Use Gap Decomposition audit/planning only
+
+### Added
+- Added `docs/operations/production-use-gap-decomposition-phase-101.md` documenting Phase 101 scope, committed-evidence rule, decision status model, human-use stage model, required decomposition categories, dependency order, stop conditions, Phase 102 gate decision, non-approval posture, roadmap/changelog truth posture, required follow-ups, deferred items, confirmed-vs-suspected posture, and non-readiness statement.
+
+### Changed
+- Updated `checklists/current-phase.md` to Phase 101 procedural truth, including working-tree hygiene, allowed surfaces, boundary rules, task closure, validation checklist, evidence-only checklist, decomposition category checklist, dependency order checklist, stop condition checklist, human-use stage blocker checklist, Phase 102 gate checklist, Production Candidate status checklist, release-candidate/public-use status checklist, roadmap/changelog truth checklist, AST/boundary lint parity, test fidelity, zero-drift posture, findings, deferred items, and validation log.
+- Updated `CHANGELOG.md` with `v0.0.101`.
+- No release checklist clarification was required, so `checklists/release.md` was not changed.
+
+### Notes
+- Phase 101 is audit/planning only.
+- Phase 101 adds no runtime behavior.
+- Phase 101 adds no new capability.
+- Phase 101 makes no source/test/script/workflow/package/README/AGENTS changes.
+- Phase 101 creates no release artifacts.
+- Production Candidate status: not approved.
+- release-candidate readiness: not approved.
+- production readiness: not approved.
+- public usability: not approved.
+- production human use is not approved.
+- public/general use is not approved.
+- Phase 101 does not approve release-candidate readiness, production readiness, public usability, human-use approval, public-use approval, startup/package approval, distribution approval, installer approval, publishing approval, or signing approval.
+- Phase 101 does not implement Phase 102.
+- Phase 102 may be recommended only as the next planned documentation/contract phase, which is not readiness approval.
+- Roadmap remains planned truth.
+- CHANGELOG.md remains historical truth.
+- No Rust source, TypeScript source, tests, scripts, workflows, schemas, governance docs, architecture docs, README, AGENTS, package files, dependency files, lockfiles, UI config files, release publishing infrastructure, runtime behavior, CLI surface, release tooling, packaging behavior, installer behavior, distribution behavior, signing behavior, publishing behavior, auto-update behavior, authority surface, transport, provider/model call, persistence, durable append, export write, replay repair, recovery acceptance, or action behavior was changed.
+
 ## v0.0.100 - 2026-05-06
 **Status:** Phase 100 - Production Candidate gap audit and readiness decision gate only
 
