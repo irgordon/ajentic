@@ -42,6 +42,7 @@ ALLOWED_TOP_LEVEL_DIRS = {
 ALLOWED_DOCS_DIRS = {
     "governance",
     "architecture",
+    "changelog",
     "roadmap",
     "operations",
     "examples",
@@ -51,7 +52,7 @@ TRUTH_ROOTS = {
     "normative": [Path("docs/governance")],
     "structural": [Path("docs/architecture")],
     "planned": [Path("docs/roadmap")],
-    "historical": [Path("CHANGELOG.md")],
+    "historical": [Path("CHANGELOG.md"), Path("docs/changelog")],
     "procedural": [Path("checklists")],
     "contract": [Path("schemas")],
     "data": [Path("memory")],
