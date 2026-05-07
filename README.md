@@ -111,67 +111,116 @@ AJENTIC separates technology by responsibility:
 ## Architecture Overview
 
 ```mermaid
-flowchart LR
+flowchart TB
 
-    %% Group 1: User Interfaces
-    subgraph InteractionLayer ["User Interfaces"]
-        direction TB
-        subgraph TSUILayer ["TypeScript UI (Review Surface)"]
-            direction TB
-            D1[Browser UI]:::ts
-            D2[Context Review]:::ts
-            D3[Output Display]:::ts
-        end
+    %% Interaction and operator surfaces (Top Layer)
+    subgraph InteractionLayer ["Interaction Layer (Non-Authoritative)"]
+        direction LR
         
-        subgraph BashLayer ["Bash (Local Ops)"]
-            C1[CLI Orchestration]:::bash
-        end
-    end
-
-    %% Group 2: The Core Engine
-    subgraph CoreLayer ["Central Authority (Runtime Governance)"]
-        direction TB
-        subgraph RustCore ["Rust Core"]
+        subgraph BashLayer ["Bash / Local Ops"]
             direction TB
-            A1[Validation]:::rust
-            A2[Governance Rules]:::rust
-            A3[Replay Engine]:::rust
-            A4[Persistence Boundaries]:::rust
+            CLI1[Local Commands]:::bash
+            CLI2[Validation Runner]:::bash
+        end
+
+        subgraph TSUILayer ["TypeScript UI"]
+            direction TB
+            UI1[Browser Review Surface]:::ts
+            UI2[Context and Evidence Review]:::ts
+            UI3[Output and Replay Display]:::ts
         end
     end
 
-    %% Group 3: Tooling & Codebase Gates
-    subgraph SupportLayer ["Static Repository Gates"]
+    %% Authoritative engine (Middle Layer)
+    subgraph CoreLayer ["Authoritative Core"]
         direction TB
-        subgraph PythonLayer ["Python (Support Scripts)"]
-            B1[Repo Validation]:::python
-            B2[Schema Checks]:::python
-        end
         
-        subgraph CI ["GitHub Actions"]
-            E1[Schema Enforcement]:::ci
-            E2[Policy Checks]:::ci
-            E3[Determinism Tests]:::ci
+        subgraph RustCore ["Rust Core Engine"]
+            direction LR
+            %% Grouping the core into left-to-right columns to keep it compact
+            R1[Typed Requests]:::rust
+            R2[Bounded Context Assembly]:::rust
+            R3[Provider Boundary]:::rust
+            R4[Validation Gates]:::rust
+            R5[Governance Rules]:::rust
+            R6[Ledger and Replay]:::rust
+            R7[Persistence Boundaries]:::rust
+            R8[Audit Evidence]:::rust
         end
     end
 
-    %% Define the data/control flow 
-    BashLayer == "Executes CLI Commands" ==> RustCore
-    RustCore -. "Projects State for Review" .-> TSUILayer
+    %% External model/provider surface & Repo Gates (Bottom Layer)
+    subgraph ExternalAndGates ["External Integrations & Static Gates"]
+        direction LR
+        
+        subgraph ProviderLayer ["Model Provider (Untrusted)"]
+            direction TB
+            M1[Local LLM]:::llm
+            M2[Cloud LLM]:::llm
+            M3[Candidate Model Output]:::llm
+        end
+
+        subgraph SupportLayer ["Repository Validation Gates"]
+            direction LR
+            
+            subgraph PythonLayer ["Python Scripts"]
+                direction TB
+                P1[Repo Structure]:::python
+                P2[Docs & Schema]:::python
+            end
+
+            subgraph CILayer ["GitHub Actions / CI"]
+                direction TB
+                G1[Boundary Lints]:::ci
+                G2[Contract Checks]:::ci
+                G3[Regression Tests]:::ci
+            end
+        end
+    end
+
+    %% === FLOW RELATIONSHIPS ===
+
+    %% Operator and core flow
+    BashLayer == "invokes bounded local workflow" ==> RustCore
+    RustCore == "returns report, evidence, and clean output" ==> BashLayer
+
+    %% Provider/model flow
+    R2 == "bounded context" ==> R3
     
-    SupportLayer -. "Validates Codebase (Pre-Runtime)" .-> RustCore
+    %% Provider paths explicitly acting as the controlled boundary
+    R3 == "provider request (controlled boundary)" ==> M1
+    R3 == "provider request (controlled boundary)" ==> M2
+    
+    M1 --> M3
+    M2 --> M3
+    
+    %% Output path clearly labeled as untrusted material routing straight to validation
+    M3 == "returned model output (untrusted candidate material)" ==> R4
 
-    %% Styling configurations
+    %% Validation/governance internal flow (Guides the eye left-to-right inside the core)
+    R4 --> R5 --> R6 --> R8
+
+    %% UI projection flow
+    RustCore == "read-only projections and evidence" ==> TSUILayer
+    TSUILayer -. "reviews only; no authority" .-> RustCore
+
+    %% Repository validation flow
+    SupportLayer -. "checks repository changes" .-> RustCore
+    SupportLayer -. "checks UI and docs boundaries" .-> InteractionLayer
+
+    %% === STYLING ===
     classDef rust fill:#B7410E,stroke:#fff,stroke-width:2px,color:#fff;
     classDef ts fill:#3178C6,stroke:#fff,stroke-width:2px,color:#fff;
     classDef python fill:#FFD43B,stroke:#333,stroke-width:2px,color:#111;
     classDef bash fill:#4EAA25,stroke:#fff,stroke-width:2px,color:#fff;
     classDef ci fill:#24292E,stroke:#fff,stroke-width:2px,color:#fff;
-    
-    %% Remove borders from the layout wrappers to keep it clean
-    style InteractionLayer fill:none,stroke:none,color:#fff
-    style CoreLayer fill:none,stroke:none,color:#fff
-    style SupportLayer fill:none,stroke:none,color:#fff
+    classDef llm fill:#6B46C1,stroke:#fff,stroke-width:2px,color:#fff;
+
+    style InteractionLayer fill:none,stroke:#888,stroke-dasharray: 4 4,color:#ddd
+    style CoreLayer fill:none,stroke:#B7410E,stroke-width:2px,color:#ddd
+    style ExternalAndGates fill:none,stroke:none,color:#fff
+    style ProviderLayer fill:none,stroke:#6B46C1,stroke-dasharray: 4 4,color:#ddd
+    style SupportLayer fill:none,stroke:#888,stroke-dasharray: 4 4,color:#ddd
 ```
 
 ## Repository Model
