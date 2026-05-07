@@ -148,11 +148,11 @@ flowchart TB
     BashLayer --> RustCore
     CI --> RustCore
 
-    classDef rust fill:#dea584,stroke:#000,stroke-width:1px;
-    classDef ts fill:#3178c6,stroke:#000,stroke-width:1px,color:#fff;
-    classDef python fill:#ffd43b,stroke:#000,stroke-width:1px;
-    classDef bash fill:#4e4e4e,stroke:#000,stroke-width:1px,color:#fff;
-    classDef ci fill:#6cc644,stroke:#000,stroke-width:1px;
+    classDef rust fill:#B7410E,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef ts fill:#3178C6,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef python fill:#FFD43B,stroke:#333,stroke-width:2px,color:#111;
+    classDef bash fill:#4EAA25,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef ci fill:#24292E,stroke:#fff,stroke-width:2px,color:#fff;
 ```
 
 ## Repository Model
