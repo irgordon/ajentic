@@ -1,3 +1,4 @@
+import { renderLocalRuntimeReviewSurface } from "../api/localRuntimeReview";
 import { getUiReadModel } from "../api/readModel";
 import { navigationItems } from "./navigation";
 import { routeMetadata } from "./routes";
@@ -13,6 +14,7 @@ export function AppShell(): string {
   const routes = routeMetadata.map((route) => `- ${route.label}: ${route.description}`).join("\n");
 
   const overview = OverviewScreen();
+  const runtimeReviewSurface = renderLocalRuntimeReviewSurface();
 
   const projectionSummary = [
     "Run and trust summary (read-only)",
@@ -30,5 +32,5 @@ export function AppShell(): string {
     `- Trust text: rawOutputTrusted=${readModel.application.output.rawOutputTrusted} (raw model output remains untrusted until Rust validation)`
   ].join("\n");
 
-  return [header, "", "Primary navigation", navigation, "", "Main content", overview, "", "Projection summary", projectionSummary, "", "Planned routes", routes].join("\n");
+  return [header, "", "Primary navigation", navigation, "", "Local runtime review", runtimeReviewSurface, "", "Main content", overview, "", "Projection summary", projectionSummary, "", "Planned routes", routes].join("\n");
 }

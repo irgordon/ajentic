@@ -186,8 +186,50 @@ export type OperatorIntentPreviewProjection = Readonly<{ id: string; intentType:
 
 export type ApplicationUiProjection = Readonly<{ projectionId: string; runtimeConfigId: string; safety: RuntimeSafetyUiProjection; lifecycle: LifecycleProjection; run: RunOverviewProjection; provider: ProviderTrustProjection; integration: IntegrationTrustProjection; ledger: LedgerProjection; replay: ReplayProjection; audit: AuditProjectionSummary; context: ContextProjection; memory: MemoryProjection; output: OutputProjection; }>;
 
-export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; cleanOutput: CleanOutputProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; }>;
+export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; cleanOutput: CleanOutputProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; localRuntimeReview: LocalRuntimeReviewSurface; }>;
 
+
+
+export type LocalRuntimeCapabilityStatus = "enabled" | "disabled";
+
+export type LocalRuntimeCapabilityIndicator = Readonly<{
+  id: string;
+  label: string;
+  status: LocalRuntimeCapabilityStatus;
+  summary: string;
+}>;
+
+export type LocalRuntimeReviewInteractionStatus = "previewed" | "rejected";
+
+export type LocalRuntimeReviewInteraction = Readonly<{
+  id: string;
+  label: string;
+  status: LocalRuntimeReviewInteractionStatus;
+  result: UiSubmissionBoundaryResult;
+  summary: string;
+}>;
+
+export type LocalRuntimeReviewState = Readonly<{
+  workflowState: string;
+  reviewState: string;
+  escalationState: string;
+  failureState: string;
+  evidenceState: string;
+  validationStatus: ProjectionStatus;
+  dryRunSummary: string;
+}>;
+
+export type LocalRuntimeReviewSurface = Readonly<{
+  surfaceId: string;
+  title: string;
+  launchInstruction: string;
+  postureIndicators: readonly string[];
+  disabledCapabilities: readonly LocalRuntimeCapabilityIndicator[];
+  reviewState: LocalRuntimeReviewState;
+  interactions: readonly LocalRuntimeReviewInteraction[];
+  deterministicSummary: string;
+  nonReadinessStatement: string;
+}>;
 
 export type UiRustTransportDirection = "ui_to_rust" | "rust_to_ui";
 

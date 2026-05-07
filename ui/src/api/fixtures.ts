@@ -1,4 +1,4 @@
-import type { ApplicationUiProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability, UiSubmissionBoundaryInput } from "./projections";
+import type { ApplicationUiProjection, LocalRuntimeReviewSurface, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability, UiSubmissionBoundaryInput } from "./projections";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
   projectionId: "proj-fixture-0053",
@@ -32,6 +32,85 @@ const previewBase = {
   disabled: true
 };
 
+
+export const localRuntimeReviewSurfaceFixture: LocalRuntimeReviewSurface = {
+  surfaceId: "phase-103-local-runtime-review",
+  title: "Phase 103 Local Runtime Review Surface",
+  launchInstruction: "From the ui directory run npm run dev; the command prints a deterministic local-only review surface and does not start a server.",
+  postureIndicators: [
+    "local-only",
+    "non-authoritative",
+    "review-only",
+    "not production-ready",
+    "transport disabled",
+    "provider execution disabled",
+    "persistence authority disabled",
+    "action execution disabled"
+  ],
+  disabledCapabilities: [
+    { id: "transport", label: "Transport", status: "disabled", summary: "No live UI-to-Rust transport is started in Phase 103." },
+    { id: "provider", label: "Provider execution", status: "disabled", summary: "Provider/model execution is not invoked by the UI runtime review surface." },
+    { id: "persistence", label: "Persistence authority", status: "disabled", summary: "The UI does not write, append, export, or persist authority state." },
+    { id: "recovery", label: "Recovery promotion", status: "disabled", summary: "Recovery promotion and replay repair are not available from the UI." },
+    { id: "action", label: "Action execution", status: "disabled", summary: "Operator interactions remain local preview choices only." }
+  ],
+  reviewState: {
+    workflowState: "workflow_visible_review_only",
+    reviewState: "operator_review_pending_local_preview",
+    escalationState: "manual_escalation_required_for_boundary_questions",
+    failureState: "fail_closed_rejected_inputs_render_as_review_failures",
+    evidenceState: "committed_fixture_and_behavior_test_evidence_only",
+    validationStatus: "blocked",
+    dryRunSummary: "Dry-run posture is rendered as local text; no provider, persistence, recovery, replay repair, or action behavior is started."
+  },
+  interactions: [
+    {
+      id: "review-valid-preview",
+      label: "Preview policy-check intent",
+      status: "previewed",
+      result: {
+        status: "accepted_for_preview",
+        reasonCode: "accepted_for_preview",
+        transportEligible: false,
+        liveTransportCalled: false,
+        liveTransportEnabled: false,
+        executionEnabled: false,
+        persistenceEnabled: false,
+        ledgerRecordingEnabled: false,
+        auditAppendEnabled: false,
+        providerExecutionEnabled: false,
+        replayRepairEnabled: false,
+        mutatesAuthority: false,
+        summary: "Accepted for local preview only."
+      },
+      summary: "A bounded operator review interaction can be previewed without transport or execution eligibility."
+    },
+    {
+      id: "review-rejected-escalation",
+      label: "Reject authority-escalation text",
+      status: "rejected",
+      result: {
+        status: "rejected",
+        reasonCode: "authority_escalation_text_rejected",
+        transportEligible: false,
+        liveTransportCalled: false,
+        liveTransportEnabled: false,
+        executionEnabled: false,
+        persistenceEnabled: false,
+        ledgerRecordingEnabled: false,
+        auditAppendEnabled: false,
+        providerExecutionEnabled: false,
+        replayRepairEnabled: false,
+        mutatesAuthority: false,
+        summary: "Rejected before any live or authority path can be formed."
+      },
+      summary: "Failure-state rendering remains visible and fail-closed."
+    }
+  ],
+  deterministicSummary: "Fixture-backed Phase 103 review data renders in a deterministic order for local operator testing.",
+  nonReadinessStatement: "Phase 103 does not approve readiness, Production Candidate status, release-candidate readiness, production readiness, public usability, or production human use."
+};
+
 export const uiReadModelFixture: UiReadModel = {
   source: "fixture",
   application: applicationProjectionFixture,
@@ -51,6 +130,7 @@ export const uiReadModelFixture: UiReadModel = {
     { family: "operator_intent", code: "accepted_for_routing", summary: "Operator intent ingress accepted for routing preview.", key: "operator_intent.accepted_for_routing" },
     { family: "persistence_recovery", code: "checksum_mismatch", summary: "Persisted record envelope verification failed.", key: "persistence_recovery.checksum_mismatch" }
   ],
+  localRuntimeReview: localRuntimeReviewSurfaceFixture,
   operatorIntentPreviews: [
     { id: "intent-preview-approve", intentType: "approve", label: "Approve candidate", description: "Submission-shaped request preview only.", reasonPreview: "operator requests approval review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-approve-0001", operatorId: "operator-phase53", intentType: "approve", targetKind: "run", targetId: "run-fixture-0053", reason: "Approve candidate for downstream policy review.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
     { id: "intent-preview-reject", intentType: "reject", label: "Reject candidate", description: "Submission-shaped request preview only.", reasonPreview: "operator requests rejection review", routePreview: "operator_intent_preview_only", ...previewBase, submissionPreview: { submissionId: "sub-reject-0001", operatorId: "operator-phase53", intentType: "reject", targetKind: "run", targetId: "run-fixture-0053", reason: "Reject candidate pending additional evidence.", requestPreviewEnabled: true, submissionEnabled: false, authority: "operator", summary: "Submission-shaped preview only; no action executes." } },
