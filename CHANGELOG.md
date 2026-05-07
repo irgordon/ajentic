@@ -18,6 +18,38 @@ Archive guarantees:
 - CHANGELOG surfaces remain historical truth.
 
 
+## v0.0.107 - 2026-05-07
+**Status:** Phase 107 - Provider Execution Sandbox Boundary
+
+### Added
+- Added bounded deterministic local stub provider execution through a typed Rust execution request/report sandbox.
+- Added deterministic execution metadata, bounded input/output summaries, sandbox posture indicators, untrusted-output posture, disabled remote/provider-network posture, no-promotion posture, no-persistence posture, and no-action/replay/recovery posture.
+- Added behavioral and adversarial coverage for deterministic local stub execution, invalid provider configuration rejection, unsafe request rejection, remote/cloud rejection, fallback rejection, auto-selection rejection, provider-output injection, oversized input, malformed requests, and no-authority guarantees.
+- Added Phase 107 operations documentation.
+
+### Changed
+- Updated the active phase checklist to Phase 107 procedural truth.
+
+### Notes
+- Bounded deterministic local stub provider execution only.
+- No remote provider execution.
+- No external API calls.
+- No cloud model inference.
+- Provider output remains untrusted candidate data.
+- No provider output promotion.
+- No persistence authority.
+- No durable append authority.
+- No export authority.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 108 implementation.
+
 ## v0.0.106 - 2026-05-07
 **Status:** Phase 106 - Provider Configuration Contract
 
