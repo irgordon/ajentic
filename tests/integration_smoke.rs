@@ -4,8 +4,10 @@ use ajentic_core::api::{
     encode_durable_append_transaction, execute_operator_action_boundary,
     handle_local_ui_rust_transport_payload, handle_local_ui_rust_transport_request,
     observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
-    operator_action_report_mutates_authority, prepare_application_recovery_candidate,
-    prepare_durable_append_transaction, provider_evidence_snapshot_from_harness_report,
+    operator_action_report_mutates_authority, parse_provider_configuration_payload,
+    prepare_application_recovery_candidate, prepare_durable_append_transaction,
+    provider_configuration_executes_provider, provider_configuration_trusts_provider,
+    provider_configuration_uses_transport, provider_evidence_snapshot_from_harness_report,
     recovery_acceptance_mutates_authority, run_end_to_end_local_harness,
     start_bounded_local_ui_rust_transport, submit_operator_intent,
     verify_durable_append_transaction_bytes, verify_provider_evidence_replay,
@@ -19,9 +21,9 @@ use ajentic_core::api::{
     OperatorActionExecutionReason, OperatorActionExecutionRequest, OperatorActionExecutionStatus,
     OperatorActionKind, OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent,
     OperatorIntentAuditRecord, OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext,
-    OperatorTargetContext, ProviderEvidenceReplayMode, ProviderEvidenceReplayReason,
-    ProviderEvidenceReplayStatus, RecoveryAcceptanceReason, RecoveryAcceptanceRequest,
-    RecoveryAcceptanceStatus,
+    OperatorTargetContext, ProviderConfigurationRejectionReason, ProviderConfigurationStatus,
+    ProviderEvidenceReplayMode, ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus,
+    RecoveryAcceptanceReason, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 fn phase_104_transport_request(
@@ -1393,4 +1395,82 @@ fn root_integration_local_export_write_rejects_path_traversal_name() {
     assert!(!report.written);
     assert!(!report.verified_after_write);
     assert!(!directory.join("root-escape.ajentic-export").exists());
+}
+
+fn phase_106_valid_provider_config(provider_id: &str) -> String {
+    format!(
+        "provider\nid={provider_id}\ntype=local_only_declared\ncapabilities=configuration_review,text_generation_declared\ntimeout_ms=1000\nmax_prompt_bytes=2048\nmax_context_bytes=8192\nisolation=local_only,no_network,no_filesystem,no_background_execution\nexecution_enabled=false\ntransport_enabled=false\nlocal_only=true\nuntrusted=true\nreadiness=not_ready\nauto_select=false\nfallback_enabled=false\n"
+    )
+}
+
+#[test]
+fn phase_106_provider_configuration_contract_is_validation_only() {
+    let report =
+        parse_provider_configuration_payload(&phase_106_valid_provider_config("provider_alpha"));
+    assert_eq!(report.status, ProviderConfigurationStatus::Accepted);
+    assert_eq!(report.provider_count, 1);
+    assert!(!report.execution_enabled);
+    assert!(!provider_configuration_executes_provider(&report));
+    assert!(!report.transport_enabled);
+    assert!(!provider_configuration_uses_transport(&report));
+    assert!(!report.provider_trusted);
+    assert!(!provider_configuration_trusts_provider(&report));
+    assert!(!report.readiness_approved);
+    assert!(!report.mutates_authority);
+    assert!(!report.persists_provider_state);
+    assert!(!report.appends_audit_or_ledger);
+}
+
+#[test]
+fn phase_106_provider_configuration_rejects_duplicate_identifier_deterministically() {
+    let payload = format!(
+        "{}\n{}",
+        phase_106_valid_provider_config("provider_alpha"),
+        phase_106_valid_provider_config("provider_alpha")
+    );
+    let first = parse_provider_configuration_payload(&payload);
+    let second = parse_provider_configuration_payload(&payload);
+    assert_eq!(first.status, ProviderConfigurationStatus::Rejected);
+    assert_eq!(first.reasons, second.reasons);
+    assert_eq!(
+        first.reasons,
+        vec![ProviderConfigurationRejectionReason::DuplicateProviderIdentifier]
+    );
+}
+
+#[test]
+fn phase_106_provider_configuration_rejects_unsupported_provider_hidden_execution_and_invalid_resources(
+) {
+    let payload = phase_106_valid_provider_config("Provider.Bad")
+        .replace("type=local_only_declared", "type=https_remote_provider")
+        .replace(
+            "capabilities=configuration_review,text_generation_declared",
+            "capabilities=unknown_capability",
+        )
+        .replace("timeout_ms=1000", "timeout_ms=900000")
+        .replace("execution_enabled=false", "execution_enabled=true")
+        .replace("transport_enabled=false", "transport_enabled=true")
+        .replace("untrusted=true", "untrusted=false")
+        .replace("readiness=not_ready", "readiness=production_ready")
+        .replace("auto_select=false", "auto_select=true")
+        .replace("fallback_enabled=false", "fallback_enabled=true");
+    let report = parse_provider_configuration_payload(&payload);
+    assert_eq!(report.status, ProviderConfigurationStatus::Rejected);
+    assert_eq!(
+        report.reasons,
+        vec![
+            ProviderConfigurationRejectionReason::InvalidProviderIdentifier,
+            ProviderConfigurationRejectionReason::UnsupportedProviderType,
+            ProviderConfigurationRejectionReason::InvalidCapabilityDeclaration,
+            ProviderConfigurationRejectionReason::InvalidTimeoutResourceDeclaration,
+            ProviderConfigurationRejectionReason::ExecutionEnabledRejected,
+            ProviderConfigurationRejectionReason::TransportEnabledRejected,
+            ProviderConfigurationRejectionReason::TrustEnabledRejected,
+            ProviderConfigurationRejectionReason::ReadinessClaimRejected,
+            ProviderConfigurationRejectionReason::AutoSelectionRejected,
+            ProviderConfigurationRejectionReason::FallbackRejected,
+        ]
+    );
+    assert!(!report.execution_enabled);
+    assert!(!report.transport_enabled);
 }

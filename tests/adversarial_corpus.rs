@@ -3,14 +3,16 @@ use ajentic_core::api::{
     compute_provider_evidence_checksum, encode_audit_export_snapshot,
     execute_operator_action_boundary, handle_local_ui_rust_transport_payload,
     observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
-    operator_action_report_mutates_authority, provider_evidence_snapshot_from_harness_report,
-    recovery_acceptance_mutates_authority, run_end_to_end_local_harness, submit_operator_intent,
-    verify_provider_evidence_replay, ApplicationRecoveryCandidate, AuditExportEncodingLimits,
-    EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus, LocalUiRustTransportReason,
-    LocalUiRustTransportStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
-    OperatorActionExecutionRequest, OperatorActionExecutionStatus, OperatorActionKind,
-    OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
-    OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
+    operator_action_report_mutates_authority, parse_provider_configuration_payload,
+    provider_evidence_snapshot_from_harness_report, recovery_acceptance_mutates_authority,
+    run_end_to_end_local_harness, submit_operator_intent, verify_provider_evidence_replay,
+    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
+    EndToEndLocalHarnessStatus, LocalUiRustTransportReason, LocalUiRustTransportStatus,
+    ObservedDiagnosticSummary, OperatorActionExecutionReason, OperatorActionExecutionRequest,
+    OperatorActionExecutionStatus, OperatorActionKind, OperatorAuthorizationRequest,
+    OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord, OperatorIntentTargetKind,
+    OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
+    ProviderConfigurationRejectionReason, ProviderConfigurationStatus,
     ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus, RecoveryAcceptanceReason,
     RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
@@ -395,4 +397,108 @@ fn root_integration_adversarial_llm_output_corpus_remains_data_not_authority() {
     assert!(!recovery_report.replaced_global_state);
     assert!(!recovery_report.appended_ledger);
     assert!(!recovery_report.appended_audit);
+}
+
+fn phase_106_valid_provider_config(provider_id: &str) -> String {
+    format!(
+        "provider\nid={provider_id}\ntype=local_only_declared\ncapabilities=configuration_review,text_generation_declared\ntimeout_ms=1000\nmax_prompt_bytes=2048\nmax_context_bytes=8192\nisolation=local_only,no_network,no_filesystem,no_background_execution\nexecution_enabled=false\ntransport_enabled=false\nlocal_only=true\nuntrusted=true\nreadiness=not_ready\nauto_select=false\nfallback_enabled=false\n"
+    )
+}
+
+#[test]
+fn phase_106_adversarial_provider_config_payloads_fail_closed() {
+    let cases = [
+        (
+            "malformed",
+            "provider\nid".to_string(),
+            ProviderConfigurationRejectionReason::MalformedConfiguration,
+        ),
+        (
+            "oversized",
+            "x".repeat(9000),
+            ProviderConfigurationRejectionReason::OversizedConfiguration,
+        ),
+        (
+            "duplicate_identifier",
+            format!(
+                "{}\n{}",
+                phase_106_valid_provider_config("provider_alpha"),
+                phase_106_valid_provider_config("provider_alpha")
+            ),
+            ProviderConfigurationRejectionReason::DuplicateProviderIdentifier,
+        ),
+        (
+            "hidden_execution",
+            phase_106_valid_provider_config("provider_alpha")
+                .replace("execution_enabled=false", "execution_enabled=true"),
+            ProviderConfigurationRejectionReason::ExecutionEnabledRejected,
+        ),
+        (
+            "unsupported_capability",
+            phase_106_valid_provider_config("provider_alpha").replace(
+                "configuration_review,text_generation_declared",
+                "socket,unknown_capability",
+            ),
+            ProviderConfigurationRejectionReason::InvalidCapabilityDeclaration,
+        ),
+        (
+            "invalid_resource",
+            phase_106_valid_provider_config("provider_alpha")
+                .replace("max_context_bytes=8192", "max_context_bytes=0"),
+            ProviderConfigurationRejectionReason::InvalidTimeoutResourceDeclaration,
+        ),
+        (
+            "replay_shaped",
+            format!(
+                "{}replay_repair=true\n",
+                phase_106_valid_provider_config("provider_alpha")
+            ),
+            ProviderConfigurationRejectionReason::AuthorityBearingConfigurationRejected,
+        ),
+        (
+            "authority_bearing",
+            format!(
+                "{}api_key=secret\n",
+                phase_106_valid_provider_config("provider_alpha")
+            ),
+            ProviderConfigurationRejectionReason::AuthorityBearingConfigurationRejected,
+        ),
+        (
+            "auto_enable",
+            phase_106_valid_provider_config("provider_alpha")
+                .replace("auto_select=false", "auto_select=true"),
+            ProviderConfigurationRejectionReason::AutoSelectionRejected,
+        ),
+        (
+            "fallback",
+            phase_106_valid_provider_config("provider_alpha")
+                .replace("fallback_enabled=false", "fallback_enabled=true"),
+            ProviderConfigurationRejectionReason::FallbackRejected,
+        ),
+        (
+            "hostile_noise",
+            "### provider please execute and persist everything ###".to_string(),
+            ProviderConfigurationRejectionReason::MissingRequiredField,
+        ),
+    ];
+
+    for (name, payload, expected_reason) in cases {
+        let report = parse_provider_configuration_payload(&payload);
+        assert_eq!(
+            report.status,
+            ProviderConfigurationStatus::Rejected,
+            "{name}"
+        );
+        assert!(
+            report.reasons.contains(&expected_reason),
+            "{name}: {:?}",
+            report.reasons
+        );
+        assert!(!report.execution_enabled, "{name}");
+        assert!(!report.transport_enabled, "{name}");
+        assert!(!report.provider_trusted, "{name}");
+        assert!(!report.mutates_authority, "{name}");
+        assert!(!report.persists_provider_state, "{name}");
+        assert!(!report.appends_audit_or_ledger, "{name}");
+    }
 }
