@@ -318,3 +318,51 @@ export type UiRustTransportEnvelope<TPayload> = Readonly<{
 export type UiRustReadProjectionResponse = UiRustTransportEnvelope<UiReadModel>;
 
 export type UiRustIntentPreviewRequest = UiRustTransportEnvelope<IntentSubmissionUiProjection>;
+
+export type SandboxLimitEnforcementStatusProjection =
+  | "within_declared_limits"
+  | "output_truncated"
+  | "terminated_timeout"
+  | "rejected_resource_limit"
+  | "rejected_unsafe_limit_request";
+
+export type SandboxLimitDecisionProjection =
+  | "accepted_within_limits"
+  | "truncated_output_to_declared_context_limit"
+  | "terminated_for_declared_timeout"
+  | "rejected_declared_prompt_limit"
+  | "rejected_declared_output_limit"
+  | "rejected_retry_request"
+  | "rejected_limit_escalation_request";
+
+export type DeclaredProviderLimitSnapshotProjection = Readonly<{
+  timeoutMs: number;
+  maxPromptBytes: number;
+  maxContextBytes: number;
+  retriesAllowed: false;
+  limitEscalationAllowed: false;
+}>;
+
+export type ObservedSandboxUsageProjection = Readonly<{
+  inputBytes: number;
+  plannedOutputBytes: number;
+  emittedOutputBytes: number;
+  deterministicElapsedMs: number;
+  retryAttempts: number;
+  limitEscalationAttempts: number;
+}>;
+
+export type SandboxLimitEvidenceProjection = Readonly<{
+  descriptiveOnly: true;
+  grantsTrust: false;
+  grantsPromotion: false;
+  grantsPersistence: false;
+  grantsReadiness: false;
+  declaredLimits: DeclaredProviderLimitSnapshotProjection;
+  observedUsage: ObservedSandboxUsageProjection;
+  enforcementStatus: SandboxLimitEnforcementStatusProjection;
+  decisions: readonly SandboxLimitDecisionProjection[];
+  inputSummary: string;
+  outputSummary: string;
+  terminationReasonCode?: SandboxLimitDecisionProjection;
+}>;

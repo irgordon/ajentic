@@ -17,6 +17,34 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.108 - 2026-05-07
+**Status:** Phase 108 - Provider Timeout and Resource Limit Boundary
+
+### Added
+- Added deterministic sandbox timeout/resource enforcement with typed declared limit snapshots, observed usage summaries, enforcement statuses, decisions, deterministic termination reasons, and descriptive-only sandbox limit evidence.
+- Added behavioral and adversarial coverage for timeout exhaustion, resource-limit enforcement, deterministic truncation, repeated execution determinism, retry prohibition, limit-escalation prohibition, no-authority posture, and provider-output-untrusted posture.
+- Added Phase 108 operations documentation.
+
+### Changed
+- Updated provider sandbox reports and UI API projections to expose descriptive timeout/resource evidence without granting authority.
+- Updated the active phase checklist to Phase 108 procedural truth.
+
+### Notes
+- Deterministic timeout/resource enforcement only.
+- Resource-limit evidence remains descriptive-only.
+- Provider output remains untrusted candidate data.
+- No remote/cloud provider execution.
+- No provider output promotion.
+- No persistence authority.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 109 implementation.
 
 ## v0.0.107 - 2026-05-07
 **Status:** Phase 107 - Provider Execution Sandbox Boundary

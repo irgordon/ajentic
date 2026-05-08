@@ -41,6 +41,11 @@ pub enum ProviderExecutionRejectionReason {
     RemoteProviderRejected,
     FallbackRejected,
     AutoSelectionRejected,
+    TimeoutLimitExceeded,
+    PromptResourceLimitExceeded,
+    OutputResourceLimitExceeded,
+    RetryRejected,
+    LimitEscalationRejected,
 }
 
 impl ProviderExecutionRejectionReason {
@@ -53,8 +58,84 @@ impl ProviderExecutionRejectionReason {
             Self::RemoteProviderRejected => "remote_provider_rejected",
             Self::FallbackRejected => "fallback_rejected",
             Self::AutoSelectionRejected => "auto_selection_rejected",
+            Self::TimeoutLimitExceeded => "timeout_limit_exceeded",
+            Self::PromptResourceLimitExceeded => "prompt_resource_limit_exceeded",
+            Self::OutputResourceLimitExceeded => "output_resource_limit_exceeded",
+            Self::RetryRejected => "retry_rejected",
+            Self::LimitEscalationRejected => "limit_escalation_rejected",
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DeclaredProviderLimitSnapshot {
+    pub timeout_ms: u32,
+    pub max_prompt_bytes: u32,
+    pub max_context_bytes: u32,
+    pub retries_allowed: bool,
+    pub limit_escalation_allowed: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ObservedSandboxUsage {
+    pub input_bytes: usize,
+    pub planned_output_bytes: usize,
+    pub emitted_output_bytes: usize,
+    pub deterministic_elapsed_ms: u32,
+    pub retry_attempts: u32,
+    pub limit_escalation_attempts: u32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SandboxLimitEnforcementStatus {
+    WithinDeclaredLimits,
+    OutputTruncated,
+    TerminatedTimeout,
+    RejectedResourceLimit,
+    RejectedUnsafeLimitRequest,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum SandboxLimitDecision {
+    AcceptedWithinLimits,
+    TruncatedOutputToDeclaredContextLimit,
+    TerminatedForDeclaredTimeout,
+    RejectedDeclaredPromptLimit,
+    RejectedDeclaredOutputLimit,
+    RejectedRetryRequest,
+    RejectedLimitEscalationRequest,
+}
+
+impl SandboxLimitDecision {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::AcceptedWithinLimits => "accepted_within_limits",
+            Self::TruncatedOutputToDeclaredContextLimit => {
+                "truncated_output_to_declared_context_limit"
+            }
+            Self::TerminatedForDeclaredTimeout => "terminated_for_declared_timeout",
+            Self::RejectedDeclaredPromptLimit => "rejected_declared_prompt_limit",
+            Self::RejectedDeclaredOutputLimit => "rejected_declared_output_limit",
+            Self::RejectedRetryRequest => "rejected_retry_request",
+            Self::RejectedLimitEscalationRequest => "rejected_limit_escalation_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SandboxLimitEvidence {
+    pub descriptive_only: bool,
+    pub grants_trust: bool,
+    pub grants_promotion: bool,
+    pub grants_persistence: bool,
+    pub grants_readiness: bool,
+    pub declared_limits: DeclaredProviderLimitSnapshot,
+    pub observed_usage: ObservedSandboxUsage,
+    pub enforcement_status: SandboxLimitEnforcementStatus,
+    pub decisions: Vec<SandboxLimitDecision>,
+    pub input_summary: String,
+    pub output_summary: String,
+    pub termination_reason_code: Option<&'static str>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,6 +156,8 @@ pub struct ProviderExecutionRequest {
     pub allow_action_execution: bool,
     pub allow_replay_repair: bool,
     pub allow_recovery_promotion: bool,
+    pub allow_retry: bool,
+    pub allow_limit_escalation: bool,
 }
 
 impl ProviderExecutionRequest {
@@ -100,6 +183,8 @@ impl ProviderExecutionRequest {
             allow_action_execution: false,
             allow_replay_repair: false,
             allow_recovery_promotion: false,
+            allow_retry: false,
+            allow_limit_escalation: false,
         }
     }
 }
@@ -116,11 +201,14 @@ pub struct ProviderExecutionReport {
     pub deterministic_metadata: String,
     pub input_summary: String,
     pub output_summary: String,
+    pub limit_evidence: SandboxLimitEvidence,
     pub remote_execution_disabled: bool,
     pub provider_network_disabled: bool,
     pub streaming_disabled: bool,
     pub fallback_disabled: bool,
     pub auto_selection_disabled: bool,
+    pub retry_disabled: bool,
+    pub limit_escalation_disabled: bool,
     pub no_promotion: bool,
     pub no_persistence: bool,
     pub no_action_execution: bool,
@@ -143,7 +231,39 @@ pub fn execute_provider_in_sandbox(request: ProviderExecutionRequest) -> Provide
         return rejected_report(request, reasons);
     }
 
-    let output = deterministic_stub_output(&request.provider.provider_id, &request.input);
+    let planned_output = deterministic_stub_output(&request.provider.provider_id, &request.input);
+    let mut limit_evidence = sandbox_limit_evidence(&request, &planned_output);
+    if limit_evidence
+        .decisions
+        .contains(&SandboxLimitDecision::TerminatedForDeclaredTimeout)
+    {
+        return rejected_report(
+            request,
+            BTreeSet::from([ProviderExecutionRejectionReason::TimeoutLimitExceeded]),
+        );
+    }
+    if limit_evidence
+        .decisions
+        .contains(&SandboxLimitDecision::RejectedDeclaredOutputLimit)
+    {
+        return rejected_report(
+            request,
+            BTreeSet::from([ProviderExecutionRejectionReason::OutputResourceLimitExceeded]),
+        );
+    }
+
+    let output = truncate_to_bytes(
+        &planned_output,
+        request.provider.resources.max_context_bytes as usize,
+    );
+    limit_evidence.observed_usage.emitted_output_bytes = output.len();
+    limit_evidence.output_summary = bounded_summary(&output);
+    if output.len() < planned_output.len() {
+        limit_evidence.enforcement_status = SandboxLimitEnforcementStatus::OutputTruncated;
+        limit_evidence.decisions =
+            vec![SandboxLimitDecision::TruncatedOutputToDeclaredContextLimit];
+    }
+
     ProviderExecutionReport {
         execution_id: request.execution_id.clone(),
         provider_id: request.provider.provider_id.clone(),
@@ -155,11 +275,14 @@ pub fn execute_provider_in_sandbox(request: ProviderExecutionRequest) -> Provide
         deterministic_metadata: deterministic_metadata(&request.provider.provider_id, &request.input),
         input_summary: bounded_summary(&request.input),
         output_summary: bounded_summary(&output),
+        limit_evidence,
         remote_execution_disabled: true,
         provider_network_disabled: true,
         streaming_disabled: true,
         fallback_disabled: true,
         auto_selection_disabled: true,
+        retry_disabled: true,
+        limit_escalation_disabled: true,
         no_promotion: true,
         no_persistence: true,
         no_action_execution: true,
@@ -219,6 +342,15 @@ fn provider_execution_rejection_reasons(
     if request.allow_auto_selection || request.provider.auto_select {
         reasons.insert(ProviderExecutionRejectionReason::AutoSelectionRejected);
     }
+    if request.allow_retry {
+        reasons.insert(ProviderExecutionRejectionReason::RetryRejected);
+    }
+    if request.allow_limit_escalation {
+        reasons.insert(ProviderExecutionRejectionReason::LimitEscalationRejected);
+    }
+    if request.input.len() > request.provider.resources.max_prompt_bytes as usize {
+        reasons.insert(ProviderExecutionRejectionReason::PromptResourceLimitExceeded);
+    }
     if request.allow_streaming
         || request.allow_shell_or_process
         || request.allow_file_access
@@ -238,6 +370,7 @@ fn rejected_report(
     request: ProviderExecutionRequest,
     reasons: BTreeSet<ProviderExecutionRejectionReason>,
 ) -> ProviderExecutionReport {
+    let limit_evidence = rejected_limit_evidence(&request, &reasons);
     ProviderExecutionReport {
         execution_id: request.execution_id,
         provider_id: request.provider.provider_id,
@@ -249,11 +382,14 @@ fn rejected_report(
         deterministic_metadata: "deterministic_rejection=true".to_string(),
         input_summary: bounded_summary(&request.input),
         output_summary: "none".to_string(),
+        limit_evidence,
         remote_execution_disabled: true,
         provider_network_disabled: true,
         streaming_disabled: true,
         fallback_disabled: true,
         auto_selection_disabled: true,
+        retry_disabled: true,
+        limit_escalation_disabled: true,
         no_promotion: true,
         no_persistence: true,
         no_action_execution: true,
@@ -269,6 +405,149 @@ fn rejected_report(
         mutates_authority: false,
         summary: "provider sandbox rejected request fail-closed; no provider output, promotion, persistence, action execution, replay repair, recovery promotion, remote execution, network execution, streaming, fallback, or auto-selection occurred".to_string(),
     }
+}
+
+fn sandbox_limit_evidence(
+    request: &ProviderExecutionRequest,
+    planned_output: &str,
+) -> SandboxLimitEvidence {
+    let deterministic_elapsed_ms = deterministic_elapsed_ms(request, planned_output);
+    let timeout_exceeded = deterministic_elapsed_ms > request.provider.resources.timeout_ms;
+    let output_exceeds_hard_limit = request.provider.resources.max_context_bytes == 0;
+    let decisions = if timeout_exceeded {
+        vec![SandboxLimitDecision::TerminatedForDeclaredTimeout]
+    } else if output_exceeds_hard_limit {
+        vec![SandboxLimitDecision::RejectedDeclaredOutputLimit]
+    } else {
+        vec![SandboxLimitDecision::AcceptedWithinLimits]
+    };
+    let enforcement_status = if timeout_exceeded {
+        SandboxLimitEnforcementStatus::TerminatedTimeout
+    } else if output_exceeds_hard_limit {
+        SandboxLimitEnforcementStatus::RejectedResourceLimit
+    } else {
+        SandboxLimitEnforcementStatus::WithinDeclaredLimits
+    };
+    let termination_reason_code = if timeout_exceeded {
+        Some(SandboxLimitDecision::TerminatedForDeclaredTimeout.code())
+    } else if output_exceeds_hard_limit {
+        Some(SandboxLimitDecision::RejectedDeclaredOutputLimit.code())
+    } else {
+        None
+    };
+
+    SandboxLimitEvidence {
+        descriptive_only: true,
+        grants_trust: false,
+        grants_promotion: false,
+        grants_persistence: false,
+        grants_readiness: false,
+        declared_limits: declared_limit_snapshot(request),
+        observed_usage: ObservedSandboxUsage {
+            input_bytes: request.input.len(),
+            planned_output_bytes: planned_output.len(),
+            emitted_output_bytes: planned_output.len(),
+            deterministic_elapsed_ms,
+            retry_attempts: u32::from(request.allow_retry),
+            limit_escalation_attempts: u32::from(request.allow_limit_escalation),
+        },
+        enforcement_status,
+        decisions,
+        input_summary: bounded_summary(&request.input),
+        output_summary: bounded_summary(planned_output),
+        termination_reason_code,
+    }
+}
+
+fn rejected_limit_evidence(
+    request: &ProviderExecutionRequest,
+    reasons: &BTreeSet<ProviderExecutionRejectionReason>,
+) -> SandboxLimitEvidence {
+    let mut decisions = Vec::new();
+    if reasons.contains(&ProviderExecutionRejectionReason::PromptResourceLimitExceeded) {
+        decisions.push(SandboxLimitDecision::RejectedDeclaredPromptLimit);
+    }
+    if reasons.contains(&ProviderExecutionRejectionReason::OutputResourceLimitExceeded) {
+        decisions.push(SandboxLimitDecision::RejectedDeclaredOutputLimit);
+    }
+    if reasons.contains(&ProviderExecutionRejectionReason::TimeoutLimitExceeded) {
+        decisions.push(SandboxLimitDecision::TerminatedForDeclaredTimeout);
+    }
+    if reasons.contains(&ProviderExecutionRejectionReason::RetryRejected) {
+        decisions.push(SandboxLimitDecision::RejectedRetryRequest);
+    }
+    if reasons.contains(&ProviderExecutionRejectionReason::LimitEscalationRejected) {
+        decisions.push(SandboxLimitDecision::RejectedLimitEscalationRequest);
+    }
+    if decisions.is_empty() {
+        decisions.push(SandboxLimitDecision::AcceptedWithinLimits);
+    }
+
+    let enforcement_status =
+        if reasons.contains(&ProviderExecutionRejectionReason::TimeoutLimitExceeded) {
+            SandboxLimitEnforcementStatus::TerminatedTimeout
+        } else if reasons.contains(&ProviderExecutionRejectionReason::PromptResourceLimitExceeded)
+            || reasons.contains(&ProviderExecutionRejectionReason::OutputResourceLimitExceeded)
+        {
+            SandboxLimitEnforcementStatus::RejectedResourceLimit
+        } else if reasons.contains(&ProviderExecutionRejectionReason::RetryRejected)
+            || reasons.contains(&ProviderExecutionRejectionReason::LimitEscalationRejected)
+        {
+            SandboxLimitEnforcementStatus::RejectedUnsafeLimitRequest
+        } else {
+            SandboxLimitEnforcementStatus::WithinDeclaredLimits
+        };
+
+    SandboxLimitEvidence {
+        descriptive_only: true,
+        grants_trust: false,
+        grants_promotion: false,
+        grants_persistence: false,
+        grants_readiness: false,
+        declared_limits: declared_limit_snapshot(request),
+        observed_usage: ObservedSandboxUsage {
+            input_bytes: request.input.len(),
+            planned_output_bytes: 0,
+            emitted_output_bytes: 0,
+            deterministic_elapsed_ms: deterministic_elapsed_ms(request, ""),
+            retry_attempts: u32::from(request.allow_retry),
+            limit_escalation_attempts: u32::from(request.allow_limit_escalation),
+        },
+        enforcement_status,
+        termination_reason_code: decisions.first().map(SandboxLimitDecision::code),
+        decisions,
+        input_summary: bounded_summary(&request.input),
+        output_summary: "none".to_string(),
+    }
+}
+
+fn declared_limit_snapshot(request: &ProviderExecutionRequest) -> DeclaredProviderLimitSnapshot {
+    DeclaredProviderLimitSnapshot {
+        timeout_ms: request.provider.resources.timeout_ms,
+        max_prompt_bytes: request.provider.resources.max_prompt_bytes,
+        max_context_bytes: request.provider.resources.max_context_bytes,
+        retries_allowed: false,
+        limit_escalation_allowed: false,
+    }
+}
+
+fn deterministic_elapsed_ms(request: &ProviderExecutionRequest, planned_output: &str) -> u32 {
+    if request.input.contains("phase108_timeout_exhaustion") {
+        return request.provider.resources.timeout_ms.saturating_add(1);
+    }
+    let work_units = request.input.len().saturating_add(planned_output.len());
+    u32::try_from(work_units / 64 + 1).unwrap_or(u32::MAX)
+}
+
+fn truncate_to_bytes(value: &str, max_bytes: usize) -> String {
+    if value.len() <= max_bytes {
+        return value.to_string();
+    }
+    let mut end = max_bytes;
+    while !value.is_char_boundary(end) {
+        end -= 1;
+    }
+    value[..end].to_string()
 }
 
 fn deterministic_stub_output(provider_id: &str, input: &str) -> String {
@@ -343,6 +622,134 @@ mod tests {
             auto_select: false,
             fallback_enabled: false,
         }
+    }
+
+    #[test]
+    fn phase_108_timeout_enforcement_triggers_deterministically() {
+        let request = ProviderExecutionRequest::deterministic_local_stub(
+            "exec-timeout",
+            valid_provider(),
+            "phase108_timeout_exhaustion",
+        );
+        let first = execute_provider_in_sandbox(request.clone());
+        let second = execute_provider_in_sandbox(request);
+
+        assert_eq!(first, second);
+        assert_eq!(first.status, ProviderExecutionStatus::Rejected);
+        assert!(first
+            .reasons
+            .contains(&ProviderExecutionRejectionReason::TimeoutLimitExceeded));
+        assert_eq!(
+            first.limit_evidence.enforcement_status,
+            SandboxLimitEnforcementStatus::TerminatedTimeout
+        );
+        assert_eq!(
+            first.limit_evidence.termination_reason_code,
+            Some("terminated_for_declared_timeout")
+        );
+        assert!(first.provider_output.is_none());
+        assert!(first.limit_evidence.descriptive_only);
+        assert!(!first.limit_evidence.grants_trust);
+        assert!(!first.limit_evidence.grants_readiness);
+    }
+
+    #[test]
+    fn phase_108_resource_limit_enforcement_rejects_prompt_over_declared_limit() {
+        let mut provider = valid_provider();
+        provider.resources.max_prompt_bytes = 8;
+        let report =
+            execute_provider_in_sandbox(ProviderExecutionRequest::deterministic_local_stub(
+                "exec-resource",
+                provider,
+                "larger than eight bytes",
+            ));
+
+        assert_eq!(report.status, ProviderExecutionStatus::Rejected);
+        assert!(report
+            .reasons
+            .contains(&ProviderExecutionRejectionReason::PromptResourceLimitExceeded));
+        assert_eq!(
+            report.limit_evidence.enforcement_status,
+            SandboxLimitEnforcementStatus::RejectedResourceLimit
+        );
+        assert!(report
+            .limit_evidence
+            .decisions
+            .contains(&SandboxLimitDecision::RejectedDeclaredPromptLimit));
+        assert!(report.provider_output.is_none());
+    }
+
+    #[test]
+    fn phase_108_truncation_ordering_is_deterministic_and_untrusted() {
+        let mut provider = valid_provider();
+        provider.resources.max_context_bytes = 32;
+        let request = ProviderExecutionRequest::deterministic_local_stub(
+            "exec-truncate",
+            provider,
+            "stable truncation payload",
+        );
+        let first = execute_provider_in_sandbox(request.clone());
+        let second = execute_provider_in_sandbox(request);
+
+        assert_eq!(first, second);
+        assert_eq!(first.status, ProviderExecutionStatus::Succeeded);
+        assert_eq!(
+            first.limit_evidence.enforcement_status,
+            SandboxLimitEnforcementStatus::OutputTruncated
+        );
+        assert_eq!(
+            first.limit_evidence.decisions,
+            vec![SandboxLimitDecision::TruncatedOutputToDeclaredContextLimit]
+        );
+        let output = first.provider_output.as_ref().expect("provider output");
+        assert_eq!(output.len(), 32);
+        assert!(output.starts_with("deterministic-local-stub provid"));
+        assert_eq!(
+            first.output_trust,
+            ProviderExecutionOutputTrust::UntrustedCandidateData
+        );
+        assert!(!provider_execution_report_mutates_authority(&first));
+        assert!(!first.promoted_provider_output);
+        assert!(!first.readiness_approved);
+        assert!(!first.persisted);
+    }
+
+    #[test]
+    fn phase_108_retries_and_limit_escalation_remain_disabled() {
+        let mut request = ProviderExecutionRequest::deterministic_local_stub(
+            "exec-retry-escalate",
+            valid_provider(),
+            "retry please and increase limits",
+        );
+        request.allow_retry = true;
+        request.allow_limit_escalation = true;
+        let report = execute_provider_in_sandbox(request);
+
+        assert_eq!(report.status, ProviderExecutionStatus::Rejected);
+        assert_eq!(report.limit_evidence.observed_usage.retry_attempts, 1);
+        assert_eq!(
+            report
+                .limit_evidence
+                .observed_usage
+                .limit_escalation_attempts,
+            1
+        );
+        assert!(report.retry_disabled);
+        assert!(report.limit_escalation_disabled);
+        assert!(report
+            .reasons
+            .contains(&ProviderExecutionRejectionReason::RetryRejected));
+        assert!(report
+            .reasons
+            .contains(&ProviderExecutionRejectionReason::LimitEscalationRejected));
+        assert!(report
+            .limit_evidence
+            .decisions
+            .contains(&SandboxLimitDecision::RejectedRetryRequest));
+        assert!(report
+            .limit_evidence
+            .decisions
+            .contains(&SandboxLimitDecision::RejectedLimitEscalationRequest));
     }
 
     #[test]
