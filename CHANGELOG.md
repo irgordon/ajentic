@@ -17,6 +17,42 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.110 - 2026-05-08
+**Status:** Phase 110 - Roadmap and Changelog Alignment Check
+
+### Added
+- Added the Phase 110 roadmap/changelog alignment report.
+
+### Changed
+- Updated roadmap planned-truth surfaces to reconcile Phase 106-109 outcomes and correct stale current-block/immediate-gate language.
+- Added an archive annotation outside historical entries in docs/changelog/CHANGELOG-0056-0104.md for the known v0.0.63 ordering anomaly.
+- Updated checklists/current-phase.md to Phase 110 procedural truth.
+- Updated CHANGELOG.md with v0.0.110.
+
+### Notes
+- Alignment/check only.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No governance doc changes.
+- No persistence authority.
+- No provider trust.
+- No provider output promotion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 111 implementation.
+- Historical entries were not rewritten.
+- Phase 120 remains a planned gate, not a guaranteed final endpoint.
+
 ## v0.0.109.5 - 2026-05-08
 **Status:** Out-of-Band Repository Governance Audit - post-Phase 109 audit/alignment only
 

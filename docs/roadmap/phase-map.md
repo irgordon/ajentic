@@ -42,12 +42,12 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 103 | UI Runtime Review Surface Activation Boundary | Milestone 9 | Activate the browser review surface for human operator visibility. | UI usability only; no Rust authority and no live mutation. |
 | 104 | UI-to-Rust Local Transport Prototype Boundary | Milestone 9 | Prototype local UI-to-Rust communication under non-authoritative constraints. | Local transport prototype only; no provider execution and no persistence authority. |
 | 105 | Transport Abuse Hardening for Live Local Bridge | Milestone 9 | Harden the live local bridge against malformed, spoofed, replayed, or hostile transport input. | Hardening only; no broad capability. |
-| 106 | Provider Configuration Contract | Milestone 9 | Define provider configuration contracts without executing providers. | Configuration contract only; no live provider execution. |
-| 107 | Provider Execution Sandbox Boundary | Milestone 9 | Introduce bounded provider execution under sandboxed constraints. | Bounded provider execution only; provider output remains untrusted. |
-| 108 | Provider Timeout and Resource Limit Boundary | Milestone 9 | Add provider timeout and resource-limit enforcement. | Provider hardening only; no promotion authority. |
-| 109 | Durable Persistence Authority Decision Gate | Milestone 9 | Determine whether local persistence can become authoritative. | Decision/audit only. |
-| 110 | Authoritative Persistence Activation Boundary | Milestone 9 | Activate authoritative persistence only under Phase 109 evidence constraints. | Narrow persistence authority only if Phase 109 permits it. |
-| 111 | Recovery Lifecycle Hardening | Milestone 10 | Harden recovery lifecycle behavior without silent repair or implicit promotion. | Recovery lifecycle only; no silent recovery. |
+| 106 | Provider Configuration Contract | Milestone 9 | Reconciled as completed historical outcome: provider configuration contracts without provider execution. | Configuration contract only; no live provider execution; historical completion remains in changelog. |
+| 107 | Provider Execution Sandbox Boundary | Milestone 9 | Reconciled as completed historical outcome: bounded deterministic local stub provider execution. | Bounded local stub execution only; provider output remains untrusted. |
+| 108 | Provider Timeout and Resource Limit Boundary | Milestone 9 | Reconciled as completed historical outcome: deterministic timeout/resource enforcement with descriptive-only evidence. | Provider hardening only; no promotion authority. |
+| 109 | Durable Persistence Authority Decision Gate | Milestone 9 | Reconciled as completed historical outcome: durable persistence authority decision evidence only. | Decision/audit only; no persistence activation. |
+| 110 | Roadmap and Changelog Alignment Check | Milestone 9 | Reconcile Phase 106-109 outcomes, roadmap planned truth, changelog archive posture, and Phase 111 gate constraints. | Alignment/check only; no runtime behavior, no new capability, no persistence authority. |
+| 111 | Narrow Persistence Activation Boundary | Milestone 10 | Earliest possible narrow Rust-validated decision-evidence append activation, only if Phase 109/110 constraints remain valid. | Not broad persistence authority; no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval. |
 | 112 | Policy Versioning and Governance Evidence Boundary | Milestone 10 | Add policy versioning and governance evidence traceability. | Policy/governance versioning only. |
 | 113 | Deployment Configuration Contract | Milestone 10 | Define deployment configuration contracts without deployment automation. | Deployment config only; no deployment automation. |
 | 114 | Local Deployment Candidate Boundary | Milestone 10 | Define a local deployment candidate boundary for controlled testing. | Local deployment candidate only; no public release. |
@@ -56,13 +56,17 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 117 | Human Trial Dry Run | Milestone 10 | Rehearse controlled human-trial procedures without public availability. | Dry run only; no public availability. |
 | 118 | Release Candidate Evidence Assembly | Milestone 10 | Assemble release-candidate evidence without approval. | Evidence assembly only; no automatic approval. |
 | 119 | Production Candidate Reassessment | Milestone 10 | Reassess Production Candidate posture after controlled evidence assembly. | Decision gate only. |
-| 120 | Early Human-Use Candidate Gate | Milestone 10 | Decide whether controlled early human use is permitted. | Final gate for controlled human use; not general public release. |
+| 120 | Early Human-Use Candidate Gate | Milestone 10 | Decide whether controlled early human use is permitted if intervening evidence supports review. | Current planned gate only; not a guaranteed final endpoint and not general public release. |
 
 ## Boundary reminder
 
 Roadmap entries are planned truth and boundaries only.
 
-Phase 100 remains the immediate Production Candidate gap audit and readiness decision gate.
+Phase 110 is the current alignment/check gate after Phase 109; it is not persistence activation and does not approve readiness.
+
+Phase 111 is the earliest possible narrow persistence activation phase, limited to the Rust-validated decision-evidence append candidate permitted by Phase 109 and confirmed by Phase 110.
+
+Phase 120 is a current planned gate, not a guaranteed final production endpoint.
 
 Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
 
