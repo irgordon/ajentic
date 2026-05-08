@@ -1,29 +1,34 @@
 use ajentic_core::api::{
-    accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
-    compute_provider_evidence_checksum, durable_persistence_decision_activates_authority,
-    encode_audit_export_snapshot, evaluate_durable_persistence_authority_decision,
-    execute_operator_action_boundary, execute_provider_in_sandbox,
-    handle_local_ui_rust_transport_payload, observability_snapshot_from_supplied_evidence,
+    accept_recovery_candidate_for_in_memory_use, append_phase_111_decision_evidence,
+    authorize_operator_intent, build_phase_111_decision_evidence_append_record,
+    compute_provider_evidence_checksum, create_local_persistence_dir,
+    durable_persistence_decision_activates_authority, encode_audit_export_snapshot,
+    evaluate_durable_persistence_authority_decision, execute_operator_action_boundary,
+    execute_provider_in_sandbox, handle_local_ui_rust_transport_payload,
+    local_persistence_path_exists, observability_snapshot_from_supplied_evidence,
     observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
     parse_provider_configuration_payload, provider_evidence_snapshot_from_harness_report,
     provider_execution_report_mutates_authority, recovery_acceptance_mutates_authority,
-    run_end_to_end_local_harness, submit_operator_intent, verify_provider_evidence_replay,
-    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
-    EndToEndLocalHarnessStatus, LocalUiRustTransportReason, LocalUiRustTransportStatus,
-    ObservedDiagnosticSummary, OperatorActionExecutionReason, OperatorActionExecutionRequest,
-    OperatorActionExecutionStatus, OperatorActionKind, OperatorAuthorizationRequest,
-    OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord, OperatorIntentTargetKind,
-    OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
-    PersistenceAuthorityDecisionReasonCode, PersistenceAuthorityDecisionStatus,
-    ProhibitedPersistenceCategory, ProposedPersistenceBoundary, ProviderCapabilityDeclaration,
-    ProviderConfiguration, ProviderConfigurationExecutionPosture,
-    ProviderConfigurationReadinessPosture, ProviderConfigurationRejectionReason,
-    ProviderConfigurationStatus, ProviderConfigurationTransportPosture,
-    ProviderConfigurationTrustPosture, ProviderConfigurationType, ProviderEvidenceReplayReason,
-    ProviderEvidenceReplayStatus, ProviderExecutionKind, ProviderExecutionOutputTrust,
-    ProviderExecutionRejectionReason, ProviderExecutionRequest, ProviderExecutionStatus,
-    ProviderIsolationDeclaration, ProviderResourceLimits, RecoveryAcceptanceReason,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    remove_local_persistence_tree, run_end_to_end_local_harness, submit_operator_intent,
+    verify_provider_evidence_replay, ApplicationRecoveryCandidate, AuditExportEncodingLimits,
+    EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus, LocalPersistenceAtomicity,
+    LocalPersistencePayloadKind, LocalPersistencePlan, LocalPersistenceWriteMode,
+    LocalUiRustTransportReason, LocalUiRustTransportStatus, ObservedDiagnosticSummary,
+    OperatorActionExecutionReason, OperatorActionExecutionRequest, OperatorActionExecutionStatus,
+    OperatorActionKind, OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent,
+    OperatorIntentAuditRecord, OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext,
+    OperatorTargetContext, PersistenceAuthorityDecisionReasonCode,
+    PersistenceAuthorityDecisionStatus, Phase111DecisionEvidenceAppendRejection,
+    Phase111DecisionEvidenceAppendStatus, ProhibitedPersistenceCategory,
+    ProposedPersistenceBoundary, ProviderCapabilityDeclaration, ProviderConfiguration,
+    ProviderConfigurationExecutionPosture, ProviderConfigurationReadinessPosture,
+    ProviderConfigurationRejectionReason, ProviderConfigurationStatus,
+    ProviderConfigurationTransportPosture, ProviderConfigurationTrustPosture,
+    ProviderConfigurationType, ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus,
+    ProviderExecutionKind, ProviderExecutionOutputTrust, ProviderExecutionRejectionReason,
+    ProviderExecutionRequest, ProviderExecutionStatus, ProviderIsolationDeclaration,
+    ProviderResourceLimits, RecoveryAcceptanceReason, RecoveryAcceptanceRequest,
+    RecoveryAcceptanceStatus,
 };
 
 #[test]
@@ -935,4 +940,161 @@ fn phase_109_adversarial_malformed_and_hostile_authority_requests_fail_closed() 
         assert!(!evidence.action_execution_activated);
         assert!(!evidence.readiness_approved);
     }
+}
+
+fn phase_111_adversarial_plan(name: &str) -> (std::path::PathBuf, LocalPersistencePlan) {
+    let mut dir = std::env::temp_dir();
+    dir.push(format!("ajentic_phase_111_adversarial_{}_{}", name, 111));
+    let _ = remove_local_persistence_tree(&dir);
+    create_local_persistence_dir(&dir).unwrap();
+    let target = dir.join("decision-evidence.append");
+    let temp = dir.join("decision-evidence.append.tmp");
+    let plan = LocalPersistencePlan::new(
+        format!("phase-111-adversarial-{name}"),
+        target.to_string_lossy(),
+        temp.to_string_lossy(),
+        Some(1),
+        LocalPersistencePayloadKind::AuditProjection,
+        LocalPersistenceWriteMode::CreateNew,
+        LocalPersistenceAtomicity::Required,
+    );
+    (dir, plan)
+}
+
+fn phase_111_adversarial_valid_evidence(
+    id: &str,
+) -> ajentic_core::api::DurablePersistenceAuthorityDecisionEvidence {
+    evaluate_durable_persistence_authority_decision(
+        ProposedPersistenceBoundary::phase_110_narrow_candidate(id),
+    )
+}
+
+#[test]
+fn phase_111_adversarial_authority_injections_reject_before_append() {
+    let cases = [
+        (
+            "provider-output-persistence-injection",
+            ProhibitedPersistenceCategory::ProviderOutputAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedProviderOutputAuthority,
+        ),
+        (
+            "workflow-completion-persistence-injection",
+            ProhibitedPersistenceCategory::WorkflowCompletionAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedWorkflowCompletionAuthority,
+        ),
+        (
+            "sandbox-success-persistence-injection",
+            ProhibitedPersistenceCategory::SandboxSuccessAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedSandboxSuccessAuthority,
+        ),
+        (
+            "ui-authorized-persistence-injection",
+            ProhibitedPersistenceCategory::UiAuthorizedPersistence,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedUiAuthorizedPersistence,
+        ),
+        (
+            "transport-authorized-persistence-injection",
+            ProhibitedPersistenceCategory::TransportAuthorizedPersistence,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedTransportAuthorizedPersistence,
+        ),
+        (
+            "replay-repair-persistence-attempt",
+            ProhibitedPersistenceCategory::ReplayRepairAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedReplayRepairAuthority,
+        ),
+        (
+            "recovery-promotion-persistence-attempt",
+            ProhibitedPersistenceCategory::RecoveryPromotionAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedRecoveryPromotionAuthority,
+        ),
+        (
+            "action-execution-persistence-attempt",
+            ProhibitedPersistenceCategory::ActionExecutionAuthority,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedActionExecutionAuthority,
+        ),
+        (
+            "trust-readiness-persistence-injection",
+            ProhibitedPersistenceCategory::ImplicitTrustPromotion,
+            Phase111DecisionEvidenceAppendRejection::ProhibitedTrustOrReadinessApproval,
+        ),
+    ];
+
+    for (name, category, expected) in cases {
+        let mut evidence = phase_111_adversarial_valid_evidence(name);
+        evidence.prohibited_categories.push(category);
+        let (_dir, plan) = phase_111_adversarial_plan(name);
+        let report = append_phase_111_decision_evidence(&evidence, &plan);
+        assert_eq!(
+            report.status,
+            Phase111DecisionEvidenceAppendStatus::Rejected
+        );
+        assert_eq!(report.rejection, expected, "{name}");
+        assert!(!report.committed, "{name}");
+        assert!(!local_persistence_path_exists(&plan.target_path), "{name}");
+        assert!(!report.provider_output_trusted, "{name}");
+        assert!(!report.provider_output_promoted, "{name}");
+        assert!(!report.readiness_approved, "{name}");
+    }
+}
+
+#[test]
+fn phase_111_adversarial_malformed_duplicate_noise_and_partial_write_fail_closed() {
+    let mut malformed = phase_111_adversarial_valid_evidence("malformed-decision-evidence");
+    malformed.decision_id = "ambiguous:decision:evidence".to_string();
+    let (_dir, plan) = phase_111_adversarial_plan("malformed");
+    let report = append_phase_111_decision_evidence(&malformed, &plan);
+    assert_eq!(
+        report.status,
+        Phase111DecisionEvidenceAppendStatus::Rejected
+    );
+    assert_eq!(
+        report.rejection,
+        Phase111DecisionEvidenceAppendRejection::InvalidDecisionEvidence
+    );
+    assert!(!local_persistence_path_exists(&plan.target_path));
+
+    let mut duplicate = phase_111_adversarial_valid_evidence("duplicate-decision-evidence");
+    duplicate
+        .reason_codes
+        .push(PersistenceAuthorityDecisionReasonCode::DecisionEvidenceOnly);
+    let (_dir, plan) = phase_111_adversarial_plan("duplicate");
+    let report = append_phase_111_decision_evidence(&duplicate, &plan);
+    assert_eq!(
+        report.status,
+        Phase111DecisionEvidenceAppendStatus::Rejected
+    );
+    assert_eq!(
+        report.rejection,
+        Phase111DecisionEvidenceAppendRejection::DuplicateOrAmbiguousDecisionEvidence
+    );
+    assert!(!local_persistence_path_exists(&plan.target_path));
+
+    let noisy = phase_111_adversarial_valid_evidence("hostile-noise-authority-payload");
+    let record = build_phase_111_decision_evidence_append_record(&noisy).unwrap();
+    assert!(!record.provider_output_authority);
+    assert!(!record.workflow_completion_authority);
+    assert!(!record.sandbox_success_authority);
+    assert!(!record.replay_repair_authority);
+    assert!(!record.recovery_promotion_authority);
+    assert!(!record.action_execution_authority);
+    assert!(!record.readiness_approval);
+
+    let (dir, mut failing_plan) = phase_111_adversarial_plan("partial-write-simulation");
+    failing_plan.temp_path = dir
+        .join("missing")
+        .join("temp")
+        .to_string_lossy()
+        .into_owned();
+    let report = append_phase_111_decision_evidence(&noisy, &failing_plan);
+    assert_eq!(
+        report.status,
+        Phase111DecisionEvidenceAppendStatus::Rejected
+    );
+    assert_eq!(
+        report.rejection,
+        Phase111DecisionEvidenceAppendRejection::AppendWriteFailed
+    );
+    assert!(!local_persistence_path_exists(&failing_plan.target_path));
+    assert!(!local_persistence_path_exists(&failing_plan.temp_path));
+    let _ = remove_local_persistence_tree(dir);
 }

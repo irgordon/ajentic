@@ -17,6 +17,38 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.111 - 2026-05-08
+**Status:** Phase 111 - Narrow Persistence Authority Activation Boundary
+
+### Added
+- Add the narrow Rust-validated decision-evidence append path.
+- Add tests for accepted decision-evidence append and prohibited authority categories.
+- Add the Phase 111 operations report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 111 procedural truth.
+- Update CHANGELOG.md with v0.0.111.
+
+### Notes
+- Narrow persistence authority only.
+- Rust-validated decision-evidence append only.
+- No broad persistence authority.
+- No provider-output authority.
+- No workflow-completion authority.
+- No sandbox-success authority.
+- No UI/transport persistence authority.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 112 implementation.
+
 ## v0.0.110 - 2026-05-08
 **Status:** Phase 110 - Roadmap and Changelog Alignment Check
 

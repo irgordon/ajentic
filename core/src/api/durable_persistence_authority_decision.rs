@@ -1,5 +1,10 @@
 use std::collections::BTreeSet;
 
+use super::persistence::{
+    calculate_persisted_record_checksum, write_phase_111_decision_evidence_append_bytes,
+    LocalPersistencePlan,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PersistenceAuthorityDecisionStatus {
     Phase110NarrowActivationCandidatePermitted,
@@ -37,6 +42,7 @@ pub enum ProhibitedPersistenceCategory {
     ActionExecutionAuthority,
     UiAuthorizedPersistence,
     TransportAuthorizedPersistence,
+    SandboxSuccessAuthority,
     ImplicitTrustPromotion,
     ImplicitReadinessPromotion,
 }
@@ -51,6 +57,7 @@ impl ProhibitedPersistenceCategory {
             Self::ActionExecutionAuthority => "action_execution_authority",
             Self::UiAuthorizedPersistence => "ui_authorized_persistence",
             Self::TransportAuthorizedPersistence => "transport_authorized_persistence",
+            Self::SandboxSuccessAuthority => "sandbox_success_authority",
             Self::ImplicitTrustPromotion => "implicit_trust_promotion",
             Self::ImplicitReadinessPromotion => "implicit_readiness_promotion",
         }
@@ -69,6 +76,9 @@ pub enum PersistenceAuthorityDecisionReasonCode {
     ProviderOutputNotAuthority,
     WorkflowCompletionNotAuthority,
     SandboxSuccessNotAuthority,
+    DuplicateOrAmbiguousEvidenceRejected,
+    DecisionEvidenceAppendVerified,
+    DecisionEvidenceAppendWriteFailed,
     ReplayRepairProhibited,
     RecoveryPromotionProhibited,
     ActionExecutionProhibited,
@@ -98,6 +108,11 @@ impl PersistenceAuthorityDecisionReasonCode {
             Self::ProviderOutputNotAuthority => "provider_output_not_authority",
             Self::WorkflowCompletionNotAuthority => "workflow_completion_not_authority",
             Self::SandboxSuccessNotAuthority => "sandbox_success_not_authority",
+            Self::DuplicateOrAmbiguousEvidenceRejected => {
+                "duplicate_or_ambiguous_evidence_rejected"
+            }
+            Self::DecisionEvidenceAppendVerified => "decision_evidence_append_verified",
+            Self::DecisionEvidenceAppendWriteFailed => "decision_evidence_append_write_failed",
             Self::ReplayRepairProhibited => "replay_repair_prohibited",
             Self::RecoveryPromotionProhibited => "recovery_promotion_prohibited",
             Self::ActionExecutionProhibited => "action_execution_prohibited",
@@ -355,6 +370,429 @@ pub fn evaluate_durable_persistence_authority_decision(
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Phase111DecisionEvidenceAppendStatus {
+    Appended,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Phase111DecisionEvidenceAppendRejection {
+    None,
+    InvalidDecisionEvidence,
+    ProhibitedProviderOutputAuthority,
+    ProhibitedWorkflowCompletionAuthority,
+    ProhibitedSandboxSuccessAuthority,
+    ProhibitedUiAuthorizedPersistence,
+    ProhibitedTransportAuthorizedPersistence,
+    ProhibitedReplayRepairAuthority,
+    ProhibitedRecoveryPromotionAuthority,
+    ProhibitedActionExecutionAuthority,
+    ProhibitedTrustOrReadinessApproval,
+    DuplicateOrAmbiguousDecisionEvidence,
+    InvalidPersistencePlan,
+    AppendWriteFailed,
+}
+
+impl Phase111DecisionEvidenceAppendRejection {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::InvalidDecisionEvidence => "invalid_decision_evidence",
+            Self::ProhibitedProviderOutputAuthority => "prohibited_provider_output_authority",
+            Self::ProhibitedWorkflowCompletionAuthority => {
+                "prohibited_workflow_completion_authority"
+            }
+            Self::ProhibitedSandboxSuccessAuthority => "prohibited_sandbox_success_authority",
+            Self::ProhibitedUiAuthorizedPersistence => "prohibited_ui_authorized_persistence",
+            Self::ProhibitedTransportAuthorizedPersistence => {
+                "prohibited_transport_authorized_persistence"
+            }
+            Self::ProhibitedReplayRepairAuthority => "prohibited_replay_repair_authority",
+            Self::ProhibitedRecoveryPromotionAuthority => "prohibited_recovery_promotion_authority",
+            Self::ProhibitedActionExecutionAuthority => "prohibited_action_execution_authority",
+            Self::ProhibitedTrustOrReadinessApproval => "prohibited_trust_or_readiness_approval",
+            Self::DuplicateOrAmbiguousDecisionEvidence => {
+                "duplicate_or_ambiguous_decision_evidence"
+            }
+            Self::InvalidPersistencePlan => "invalid_persistence_plan",
+            Self::AppendWriteFailed => "append_write_failed",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Phase111DecisionEvidenceAppendRecord {
+    pub record_type: &'static str,
+    pub decision_evidence_id: String,
+    pub decision_status: PersistenceAuthorityDecisionStatus,
+    pub reason_codes: Vec<&'static str>,
+    pub proposed_boundary_classification: ProposedPersistenceScopeClassification,
+    pub phase_110_constraint_snapshot: PersistenceAuthorityConstraintSet,
+    pub negative_authority_snapshot: NegativeAuthorityEvidence,
+    pub referenced_sandbox_evidence: Vec<String>,
+    pub referenced_workflow_evidence: Vec<String>,
+    pub validation_result: &'static str,
+    pub provider_output_authority: bool,
+    pub workflow_completion_authority: bool,
+    pub sandbox_success_authority: bool,
+    pub ui_authorized_persistence: bool,
+    pub transport_authorized_persistence: bool,
+    pub replay_repair_authority: bool,
+    pub recovery_promotion_authority: bool,
+    pub action_execution_authority: bool,
+    pub readiness_approval: bool,
+    pub production_candidate_approval: bool,
+    pub release_candidate_approval: bool,
+    pub public_use_approval: bool,
+    pub production_human_use_approval: bool,
+    pub provider_output_trusted: bool,
+    pub provider_output_promoted: bool,
+    pub deterministic_integrity_marker: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Phase111DecisionEvidenceAppendReport {
+    pub status: Phase111DecisionEvidenceAppendStatus,
+    pub rejection: Phase111DecisionEvidenceAppendRejection,
+    pub accepted_record_type: &'static str,
+    pub decision_evidence_id: String,
+    pub record_checksum: Option<String>,
+    pub bytes_written: usize,
+    pub committed: bool,
+    pub provider_output_trusted: bool,
+    pub provider_output_promoted: bool,
+    pub workflow_completion_authority: bool,
+    pub sandbox_success_authority: bool,
+    pub ui_transport_authority: bool,
+    pub replay_repair_authority: bool,
+    pub recovery_promotion_authority: bool,
+    pub action_execution_authority: bool,
+    pub readiness_approved: bool,
+    pub production_candidate_approved: bool,
+    pub release_candidate_approved: bool,
+    pub public_use_approved: bool,
+    pub production_human_use_approved: bool,
+    pub summary: String,
+}
+
+const PHASE_111_RECORD_TYPE: &str = "phase_111_rust_validated_decision_evidence_append";
+
+pub fn build_phase_111_decision_evidence_append_record(
+    evidence: &DurablePersistenceAuthorityDecisionEvidence,
+) -> Result<Phase111DecisionEvidenceAppendRecord, Phase111DecisionEvidenceAppendRejection> {
+    validate_phase_111_decision_evidence_for_append(evidence)?;
+    let mut record = Phase111DecisionEvidenceAppendRecord {
+        record_type: PHASE_111_RECORD_TYPE,
+        decision_evidence_id: evidence.decision_id.clone(),
+        decision_status: evidence.status,
+        reason_codes: evidence.reason_code_strings.clone(),
+        proposed_boundary_classification: evidence.proposed_boundary.scope,
+        phase_110_constraint_snapshot: evidence.constraint_set.clone(),
+        negative_authority_snapshot: evidence.negative_authority.clone(),
+        referenced_sandbox_evidence: evidence.proposed_boundary.sandbox_evidence_refs.clone(),
+        referenced_workflow_evidence: evidence.proposed_boundary.workflow_evidence_refs.clone(),
+        validation_result: "rust_validated_phase_111_decision_evidence_append",
+        provider_output_authority: false,
+        workflow_completion_authority: false,
+        sandbox_success_authority: false,
+        ui_authorized_persistence: false,
+        transport_authorized_persistence: false,
+        replay_repair_authority: false,
+        recovery_promotion_authority: false,
+        action_execution_authority: false,
+        readiness_approval: false,
+        production_candidate_approval: false,
+        release_candidate_approval: false,
+        public_use_approval: false,
+        production_human_use_approval: false,
+        provider_output_trusted: false,
+        provider_output_promoted: false,
+        deterministic_integrity_marker: String::new(),
+    };
+    let marker = calculate_persisted_record_checksum(
+        &encode_phase_111_append_record_without_marker(&record),
+    );
+    record.deterministic_integrity_marker = marker;
+    Ok(record)
+}
+
+pub fn encode_phase_111_decision_evidence_append_record(
+    record: &Phase111DecisionEvidenceAppendRecord,
+) -> Vec<u8> {
+    let mut bytes = encode_phase_111_append_record_without_marker(record);
+    bytes.extend_from_slice(
+        format!(
+            "deterministic_integrity_marker={}\n",
+            record.deterministic_integrity_marker
+        )
+        .as_bytes(),
+    );
+    bytes
+}
+
+pub fn append_phase_111_decision_evidence(
+    evidence: &DurablePersistenceAuthorityDecisionEvidence,
+    plan: &LocalPersistencePlan,
+) -> Phase111DecisionEvidenceAppendReport {
+    let record = match build_phase_111_decision_evidence_append_record(evidence) {
+        Ok(record) => record,
+        Err(rejection) => {
+            return rejected_phase_111_append_report(
+                evidence,
+                rejection,
+                "validation failed before append",
+            )
+        }
+    };
+
+    let validation = super::persistence::validate_local_persistence_plan(plan);
+    if !validation.valid {
+        return rejected_phase_111_append_report(
+            evidence,
+            Phase111DecisionEvidenceAppendRejection::InvalidPersistencePlan,
+            "invalid persistence plan rejected before append",
+        );
+    }
+
+    let encoded = encode_phase_111_decision_evidence_append_record(&record);
+    let checksum = calculate_persisted_record_checksum(&encoded);
+    match write_phase_111_decision_evidence_append_bytes(plan, &encoded) {
+        Ok(()) => Phase111DecisionEvidenceAppendReport {
+            status: Phase111DecisionEvidenceAppendStatus::Appended,
+            rejection: Phase111DecisionEvidenceAppendRejection::None,
+            accepted_record_type: PHASE_111_RECORD_TYPE,
+            decision_evidence_id: evidence.decision_id.clone(),
+            record_checksum: Some(checksum),
+            bytes_written: encoded.len(),
+            committed: true,
+            provider_output_trusted: false,
+            provider_output_promoted: false,
+            workflow_completion_authority: false,
+            sandbox_success_authority: false,
+            ui_transport_authority: false,
+            replay_repair_authority: false,
+            recovery_promotion_authority: false,
+            action_execution_authority: false,
+            readiness_approved: false,
+            production_candidate_approved: false,
+            release_candidate_approved: false,
+            public_use_approved: false,
+            production_human_use_approved: false,
+            summary: "Phase 111 decision-evidence record appended after Rust validation only"
+                .to_string(),
+        },
+        Err(_) => rejected_phase_111_append_report(
+            evidence,
+            Phase111DecisionEvidenceAppendRejection::AppendWriteFailed,
+            "append failed without authority mutation",
+        ),
+    }
+}
+
+pub fn validate_phase_111_decision_evidence_for_append(
+    evidence: &DurablePersistenceAuthorityDecisionEvidence,
+) -> Result<(), Phase111DecisionEvidenceAppendRejection> {
+    if evidence.decision_id.trim().is_empty()
+        || evidence.decision_id.matches(":").count() != 1
+        || evidence.status
+            != PersistenceAuthorityDecisionStatus::Phase110NarrowActivationCandidatePermitted
+        || evidence.proposed_boundary.scope
+            != ProposedPersistenceScopeClassification::Phase110NarrowRustValidatedAppendCandidate
+        || evidence.permitted_phase_110_candidate_categories
+            != [AllowedPersistenceCandidateCategory::Phase110RustValidatedDecisionEvidenceAppend]
+        || evidence.proposed_boundary.allowed_candidate_categories
+            != [AllowedPersistenceCandidateCategory::Phase110RustValidatedDecisionEvidenceAppend]
+        || !evidence.descriptive_only
+        || !evidence.non_authoritative
+        || !evidence.non_self_activating
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::InvalidDecisionEvidence);
+    }
+    if evidence.reason_code_strings.len() != evidence.reason_codes.len()
+        || evidence.reason_codes.is_empty()
+        || has_duplicate_reason_codes(&evidence.reason_codes)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::DuplicateOrAmbiguousDecisionEvidence);
+    }
+    if evidence.proposed_boundary.provider_output_present
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::ProviderOutputAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedProviderOutputAuthority);
+    }
+    if evidence.proposed_boundary.workflow_completed
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::WorkflowCompletionAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedWorkflowCompletionAuthority);
+    }
+    if evidence.proposed_boundary.provider_execution_succeeded
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::SandboxSuccessAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedSandboxSuccessAuthority);
+    }
+    if evidence.proposed_boundary.requested_by_ui
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::UiAuthorizedPersistence)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedUiAuthorizedPersistence);
+    }
+    if evidence.proposed_boundary.requested_by_transport
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::TransportAuthorizedPersistence)
+    {
+        return Err(
+            Phase111DecisionEvidenceAppendRejection::ProhibitedTransportAuthorizedPersistence,
+        );
+    }
+    if evidence
+        .prohibited_categories
+        .contains(&ProhibitedPersistenceCategory::ReplayRepairAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedReplayRepairAuthority);
+    }
+    if evidence
+        .prohibited_categories
+        .contains(&ProhibitedPersistenceCategory::RecoveryPromotionAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedRecoveryPromotionAuthority);
+    }
+    if evidence
+        .prohibited_categories
+        .contains(&ProhibitedPersistenceCategory::ActionExecutionAuthority)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedActionExecutionAuthority);
+    }
+    if durable_persistence_decision_activates_authority(evidence)
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::ImplicitTrustPromotion)
+        || evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::ImplicitReadinessPromotion)
+    {
+        return Err(Phase111DecisionEvidenceAppendRejection::ProhibitedTrustOrReadinessApproval);
+    }
+    Ok(())
+}
+
+fn encode_phase_111_append_record_without_marker(
+    record: &Phase111DecisionEvidenceAppendRecord,
+) -> Vec<u8> {
+    format!(
+        "record_type={}\ndecision_evidence_id={}\ndecision_status={:?}\nreason_codes={}\nproposed_boundary_classification={:?}\nphase_110_constraints={}\nnegative_authority={}\nreferenced_sandbox_evidence={}\nreferenced_workflow_evidence={}\nvalidation_result={}\nprovider_output_authority={}\nworkflow_completion_authority={}\nsandbox_success_authority={}\nui_authorized_persistence={}\ntransport_authorized_persistence={}\nreplay_repair_authority={}\nrecovery_promotion_authority={}\naction_execution_authority={}\nreadiness_approval={}\nproduction_candidate_approval={}\nrelease_candidate_approval={}\npublic_use_approval={}\nproduction_human_use_approval={}\nprovider_output_trusted={}\nprovider_output_promoted={}\n",
+        record.record_type,
+        record.decision_evidence_id,
+        record.decision_status,
+        record.reason_codes.join(","),
+        record.proposed_boundary_classification,
+        encode_phase_110_constraints(&record.phase_110_constraint_snapshot),
+        encode_negative_authority(&record.negative_authority_snapshot),
+        record.referenced_sandbox_evidence.join(","),
+        record.referenced_workflow_evidence.join(","),
+        record.validation_result,
+        record.provider_output_authority,
+        record.workflow_completion_authority,
+        record.sandbox_success_authority,
+        record.ui_authorized_persistence,
+        record.transport_authorized_persistence,
+        record.replay_repair_authority,
+        record.recovery_promotion_authority,
+        record.action_execution_authority,
+        record.readiness_approval,
+        record.production_candidate_approval,
+        record.release_candidate_approval,
+        record.public_use_approval,
+        record.production_human_use_approval,
+        record.provider_output_trusted,
+        record.provider_output_promoted,
+    )
+    .into_bytes()
+}
+
+fn encode_phase_110_constraints(constraints: &PersistenceAuthorityConstraintSet) -> String {
+    format!(
+        "phase_110_only:{};rust_boundary_required:{};committed_evidence_required:{};descriptive_provider_evidence_only:{};provider_output_authority_prohibited:{};workflow_completion_authority_prohibited:{};replay_repair_prohibited:{};recovery_promotion_prohibited:{};action_execution_prohibited:{};ui_authority_prohibited:{};transport_authority_prohibited:{};trust_promotion_prohibited:{};readiness_promotion_prohibited:{}",
+        constraints.phase_110_only,
+        constraints.rust_boundary_required,
+        constraints.committed_evidence_required,
+        constraints.descriptive_provider_evidence_only,
+        constraints.provider_output_authority_prohibited,
+        constraints.workflow_completion_authority_prohibited,
+        constraints.replay_repair_prohibited,
+        constraints.recovery_promotion_prohibited,
+        constraints.action_execution_prohibited,
+        constraints.ui_authority_prohibited,
+        constraints.transport_authority_prohibited,
+        constraints.trust_promotion_prohibited,
+        constraints.readiness_promotion_prohibited,
+    )
+}
+
+fn encode_negative_authority(negative: &NegativeAuthorityEvidence) -> String {
+    format!(
+        "descriptive_only:{};grants_provider_trust:{};grants_readiness:{};grants_workflow_completion_authority:{};grants_provider_output_authority:{};activates_persistence:{};durable_append_enabled:{};replay_repair_enabled:{};recovery_promotion_enabled:{};action_execution_enabled:{};ui_authority_enabled:{};transport_authority_enabled:{};no_promotion:{};no_replay_repair:{};no_recovery_promotion:{};no_action_execution:{}",
+        negative.descriptive_only,
+        negative.grants_provider_trust,
+        negative.grants_readiness,
+        negative.grants_workflow_completion_authority,
+        negative.grants_provider_output_authority,
+        negative.activates_persistence,
+        negative.durable_append_enabled,
+        negative.replay_repair_enabled,
+        negative.recovery_promotion_enabled,
+        negative.action_execution_enabled,
+        negative.ui_authority_enabled,
+        negative.transport_authority_enabled,
+        negative.no_promotion,
+        negative.no_replay_repair,
+        negative.no_recovery_promotion,
+        negative.no_action_execution,
+    )
+}
+
+fn has_duplicate_reason_codes(codes: &[PersistenceAuthorityDecisionReasonCode]) -> bool {
+    let mut seen = BTreeSet::new();
+    codes.iter().any(|code| !seen.insert(*code))
+}
+
+fn rejected_phase_111_append_report(
+    evidence: &DurablePersistenceAuthorityDecisionEvidence,
+    rejection: Phase111DecisionEvidenceAppendRejection,
+    summary: &str,
+) -> Phase111DecisionEvidenceAppendReport {
+    Phase111DecisionEvidenceAppendReport {
+        status: Phase111DecisionEvidenceAppendStatus::Rejected,
+        rejection,
+        accepted_record_type: PHASE_111_RECORD_TYPE,
+        decision_evidence_id: evidence.decision_id.clone(),
+        record_checksum: None,
+        bytes_written: 0,
+        committed: false,
+        provider_output_trusted: false,
+        provider_output_promoted: false,
+        workflow_completion_authority: false,
+        sandbox_success_authority: false,
+        ui_transport_authority: false,
+        replay_repair_authority: false,
+        recovery_promotion_authority: false,
+        action_execution_authority: false,
+        readiness_approved: false,
+        production_candidate_approved: false,
+        release_candidate_approved: false,
+        public_use_approved: false,
+        production_human_use_approved: false,
+        summary: summary.to_string(),
+    }
+}
+
 pub fn durable_persistence_decision_activates_authority(
     evidence: &DurablePersistenceAuthorityDecisionEvidence,
 ) -> bool {
@@ -398,6 +836,9 @@ fn prohibited_reason_code(
         }
         ProhibitedPersistenceCategory::TransportAuthorizedPersistence => {
             PersistenceAuthorityDecisionReasonCode::TransportAuthorityProhibited
+        }
+        ProhibitedPersistenceCategory::SandboxSuccessAuthority => {
+            PersistenceAuthorityDecisionReasonCode::SandboxSuccessNotAuthority
         }
         ProhibitedPersistenceCategory::ImplicitTrustPromotion => {
             PersistenceAuthorityDecisionReasonCode::TrustPromotionProhibited
