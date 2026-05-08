@@ -1643,3 +1643,32 @@ fn phase_107_provider_output_injection_cannot_mutate_authority() {
     assert_phase_107_untrusted_no_authority(&report);
     assert!(report.provider_output.is_some());
 }
+
+#[test]
+fn phase_108_timeout_resource_evidence_is_descriptive_only_and_deterministic() {
+    let mut provider = phase_107_valid_provider("provider_phase_108_smoke");
+    provider.resources.max_context_bytes = 40;
+    let request = ProviderExecutionRequest::deterministic_local_stub(
+        "phase-108-smoke",
+        provider,
+        "stable bounded input for truncation",
+    );
+
+    let first = execute_provider_in_sandbox(request.clone());
+    let second = execute_provider_in_sandbox(request);
+
+    assert_eq!(first, second);
+    assert_eq!(first.status, ProviderExecutionStatus::Succeeded);
+    assert!(first.limit_evidence.descriptive_only);
+    assert!(!first.limit_evidence.grants_trust);
+    assert!(!first.limit_evidence.grants_promotion);
+    assert!(!first.limit_evidence.grants_persistence);
+    assert!(!first.limit_evidence.grants_readiness);
+    assert_eq!(first.limit_evidence.declared_limits.max_context_bytes, 40);
+    assert_eq!(first.provider_output.as_ref().expect("output").len(), 40);
+    assert_eq!(
+        first.output_trust,
+        ProviderExecutionOutputTrust::UntrustedCandidateData
+    );
+    assert!(!provider_execution_report_mutates_authority(&first));
+}
