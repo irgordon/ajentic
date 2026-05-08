@@ -89,7 +89,7 @@ Boundary: decision gate only; approval only if evidence is complete.
 
 Phase 99.5 is planning and alignment only. It adds no runtime behavior, adds no new capability, does not approve production human use, does not approve Production Candidate status, does not approve release-candidate readiness, does not approve public usability, does not start Phase 100, and does not implement Phases 101-120.
 
-Phase 110 is the immediate alignment gate for roadmap/changelog drift after Phase 109. Phase 110 does not equal persistence activation, readiness approval, Production Candidate approval, release-candidate approval, public-use approval, or production approval. Phase 111 is the earliest possible narrow persistence activation phase only if Phase 109/110 constraints remain valid. Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
+Phase 110 is the immediate alignment gate for roadmap/changelog drift after Phase 109. Phase 110 does not equal persistence activation, readiness approval, Production Candidate approval, release-candidate approval, public-use approval, or production approval. Phase 111 preserves completed narrow Rust-validated decision-evidence append activation in historical truth. Phase 112 is Recovery Lifecycle Hardening. Phase 112.5 corrects planned-truth drift only; it adds no runtime behavior, adds no new capability, does not implement Phase 113, and does not approve readiness. Phase 113 may begin only as Deployment Configuration Contract work, must not add deployment automation, and must account for Phase 112 recovery handoff gaps. Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
 
 Production human use is staged in this ladder:
 
@@ -163,28 +163,28 @@ Non-goals: no durable append activation, no provider-output authority, no replay
 Evidence gate: alignment evidence confirms roadmap remains planned truth, changelog surfaces remain historical truth, historical entries were not rewritten, and Phase 111 may begin only if Phase 109/110 constraints remain valid.
 
 ### Phase 111 - Narrow Persistence Activation Boundary
-Goal: Earliest possible activation of the exact narrow Rust-validated decision-evidence append authority permitted by Phase 109 and confirmed by Phase 110.
-Boundary: narrow persistence activation only if Phase 109/110 constraints remain valid; not broad persistence authority.
+Goal: Preserve completed narrow Rust-validated decision-evidence append activation under Phase 109/110 constraints in planned-truth sequencing.
+Boundary: narrow decision-evidence append only; not broad persistence authority.
 Non-goals: no provider-output authority, no provider trust, no workflow-completion authority, no UI-authorized persistence, no transport-authorized persistence, no replay repair, no recovery promotion, no action execution, no readiness approval, no Production Candidate approval, no release-candidate approval, no public-use approval, and no production-human-use approval.
-Evidence gate: implementation evidence must map directly to Phase 109 reason codes and Phase 110 alignment findings before any narrow decision-evidence append activation can be accepted.
+Evidence gate: historical truth records narrow Rust-validated decision-evidence append activation mapped to Phase 109 reason codes and Phase 110 alignment findings.
 
-### Phase 112 - Policy Versioning and Governance Evidence Boundary
-Goal: Add policy versioning and governance evidence traceability.
-Boundary: policy/governance versioning only.
-Non-goals: no governance rule rewrite, no architecture authority change, no source authority expansion, and no release-candidate approval.
-Evidence gate: policy version evidence is traceable and does not change runtime authority by itself.
+### Phase 112 - Recovery Lifecycle Hardening
+Goal: Preserve completed recovery lifecycle hardening for Phase 111 decision-evidence records in planned-truth sequencing.
+Boundary: recovery lifecycle hardening only.
+Non-goals: no replay repair, no recovery promotion, no action execution, no provider trust, no provider output promotion, no broad persistence authority, no readiness approval, no Production Candidate approval, no release-candidate approval, no public-use approval, no production-human-use approval, and no Phase 113 implementation.
+Evidence gate: historical truth records fail-closed recovery classification and prohibited recovery authority coverage.
 
 ### Phase 113 - Deployment Configuration Contract
-Goal: Define deployment configuration contracts without deployment automation.
+Goal: Define deployment configuration contracts without deployment automation while accounting for Phase 112 recovery handoff gaps.
 Boundary: deployment config only; no deployment automation.
-Non-goals: no deployment automation, no installer, no distribution, no publishing, and no startup/package readiness approval.
-Evidence gate: deployment configuration is documented as contract evidence only.
+Non-goals: no deployment automation, no installer, no distribution, no publishing, no startup/package readiness approval, no background repair, no automatic replay patching, no continue-anyway recovery behavior, no migration/version upgrade authority, no production recovery guarantee, and no release evidence guarantee.
+Evidence gate: deployment configuration is documented as contract evidence only and covers storage paths, permissions, retention, environment assumptions, failure handling, and manual review for corrupt or unsupported recovery evidence.
 
-### Phase 114 - Local Deployment Candidate Boundary
-Goal: Define a local deployment candidate boundary for controlled testing.
-Boundary: local deployment candidate only; no public release.
-Non-goals: no public release, no distribution approval, no installer approval, no production approval, and no public/general use.
-Evidence gate: local deployment candidate evidence remains controlled and non-public.
+### Phase 114 - Policy Versioning and Governance Evidence Boundary
+Goal: Add policy versioning and governance evidence traceability as planned future work.
+Boundary: policy/governance versioning only; not completed Phase 112 work.
+Non-goals: no governance rule rewrite, no architecture authority change, no source authority expansion, no deployment automation, and no release-candidate approval.
+Evidence gate: policy version evidence is traceable and does not change runtime authority by itself.
 
 ### Phase 115 - Security Threat Model and Abuse-Case Audit
 Goal: Audit threat model, abuse cases, trust boundaries, and residual attack surfaces.
@@ -192,17 +192,17 @@ Boundary: security audit only.
 Non-goals: no runtime repair, no new security tooling, no authority expansion, and no readiness approval.
 Evidence gate: threat model and abuse-case findings are recorded before human-trial documentation proceeds.
 
-### Phase 116 - Operator Documentation for Human Trial
-Goal: Prepare operator documentation for controlled human-trial use.
-Boundary: operator docs only; no readiness approval.
-Non-goals: no human trial start, no public availability, no release-candidate readiness, and no Production Candidate approval.
-Evidence gate: operator documentation is complete enough for a later dry run but does not approve the trial.
+### Phase 116 - Local Deployment Candidate Boundary
+Goal: Define a local deployment candidate boundary for controlled testing after deployment configuration and security audit evidence.
+Boundary: local deployment candidate only; no public release.
+Non-goals: no public release, no distribution approval, no installer approval, no production approval, and no public/general use.
+Evidence gate: local deployment candidate evidence remains controlled and non-public.
 
-### Phase 117 - Human Trial Dry Run
-Goal: Rehearse controlled human-trial procedures without public availability.
-Boundary: dry run only; no public availability.
+### Phase 117 - Operator Documentation and Human Trial Dry Run
+Goal: Prepare and rehearse controlled human-trial procedures without public availability.
+Boundary: operator docs and dry run only; no readiness approval and no public availability.
 Non-goals: no public/general use, no production human-use approval, no release-candidate approval, and no Production Candidate approval.
-Evidence gate: dry-run evidence shows procedures can be rehearsed without making the system publicly available.
+Evidence gate: documentation and dry-run evidence show procedures can be rehearsed without making the system publicly available.
 
 ### Phase 118 - Release Candidate Evidence Assembly
 Goal: Assemble release-candidate evidence without approval.

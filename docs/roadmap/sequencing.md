@@ -93,7 +93,7 @@ Production human use is staged in this ladder:
 5. Production candidate
 6. Public/general use
 
-The post-100 roadmap separates UI activation, live local transport, provider execution, alignment/decision checkpoints, narrow persistence activation, deployment, security, human trial, release-candidate evidence, Production Candidate reassessment, and controlled human-use gate work.
+The post-100 roadmap separates UI activation, live local transport, provider execution, alignment/decision checkpoints, narrow persistence activation, recovery lifecycle hardening, deployment configuration, policy/governance versioning, security, local deployment candidacy, human trial, release-candidate evidence, Production Candidate reassessment, and controlled human-use gate work.
 
 ## Dependency chain rationale (Phases 101-120)
 
@@ -141,29 +141,29 @@ The post-100 roadmap separates UI activation, live local transport, provider exe
     - Phase 111 may begin only if Phase 109/110 constraints remain valid and may implement only Rust-validated decision-evidence append under Phase 109 exclusions.
     - Boundary: not broad persistence authority; no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval.
 
-12. **Phase 112 adds policy/governance evidence traceability before deployment contracts**
-    - Policy versioning and governance evidence make later deployment and trial evidence attributable without rewriting governance authority.
-    - Boundary: policy/governance versioning only.
+12. **Phase 112 preserves recovery lifecycle hardening before deployment contracts**
+    - Recovery lifecycle hardening follows narrow decision-evidence append activation so corrupt, unsupported, conflicting, duplicate, and hostile recovery inputs remain fail-closed before deployment configuration names storage assumptions.
+    - Boundary: recovery lifecycle hardening only; no replay repair, recovery promotion, action execution, readiness approval, or Phase 113 implementation.
 
 13. **Phase 113 defines deployment configuration before local deployment candidacy**
-    - Deployment configuration must be contractual before any local deployment candidate boundary is named.
+    - Deployment configuration must be contractual before any local deployment candidate boundary is named, must not add deployment automation, and must consume Phase 112 recovery handoff gaps for storage paths, permissions, retention, environment assumptions, failure handling, manual review, no background repair, no automatic replay patching, no continue-anyway behavior, no migration/version upgrade authority, no production recovery guarantee, and no release evidence guarantee.
     - Boundary: deployment config only; no deployment automation.
 
-14. **Phase 114 defines a local deployment candidate before security and trial gates**
-    - A local deployment candidate gives the security audit and trial dry run a controlled, non-public target.
-    - Boundary: local deployment candidate only; no public release.
+14. **Phase 114 adds policy/governance evidence traceability as planned future work**
+    - Policy Versioning and Governance Evidence Boundary was moved out of completed Phase 112 and remains planned future work so later deployment, security, and trial evidence can be attributable without rewriting governance authority.
+    - Boundary: policy/governance versioning only; not completed Phase 112 work.
 
 15. **Phase 115 separates security audit from deployment and trial work**
-    - Security audit remains a separate gate because threat modeling, abuse cases, trust boundaries, and residual attack surfaces must be reviewed before human-trial documentation.
+    - Security audit remains a separate gate because threat modeling, abuse cases, trust boundaries, and residual attack surfaces must be reviewed before local deployment candidacy and human-trial procedure work.
     - Boundary: security audit only.
 
-16. **Phase 116 prepares operator documentation before human trial dry run**
-    - Human trial documentation must exist before any controlled trial rehearsal can assess procedure fidelity.
-    - Boundary: operator docs only; no readiness approval.
+16. **Phase 116 defines a local deployment candidate after deployment configuration and security audit evidence**
+    - A local deployment candidate gives later trial work a controlled, non-public target after configuration and security posture have been reviewed.
+    - Boundary: local deployment candidate only; no public release.
 
-17. **Phase 117 rehearses controlled human-trial procedures before release evidence assembly**
-    - Human trial dry run remains non-public and does not grant public availability.
-    - Boundary: dry run only; no public availability.
+17. **Phase 117 prepares and rehearses controlled human-trial procedures before release evidence assembly**
+    - Human trial documentation and dry run remain non-public and do not grant public availability.
+    - Boundary: operator docs and dry run only; no readiness approval and no public availability.
 
 18. **Phase 118 assembles release-candidate evidence without approval**
     - Release-candidate evidence is separate from release-candidate approval; Phase 118 is Release Candidate Evidence Assembly, not Release Candidate approval.
@@ -177,4 +177,4 @@ The post-100 roadmap separates UI activation, live local transport, provider exe
     - The early human-use candidate gate is a current planned gate, not a guaranteed final endpoint; it is not general public release.
     - Boundary: current planned gate for controlled human use; not a guaranteed final endpoint and not general public release.
 
-Deployment, security audit, human trial, release-candidate evidence, and Production Candidate reassessment are separate gates because each answers a different evidence question: configuration shape, abuse and trust posture, human procedure fidelity, candidate evidence assembly, and production-candidate posture.
+Deployment configuration, policy/governance versioning, security audit, local deployment candidacy, human trial, release-candidate evidence, and Production Candidate reassessment are separate gates because each answers a different evidence question: configuration shape, evidence attribution, abuse and trust posture, controlled target definition, human procedure fidelity, candidate evidence assembly, and production-candidate posture.

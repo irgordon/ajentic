@@ -47,13 +47,13 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 108 | Provider Timeout and Resource Limit Boundary | Milestone 9 | Reconciled as completed historical outcome: deterministic timeout/resource enforcement with descriptive-only evidence. | Provider hardening only; no promotion authority. |
 | 109 | Durable Persistence Authority Decision Gate | Milestone 9 | Reconciled as completed historical outcome: durable persistence authority decision evidence only. | Decision/audit only; no persistence activation. |
 | 110 | Roadmap and Changelog Alignment Check | Milestone 9 | Reconcile Phase 106-109 outcomes, roadmap planned truth, changelog archive posture, and Phase 111 gate constraints. | Alignment/check only; no runtime behavior, no new capability, no persistence authority. |
-| 111 | Narrow Persistence Activation Boundary | Milestone 10 | Earliest possible narrow Rust-validated decision-evidence append activation, only if Phase 109/110 constraints remain valid. | Not broad persistence authority; no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval. |
-| 112 | Policy Versioning and Governance Evidence Boundary | Milestone 10 | Add policy versioning and governance evidence traceability. | Policy/governance versioning only. |
-| 113 | Deployment Configuration Contract | Milestone 10 | Define deployment configuration contracts without deployment automation. | Deployment config only; no deployment automation. |
-| 114 | Local Deployment Candidate Boundary | Milestone 10 | Define a local deployment candidate boundary for controlled testing. | Local deployment candidate only; no public release. |
+| 111 | Narrow Persistence Activation Boundary | Milestone 10 | Reconciled as completed historical outcome: narrow Rust-validated decision-evidence append activation. | Not broad persistence authority; no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval. |
+| 112 | Recovery Lifecycle Hardening | Milestone 10 | Reconciled as completed historical outcome: fail-closed recovery lifecycle classification for Phase 111 decision-evidence records. | Recovery lifecycle hardening only; no replay repair, recovery promotion, action execution, readiness approval, or Phase 113 implementation. |
+| 113 | Deployment Configuration Contract | Milestone 10 | Define deployment configuration contracts that consume Phase 112 recovery handoff gaps without deployment automation. | Deployment config only; no deployment automation; must account for recovery handoff gaps. |
+| 114 | Policy Versioning and Governance Evidence Boundary | Milestone 10 | Add policy versioning and governance evidence traceability as planned future work. | Policy/governance versioning only; not completed Phase 112 work. |
 | 115 | Security Threat Model and Abuse-Case Audit | Milestone 10 | Audit threat model, abuse cases, trust boundaries, and residual attack surfaces. | Security audit only. |
-| 116 | Operator Documentation for Human Trial | Milestone 10 | Prepare operator documentation for controlled human-trial use. | Operator docs only; no readiness approval. |
-| 117 | Human Trial Dry Run | Milestone 10 | Rehearse controlled human-trial procedures without public availability. | Dry run only; no public availability. |
+| 116 | Local Deployment Candidate Boundary | Milestone 10 | Define a local deployment candidate boundary for controlled testing after deployment configuration and security audit evidence. | Local deployment candidate only; no public release. |
+| 117 | Operator Documentation and Human Trial Dry Run | Milestone 10 | Prepare and rehearse controlled human-trial procedures without public availability. | Operator docs and dry run only; no readiness approval and no public availability. |
 | 118 | Release Candidate Evidence Assembly | Milestone 10 | Assemble release-candidate evidence without approval. | Evidence assembly only; no automatic approval. |
 | 119 | Production Candidate Reassessment | Milestone 10 | Reassess Production Candidate posture after controlled evidence assembly. | Decision gate only. |
 | 120 | Early Human-Use Candidate Gate | Milestone 10 | Decide whether controlled early human use is permitted if intervening evidence supports review. | Current planned gate only; not a guaranteed final endpoint and not general public release. |
@@ -62,9 +62,13 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 
 Roadmap entries are planned truth and boundaries only.
 
-Phase 110 is the current alignment/check gate after Phase 109; it is not persistence activation and does not approve readiness.
+Phase 112.5 corrected planned-truth drift after Phase 112 and before Phase 113; it is alignment/correction only, adds no runtime behavior, adds no new capability, and does not implement Phase 113.
 
-Phase 111 is the earliest possible narrow persistence activation phase, limited to the Rust-validated decision-evidence append candidate permitted by Phase 109 and confirmed by Phase 110.
+Phase 111 remains recorded in historical truth as completed narrow Rust-validated decision-evidence append activation under Phase 109/110 constraints.
+
+Phase 112 is Recovery Lifecycle Hardening in planned truth and historical truth; Policy Versioning and Governance Evidence Boundary is planned future work at Phase 114, not completed Phase 112 work.
+
+Phase 113 is Deployment Configuration Contract only. It must not add deployment automation and must consume Phase 112 recovery handoff gaps for storage paths, permissions, retention, environment assumptions, failure handling, manual review, no background repair, no automatic replay patching, no continue-anyway behavior, no migration/version upgrade authority, no production recovery guarantee, and no release evidence guarantee.
 
 Phase 120 is a current planned gate, not a guaranteed final production endpoint.
 

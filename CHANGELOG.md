@@ -17,6 +17,43 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.112.5 - 2026-05-08
+**Status:** Phase 112.5 - Out-of-Band Roadmap Alignment and Recovery Handoff Correction
+
+### Added
+- Add the Phase 112.5 roadmap/recovery handoff alignment report.
+
+### Changed
+- Update roadmap planned-truth surfaces to record Phase 112 as Recovery Lifecycle Hardening and Phase 113 as Deployment Configuration Contract.
+- Reposition Policy Versioning and Governance Evidence Boundary as planned future work rather than completed Phase 112 work.
+- Update checklists/current-phase.md to Phase 112.5 procedural truth.
+- Update CHANGELOG.md with v0.0.112.5.
+
+### Notes
+- Alignment/correction only.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No governance doc changes.
+- No archived changelog changes.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 113 implementation.
+- Phase 113 remains deployment configuration only.
+- Phase 120 remains a planned gate, not a guaranteed final endpoint.
+
 ## v0.0.112 - 2026-05-08
 **Status:** Phase 112 - Recovery Lifecycle Hardening
 
