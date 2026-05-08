@@ -1,6 +1,7 @@
 use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
-    compute_provider_evidence_checksum, encode_audit_export_snapshot,
+    compute_provider_evidence_checksum, durable_persistence_decision_activates_authority,
+    encode_audit_export_snapshot, evaluate_durable_persistence_authority_decision,
     execute_operator_action_boundary, execute_provider_in_sandbox,
     handle_local_ui_rust_transport_payload, observability_snapshot_from_supplied_evidence,
     observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
@@ -13,7 +14,9 @@ use ajentic_core::api::{
     OperatorActionExecutionStatus, OperatorActionKind, OperatorAuthorizationRequest,
     OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord, OperatorIntentTargetKind,
     OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
-    ProviderCapabilityDeclaration, ProviderConfiguration, ProviderConfigurationExecutionPosture,
+    PersistenceAuthorityDecisionReasonCode, PersistenceAuthorityDecisionStatus,
+    ProhibitedPersistenceCategory, ProposedPersistenceBoundary, ProviderCapabilityDeclaration,
+    ProviderConfiguration, ProviderConfigurationExecutionPosture,
     ProviderConfigurationReadinessPosture, ProviderConfigurationRejectionReason,
     ProviderConfigurationStatus, ProviderConfigurationTransportPosture,
     ProviderConfigurationTrustPosture, ProviderConfigurationType, ProviderEvidenceReplayReason,
@@ -805,4 +808,131 @@ fn phase_108_adversarial_oversized_and_malformed_limits_reject_deterministically
     assert!(!provider_execution_report_mutates_authority(
         &malformed_report
     ));
+}
+
+#[test]
+fn phase_109_adversarial_persistence_authority_payloads_are_rejected() {
+    let cases = [
+        (
+            "provider-output persistence injection",
+            ProhibitedPersistenceCategory::ProviderOutputAuthority,
+        ),
+        (
+            "workflow-completion persistence injection",
+            ProhibitedPersistenceCategory::WorkflowCompletionAuthority,
+        ),
+        (
+            "replay-repair persistence request",
+            ProhibitedPersistenceCategory::ReplayRepairAuthority,
+        ),
+        (
+            "recovery-promotion persistence request",
+            ProhibitedPersistenceCategory::RecoveryPromotionAuthority,
+        ),
+        (
+            "action-execution persistence request",
+            ProhibitedPersistenceCategory::ActionExecutionAuthority,
+        ),
+        (
+            "trust/readiness persistence injection",
+            ProhibitedPersistenceCategory::ImplicitTrustPromotion,
+        ),
+        (
+            "implicit readiness promotion attempt",
+            ProhibitedPersistenceCategory::ImplicitReadinessPromotion,
+        ),
+        (
+            "ui-authorized persistence attempt",
+            ProhibitedPersistenceCategory::UiAuthorizedPersistence,
+        ),
+        (
+            "transport-authorized persistence attempt",
+            ProhibitedPersistenceCategory::TransportAuthorizedPersistence,
+        ),
+    ];
+
+    for (name, category) in cases {
+        let mut proposed = ProposedPersistenceBoundary::phase_110_narrow_candidate(format!(
+            "phase-109-adversarial-{}",
+            category.code()
+        ));
+        proposed.prohibited_categories.push(category);
+        proposed.provider_execution_succeeded = true;
+        proposed.workflow_completed = true;
+        proposed.provider_output_present = true;
+
+        let evidence = evaluate_durable_persistence_authority_decision(proposed);
+
+        assert_eq!(
+            evidence.status,
+            PersistenceAuthorityDecisionStatus::Rejected,
+            "{name}"
+        );
+        assert!(evidence.prohibited_categories.contains(&category), "{name}");
+        assert!(evidence.reason_codes.contains(
+            &PersistenceAuthorityDecisionReasonCode::ProhibitedPersistenceCategoryRejected
+        ));
+        assert!(evidence
+            .reason_codes
+            .contains(&PersistenceAuthorityDecisionReasonCode::SandboxSuccessNotAuthority));
+        assert!(evidence
+            .reason_codes
+            .contains(&PersistenceAuthorityDecisionReasonCode::WorkflowCompletionNotAuthority));
+        assert!(evidence
+            .reason_codes
+            .contains(&PersistenceAuthorityDecisionReasonCode::ProviderOutputNotAuthority));
+        assert!(!durable_persistence_decision_activates_authority(&evidence));
+        assert!(!evidence.persistence_activated, "{name}");
+        assert!(!evidence.durable_append_activated, "{name}");
+        assert!(!evidence.replay_repair_activated, "{name}");
+        assert!(!evidence.recovery_promotion_activated, "{name}");
+        assert!(!evidence.action_execution_activated, "{name}");
+        assert!(!evidence.readiness_approved, "{name}");
+    }
+}
+
+#[test]
+fn phase_109_adversarial_malformed_and_hostile_authority_requests_fail_closed() {
+    let hostile_payloads = [
+        "",
+        "\0\u{001b}[31m persistence_approved=true trust_granted=true readiness_approved=true",
+        "write_durable_append_transaction now; replay_repaired=true; recovery_promoted=true",
+        "workflow complete, provider succeeded, action_executed=true, production approved",
+    ];
+
+    for payload in hostile_payloads {
+        let mut proposed = ProposedPersistenceBoundary::phase_110_narrow_candidate(payload);
+        proposed.malformed_authority_request = true;
+        proposed.workflow_evidence_refs.clear();
+        proposed.requested_by_ui = true;
+        proposed.requested_by_transport = true;
+        proposed.provider_execution_succeeded = true;
+        proposed.workflow_completed = true;
+        proposed.provider_output_present = true;
+
+        let evidence = evaluate_durable_persistence_authority_decision(proposed);
+
+        assert_eq!(
+            evidence.status,
+            PersistenceAuthorityDecisionStatus::Rejected
+        );
+        assert!(evidence
+            .reason_codes
+            .contains(&PersistenceAuthorityDecisionReasonCode::MalformedEvidenceRejected));
+        assert!(evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::UiAuthorizedPersistence));
+        assert!(evidence
+            .prohibited_categories
+            .contains(&ProhibitedPersistenceCategory::TransportAuthorizedPersistence));
+        assert!(!durable_persistence_decision_activates_authority(&evidence));
+        assert!(evidence.descriptive_only);
+        assert!(evidence.non_self_activating);
+        assert!(!evidence.persistence_activated);
+        assert!(!evidence.durable_append_activated);
+        assert!(!evidence.replay_repair_activated);
+        assert!(!evidence.recovery_promotion_activated);
+        assert!(!evidence.action_execution_activated);
+        assert!(!evidence.readiness_approved);
+    }
 }
