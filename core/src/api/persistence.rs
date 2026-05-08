@@ -547,6 +547,41 @@ pub fn execute_local_persistence_plan(
     Ok(())
 }
 
+pub fn write_phase_111_decision_evidence_append_bytes(
+    plan: &LocalPersistencePlan,
+    payload_bytes: &[u8],
+) -> Result<(), LocalPersistenceError> {
+    match execute_local_persistence_plan(plan, payload_bytes) {
+        Ok(()) => Ok(()),
+        Err(err) => {
+            let _ = std::fs::remove_file(&plan.temp_path);
+            Err(err)
+        }
+    }
+}
+
+pub fn create_local_persistence_dir(
+    path: impl AsRef<std::path::Path>,
+) -> Result<(), std::io::Error> {
+    std::fs::create_dir_all(path)
+}
+
+pub fn local_persistence_path_exists(path: impl AsRef<std::path::Path>) -> bool {
+    path.as_ref().exists()
+}
+
+pub fn read_local_persistence_text(
+    path: impl AsRef<std::path::Path>,
+) -> Result<String, std::io::Error> {
+    std::fs::read_to_string(path)
+}
+
+pub fn remove_local_persistence_tree(
+    path: impl AsRef<std::path::Path>,
+) -> Result<(), std::io::Error> {
+    std::fs::remove_dir_all(path)
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalExportPersistenceWriteError {
     TargetAlreadyExists,
