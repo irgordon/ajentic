@@ -7,6 +7,10 @@ mutation_path: changelog_entry
 
 This archive preserves historical changelog entries byte-for-byte from the former monolithic `CHANGELOG.md`.
 
+## Archive note - preserved ordering anomaly
+
+This archive intentionally preserves the committed historical extraction order. A known ordering anomaly places `v0.0.63` after `v0.0.56` while `v0.0.63.5` appears earlier in the archive. Historical entries were not rewritten, reordered, normalized, or corrected by rewrite; this note records the anomaly outside version entries without changing historical meaning.
+
 ## v0.0.104 - 2026-05-07
 **Status:** Phase 104 - UI-to-Rust Local Transport Prototype Boundary
 

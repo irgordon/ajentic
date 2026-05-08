@@ -80,7 +80,7 @@ Roadmap remains planned truth.
 
 Phase 99.5 is planning and alignment only. It adds no runtime behavior, adds no new capability, does not approve production human use, does not approve Production Candidate status, does not approve release-candidate readiness, does not approve public usability, does not start Phase 100, and does not implement Phases 101-120.
 
-Phase 100 remains the immediate Production Candidate gap audit and readiness decision gate. Phase 100 does not equal production because a Production Candidate gap audit can only decide whether the evidence posture supports a candidate branch/tag or requires more hardening; it does not approve production human use, release-candidate readiness, or public/general use.
+Phase 110 is now the immediate roadmap/changelog alignment gate after Phase 109. Phase 110 does not equal persistence activation, readiness approval, Production Candidate approval, release-candidate approval, public-use approval, or production approval.
 
 Phases 101-120 are planned truth only. They do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
 
@@ -93,7 +93,7 @@ Production human use is staged in this ladder:
 5. Production candidate
 6. Public/general use
 
-The post-100 roadmap separates UI activation, live local transport, provider execution, authoritative persistence, deployment, security, human trial, release-candidate evidence, Production Candidate reassessment, and controlled human-use gate work.
+The post-100 roadmap separates UI activation, live local transport, provider execution, alignment/decision checkpoints, narrow persistence activation, deployment, security, human trial, release-candidate evidence, Production Candidate reassessment, and controlled human-use gate work.
 
 ## Dependency chain rationale (Phases 101-120)
 
@@ -129,17 +129,17 @@ The post-100 roadmap separates UI activation, live local transport, provider exe
    - Provider sandboxing and resource limit enforcement precede provider authority decisions because execution evidence must remain bounded before any adjacent authority question is considered.
    - Boundary: provider hardening only; no promotion authority.
 
-9. **Phase 109 decides persistence authority before activation**
-   - Persistence authority requires Phase 109 decision evidence before Phase 110 activation because local persistence must not become authoritative by implementation drift.
-   - Boundary: decision/audit only.
+9. **Phase 109 decides persistence authority before any activation**
+   - Persistence authority requires Phase 109 decision evidence before any activation because local persistence must not become authoritative by implementation drift.
+   - Boundary: decision/audit only; the only permitted later candidate is Rust-validated decision-evidence append under explicit exclusions.
 
-10. **Phase 110 activates only the persistence authority permitted by Phase 109**
-    - Authoritative persistence, if permitted, must remain narrow and traceable to Phase 109 evidence constraints.
-    - Boundary: narrow persistence authority only if Phase 109 permits it.
+10. **Phase 110 aligns roadmap and changelog truth before activation**
+    - Phase 110 reconciles Phase 106-109 outcomes, corrects stale current-block/immediate-gate language, preserves historical changelog entries, and confirms whether Phase 109 constraints remain valid.
+    - Boundary: alignment/check only; no runtime behavior, no new capability, no persistence authority, and no Phase 111 implementation.
 
-11. **Phase 111 hardens recovery lifecycle after persistence posture is known**
-    - Recovery lifecycle hardening must prevent silent recovery, silent repair, replay repair authority, and implicit promotion under the persistence posture selected by Phase 109/110.
-    - Boundary: recovery lifecycle only; no silent recovery.
+11. **Phase 111 is the earliest possible narrow persistence activation boundary**
+    - Phase 111 may begin only if Phase 109/110 constraints remain valid and may implement only Rust-validated decision-evidence append under Phase 109 exclusions.
+    - Boundary: not broad persistence authority; no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval.
 
 12. **Phase 112 adds policy/governance evidence traceability before deployment contracts**
     - Policy versioning and governance evidence make later deployment and trial evidence attributable without rewriting governance authority.
@@ -174,7 +174,7 @@ The post-100 roadmap separates UI activation, live local transport, provider exe
     - Boundary: decision gate only.
 
 20. **Phase 120 decides controlled early human-use candidacy without public/general use**
-    - The early human-use candidate gate is a final gate for controlled human use; it is not general public release.
-    - Boundary: final gate for controlled human use; not general public release.
+    - The early human-use candidate gate is a current planned gate, not a guaranteed final endpoint; it is not general public release.
+    - Boundary: current planned gate for controlled human use; not a guaranteed final endpoint and not general public release.
 
 Deployment, security audit, human trial, release-candidate evidence, and Production Candidate reassessment are separate gates because each answers a different evidence question: configuration shape, abuse and trust posture, human procedure fidelity, candidate evidence assembly, and production-candidate posture.

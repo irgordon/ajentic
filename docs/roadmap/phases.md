@@ -89,7 +89,7 @@ Boundary: decision gate only; approval only if evidence is complete.
 
 Phase 99.5 is planning and alignment only. It adds no runtime behavior, adds no new capability, does not approve production human use, does not approve Production Candidate status, does not approve release-candidate readiness, does not approve public usability, does not start Phase 100, and does not implement Phases 101-120.
 
-Phase 100 remains the immediate Production Candidate gap audit and readiness decision gate. Phase 100 does not equal production. Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
+Phase 110 is the immediate alignment gate for roadmap/changelog drift after Phase 109. Phase 110 does not equal persistence activation, readiness approval, Production Candidate approval, release-candidate approval, public-use approval, or production approval. Phase 111 is the earliest possible narrow persistence activation phase only if Phase 109/110 constraints remain valid. Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
 
 Production human use is staged in this ladder:
 
@@ -100,7 +100,7 @@ Production human use is staged in this ladder:
 5. Production candidate
 6. Public/general use
 
-The post-100 roadmap separates UI activation, live local transport, provider execution, authoritative persistence, deployment, security, human trial, release-candidate evidence, production-candidate reassessment, and controlled human-use gate work.
+The post-100 roadmap separates UI activation, live local transport, provider execution, alignment/decision checkpoints, narrow persistence activation, deployment, security, human trial, release-candidate evidence, production-candidate reassessment, and controlled human-use gate work.
 
 ### Phase 101 - Production Use Gap Decomposition
 Goal: Decompose remaining blockers for human use.
@@ -133,40 +133,40 @@ Non-goals: no new operator capability, no provider execution, no persistence aut
 Evidence gate: negative-path evidence covers malformed, spoofed, replayed, and hostile input without expanding authority.
 
 ### Phase 106 - Provider Configuration Contract
-Goal: Define provider configuration contracts without executing providers.
+Goal: Reconcile the completed provider configuration contract outcome into planned truth.
 Boundary: configuration contract only; no live provider execution.
 Non-goals: no provider calls, no model calls, no network execution, no secret activation, and no production approval.
-Evidence gate: provider configuration is defined and validated as intent/configuration only.
+Evidence gate: historical truth records provider configuration contracts as validated intent/configuration only.
 
 ### Phase 107 - Provider Execution Sandbox Boundary
-Goal: Introduce bounded provider execution under sandboxed constraints.
-Boundary: bounded provider execution only; provider output remains untrusted.
+Goal: Reconcile the completed bounded deterministic local stub provider execution outcome into planned truth.
+Boundary: bounded deterministic local stub execution only; provider output remains untrusted.
 Non-goals: no provider authority, no model-output authority, no persistence promotion, no action execution, and no Production Candidate approval.
-Evidence gate: sandbox evidence demonstrates bounded execution and untrusted-output handling.
+Evidence gate: historical truth records bounded execution and untrusted-output handling.
 
 ### Phase 108 - Provider Timeout and Resource Limit Boundary
-Goal: Add provider timeout and resource-limit enforcement.
-Boundary: provider hardening only; no promotion authority.
+Goal: Reconcile the completed deterministic timeout/resource enforcement outcome into planned truth.
+Boundary: provider hardening only with descriptive-only evidence; no promotion authority.
 Non-goals: no promotion of provider output, no persistence authority, no recovery acceptance, and no release approval.
-Evidence gate: timeout and resource-limit behavior is enforced before provider-adjacent authority decisions proceed.
+Evidence gate: historical truth records deterministic timeout/resource enforcement before provider-adjacent authority decisions proceed.
 
 ### Phase 109 - Durable Persistence Authority Decision Gate
-Goal: Determine whether local persistence can become authoritative.
+Goal: Reconcile the completed durable persistence authority decision evidence into planned truth.
 Boundary: decision/audit only.
 Non-goals: no persistence activation, no durable append expansion, no silent migration, no recovery promotion, and no readiness approval.
-Evidence gate: decision evidence explicitly permits or blocks any Phase 110 authoritative persistence activation.
+Evidence gate: decision evidence permits only a later narrow Rust-validated decision-evidence append candidate and blocks broad persistence categories.
 
-### Phase 110 - Authoritative Persistence Activation Boundary
-Goal: Activate authoritative persistence only under Phase 109 evidence constraints.
-Boundary: narrow persistence authority only if Phase 109 permits it.
-Non-goals: no persistence activation without Phase 109 permission, no broad storage capability, no silent repair, and no public usability approval.
-Evidence gate: activation evidence maps directly to Phase 109 constraints and remains narrow.
+### Phase 110 - Roadmap and Changelog Alignment Check
+Goal: Reconcile Phase 106-109 actual outcomes into planned truth, correct stale current-block/immediate-gate language, annotate the archived changelog ordering anomaly outside historical entries, and confirm whether Phase 109 constraints remain valid for a later narrow activation phase.
+Boundary: alignment/check only; no runtime behavior, no new capability, no persistence authority, and no Phase 111 implementation.
+Non-goals: no durable append activation, no provider-output authority, no replay repair, no recovery promotion, no action execution, no readiness approval, no Production Candidate approval, no release-candidate approval, no public-use approval, and no production-human-use approval.
+Evidence gate: alignment evidence confirms roadmap remains planned truth, changelog surfaces remain historical truth, historical entries were not rewritten, and Phase 111 may begin only if Phase 109/110 constraints remain valid.
 
-### Phase 111 - Recovery Lifecycle Hardening
-Goal: Harden recovery lifecycle behavior without silent repair or implicit promotion.
-Boundary: recovery lifecycle only; no silent recovery.
-Non-goals: no silent recovery, no implicit promotion, no replay repair authority, and no production human-use approval.
-Evidence gate: recovery lifecycle evidence demonstrates explicit operator-visible states and no silent repair.
+### Phase 111 - Narrow Persistence Activation Boundary
+Goal: Earliest possible activation of the exact narrow Rust-validated decision-evidence append authority permitted by Phase 109 and confirmed by Phase 110.
+Boundary: narrow persistence activation only if Phase 109/110 constraints remain valid; not broad persistence authority.
+Non-goals: no provider-output authority, no provider trust, no workflow-completion authority, no UI-authorized persistence, no transport-authorized persistence, no replay repair, no recovery promotion, no action execution, no readiness approval, no Production Candidate approval, no release-candidate approval, no public-use approval, and no production-human-use approval.
+Evidence gate: implementation evidence must map directly to Phase 109 reason codes and Phase 110 alignment findings before any narrow decision-evidence append activation can be accepted.
 
 ### Phase 112 - Policy Versioning and Governance Evidence Boundary
 Goal: Add policy versioning and governance evidence traceability.
@@ -218,6 +218,6 @@ Evidence gate: reassessment records whether the posture remains blocked or can p
 
 ### Phase 120 - Early Human-Use Candidate Gate
 Goal: Decide whether controlled early human use is permitted.
-Boundary: final gate for controlled human use; not general public release.
-Non-goals: no public/general use, no automatic production approval, no release-candidate shortcut, and no broad availability.
-Evidence gate: controlled early human-use permission, if granted by future evidence, remains separate from public/general use.
+Boundary: current planned gate for controlled human use; not a guaranteed final endpoint and not general public release.
+Non-goals: no public/general use, no automatic production approval, no release-candidate shortcut, no guaranteed final endpoint, and no broad availability.
+Evidence gate: controlled early human-use permission, if granted by future evidence, remains separate from public/general use and may shift if intervening evidence requires it.
