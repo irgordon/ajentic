@@ -2284,3 +2284,37 @@ fn phase_112_equivalent_recovery_input_produces_deterministic_reports() {
     assert_eq!(first, second);
     assert_phase_112_no_recovery_authority(&first);
 }
+
+fn phase_113_valid_deployment_configuration_payload() -> String {
+    "deployment_configuration\nprofile_id=local_contract_alpha\ndeployment_mode=local_only\nlocal_only=true\nenvironment_assumptions=operator_supplied_local_paths,no_live_probe\nstorage_path=./.ajentic/local-contract\nstorage_path_declared=true\nstorage_permission_posture=operator_reviewed_existing_permissions\nstorage_permission_declared=true\nchanges_permissions=false\nretention_posture=manual_review_before_retention_change\nretention_declared=true\ndeletes_or_rotates_data=false\nfailure_handling_posture=fail_closed_manual_review\nfailure_handling_declared=true\nmanual_review_required=true\ncontinue_anyway_enabled=false\nsilent_recovery_enabled=false\nno_background_repair=true\nno_automatic_replay_patching=true\nno_continue_anyway=true\nno_migration_version_upgrade_authority=true\nno_production_recovery_guarantee=true\nno_release_evidence_guarantee=true\ndeployment_automation_enabled=false\nrelease_artifact_created=false\ninstaller_enabled=false\nupdate_channel_enabled=false\nsigning_enabled=false\npublishing_enabled=false\nproduction_deployment_enabled=false\npublic_release_enabled=false\nprovider_trust_granted=false\nprovider_output_promoted=false\nreplay_repaired=false\nrecovery_promoted=false\naction_executed=false\nreadiness_approved=false\nproduction_candidate_approved=false\nrelease_candidate_approved=false\npublic_use_approved=false\nproduction_human_use_approved=false\n".to_string()
+}
+
+#[test]
+fn phase_113_deployment_configuration_validation_is_non_mutating_contract_only() {
+    use ajentic_core::api::{
+        deployment_configuration_approves_readiness,
+        deployment_configuration_creates_release_artifact,
+        deployment_configuration_executes_deployment, parse_deployment_configuration_payload,
+        DeploymentConfigurationValidationStatus,
+    };
+
+    let payload = phase_113_valid_deployment_configuration_payload().replace(
+        "./.ajentic/local-contract",
+        "./.ajentic/declared-only-storage",
+    );
+
+    let report = parse_deployment_configuration_payload(&payload);
+
+    assert_eq!(
+        report.status,
+        DeploymentConfigurationValidationStatus::Accepted
+    );
+    assert!(!report.mutates_filesystem);
+    assert!(!report.mutates_permissions);
+    assert!(!report.opens_network_socket);
+    assert!(!report.starts_service);
+    assert!(!report.creates_release_artifact);
+    assert!(!deployment_configuration_executes_deployment(&report));
+    assert!(!deployment_configuration_creates_release_artifact(&report));
+    assert!(!deployment_configuration_approves_readiness(&report));
+}
