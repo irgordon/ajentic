@@ -3,288 +3,210 @@ truth_dimension: procedural
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
-
-# Current Phase Checklist - Phase 112 Recovery Lifecycle Hardening
+# Current phase checklist - Phase 112.5
 
 ## Phase name
-Phase 112 - Recovery Lifecycle Hardening.
+Phase 112.5 - Out-of-Band Roadmap Alignment and Recovery Handoff Correction.
 
 ## Phase goal
-Harden recovery lifecycle classification for Phase 111 decision-evidence records while preserving descriptive-only, manual-review-oriented, fail-closed, non-repairing, non-promoting, and non-authoritative behavior.
+Correct planned-truth drift after Phase 112 and before Phase 113 so roadmap surfaces record Phase 112 as Recovery Lifecycle Hardening, keep Phase 113 as Deployment Configuration Contract, move Policy Versioning and Governance Evidence Boundary to planned future work, and carry Phase 112 recovery handoff gaps into Phase 113.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits.
-- [x] Remove generated artifact drift before final staging.
+- [x] Remove or revert generated artifact drift before editing if present.
+- [x] Record that no generated artifact drift was present before edits.
 
 ## Allowed surfaces
-- [x] `core/src/api/**`
-- [x] `tests/**`
-- [x] `docs/operations/recovery-lifecycle-hardening-phase-112.md`
-- [x] `checklists/current-phase.md`
-- [x] `CHANGELOG.md`
+- [x] `docs/roadmap/phase-map.md`.
+- [x] `docs/roadmap/phases.md`.
+- [x] `docs/roadmap/sequencing.md`.
+- [x] `docs/operations/roadmap-recovery-handoff-alignment-phase-112-5.md`.
+- [x] `checklists/current-phase.md`.
+- [x] `CHANGELOG.md`.
 
 ## Boundary rules
-- [x] Recovery reads are not recovery authority.
-- [x] No silent recovery.
-- [x] No replay repair.
-- [x] No recovery promotion.
-- [x] No action execution.
-- [x] No provider trust or provider-output promotion.
-- [x] No broad persistence authority.
-- [x] No Phase 111 append-boundary expansion.
-- [x] No readiness approval.
-- [x] No Phase 113 implementation.
+- [x] Phase 112.5 is alignment/correction only.
+- [x] Phase 112.5 adds no runtime behavior.
+- [x] Phase 112.5 adds no new capability.
+- [x] Phase 112.5 adds no Rust source changes.
+- [x] Phase 112.5 adds no TypeScript source changes.
+- [x] Phase 112.5 adds no test changes.
+- [x] Phase 112.5 adds no schema changes.
+- [x] Phase 112.5 does not implement Phase 113.
+- [x] Phase 112.5 grants no readiness approval.
 
-## Phase 111 relationship checklist
-- [x] Inspect Phase 111 decision-evidence records only.
-- [x] Preserve Rust-validated append boundary as Phase 111 scope.
-- [x] Do not repair, rewrite, delete, or migrate Phase 111 records.
+## Roadmap inspection checklist
+- [x] Inspect `docs/roadmap/phase-map.md`.
+- [x] Inspect `docs/roadmap/phases.md`.
+- [x] Inspect `docs/roadmap/sequencing.md`.
+- [x] Treat roadmap surfaces as planned truth only.
 
-## Recovery classification checklist
-- [x] Add typed recovery lifecycle status.
-- [x] Add typed recovery lifecycle reason codes.
-- [x] Include evidence present, missing, malformed, checksum mismatch, unsupported, duplicate, conflicting, stale constraints, missing negative authority, manual review, rejected, and classification-only codes.
+## Changelog inspection checklist
+- [x] Inspect `CHANGELOG.md`.
+- [x] Inspect `docs/changelog/CHANGELOG-0001-0055.md`.
+- [x] Inspect `docs/changelog/CHANGELOG-0056-0104.md`.
+- [x] Treat changelog surfaces as historical truth only.
+- [x] Do not rewrite historical entries.
 
-## Recovery evidence inspection checklist
-- [x] Produce deterministic per-record inspections.
-- [x] Include record index, record type, decision evidence id, checksum marker, reason codes, manual-review state, and rejection state where available.
+## Phase 112 mismatch checklist
+- [x] Identify mismatch where roadmap planned truth labeled Phase 112 as Policy Versioning and Governance Evidence Boundary while historical truth records Phase 112 as Recovery Lifecycle Hardening.
+- [x] Correct Phase 112 to Recovery Lifecycle Hardening in roadmap planned truth.
+- [x] Confirm Policy Versioning and Governance Evidence Boundary is not recorded as completed Phase 112 work.
 
-## Manual-review checklist
-- [x] Require manual review for malformed evidence.
-- [x] Require manual review for corrupt evidence.
-- [x] Require manual review for unsupported evidence.
-- [x] Require manual review for duplicate evidence.
-- [x] Require manual review for conflicting evidence.
-- [x] Require manual review for stale evidence.
-- [x] Require manual review for incomplete negative-authority evidence.
+## Phase 111 preservation checklist
+- [x] Preserve Phase 111 as completed narrow Rust-validated decision-evidence append activation in historical truth.
+- [x] Preserve no broad persistence authority.
+- [x] Preserve no provider-output authority, replay repair, recovery promotion, action execution, or readiness approval.
 
-## Fail-closed recovery checklist
-- [x] Reject invalid recovered records.
-- [x] Keep rejection descriptive-only.
-- [x] Do not mutate records during classification.
+## Phase 112 preservation checklist
+- [x] Preserve Phase 112 as completed Recovery Lifecycle Hardening.
+- [x] Preserve fail-closed recovery classification posture.
+- [x] Preserve no replay repair.
+- [x] Preserve no recovery promotion.
+- [x] Preserve no action execution.
+- [x] Preserve no provider trust or provider output promotion.
+- [x] Preserve no Phase 113 implementation.
 
-## Malformed evidence checklist
-- [x] Truncated records fail closed.
-- [x] Malformed records fail closed.
+## Phase 113 deployment posture checklist
+- [x] Phase 113 is Deployment Configuration Contract.
+- [x] Phase 113 remains deployment configuration only.
+- [x] Phase 113 must not add deployment automation.
+- [x] Phase 113 may begin only as deployment-configuration contract work.
+- [x] Phase 113 does not approve startup, package, release, Production Candidate, public, or production human-use readiness.
 
-## Checksum/integrity mismatch checklist
-- [x] Integrity marker mismatch fails closed.
-- [x] Tampered record bytes fail closed.
+## Policy/governance versioning repositioning checklist
+- [x] Move Policy Versioning and Governance Evidence Boundary out of completed Phase 112.
+- [x] Record Policy Versioning and Governance Evidence Boundary as planned future work.
+- [x] Preserve that policy/governance versioning does not rewrite governance authority or create runtime authority.
 
-## Unsupported record checklist
-- [x] Unsupported record type fails closed.
-- [x] Unsupported record type requires manual review.
-
-## Duplicate evidence checklist
-- [x] Duplicate decision evidence fails closed.
-- [x] Duplicate decision evidence requires manual review.
-
-## Conflicting evidence checklist
-- [x] Conflicting recovered evidence fails closed.
-- [x] Authority-bearing recovered evidence is conflicting evidence.
-
-## Stale constraint snapshot checklist
-- [x] Stale Phase 109/110 constraint snapshots fail closed.
-- [x] Stale snapshots require manual review.
-
-## Missing negative-authority checklist
-- [x] Missing or incomplete negative-authority snapshots fail closed.
-- [x] Missing negative-authority evidence requires manual review.
-
-## Provider-output authority prohibition checklist
-- [x] Recovered provider-output authority fails closed.
-- [x] Recovered provider trust fails closed.
-- [x] Recovered provider-output promotion fails closed.
-
-## Workflow-completion authority prohibition checklist
-- [x] Recovered workflow-completion authority fails closed.
-- [x] Recovery does not activate workflow completion.
-
-## Sandbox-success authority prohibition checklist
-- [x] Recovered sandbox-success authority fails closed.
-- [x] Recovery does not accept sandbox success as authority.
-
-## UI/transport authority prohibition checklist
-- [x] Recovered UI-authority fields fail closed.
-- [x] Recovered transport-authority fields fail closed.
-
-## Replay-repair prohibition checklist
-- [x] Recovered replay-repair requests fail closed.
-- [x] Recovery performs no replay repair.
-
-## Recovery-promotion prohibition checklist
-- [x] Recovered recovery-promotion requests fail closed.
-- [x] Recovery performs no recovery promotion.
-
-## Action-execution prohibition checklist
-- [x] Recovered action-execution requests fail closed.
-- [x] Recovery performs no action execution.
-
-## Trust/readiness prohibition checklist
-- [x] Recovery grants no provider trust.
-- [x] Recovery grants no readiness approval.
-- [x] Recovery grants no Production Candidate approval.
-- [x] Recovery grants no release-candidate approval.
-- [x] Recovery grants no public-use or production-human-use approval.
-
-## No silent recovery checklist
-- [x] Missing evidence requires manual review.
-- [x] Corrupt evidence requires manual review.
-- [x] Unsupported evidence requires manual review.
-- [x] No continue-anyway behavior is introduced.
-
-## Deterministic recovery report checklist
-- [x] Equivalent input produces equivalent reports.
-- [x] Report includes explicit false/disabled authority-denial fields.
-
-## Behavioral-test checklist
-- [x] Valid Phase 111 record classifies as evidence present without promotion.
-- [x] Missing evidence classifies as missing/manual-review without mutation.
-- [x] Malformed evidence classifies as malformed/manual-review.
-- [x] Checksum mismatch classifies as mismatch/manual-review.
-- [x] Unsupported record type requires manual review.
-- [x] Duplicate evidence requires manual review.
-- [x] Conflicting evidence requires manual review.
-- [x] Stale constraint snapshot requires manual review.
-- [x] Missing negative-authority evidence requires manual review.
-- [x] Provider-output authority and readiness injections require manual review.
-- [x] Recovery classification does not repair replay, promote recovery, execute actions, or mutate authority.
-
-## Adversarial-test checklist
-- [x] Truncated persisted record.
-- [x] Malformed persisted record.
-- [x] Checksum mismatch.
-- [x] Duplicate decision-evidence records.
-- [x] Conflicting decision-evidence records.
-- [x] Unsupported record type.
-- [x] Stale constraint snapshot.
-- [x] Missing negative-authority snapshot.
-- [x] Provider-output, workflow-completion, sandbox-success, UI/transport, readiness, replay-repair, recovery-promotion, and action-execution injections.
-- [x] Hostile/noise recovery payload.
-
-## Phase 113 handoff gap checklist
+## Recovery handoff gap checklist
 - [x] Storage paths.
-- [x] Storage permissions.
-- [x] Retention posture.
+- [x] Permissions.
+- [x] Retention.
 - [x] Environment assumptions.
 - [x] Failure handling.
-- [x] Manual review for corrupt or unsupported recovery evidence.
+- [x] Manual review.
 - [x] No background repair.
 - [x] No automatic replay patching.
-- [x] No continue-anyway recovery behavior.
-- [x] No migration/version upgrade authority unless introduced later.
+- [x] No continue-anyway behavior.
+- [x] No migration/version upgrade authority.
 - [x] No production recovery guarantee.
 - [x] No release evidence guarantee.
 
-## Deferral checklist for Phase 115
-- [x] Full recovery abuse-case review.
-- [x] Tamper threat model.
-- [x] Malicious local file replacement analysis.
-- [x] Rollback/replay attack analysis.
-- [x] Symlink/path traversal/storage-location abuse analysis.
-- [x] Hostile local operator or compromised local account assumptions.
-- [x] Supply-chain and build-environment threat review.
+## 0/5 checkpoint pattern checklist
+- [x] Preserve Phase 105 as hardening checkpoint posture.
+- [x] Preserve Phase 110 as alignment/checkpoint posture.
+- [x] Preserve Phase 115 as security audit posture.
+- [x] Preserve Phase 120 as current planned controlled early human-use gate.
+- [x] Preserve 0/5 phases as alignment, audit, or decision checkpoints where applicable.
 
-## Deferral checklist for Phase 118
-- [x] Release-candidate recovery evidence packaging.
-- [x] Release evidence completeness.
-- [x] Signed/checksummed release artifact posture.
-- [x] Release validation bundle assembly.
-- [x] SBOM/release distribution evidence if introduced later.
+## Phase 115 posture checklist
+- [x] Preserve Phase 115 as Security Threat Model and Abuse-Case Audit.
+- [x] Preserve security audit only.
+- [x] Preserve no runtime repair, no authority expansion, and no readiness approval.
 
-## Deferral checklist for Phase 119
-- [x] Production Candidate recovery-evidence sufficiency.
-- [x] Persistence plus recovery production-candidate posture.
-- [x] Remaining deployment/security/trial evidence blockers.
-- [x] Recovery lifecycle residual-risk acceptance.
+## Phase 118 posture checklist
+- [x] Preserve Phase 118 as Release Candidate Evidence Assembly.
+- [x] Preserve evidence assembly only.
+- [x] Preserve no release-candidate approval and no automatic approval.
 
-## Deferral checklist for Phase 120 or later
-- [x] Controlled human-use approval.
-- [x] Public/general use approval.
-- [x] Production human-use approval.
-- [x] Operational recovery procedures for real users.
-- [x] Incident response/rollback procedures.
-- [x] Operator training acceptance.
-- [x] Real-world recovery trial outcomes.
+## Phase 119 posture checklist
+- [x] Preserve Phase 119 as Production Candidate Reassessment.
+- [x] Preserve decision gate only.
+- [x] Preserve no automatic Production Candidate approval.
 
-## Phase 113 gate checklist
-- [x] Phase 113 may begin only as deployment-configuration contract work.
-- [x] Phase 113 is not implemented by Phase 112.
+## Phase 120 gate posture checklist
+- [x] Preserve Phase 120 as current planned controlled early human-use gate.
+- [x] Preserve Phase 120 as not a guaranteed final endpoint.
+- [x] Preserve no public/general use and no automatic production approval.
 
-## Production Candidate status checklist
-- [x] Production Candidate status is not approved.
-- [x] Production readiness is not approved.
-
-## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness is not approved.
-- [x] Public usability is not approved.
-- [x] Production human use is not approved.
-
-## Roadmap/changelog truth checklist
+## Roadmap planned-truth checklist
 - [x] Roadmap remains planned truth.
+- [x] Roadmap does not rewrite historical truth.
+- [x] Roadmap records Phase 112.5 correction as planned-truth alignment only.
+
+## Changelog historical-truth checklist
 - [x] CHANGELOG surfaces remain historical truth.
-- [x] Phase 112 implementation evidence is source, tests, operations documentation, checklist, and changelog only.
+- [x] Historical entries were not rewritten.
+- [x] Add only the active `v0.0.112.5` entry to `CHANGELOG.md`.
+
+## Authority-boundary checklist
+- [x] No persistence authority expansion.
+- [x] No replay repair.
+- [x] No recovery promotion.
+- [x] No action execution.
+- [x] No provider trust.
+- [x] No provider output promotion.
+- [x] No deployment automation.
+
+## Readiness-language checklist
+- [x] No readiness approval.
+- [x] No Production Candidate approval.
+- [x] No release-candidate approval.
+- [x] No public-usability approval.
+- [x] No production-human-use approval.
+- [x] Phase 120 remains a planned gate, not a guaranteed final endpoint.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-112-target ./scripts/check.sh`
-- [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets`
-- [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets`
-- [x] `cargo test --manifest-path core/Cargo.toml phase_112 --all-targets`
-- [x] `cd ui && npm run test:api`
-- [x] Boundary lint commands.
-- [x] `cd ui && npm run typecheck && npm run lint && npm run build`
-- [x] `cargo build --manifest-path core/Cargo.toml`
-- [x] Required scans.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-112-5-target ./scripts/check.sh`.
+- [x] Run `git diff --check`.
+- [x] Run `git status --short`.
+- [x] Run roadmap alignment scan.
+- [x] Run recovery handoff scan.
+- [x] Run no-authority scan.
+- [x] Run readiness scan.
+- [x] Run source guard.
 
 ## Findings table
-| Finding | Status | Evidence |
+| Area | Status | Finding |
 | --- | --- | --- |
-| Recovery classification is descriptive-only | Confirmed | Rust recovery lifecycle report fields are explicit false/disabled for authority paths. |
-| Invalid recovered records fail closed | Confirmed | Behavioral and adversarial tests cover invalid records. |
-| Phase 111 append boundary is not expanded | Confirmed | Recovery inspection reads bytes and does not write append records. |
-| Roadmap naming differs from this implementation task | Confirmed | Roadmap remains planned truth; this checklist records Phase 112 procedural truth for the requested recovery-hardening work. |
+| Working-tree hygiene | aligned | Initial `git status --short` was clean; no generated artifact drift required cleanup. |
+| Phase 112 mismatch | drift_corrected | Roadmap Phase 112 label was corrected from Policy Versioning and Governance Evidence Boundary to Recovery Lifecycle Hardening. |
+| Phase 111 preservation | aligned | Phase 111 remains narrow Rust-validated decision-evidence append activation with prohibited authority categories preserved. |
+| Phase 112 preservation | aligned | Phase 112 remains Recovery Lifecycle Hardening with fail-closed recovery posture and no Phase 113 implementation. |
+| Phase 113 posture | aligned_with_findings | Phase 113 remains Deployment Configuration Contract only and must consume Phase 112 recovery handoff gaps. |
+| Policy/governance versioning | drift_corrected | Policy Versioning and Governance Evidence Boundary is planned future work, not completed Phase 112 work. |
+| Phase 120 posture | aligned | Phase 120 remains a current planned gate, not a guaranteed final endpoint. |
+| Readiness | aligned | No readiness approval is granted. |
+
+## Required corrections table
+| Correction | Status | Surface |
+| --- | --- | --- |
+| Phase 112 label corrected to Recovery Lifecycle Hardening | drift_corrected | Roadmap surfaces |
+| Phase 113 preserved as Deployment Configuration Contract | aligned | Roadmap surfaces |
+| Recovery handoff gaps carried into Phase 113 | aligned_with_findings | Roadmap surfaces and operations report |
+| Policy/governance versioning moved to planned future work | drift_corrected | Roadmap surfaces |
+| Active changelog entry added | aligned | `CHANGELOG.md` |
 
 ## Deferred items table
-| Deferred item | Later phase |
-| --- | --- |
-| Full recovery abuse-case/security review | Phase 115 |
-| Release-candidate evidence packaging | Phase 118 |
-| Production Candidate reassessment | Phase 119 |
-| Controlled human-use approval and real-user recovery procedures | Phase 120 or later |
+| Item | Status | Reason |
+| --- | --- | --- |
+| Phase 113 implementation | deferred | Phase 112.5 does not implement Phase 113. |
+| Deployment automation | deferred | Phase 113 remains deployment configuration only and must not add deployment automation. |
+| Policy/governance implementation | deferred | Repositioned as planned future work only. |
+| Readiness, Production Candidate, release-candidate, public, or production human-use approval | deferred | No approval is granted by Phase 112.5. |
 
 ## Validation log table
-| Command | Result | Notes |
+| Command | Status | Notes |
 | --- | --- | --- |
-| `git status --short` | Passed | Clean before edits. |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-112-target ./scripts/check.sh` | Passed | Full clean-tree validation passed after commit. |
-| `cargo test --manifest-path core/Cargo.toml phase_112 --all-targets` | Passed | 9 Phase 112 tests passed. |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | Passed | Full Rust tests passed. |
-| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Passed | Golden tests passed. |
-| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Passed | Adversarial tests passed. |
-| `cd ui && npm run test:api` | Passed | UI API behavior tests passed. |
-| Boundary lint commands | Passed | Rust and UI boundary lints passed. |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Passed | UI validation passed. |
-| `cargo build --manifest-path core/Cargo.toml` | Passed | Build passed. |
-| Required scans | Passed with contextual mentions | Matches are prohibitions, rejection paths, test fixtures, or historical context. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-112-5-target ./scripts/check.sh` | aligned | Final clean-worktree validation passed after commit. |
+| `git diff --check` | aligned | Whitespace check passed. |
+| `git status --short` | aligned | Pre-commit status showed only allowed surfaces; final post-commit status was clean. |
+| Roadmap alignment scan | aligned | Required terms are present in roadmap, operations, checklist, and changelog surfaces. |
+| Recovery handoff scan | aligned | Required recovery handoff gap terms are present. |
+| No-authority scan | aligned | Matches are historical, explicit rejection/prohibition, or boundary language only. |
+| Readiness scan | aligned | Matches are historical, explicit rejection/prohibition, or non-approval context only. |
+| Source guard | aligned | No source, test, schema, script, workflow, orientation, package, lockfile, or archived changelog drift. |
 
 ## Zero-drift checklist
-- [x] Full validation passes after final edits and committed clean-tree check.
-- [x] No masked failures exist.
-- [x] Staged files match allowed Phase 112 surfaces.
-- [x] Generated artifacts are cleaned before commit.
-- [x] Recovery lifecycle behavior is typed and deterministic.
-- [x] Recovery classification remains descriptive-only.
-- [x] Recovery requires manual review for malformed, corrupt, duplicate, conflicting, stale, unsupported, or authority-bearing persisted evidence.
-- [x] Recovery performs no silent repair.
-- [x] Recovery performs no replay repair.
-- [x] Recovery performs no recovery promotion.
-- [x] Recovery performs no action execution.
-- [x] Provider output remains untrusted and unpromoted.
-- [x] Phase 111 append boundary is not broadened.
-- [x] Phase 113 handoff gaps are documented.
-- [x] Later-phase deferrals are explicit.
+- [x] Allowed Phase 112.5 surfaces only.
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No test changes.
+- [x] No schema changes.
+- [x] No script changes.
+- [x] No archived changelog changes.
+- [x] No README or AGENTS changes.
+- [x] No generated artifacts retained.
 - [x] CHANGELOG entry matches actual diff.
-- [x] No readiness approval claims are introduced.
-- [x] Phase 113 is not implemented.
