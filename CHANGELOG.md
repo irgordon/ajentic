@@ -17,6 +17,38 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.109.5 - 2026-05-08
+**Status:** Out-of-Band Repository Governance Audit - post-Phase 109 audit/alignment only
+
+### Added
+- Add the audit report.
+- Update current checklist to the audit procedural truth.
+
+### Changed
+- Update CHANGELOG.md with v0.0.109.5.
+
+### Notes
+- Audit/alignment only.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No governance doc changes unless explicitly justified.
+- No persistence authority.
+- No provider trust.
+- No provider output promotion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 110 implementation.
+
 ## v0.0.109 - 2026-05-08
 **Status:** Phase 109 - Durable Persistence Authority Decision Gate
 
