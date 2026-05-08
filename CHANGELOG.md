@@ -17,6 +17,36 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.112 - 2026-05-08
+**Status:** Phase 112 - Recovery Lifecycle Hardening
+
+### Added
+- Add typed recovery lifecycle classification for Phase 111 decision-evidence records.
+- Add tests for fail-closed recovery classification and prohibited recovery authority paths.
+- Add the Phase 112 operations report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 112 procedural truth.
+- Update CHANGELOG.md with v0.0.112.
+
+### Notes
+- Recovery lifecycle hardening only.
+- Recovery reads are not recovery authority.
+- No silent recovery.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No broad persistence authority.
+- No Phase 111 append-boundary expansion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 113 implementation.
+
 ## v0.0.111 - 2026-05-08
 **Status:** Phase 111 - Narrow Persistence Authority Activation Boundary
 
