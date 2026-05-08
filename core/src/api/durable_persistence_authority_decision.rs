@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::persistence::{
     calculate_persisted_record_checksum, write_phase_111_decision_evidence_append_bytes,
@@ -477,6 +477,424 @@ pub struct Phase111DecisionEvidenceAppendReport {
 }
 
 const PHASE_111_RECORD_TYPE: &str = "phase_111_rust_validated_decision_evidence_append";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RecoveryLifecycleStatus {
+    EvidencePresent,
+    ManualReviewRequired,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum RecoveryLifecycleReason {
+    RecoveryEvidencePresent,
+    RecoveryEvidenceMissing,
+    RecoveryEvidenceMalformed,
+    RecoveryChecksumMismatch,
+    RecoveryUnsupportedRecordType,
+    RecoveryDuplicateEvidence,
+    RecoveryConflictingEvidence,
+    RecoveryStaleConstraintSnapshot,
+    RecoveryMissingNegativeAuthorityEvidence,
+    RecoveryManualReviewRequired,
+    RecoveryRejected,
+    RecoveryClassificationOnly,
+}
+
+impl RecoveryLifecycleReason {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::RecoveryEvidencePresent => "recovery_evidence_present",
+            Self::RecoveryEvidenceMissing => "recovery_evidence_missing",
+            Self::RecoveryEvidenceMalformed => "recovery_evidence_malformed",
+            Self::RecoveryChecksumMismatch => "recovery_checksum_mismatch",
+            Self::RecoveryUnsupportedRecordType => "recovery_unsupported_record_type",
+            Self::RecoveryDuplicateEvidence => "recovery_duplicate_evidence",
+            Self::RecoveryConflictingEvidence => "recovery_conflicting_evidence",
+            Self::RecoveryStaleConstraintSnapshot => "recovery_stale_constraint_snapshot",
+            Self::RecoveryMissingNegativeAuthorityEvidence => {
+                "recovery_missing_negative_authority_evidence"
+            }
+            Self::RecoveryManualReviewRequired => "recovery_manual_review_required",
+            Self::RecoveryRejected => "recovery_rejected",
+            Self::RecoveryClassificationOnly => "recovery_classification_only",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoveryEvidenceInspection {
+    pub record_index: usize,
+    pub record_type: Option<String>,
+    pub decision_evidence_id: Option<String>,
+    pub checksum: Option<String>,
+    pub reasons: Vec<RecoveryLifecycleReason>,
+    pub manual_review_required: bool,
+    pub rejected: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoveryManualReviewRequirement {
+    pub required: bool,
+    pub reasons: Vec<RecoveryLifecycleReason>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoveryAuthorityDenialSnapshot {
+    pub repaired_replay: bool,
+    pub promoted_recovery: bool,
+    pub executed_action: bool,
+    pub trusted_provider_output: bool,
+    pub promoted_provider_output: bool,
+    pub accepted_workflow_completion: bool,
+    pub accepted_sandbox_success: bool,
+    pub accepted_ui_transport_authority: bool,
+    pub approved_readiness: bool,
+    pub approved_production_candidate: bool,
+    pub approved_release_candidate: bool,
+    pub approved_public_use: bool,
+    pub approved_production_human_use: bool,
+}
+
+impl RecoveryAuthorityDenialSnapshot {
+    fn all_denied() -> Self {
+        Self {
+            repaired_replay: false,
+            promoted_recovery: false,
+            executed_action: false,
+            trusted_provider_output: false,
+            promoted_provider_output: false,
+            accepted_workflow_completion: false,
+            accepted_sandbox_success: false,
+            accepted_ui_transport_authority: false,
+            approved_readiness: false,
+            approved_production_candidate: false,
+            approved_release_candidate: false,
+            approved_public_use: false,
+            approved_production_human_use: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoveryLifecycleReport {
+    pub status: RecoveryLifecycleStatus,
+    pub reasons: Vec<RecoveryLifecycleReason>,
+    pub reason_codes: Vec<&'static str>,
+    pub inspections: Vec<RecoveryEvidenceInspection>,
+    pub manual_review: RecoveryManualReviewRequirement,
+    pub authority_denial: RecoveryAuthorityDenialSnapshot,
+    pub repaired_replay: bool,
+    pub promoted_recovery: bool,
+    pub executed_action: bool,
+    pub trusted_provider_output: bool,
+    pub promoted_provider_output: bool,
+    pub accepted_workflow_completion: bool,
+    pub accepted_sandbox_success: bool,
+    pub accepted_ui_transport_authority: bool,
+    pub approved_readiness: bool,
+    pub approved_production_candidate: bool,
+    pub approved_release_candidate: bool,
+    pub approved_public_use: bool,
+    pub approved_production_human_use: bool,
+}
+
+pub fn inspect_phase_111_recovery_lifecycle(records: &[Vec<u8>]) -> RecoveryLifecycleReport {
+    let mut reasons = BTreeSet::from([RecoveryLifecycleReason::RecoveryClassificationOnly]);
+    let mut inspections = Vec::new();
+    let mut valid_ids = BTreeSet::new();
+    let mut valid_record_fingerprints = BTreeSet::new();
+
+    if records.is_empty() {
+        reasons.insert(RecoveryLifecycleReason::RecoveryEvidenceMissing);
+        reasons.insert(RecoveryLifecycleReason::RecoveryManualReviewRequired);
+        reasons.insert(RecoveryLifecycleReason::RecoveryRejected);
+    }
+
+    for (index, bytes) in records.iter().enumerate() {
+        let inspection = inspect_one_phase_111_recovery_record(index, bytes);
+        if inspection.rejected || inspection.manual_review_required {
+            reasons.extend(inspection.reasons.iter().copied());
+            reasons.insert(RecoveryLifecycleReason::RecoveryManualReviewRequired);
+            reasons.insert(RecoveryLifecycleReason::RecoveryRejected);
+        } else if let Some(decision_id) = inspection.decision_evidence_id.as_ref() {
+            reasons.insert(RecoveryLifecycleReason::RecoveryEvidencePresent);
+            if !valid_ids.insert(decision_id.clone()) {
+                reasons.insert(RecoveryLifecycleReason::RecoveryDuplicateEvidence);
+                reasons.insert(RecoveryLifecycleReason::RecoveryManualReviewRequired);
+                reasons.insert(RecoveryLifecycleReason::RecoveryRejected);
+            }
+            if let Some(checksum) = inspection.checksum.as_ref() {
+                valid_record_fingerprints.insert((decision_id.clone(), checksum.clone()));
+            }
+        }
+        inspections.push(inspection);
+    }
+
+    if valid_ids.len() > 1 || valid_record_fingerprints.len() > 1 {
+        reasons.insert(RecoveryLifecycleReason::RecoveryConflictingEvidence);
+        reasons.insert(RecoveryLifecycleReason::RecoveryManualReviewRequired);
+        reasons.insert(RecoveryLifecycleReason::RecoveryRejected);
+    }
+
+    let reasons: Vec<_> = reasons.into_iter().collect();
+    let manual_review_required =
+        reasons.contains(&RecoveryLifecycleReason::RecoveryManualReviewRequired);
+    let rejected = reasons.contains(&RecoveryLifecycleReason::RecoveryRejected);
+    let status = if rejected {
+        RecoveryLifecycleStatus::Rejected
+    } else if manual_review_required {
+        RecoveryLifecycleStatus::ManualReviewRequired
+    } else {
+        RecoveryLifecycleStatus::EvidencePresent
+    };
+    let reason_codes = reasons.iter().map(|reason| reason.code()).collect();
+    let authority_denial = RecoveryAuthorityDenialSnapshot::all_denied();
+    RecoveryLifecycleReport {
+        status,
+        reason_codes,
+        inspections,
+        manual_review: RecoveryManualReviewRequirement {
+            required: manual_review_required,
+            reasons: reasons.clone(),
+        },
+        authority_denial: authority_denial.clone(),
+        repaired_replay: authority_denial.repaired_replay,
+        promoted_recovery: authority_denial.promoted_recovery,
+        executed_action: authority_denial.executed_action,
+        trusted_provider_output: authority_denial.trusted_provider_output,
+        promoted_provider_output: authority_denial.promoted_provider_output,
+        accepted_workflow_completion: authority_denial.accepted_workflow_completion,
+        accepted_sandbox_success: authority_denial.accepted_sandbox_success,
+        accepted_ui_transport_authority: authority_denial.accepted_ui_transport_authority,
+        approved_readiness: authority_denial.approved_readiness,
+        approved_production_candidate: authority_denial.approved_production_candidate,
+        approved_release_candidate: authority_denial.approved_release_candidate,
+        approved_public_use: authority_denial.approved_public_use,
+        approved_production_human_use: authority_denial.approved_production_human_use,
+        reasons,
+    }
+}
+
+fn inspect_one_phase_111_recovery_record(index: usize, bytes: &[u8]) -> RecoveryEvidenceInspection {
+    let mut reasons = BTreeSet::new();
+    let parsed = parse_phase_111_append_record(bytes);
+    let mut record_type = None;
+    let mut decision_evidence_id = None;
+    let mut checksum = None;
+
+    match parsed {
+        Ok(fields) => {
+            record_type = fields.get("record_type").cloned();
+            decision_evidence_id = fields.get("decision_evidence_id").cloned();
+            checksum = fields.get("deterministic_integrity_marker").cloned();
+            classify_phase_111_recovery_fields(&fields, bytes, &mut reasons);
+        }
+        Err(reason) => {
+            reasons.insert(reason);
+        }
+    }
+
+    let rejected = !reasons.is_empty();
+    if rejected {
+        reasons.insert(RecoveryLifecycleReason::RecoveryManualReviewRequired);
+        reasons.insert(RecoveryLifecycleReason::RecoveryRejected);
+    } else {
+        reasons.insert(RecoveryLifecycleReason::RecoveryEvidencePresent);
+        reasons.insert(RecoveryLifecycleReason::RecoveryClassificationOnly);
+    }
+
+    let reasons: Vec<_> = reasons.into_iter().collect();
+    RecoveryEvidenceInspection {
+        record_index: index,
+        record_type,
+        decision_evidence_id,
+        checksum,
+        manual_review_required: reasons
+            .contains(&RecoveryLifecycleReason::RecoveryManualReviewRequired),
+        rejected: reasons.contains(&RecoveryLifecycleReason::RecoveryRejected),
+        reasons,
+    }
+}
+
+fn parse_phase_111_append_record(
+    bytes: &[u8],
+) -> Result<BTreeMap<String, String>, RecoveryLifecycleReason> {
+    let text = std::str::from_utf8(bytes)
+        .map_err(|_| RecoveryLifecycleReason::RecoveryEvidenceMalformed)?;
+    let mut fields = BTreeMap::new();
+    for line in text.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let (key, value) = line
+            .split_once('=')
+            .ok_or(RecoveryLifecycleReason::RecoveryEvidenceMalformed)?;
+        if key.is_empty() || fields.insert(key.to_string(), value.to_string()).is_some() {
+            return Err(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+        }
+    }
+    if fields.is_empty() {
+        return Err(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+    }
+    Ok(fields)
+}
+
+fn classify_phase_111_recovery_fields(
+    fields: &BTreeMap<String, String>,
+    bytes: &[u8],
+    reasons: &mut BTreeSet<RecoveryLifecycleReason>,
+) {
+    let required = [
+        "record_type",
+        "decision_evidence_id",
+        "decision_status",
+        "reason_codes",
+        "proposed_boundary_classification",
+        "phase_110_constraints",
+        "negative_authority",
+        "validation_result",
+        "deterministic_integrity_marker",
+    ];
+    for key in required {
+        if !fields.contains_key(key) {
+            reasons.insert(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+        }
+    }
+
+    if fields.get("record_type").map(String::as_str) != Some(PHASE_111_RECORD_TYPE) {
+        reasons.insert(RecoveryLifecycleReason::RecoveryUnsupportedRecordType);
+    }
+    if fields
+        .get("decision_evidence_id")
+        .is_none_or(|v| v.trim().is_empty())
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+    }
+    if fields.get("decision_status").map(String::as_str)
+        != Some("Phase110NarrowActivationCandidatePermitted")
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryConflictingEvidence);
+    }
+    if fields
+        .get("proposed_boundary_classification")
+        .map(String::as_str)
+        != Some("Phase110NarrowRustValidatedAppendCandidate")
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryConflictingEvidence);
+    }
+    if fields.get("validation_result").map(String::as_str)
+        != Some("rust_validated_phase_111_decision_evidence_append")
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+    }
+
+    let marker = fields
+        .get("deterministic_integrity_marker")
+        .map(String::as_str)
+        .unwrap_or_default();
+    let marker_shape_invalid = marker.len() != 16
+        || marker
+            .chars()
+            .any(|c| !c.is_ascii_hexdigit() || c.is_ascii_uppercase());
+    if marker_shape_invalid || calculate_phase_111_recovery_marker(bytes) != marker {
+        reasons.insert(RecoveryLifecycleReason::RecoveryChecksumMismatch);
+    }
+
+    if fields
+        .get("phase_110_constraints")
+        .is_none_or(|v| !phase_110_constraints_are_current(v))
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryStaleConstraintSnapshot);
+    }
+    if fields
+        .get("negative_authority")
+        .is_none_or(|v| !negative_authority_snapshot_is_complete(v))
+    {
+        reasons.insert(RecoveryLifecycleReason::RecoveryMissingNegativeAuthorityEvidence);
+    }
+
+    for key in [
+        "provider_output_authority",
+        "workflow_completion_authority",
+        "sandbox_success_authority",
+        "ui_authorized_persistence",
+        "transport_authorized_persistence",
+        "replay_repair_authority",
+        "recovery_promotion_authority",
+        "action_execution_authority",
+        "readiness_approval",
+        "production_candidate_approval",
+        "release_candidate_approval",
+        "public_use_approval",
+        "production_human_use_approval",
+        "provider_output_trusted",
+        "provider_output_promoted",
+    ] {
+        match fields.get(key).map(String::as_str) {
+            Some("false") => {}
+            Some("true") => {
+                reasons.insert(RecoveryLifecycleReason::RecoveryConflictingEvidence);
+            }
+            _ => {
+                reasons.insert(RecoveryLifecycleReason::RecoveryEvidenceMalformed);
+            }
+        }
+    }
+}
+
+fn calculate_phase_111_recovery_marker(bytes: &[u8]) -> String {
+    let text = std::str::from_utf8(bytes).unwrap_or_default();
+    let without_marker: String = text
+        .lines()
+        .filter(|line| !line.starts_with("deterministic_integrity_marker="))
+        .map(|line| format!("{line}\n"))
+        .collect();
+    calculate_persisted_record_checksum(without_marker.as_bytes())
+}
+
+fn phase_110_constraints_are_current(value: &str) -> bool {
+    [
+        "phase_110_only:true",
+        "rust_boundary_required:true",
+        "committed_evidence_required:true",
+        "descriptive_provider_evidence_only:true",
+        "provider_output_authority_prohibited:true",
+        "workflow_completion_authority_prohibited:true",
+        "replay_repair_prohibited:true",
+        "recovery_promotion_prohibited:true",
+        "action_execution_prohibited:true",
+        "ui_authority_prohibited:true",
+        "transport_authority_prohibited:true",
+        "trust_promotion_prohibited:true",
+        "readiness_promotion_prohibited:true",
+    ]
+    .iter()
+    .all(|required| value.split(';').any(|part| part == *required))
+}
+
+fn negative_authority_snapshot_is_complete(value: &str) -> bool {
+    [
+        "descriptive_only:true",
+        "grants_provider_trust:false",
+        "grants_readiness:false",
+        "grants_workflow_completion_authority:false",
+        "grants_provider_output_authority:false",
+        "activates_persistence:false",
+        "durable_append_enabled:false",
+        "replay_repair_enabled:false",
+        "recovery_promotion_enabled:false",
+        "action_execution_enabled:false",
+        "ui_authority_enabled:false",
+        "transport_authority_enabled:false",
+        "no_promotion:true",
+        "no_replay_repair:true",
+        "no_recovery_promotion:true",
+        "no_action_execution:true",
+    ]
+    .iter()
+    .all(|required| value.split(';').any(|part| part == *required))
+}
 
 pub fn build_phase_111_decision_evidence_append_record(
     evidence: &DurablePersistenceAuthorityDecisionEvidence,

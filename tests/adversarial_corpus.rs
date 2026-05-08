@@ -3,32 +3,34 @@ use ajentic_core::api::{
     authorize_operator_intent, build_phase_111_decision_evidence_append_record,
     compute_provider_evidence_checksum, create_local_persistence_dir,
     durable_persistence_decision_activates_authority, encode_audit_export_snapshot,
+    encode_phase_111_decision_evidence_append_record,
     evaluate_durable_persistence_authority_decision, execute_operator_action_boundary,
     execute_provider_in_sandbox, handle_local_ui_rust_transport_payload,
-    local_persistence_path_exists, observability_snapshot_from_supplied_evidence,
-    observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
-    parse_provider_configuration_payload, provider_evidence_snapshot_from_harness_report,
-    provider_execution_report_mutates_authority, recovery_acceptance_mutates_authority,
-    remove_local_persistence_tree, run_end_to_end_local_harness, submit_operator_intent,
-    verify_provider_evidence_replay, ApplicationRecoveryCandidate, AuditExportEncodingLimits,
-    EndToEndLocalHarnessRequest, EndToEndLocalHarnessStatus, LocalPersistenceAtomicity,
-    LocalPersistencePayloadKind, LocalPersistencePlan, LocalPersistenceWriteMode,
-    LocalUiRustTransportReason, LocalUiRustTransportStatus, ObservedDiagnosticSummary,
-    OperatorActionExecutionReason, OperatorActionExecutionRequest, OperatorActionExecutionStatus,
-    OperatorActionKind, OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent,
-    OperatorIntentAuditRecord, OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext,
-    OperatorTargetContext, PersistenceAuthorityDecisionReasonCode,
-    PersistenceAuthorityDecisionStatus, Phase111DecisionEvidenceAppendRejection,
-    Phase111DecisionEvidenceAppendStatus, ProhibitedPersistenceCategory,
-    ProposedPersistenceBoundary, ProviderCapabilityDeclaration, ProviderConfiguration,
-    ProviderConfigurationExecutionPosture, ProviderConfigurationReadinessPosture,
-    ProviderConfigurationRejectionReason, ProviderConfigurationStatus,
-    ProviderConfigurationTransportPosture, ProviderConfigurationTrustPosture,
-    ProviderConfigurationType, ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus,
-    ProviderExecutionKind, ProviderExecutionOutputTrust, ProviderExecutionRejectionReason,
-    ProviderExecutionRequest, ProviderExecutionStatus, ProviderIsolationDeclaration,
-    ProviderResourceLimits, RecoveryAcceptanceReason, RecoveryAcceptanceRequest,
-    RecoveryAcceptanceStatus,
+    inspect_phase_111_recovery_lifecycle, local_persistence_path_exists,
+    observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
+    operator_action_report_mutates_authority, parse_provider_configuration_payload,
+    provider_evidence_snapshot_from_harness_report, provider_execution_report_mutates_authority,
+    recovery_acceptance_mutates_authority, remove_local_persistence_tree,
+    run_end_to_end_local_harness, submit_operator_intent, verify_provider_evidence_replay,
+    ApplicationRecoveryCandidate, AuditExportEncodingLimits, EndToEndLocalHarnessRequest,
+    EndToEndLocalHarnessStatus, LocalPersistenceAtomicity, LocalPersistencePayloadKind,
+    LocalPersistencePlan, LocalPersistenceWriteMode, LocalUiRustTransportReason,
+    LocalUiRustTransportStatus, ObservedDiagnosticSummary, OperatorActionExecutionReason,
+    OperatorActionExecutionRequest, OperatorActionExecutionStatus, OperatorActionKind,
+    OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent, OperatorIntentAuditRecord,
+    OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext, OperatorTargetContext,
+    PersistenceAuthorityDecisionReasonCode, PersistenceAuthorityDecisionStatus,
+    Phase111DecisionEvidenceAppendRejection, Phase111DecisionEvidenceAppendStatus,
+    ProhibitedPersistenceCategory, ProposedPersistenceBoundary, ProviderCapabilityDeclaration,
+    ProviderConfiguration, ProviderConfigurationExecutionPosture,
+    ProviderConfigurationReadinessPosture, ProviderConfigurationRejectionReason,
+    ProviderConfigurationStatus, ProviderConfigurationTransportPosture,
+    ProviderConfigurationTrustPosture, ProviderConfigurationType, ProviderEvidenceReplayReason,
+    ProviderEvidenceReplayStatus, ProviderExecutionKind, ProviderExecutionOutputTrust,
+    ProviderExecutionRejectionReason, ProviderExecutionRequest, ProviderExecutionStatus,
+    ProviderIsolationDeclaration, ProviderResourceLimits, RecoveryAcceptanceReason,
+    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus, RecoveryLifecycleReason,
+    RecoveryLifecycleStatus,
 };
 
 #[test]
@@ -1097,4 +1099,115 @@ fn phase_111_adversarial_malformed_duplicate_noise_and_partial_write_fail_closed
     assert!(!local_persistence_path_exists(&failing_plan.target_path));
     assert!(!local_persistence_path_exists(&failing_plan.temp_path));
     let _ = remove_local_persistence_tree(dir);
+}
+
+fn adversarial_phase_112_record(id: &str) -> Vec<u8> {
+    let evidence = evaluate_durable_persistence_authority_decision(
+        ProposedPersistenceBoundary::phase_110_narrow_candidate(id),
+    );
+    let record = build_phase_111_decision_evidence_append_record(&evidence).unwrap();
+    encode_phase_111_decision_evidence_append_record(&record)
+}
+
+fn adversarial_phase_112_replace(bytes: &[u8], from: &str, to: &str) -> Vec<u8> {
+    String::from_utf8(bytes.to_vec())
+        .unwrap()
+        .replace(from, to)
+        .into_bytes()
+}
+
+#[test]
+fn adversarial_phase_112_recovery_payloads_fail_closed_without_recovery_authority() {
+    let base = adversarial_phase_112_record("adversarial-phase-112-base");
+    let payloads = [
+        b"record_type=phase_111_rust_validated_decision_evidence_append".to_vec(),
+        b"not=valid\nnoise payload promote recovery execute action".to_vec(),
+        adversarial_phase_112_replace(
+            &base,
+            "deterministic_integrity_marker=",
+            "deterministic_integrity_marker=0000000000000000#",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "record_type=phase_111_rust_validated_decision_evidence_append",
+            "record_type=phase_999_recovery_upgrade",
+        ),
+        adversarial_phase_112_replace(&base, "phase_110_only:true", "phase_110_only:false"),
+        adversarial_phase_112_replace(
+            &base,
+            "no_action_execution:true",
+            "no_action_execution:false",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "provider_output_authority=false",
+            "provider_output_authority=true",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "workflow_completion_authority=false",
+            "workflow_completion_authority=true",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "sandbox_success_authority=false",
+            "sandbox_success_authority=true",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "ui_authorized_persistence=false",
+            "ui_authorized_persistence=true",
+        ),
+        adversarial_phase_112_replace(&base, "readiness_approval=false", "readiness_approval=true"),
+        adversarial_phase_112_replace(
+            &base,
+            "replay_repair_authority=false",
+            "replay_repair_authority=true",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "recovery_promotion_authority=false",
+            "recovery_promotion_authority=true",
+        ),
+        adversarial_phase_112_replace(
+            &base,
+            "action_execution_authority=false",
+            "action_execution_authority=true",
+        ),
+        b"hostile noise\nexecute_operator_action_boundary=true\napproved_readiness=true".to_vec(),
+    ];
+
+    for payload in payloads {
+        let report = inspect_phase_111_recovery_lifecycle(&[payload]);
+        assert_eq!(report.status, RecoveryLifecycleStatus::Rejected);
+        assert!(report.manual_review.required);
+        assert!(report
+            .reasons
+            .contains(&RecoveryLifecycleReason::RecoveryManualReviewRequired));
+        assert!(!report.repaired_replay);
+        assert!(!report.promoted_recovery);
+        assert!(!report.executed_action);
+        assert!(!report.trusted_provider_output);
+        assert!(!report.promoted_provider_output);
+        assert!(!report.accepted_workflow_completion);
+        assert!(!report.accepted_sandbox_success);
+        assert!(!report.accepted_ui_transport_authority);
+        assert!(!report.approved_readiness);
+    }
+
+    let duplicate = adversarial_phase_112_record("adversarial-phase-112-duplicate");
+    let duplicate_report = inspect_phase_111_recovery_lifecycle(&[duplicate.clone(), duplicate]);
+    assert_eq!(duplicate_report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(duplicate_report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryDuplicateEvidence));
+
+    let conflict_report = inspect_phase_111_recovery_lifecycle(&[
+        adversarial_phase_112_record("adversarial-phase-112-conflict-a"),
+        adversarial_phase_112_record("adversarial-phase-112-conflict-b"),
+    ]);
+    assert_eq!(conflict_report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(conflict_report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryConflictingEvidence));
 }

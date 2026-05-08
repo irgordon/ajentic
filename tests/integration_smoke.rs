@@ -6,15 +6,16 @@ use ajentic_core::api::{
     encode_durable_append_transaction, encode_phase_111_decision_evidence_append_record,
     evaluate_durable_persistence_authority_decision, execute_operator_action_boundary,
     execute_provider_in_sandbox, handle_local_ui_rust_transport_payload,
-    handle_local_ui_rust_transport_request, local_persistence_path_exists,
-    observability_snapshot_from_supplied_evidence, observability_snapshot_mutates_authority,
-    operator_action_report_mutates_authority, parse_provider_configuration_payload,
-    prepare_application_recovery_candidate, prepare_durable_append_transaction,
-    provider_configuration_executes_provider, provider_configuration_trusts_provider,
-    provider_configuration_uses_transport, provider_evidence_snapshot_from_harness_report,
-    provider_execution_report_mutates_authority, read_local_persistence_text,
-    recovery_acceptance_mutates_authority, remove_local_persistence_tree,
-    run_end_to_end_local_harness, start_bounded_local_ui_rust_transport, submit_operator_intent,
+    handle_local_ui_rust_transport_request, inspect_phase_111_recovery_lifecycle,
+    local_persistence_path_exists, observability_snapshot_from_supplied_evidence,
+    observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
+    parse_provider_configuration_payload, prepare_application_recovery_candidate,
+    prepare_durable_append_transaction, provider_configuration_executes_provider,
+    provider_configuration_trusts_provider, provider_configuration_uses_transport,
+    provider_evidence_snapshot_from_harness_report, provider_execution_report_mutates_authority,
+    read_local_persistence_text, recovery_acceptance_mutates_authority,
+    remove_local_persistence_tree, run_end_to_end_local_harness,
+    start_bounded_local_ui_rust_transport, submit_operator_intent,
     verify_durable_append_transaction_bytes, verify_provider_evidence_replay,
     write_local_export_bundle, ApplicationRecoveryCandidate, ApplicationRecoveryReason,
     ApplicationRecoveryRequest, ApplicationRecoveryStatus, AuditExportEncodingLimits,
@@ -38,7 +39,8 @@ use ajentic_core::api::{
     ProviderEvidenceReplayStatus, ProviderExecutionKind, ProviderExecutionOutputTrust,
     ProviderExecutionRejectionReason, ProviderExecutionRequest, ProviderExecutionStatus,
     ProviderIsolationDeclaration, ProviderResourceLimits, RecoveryAcceptanceReason,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus, RecoveryLifecycleReason,
+    RecoveryLifecycleStatus,
 };
 
 fn phase_104_transport_request(
@@ -2067,4 +2069,218 @@ fn phase_111_repeated_equivalent_append_input_produces_deterministic_record_cont
     assert!(!first.public_use_approval);
     assert!(!first.readiness_approval);
     assert!(!first.production_human_use_approval);
+}
+
+fn phase_112_valid_record_bytes(id: &str) -> Vec<u8> {
+    let evidence = phase_111_valid_evidence(id);
+    let record = build_phase_111_decision_evidence_append_record(&evidence).unwrap();
+    encode_phase_111_decision_evidence_append_record(&record)
+}
+
+fn phase_112_tamper(bytes: &[u8], from: &str, to: &str) -> Vec<u8> {
+    String::from_utf8(bytes.to_vec())
+        .unwrap()
+        .replace(from, to)
+        .into_bytes()
+}
+
+fn assert_phase_112_no_recovery_authority(report: &ajentic_core::api::RecoveryLifecycleReport) {
+    assert!(!report.repaired_replay);
+    assert!(!report.promoted_recovery);
+    assert!(!report.executed_action);
+    assert!(!report.trusted_provider_output);
+    assert!(!report.promoted_provider_output);
+    assert!(!report.accepted_workflow_completion);
+    assert!(!report.accepted_sandbox_success);
+    assert!(!report.accepted_ui_transport_authority);
+    assert!(!report.approved_readiness);
+    assert!(!report.approved_production_candidate);
+    assert!(!report.approved_release_candidate);
+    assert!(!report.approved_public_use);
+    assert!(!report.approved_production_human_use);
+}
+
+fn assert_phase_112_rejects_with(bytes: Vec<u8>, reason: RecoveryLifecycleReason) {
+    let before = bytes.clone();
+    let report = inspect_phase_111_recovery_lifecycle(std::slice::from_ref(&bytes));
+    assert_eq!(bytes, before, "classification must not mutate input");
+    assert_eq!(report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(report.manual_review.required);
+    assert!(
+        report.reasons.contains(&reason),
+        "missing {reason:?}: {:?}",
+        report.reasons
+    );
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryManualReviewRequired));
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryRejected));
+    assert_phase_112_no_recovery_authority(&report);
+}
+
+#[test]
+fn phase_112_valid_phase_111_record_classifies_as_present_without_promotion() {
+    let bytes = phase_112_valid_record_bytes("phase-112-valid");
+    let report = inspect_phase_111_recovery_lifecycle(&[bytes]);
+
+    assert_eq!(report.status, RecoveryLifecycleStatus::EvidencePresent);
+    assert!(!report.manual_review.required);
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryEvidencePresent));
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryClassificationOnly));
+    assert_eq!(report.inspections.len(), 1);
+    assert_phase_112_no_recovery_authority(&report);
+}
+
+#[test]
+fn phase_112_missing_evidence_classifies_manual_review_without_mutation() {
+    let report = inspect_phase_111_recovery_lifecycle(&[]);
+    assert_eq!(report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(report.manual_review.required);
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryEvidenceMissing));
+    assert_phase_112_no_recovery_authority(&report);
+}
+
+#[test]
+fn phase_112_malformed_and_truncated_evidence_fail_closed() {
+    assert_phase_112_rejects_with(
+        b"record_type=phase_111_rust_validated_decision_evidence_append\n".to_vec(),
+        RecoveryLifecycleReason::RecoveryEvidenceMalformed,
+    );
+    assert_phase_112_rejects_with(
+        b"not a phase 111 record".to_vec(),
+        RecoveryLifecycleReason::RecoveryEvidenceMalformed,
+    );
+}
+
+#[test]
+fn phase_112_checksum_mismatch_fails_closed() {
+    let bytes = phase_112_tamper(
+        &phase_112_valid_record_bytes("phase-112-checksum"),
+        "provider_output_authority=false",
+        "provider_output_authority=false ",
+    );
+    assert_phase_112_rejects_with(bytes, RecoveryLifecycleReason::RecoveryChecksumMismatch);
+}
+
+#[test]
+fn phase_112_unsupported_duplicate_and_conflicting_evidence_fail_closed() {
+    let unsupported = phase_112_tamper(
+        &phase_112_valid_record_bytes("phase-112-unsupported"),
+        "record_type=phase_111_rust_validated_decision_evidence_append",
+        "record_type=unsupported_record",
+    );
+    assert_phase_112_rejects_with(
+        unsupported,
+        RecoveryLifecycleReason::RecoveryUnsupportedRecordType,
+    );
+
+    let duplicate = phase_112_valid_record_bytes("phase-112-duplicate");
+    let report = inspect_phase_111_recovery_lifecycle(&[duplicate.clone(), duplicate]);
+    assert_eq!(report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryDuplicateEvidence));
+    assert!(report.manual_review.required);
+    assert_phase_112_no_recovery_authority(&report);
+
+    let report = inspect_phase_111_recovery_lifecycle(&[
+        phase_112_valid_record_bytes("phase-112-conflict-a"),
+        phase_112_valid_record_bytes("phase-112-conflict-b"),
+    ]);
+    assert_eq!(report.status, RecoveryLifecycleStatus::Rejected);
+    assert!(report
+        .reasons
+        .contains(&RecoveryLifecycleReason::RecoveryConflictingEvidence));
+    assert!(report.manual_review.required);
+    assert_phase_112_no_recovery_authority(&report);
+}
+
+#[test]
+fn phase_112_stale_constraints_and_missing_negative_authority_fail_closed() {
+    let stale = phase_112_tamper(
+        &phase_112_valid_record_bytes("phase-112-stale"),
+        "phase_110_only:true",
+        "phase_110_only:false",
+    );
+    assert_phase_112_rejects_with(
+        stale,
+        RecoveryLifecycleReason::RecoveryStaleConstraintSnapshot,
+    );
+
+    let missing_negative = phase_112_tamper(
+        &phase_112_valid_record_bytes("phase-112-missing-negative"),
+        "no_replay_repair:true",
+        "no_replay_repair:false",
+    );
+    assert_phase_112_rejects_with(
+        missing_negative,
+        RecoveryLifecycleReason::RecoveryMissingNegativeAuthorityEvidence,
+    );
+}
+
+#[test]
+fn phase_112_authority_injections_fail_closed_without_execution_or_promotion() {
+    for (from, to) in [
+        (
+            "provider_output_authority=false",
+            "provider_output_authority=true",
+        ),
+        (
+            "workflow_completion_authority=false",
+            "workflow_completion_authority=true",
+        ),
+        (
+            "sandbox_success_authority=false",
+            "sandbox_success_authority=true",
+        ),
+        (
+            "ui_authorized_persistence=false",
+            "ui_authorized_persistence=true",
+        ),
+        (
+            "transport_authorized_persistence=false",
+            "transport_authorized_persistence=true",
+        ),
+        (
+            "replay_repair_authority=false",
+            "replay_repair_authority=true",
+        ),
+        (
+            "recovery_promotion_authority=false",
+            "recovery_promotion_authority=true",
+        ),
+        (
+            "action_execution_authority=false",
+            "action_execution_authority=true",
+        ),
+        ("readiness_approval=false", "readiness_approval=true"),
+        (
+            "provider_output_trusted=false",
+            "provider_output_trusted=true",
+        ),
+        (
+            "provider_output_promoted=false",
+            "provider_output_promoted=true",
+        ),
+    ] {
+        let bytes = phase_112_tamper(&phase_112_valid_record_bytes(from), from, to);
+        assert_phase_112_rejects_with(bytes, RecoveryLifecycleReason::RecoveryConflictingEvidence);
+    }
+}
+
+#[test]
+fn phase_112_equivalent_recovery_input_produces_deterministic_reports() {
+    let bytes = phase_112_valid_record_bytes("phase-112-deterministic");
+    let first = inspect_phase_111_recovery_lifecycle(std::slice::from_ref(&bytes));
+    let second = inspect_phase_111_recovery_lifecycle(&[bytes]);
+    assert_eq!(first, second);
+    assert_phase_112_no_recovery_authority(&first);
 }
