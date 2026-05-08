@@ -1,6 +1,7 @@
 mod application_state;
 mod authorization;
 mod diagnostics;
+mod durable_persistence_authority_decision;
 mod integration;
 mod intent_audit;
 mod local_transport;
@@ -18,6 +19,7 @@ mod runtime_config;
 pub use application_state::*;
 pub use authorization::*;
 pub use diagnostics::*;
+pub use durable_persistence_authority_decision::*;
 pub use integration::*;
 pub use intent_audit::*;
 pub use local_transport::*;

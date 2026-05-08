@@ -1,7 +1,8 @@
 use ajentic_core::api::{
     accept_recovery_candidate_for_in_memory_use, authorize_operator_intent,
-    compute_provider_evidence_checksum, encode_audit_export_snapshot,
-    encode_durable_append_transaction, execute_operator_action_boundary,
+    compute_provider_evidence_checksum, durable_persistence_decision_activates_authority,
+    encode_audit_export_snapshot, encode_durable_append_transaction,
+    evaluate_durable_persistence_authority_decision, execute_operator_action_boundary,
     execute_provider_in_sandbox, handle_local_ui_rust_transport_payload,
     handle_local_ui_rust_transport_request, observability_snapshot_from_supplied_evidence,
     observability_snapshot_mutates_authority, operator_action_report_mutates_authority,
@@ -22,15 +23,16 @@ use ajentic_core::api::{
     OperatorActionExecutionReason, OperatorActionExecutionRequest, OperatorActionExecutionStatus,
     OperatorActionKind, OperatorAuthorizationRequest, OperatorIdentity, OperatorIntent,
     OperatorIntentAuditRecord, OperatorIntentTargetKind, OperatorIntentType, OperatorSafetyContext,
-    OperatorTargetContext, ProviderCapabilityDeclaration, ProviderConfiguration,
-    ProviderConfigurationExecutionPosture, ProviderConfigurationReadinessPosture,
-    ProviderConfigurationRejectionReason, ProviderConfigurationStatus,
-    ProviderConfigurationTransportPosture, ProviderConfigurationTrustPosture,
-    ProviderConfigurationType, ProviderEvidenceReplayMode, ProviderEvidenceReplayReason,
-    ProviderEvidenceReplayStatus, ProviderExecutionKind, ProviderExecutionOutputTrust,
-    ProviderExecutionRejectionReason, ProviderExecutionRequest, ProviderExecutionStatus,
-    ProviderIsolationDeclaration, ProviderResourceLimits, RecoveryAcceptanceReason,
-    RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
+    OperatorTargetContext, PersistenceAuthorityDecisionReasonCode,
+    PersistenceAuthorityDecisionStatus, ProhibitedPersistenceCategory, ProposedPersistenceBoundary,
+    ProviderCapabilityDeclaration, ProviderConfiguration, ProviderConfigurationExecutionPosture,
+    ProviderConfigurationReadinessPosture, ProviderConfigurationRejectionReason,
+    ProviderConfigurationStatus, ProviderConfigurationTransportPosture,
+    ProviderConfigurationTrustPosture, ProviderConfigurationType, ProviderEvidenceReplayMode,
+    ProviderEvidenceReplayReason, ProviderEvidenceReplayStatus, ProviderExecutionKind,
+    ProviderExecutionOutputTrust, ProviderExecutionRejectionReason, ProviderExecutionRequest,
+    ProviderExecutionStatus, ProviderIsolationDeclaration, ProviderResourceLimits,
+    RecoveryAcceptanceReason, RecoveryAcceptanceRequest, RecoveryAcceptanceStatus,
 };
 
 fn phase_104_transport_request(
@@ -1671,4 +1673,150 @@ fn phase_108_timeout_resource_evidence_is_descriptive_only_and_deterministic() {
         ProviderExecutionOutputTrust::UntrustedCandidateData
     );
     assert!(!provider_execution_report_mutates_authority(&first));
+}
+
+fn assert_phase_109_decision_has_no_authority(
+    evidence: &ajentic_core::api::DurablePersistenceAuthorityDecisionEvidence,
+) {
+    assert!(evidence.descriptive_only);
+    assert!(evidence.non_authoritative);
+    assert!(evidence.non_self_activating);
+    assert!(!evidence.persistence_activated);
+    assert!(!evidence.durable_append_activated);
+    assert!(!evidence.replay_repair_activated);
+    assert!(!evidence.recovery_promotion_activated);
+    assert!(!evidence.action_execution_activated);
+    assert!(!evidence.readiness_approved);
+    assert!(!evidence.production_candidate_approved);
+    assert!(!evidence.release_candidate_approved);
+    assert!(!evidence.public_usability_approved);
+    assert!(!evidence.production_human_use_approved);
+    assert!(evidence.negative_authority.descriptive_only);
+    assert!(!evidence.negative_authority.grants_provider_trust);
+    assert!(!evidence.negative_authority.grants_readiness);
+    assert!(
+        !evidence
+            .negative_authority
+            .grants_workflow_completion_authority
+    );
+    assert!(!evidence.negative_authority.grants_provider_output_authority);
+    assert!(!evidence.negative_authority.activates_persistence);
+    assert!(!evidence.negative_authority.durable_append_enabled);
+    assert!(!evidence.negative_authority.replay_repair_enabled);
+    assert!(!evidence.negative_authority.recovery_promotion_enabled);
+    assert!(!evidence.negative_authority.action_execution_enabled);
+    assert!(evidence.negative_authority.no_promotion);
+    assert!(evidence.negative_authority.no_replay_repair);
+    assert!(evidence.negative_authority.no_recovery_promotion);
+    assert!(evidence.negative_authority.no_action_execution);
+    assert!(!durable_persistence_decision_activates_authority(evidence));
+}
+
+#[test]
+fn phase_109_decision_evidence_is_descriptive_deterministic_and_non_authoritative() {
+    let proposed = ProposedPersistenceBoundary::phase_110_narrow_candidate(
+        "rust-validated-decision-evidence-append",
+    );
+
+    let first = evaluate_durable_persistence_authority_decision(proposed.clone());
+    let second = evaluate_durable_persistence_authority_decision(proposed);
+
+    assert_eq!(first, second);
+    assert_eq!(
+        first.status,
+        PersistenceAuthorityDecisionStatus::Phase110NarrowActivationCandidatePermitted
+    );
+    assert_eq!(
+        first.reason_codes,
+        vec![
+            PersistenceAuthorityDecisionReasonCode::DecisionEvidenceOnly,
+            PersistenceAuthorityDecisionReasonCode::DescriptiveOnlyEvidence,
+            PersistenceAuthorityDecisionReasonCode::NoPhase109PersistenceActivation,
+            PersistenceAuthorityDecisionReasonCode::Phase110NarrowCandidatePermitted,
+            PersistenceAuthorityDecisionReasonCode::Phase110RequiresRustValidatedBoundary,
+            PersistenceAuthorityDecisionReasonCode::Phase110RequiresCommittedEvidenceReferences,
+        ]
+    );
+    assert!(first.constraint_set.phase_110_only);
+    assert!(first.constraint_set.rust_boundary_required);
+    assert!(first.constraint_set.committed_evidence_required);
+    assert!(first.constraint_set.descriptive_provider_evidence_only);
+    assert!(first.constraint_set.provider_output_authority_prohibited);
+    assert!(
+        first
+            .constraint_set
+            .workflow_completion_authority_prohibited
+    );
+    assert!(first.constraint_set.replay_repair_prohibited);
+    assert!(first.constraint_set.recovery_promotion_prohibited);
+    assert!(first.constraint_set.action_execution_prohibited);
+    assert!(first.constraint_set.ui_authority_prohibited);
+    assert!(first.constraint_set.transport_authority_prohibited);
+    assert!(first.constraint_set.trust_promotion_prohibited);
+    assert!(first.constraint_set.readiness_promotion_prohibited);
+    assert_phase_109_decision_has_no_authority(&first);
+}
+
+#[test]
+fn phase_109_execution_success_workflow_completion_and_provider_output_do_not_imply_approval() {
+    let mut proposed = ProposedPersistenceBoundary::phase_110_narrow_candidate(
+        "success-completion-output-is-not-authority",
+    );
+    proposed.allowed_candidate_categories.clear();
+    proposed.provider_execution_succeeded = true;
+    proposed.workflow_completed = true;
+    proposed.provider_output_present = true;
+
+    let evidence = evaluate_durable_persistence_authority_decision(proposed);
+
+    assert_eq!(
+        evidence.status,
+        PersistenceAuthorityDecisionStatus::Rejected
+    );
+    assert!(evidence
+        .reason_codes
+        .contains(&PersistenceAuthorityDecisionReasonCode::SandboxSuccessNotAuthority));
+    assert!(evidence
+        .reason_codes
+        .contains(&PersistenceAuthorityDecisionReasonCode::WorkflowCompletionNotAuthority));
+    assert!(evidence
+        .reason_codes
+        .contains(&PersistenceAuthorityDecisionReasonCode::ProviderOutputNotAuthority));
+    assert!(evidence.permitted_phase_110_candidate_categories.is_empty());
+    assert_phase_109_decision_has_no_authority(&evidence);
+}
+
+#[test]
+fn phase_109_prohibited_persistence_categories_are_rejected_without_activation() {
+    let prohibited_cases = [
+        ProhibitedPersistenceCategory::ProviderOutputAuthority,
+        ProhibitedPersistenceCategory::WorkflowCompletionAuthority,
+        ProhibitedPersistenceCategory::ReplayRepairAuthority,
+        ProhibitedPersistenceCategory::RecoveryPromotionAuthority,
+        ProhibitedPersistenceCategory::ActionExecutionAuthority,
+        ProhibitedPersistenceCategory::UiAuthorizedPersistence,
+        ProhibitedPersistenceCategory::TransportAuthorizedPersistence,
+        ProhibitedPersistenceCategory::ImplicitTrustPromotion,
+        ProhibitedPersistenceCategory::ImplicitReadinessPromotion,
+    ];
+
+    for category in prohibited_cases {
+        let mut proposed = ProposedPersistenceBoundary::phase_110_narrow_candidate(format!(
+            "prohibited-{}",
+            category.code()
+        ));
+        proposed.prohibited_categories.push(category);
+
+        let evidence = evaluate_durable_persistence_authority_decision(proposed);
+
+        assert_eq!(
+            evidence.status,
+            PersistenceAuthorityDecisionStatus::Rejected
+        );
+        assert!(evidence.prohibited_categories.contains(&category));
+        assert!(evidence.reason_codes.contains(
+            &PersistenceAuthorityDecisionReasonCode::ProhibitedPersistenceCategoryRejected
+        ));
+        assert_phase_109_decision_has_no_authority(&evidence);
+    }
 }

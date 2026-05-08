@@ -17,6 +17,31 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.109 - 2026-05-08
+**Status:** Phase 109 - Durable Persistence Authority Decision Gate
+
+### Added
+- Added deterministic durable persistence authority decision evidence structures, proposed persistence-boundary classification, negative-authority evidence, decision statuses, constraint sets, prohibited persistence categories, and reason codes.
+- Added behavioral and adversarial coverage for descriptive-only decision evidence, sandbox-success non-authority, workflow-completion non-authority, provider-output non-authority, prohibited persistence categories, malformed evidence, hostile/noise authority payloads, and no Phase 109 persistence activation.
+- Added Phase 109 operations documentation.
+
+### Changed
+- Updated the active phase checklist to Phase 109 procedural truth.
+
+### Notes
+- Persistence-boundary decision evidence only.
+- No durable persistence authority.
+- No provider-output authority.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 110 implementation.
+
 ## v0.0.108 - 2026-05-07
 **Status:** Phase 108 - Provider Timeout and Resource Limit Boundary
 
