@@ -2488,3 +2488,162 @@ fn phase_114_required_references_fail_closed_when_missing() {
         assert!(!governance_evidence_grants_authority(&report), "{case}");
     }
 }
+
+use ajentic_core::api::{
+    local_deployment_candidate_grants_authority, validate_local_deployment_candidate_boundary,
+    LocalDeploymentCandidateAuthorityDenialSnapshot, LocalDeploymentCandidateBoundary,
+    LocalDeploymentCandidateEvidenceReferences, LocalDeploymentCandidateReason,
+    LocalDeploymentCandidateResidualRiskAcknowledgement, LocalDeploymentCandidateValidationStatus,
+};
+
+fn phase_116_valid_local_candidate() -> LocalDeploymentCandidateBoundary {
+    LocalDeploymentCandidateBoundary {
+        candidate_identifier: "phase-116-local-candidate".to_string(),
+        candidate_mode: "local_only".to_string(),
+        local_only: true,
+        evidence_references: LocalDeploymentCandidateEvidenceReferences {
+            phase_113_deployment_configuration_evidence:
+                "docs/operations/deployment-configuration-contract-phase-113.md".to_string(),
+            phase_114_policy_governance_evidence:
+                "docs/operations/policy-governance-versioning-phase-114.md".to_string(),
+            phase_115_security_audit_evidence:
+                "docs/operations/security-threat-model-abuse-case-audit-phase-115.md".to_string(),
+            storage_configuration_reference: "phase-113-storage-configuration".to_string(),
+            recovery_handoff_reference: "phase-112-recovery-handoff".to_string(),
+        },
+        residual_risk_acknowledgement: LocalDeploymentCandidateResidualRiskAcknowledgement {
+            acknowledged: true,
+            acknowledgement_reference: "phase-115-residual-risks".to_string(),
+            residual_risks_reviewed: vec!["local-only-candidate-risk".to_string()],
+        },
+        manual_review_required: true,
+        supported_local_validation_commands: vec![
+            "CARGO_TARGET_DIR=/tmp/ajentic-phase-116-target ./scripts/check.sh".to_string(),
+        ],
+        unsupported_public_production_release_declarations: vec![
+            "no-public-release".to_string(),
+            "no-production-deployment".to_string(),
+            "no-installer-update-signing-publishing".to_string(),
+        ],
+        authority_denials: LocalDeploymentCandidateAuthorityDenialSnapshot::denied(),
+        mutates_filesystem: false,
+        mutates_permissions: false,
+        opens_network_socket: false,
+        starts_service: false,
+        launches_process: false,
+        public_availability_claimed: false,
+        production_readiness_claimed: false,
+    }
+}
+
+#[test]
+fn phase_116_valid_local_deployment_candidate_validates_as_bounded_evidence() {
+    let report = validate_local_deployment_candidate_boundary(&phase_116_valid_local_candidate());
+
+    assert_eq!(
+        report.status,
+        LocalDeploymentCandidateValidationStatus::Accepted
+    );
+    assert!(report.local_only);
+    assert!(report.candidate_evidence_only);
+    assert!(report.non_authoritative);
+    assert!(report.manual_review_required);
+    assert!(!local_deployment_candidate_grants_authority(&report));
+    assert!(!report.deployment_automation_enabled);
+    assert!(!report.release_artifact_created);
+    assert!(!report.installer_enabled);
+    assert!(!report.update_channel_enabled);
+    assert!(!report.signing_enabled);
+    assert!(!report.publishing_enabled);
+    assert!(!report.github_release_created);
+    assert!(!report.release_tag_created);
+    assert!(!report.production_deployment_enabled);
+    assert!(!report.public_release_enabled);
+    assert!(!report.public_use_approved);
+    assert!(!report.production_human_use_approved);
+    assert!(!report.provider_trust_granted);
+    assert!(!report.provider_output_promoted);
+    assert!(!report.replay_repaired);
+    assert!(!report.recovery_promoted);
+    assert!(!report.action_executed);
+    assert!(!report.readiness_approved);
+    assert!(!report.production_candidate_approved);
+    assert!(!report.release_candidate_approved);
+}
+
+#[test]
+fn phase_116_required_fields_fail_closed() {
+    let cases = [
+        (
+            "candidate_identifier",
+            LocalDeploymentCandidateReason::MissingCandidateIdentifier,
+        ),
+        (
+            "candidate_mode",
+            LocalDeploymentCandidateReason::MissingLocalOnlyMode,
+        ),
+        (
+            "phase_113",
+            LocalDeploymentCandidateReason::MissingPhase113DeploymentConfigurationEvidenceReference,
+        ),
+        (
+            "phase_114",
+            LocalDeploymentCandidateReason::MissingPhase114PolicyGovernanceEvidenceReference,
+        ),
+        (
+            "phase_115",
+            LocalDeploymentCandidateReason::MissingPhase115SecurityAuditEvidenceReference,
+        ),
+        (
+            "residual_risk",
+            LocalDeploymentCandidateReason::MissingResidualRiskAcknowledgement,
+        ),
+        (
+            "manual_review",
+            LocalDeploymentCandidateReason::MissingManualReviewPosture,
+        ),
+    ];
+
+    for (field, reason) in cases {
+        let mut candidate = phase_116_valid_local_candidate();
+        match field {
+            "candidate_identifier" => candidate.candidate_identifier.clear(),
+            "candidate_mode" => candidate.candidate_mode.clear(),
+            "phase_113" => candidate
+                .evidence_references
+                .phase_113_deployment_configuration_evidence
+                .clear(),
+            "phase_114" => candidate
+                .evidence_references
+                .phase_114_policy_governance_evidence
+                .clear(),
+            "phase_115" => candidate
+                .evidence_references
+                .phase_115_security_audit_evidence
+                .clear(),
+            "residual_risk" => candidate.residual_risk_acknowledgement.acknowledged = false,
+            "manual_review" => candidate.manual_review_required = false,
+            _ => unreachable!(),
+        }
+        let report = validate_local_deployment_candidate_boundary(&candidate);
+        assert_eq!(
+            report.status,
+            LocalDeploymentCandidateValidationStatus::Rejected
+        );
+        assert!(report.reasons.contains(&reason), "{field}");
+        assert!(!local_deployment_candidate_grants_authority(&report));
+    }
+}
+
+#[test]
+fn phase_116_validation_reports_no_filesystem_network_or_process_mutation() {
+    let report = validate_local_deployment_candidate_boundary(&phase_116_valid_local_candidate());
+
+    assert!(!report.mutates_filesystem);
+    assert!(!report.mutates_permissions);
+    assert!(!report.opens_network_socket);
+    assert!(!report.starts_service);
+    assert!(!report.launches_process);
+    assert!(report.deterministic);
+    assert!(report.fail_closed);
+}
