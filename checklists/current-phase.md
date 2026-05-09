@@ -4,16 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 117
+# Current Phase Checklist - Phase 118
 
 ## Phase name
-- [x] Phase 117 - Operator Documentation and Human-Trial Dry Run.
+- [x] Phase 118 - Release Candidate Evidence Assembly.
 
 ## Phase goal
-- [x] Create operator documentation for controlled human-trial preparation.
-- [x] Create a local-only human-trial dry-run procedure.
-- [x] Define evidence collection, manual review, stop conditions, escalation paths, and Phase 118 handoff evidence without approving human use, release readiness, or Production Candidate status.
-- [x] Do not implement Phase 118.
+- [x] Assemble release-candidate evidence from committed repository evidence.
+- [x] Organize, classify, and document Phase 113-117 evidence.
+- [x] Include pre-113 evidence only where needed for authority, validation, persistence/recovery, transport/provider, UI, and historical truth posture.
+- [x] Preserve evidence as evidence, not approval.
+- [x] Do not implement Phase 119.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
@@ -22,140 +23,203 @@ mutation_path: checklist_revision
 - [x] Record cleanup status: initial worktree was clean; no generated artifact cleanup was required before edits.
 
 ## Allowed surfaces
-- [x] `docs/operations/operator-human-trial-dry-run-phase-117.md`.
+- [x] `docs/operations/release-candidate-evidence-assembly-phase-118.md`.
 - [x] `checklists/current-phase.md`.
 - [x] `CHANGELOG.md`.
 
 ## Boundary rules
-- [x] Phase 117 is operator documentation and human-trial dry run only.
-- [x] Dry-run evidence is rehearsal evidence only.
-- [x] Dry-run evidence is not human-use approval.
-- [x] Dry-run evidence is not release approval.
-- [x] Dry-run evidence is not Production Candidate approval.
-- [x] Phase 117 does not approve controlled human use, public/general use, production human use, release-candidate readiness, Production Candidate status, production readiness, public usability, public release, or production deployment.
-- [x] Phase 117 adds no runtime behavior, new capability, release artifact creation, deployment automation, installer behavior, update-channel behavior, signing behavior, publishing behavior, GitHub release/tag/public asset creation, provider trust, provider output promotion, replay repair, recovery promotion, persistence authority expansion, or action execution.
+- [x] Phase 118 is evidence assembly only.
+- [x] Phase 118 does not approve release-candidate readiness.
+- [x] Phase 118 does not approve Release Candidate status.
+- [x] Phase 118 does not approve Production Candidate status.
+- [x] Phase 118 does not approve controlled human use.
+- [x] Phase 118 does not approve public/general use.
+- [x] Phase 118 does not approve production human use.
+- [x] Phase 118 does not create release artifacts, packages, installers, update channels, signatures, publications, GitHub releases, release tags, public downloads, or public assets.
+- [x] Phase 118 does not add public release behavior, production deployment behavior, deployment automation, background services, daemon behavior, provider execution expansion, persistence authority expansion, replay repair, recovery promotion, action execution, provider trust, or provider output promotion.
 
-## Phase 102 relationship checklist
-- [x] Reuse Phase 102 human operator workflow role language.
-- [x] Treat Phase 102 as documentation/contract evidence only.
-- [x] Do not expand Phase 102 into runtime behavior or human-use approval.
+## Evidence-only checklist
+- [x] Count only committed source, tests, UI behavior tests, validation scripts, governance docs, architecture docs, roadmap docs, operations docs, changelog surfaces, checklists, schemas, and CI/workflow files.
+- [x] Do not count prompt intent, prior chat summaries, uncommitted work, speculative roadmap claims, future phase descriptions as implemented behavior, validation success as approval, local deployment candidacy as readiness, dry-run completion as approval, security audit as release approval, operator documentation as approval, or evidence assembly as approval.
+
+## Phase 113 relationship checklist
+- [x] Carry forward deployment configuration contract evidence.
+- [x] Treat Phase 113 as contract evidence only.
+- [x] Do not add deployment automation.
+
+## Phase 114 relationship checklist
+- [x] Carry forward policy/governance attribution evidence.
+- [x] Treat Phase 114 as attribution evidence only.
+- [x] Do not create governance mutation authority or readiness approval.
 
 ## Phase 115 relationship checklist
-- [x] Require Phase 115 security audit evidence reference.
-- [x] Require Phase 115 residual-risk acknowledgement review.
-- [x] Treat residual-risk acknowledgement as risk evidence only, not approval authority.
+- [x] Carry forward security threat model and abuse-case evidence.
+- [x] Carry forward residual-risk acknowledgements.
+- [x] Treat Phase 115 evidence as risk evidence only, not approval.
 
 ## Phase 116 relationship checklist
-- [x] Preserve Phase 116 controlled local deployment candidate boundary.
-- [x] Require local-only candidate evidence references.
-- [x] Treat local deployment candidacy as non-public, non-releasing, non-deploying, non-authoritative, and manual-review-gated.
+- [x] Carry forward local deployment candidate evidence.
+- [x] Preserve local-only, controlled boundary language.
+- [x] Treat local deployment candidacy as not release-candidate readiness and not human-use approval.
 
-## Human-trial dry-run boundary checklist
-- [x] Define dry-run rehearsal scope.
-- [x] State that no real production users, public users, external participants, or controlled-human-use participants are enrolled.
-- [x] State that dry-run completion is not human-use approval.
+## Phase 117 relationship checklist
+- [x] Carry forward operator documentation and human-trial dry run evidence.
+- [x] Carry forward Phase 117 handoff expectations.
+- [x] Treat dry-run evidence as rehearsal evidence only.
 
-## Local-only rehearsal checklist
-- [x] Require local-only repository evidence review.
-- [x] Prohibit public availability claims.
-- [x] Prohibit production deployment behavior.
-- [x] Prohibit background services and daemon behavior.
+## Release-candidate evidence assembly checklist
+- [x] Create `docs/operations/release-candidate-evidence-assembly-phase-118.md`.
+- [x] Include all required sections.
+- [x] Assemble evidence from Phases 113-117.
+- [x] Include pre-113 evidence only where needed.
+- [x] Preserve evidence as evidence, not approval.
 
-## Trial roles checklist
-- [x] Define Trial coordinator role.
-- [x] Define Operator role.
-- [x] Define Reviewer role.
-- [x] Define Security reviewer role.
-- [x] Define Release steward role.
+## Evidence status model checklist
+- [x] Use `present`.
+- [x] Use `present_with_findings`.
+- [x] Use `partial`.
+- [x] Use `insufficient`.
+- [x] Use `deferred`.
+- [x] Use `not_applicable`.
+- [x] Assign each major evidence category a status.
 
-## Trial coordinator checklist
-- [x] Assign dry-run agenda ownership.
-- [x] Assign evidence checklist ownership.
-- [x] Assign stop-condition review ownership.
-- [x] Assign escalation routing ownership.
-- [x] Assign Phase 118 handoff ownership.
+## Governance/truth-dimension evidence checklist
+- [x] Inspect governance evidence.
+- [x] Preserve Rust runtime authority.
+- [x] Preserve TypeScript review/operator-intent boundary.
+- [x] Preserve Bash wrapper boundary.
+- [x] Preserve model-output untrusted rule.
 
-## Operator documentation checklist
-- [x] Create `docs/operations/operator-human-trial-dry-run-phase-117.md`.
-- [x] Include all required Phase 117 sections.
-- [x] Include required non-approval language.
+## Roadmap/changelog evidence checklist
+- [x] Confirm Phase 118 title and scope from roadmap files.
+- [x] Preserve roadmap as planned truth.
+- [x] Preserve CHANGELOG surfaces as historical truth.
+- [x] State Phase 120 is a current planned gate, not a guaranteed final endpoint.
 
-## Preflight validation checklist
-- [x] Require `git status --short`.
-- [x] Require generated artifact drift cleanup.
-- [x] Require validation command execution.
-- [x] Require Phase 113 deployment configuration evidence check.
-- [x] Require Phase 114 policy/governance evidence check.
-- [x] Require Phase 115 residual-risk acknowledgement check.
-- [x] Require Phase 116 local deployment candidate validation check.
+## Human operator workflow evidence checklist
+- [x] Carry forward operator workflow evidence.
+- [x] Carry forward roles, manual review, stop conditions, escalation, and evidence collection evidence.
+- [x] Preserve non-approval language.
 
-## Evidence collection checklist
-- [x] Require validation results.
-- [x] Require local candidate evidence references.
-- [x] Require residual-risk acknowledgement.
-- [x] Require stop-condition disposition.
-- [x] Require manual-review disposition.
-- [x] Require Operator and Trial coordinator notes.
-- [x] Require Security reviewer notes if escalated.
-- [x] Require Release steward notes if escalated.
-- [x] Require explicit non-approval statement.
+## UI review surface evidence checklist
+- [x] Inspect UI review surfaces as evidence only.
+- [x] Preserve UI as non-authoritative review/operator-intent surface.
+- [x] Do not modify TypeScript source.
 
-## Session note checklist
-- [x] Define session note expectations without adding logging runtime behavior.
-- [x] Require command, evidence, stop-condition, escalation, manual-review, and non-approval notes.
+## Local transport evidence checklist
+- [x] Inspect local transport evidence as evidence only.
+- [x] Preserve local-only transport posture.
+- [x] Do not add public network behavior.
 
-## Manual-review checklist
-- [x] Require manual review for Phase 102, Phase 113, Phase 114, Phase 115, and Phase 116 evidence.
-- [x] Require manual review for prohibited actions.
-- [x] Require manual review for non-approval language.
-- [x] Require manual review for Phase 118 handoff contents.
+## Provider configuration evidence checklist
+- [x] Inspect provider configuration evidence as evidence only.
+- [x] Preserve configuration contract boundary.
+- [x] Do not add provider trust.
 
-## Stop-condition checklist
-- [x] Stop on validation failure.
-- [x] Stop on dirty worktree or generated artifact drift.
-- [x] Stop on missing Phase 113 evidence reference.
-- [x] Stop on missing Phase 114 evidence reference.
-- [x] Stop on missing Phase 115 evidence reference.
-- [x] Stop on missing Phase 116 evidence reference.
-- [x] Stop on unresolved Phase 115 high/critical residual-risk acknowledgement.
-- [x] Stop on public-use claim.
-- [x] Stop on production-use claim.
-- [x] Stop on release-candidate approval claim.
-- [x] Stop on Production Candidate approval claim.
-- [x] Stop on release artifact creation, installer behavior, update-channel behavior, signing behavior, publishing behavior, GitHub release creation, release tag creation, public asset creation, deployment automation, or production deployment behavior.
-- [x] Stop on provider trust, provider output promotion, replay repair, recovery promotion, action execution, or readiness approval claim.
-- [x] Stop on unclear operator ownership, unreviewed evidence gap, security concern, or participant safety concern.
+## Provider execution sandbox evidence checklist
+- [x] Inspect provider execution sandbox evidence as evidence only.
+- [x] Preserve bounded local stub evidence boundary.
+- [x] Do not promote provider output.
 
-## Escalation-path checklist
-- [x] Route security concern and participant safety concern to Security reviewer.
-- [x] Route high/critical residual-risk ambiguity to Security reviewer.
-- [x] Route release/deployment boundary concerns to Release steward.
-- [x] Route evidence gaps to Reviewer.
-- [x] Route validation failure, dirty worktree, and generated artifact drift through Operator to Trial coordinator and Reviewer.
+## Timeout/resource enforcement evidence checklist
+- [x] Carry forward timeout/resource enforcement evidence.
+- [x] Treat enforcement evidence as descriptive/bounded evidence only.
+- [x] Do not treat timeout/resource success as approval.
 
-## Prohibited-action checklist
-- [x] Prohibit human-use approval, public/general-use approval, production-human-use approval, release-candidate approval, Production Candidate approval, readiness approval, release artifact creation, installer behavior, update-channel behavior, signing behavior, publishing behavior, GitHub release/tag/public download asset creation, public release behavior, production deployment behavior, deployment automation, provider trust, provider output promotion, replay repair, recovery promotion, persistence authority expansion, and action execution.
+## Persistence decision/append evidence checklist
+- [x] Carry forward durable persistence authority decision evidence.
+- [x] Carry forward narrow append evidence.
+- [x] Do not expand persistence authority.
 
-## Dry-run success/failure checklist
-- [x] Define dry-run success criteria.
-- [x] Define dry-run failure criteria.
-- [x] Require non-approval language for success.
-- [x] Treat any approval implication as failure.
+## Recovery lifecycle evidence checklist
+- [x] Carry forward recovery lifecycle evidence.
+- [x] Do not add replay repair.
+- [x] Do not add recovery promotion.
 
-## Phase 118 handoff checklist
-- [x] Define Phase 117 dry-run procedure report handoff.
-- [x] Define validation results handoff.
-- [x] Define local candidate evidence references handoff.
-- [x] Define residual-risk acknowledgement handoff.
-- [x] Define stop-condition and manual-review disposition handoff.
-- [x] Define Operator, Trial coordinator, Security reviewer if escalated, and Release steward if escalated notes handoff.
-- [x] State that Phase 118 evidence assembly is not automatic approval.
+## Deployment configuration evidence checklist
+- [x] Carry forward Phase 113 deployment configuration evidence.
+- [x] Preserve local-only and contract-only posture.
+- [x] Do not add deployment behavior.
+
+## Policy/governance attribution evidence checklist
+- [x] Carry forward Phase 114 policy/governance attribution evidence.
+- [x] Preserve attribution-only posture.
+- [x] Do not add policy/governance approval authority.
+
+## Security threat model evidence checklist
+- [x] Carry forward Phase 115 security threat model evidence.
+- [x] Carry forward abuse-case evidence.
+- [x] Carry forward residual risks.
+
+## Local deployment candidate evidence checklist
+- [x] Carry forward Phase 116 local deployment candidate evidence.
+- [x] Preserve local deployment candidate as not release readiness.
+- [x] Preserve local deployment candidate as not human-use approval.
+
+## Operator dry-run evidence checklist
+- [x] Carry forward Phase 117 operator documentation evidence.
+- [x] Carry forward human-trial dry run evidence.
+- [x] Preserve dry run as rehearsal only.
+
+## Validation/lint evidence checklist
+- [x] Inspect validation/lint surfaces as evidence only.
+- [x] Run required validation commands after final edits.
+- [x] Treat passing validation as not approval.
+
+## Residual-risk evidence checklist
+- [x] Identify unresolved residual risks from Phase 115.
+- [x] Carry residual risks forward into Phase 119 handoff.
+- [x] Do not treat residual-risk acknowledgement as approval.
+
+## Stop-condition evidence checklist
+- [x] Carry forward stop conditions.
+- [x] Record stop conditions in report.
+- [x] Treat stop conditions as blockers for later review unless future authorized disposition resolves them.
+
+## Manual-review evidence checklist
+- [x] Carry forward manual-review expectations.
+- [x] Include manual-review evidence in report.
+- [x] Treat manual review as evidence review only.
+
+## Release artifact absence checklist
+- [x] Confirm Phase 118 creates no release artifacts.
+- [x] Confirm Phase 118 creates no packages.
+- [x] Confirm Phase 118 creates no public downloads or assets.
+
+## Non-readiness evidence checklist
+- [x] State non-readiness posture.
+- [x] State no release-candidate approval.
+- [x] State no Production Candidate approval.
+- [x] State no public/general-use or production-human-use approval.
+
+## Evidence gap checklist
+- [x] Identify gaps blocking release-candidate readiness.
+- [x] Identify gaps blocking Production Candidate status.
+- [x] Identify gaps blocking public/general use.
+- [x] Identify gaps blocking production human use.
+
+## Phase 119 handoff checklist
+- [x] Define Phase 119 as Production Candidate reassessment only.
+- [x] Define evidence package contents for Phase 119.
+- [x] State Phase 119 is not automatic approval.
+
+## Phase 120 gate posture checklist
+- [x] State Phase 120 is a current planned early-human-use gate.
+- [x] State Phase 120 is not a guaranteed final endpoint.
+- [x] State Phase 120 is not public/general release.
+
+## Post-120 roadmap gap checklist
+- [x] Identify post-120 roadmap expansion concern.
+- [x] Preserve staged ladder beyond Phase 120.
+- [x] Do not imply Phase 120 final production readiness.
 
 ## Release artifact prohibition checklist
 - [x] No release artifact creation.
+- [x] No package creation.
 
 ## Deployment automation prohibition checklist
 - [x] No deployment automation.
+- [x] No background service or daemon behavior.
 
 ## Installer/update-channel prohibition checklist
 - [x] No installer behavior.
@@ -168,114 +232,118 @@ mutation_path: checklist_revision
 ## GitHub release/tag/public asset prohibition checklist
 - [x] No GitHub release creation.
 - [x] No release tag creation.
-- [x] No public asset or public download asset creation.
+- [x] No public download or public asset creation.
 
 ## Public-release prohibition checklist
 - [x] No public release behavior.
-- [x] No public availability claim.
+- [x] No public release approval.
 
 ## Production-deployment prohibition checklist
 - [x] No production deployment behavior.
-- [x] No production deployment readiness claim.
+- [x] No production deployment approval.
 
 ## Public/general-use approval prohibition checklist
-- [x] Public/general use is not approved.
-- [x] Public usability is not approved.
+- [x] No public/general-use approval.
+- [x] No public-usability approval.
 
 ## Production-human-use approval prohibition checklist
-- [x] Production human use is not approved.
-- [x] Controlled human use is not approved.
+- [x] No production-human-use approval.
 
 ## Production Candidate approval prohibition checklist
-- [x] Production Candidate status is not approved.
-- [x] Production readiness is not approved.
+- [x] No Production Candidate approval.
+- [x] Production Candidate status remains not approved.
 
 ## Release-candidate approval prohibition checklist
-- [x] Release-candidate approval is not granted.
-- [x] Release-candidate readiness is not approved.
+- [x] No release-candidate readiness approval.
+- [x] No Release Candidate status approval.
 
 ## Provider trust/output promotion prohibition checklist
-- [x] Provider trust is not granted.
-- [x] Provider output promotion is not added.
+- [x] No provider trust.
+- [x] No provider output promotion.
 
 ## Replay-repair prohibition checklist
-- [x] Replay repair is not added.
+- [x] No replay repair.
 
 ## Recovery-promotion prohibition checklist
-- [x] Recovery promotion is not added.
+- [x] No recovery promotion.
 
 ## Action-execution prohibition checklist
-- [x] Action execution is not added.
+- [x] No action execution.
 
 ## Readiness prohibition checklist
-- [x] Readiness approval is prohibited.
-- [x] Production readiness approval is prohibited.
-- [x] Public usability approval is prohibited.
-
-## Phase 118 gate checklist
-- [x] Phase 118 may begin only if Phase 117 evidence is bounded, local, manual-review-oriented, deterministic where applicable, non-public, non-releasing, non-production, non-authoritative, and explicitly non-approving.
-- [x] Phase 118 evidence assembly is not automatic approval.
-- [x] Phase 118 is not implemented by Phase 117.
-
-## Phase 119 deferral checklist
-- [x] Production Candidate reassessment is deferred to Phase 119.
-- [x] Phase 117 does not approve or implement Phase 119.
-
-## Phase 120-or-later deferral checklist
-- [x] Controlled human-use gate decisions are deferred to Phase 120 or later.
-- [x] Phase 117 does not approve controlled human use.
+- [x] No readiness approval.
+- [x] No production readiness approval.
 
 ## Production Candidate status checklist
-- [x] Production Candidate status is not approved.
+- [x] Production Candidate status: not approved.
 
 ## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness is not approved.
-- [x] Public/general use is not approved.
-- [x] Public usability is not approved.
-- [x] Production human use is not approved.
+- [x] Release-candidate readiness status: not approved.
+- [x] Release Candidate status: not approved.
+- [x] Public/general use status: not approved.
+- [x] Production human use status: not approved.
 
 ## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
-- [x] CHANGELOG remains historical truth.
-- [x] Operations documentation remains advisory orientation evidence.
+- [x] CHANGELOG surfaces remain historical truth.
+- [x] Operations report remains orientation/advisory evidence.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-117-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-118-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run required documentation, phase relationship, stop-condition, no-deployment/release authority, no-authority, readiness, and source guard scans.
-- [x] Clean generated artifact drift after validation if present.
+- [x] Run evidence assembly scan.
+- [x] Run phase relationship scan.
+- [x] Run production-human-use ladder scan.
+- [x] Run evidence category scan.
+- [x] Run no-deployment/release authority scan.
+- [x] Run no-authority scan.
+- [x] Run readiness scan.
+- [x] Run source guard.
+- [x] Run roadmap guard.
 
 ## Findings table
-| Finding | Status | Evidence |
-| --- | --- | --- |
-| Human-trial dry-run procedure is documented | Confirmed | `docs/operations/operator-human-trial-dry-run-phase-117.md`. |
-| Dry run remains local-only and non-approving | Confirmed | Scope, boundary, non-approval, and prohibited-action sections. |
-| Roles and responsibilities are defined | Confirmed | Trial coordinator, Operator, Reviewer, Security reviewer, and Release steward sections. |
-| Phase 118 handoff is evidence-only | Confirmed | Required Phase 118 evidence handoff and Phase 118 gate sections. |
+| Finding | Disposition |
+| --- | --- |
+| Release-candidate evidence assembly is complete for Phase 118 handoff. | Evidence only; not approval. |
+| Phase 119 may begin as Production Candidate reassessment only. | Handoff allowed; no automatic approval. |
+| Phase 120 remains a current planned gate, not a guaranteed final endpoint. | Carried forward. |
+| Post-120 roadmap expansion may be needed before public/general usability. | Carried forward as concern. |
+
+## Evidence gaps table
+| Gap | Blocks |
+| --- | --- |
+| No release-candidate readiness review approval. | Release-candidate readiness. |
+| No Phase 119 Production Candidate reassessment approval. | Production Candidate status. |
+| No public/general-use review or approval. | Public/general use. |
+| No production readiness or production-human-use approval. | Production human use. |
+| No authorized release artifacts, packages, installers, updates, signing, publishing, or public assets. | Release/public use. |
 
 ## Residual risks table
-| Residual risk | Status | Owner |
-| --- | --- | --- |
-| Dry-run notes could be misread as approval if copied without non-approval language | Acknowledged | Trial coordinator and Reviewer. |
-| Phase 115 high/critical residual-risk acknowledgement could be incomplete | Stop condition | Security reviewer. |
-| Release-boundary language could be misread as release readiness | Acknowledged | Release steward and Reviewer. |
+| Residual risk | Carry-forward disposition |
+| --- | --- |
+| Provider-output injection or trust confusion. | Carry to Phase 119; no trust granted. |
+| Authority spoofing through UI/transport/docs. | Carry to Phase 119; rejection posture preserved. |
+| Deployment/release spoofing. | Carry to Phase 119; release/deployment behavior prohibited. |
+| Manual-review failure. | Carry to Phase 119; manual review remains required. |
+| Public/general-use roadmap gap after Phase 120. | Carry to Phase 119 and Phase 120-or-later planning. |
 
 ## Deferred items table
-| Deferred item | Deferred to | Phase 117 posture |
-| --- | --- | --- |
-| Release-candidate evidence assembly | Phase 118 | Not implemented; evidence handoff only. |
-| Production Candidate reassessment | Phase 119 | Not approved. |
-| Controlled human-use gate decision | Phase 120 or later | Not approved. |
-| Public release or production deployment behavior | Future authorized evidence, if any | Prohibited. |
+| Deferred item | Earliest allowed posture |
+| --- | --- |
+| Production Candidate decision | Phase 119 reassessment only; not automatic approval. |
+| Controlled early human-use permission | Phase 120 planned gate only if evidence supports review. |
+| Public/general use | Post-120 or later authorized review. |
+| Production human use | Future authorized production review. |
+| Release artifacts and publishing | Future authorized release-engineering phase only. |
 
 ## Validation log table
-| Command | Result | Notes |
+| Command | Status | Notes |
 | --- | --- | --- |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-117-target ./scripts/check.sh` | Required | Full validation gate. |
-| `git diff --check` | Required | Whitespace check. |
-| `git status --short` | Required | Worktree check. |
-| Documentation, relationship, stop-condition, no-authority, readiness, and source guard scans | Required | Required scans. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-118-target ./scripts/check.sh` | passed | Final committed-tree run passed with clean-worktree guard. |
+| `git diff --check` | passed | No whitespace errors. |
+| `git status --short` | passed | Only allowed Phase 118 files changed before commit. |
+| Evidence and authority scans | passed with expected contextual matches | Matches are prohibitions, evidence categories, historical/planned context, tests, or existing rejection fields. |
 
 ## Zero-drift checklist
 - [x] No Rust source changes.
@@ -284,5 +352,9 @@ mutation_path: checklist_revision
 - [x] No schema changes.
 - [x] No script changes.
 - [x] No workflow changes.
-- [x] No roadmap, governance, architecture, README, AGENTS, package, lockfile, or archived changelog changes.
-- [x] Staged files must match allowed Phase 117 surfaces.
+- [x] No README changes.
+- [x] No AGENTS changes.
+- [x] No archived changelog changes.
+- [x] No package or lockfile changes.
+- [x] No roadmap changes.
+- [x] No governance or architecture changes.

@@ -17,6 +17,54 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.118 - 2026-05-09
+**Status:** Phase 118 - Release Candidate Evidence Assembly
+
+### Added
+- Add the Phase 118 release-candidate evidence assembly report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 118 procedural truth.
+- Update CHANGELOG.md with v0.0.118.
+
+### Notes
+- Release-candidate evidence assembly only.
+- Evidence assembly is not release-candidate approval.
+- Evidence assembly is not Release Candidate approval.
+- Evidence assembly is not Production Candidate approval.
+- Evidence assembly is not controlled human-use approval.
+- Evidence assembly is not public/general-use approval.
+- Evidence assembly is not production-human-use approval.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No deployment automation.
+- No release artifact creation.
+- No package creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 119 implementation.
+- Phase 120 remains a current planned gate, not a guaranteed final endpoint.
+
 ## v0.0.117 - 2026-05-09
 **Status:** Phase 117 - Operator Documentation and Human-Trial Dry Run
 
