@@ -1382,3 +1382,246 @@ fn phase_113_malformed_and_missing_deployment_configuration_payloads_fail_closed
         .reasons
         .contains(&DeploymentConfigurationReason::AuthorityBearingConfigurationRejected));
 }
+
+use ajentic_core::api::{
+    governance_evidence_grants_authority, validate_governance_evidence_attribution,
+    GovernanceEvidenceAttributionInput, GovernanceEvidenceAuthorityDenialSnapshot,
+    GovernanceEvidenceChangelogReference, GovernanceEvidenceReason,
+    GovernanceEvidenceRoadmapReference, GovernanceEvidenceSourceReference,
+    GovernanceEvidenceTruthDimension, GovernanceEvidenceValidationRunReference,
+    GovernanceEvidenceValidationStatus, GovernanceEvidenceVersion, PolicyVersionEvidence,
+};
+
+fn phase_114_adversarial_source(
+    path: &str,
+    truth_dimension: GovernanceEvidenceTruthDimension,
+) -> GovernanceEvidenceSourceReference {
+    GovernanceEvidenceSourceReference {
+        path: path.to_string(),
+        truth_dimension,
+        version_fingerprint: format!("phase-114-adversarial-fingerprint:{path}"),
+    }
+}
+
+fn phase_114_adversarial_valid_input() -> GovernanceEvidenceAttributionInput {
+    GovernanceEvidenceAttributionInput {
+        governance_versions: vec![GovernanceEvidenceVersion {
+            evidence_id: "governance-evidence-phase-114".to_string(),
+            version_label: "governance-phase-114".to_string(),
+            deterministic_snapshot_label: "phase-114-adversarial-snapshot".to_string(),
+            source_commit: "committed-source-reference".to_string(),
+            governance_sources: vec![phase_114_adversarial_source(
+                "docs/governance/GOVERNANCE.md",
+                GovernanceEvidenceTruthDimension::Normative,
+            )],
+        }],
+        policy_versions: vec![PolicyVersionEvidence {
+            evidence_id: "policy-evidence-phase-114".to_string(),
+            policy_version_label: "policy-phase-114".to_string(),
+            policy_sources: vec![phase_114_adversarial_source(
+                "docs/governance/phase-execution-contract.md",
+                GovernanceEvidenceTruthDimension::Normative,
+            )],
+        }],
+        changelog_references: vec![GovernanceEvidenceChangelogReference {
+            path: "CHANGELOG.md".to_string(),
+            version_label: "v0.0.114".to_string(),
+        }],
+        roadmap_references: vec![GovernanceEvidenceRoadmapReference {
+            path: "docs/roadmap/phase-map.md".to_string(),
+            phase_label: "Phase 114".to_string(),
+        }],
+        operations_report_references: vec![phase_114_adversarial_source(
+            "docs/operations/policy-governance-versioning-phase-114.md",
+            GovernanceEvidenceTruthDimension::Orientation,
+        )],
+        checklist_references: vec![phase_114_adversarial_source(
+            "checklists/current-phase.md",
+            GovernanceEvidenceTruthDimension::Procedural,
+        )],
+        validation_run_references: vec![GovernanceEvidenceValidationRunReference {
+            command: "cargo test --manifest-path core/Cargo.toml adversarial --all-targets"
+                .to_string(),
+            deterministic_label: "phase-114-adversarial-validation".to_string(),
+        }],
+        reason_codes: vec![GovernanceEvidenceReason::AttributionOnlyAccepted],
+        authority_denial_snapshot: GovernanceEvidenceAuthorityDenialSnapshot::all_denied(),
+    }
+}
+
+#[test]
+fn phase_114_adversarial_authority_payloads_fail_closed() {
+    let claims = [
+        (
+            "governance rewrite payload",
+            GovernanceEvidenceReason::GovernanceAuthorityRewriteRejected,
+        ),
+        (
+            "policy authority grant payload",
+            GovernanceEvidenceReason::PolicyAuthorityGrantRejected,
+        ),
+        (
+            "fake readiness approval payload",
+            GovernanceEvidenceReason::ReadinessApprovalRejected,
+        ),
+        (
+            "fake deployment approval payload",
+            GovernanceEvidenceReason::DeploymentApprovalRejected,
+        ),
+        (
+            "fake release-candidate approval payload",
+            GovernanceEvidenceReason::ReleaseCandidateApprovalRejected,
+        ),
+        (
+            "fake Production Candidate approval payload",
+            GovernanceEvidenceReason::ProductionCandidateApprovalRejected,
+        ),
+        (
+            "fake public-use approval payload",
+            GovernanceEvidenceReason::PublicUseApprovalRejected,
+        ),
+        (
+            "fake production-human-use approval payload",
+            GovernanceEvidenceReason::ProductionHumanUseApprovalRejected,
+        ),
+        (
+            "provider trust injection",
+            GovernanceEvidenceReason::ProviderTrustRejected,
+        ),
+        (
+            "provider output promotion injection",
+            GovernanceEvidenceReason::ProviderOutputPromotionRejected,
+        ),
+        (
+            "persistence expansion injection",
+            GovernanceEvidenceReason::PersistenceAuthorityExpansionRejected,
+        ),
+        (
+            "replay repair injection",
+            GovernanceEvidenceReason::ReplayRepairRejected,
+        ),
+        (
+            "recovery promotion injection",
+            GovernanceEvidenceReason::RecoveryPromotionRejected,
+        ),
+        (
+            "action execution injection",
+            GovernanceEvidenceReason::ActionExecutionRejected,
+        ),
+    ];
+
+    for (payload, reason) in claims {
+        let mut input = phase_114_adversarial_valid_input();
+        match payload {
+            "governance rewrite payload" => {
+                input
+                    .authority_denial_snapshot
+                    .governance_authority_rewritten = true
+            }
+            "policy authority grant payload" => {
+                input.authority_denial_snapshot.policy_authority_granted = true
+            }
+            "fake readiness approval payload" => {
+                input.authority_denial_snapshot.readiness_approved = true
+            }
+            "fake deployment approval payload" => {
+                input.authority_denial_snapshot.deployment_approved = true
+            }
+            "fake release-candidate approval payload" => {
+                input.authority_denial_snapshot.release_candidate_approved = true
+            }
+            "fake Production Candidate approval payload" => {
+                input
+                    .authority_denial_snapshot
+                    .production_candidate_approved = true
+            }
+            "fake public-use approval payload" => {
+                input.authority_denial_snapshot.public_use_approved = true
+            }
+            "fake production-human-use approval payload" => {
+                input
+                    .authority_denial_snapshot
+                    .production_human_use_approved = true
+            }
+            "provider trust injection" => {
+                input.authority_denial_snapshot.provider_trust_granted = true
+            }
+            "provider output promotion injection" => {
+                input.authority_denial_snapshot.provider_output_promoted = true
+            }
+            "persistence expansion injection" => {
+                input
+                    .authority_denial_snapshot
+                    .persistence_authority_expanded = true
+            }
+            "replay repair injection" => input.authority_denial_snapshot.replay_repaired = true,
+            "recovery promotion injection" => {
+                input.authority_denial_snapshot.recovery_promoted = true
+            }
+            "action execution injection" => input.authority_denial_snapshot.action_executed = true,
+            _ => unreachable!(),
+        }
+        let report = validate_governance_evidence_attribution(&input);
+        assert_eq!(report.status, GovernanceEvidenceValidationStatus::Rejected);
+        assert!(report.reasons.contains(&reason), "{payload}");
+        assert!(!governance_evidence_grants_authority(&report), "{payload}");
+    }
+}
+
+#[test]
+fn phase_114_adversarial_malformed_and_contradictory_payloads_fail_closed() {
+    let cases = [
+        (
+            "unsupported truth-dimension payload",
+            GovernanceEvidenceReason::UnsupportedTruthDimensionClaim,
+        ),
+        (
+            "duplicate governance evidence ids",
+            GovernanceEvidenceReason::DuplicateGovernanceEvidenceIdentifier,
+        ),
+        (
+            "contradictory policy version labels",
+            GovernanceEvidenceReason::ContradictoryPolicyVersionLabel,
+        ),
+        (
+            "missing source reference payload",
+            GovernanceEvidenceReason::MissingGovernanceSourceReference,
+        ),
+        (
+            "malformed noise policy evidence payload",
+            GovernanceEvidenceReason::MissingPolicySourceReference,
+        ),
+    ];
+
+    for (payload, reason) in cases {
+        let mut input = phase_114_adversarial_valid_input();
+        match payload {
+            "unsupported truth-dimension payload" => {
+                input.operations_report_references[0].truth_dimension =
+                    GovernanceEvidenceTruthDimension::Unsupported("release_authority".to_string());
+            }
+            "duplicate governance evidence ids" => {
+                input
+                    .governance_versions
+                    .push(input.governance_versions[0].clone());
+            }
+            "contradictory policy version labels" => {
+                let mut policy = input.policy_versions[0].clone();
+                policy.evidence_id = "policy-evidence-phase-114-contradiction".to_string();
+                policy.policy_version_label = "contradictory-policy-label".to_string();
+                input.policy_versions.push(policy);
+            }
+            "missing source reference payload" => {
+                input.governance_versions[0].governance_sources.clear();
+            }
+            "malformed noise policy evidence payload" => {
+                input.policy_versions[0].policy_sources.clear();
+            }
+            _ => unreachable!(),
+        }
+        let report = validate_governance_evidence_attribution(&input);
+        assert_eq!(report.status, GovernanceEvidenceValidationStatus::Rejected);
+        assert!(report.reasons.contains(&reason), "{payload}");
+        assert!(!governance_evidence_grants_authority(&report), "{payload}");
+    }
+}

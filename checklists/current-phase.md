@@ -4,13 +4,13 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current phase checklist - Phase 113 Deployment Configuration Contract
+# Current phase checklist - Phase 114 Policy Versioning and Governance Evidence Boundary
 
 ## Phase name
-Phase 113 - Deployment Configuration Contract.
+Phase 114 - Policy Versioning and Governance Evidence Boundary.
 
 ## Phase goal
-Define deterministic deployment configuration contracts and validation behavior as contract evidence only before any local deployment candidate boundary is named.
+Add deterministic policy/governance versioning and evidence traceability before security audit, deployment candidacy, release-candidate evidence assembly, Production Candidate reassessment, or controlled human-use gates.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
@@ -20,13 +20,16 @@ Define deterministic deployment configuration contracts and validation behavior 
 ## Allowed surfaces
 - [x] `core/src/api/**`
 - [x] `tests/**`
-- [x] `docs/operations/deployment-configuration-contract-phase-113.md`
+- [x] `docs/operations/policy-governance-versioning-phase-114.md`
 - [x] `checklists/current-phase.md`
 - [x] `CHANGELOG.md`
 
 ## Boundary rules
-- [x] Deployment configuration contract only.
-- [x] Deployment configuration is not deployment authority.
+- [x] Policy/governance versioning only.
+- [x] Governance version evidence is attribution evidence, not governance authority.
+- [x] Policy version evidence is not approval authority.
+- [x] No governance rule rewrite.
+- [x] No runtime behavior beyond descriptive validation structures.
 - [x] No deployment automation.
 - [x] No service start.
 - [x] No release artifact creation.
@@ -35,215 +38,205 @@ Define deterministic deployment configuration contracts and validation behavior 
 - [x] No signing or publishing behavior.
 - [x] No public release behavior.
 - [x] No production deployment behavior.
-- [x] No provider execution expansion.
 - [x] No persistence authority expansion.
 - [x] No replay repair, recovery promotion, or action execution.
-- [x] No readiness approval.
+- [x] No provider trust or provider output promotion.
+- [x] No readiness, Production Candidate, release-candidate, public-use, or production-human-use approval.
+- [x] No Phase 115 implementation.
 
-## Phase 112.5 relationship checklist
-- [x] Confirm roadmap planned truth identifies Phase 113 as Deployment Configuration Contract.
-- [x] Preserve Phase 112.5 as alignment/correction only.
-- [x] Do not implement Phase 114.
+## Phase 113 relationship checklist
+- [x] Preserve Phase 113 deployment configuration as contract-only.
+- [x] Do not convert deployment configuration into deployment authority.
+- [x] Do not add deployment automation, release artifacts, installer behavior, update-channel behavior, signing, publishing, public release, or production deployment.
 
-## Phase 112 recovery handoff checklist
-- [x] Carry storage path gaps into validation.
-- [x] Carry storage permission gaps into validation.
-- [x] Carry retention gaps into validation.
-- [x] Carry environment assumption gaps into validation.
-- [x] Carry failure handling gaps into validation.
-- [x] Carry manual-review gaps into validation.
-- [x] Reject background repair.
-- [x] Reject automatic replay patching.
-- [x] Reject continue-anyway behavior.
-- [x] Reject migration/version-upgrade authority.
-- [x] Reject production recovery guarantees.
-- [x] Reject release evidence guarantees.
+## Policy/governance versioning checklist
+- [x] Define typed governance evidence version structures.
+- [x] Define typed policy version evidence structures.
+- [x] Define deterministic attribution report structures.
+- [x] Keep attribution structures descriptive and non-authoritative.
 
-## Deployment configuration contract checklist
-- [x] Define typed deployment configuration structure.
-- [x] Define storage declaration structure.
-- [x] Define permission declaration structure.
-- [x] Define retention declaration structure.
-- [x] Define failure handling declaration structure.
-- [x] Define recovery handoff declaration structure.
-- [x] Define authority denial snapshot.
-- [x] Define validation report/status/reason structures.
+## Governance evidence attribution checklist
+- [x] Require governance evidence identifiers.
+- [x] Require governance version labels.
+- [x] Require governance document references.
+- [x] Require governance document version fingerprints.
+- [x] Require source commit reference.
+- [x] Reject duplicate governance evidence identifiers.
+- [x] Reject contradictory governance labels.
+
+## Policy version evidence checklist
+- [x] Require policy evidence identifiers.
+- [x] Require policy version labels.
+- [x] Require policy source references.
+- [x] Reject contradictory policy version labels.
+
+## Source reference checklist
+- [x] Require source paths.
+- [x] Require truth-dimension labels.
+- [x] Require version fingerprints.
+- [x] Reject unsupported truth-dimension claims.
+
+## Changelog reference checklist
+- [x] Require changelog reference path.
+- [x] Require changelog version label.
+- [x] Preserve CHANGELOG as historical truth.
+
+## Roadmap reference checklist
+- [x] Require roadmap reference path.
+- [x] Require planned phase label.
+- [x] Preserve roadmap as planned truth.
+
+## Validation run reference checklist
+- [x] Require validation command reference.
+- [x] Require deterministic validation-run label.
+- [x] Do not treat passing validation as readiness approval.
+
+## Truth-dimension preservation checklist
+- [x] Governance docs remain normative truth.
+- [x] Roadmap docs remain planned truth.
+- [x] CHANGELOG surfaces remain historical truth.
+- [x] Operations docs remain orientation/advisory truth.
+- [x] Tests/source remain executable truth.
+- [x] Checklists remain procedural truth.
 
 ## Deterministic validation checklist
-- [x] Use deterministic reason codes.
-- [x] Use sorted rejection reason collection.
-- [x] Fail closed on malformed or missing payloads.
-- [x] Do not probe live environment.
-- [x] Do not use filesystem, process, provider, or network state to decide.
+- [x] Use stable reason-code enums.
+- [x] Sort rejection reasons deterministically.
+- [x] Return deterministic reports for equivalent evidence.
+- [x] Do not probe filesystem, process, provider, network, deployment, release, installer, signing, or publishing state.
 
-## Storage path declaration checklist
-- [x] Require storage path declaration.
-- [x] Reject missing storage path declaration.
-- [x] Reject traversal-shaped or unsafe storage paths.
-- [x] Do not create, write, delete, or migrate storage paths.
+## Malformed evidence checklist
+- [x] Reject missing governance source references.
+- [x] Reject missing policy version labels.
+- [x] Reject missing changelog references.
+- [x] Reject missing roadmap references.
+- [x] Reject missing validation run references.
 
-## Storage permission declaration checklist
-- [x] Require storage permission declaration.
-- [x] Reject missing permission posture.
-- [x] Reject permission mutation claims.
-- [x] Do not change permissions.
+## Duplicate evidence checklist
+- [x] Reject duplicate governance evidence identifiers.
+- [x] Keep duplicate rejection non-authoritative.
 
-## Retention declaration checklist
-- [x] Require retention posture declaration.
-- [x] Reject missing retention posture.
-- [x] Reject delete or rotate claims.
-- [x] Do not delete or rotate data.
+## Contradictory version checklist
+- [x] Reject contradictory governance version labels.
+- [x] Reject contradictory policy version labels.
 
-## Environment assumption declaration checklist
-- [x] Require environment assumption declarations.
-- [x] Reject missing environment assumptions.
-- [x] Do not probe or mutate the environment.
+## Unsupported truth-dimension checklist
+- [x] Reject unsupported truth-dimension claims.
+- [x] Do not create new truth dimensions.
 
-## Failure handling declaration checklist
-- [x] Require failure handling posture.
-- [x] Reject missing failure handling posture.
-- [x] Reject silent recovery.
-- [x] Keep validation fail-closed.
+## Governance rewrite prohibition checklist
+- [x] Reject governance-authority rewrite claims.
+- [x] Do not modify governance docs.
 
-## Manual-review posture checklist
-- [x] Require manual review posture.
-- [x] Reject missing manual review posture.
-- [x] Do not approve continue-anyway behavior.
+## Policy authority grant prohibition checklist
+- [x] Reject policy-authority grant claims.
+- [x] Do not promote policy version evidence into approval authority.
 
-## No-background-repair checklist
-- [x] Reject background repair enabled claims.
-- [x] Add no background repair behavior.
+## Deployment approval prohibition checklist
+- [x] Reject deployment approval claims.
+- [x] Keep deployment automation disabled.
 
-## No-automatic-replay-patching checklist
-- [x] Reject automatic replay patching enabled claims.
-- [x] Add no replay patching behavior.
+## Release-candidate approval prohibition checklist
+- [x] Reject release-candidate approval claims.
+- [x] Do not approve release-candidate readiness.
 
-## No-continue-anyway checklist
-- [x] Reject continue-anyway enabled claims.
-- [x] Preserve fail-closed behavior.
+## Production Candidate approval prohibition checklist
+- [x] Reject Production Candidate approval claims.
+- [x] Do not approve Production Candidate status.
 
-## No-migration/version-upgrade-authority checklist
-- [x] Reject migration/version-upgrade authority.
-- [x] Add no migration behavior.
-
-## No-production-recovery-guarantee checklist
-- [x] Reject production recovery guarantee claims.
-- [x] Add no production recovery guarantee.
-
-## No-release-evidence-guarantee checklist
-- [x] Reject release evidence guarantee claims.
-- [x] Add no release evidence guarantee.
-
-## Deployment automation prohibition checklist
-- [x] Reject deployment automation enabled claims.
-- [x] Add no deployment automation.
-
-## Installer/update-channel prohibition checklist
-- [x] Reject installer enabled claims.
-- [x] Reject update-channel enabled claims.
-- [x] Add no installer or update-channel behavior.
-
-## Signing/publishing prohibition checklist
-- [x] Reject signing enabled claims.
-- [x] Reject publishing enabled claims.
-- [x] Add no signing or publishing behavior.
-
-## Public-release prohibition checklist
-- [x] Reject public release enabled claims.
-- [x] Add no public release behavior.
-
-## Production-deployment prohibition checklist
-- [x] Reject production deployment enabled claims.
-- [x] Add no production deployment behavior.
+## Public-use/production-human-use approval prohibition checklist
+- [x] Reject public-use approval claims.
+- [x] Reject production-human-use approval claims.
+- [x] Do not approve public usability or production human use.
 
 ## Provider trust/output promotion prohibition checklist
 - [x] Reject provider trust claims.
 - [x] Reject provider output promotion claims.
-- [x] Add no provider trust or provider output promotion.
+- [x] Keep provider output untrusted.
+
+## Persistence expansion prohibition checklist
+- [x] Reject persistence authority expansion claims.
+- [x] Do not expand persistence authority.
 
 ## Replay-repair prohibition checklist
 - [x] Reject replay repair claims.
-- [x] Add no replay repair behavior.
+- [x] Do not add replay repair.
 
 ## Recovery-promotion prohibition checklist
 - [x] Reject recovery promotion claims.
-- [x] Add no recovery promotion behavior.
+- [x] Do not add recovery promotion.
 
 ## Action-execution prohibition checklist
 - [x] Reject action execution claims.
-- [x] Add no action execution behavior.
-
-## Readiness prohibition checklist
-- [x] Reject readiness approval claims.
-- [x] Reject Production Candidate approval claims.
-- [x] Reject release-candidate approval claims.
-- [x] Reject public-use approval claims.
-- [x] Reject production-human-use approval claims.
+- [x] Do not add action execution.
 
 ## Behavioral-test checklist
-- [x] Valid deployment configuration validates as contract-only.
-- [x] Missing storage path declaration rejects.
-- [x] Missing permission declaration rejects.
-- [x] Missing retention declaration rejects.
-- [x] Missing environment assumption declaration rejects.
-- [x] Missing failure handling posture rejects.
-- [x] Missing manual-review posture rejects.
-- [x] Deployment/release/approval authority claims reject.
-- [x] Deterministic equivalent input remains deterministic.
-- [x] Validation reports no filesystem/network/process mutation.
+- [x] Valid governance/policy evidence validates as attribution-only.
+- [x] Missing governance source reference rejects.
+- [x] Missing policy version label rejects.
+- [x] Missing changelog reference rejects.
+- [x] Missing roadmap reference rejects.
+- [x] Missing validation run reference rejects.
+- [x] Duplicate evidence identifiers reject.
+- [x] Contradictory governance labels reject.
+- [x] Unsupported truth-dimension claims reject.
+- [x] Authority and approval claims reject.
+- [x] Deterministic equivalent evidence produces deterministic validation report.
+- [x] Validation does not report deployment, release, install, sign, publish, service, provider trust, persistence expansion, replay repair, recovery promotion, or action execution behavior.
 
 ## Adversarial-test checklist
-- [x] Deployment automation payloads reject.
-- [x] Installer/update-channel payloads reject.
-- [x] Signing/publishing payloads reject.
-- [x] Public-release payloads reject.
-- [x] Production-deployment payloads reject.
-- [x] Silent recovery payloads reject.
-- [x] Background repair payloads reject.
-- [x] Replay patching payloads reject.
-- [x] Continue-anyway payloads reject.
-- [x] Migration/version-upgrade payloads reject.
-- [x] Production recovery guarantee payloads reject.
-- [x] Release evidence guarantee payloads reject.
-- [x] Path traversal and unsafe storage declarations reject.
-- [x] Provider trust, readiness, action, replay, and recovery authority injection rejects.
-- [x] Malformed/noise deployment config payloads reject.
+- [x] Governance rewrite payloads reject.
+- [x] Policy authority grant payloads reject.
+- [x] Fake readiness approval payloads reject.
+- [x] Fake deployment approval payloads reject.
+- [x] Fake release-candidate approval payloads reject.
+- [x] Fake Production Candidate approval payloads reject.
+- [x] Fake public-use/production-human-use approval payloads reject.
+- [x] Unsupported truth-dimension payloads reject.
+- [x] Duplicate governance evidence ids reject.
+- [x] Contradictory policy version labels reject.
+- [x] Missing source reference payloads reject.
+- [x] Provider trust/output promotion injections reject.
+- [x] Persistence expansion, replay repair, recovery promotion, and action execution injections reject.
+- [x] Malformed/noise policy evidence payloads reject.
 
-## Phase 114 gate checklist
-- [x] Phase 114 may begin only as policy/governance versioning if Phase 113 remains typed, deterministic, fail-closed, non-executing, non-deploying, non-releasing, and non-authoritative.
-- [x] Phase 113 does not implement Phase 114.
-
-## Phase 115 deferral checklist
-- [x] Security threat model and abuse-case audit remains deferred to Phase 115.
+## Phase 115 gate checklist
+- [x] Phase 115 may begin only as planned security threat model and abuse-case audit.
+- [x] Phase 115 is not implemented.
+- [x] Evidence attribution is typed, deterministic, non-mutating, non-authorizing, non-releasing, non-deploying, and non-authoritative.
 
 ## Phase 118 deferral checklist
-- [x] Release-candidate evidence assembly remains deferred to Phase 118.
+- [x] Release-candidate evidence assembly remains deferred.
+- [x] No release artifacts are created.
 
 ## Phase 119 deferral checklist
-- [x] Production Candidate reassessment remains deferred to Phase 119.
+- [x] Production Candidate reassessment remains deferred.
+- [x] No Production Candidate approval is granted.
 
 ## Phase 120-or-later deferral checklist
-- [x] Controlled early human-use candidacy and later public/general use remain deferred to Phase 120 or later.
+- [x] Controlled human-use gates remain deferred.
+- [x] No public/general-use or production-human-use approval is granted.
 
 ## Production Candidate status checklist
 - [x] Production Candidate status is not approved.
+- [x] Governance evidence is not Production Candidate evidence approval.
 
 ## Release-candidate/public-use status checklist
 - [x] Release-candidate readiness is not approved.
-- [x] Public usability is not approved.
+- [x] Public/general use is not approved.
 - [x] Production human use is not approved.
 
 ## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
 - [x] CHANGELOG remains historical truth.
-- [x] Operations report remains advisory orientation evidence.
+- [x] Operations report remains advisory orientation truth.
 
 ## Validation checklist
-- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-113-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-114-target ./scripts/check.sh`
 - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `cargo test --manifest-path core/Cargo.toml golden --all-targets`
 - [x] `cargo test --manifest-path core/Cargo.toml adversarial --all-targets`
-- [x] `cargo test --manifest-path core/Cargo.toml phase_113 --all-targets`
+- [x] `cargo test --manifest-path core/Cargo.toml phase_114 --all-targets`
 - [x] `cd ui && npm run test:api`
 - [x] `node scripts/test_rust_boundary_lint.mjs`
 - [x] `node scripts/rust_boundary_lint.mjs`
@@ -251,45 +244,36 @@ Define deterministic deployment configuration contracts and validation behavior 
 - [x] `node scripts/lint_ui_boundaries.mjs`
 - [x] `cd ui && npm run typecheck && npm run lint && npm run build`
 - [x] `cargo build --manifest-path core/Cargo.toml`
-- [x] No-deployment-authority scan.
-- [x] No-authority scan.
-- [x] Readiness scan.
-- [x] Source guard.
 
 ## Findings table
 | Finding | Status | Evidence |
 | --- | --- | --- |
-| Deployment configuration contract only | Confirmed | Rust contract and validation types |
-| Phase 112 recovery handoff carried forward | Confirmed | Validation reasons and tests |
-| Deployment authority not added | Confirmed | Authority denial snapshot and non-authority tests |
+| Policy/governance evidence is attribution-only. | Confirmed | Rust report sets attribution-only and non-authoritative accepted posture. |
+| Governance version evidence is not governance authority. | Confirmed | Authority-denial snapshot and tests reject rewrite/approval claims. |
+| Policy version evidence is not approval authority. | Confirmed | Tests reject policy authority grant and readiness/deployment/release approvals. |
+| Phase 113 deployment configuration remains contract-only. | Confirmed | Phase 114 does not modify deployment configuration behavior. |
 
 ## Deferred items table
-| Item | Deferred to |
+| Item | Deferral |
 | --- | --- |
-| Policy/governance versioning | Phase 114 |
-| Security threat model and abuse-case audit | Phase 115 |
-| Release-candidate evidence assembly | Phase 118 |
-| Production Candidate reassessment | Phase 119 |
-| Controlled human-use candidacy or broader public/general use | Phase 120 or later |
+| Security threat model and abuse-case audit | Phase 115 only. |
+| Release-candidate evidence assembly | Phase 118 only. |
+| Production Candidate reassessment | Phase 119 only. |
+| Controlled human-use gate | Phase 120 or later only. |
+| Deployment/release/install/update/sign/publish/public release/production deployment | Not part of Phase 114. |
 
 ## Validation log table
 | Command | Status | Notes |
 | --- | --- | --- |
-| `cargo test --manifest-path core/Cargo.toml phase_113 --all-targets` | Pass | Targeted Phase 113 check |
-| `cargo test --manifest-path core/Cargo.toml --all-targets` | Pass | Full Rust test suite |
-| `cargo test --manifest-path core/Cargo.toml golden --all-targets` | Pass | Golden subset |
-| `cargo test --manifest-path core/Cargo.toml adversarial --all-targets` | Pass | Adversarial subset |
-| `cd ui && npm run test:api` | Pass | UI API behavior tests |
-| `node scripts/test_rust_boundary_lint.mjs && node scripts/rust_boundary_lint.mjs && node scripts/test_lint_ui_boundaries.mjs && node scripts/lint_ui_boundaries.mjs` | Pass | Boundary lint checks |
-| `cd ui && npm run typecheck && npm run lint && npm run build` | Pass | UI typecheck/lint/build |
-| `cargo build --manifest-path core/Cargo.toml` | Pass | Rust build |
-| Scans and source guard | Pass | Matches limited to contract, prohibition, test, historical, or planned-truth context |
+| `cargo test --manifest-path core/Cargo.toml phase_114 --all-targets` | Passed | Initial targeted Phase 114 validation. |
+| Required final validation commands | Passed | Final validation completed after commit with a clean tree. |
 
 ## Zero-drift checklist
-- [x] No governance docs changed.
-- [x] No roadmap files changed.
-- [x] No README changes.
-- [x] No AGENTS changes.
-- [x] No archived changelog changes.
-- [x] No package or lockfile changes.
-- [x] No deployment or release infrastructure changes.
+- [x] No governance docs modified.
+- [x] No roadmap docs modified.
+- [x] No architecture docs modified.
+- [x] No README or AGENTS drift.
+- [x] No archived changelog drift.
+- [x] No package or lockfile drift.
+- [x] No deployment or release infrastructure drift.
+- [x] Generated artifacts cleaned before final status.
