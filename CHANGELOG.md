@@ -17,6 +17,55 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.122 - 2026-05-09
+**Status:** Phase 122 - Controlled Early Human-Use Trial Boundary
+
+### Added
+- Add the Phase 122 controlled early-human-use trial boundary report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 122 procedural truth.
+- Update CHANGELOG.md with v0.0.122.
+
+### Notes
+- Phase 122 is controlled early-human-use trial boundary only.
+- Trial evidence is not Release Candidate approval.
+- Trial evidence is not Production Candidate approval.
+- Trial evidence is not public/general-use approval.
+- Trial evidence is not production-human-use approval.
+- Phase 122 adds no runtime behavior unless limited to existing validation/reporting surfaces already permitted by the phase.
+- Phase 122 adds no new capability beyond controlled trial boundary documentation/evidence.
+- Phase 122 makes no Rust source changes unless an existing trial evidence/reporting surface already requires typed support and the change is explicitly justified.
+- Phase 122 makes no TypeScript source changes unless descriptive projection support is explicitly justified.
+- Phase 122 makes no schema changes unless an existing schema already governs this exact trial evidence surface.
+- Phase 122 adds no deployment automation.
+- Phase 122 creates no release artifacts.
+- Phase 122 creates no packages.
+- Phase 122 creates no installer behavior.
+- Phase 122 creates no update-channel behavior.
+- Phase 122 adds no signing/publishing behavior.
+- Phase 122 creates no GitHub release, release tag, or public download asset.
+- Phase 122 adds no public release behavior.
+- Phase 122 adds no production deployment behavior.
+- Phase 122 adds no persistence authority expansion.
+- Phase 122 adds no replay repair.
+- Phase 122 adds no recovery promotion.
+- Phase 122 adds no action execution.
+- Phase 122 adds no provider trust.
+- Phase 122 adds no provider output promotion.
+- Phase 122 grants no readiness approval.
+- Phase 122 grants no Release Candidate approval.
+- Phase 122 grants no release-candidate approval.
+- Phase 122 grants no Production Candidate approval.
+- Phase 122 grants no public-usability approval.
+- Phase 122 grants no public/general-use approval.
+- Phase 122 grants no production-human-use approval.
+- Phase 122 does not implement Phase 123.
+- Phase 123, if recommended later, is early human-use evidence review and operator feedback audit only.
+- Phase 125 remains the next 0/5 checkpoint.
+- Phase 130 remains Release Candidate Decision Gate only.
+- Public/general use remains a later final rung.
+
 ## v0.0.121 - 2026-05-09
 **Status:** Phase 121 - Post-120 Roadmap Expansion and Production Gap Reassessment
 
