@@ -17,6 +17,42 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.114.1 - 2026-05-08
+**Status:** Post-114 Maintenance Script Fix - validation-script hardening only
+
+### Changed
+- Hardened Rust boundary lint coverage for filesystem mutation, process execution, raw-string handling, and char-literal handling.
+- Expanded Rust boundary lint self-tests to cover updated filesystem, process, raw-string, and harness-integrity behavior.
+- Expanded UI boundary lint coverage for post-111/post-114 authority-shaped UI calls and approval-shaped fields.
+- Expanded UI boundary lint self-tests to cover authority-shaped UI calls, deployment/release-shaped calls, and harness-integrity behavior.
+- Hardened repository structure validation to ignore generated/build/cache directories during recursive scans while preserving truth-dimension, archive naming, and frontmatter enforcement.
+
+### Notes
+- Validation-script hardening only.
+- No runtime behavior.
+- No new application capability.
+- No Rust source behavior changes.
+- No TypeScript application behavior changes.
+- No test-surface authority expansion.
+- No governance doc changes.
+- No roadmap changes.
+- No archived changelog changes.
+- No deployment automation.
+- No release artifact creation.
+- No installer, update-channel, signing, or publishing behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 115 implementation.
+
 ## v0.0.114 - 2026-05-09
 **Status:** Phase 114 - Policy Versioning and Governance Evidence Boundary
 
