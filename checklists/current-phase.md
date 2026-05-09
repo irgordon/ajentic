@@ -4,307 +4,260 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 119
+# Current Phase Checklist - Phase 120
 
 ## Phase name
-- [x] Phase 119 - Production Candidate Reassessment.
+- [x] Phase 120 - Early Human-Use Candidate Gate.
 
 ## Phase goal
-- [x] Reassess Production Candidate posture using Phase 118 evidence.
+- [x] Decide whether early human-use candidacy is permitted.
+- [x] Use fresh Phase 120 disposition evidence.
 - [x] Apply the Ladder-Preservation Invariant Set.
-- [x] Document the Phase 119 decision-gate exception to the usual 0/5 checkpoint cadence.
-- [x] Determine whether Phase 120 may proceed only as Early Human-Use Candidate Gate.
-- [x] Determine whether post-120 roadmap expansion is required.
-- [x] Do not implement Phase 120.
+- [x] Preserve Phase 120 as a gate, not final production endpoint.
+- [x] Do not implement Phase 121.
+- [x] Do not change runtime/source/test behavior.
+- [x] Do not create release artifacts.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits.
-- [x] Remove/revert generated artifact drift before edits if present.
-- [x] Record cleanup status: initial worktree was clean; no generated artifact cleanup was required before edits.
+- [x] Remove generated artifact drift before edits if present.
+- [x] Keep staged files limited to allowed Phase 120 surfaces.
 
 ## Allowed surfaces
-- [x] `docs/operations/production-candidate-reassessment-phase-119.md`.
+- [x] `docs/operations/early-human-use-candidate-gate-phase-120.md`.
 - [x] `checklists/current-phase.md`.
 - [x] `CHANGELOG.md`.
 
 ## Boundary rules
-- [x] Phase 119 is Production Candidate reassessment only.
-- [x] Phase 119 is a decision gate only.
-- [x] Phase 119 does not automatically approve Production Candidate status.
-- [x] Phase 119 does not approve Release Candidate status, release-candidate readiness, controlled human use, early human use, public/general use, production human use, production readiness, public usability, public release, or production deployment.
-- [x] Phase 119 does not create release artifacts, packages, installers, update channels, signatures, publications, GitHub releases, release tags, public downloads, or public assets.
-- [x] Phase 119 does not add deployment automation, background services, daemon behavior, provider execution expansion, persistence authority expansion, replay repair, recovery promotion, action execution, provider trust, or provider output promotion.
-
-## Decision-gate exception checklist
-- [x] State Phase 119 is an intentional decision-gate exception to the usual 0/5 checkpoint cadence.
-- [x] State the exception exists because Phase 118 evidence assembly requires reassessment before Phase 120 can consider early human-use candidacy.
-- [x] State the exception prevents Phase 120 from inheriting evidence or approval by sequence alone.
-- [x] State the exception does not redefine the 0/5 checkpoint convention for future roadmap planning.
+- [x] Phase 120 is Early Human-Use Candidate Gate only.
+- [x] Phase 120 is not a guaranteed final endpoint.
+- [x] Phase 120 is not Release Candidate approval.
+- [x] Phase 120 is not Production Candidate approval.
+- [x] Phase 120 is not public/general use.
+- [x] Phase 120 is not production readiness.
+- [x] Phase 120 is not production human use.
+- [x] Phase 120 creates no release artifacts, packages, installers, update channels, signatures, publications, GitHub releases, release tags, public downloads, or public assets.
 
 ## Evidence-only checklist
 - [x] Count only committed source, tests, UI behavior tests, validation scripts, governance docs, architecture docs, roadmap docs, operations docs, changelog surfaces, checklists, schemas, and CI/workflow files.
-- [x] Do not count prompt intent, prior chat summaries, uncommitted work, speculative roadmap claims, future phase descriptions as implemented behavior, validation success as approval, Phase 118 evidence assembly as readiness, Phase 117 dry-run documentation as human-use approval, Phase 116 local deployment candidacy as release-candidate readiness, Phase 115 security audit evidence as release approval, operator documentation as operational approval, absence of blockers as approval, or Phase 120 placement as production endpoint.
+- [x] Do not count prompt intent, prior chat summaries, uncommitted work, speculative roadmap claims, future phase descriptions as implemented behavior, validation success as release approval, validation success as readiness approval, Phase 118 evidence assembly as readiness, Phase 119 reassessment as early human-use approval, Phase 117 dry-run documentation as human-use approval, Phase 116 local deployment candidacy as early human-use approval, Phase 115 security audit evidence as human-use approval, operator documentation as operational approval, absence of blockers as approval, or Phase 120 placement as production endpoint.
 
-## Phase 118 relationship checklist
-- [x] Treat Phase 118 as release-candidate evidence assembly only.
-- [x] Treat Phase 118 as not release-candidate readiness.
-- [x] Treat Phase 118 as not Production Candidate approval.
-- [x] Preserve Phase 118 non-approval posture.
+## Phase 119 relationship checklist
+- [x] State Phase 119 is complete.
+- [x] State Phase 119 is a decision gate only.
+- [x] State Phase 119 is an intentional decision-gate exception to the usual 0/5 checkpoint cadence.
+- [x] State Phase 119 did not approve Production Candidate status, Release Candidate status, release-candidate readiness, controlled human use, early human use, public/general use, production human use, or production readiness.
+- [x] State Phase 119 recommended Phase 120 only as Early Human-Use Candidate Gate.
+- [x] State Phase 120 requires fresh phase-scoped disposition evidence.
+- [x] State post-120 roadmap expansion is required.
+
+## Fresh Phase 120 disposition evidence checklist
+- [x] Identify fresh Phase 120 disposition evidence.
+- [x] Keep prior phases as context only.
+- [x] Do not inherit approval from Phase 118, Phase 119, Phase 117, Phase 116, Phase 115, or validation success.
 
 ## Ladder-Preservation Invariant checklist
-- [x] Apply Ladder-Preservation invariants directly.
-- [x] Preserve that ladder steps are not interchangeable.
-- [x] Preserve No implicit promotion.
-- [x] Preserve Absence of blockers is not approval.
-- [x] Preserve Evidence assembly is not readiness.
-- [x] Preserve Dry runs are not release.
-- [x] Preserve Deployment is not release.
-- [x] Preserve Phase 120 is not production.
-- [x] Preserve Public/general use is always the final rung.
-- [x] Preserve No trust inference from provider output or human feedback.
-- [x] Preserve No cross-category inference.
-- [x] Preserve Roadmap continuation when mapped phases end before the ladder.
+- [x] Ladder-Preservation invariant 1: ladder steps are not interchangeable.
+- [x] Ladder-Preservation invariant 2: No implicit promotion.
+- [x] Ladder-Preservation invariant 3: Absence of blockers is not approval.
+- [x] Ladder-Preservation invariant 4: Evidence assembly is not readiness.
+- [x] Ladder-Preservation invariant 5: Dry runs are not release.
+- [x] Ladder-Preservation invariant 6: decision gates may approve only their explicitly authorized decision.
+- [x] Ladder-Preservation invariant 7: no retroactive rewrite of earlier gates.
+- [x] Ladder-Preservation invariant 8: human use is not binary.
+- [x] Ladder-Preservation invariant 9: Deployment is not release.
+- [x] Ladder-Preservation invariant 10: Phase 120 is not production and not final gate.
+- [x] Ladder-Preservation invariant 11: Public/general use is always the final rung.
+- [x] Ladder-Preservation invariant 12: No trust inference from provider output or human feedback.
+- [x] Ladder-Preservation invariant 13: No cross-category inference.
+- [x] Ladder-Preservation invariant 14: no authority activation without roadmap permission.
+- [x] Ladder-Preservation invariant 15: every rung requires own evidence.
+- [x] Ladder-Preservation invariant 16: Roadmap continuation is required.
 
 ## Production-human-use ladder checklist
-- [x] List Local operator testing.
-- [x] List Controlled human trial.
-- [x] List Early human-use candidate.
-- [x] List Release candidate.
-- [x] List Production candidate.
-- [x] List Public/general use.
+- [x] Preserve Local operator testing.
+- [x] Preserve Controlled human trial.
+- [x] Preserve Early human-use candidate.
+- [x] Preserve Release candidate.
+- [x] Preserve Production candidate.
+- [x] Preserve Public/general use.
 
 ## Ladder separation checklist
-- [x] Keep local operator testing separate.
-- [x] Keep controlled human trial separate.
-- [x] Keep early human-use candidate separate.
-- [x] Keep release candidate separate.
-- [x] Keep Production candidate separate.
-- [x] Keep Public/general use separate.
+- [x] Keep early human-use candidate separate from Release candidate.
+- [x] Keep Release candidate separate from Production candidate.
+- [x] Keep Production candidate separate from Public/general use.
+- [x] Do not collapse, merge, reorder, skip, or approve later rungs.
 
 ## No implicit promotion checklist
-- [x] Do not promote Phase 116 evidence to release-candidate readiness.
-- [x] Do not promote Phase 117 dry-run evidence to human-use approval.
-- [x] Do not promote Phase 118 evidence assembly to release or Production Candidate approval.
-- [x] Do not promote Phase 119 reassessment to Production Candidate status.
+- [x] Do not promote validation success.
+- [x] Do not promote security audit evidence.
+- [x] Do not promote dry-run evidence.
+- [x] Do not promote release-candidate evidence assembly.
+- [x] Do not promote Production Candidate reassessment.
 
 ## Absence-of-blockers checklist
-- [x] State Absence of blockers is not approval.
-- [x] Do not treat clean validation as release approval.
-- [x] Do not treat clean validation as readiness approval.
+- [x] State absence of blockers is not approval.
+- [x] Require positive, explicit, phase-scoped authority for the Phase 120 decision.
 
 ## Evidence-category separation checklist
-- [x] Keep sandbox evidence separate.
-- [x] Keep persistence evidence separate.
-- [x] Keep recovery evidence separate.
-- [x] Keep deployment evidence separate.
-- [x] Keep usability evidence separate.
-- [x] Keep observability evidence separate.
-- [x] Keep operator workflow evidence separate.
-- [x] Keep security evidence separate.
-- [x] Keep governance evidence separate.
-- [x] Keep transport evidence separate.
-- [x] Keep provider evidence separate.
-- [x] Keep release evidence separate.
-- [x] Keep public-use evidence separate.
+- [x] Keep sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, and public-use evidence separate.
+- [x] Do not infer across categories.
 
 ## Provider-output/human-feedback trust checklist
-- [x] State No trust inference from provider output.
-- [x] State human feedback is evidence only.
-- [x] Do not add provider trust.
-- [x] Do not promote provider output.
+- [x] State provider output remains untrusted.
+- [x] State human feedback and operator notes do not imply trust, readiness, safety, or authority.
 
 ## Deployment-is-not-release checklist
-- [x] State Deployment is not release.
-- [x] Preserve deployment configuration as non-release evidence.
-- [x] Preserve local deployment candidate evidence as not release-candidate readiness.
+- [x] State deployment configuration is not release.
+- [x] State local deployment candidate evidence is not production deployment, release readiness, public usability, or production status.
 
 ## Phase 120 is not production checklist
 - [x] State Phase 120 is not production.
-- [x] State Phase 120 is Early Human-Use Candidate Gate only if recommended.
-- [x] State Phase 120 is not Release Candidate approval.
-- [x] State Phase 120 is not Production Candidate approval.
-- [x] State Phase 120 is not public/general use.
 - [x] State Phase 120 is not production readiness.
-- [x] State Phase 120 is not a guaranteed final endpoint.
+- [x] State Phase 120 is not production deployment.
+- [x] State Phase 120 is not production human use.
 
 ## Public/general-use final-rung checklist
-- [x] State Public/general use remains the final rung.
-- [x] Do not imply public usability from earlier rungs.
+- [x] State Public/general use remains final rung.
 - [x] Do not approve public/general use.
 
-## Evidence disposition checklist
-- [x] Classify Phase 118 evidence disposition.
-- [x] Classify release-candidate evidence disposition.
-- [x] Preserve evidence as evidence, not approval.
-
-## Production Candidate reassessment checklist
-- [x] Reassess Production Candidate posture.
-- [x] Record Production Candidate status as `not_approved`.
-- [x] Identify Production Candidate gaps.
-
-## Release Candidate posture checklist
-- [x] Reassess Release Candidate posture.
-- [x] Record Release Candidate posture as `insufficient_evidence` and `not_approved`.
-- [x] Identify release-candidate gaps.
-
-## Controlled human-use posture checklist
-- [x] Reassess controlled human-use posture.
-- [x] Record controlled human use as `deferred` and `not_approved`.
-- [x] Identify controlled human-use gaps.
-
 ## Early human-use candidate posture checklist
-- [x] Reassess early human-use candidate posture.
-- [x] Record Phase 120 continuation as `proceed_to_phase_120_only`.
-- [x] Do not approve early human use.
+- [x] Assess bounded early human-use candidate posture.
+- [x] Preserve non-readiness language.
+- [x] Preserve non-public language.
 
-## Public/general-use posture checklist
-- [x] Reassess public/general-use posture.
-- [x] Record public/general use as `roadmap_expansion_required` and `not_approved`.
-- [x] Identify public/general-use gaps.
+## Early human-use candidate decision checklist
+- [x] Use required decision status model.
+- [x] Record decision as `early_human_use_candidate_permitted`.
+- [x] Record outcome class as `early_human_use_candidate_permitted_with_constraints`.
+- [x] Do not use banned approval statuses.
 
-## Production-human-use posture checklist
-- [x] Reassess production-human-use posture.
-- [x] Record production human use as `roadmap_expansion_required` and `not_approved`.
-- [x] Identify production-human-use gaps.
+## Early human-use candidate constraints checklist
+- [x] Constrain to local-only or explicitly bounded non-public use.
+- [x] Constrain to named internal/trial participants only.
+- [x] Require manual review.
+- [x] Require Trial coordinator ownership.
+- [x] Require Security reviewer escalation for security issues.
+- [x] Require Release steward escalation for release/public-use/deployment claims.
+- [x] Prohibit public/general availability.
+- [x] Prohibit production deployment.
+- [x] Prohibit release artifacts, packages, installers, update channels, signing, publishing, GitHub release, release tag, public downloads, and public assets.
+- [x] Prohibit provider trust, provider output promotion, action execution, replay repair, recovery promotion, persistence expansion, and readiness upgrade.
+- [x] Require stop-on-validation-failure, stop-on-residual-risk escalation, stop-on-boundary drift, and stop-on-public-use or production-use claim.
+- [x] Require evidence capture.
+- [x] Require Phase 121 roadmap expansion after Phase 120.
+
+## Evidence supporting early human-use checklist
+- [x] Identify evidence supporting early human-use candidate posture.
+- [x] Keep evidence constrained to Phase 120 decision.
+
+## Evidence blocking early human-use checklist
+- [x] Identify no committed blocker to constrained early human-use candidate posture.
+- [x] Preserve active stop conditions.
 
 ## Evidence gap checklist
-- [x] Document evidence gaps blocking Release Candidate status.
-- [x] Document evidence gaps blocking Production Candidate status.
-- [x] Document evidence gaps blocking controlled human use.
-- [x] Document evidence gaps blocking early human-use candidacy.
-- [x] Document evidence gaps blocking public/general use.
-- [x] Document evidence gaps blocking production human use.
+- [x] Identify evidence gaps blocking Release Candidate status.
+- [x] Identify evidence gaps blocking Production Candidate status.
+- [x] Identify evidence gaps blocking public/general use.
+- [x] Identify evidence gaps blocking production human use.
 
 ## Residual-risk checklist
-- [x] Carry forward residual-risk findings from Phase 115 and Phase 118.
-- [x] Preserve residual risks as not approval.
-- [x] Include residual risks table.
+- [x] Carry residual risks from Phase 115.
+- [x] Carry residual risks from Phase 118.
+- [x] Carry residual risks from Phase 119.
 
 ## Stop-condition checklist
-- [x] Identify stop conditions that remain active.
-- [x] Record stop-condition disposition.
-- [x] Include stop-condition table.
+- [x] Document validation failure stop condition.
+- [x] Document residual-risk escalation stop condition.
+- [x] Document boundary drift stop condition.
+- [x] Document public-use or production-use claim stop condition.
 
 ## Manual-review checklist
-- [x] Record manual-review disposition.
-- [x] Preserve manual review as evidence review only.
-- [x] Include manual-review findings.
+- [x] Require manual review.
+- [x] Require named ownership and escalation paths.
 
-## Phase 120 gate checklist
-- [x] Recommend Phase 120 may proceed only as Early Human-Use Candidate Gate.
-- [x] Require fresh Phase 120 disposition evidence.
-- [x] Do not implement Phase 120.
-
-## Post-120 roadmap expansion checklist
-- [x] Determine post-120 roadmap expansion is required.
-- [x] Preserve post-120 rungs as unmapped work.
-- [x] Do not treat Phase 120 as final production readiness.
-
-## Phase 121 planning checklist
-- [x] Recommend Phase 121 roadmap expansion or explicit deferral after Phase 120.
-- [x] Preserve Phase 121 as planning recommendation only.
-- [x] Do not treat Phase 121 as public release or production deployment.
+## Phase 121 roadmap expansion checklist
+- [x] Record `proceed_to_phase_121_roadmap_expansion`.
+- [x] State Phase 121 should expand roadmap or explicitly defer unmapped rungs.
+- [x] Do not implement Phase 121.
 
 ## Release artifact prohibition checklist
-- [x] No release artifact creation.
-- [x] No package creation.
-- [x] No `release_artifact_created` behavior.
+- [x] Confirm no release_artifact_created behavior.
 
 ## Deployment automation prohibition checklist
-- [x] No deployment automation.
-- [x] No production deployment behavior.
-- [x] No `deployment_automation` behavior.
+- [x] Confirm no deployment_automation behavior.
 
 ## Installer/update-channel prohibition checklist
-- [x] No installer behavior.
-- [x] No update-channel behavior.
-- [x] No `installer_enabled` or `update_channel_enabled` behavior.
+- [x] Confirm no installer_enabled behavior.
+- [x] Confirm no update_channel_enabled behavior.
 
 ## Signing/publishing prohibition checklist
-- [x] No signing behavior.
-- [x] No publishing behavior.
-- [x] No `signing_enabled` or `publishing_enabled` behavior.
+- [x] Confirm no signing_enabled behavior.
+- [x] Confirm no publishing_enabled behavior.
 
 ## GitHub release/tag/public asset prohibition checklist
-- [x] No GitHub release creation.
-- [x] No release tag creation.
-- [x] No public download asset creation.
-- [x] No `github_release_created`, `release_tag_created`, or `public_download` behavior.
+- [x] Confirm no github_release_created behavior.
+- [x] Confirm no release_tag_created behavior.
+- [x] Confirm no public_download/public asset behavior.
 
 ## Public-release prohibition checklist
-- [x] No public release behavior.
-- [x] No `public_release_enabled` behavior.
+- [x] Confirm no public_release_enabled behavior.
 
 ## Production-deployment prohibition checklist
-- [x] No production deployment behavior.
-- [x] No `production_deployment_enabled` behavior.
+- [x] Confirm no production_deployment_enabled behavior.
 
 ## Public/general-use approval prohibition checklist
-- [x] Phase 119 does not approve public/general use.
-- [x] Public/general use remains final rung.
+- [x] Record public/general use as `not_approved`.
 
 ## Production-human-use approval prohibition checklist
-- [x] Phase 119 does not approve production human use.
-- [x] Production human use remains future roadmap work.
+- [x] Record production human use as `not_approved`.
 
 ## Production Candidate approval prohibition checklist
-- [x] Phase 119 does not automatically approve Production Candidate status.
-- [x] Phase 119 records Production Candidate status as `not_approved`.
+- [x] Record Production Candidate status as `not_approved`.
 
 ## Release-candidate approval prohibition checklist
-- [x] Phase 119 does not approve Release Candidate status.
-- [x] Phase 119 does not approve release-candidate readiness.
-
-## Controlled-human-use approval prohibition checklist
-- [x] Phase 119 does not approve controlled human use.
-
-## Early-human-use approval prohibition checklist
-- [x] Phase 119 does not approve early human use.
-- [x] Phase 119 only recommends Phase 120 continuation.
+- [x] Record Release Candidate status as `not_approved`.
+- [x] Record release-candidate readiness as `not_approved`.
 
 ## Provider trust/output promotion prohibition checklist
-- [x] No provider trust.
-- [x] No provider output promotion.
+- [x] Confirm no provider trust.
+- [x] Confirm no provider output promotion.
 
 ## Replay-repair prohibition checklist
-- [x] No replay repair.
+- [x] Confirm no replay repair.
 
 ## Recovery-promotion prohibition checklist
-- [x] No recovery promotion.
+- [x] Confirm no recovery promotion.
 
 ## Action-execution prohibition checklist
-- [x] No action execution.
+- [x] Confirm no action execution.
 
 ## Readiness prohibition checklist
-- [x] No readiness approval.
-- [x] No release readiness approval.
-- [x] No production readiness approval.
-- [x] No public usability approval.
+- [x] Confirm no readiness_approved state.
+- [x] Confirm no readiness upgrade.
 
 ## Production Candidate status checklist
 - [x] Production Candidate status: `not_approved`.
 
 ## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness status: `not_approved`.
-- [x] Public/general use status: `not_approved`.
-- [x] Post-120 public/general-use review requires `roadmap_expansion_required`.
+- [x] Release Candidate status: `not_approved`.
+- [x] Release-candidate readiness: `not_approved`.
+- [x] Public/general use: `not_approved`.
 
 ## Roadmap/changelog truth checklist
-- [x] Preserve roadmap as planned truth.
-- [x] Preserve CHANGELOG surfaces as historical truth.
-- [x] Preserve checklists as procedural truth.
-- [x] Preserve operations report as advisory orientation.
+- [x] Roadmap remains planned truth.
+- [x] CHANGELOG surfaces remain historical truth.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-119-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-120-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run decision-gate exception scan.
+- [x] Run Phase 120 gate scan.
 - [x] Run ladder invariant scan.
 - [x] Run phase relationship scan.
 - [x] Run decision status scan.
-- [x] Run evidence gap scan.
+- [x] Run evidence and constraint scan.
 - [x] Run no-deployment/release authority scan.
 - [x] Run no-authority scan.
 - [x] Run readiness scan.
@@ -312,55 +265,65 @@ mutation_path: checklist_revision
 - [x] Run roadmap guard.
 
 ## Findings table
-| Finding | Disposition | Status |
+| Finding | Status | Notes |
 | --- | --- | --- |
-| Phase 119 decision-gate exception required | Documented in report, checklist, and changelog. | proceed_to_phase_120_only |
-| Phase 118 evidence assembly is not readiness | Preserved. | not_approved |
-| Phase 120 is not final production endpoint | Preserved. | proceed_to_phase_120_only |
-| Public/general use remains final rung | Preserved. | roadmap_expansion_required |
+| Phase 120 gate boundary | early_human_use_candidate_permitted | Constrained only. |
+| Adjacent approvals | not_approved | Release, Production Candidate, public/general use, production readiness, production human use remain prohibited. |
+| Phase 121 | proceed_to_phase_121_roadmap_expansion | Required after Phase 120. |
+
+## Decision table
+| Decision | Status |
+| --- | --- |
+| Early human-use candidate posture | early_human_use_candidate_permitted |
+| Outcome class | early_human_use_candidate_permitted_with_constraints |
+| Release Candidate status | not_approved |
+| Production Candidate status | not_approved |
+| Public/general use | not_approved |
+| Production human use | not_approved |
+| Phase 121 roadmap expansion | proceed_to_phase_121_roadmap_expansion |
 
 ## Evidence gaps table
-| Gap | Blocks | Status |
-| --- | --- | --- |
-| No Phase 120 early human-use candidate disposition | Early human-use candidacy and later rungs | deferred |
-| No Release Candidate decision record | Production Candidate status | blocked |
-| No release artifacts/signing/publishing/update-channel authority | Release Candidate and public/general use | blocked |
-| No public/general-use evidence | Public/general use and production human use | roadmap_expansion_required |
+| Gap | Status |
+| --- | --- |
+| Evidence gaps blocking Release Candidate status | deferred |
+| Evidence gaps blocking Production Candidate status | deferred |
+| Evidence gaps blocking public/general use | deferred |
+| Evidence gaps blocking production human use | deferred |
 
 ## Residual risks table
-| Risk | Disposition | Status |
-| --- | --- | --- |
-| Provider output trust inference | Prohibited and carried forward. | blocked |
-| Deployment/release confusion | Prohibited and carried forward. | blocked |
-| Persistence/recovery authority expansion | Prohibited and carried forward. | blocked |
-| Human workflow variance | Requires future manual-review disposition. | insufficient_evidence |
+| Risk | Disposition |
+| --- | --- |
+| Phase 115 security residual risks | Carry forward; Security reviewer escalation. |
+| Phase 118 release-evidence non-approval | Carry forward; Release steward escalation. |
+| Phase 119 Production Candidate non-approval | Carry forward; Phase 121 roadmap expansion. |
 
 ## Deferred items table
-| Item | Deferred to | Status |
-| --- | --- | --- |
-| Early human-use candidate decision | Phase 120 | proceed_to_phase_120_only |
-| Release Candidate review | Phase 121 or later roadmap expansion | roadmap_expansion_required |
-| Production Candidate review | Phase 121 or later roadmap expansion | roadmap_expansion_required |
-| Public/general-use review | Final rung in future roadmap expansion | roadmap_expansion_required |
-| Production-human-use review | Future roadmap expansion | roadmap_expansion_required |
+| Item | Status |
+| --- | --- |
+| Release Candidate status | not_approved; deferred |
+| Production Candidate status | not_approved; deferred |
+| Public/general use | not_approved; deferred |
+| Production human use | not_approved; deferred |
 
 ## Validation log table
 | Command | Result |
 | --- | --- |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-119-target ./scripts/check.sh` | Passed. |
-| `git diff --check` | Passed. |
-| `git status --short` | Completed; only allowed Phase 119 surfaces changed before commit. |
-| Required `rg` scans | Completed; matches are documentation/prohibition/evidence-context matches. |
-| Source guard | Passed; no source/test/schema/script/workflow/orientation/package/archive/governance/architecture drift. |
-| Roadmap guard | Passed; no roadmap drift. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-120-target ./scripts/check.sh` | pass |
+| `git diff --check` | pass |
+| `git status --short` | pass with expected Phase 120 files before commit |
+| required `rg` scans | pass with expected prohibition/evidence context |
+| source guard | pass; no source/test/schema/script/workflow drift |
+| roadmap guard | pass; no roadmap drift |
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 119 surfaces.
-- [x] Generated artifacts are cleaned or outside repository state.
 - [x] No Rust source changes.
 - [x] No TypeScript source changes.
 - [x] No test changes.
 - [x] No schema changes.
-- [x] No script changes.
+- [x] No deployment infrastructure changes.
+- [x] No release infrastructure changes.
+- [x] No package or lockfile changes.
+- [x] No governance or architecture changes.
+- [x] No README or AGENTS changes.
+- [x] No archived changelog changes.
 - [x] No roadmap changes.
-- [x] No README, AGENTS, archived changelog, governance, architecture, package, lockfile, deployment infrastructure, release infrastructure, or CI release workflow changes.

@@ -17,6 +17,57 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.120 - 2026-05-09
+**Status:** Phase 120 - Early Human-Use Candidate Gate
+
+### Added
+- Add the Phase 120 early human-use candidate gate report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 120 procedural truth.
+- Update CHANGELOG.md with v0.0.120.
+
+### Notes
+- Phase 120 is Early Human-Use Candidate Gate only.
+- Phase 120 is not a guaranteed final endpoint.
+- Phase 120 is not Release Candidate approval.
+- Phase 120 is not Production Candidate approval.
+- Phase 120 is not public/general use.
+- Phase 120 is not production readiness.
+- Phase 120 is not production human use.
+- Early human-use candidacy, if permitted, is bounded and constrained.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No deployment automation.
+- No release artifact creation.
+- No package creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Release Candidate approval.
+- No release-candidate approval.
+- No Production Candidate approval.
+- No public-usability approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 121 implementation.
+- Phase 121 roadmap expansion is required or deferred explicitly.
+- Public/general use remains the final rung.
+
 ## v0.0.119 - 2026-05-09
 **Status:** Phase 119 - Production Candidate Reassessment
 
