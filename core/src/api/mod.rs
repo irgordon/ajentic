@@ -1,5 +1,6 @@
 mod application_state;
 mod authorization;
+mod deployment_configuration;
 mod diagnostics;
 mod durable_persistence_authority_decision;
 mod integration;
@@ -18,6 +19,7 @@ mod runtime_config;
 
 pub use application_state::*;
 pub use authorization::*;
+pub use deployment_configuration::*;
 pub use diagnostics::*;
 pub use durable_persistence_authority_decision::*;
 pub use integration::*;

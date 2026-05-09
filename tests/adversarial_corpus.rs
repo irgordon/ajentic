@@ -1211,3 +1211,174 @@ fn adversarial_phase_112_recovery_payloads_fail_closed_without_recovery_authorit
         .reasons
         .contains(&RecoveryLifecycleReason::RecoveryConflictingEvidence));
 }
+
+fn phase_113_valid_deployment_configuration_payload() -> String {
+    "deployment_configuration\nprofile_id=local_contract_alpha\ndeployment_mode=local_only\nlocal_only=true\nenvironment_assumptions=operator_supplied_local_paths,no_live_probe\nstorage_path=./.ajentic/local-contract\nstorage_path_declared=true\nstorage_permission_posture=operator_reviewed_existing_permissions\nstorage_permission_declared=true\nchanges_permissions=false\nretention_posture=manual_review_before_retention_change\nretention_declared=true\ndeletes_or_rotates_data=false\nfailure_handling_posture=fail_closed_manual_review\nfailure_handling_declared=true\nmanual_review_required=true\ncontinue_anyway_enabled=false\nsilent_recovery_enabled=false\nno_background_repair=true\nno_automatic_replay_patching=true\nno_continue_anyway=true\nno_migration_version_upgrade_authority=true\nno_production_recovery_guarantee=true\nno_release_evidence_guarantee=true\ndeployment_automation_enabled=false\nrelease_artifact_created=false\ninstaller_enabled=false\nupdate_channel_enabled=false\nsigning_enabled=false\npublishing_enabled=false\nproduction_deployment_enabled=false\npublic_release_enabled=false\nprovider_trust_granted=false\nprovider_output_promoted=false\nreplay_repaired=false\nrecovery_promoted=false\naction_executed=false\nreadiness_approved=false\nproduction_candidate_approved=false\nrelease_candidate_approved=false\npublic_use_approved=false\nproduction_human_use_approved=false\n".to_string()
+}
+
+#[test]
+fn phase_113_adversarial_deployment_configuration_payloads_fail_closed() {
+    use ajentic_core::api::{
+        parse_deployment_configuration_payload, DeploymentConfigurationReason,
+        DeploymentConfigurationValidationStatus,
+    };
+
+    let cases = [
+        (
+            "deployment_automation_enabled=false",
+            "deployment_automation_enabled=true",
+            DeploymentConfigurationReason::DeploymentAutomationRejected,
+        ),
+        (
+            "installer_enabled=false",
+            "installer_enabled=true",
+            DeploymentConfigurationReason::InstallerRejected,
+        ),
+        (
+            "update_channel_enabled=false",
+            "update_channel_enabled=true",
+            DeploymentConfigurationReason::UpdateChannelRejected,
+        ),
+        (
+            "signing_enabled=false",
+            "signing_enabled=true",
+            DeploymentConfigurationReason::SigningRejected,
+        ),
+        (
+            "publishing_enabled=false",
+            "publishing_enabled=true",
+            DeploymentConfigurationReason::PublishingRejected,
+        ),
+        (
+            "public_release_enabled=false",
+            "public_release_enabled=true",
+            DeploymentConfigurationReason::PublicReleaseRejected,
+        ),
+        (
+            "production_deployment_enabled=false",
+            "production_deployment_enabled=true",
+            DeploymentConfigurationReason::ProductionDeploymentRejected,
+        ),
+        (
+            "silent_recovery_enabled=false",
+            "silent_recovery_enabled=true",
+            DeploymentConfigurationReason::SilentRecoveryRejected,
+        ),
+        (
+            "no_background_repair=true",
+            "no_background_repair=false",
+            DeploymentConfigurationReason::BackgroundRepairRejected,
+        ),
+        (
+            "no_automatic_replay_patching=true",
+            "no_automatic_replay_patching=false",
+            DeploymentConfigurationReason::AutomaticReplayPatchingRejected,
+        ),
+        (
+            "continue_anyway_enabled=false",
+            "continue_anyway_enabled=true",
+            DeploymentConfigurationReason::ContinueAnywayRejected,
+        ),
+        (
+            "no_migration_version_upgrade_authority=true",
+            "no_migration_version_upgrade_authority=false",
+            DeploymentConfigurationReason::MigrationVersionUpgradeAuthorityRejected,
+        ),
+        (
+            "no_production_recovery_guarantee=true",
+            "no_production_recovery_guarantee=false",
+            DeploymentConfigurationReason::ProductionRecoveryGuaranteeRejected,
+        ),
+        (
+            "no_release_evidence_guarantee=true",
+            "no_release_evidence_guarantee=false",
+            DeploymentConfigurationReason::ReleaseEvidenceGuaranteeRejected,
+        ),
+        (
+            "storage_path=./.ajentic/local-contract",
+            "storage_path=../../etc/shadow",
+            DeploymentConfigurationReason::UnsafeStoragePathDeclaration,
+        ),
+        (
+            "provider_trust_granted=false",
+            "provider_trust_granted=true",
+            DeploymentConfigurationReason::ProviderTrustRejected,
+        ),
+        (
+            "readiness_approved=false",
+            "readiness_approved=true",
+            DeploymentConfigurationReason::ReadinessApprovalRejected,
+        ),
+        (
+            "action_executed=false",
+            "action_executed=true",
+            DeploymentConfigurationReason::ActionExecutionRejected,
+        ),
+        (
+            "replay_repaired=false",
+            "replay_repaired=true",
+            DeploymentConfigurationReason::ReplayRepairRejected,
+        ),
+        (
+            "recovery_promoted=false",
+            "recovery_promoted=true",
+            DeploymentConfigurationReason::RecoveryPromotionRejected,
+        ),
+    ];
+
+    for (from, to, expected_reason) in cases {
+        let payload = phase_113_valid_deployment_configuration_payload().replace(from, to);
+        let report = parse_deployment_configuration_payload(&payload);
+        assert_eq!(
+            report.status,
+            DeploymentConfigurationValidationStatus::Rejected
+        );
+        assert!(
+            report.reasons.contains(&expected_reason),
+            "missing {:?} in {:?}",
+            expected_reason,
+            report.reasons
+        );
+        assert!(!report.mutates_filesystem);
+        assert!(!report.opens_network_socket);
+        assert!(!report.starts_service);
+    }
+}
+
+#[test]
+fn phase_113_malformed_and_missing_deployment_configuration_payloads_fail_closed() {
+    use ajentic_core::api::{
+        parse_deployment_configuration_payload, DeploymentConfigurationReason,
+        DeploymentConfigurationValidationStatus,
+    };
+
+    let payloads = [
+        "not-a-deployment-config".to_string(),
+        phase_113_valid_deployment_configuration_payload().replace(
+            "environment_assumptions=operator_supplied_local_paths,no_live_probe\n",
+            "",
+        ),
+        phase_113_valid_deployment_configuration_payload()
+            .replace("storage_path_declared=true", "storage_path_declared=false"),
+        phase_113_valid_deployment_configuration_payload().replace(
+            "provider_output_promoted=false",
+            "provider_output_promoted=true",
+        ),
+    ];
+
+    for payload in payloads {
+        let report = parse_deployment_configuration_payload(&payload);
+        assert_eq!(
+            report.status,
+            DeploymentConfigurationValidationStatus::Rejected
+        );
+        assert!(report.fail_closed);
+    }
+
+    let noise =
+        phase_113_valid_deployment_configuration_payload() + "noise=Command::new deploy now\n";
+    let report = parse_deployment_configuration_payload(&noise);
+    assert!(report
+        .reasons
+        .contains(&DeploymentConfigurationReason::AuthorityBearingConfigurationRejected));
+}
