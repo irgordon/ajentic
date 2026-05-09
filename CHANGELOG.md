@@ -17,6 +17,49 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.117 - 2026-05-09
+**Status:** Phase 117 - Operator Documentation and Human-Trial Dry Run
+
+### Added
+- Add the Phase 117 operator human-trial dry-run procedure and evidence handoff documentation.
+
+### Changed
+- Update checklists/current-phase.md to Phase 117 procedural truth.
+- Update CHANGELOG.md with v0.0.117.
+
+### Notes
+- Operator documentation and human-trial dry run only.
+- Dry-run evidence is not human-use approval.
+- Dry-run evidence is not release approval.
+- Dry-run evidence is not Production Candidate approval.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No deployment automation.
+- No release artifact creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 118 implementation.
+
 ## v0.0.116 - 2026-05-09
 **Status:** Phase 116 - Local Deployment Candidate Boundary
 
