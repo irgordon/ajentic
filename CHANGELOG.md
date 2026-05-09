@@ -17,6 +17,32 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.121 - 2026-05-09
+**Status:** Phase 121 - Post-120 Roadmap Expansion and Production Gap Reassessment
+
+### Added
+- Add the Phase 121 post-120 roadmap expansion and production gap reassessment report.
+
+### Changed
+- Update roadmap planned-truth surfaces to extend the roadmap beyond Phase 120.
+- Update checklists/current-phase.md to Phase 121 procedural truth.
+- Update CHANGELOG.md with v0.0.121.
+
+### Notes
+- Phase 121 is roadmap expansion and production gap reassessment only.
+- Roadmap expansion is not implementation.
+- Roadmap expansion is not readiness approval.
+- Phase 121 adds no runtime behavior and no new capability.
+- Phase 121 makes no Rust source changes, no TypeScript source changes, no test changes, and no schema changes.
+- Phase 120 remains Early Human-Use Candidate Gate only and is not a guaranteed final endpoint.
+- Constrained early-human-use candidacy is not Release Candidate approval, not Production Candidate approval, not public/general use, and not production human use.
+- Phase 121 adds no deployment automation, no release artifact creation, no package creation, no installer behavior, no update-channel behavior, no signing/publishing behavior, no GitHub release/tag/public download asset creation, no public release behavior, and no production deployment behavior.
+- Phase 121 adds no persistence authority expansion, no replay repair, no recovery promotion, no action execution, no provider trust, and no provider output promotion.
+- Phase 121 grants no readiness approval, no Release Candidate approval, no release-candidate approval, no Production Candidate approval, no public-usability approval, no public/general-use approval, and no production-human-use approval.
+- Phase 121 does not implement Phase 122.
+- Phase 119 remains an intentional decision-gate exception and does not redefine the 0/5 checkpoint cadence.
+- Public/general use remains a later final rung.
+
 ## v0.0.120 - 2026-05-09
 **Status:** Phase 120 - Early Human-Use Candidate Gate
 

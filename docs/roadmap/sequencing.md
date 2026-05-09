@@ -178,3 +178,51 @@ The post-100 roadmap separates UI activation, live local transport, provider exe
     - Boundary: current planned gate for controlled human use; not a guaranteed final endpoint and not general public release.
 
 Deployment configuration, policy/governance versioning, security audit, local deployment candidacy, human trial, release-candidate evidence, and Production Candidate reassessment are separate gates because each answers a different evidence question: configuration shape, evidence attribution, abuse and trust posture, controlled target definition, human procedure fidelity, candidate evidence assembly, and production-candidate posture.
+
+
+21. **Phase 121 expands roadmap after constrained early human-use candidacy**
+   - Phase 120 is complete as Early Human-Use Candidate Gate only and permitted `early_human_use_candidate_permitted_with_constraints` under bounded, non-public, local/trial-only, manually reviewed constraints for named internal/trial participants.
+   - Phase 120 is not a guaranteed final endpoint, Release Candidate approval, release-candidate readiness, Production Candidate approval, production readiness, production deployment, production human use, or public/general use.
+   - Boundary: Phase 121 is roadmap expansion and production gap reassessment only; roadmap expansion is planned truth, not implementation or readiness approval.
+
+22. **Phase 122 preserves controlled early-human-use separation**
+   - Phase 122 begins only controlled early-human-use trial work under Phase 120 constraints and manual review.
+   - Boundary: controlled early-human-use trial only; no public release, no production deployment, no Release Candidate status, no Production Candidate status, no public/general use, and no production human use.
+
+23. **Phase 123 reviews evidence before remediation**
+   - Early human-use evidence, operator feedback, stop conditions, provider-output review burden, UI usability, transport usability, operator ergonomics, and unresolved safety issues must be reviewed before remediation is attempted.
+   - Boundary: audit/evidence review only; no readiness approval and no implicit promotion.
+
+24. **Phase 124 remediates operational usability without approving readiness**
+   - Confirmed operator ergonomics, UI usability, transport usability/safety, non-developer documentation, and supportability blockers may be remediated before release-candidate hardening.
+   - Boundary: usability remediation only; no public usability approval, release approval, Production Candidate approval, or production readiness.
+
+25. **Phase 125 preserves the 0/5 checkpoint cadence**
+   - Phase 125 reconciles Phase 121-124 outcomes before release-candidate hardening may proceed. Phase 119 was an intentional decision-gate exception and does not redefine the 0/5 convention.
+   - Boundary: alignment/checkpoint only; no readiness approval.
+
+26. **Phase 126 defines release packaging contracts before release-candidate dry run**
+   - Packaging, artifact provenance, checksum, signing contract, distribution governance, public download governance, and non-public/public-boundary rules must be contractual before dry-run assembly.
+   - Boundary: release packaging contract only; no release artifacts, packages, publication, signing activation, GitHub release, release tag, public download, or public asset.
+
+27. **Phase 127 threat-models installer and update channels before activation**
+   - Installer and update-channel governance must be understood before any future installer/update-channel behavior is considered.
+   - Boundary: threat model/contract only; no installer, update-channel, signing, publishing, daemon, background service, or deployment automation activation.
+
+28. **Phase 128 defines observability and operational evidence without production monitoring claims**
+   - Observability, operational telemetry, audit evidence, failure reporting, incident response, rollback, recovery procedures, support model, and deployment environment assumptions must remain evidence categories rather than production claims.
+   - Boundary: observability evidence only; no production monitoring, production readiness, production deployment, or public/general-use approval.
+
+29. **Phase 129 dry-runs Release Candidate assembly without release**
+   - Dry runs are not release. Release Candidate dry-run evidence cannot create release artifacts, publish public assets, approve release-candidate readiness, or approve later ladder rungs.
+   - Boundary: dry run only; no release approval.
+
+30. **Phase 130 decides only Release Candidate status**
+   - Phase 130 is a Release Candidate Decision Gate. It does not approve Production Candidate status, production readiness, production deployment, production human use, public usability, or public/general use.
+   - Boundary: decision gate only; Public/general use remains a later final rung and later phases may extend beyond Phase 130 if evidence requires it.
+
+## Ladder-Preservation sequencing invariants
+
+The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
+
+Phase 121-130 are the next detailed block, not the final production/public-use roadmap. Potential post-130 work remains non-binding planned truth for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and final public/general-use gate only after all earlier rungs are satisfied.

@@ -56,7 +56,17 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 117 | Operator Documentation and Human Trial Dry Run | Milestone 10 | Prepare and rehearse controlled human-trial procedures without public availability. | Operator docs and dry run only; no readiness approval and no public availability. |
 | 118 | Release Candidate Evidence Assembly | Milestone 10 | Assemble release-candidate evidence without approval. | Evidence assembly only; no automatic approval. |
 | 119 | Production Candidate Reassessment | Milestone 10 | Reassess Production Candidate posture after controlled evidence assembly. | Decision gate only. |
-| 120 | Early Human-Use Candidate Gate | Milestone 10 | Decide whether controlled early human use is permitted if intervening evidence supports review. | Current planned gate only; not a guaranteed final endpoint and not general public release. |
+| 120 | Early Human-Use Candidate Gate | Milestone 10 | Phase 120 is complete as Early Human-Use Candidate Gate only and permitted `early_human_use_candidate_permitted_with_constraints`. | Complete gate only; not a guaranteed final endpoint, not Release Candidate approval, not Production Candidate approval, not production readiness, not production deployment, not production human use, and not public/general use. |
+| 121 | Post-120 Roadmap Expansion and Production Gap Reassessment | Milestone 11 | Expand the roadmap beyond Phase 120 based on Phase 118-120 evidence and remaining usability, deployment, observability, release, and public-use gaps. | Audit/planning only; no runtime behavior, readiness approval, release approval, production approval, or public-use approval. |
+| 122 | Controlled Early Human-Use Trial Boundary | Milestone 11 | Conduct or rehearse bounded early human-use under Phase 120 constraints and manual review. | Controlled early-human-use trial only; no public release, no authority expansion, and no production human use. |
+| 123 | Early Human-Use Evidence Review and Operator Feedback Audit | Milestone 11 | Review early human-use evidence, operator notes, stop conditions, usability findings, and unresolved safety issues. | Audit/evidence review only; no readiness approval and no implicit rung promotion. |
+| 124 | Operational Usability Remediation Boundary | Milestone 11 | Address confirmed usability blockers for local operators and bounded early human-use participants. | Usability remediation only; no readiness approval and no public/general use. |
+| 125 | Roadmap and Changelog Alignment Check | Milestone 11 | Reconcile Phase 121-124 outcomes and decide whether release-candidate hardening may proceed. | Alignment/checkpoint only; preserves the 0/5 cadence and grants no readiness approval. |
+| 126 | Release Packaging Contract | Milestone 12 | Define packaging, artifact, checksum, provenance, distribution, and non-public/public-boundary contracts. | Release packaging contract only; no package creation, publication, or release artifact publication. |
+| 127 | Installer and Update-Channel Threat Boundary | Milestone 12 | Define installer/update-channel risks, constraints, prohibited behaviors, and future evidence requirements. | Threat model/contract only; no installer or update-channel activation. |
+| 128 | Observability and Operational Evidence Boundary | Milestone 12 | Define operational telemetry, audit, failure reporting, incident evidence, and operator evidence-capture requirements. | Observability evidence only; no production monitoring claim. |
+| 129 | Release Candidate Dry Run | Milestone 12 | Rehearse release-candidate assembly without publishing or approving release-candidate readiness. | Dry run only; no release approval, release artifact publication, or public download. |
+| 130 | Release Candidate Decision Gate | Milestone 12 | Decide whether evidence supports Release Candidate status or requires another hardening block. | Decision gate only; not Production Candidate status, production readiness, production deployment, or public/general use. |
 
 ## Boundary reminder
 
@@ -70,7 +80,15 @@ Phase 112 is Recovery Lifecycle Hardening in planned truth and historical truth;
 
 Phase 113 is Deployment Configuration Contract only. It must not add deployment automation and must consume Phase 112 recovery handoff gaps for storage paths, permissions, retention, environment assumptions, failure handling, manual review, no background repair, no automatic replay patching, no continue-anyway behavior, no migration/version upgrade authority, no production recovery guarantee, and no release evidence guarantee.
 
-Phase 120 is a current planned gate, not a guaranteed final production endpoint.
+Phase 120 is complete as Early Human-Use Candidate Gate only. Phase 120 permitted `early_human_use_candidate_permitted_with_constraints`: bounded, non-public, local/trial-only, manually reviewed, and constrained to named internal/trial participants. Phase 120 is not a guaranteed final endpoint, Release Candidate approval, release-candidate readiness, Production Candidate approval, production readiness, production deployment, production human use, or public/general use. Phase 120 created no release artifacts, packages, installer behavior, update-channel behavior, signing/publishing behavior, GitHub release, release tag, public download, public asset, public release behavior, production deployment behavior, or deployment automation; it did not expand provider execution, persistence authority, replay repair, recovery promotion, action execution, provider trust, provider output promotion, or readiness.
+
+Phase 121 expands roadmap/planned truth beyond Phase 120 and is audit/planning only. Roadmap expansion is planned truth, not implementation, release approval, production approval, public-use approval, or readiness approval.
+
+Phase 122 begins only controlled early-human-use trial work under Phase 120 constraints; it is not public release, Release Candidate status, Production Candidate status, production deployment, production readiness, public/general use, or production human use.
+
+Phase 125 preserves the 0/5 alignment/checkpoint cadence. Phase 119 was an intentional decision-gate exception and does not redefine the 0/5 convention.
+
+Phase 130 is a Release Candidate Decision Gate only. It is not public/general use, not Production Candidate status, not production deployment, and not production readiness. Public/general use remains a later final rung. Later phases may extend beyond Phase 130 if evidence requires it.
 
 Phases 101-120 are planned truth only and do not imply implementation, readiness, public usability, release-candidate status, Production Candidate status, or production approval.
 
@@ -81,3 +99,12 @@ Roadmap remains planned truth.
 Historical completion remains in `CHANGELOG.md`.
 
 `CHANGELOG.md` remains historical truth.
+
+
+## Phase 121 roadmap expansion guardrails
+
+Phase 121 applies the Ladder-Preservation Invariant Set: ladder steps are distinct; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; no phase retroactively rewrites earlier gates; human use is not binary; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may collapse sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, and public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
+
+Phase 121 reassesses production/public-use gaps as planned truth: early human-use constraints, controlled participant management, operator ergonomics, UI usability, transport usability and safety, provider execution and provider-output review burden, observability, operational evidence, operational telemetry, incident response, rollback, recovery procedures, release packaging, artifact provenance, checksum/signing contract, installer/update-channel governance, public download governance, deployment environment assumptions, support model, non-developer documentation, public/general-use threat model, production readiness evidence, Release Candidate evidence, Production Candidate evidence, and public/general-use gate evidence.
+
+Post-130 planning is non-binding and may include Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and the final public/general-use gate only after all earlier rungs are satisfied.
