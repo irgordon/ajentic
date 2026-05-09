@@ -17,6 +17,57 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.119 - 2026-05-09
+**Status:** Phase 119 - Production Candidate Reassessment
+
+### Added
+- Add the Phase 119 Production Candidate reassessment report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 119 procedural truth.
+- Update CHANGELOG.md with v0.0.119.
+
+### Notes
+- Phase 119 is a decision gate only.
+- Phase 119 is an intentional decision-gate exception to the usual 0/5 checkpoint cadence.
+- The exception exists because Phase 118 evidence assembly requires reassessment before Phase 120 can consider early human-use candidacy.
+- This exception does not redefine the 0/5 checkpoint convention for future roadmap planning.
+- Production Candidate reassessment is not automatic Production Candidate approval.
+- Phase 118 evidence assembly is not readiness.
+- Absence of blockers is not approval.
+- No runtime behavior.
+- No new capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No deployment automation.
+- No release artifact creation.
+- No package creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Release Candidate approval.
+- No release-candidate approval.
+- No Production Candidate approval unless explicitly and narrowly supported by this phase’s decision criteria.
+- No public-usability approval.
+- No public/general-use approval.
+- No controlled-human-use approval.
+- No early-human-use approval.
+- No production-human-use approval.
+- No Phase 120 implementation.
+- Phase 120 remains a current planned early-human-use gate, not a guaranteed final endpoint.
+
 ## v0.0.118 - 2026-05-09
 **Status:** Phase 118 - Release Candidate Evidence Assembly
 
