@@ -21,7 +21,16 @@ async function writeRust(root, rel, content) {
 function makeBaseFiles() {
   return {
     'core/src/api/mod.rs': 'mod persistence;\npub use persistence::*;\n',
-    'core/src/api/persistence.rs': 'pub fn execute_local_persistence_plan() {}\npub fn verify_persisted_record_paths() {}\nfn demo() { let _ = std::fs::read_to_string("x"); }\n',
+    'core/src/api/persistence.rs': [
+      'pub fn execute_local_persistence_plan() {}',
+      'pub fn verify_persisted_record_paths() {}',
+      'fn demo() {',
+      '    let _ = std::fs::read_to_string("x");',
+      '    let _ = File::create("x");',
+      '    let _ = OpenOptions::new();',
+      '}',
+      '',
+    ].join('\n'),
     'core/src/execution/mod.rs': 'pub struct ExecutionMarker;\n',
   };
 }
@@ -34,6 +43,7 @@ async function setupCase(root, files) {
 
 async function withCase(files, testBody) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'rust-boundary-lint-'));
+
   try {
     await setupCase(root, files);
     await testBody(root, lintRustBoundaries(root));
@@ -43,17 +53,21 @@ async function withCase(files, testBody) {
 }
 
 function expectPass(issues, name) {
-  const errors = issues.filter((i) => i.level === 'error');
+  const errors = issues.filter((issue) => issue.level === 'error');
   assert.equal(errors.length, 0, `${name} should have no blocking errors`);
 }
 
 function expectFailContains(issues, token, name) {
-  assert.ok(issues.some((i) => i.level === 'error' && i.message.includes(token)), `${name} should fail containing '${token}'`);
+  assert.ok(
+    issues.some((issue) => issue.level === 'error' && issue.message.includes(token)),
+    `${name} should fail containing '${token}'`,
+  );
 }
 
 function summarizeResults(results, expectedTotal) {
   const failedNames = results.filter((result) => !result.passed).map((result) => result.name);
   const passedCount = results.length - failedNames.length;
+
   return {
     passedCount,
     failedNames,
@@ -75,6 +89,7 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/api/mod.rs'] += 'pub struct X;\n';
+
       await withCase(files, async (_root, issues) => {
         expectFailContains(issues, "forbidden token 'pub struct'", 'api mod pub struct');
       });
@@ -85,6 +100,7 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/api/mod.rs'] += '#[cfg(test)]\n';
+
       await withCase(files, async (_root, issues) => {
         expectFailContains(issues, "forbidden token '#[cfg(test)]'", 'api mod cfg test');
       });
@@ -95,6 +111,7 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/execution/mod.rs'] += 'fn x(){ execute_local_persistence_plan(); }\n';
+
       await withCase(files, async (_root, issues) => {
         expectFailContains(issues, "'execute_local_persistence_plan'", 'execute_local outside persistence');
       });
@@ -113,26 +130,94 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/execution/mod.rs'] += 'fn y(){ verify_persisted_record_paths(); }\n';
+
       await withCase(files, async (_root, issues) => {
         expectFailContains(issues, "'verify_persisted_record_paths'", 'verify outside persistence');
       });
     },
   },
   {
-    name: 'expected-fail: std fs outside persistence is rejected',
+    name: 'expected-fail: std::fs outside persistence is rejected',
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/execution/mod.rs'] += 'use std::fs;\n';
+
       await withCase(files, async (_root, issues) => {
-        expectFailContains(issues, "'std::fs' is only allowed", 'std fs outside persistence');
+        expectFailContains(issues, "'std::fs' is only allowed", 'std::fs outside persistence');
       });
     },
   },
   {
-    name: 'expected-pass: std fs inside persistence is accepted',
+    name: 'expected-fail: fs::write outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ fs::write("x", "y"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'fs::write' is only allowed", 'fs::write outside persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-pass: filesystem helpers inside persistence are accepted',
     run: async () => {
       await withCase(makeBaseFiles(), async (_root, issues) => {
-        expectPass(issues, 'std fs inside persistence allowed');
+        expectPass(issues, 'filesystem helpers inside persistence allowed');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: File helper outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ let _ = File::create("x"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'File::' is only allowed", 'File helper outside persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: OpenOptions outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ let _ = OpenOptions::new(); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'OpenOptions' is only allowed", 'OpenOptions outside persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: create_dir outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ std::fs::create_dir("x"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'create_dir' is only allowed", 'create_dir outside persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: remove_file outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ std::fs::remove_file("x"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'remove_file' is only allowed", 'remove_file outside persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: set_permissions outside persistence is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn z(){ std::fs::set_permissions("x", p); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'set_permissions' is only allowed", 'set_permissions outside persistence');
       });
     },
   },
@@ -141,18 +226,87 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/execution/mod.rs'] += 'tokio::runtime::Runtime::new();\n';
+
       await withCase(files, async (_root, issues) => {
         expectFailContains(issues, 'tokio::', 'tokio forbidden');
       });
     },
   },
   {
-    name: 'expected-fail: Command usage is rejected',
+    name: 'expected-fail: Command usage is rejected everywhere',
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/execution/mod.rs'] += 'Command::new("x");\n';
+
       await withCase(files, async (_root, issues) => {
-        expectFailContains(issues, "'Command::'", 'command forbidden');
+        expectFailContains(issues, "'Command::'", 'Command forbidden');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: Command usage is rejected in persistence too',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/api/persistence.rs'] += 'fn p(){ Command::new("x"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, "'Command::'", 'Command forbidden in persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: std::process usage is rejected in persistence too',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/api/persistence.rs'] += 'fn p(){ std::process::Command::new("x"); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, 'std::process::', 'std::process forbidden in persistence');
+      });
+    },
+  },
+  {
+    name: 'expected-pass: forbidden tokens in strings and comments are ignored',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += [
+        '// tokio::runtime::Runtime::new(); Command::new("x");',
+        'const TEXT: &str = "std::net TcpStream async fn .await spawn(";',
+        '',
+      ].join('\n');
+
+      await withCase(files, async (_root, issues) => {
+        expectPass(issues, 'strings and comments ignored');
+      });
+    },
+  },
+  {
+    name: 'expected-pass: forbidden tokens in raw strings are ignored',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += [
+        'const RAW: &str = r#"std::fs::write Command::new("x") tokio::runtime::Runtime::new()"#;',
+        'const RAW_HASHED: &str = r##"TcpStream std::process::Command spawn("#"##;',
+        '',
+      ].join('\n');
+
+      await withCase(files, async (_root, issues) => {
+        expectPass(issues, 'raw strings ignored');
+      });
+    },
+  },
+  {
+    name: 'expected-pass: forbidden tokens in char literals are ignored',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += [
+        "const QUOTE: char = '\\'';",
+        "const BACKSLASH: char = '\\\\';",
+        '',
+      ].join('\n');
+
+      await withCase(files, async (_root, issues) => {
+        expectPass(issues, 'char literals ignored');
       });
     },
   },
@@ -161,6 +315,7 @@ const tests = [
     run: async () => {
       const files = makeBaseFiles();
       files['core/src/api/mod.rs'] += 'pub struct X;\n';
+
       await withCase(files, async (root) => {
         const cliResult = runLintCli(root);
         assert.notEqual(cliResult.status, 0, 'CLI should fail for violation');
@@ -174,28 +329,12 @@ const tests = [
       const files = makeBaseFiles();
       files['core/src/api/mod.rs'] += 'pub struct X;\npub trait Y {}\n';
       files['core/src/execution/mod.rs'] += 'tokio::runtime::Runtime::new();\n';
+
       await withCase(files, async (_root, issues) => {
-        assert.ok(issues.filter((i) => i.level === 'error').length >= 3, 'should report multiple violations together');
-      });
-    },
-  },
-  {
-    name: 'expected-fail: File helper outside persistence is rejected',
-    run: async () => {
-      const files = makeBaseFiles();
-      files['core/src/execution/mod.rs'] += 'fn z(){ let _ = File::create("x"); }\n';
-      await withCase(files, async (_root, issues) => {
-        expectFailContains(issues, "'File::' is only allowed", 'File helper outside persistence');
-      });
-    },
-  },
-  {
-    name: 'expected-pass: forbidden tokens in strings and comments are ignored',
-    run: async () => {
-      const files = makeBaseFiles();
-      files['core/src/execution/mod.rs'] += '// tokio::runtime::Runtime::new(); Command::new("x");\nconst TEXT: &str = "std::net TcpStream async fn .await spawn(";\n';
-      await withCase(files, async (_root, issues) => {
-        expectPass(issues, 'strings and comments ignored');
+        assert.ok(
+          issues.filter((issue) => issue.level === 'error').length >= 3,
+          'should report multiple violations together',
+        );
       });
     },
   },
@@ -225,14 +364,17 @@ async function main() {
   const summary = summarizeResults(results, expectedTotal);
   if (!summary.ok) {
     console.error(`Rust boundary lint self-tests failed (${summary.passedCount}/${expectedTotal}).`);
+
     for (const result of results) {
       if (!result.passed) {
         console.error(`- ${result.name}: ${result.error?.stack ?? result.error}`);
       }
     }
+
     if (results.length !== expectedTotal) {
       console.error(`- harness: executed ${results.length} test(s), expected ${expectedTotal}.`);
     }
+
     process.exit(1);
   }
 
