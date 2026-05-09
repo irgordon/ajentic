@@ -1625,3 +1625,187 @@ fn phase_114_adversarial_malformed_and_contradictory_payloads_fail_closed() {
         assert!(!governance_evidence_grants_authority(&report), "{payload}");
     }
 }
+
+use ajentic_core::api::{
+    local_deployment_candidate_grants_authority, parse_local_deployment_candidate_payload,
+    LocalDeploymentCandidateReason, LocalDeploymentCandidateValidationStatus,
+};
+
+fn phase_116_adversarial_valid_payload() -> String {
+    [
+        "local_deployment_candidate",
+        "candidate_identifier=phase-116-local-candidate",
+        "candidate_mode=local_only",
+        "local_only=true",
+        "phase_113_deployment_configuration_evidence=docs/operations/deployment-configuration-contract-phase-113.md",
+        "phase_114_policy_governance_evidence=docs/operations/policy-governance-versioning-phase-114.md",
+        "phase_115_security_audit_evidence=docs/operations/security-threat-model-abuse-case-audit-phase-115.md",
+        "storage_configuration_reference=phase-113-storage-configuration",
+        "recovery_handoff_reference=phase-112-recovery-handoff",
+        "residual_risk_acknowledged=true",
+        "residual_risk_acknowledgement_reference=phase-115-residual-risks",
+        "residual_risks_reviewed=local-only-candidate-risk",
+        "manual_review_required=true",
+        "supported_local_validation_commands=./scripts/check.sh,cargo test --manifest-path core/Cargo.toml phase_116 --all-targets",
+        "unsupported_public_production_release_declarations=no-public-release,no-production-deployment,no-installer,no-update-channel,no-signing,no-publishing",
+        "deployment_automation_enabled=false",
+        "release_artifact_created=false",
+        "installer_enabled=false",
+        "update_channel_enabled=false",
+        "signing_enabled=false",
+        "publishing_enabled=false",
+        "github_release_created=false",
+        "release_tag_created=false",
+        "production_deployment_enabled=false",
+        "public_release_enabled=false",
+        "public_use_approved=false",
+        "production_human_use_approved=false",
+        "provider_trust_granted=false",
+        "provider_output_promoted=false",
+        "replay_repaired=false",
+        "recovery_promoted=false",
+        "action_executed=false",
+        "readiness_approved=false",
+        "production_candidate_approved=false",
+        "release_candidate_approved=false",
+        "mutates_filesystem=false",
+        "mutates_permissions=false",
+        "opens_network_socket=false",
+        "starts_service=false",
+        "launches_process=false",
+        "public_availability_claimed=false",
+        "production_readiness_claimed=false",
+    ]
+    .join("\n")
+}
+
+#[test]
+fn phase_116_adversarial_local_deployment_candidate_payloads_fail_closed() {
+    let cases = [
+        (
+            "phase_113_deployment_configuration_evidence=",
+            LocalDeploymentCandidateReason::MalformedCandidate,
+        ),
+        (
+            "residual_risk_acknowledged=false",
+            LocalDeploymentCandidateReason::MissingResidualRiskAcknowledgement,
+        ),
+        (
+            "deployment_automation_enabled=true",
+            LocalDeploymentCandidateReason::DeploymentAutomationRejected,
+        ),
+        (
+            "release_artifact_created=true",
+            LocalDeploymentCandidateReason::ReleaseArtifactCreationRejected,
+        ),
+        (
+            "installer_enabled=true",
+            LocalDeploymentCandidateReason::InstallerRejected,
+        ),
+        (
+            "update_channel_enabled=true",
+            LocalDeploymentCandidateReason::UpdateChannelRejected,
+        ),
+        (
+            "signing_enabled=true",
+            LocalDeploymentCandidateReason::SigningRejected,
+        ),
+        (
+            "publishing_enabled=true",
+            LocalDeploymentCandidateReason::PublishingRejected,
+        ),
+        (
+            "github_release_created=true",
+            LocalDeploymentCandidateReason::GithubReleaseRejected,
+        ),
+        (
+            "release_tag_created=true",
+            LocalDeploymentCandidateReason::ReleaseTagRejected,
+        ),
+        (
+            "public_release_enabled=true",
+            LocalDeploymentCandidateReason::PublicReleaseRejected,
+        ),
+        (
+            "production_deployment_enabled=true",
+            LocalDeploymentCandidateReason::ProductionDeploymentRejected,
+        ),
+        (
+            "public_use_approved=true",
+            LocalDeploymentCandidateReason::PublicUseApprovalRejected,
+        ),
+        (
+            "production_human_use_approved=true",
+            LocalDeploymentCandidateReason::ProductionHumanUseApprovalRejected,
+        ),
+        (
+            "readiness_approved=true",
+            LocalDeploymentCandidateReason::ReadinessApprovalRejected,
+        ),
+        (
+            "production_candidate_approved=true",
+            LocalDeploymentCandidateReason::ProductionCandidateApprovalRejected,
+        ),
+        (
+            "release_candidate_approved=true",
+            LocalDeploymentCandidateReason::ReleaseCandidateApprovalRejected,
+        ),
+        (
+            "provider_trust_granted=true",
+            LocalDeploymentCandidateReason::ProviderTrustRejected,
+        ),
+        (
+            "provider_output_promoted=true",
+            LocalDeploymentCandidateReason::ProviderOutputPromotionRejected,
+        ),
+        (
+            "replay_repaired=true",
+            LocalDeploymentCandidateReason::ReplayRepairRejected,
+        ),
+        (
+            "recovery_promoted=true",
+            LocalDeploymentCandidateReason::RecoveryPromotionRejected,
+        ),
+        (
+            "action_executed=true",
+            LocalDeploymentCandidateReason::ActionExecutionRejected,
+        ),
+        (
+            "opens_network_socket=true",
+            LocalDeploymentCandidateReason::NetworkSocketRejected,
+        ),
+        (
+            "mutates_filesystem=true",
+            LocalDeploymentCandidateReason::FilesystemMutationRejected,
+        ),
+        (
+            "noise_payload=true",
+            LocalDeploymentCandidateReason::MalformedCandidate,
+        ),
+    ];
+
+    for (replacement, reason) in cases {
+        let mut payload = phase_116_adversarial_valid_payload();
+        let key = replacement.split('=').next().unwrap_or_default();
+        if payload.contains(&format!("{key}=false")) {
+            payload = payload.replace(&format!("{key}=false"), replacement);
+        } else if payload.contains(&format!("{key}=true")) {
+            payload = payload.replace(&format!("{key}=true"), replacement);
+        } else if key == "phase_113_deployment_configuration_evidence" {
+            payload = payload.replace(
+                "phase_113_deployment_configuration_evidence=docs/operations/deployment-configuration-contract-phase-113.md",
+                replacement,
+            );
+        } else {
+            payload.push('\n');
+            payload.push_str(replacement);
+        }
+        let report = parse_local_deployment_candidate_payload(&payload);
+        assert_eq!(
+            report.status,
+            LocalDeploymentCandidateValidationStatus::Rejected
+        );
+        assert!(report.reasons.contains(&reason), "{replacement}");
+        assert!(!local_deployment_candidate_grants_authority(&report));
+    }
+}

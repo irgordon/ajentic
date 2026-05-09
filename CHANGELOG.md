@@ -17,6 +17,44 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.116 - 2026-05-09
+**Status:** Phase 116 - Local Deployment Candidate Boundary
+
+### Added
+- Add deterministic local deployment candidate boundary and validation structures.
+- Add tests for local deployment candidate evidence requirements and non-authority guarantees.
+- Add the Phase 116 operations report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 116 procedural truth.
+- Update CHANGELOG.md with v0.0.116.
+
+### Notes
+- Phase 116 is local deployment candidate boundary only.
+- Local deployment candidate status is not deployment authority.
+- Local deployment candidate status is not release authority.
+- Local deployment candidate status is not human-use approval.
+- No deployment automation.
+- No release artifact creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 117 implementation.
 
 ## v0.0.115 - 2026-05-09
 **Status:** Phase 115 - Security Threat Model and Abuse-Case Audit
