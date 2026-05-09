@@ -17,6 +17,43 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.114 - 2026-05-09
+**Status:** Phase 114 - Policy Versioning and Governance Evidence Boundary
+
+### Added
+- Add deterministic policy/governance versioning and evidence attribution structures.
+- Add tests for governance evidence attribution and non-authority guarantees.
+- Add the Phase 114 operations report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 114 procedural truth.
+- Update CHANGELOG.md with v0.0.114.
+
+### Notes
+- Policy/governance versioning only.
+- Governance version evidence is attribution evidence, not governance authority.
+- Policy version evidence is not approval authority.
+- No governance rule rewrite.
+- No deployment automation.
+- No release artifact creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 115 implementation.
+
 ## v0.0.113 - 2026-05-08
 **Status:** Phase 113 - Deployment Configuration Contract
 

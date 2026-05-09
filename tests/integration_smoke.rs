@@ -2318,3 +2318,173 @@ fn phase_113_deployment_configuration_validation_is_non_mutating_contract_only()
     assert!(!deployment_configuration_creates_release_artifact(&report));
     assert!(!deployment_configuration_approves_readiness(&report));
 }
+
+use ajentic_core::api::{
+    governance_evidence_grants_authority, validate_governance_evidence_attribution,
+    GovernanceEvidenceAttributionInput, GovernanceEvidenceAuthorityDenialSnapshot,
+    GovernanceEvidenceChangelogReference, GovernanceEvidenceReason,
+    GovernanceEvidenceRoadmapReference, GovernanceEvidenceSourceReference,
+    GovernanceEvidenceTruthDimension, GovernanceEvidenceValidationRunReference,
+    GovernanceEvidenceValidationStatus, GovernanceEvidenceVersion, PolicyVersionEvidence,
+};
+
+fn phase_114_source(
+    path: &str,
+    truth_dimension: GovernanceEvidenceTruthDimension,
+) -> GovernanceEvidenceSourceReference {
+    GovernanceEvidenceSourceReference {
+        path: path.to_string(),
+        truth_dimension,
+        version_fingerprint: format!("phase-114-fingerprint:{path}"),
+    }
+}
+
+fn phase_114_valid_evidence_input() -> GovernanceEvidenceAttributionInput {
+    GovernanceEvidenceAttributionInput {
+        governance_versions: vec![GovernanceEvidenceVersion {
+            evidence_id: "governance-evidence-phase-114".to_string(),
+            version_label: "governance-phase-114".to_string(),
+            deterministic_snapshot_label: "phase-114-deterministic-snapshot".to_string(),
+            source_commit: "committed-source-reference".to_string(),
+            governance_sources: vec![phase_114_source(
+                "docs/governance/GOVERNANCE.md",
+                GovernanceEvidenceTruthDimension::Normative,
+            )],
+        }],
+        policy_versions: vec![PolicyVersionEvidence {
+            evidence_id: "policy-evidence-phase-114".to_string(),
+            policy_version_label: "policy-phase-114".to_string(),
+            policy_sources: vec![phase_114_source(
+                "docs/governance/phase-execution-contract.md",
+                GovernanceEvidenceTruthDimension::Normative,
+            )],
+        }],
+        changelog_references: vec![GovernanceEvidenceChangelogReference {
+            path: "CHANGELOG.md".to_string(),
+            version_label: "v0.0.114".to_string(),
+        }],
+        roadmap_references: vec![GovernanceEvidenceRoadmapReference {
+            path: "docs/roadmap/phase-map.md".to_string(),
+            phase_label: "Phase 114".to_string(),
+        }],
+        operations_report_references: vec![phase_114_source(
+            "docs/operations/policy-governance-versioning-phase-114.md",
+            GovernanceEvidenceTruthDimension::Orientation,
+        )],
+        checklist_references: vec![phase_114_source(
+            "checklists/current-phase.md",
+            GovernanceEvidenceTruthDimension::Procedural,
+        )],
+        validation_run_references: vec![GovernanceEvidenceValidationRunReference {
+            command: "CARGO_TARGET_DIR=/tmp/ajentic-phase-114-target ./scripts/check.sh"
+                .to_string(),
+            deterministic_label: "phase-114-validation-run".to_string(),
+        }],
+        reason_codes: vec![GovernanceEvidenceReason::AttributionOnlyAccepted],
+        authority_denial_snapshot: GovernanceEvidenceAuthorityDenialSnapshot::all_denied(),
+    }
+}
+
+#[test]
+fn phase_114_governance_evidence_does_not_grant_authority_or_readiness() {
+    let report = validate_governance_evidence_attribution(&phase_114_valid_evidence_input());
+
+    assert_eq!(report.status, GovernanceEvidenceValidationStatus::Accepted);
+    assert!(report.attribution_only);
+    assert!(report.non_authoritative);
+    assert!(!governance_evidence_grants_authority(&report));
+    assert!(
+        !report
+            .authority_denial_snapshot
+            .governance_authority_rewritten
+    );
+    assert!(!report.authority_denial_snapshot.policy_authority_granted);
+    assert!(!report.authority_denial_snapshot.deployment_approved);
+    assert!(!report.authority_denial_snapshot.release_candidate_approved);
+    assert!(
+        !report
+            .authority_denial_snapshot
+            .production_candidate_approved
+    );
+    assert!(!report.authority_denial_snapshot.public_use_approved);
+    assert!(
+        !report
+            .authority_denial_snapshot
+            .production_human_use_approved
+    );
+    assert!(!report.authority_denial_snapshot.readiness_approved);
+    assert!(
+        !report
+            .authority_denial_snapshot
+            .deployment_automation_enabled
+    );
+    assert!(!report.authority_denial_snapshot.release_artifact_created);
+    assert!(!report.authority_denial_snapshot.provider_trust_granted);
+    assert!(!report.authority_denial_snapshot.provider_output_promoted);
+    assert!(
+        !report
+            .authority_denial_snapshot
+            .persistence_authority_expanded
+    );
+    assert!(!report.authority_denial_snapshot.replay_repaired);
+    assert!(!report.authority_denial_snapshot.recovery_promoted);
+    assert!(!report.authority_denial_snapshot.action_executed);
+}
+
+#[test]
+fn phase_114_validation_is_deterministic_and_side_effect_free_by_report_contract() {
+    let input = phase_114_valid_evidence_input();
+    let first = validate_governance_evidence_attribution(&input);
+    let second = validate_governance_evidence_attribution(&input);
+
+    assert_eq!(first, second);
+    assert_eq!(input, phase_114_valid_evidence_input());
+    assert!(
+        !first
+            .authority_denial_snapshot
+            .deployment_automation_enabled
+    );
+    assert!(!first.authority_denial_snapshot.release_artifact_created);
+}
+
+#[test]
+fn phase_114_required_references_fail_closed_when_missing() {
+    let cases = [
+        (
+            "missing_governance_source",
+            GovernanceEvidenceReason::MissingGovernanceSourceReference,
+        ),
+        (
+            "missing_policy_version_label",
+            GovernanceEvidenceReason::MissingPolicyVersionLabel,
+        ),
+        (
+            "missing_changelog_reference",
+            GovernanceEvidenceReason::MissingChangelogReference,
+        ),
+        (
+            "missing_roadmap_reference",
+            GovernanceEvidenceReason::MissingRoadmapReference,
+        ),
+        (
+            "missing_validation_run_reference",
+            GovernanceEvidenceReason::MissingValidationRunReference,
+        ),
+    ];
+
+    for (case, reason) in cases {
+        let mut input = phase_114_valid_evidence_input();
+        match case {
+            "missing_governance_source" => input.governance_versions[0].governance_sources.clear(),
+            "missing_policy_version_label" => input.policy_versions[0].policy_version_label.clear(),
+            "missing_changelog_reference" => input.changelog_references.clear(),
+            "missing_roadmap_reference" => input.roadmap_references.clear(),
+            "missing_validation_run_reference" => input.validation_run_references.clear(),
+            _ => unreachable!(),
+        }
+        let report = validate_governance_evidence_attribution(&input);
+        assert_eq!(report.status, GovernanceEvidenceValidationStatus::Rejected);
+        assert!(report.reasons.contains(&reason), "{case}");
+        assert!(!governance_evidence_grants_authority(&report), "{case}");
+    }
+}
