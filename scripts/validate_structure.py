@@ -62,6 +62,19 @@ TRUTH_ROOTS = {
     "navigation": [Path("AGENTS.md")],
 }
 
+IGNORED_DIR_NAMES = {
+    ".git",
+    "target",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+}
+
 CHANGELOG_ARCHIVE_PATTERN = re.compile(r"^CHANGELOG-\d{4}-\d{4}\.md$")
 
 
@@ -69,17 +82,23 @@ def fail(message: str) -> None:
     failures.append(message)
 
 
-def is_git_path(path: Path) -> bool:
-    return ".git" in path.parts
+def should_ignore(path: Path) -> bool:
+    return any(part in IGNORED_DIR_NAMES for part in path.parts)
 
 
-def is_github_instruction_path(path: Path) -> bool:
-    return (
-        len(path.parts) >= 3
-        and path.parts[0] == ".github"
-        and path.parts[1] == "instructions"
-        and path.name.endswith(".instructions.md")
-    )
+def iter_files(root: Path, pattern: str = "*"):
+    if not root.exists():
+        return
+
+    for path in root.rglob(pattern):
+        if should_ignore(path):
+            continue
+        if path.is_file():
+            yield path
+
+
+def iter_markdown_files(root: Path):
+    yield from iter_files(root, "*.md")
 
 
 def read_text_utf8(path: Path) -> str:
@@ -92,11 +111,21 @@ def is_under(path: Path, root: Path) -> bool:
     return path_posix == root_posix or path_posix.startswith(root_posix.rstrip("/") + "/")
 
 
+def is_github_instruction_path(path: Path) -> bool:
+    return (
+        len(path.parts) >= 3
+        and path.parts[0] == ".github"
+        and path.parts[1] == "instructions"
+        and path.name.endswith(".instructions.md")
+    )
+
+
 def allowed_for_truth(path: Path, truth_dimension: str) -> bool:
     roots = TRUTH_ROOTS.get(truth_dimension)
     if not roots:
-        fail(f"{path}: unknown truth_dimension '{truth_dimension}'")
+        fail(f"{path.as_posix()}: unknown truth_dimension '{truth_dimension}'")
         return False
+
     return any(is_under(path, root) for root in roots)
 
 
@@ -108,11 +137,13 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
         return {}
 
     data: dict[str, str] = {}
+
     for line in lines[1:]:
         if line.strip() == "---":
             return data
         if ":" not in line:
             continue
+
         key, value = line.split(":", 1)
         data[key.strip()] = value.strip().strip('"').strip("'")
 
@@ -150,12 +181,11 @@ if docs.exists():
 
 changelog_archive_dir = Path("docs/changelog")
 if changelog_archive_dir.exists():
-    for path in changelog_archive_dir.rglob("*"):
-        if not path.is_file():
-            continue
+    for path in iter_files(changelog_archive_dir):
         if path.suffix != ".md":
             fail(f"{path.as_posix()}: changelog archive directory may contain Markdown files only")
             continue
+
         if not CHANGELOG_ARCHIVE_PATTERN.fullmatch(path.name):
             fail(
                 f"{path.as_posix()}: changelog archive files must use "
@@ -168,24 +198,25 @@ anchor_locations = {
 }
 
 for anchor, allowed_path in anchor_locations.items():
-    matches = [path for path in ROOT.rglob(anchor) if path != allowed_path and not is_git_path(path)]
+    matches = [
+        path
+        for path in iter_files(ROOT, anchor)
+        if path != allowed_path
+    ]
+
     for match in matches:
         fail(
             f"{anchor} must exist only at {allowed_path.as_posix()}; "
             f"found {match.as_posix()}"
         )
 
-for path in ROOT.rglob("*.schema.json"):
-    if is_git_path(path):
-        continue
+for path in iter_files(ROOT, "*.schema.json"):
     if not is_under(path, Path("schemas")):
         fail(f"{path.as_posix()}: schema files must live under schemas/")
 
 memory = Path("memory")
 if memory.exists():
-    for path in memory.rglob("*"):
-        if not path.is_file():
-            continue
+    for path in iter_files(memory):
         if path.suffix == ".md":
             fail(f"{path.as_posix()}: memory/ must not contain Markdown documentation")
         if path.name.endswith(".schema.json"):
@@ -193,8 +224,8 @@ if memory.exists():
 
 ephemeral = Path("memory/ephemeral")
 if ephemeral.exists():
-    for path in ephemeral.rglob("*"):
-        if path.is_file() and path.name != ".gitignore":
+    for path in iter_files(ephemeral):
+        if path.name != ".gitignore":
             fail(f"{path.as_posix()}: ephemeral memory must not be committed")
 
 instructions = Path(".github/instructions")
@@ -205,7 +236,9 @@ if instructions.exists():
             fail(f"{path.as_posix()}: GitHub instruction files must declare applyTo frontmatter")
 
 markdown_paths = [
-    path for path in ROOT.rglob("*.md") if not is_git_path(path) and not is_github_instruction_path(path)
+    path
+    for path in iter_markdown_files(ROOT)
+    if not is_github_instruction_path(path)
 ]
 
 for path in markdown_paths:
@@ -236,9 +269,8 @@ for path in markdown_paths:
             "is not allowed in this location"
         )
 
-for path in Path("docs").rglob("*") if Path("docs").exists() else []:
-    if path.is_file() and path.name.endswith(".schema.json"):
-        fail(f"{path.as_posix()}: docs/ must not contain schemas")
+for path in iter_files(Path("docs"), "*.schema.json"):
+    fail(f"{path.as_posix()}: docs/ must not contain schemas")
 
 if failures:
     for message in failures:
