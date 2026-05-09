@@ -12,7 +12,9 @@ This document is the active expanded planning catalog.
 - Ordering rationale: `docs/roadmap/sequencing.md`
 - Historical truth: `CHANGELOG.md`
 
-## Current planning block: Phases 85-100
+## Current planning block: Phases 121-130
+
+## Prior planning blocks
 
 ### Phase 85 - Roadmap and Changelog Alignment Check
 Goal: reconcile Phase 81-84 outcomes and planning/history posture before outward-facing surfaces.
@@ -221,3 +223,78 @@ Goal: Decide whether controlled early human use is permitted.
 Boundary: current planned gate for controlled human use; not a guaranteed final endpoint and not general public release.
 Non-goals: no public/general use, no automatic production approval, no release-candidate shortcut, no guaranteed final endpoint, and no broad availability.
 Evidence gate: controlled early human-use permission, if granted by future evidence, remains separate from public/general use and may shift if intervening evidence requires it.
+
+
+## Current planning block detail: Phases 121-130
+
+Roadmap remains planned truth. CHANGELOG surfaces remain historical truth. Phase 120 is complete as Early Human-Use Candidate Gate only; it permitted `early_human_use_candidate_permitted_with_constraints` under bounded, non-public, local/trial-only, manually reviewed constraints for named internal/trial participants. Phase 120 is not a guaranteed final endpoint, not Release Candidate approval, not Production Candidate approval, not public/general use, not production readiness, not production deployment, and not production human use.
+
+Phase 121 is roadmap expansion and production gap reassessment only. Phase 121 adds no runtime behavior, no new capability, no Rust source changes, no TypeScript source changes, no test changes, no schema changes, no provider execution expansion, no persistence authority expansion, no recovery promotion, no replay repair, no action execution, no installer/update/signing/publishing behavior, no deployment automation, no release artifacts, no packages, no GitHub release, no release tag, no public download, no public asset, and no readiness approval.
+
+The production-human-use ladder remains: Local operator testing; Controlled human trial; Early human-use candidate; Release candidate; Production candidate; Public/general use. Public/general use remains the final rung. Later phases may extend beyond Phase 130 if evidence requires it.
+
+### Phase 121 - Post-120 Roadmap Expansion and Production Gap Reassessment
+Goal: Expand the roadmap beyond Phase 120 based on Phase 118-120 evidence and remaining usability, deployment, observability, release, and public-use gaps.
+Boundary: audit/planning only; no implementation, readiness approval, public usability approval, Release Candidate approval, Production Candidate approval, production approval, deployment automation, or public/general use.
+Non-goals: no runtime behavior, no new capability, no early-human-use authority expansion, no release artifacts, no packages, no installer behavior, no update-channel behavior, no signing/publishing behavior, no GitHub release/tag/public download asset, no production deployment, no provider trust, no provider output promotion, no replay repair, no recovery promotion, and no action execution.
+Evidence gate: committed evidence only; prompt intent, uncommitted work, speculative roadmap claims, validation success, Phase 118 evidence assembly, Phase 119 reassessment, and Phase 120 constrained early-human-use candidacy do not approve later rungs.
+
+### Phase 122 - Controlled Early Human-Use Trial Boundary
+Goal: Conduct or rehearse bounded early human-use under Phase 120 constraints and manual review.
+Boundary: controlled early-human-use trial only; no public release.
+Non-goals: no public/general use, no production human use, no Release Candidate status, no Production Candidate status, no production deployment, no readiness approval, and no expansion beyond named internal/trial participants unless a later phase explicitly grants it.
+Evidence gate: trial evidence must remain bounded, manually reviewed, stopped on boundary drift, and separated from release, production, and public-use evidence.
+
+### Phase 123 - Early Human-Use Evidence Review and Operator Feedback Audit
+Goal: Review early human-use evidence, operator notes, stop conditions, usability findings, and unresolved safety issues.
+Boundary: audit/evidence review only.
+Non-goals: no readiness approval, no implicit promotion, no trust inference from provider output or human feedback, and no public/general-use approval.
+Evidence gate: findings identify confirmed vs suspected issues and cannot collapse evidence categories.
+
+### Phase 124 - Operational Usability Remediation Boundary
+Goal: Address confirmed usability blockers for local operators and bounded early human-use participants.
+Boundary: usability remediation only; no readiness approval.
+Non-goals: no release approval, no Production Candidate approval, no public usability approval, no production deployment, and no provider/persistence/recovery/action authority expansion.
+Evidence gate: remediation evidence must be specific to operator ergonomics, UI usability, transport usability, supportability, or documentation; it does not approve later ladder rungs.
+
+### Phase 125 - Roadmap and Changelog Alignment Check
+Goal: Reconcile Phase 121-124 outcomes and decide whether release-candidate hardening may proceed.
+Boundary: alignment/checkpoint only; no readiness approval.
+Non-goals: no Release Candidate approval, no Production Candidate approval, no public/general-use approval, no production human-use approval, no release artifact creation, and no public release.
+Evidence gate: preserves the 0/5 checkpoint cadence; Phase 119 remains an intentional decision-gate exception and does not redefine the 0/5 convention.
+
+### Phase 126 - Release Packaging Contract
+Goal: Define packaging, artifact, checksum, provenance, distribution, and non-public/public-boundary contracts.
+Boundary: release packaging contract only; no release artifact publication.
+Non-goals: no package creation, no GitHub release, no release tag, no public download, no public asset, no signing activation, no publishing activation, no installer/update-channel activation, and no release-candidate readiness approval.
+Evidence gate: contracts identify artifact provenance, checksum/signing expectations, distribution governance, and public-boundary prohibitions without creating artifacts.
+
+### Phase 127 - Installer and Update-Channel Threat Boundary
+Goal: Define installer/update-channel risks, constraints, prohibited behaviors, and future evidence requirements.
+Boundary: threat model/contract only; no installer or update-channel activation.
+Non-goals: no installer behavior, no update-channel behavior, no signing/publishing behavior, no background service, no daemon behavior, no production deployment automation, and no public release.
+Evidence gate: threat evidence covers public download governance, update trust, rollback risks, and prohibited activation paths.
+
+### Phase 128 - Observability and Operational Evidence Boundary
+Goal: Define operational telemetry, audit, failure reporting, incident evidence, and operator evidence-capture requirements.
+Boundary: observability evidence only; no production monitoring claim.
+Non-goals: no production readiness, no incident-response approval, no production deployment, no background telemetry service, no network telemetry activation, and no public-use approval.
+Evidence gate: observability, operational evidence, operational telemetry, incident response, rollback, recovery procedures, support model, and deployment environment assumptions are recorded as evidence requirements only.
+
+### Phase 129 - Release Candidate Dry Run
+Goal: Rehearse release-candidate assembly without publishing or approving release-candidate readiness.
+Boundary: dry run only; no release approval.
+Non-goals: no release artifacts, no packages, no public downloads, no signatures/publications, no Release Candidate approval, no Production Candidate approval, no production deployment, and no public/general use.
+Evidence gate: dry runs are not release; dry-run evidence cannot approve readiness.
+
+### Phase 130 - Release Candidate Decision Gate
+Goal: Decide whether evidence supports Release Candidate status or requires another hardening block.
+Boundary: decision gate only.
+Non-goals: no Production Candidate status, no production readiness, no production deployment, no production human use, no public usability approval, and no public/general use.
+Evidence gate: Release Candidate evidence must be fresh and phase-scoped; approval, if any, applies only to Release Candidate status and cannot imply Production Candidate status or public/general use.
+
+## Post-130 planning note
+
+If Phase 130 evidence is insufficient, another hardening block is required. If Phase 130 evidence supports a Release Candidate decision, later planning still must keep separate phases for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and the final public/general-use gate only after all earlier rungs are satisfied.
+
+Phase 121-130 are sufficient for the next detailed roadmap block, but they are not sufficient to complete the ladder. Later phases may extend beyond Phase 130 if evidence requires it.
