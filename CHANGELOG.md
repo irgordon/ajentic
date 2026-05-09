@@ -17,6 +17,49 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+
+## v0.0.115 - 2026-05-09
+**Status:** Phase 115 - Security Threat Model and Abuse-Case Audit
+
+### Added
+- Add the Phase 115 security threat model and abuse-case audit report.
+- Add security audit procedural truth to the current checklist.
+
+### Changed
+- Update CHANGELOG.md with v0.0.115.
+- Narrow Rust boundary lint matching to avoid validation false positives for ordinary `copy` identifiers and safe `std::process::id()` test temp-directory usage, and restore UI boundary lint detection for `Promise.resolve(...).then(...)` under the local TypeScript AST shape.
+
+### Notes
+- Security audit only.
+- Security audit evidence is risk evidence, not approval authority.
+- No runtime behavior.
+- No new application capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No governance doc changes.
+- No deployment automation.
+- No release artifact creation.
+- No installer behavior.
+- No update-channel behavior.
+- No signing/publishing behavior.
+- No public release behavior.
+- No production deployment behavior.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No provider trust.
+- No provider output promotion.
+- No readiness approval.
+- No Production Candidate approval.
+- No release-candidate approval.
+- No public-usability approval.
+- No production-human-use approval.
+- No Phase 116 implementation.
+- Narrow validation-script compatibility only; no runtime behavior affected.
+
 ## v0.0.114.1 - 2026-05-08
 **Status:** Post-114 Maintenance Script Fix - validation-script hardening only
 

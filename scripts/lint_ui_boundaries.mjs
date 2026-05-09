@@ -341,9 +341,10 @@ for (const filePath of files) {
       if (
         typescript.isPropertyAccessExpression(expr)
         && typescript.isCallExpression(expr.expression)
-        && typescript.isIdentifier(expr.expression.expression)
-        && expr.expression.expression.text === 'Promise'
-        && expr.expression.name.text === 'resolve'
+        && typescript.isPropertyAccessExpression(expr.expression.expression)
+        && typescript.isIdentifier(expr.expression.expression.expression)
+        && expr.expression.expression.expression.text === 'Promise'
+        && expr.expression.expression.name.text === 'resolve'
         && expr.name.text === 'then'
       ) {
         report(violations, sourceFile, node, 'Forbidden Promise microtask scheduling: Promise.resolve(...).then(...)');

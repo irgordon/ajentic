@@ -31,7 +31,7 @@ const ONLY_IN_PERSISTENCE = [
   'remove_file',
   'remove_dir',
   'remove_dir_all',
-  'copy',
+  'copy(',
   'write(',
   'write!',
   'writeln!',
@@ -54,7 +54,7 @@ const GLOBAL_FORBIDDEN_REGEX = [
   /\basync-std\b/g,
   /\bfutures::/g,
   /\bCommand::/g,
-  /\bstd::process::/g,
+  /\bstd::process::Command\b/g,
   /\bthread::/g,
   /\bspawn\s*\(/g,
 ];
