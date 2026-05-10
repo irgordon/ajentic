@@ -17,6 +17,56 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.130 - 2026-05-10
+**Status:** Phase 130 - Release Candidate Decision Gate
+
+### Added
+- Add the Phase 130 Release Candidate decision-gate report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 130 procedural truth.
+- Update CHANGELOG.md with v0.0.130.
+
+### Notes
+- Phase 130 is decision gate only.
+- Dry-run completeness is not readiness.
+- Evidence-map completeness is not approval.
+- Specification evidence is not artifact creation.
+- Operational evidence is not monitoring.
+- Phase 129 did not decide Release Candidate status.
+- Clean scans do not imply readiness.
+- No evidence category may satisfy another category by inference.
+- Phase 130 may still decide not ready.
+- Release Candidate decision does not imply Production Candidate status.
+- Release Candidate decision does not imply public/general use.
+- Phase 130 creates no release artifact creation.
+- Phase 130 creates no package creation.
+- Phase 130 performs no checksum generation.
+- Phase 130 performs no provenance attestation creation.
+- Phase 130 creates no installer/update-channel behavior.
+- Phase 130 creates no signing/publishing behavior.
+- Phase 130 creates no GitHub release/tag/public download asset creation.
+- Phase 130 activates no monitoring/logging/telemetry activation.
+- Phase 130 creates no deployment automation.
+- Phase 130 creates no production deployment behavior.
+- Phase 130 changes no runtime behavior.
+- Phase 130 adds no new runtime capability.
+- Phase 130 makes no Rust source changes unless explicitly justified as validation compatibility.
+- Phase 130 makes no TypeScript source changes unless explicitly justified as validation compatibility.
+- Phase 130 makes no test assertion changes.
+- Phase 130 makes no schema changes.
+- Phase 130 adds no provider trust.
+- Phase 130 adds no provider output promotion.
+- Phase 130 adds no persistence authority expansion.
+- Phase 130 adds no replay repair.
+- Phase 130 adds no recovery promotion.
+- Phase 130 adds no action execution.
+- Phase 130 grants no Production Candidate approval.
+- Phase 130 grants no public/general-use approval.
+- Phase 130 grants no production-human-use approval.
+- Phase 130 decision does not imply Production Candidate status or public/general use.
+- Overall decision status: `rc_candidate_not_ready`.
+
 ## v0.0.129.1 - 2026-05-10
 **Status:** Out-of-Band Maintenance - UI TypeScript Command Drift Fix
 

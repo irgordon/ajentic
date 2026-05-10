@@ -4,183 +4,176 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 129.1 Out-of-Band UI TypeScript Command Drift Fix
+# Current Phase Checklist - Phase 130 Release Candidate Decision Gate
 
-## Task name
-- [x] Phase 129.1 - Out-of-Band Maintenance - UI TypeScript Command Drift Fix.
-
-## Out-of-band maintenance status
-- [x] Phase 129.1 is out-of-band validation-compatibility maintenance only.
-- [x] Validation compatibility is not runtime capability.
-- [x] UI command correction is not UI behavior change.
-- [x] Bootstrap idempotence must not restore stale TypeScript flags.
-- [x] Unsupported TypeScript flags must not exist in active UI command surfaces.
-- [x] Phase 129.1 does not implement Phase 130.
-- [x] Phase 129.1 does not approve Release Candidate readiness.
-
-## Working-tree hygiene gate
+## Working-tree hygiene
 - [x] Run `git status --short` before edits.
-- [x] Classify uncommitted files as clean before edits.
-- [x] Remove or revert generated artifacts from prior runs before edits if present.
-- [x] Record cleanup: no generated artifact drift was present before edits.
+- [x] Classify uncommitted files before edits: no uncommitted files were present.
+- [x] Clean generated artifacts before edits if present: no generated artifacts were present.
+- [x] Run final `git status --short` after validation.
 
 ## Allowed surfaces
-- [x] `scripts/check.sh` because it injected unsupported TypeScript flags and needed correction.
-- [x] `docs/operations/ui-typescript-command-drift-fix-phase-129-1.md`.
-- [x] `checklists/current-phase.md`.
-- [x] `CHANGELOG.md`.
-- [x] `ui/package.json` updated to use supported temporary TypeScript project-file command shape after validation proved direct file-argument compilation conflicts with local TypeScript when `tsconfig.json` is present.
-- [x] `scripts/bootstrap_repo.py` updated to seed the same supported UI package command surfaces and not restore stale TypeScript flags.
-- [x] `.github/workflows/ci.yml` inspected; no edit required because CI delegates to `npm run test:api`.
+- [x] Create `docs/operations/release-candidate-decision-gate-phase-130.md`.
+- [x] Update `checklists/current-phase.md` to Phase 130 procedural truth.
+- [x] Update `CHANGELOG.md` with `v0.0.130`.
+- [x] Do not modify Rust source.
+- [x] Do not modify TypeScript source.
+- [x] Do not modify tests.
+- [x] Do not modify schemas.
+- [x] Do not modify governance docs.
+- [x] Do not modify architecture docs.
+- [x] Do not modify package files, lockfiles, deployment infrastructure, release infrastructure, monitoring behavior, installer/update/signing/publishing behavior, provider execution behavior, persistence behavior, replay repair behavior, recovery promotion behavior, or action execution behavior.
 
-## Boundary rules
-- [x] Phase 129.1 does not implement Phase 130.
-- [x] Phase 129.1 does not change UI behavior.
-- [x] Phase 129.1 does not change runtime behavior.
-- [x] Phase 129.1 does not change authority behavior.
-- [x] Phase 129.1 does not change tests, schemas, release behavior, deployment behavior, monitoring behavior, or readiness posture.
-- [x] Phase 129.1 does not add provider execution, persistence authority, replay repair, recovery promotion, or action execution.
+## Evidence-only rule
+- [x] Count only committed evidence.
+- [x] Do not count prompt intent.
+- [x] Do not count prior chat summaries.
+- [x] Do not count speculative roadmap entries as implementation.
+- [x] Do not count clean validation alone as approval.
+- [x] Do not count dry-run completeness as readiness.
+- [x] Do not count evidence-map completeness as approval.
+- [x] Do not count contract/spec language as artifact creation.
+- [x] Do not count absence of blockers as approval.
 
-## Unsupported TypeScript flag scan checklist
-- [x] Scan for `--ignoreConfig`.
-- [x] Scan for `--ignoreDeprecations 6.0`.
-- [x] Scan for broader `ignoreDeprecations` occurrences.
-- [x] Classify matches as active command surface, bootstrap template, validation script, documentation/report context, changelog context, checklist context, or historical/prohibition context.
-- [x] Confirm known bad flags are absent from active UI command surfaces after correction.
+## Decision status model
+- [x] Use only `rc_candidate_rejected_due_to_missing_dependencies`.
+- [x] Use only `rc_candidate_rejected_due_to_boundary_violation`.
+- [x] Use only `rc_candidate_rejected_due_to_release_artifact_absence`.
+- [x] Use only `rc_candidate_rejected_due_to_no_artifact_creation_boundary`.
+- [x] Use only `rc_candidate_deferred_to_post_130_phase`.
+- [x] Use only `rc_candidate_requires_remap_phase_126_130`.
+- [x] Use only `rc_candidate_requires_additional_evidence`.
+- [x] Use only `rc_candidate_not_ready`.
+- [x] Use only `rc_candidate_not_applicable`.
+- [x] Do not use prohibited approval/readiness words as finding statuses.
 
-## Active command-surface checklist
-- [x] `ui/package.json` `test:api` does not use `--ignoreConfig`.
-- [x] `ui/package.json` `test:api` does not use `--ignoreDeprecations 6.0`.
-- [x] `ui/package.json` `dev` does not use `--ignoreConfig`.
-- [x] `ui/package.json` `dev` does not use `--ignoreDeprecations 6.0`.
-- [x] `scripts/check.sh` delegates to `npm run test:api` without injecting unsupported flags.
-- [x] `.github/workflows/ci.yml` delegates to `npm run test:api` without injecting unsupported flags.
+## Enforcement-line checklist
+- [x] Dry-run completeness is not readiness.
+- [x] Evidence-map completeness is not approval.
+- [x] Specification evidence is not artifact creation.
+- [x] Operational evidence is not monitoring.
+- [x] Phase 129 did not decide Release Candidate status.
+- [x] Clean scans do not imply readiness.
+- [x] No evidence category may satisfy another category by inference.
+- [x] Phase 130 may still decide not ready.
+- [x] Release Candidate decision does not imply Production Candidate status.
+- [x] Release Candidate decision does not imply public/general use.
 
-## Bootstrap template checklist
-- [x] Inspect `scripts/bootstrap_repo.py` for stale UI command generation.
-- [x] Confirm bootstrap does not contain `--ignoreConfig`.
-- [x] Confirm bootstrap does not contain `--ignoreDeprecations 6.0`.
-- [x] Confirm bootstrap does not restore stale TypeScript flags.
+## Phase 126-129 input checks
+| Input | Phase 130 finding | Decision status |
+| --- | --- | --- |
+| Phase 126 packaging contract specs | Contracts only, not artifacts. | `rc_candidate_rejected_due_to_no_artifact_creation_boundary` |
+| Phase 127 installer/update-channel threat boundaries | Threat boundaries only, not installers or update channels. | `rc_candidate_rejected_due_to_missing_dependencies` |
+| Phase 128 observability/operational-evidence specifications | Specifications only, not monitoring. | `rc_candidate_rejected_due_to_missing_dependencies` |
+| Phase 129 dry-run evidence maps | Dry-run evidence map only, not release artifacts. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Phase 125 production-path forecast | Planned truth only. | `rc_candidate_not_applicable` |
 
-## Bootstrap idempotence checklist
-- [x] Run bootstrap idempotence command.
-- [x] Re-scan for unsupported TypeScript flags after bootstrap.
-- [x] Confirm bootstrap idempotence did not restore stale flags in `ui/package.json` or `scripts/check.sh`.
+## Phase 129.1 relationship check
+- [x] Phase 129.1 fixed UI TypeScript command drift only.
+- [x] Phase 129.1 did not alter UI behavior.
+- [x] Phase 129.1 did not alter runtime behavior.
+- [x] Phase 129.1 did not alter authority.
+- [x] Phase 129.1 did not alter tests.
+- [x] Phase 129.1 did not alter release behavior.
+- [x] Phase 129.1 did not alter monitoring behavior.
+- [x] Phase 129.1 did not alter readiness posture.
+- [x] Phase 129.1 does not satisfy missing Release Candidate evidence.
 
-## UI package command correction checklist
-- [x] Confirm `test:api` uses a supported temporary TypeScript project-file invocation that compiles `src/api/runBehaviorTests.ts` without stale flags.
-- [x] Confirm `dev` uses a supported temporary TypeScript project-file invocation that compiles `src/app/localReviewRuntime.ts` without stale flags.
-- [x] Confirm no `name`, `private`, `version`, `type`, or `devDependencies` changes were required.
+## Decision outcome table
+| Question | Finding | Decision status |
+| --- | --- | --- |
+| Is Release Candidate status supportable from committed evidence without contract/spec/dry-run inference? | No. | `rc_candidate_not_ready` |
+| Is additional category-specific evidence required? | Yes. | `rc_candidate_requires_additional_evidence` |
+| Must missing dependencies block the claim? | Yes. | `rc_candidate_rejected_due_to_missing_dependencies` |
+| Does artifact absence block the claim? | Yes. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Does the no-artifact-creation gate prevent Phase 130 from repairing the gap? | Yes. | `rc_candidate_rejected_due_to_no_artifact_creation_boundary` |
 
-## CI relationship checklist
-- [x] Inspect `.github/workflows/ci.yml`.
-- [x] Confirm CI runs `npm run test:api`.
-- [x] Confirm CI does not inject unsupported TypeScript flags.
+## Missing dependency table
+| Missing dependency | Phase 130 treatment | Decision status |
+| --- | --- | --- |
+| Actual release artifacts or scoped artifact outputs | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
+| Package creation outputs | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
+| Checksums and provenance attestations | Required after Phase 130 or explicitly remapped. | `rc_candidate_requires_additional_evidence` |
+| Signing/publishing controls or explicit non-use decision | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
+| Installer/update-channel implementation evidence or scope remap | Required after Phase 130. | `rc_candidate_requires_remap_phase_126_130` |
+| Operational evidence records | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
 
-## scripts/check.sh relationship checklist
-- [x] Inspect `scripts/check.sh`.
-- [x] Correct stale direct TypeScript invocation with unsupported flags.
-- [x] Confirm `scripts/check.sh` delegates to `npm run test:api`.
+## Boundary violation table
+| Boundary | Finding | Decision status |
+| --- | --- | --- |
+| Runtime behavior | No Phase 130 runtime behavior introduced. | `rc_candidate_not_applicable` |
+| Release behavior | No Phase 130 release behavior introduced. | `rc_candidate_not_applicable` |
+| Deployment behavior | No Phase 130 deployment behavior introduced. | `rc_candidate_not_applicable` |
+| Monitoring behavior | No Phase 130 monitoring behavior introduced. | `rc_candidate_not_applicable` |
+| Provider/persistence/replay/recovery/action authority | No Phase 130 authority expansion introduced. | `rc_candidate_not_applicable` |
+| Overall supportability | Evidence absence still blocks supportability. | `rc_candidate_not_ready` |
 
-## Runtime non-change checklist
-- [x] No Rust source changes.
-- [x] No runtime behavior changes.
-- [x] No runtime capability changes.
+## Release artifact absence table
+| Artifact category | Finding | Decision status |
+| --- | --- | --- |
+| Release artifacts | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Packages | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Checksums | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Provenance attestations | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Signatures/publication outputs | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
+| Installer/update-channel outputs | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
 
-## UI non-change checklist
-- [x] No TypeScript source changes.
-- [x] No UI behavior changes.
-- [x] UI command correction is not UI behavior change.
+## Cross-category inference table
+| Inference attempted | Phase 130 decision | Decision status |
+| --- | --- | --- |
+| Packaging contract satisfies artifact evidence | Rejected. | `rc_candidate_requires_additional_evidence` |
+| Threat boundary satisfies installer/update-channel behavior | Rejected. | `rc_candidate_requires_additional_evidence` |
+| Observability specification satisfies monitoring | Rejected. | `rc_candidate_requires_additional_evidence` |
+| Dry-run evidence map satisfies release artifact evidence | Rejected. | `rc_candidate_requires_additional_evidence` |
+| Clean scans satisfy readiness | Rejected. | `rc_candidate_requires_additional_evidence` |
+| Absence of blockers satisfies approval | Rejected. | `rc_candidate_requires_additional_evidence` |
 
-## Test assertion non-change checklist
-- [x] No UI behavior test source changes.
-- [x] No test assertion changes.
-- [x] No test files changed.
+## Post-130 required work table
+| Work item | Required evidence | Decision status |
+| --- | --- | --- |
+| Release artifact evidence | Committed artifact outputs or explicit scoped release-output decision. | `rc_candidate_requires_additional_evidence` |
+| Package/checksum/provenance evidence | Committed outputs or explicit remap. | `rc_candidate_requires_additional_evidence` |
+| Signing/publishing evidence | Committed controls, outputs, or explicit non-use decision. | `rc_candidate_requires_additional_evidence` |
+| Installer/update-channel evidence | Committed implementation evidence or explicit scope remap. | `rc_candidate_requires_remap_phase_126_130` |
+| Operational evidence | Committed operational records distinct from monitoring activation. | `rc_candidate_requires_additional_evidence` |
+| Later decision gate | Re-run after category-specific evidence exists. | `rc_candidate_deferred_to_post_130_phase` |
 
-## Authority non-change checklist
-- [x] No governance authority changes.
-- [x] No runtime authority changes.
-- [x] No provider authority changes.
-- [x] No persistence authority changes.
-- [x] No replay, recovery, or action-execution authority changes.
+## Validation log
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git status --short` | complete | Initial working tree was clean. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-130-target ./scripts/check.sh` | pass | Full validation passed on a clean committed tree. |
+| `git diff --check` | pass | No whitespace errors. |
+| Targeted Phase 130 scan | pass | Required Phase 130 terms were present. |
+| Approval/readiness vocabulary scan | pass | Matches were limited to explicit prohibition, required lines, historical context, or status-model discussion. |
+| Release/deployment/monitoring authority scan | pass | Matches were historical, planned, test, specification, lint-fixture, or prohibition context. |
+| Guarded diff scan | pass | No guarded drift. |
+| Final `git status --short` | pass | Clean after commit. |
 
-## Release/deployment non-change checklist
-- [x] No package creation.
+## Zero-drift checklist
 - [x] No release artifact creation.
+- [x] No package creation.
 - [x] No checksum generation.
 - [x] No provenance attestation creation.
-- [x] No installer/update-channel/signing/publishing changes.
-- [x] No GitHub release, tag, public asset, public release, deployment automation, or production deployment behavior.
-
-## Monitoring/logging/telemetry non-change checklist
-- [x] No monitoring activation.
-- [x] No logging activation.
-- [x] No telemetry collection activation.
-- [x] No collector, exporter, dashboard, alerting, production telemetry endpoint, telemetry token, ingestion URL, cron job, service file, scheduled collector, background service, or daemon behavior.
-
-## Readiness prohibition checklist
-- [x] No readiness approval.
-- [x] No Release Candidate approval.
+- [x] No installer/update-channel behavior.
+- [x] No signing/publishing behavior.
+- [x] No GitHub release/tag/public download asset creation.
+- [x] No monitoring/logging/telemetry activation.
+- [x] No deployment automation.
+- [x] No production deployment behavior.
+- [x] No runtime behavior.
+- [x] No new runtime capability.
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No test assertion changes.
+- [x] No schema changes.
+- [x] No provider trust.
+- [x] No provider output promotion.
+- [x] No persistence authority expansion.
+- [x] No replay repair.
+- [x] No recovery promotion.
+- [x] No action execution.
 - [x] No Production Candidate approval.
 - [x] No public/general-use approval.
 - [x] No production-human-use approval.
-- [x] Phase 129.1 does not approve Release Candidate readiness.
-
-## Validation checklist
-- [x] Required investigation scan completed.
-- [x] Pre-bootstrap unsupported flag scan completed after correction.
-- [x] Bootstrap idempotence completed.
-- [x] Post-bootstrap unsupported flag scan completed.
-- [x] UI validation completed.
-- [x] Canonical validation completed.
-- [x] Guarded diff completed.
-- [x] Authority/readiness scan completed.
-
-## Findings table
-| Surface | Classification | Finding |
-| --- | --- | --- |
-| `ui/package.json` | active command surface | Updated to supported `test:api` and `dev` temporary project-file command shapes without stale flags. |
-| `scripts/check.sh` | validation script / active command surface | Removed direct unsupported TypeScript flag invocation by delegating to `npm run test:api`. |
-| `scripts/bootstrap_repo.py` | bootstrap template | Updated to seed supported UI package command surfaces without unsupported TypeScript flags. |
-| `.github/workflows/ci.yml` | CI command surface | Delegates to `npm run test:api`; no unsupported flags. |
-| Phase 129.1 report/checklist/changelog | documentation/report/checklist/changelog context | Contains known bad flags only as prohibition/historical context. |
-| Archived and prior operations docs | historical/prohibition context | Existing references remain historical or operator context, not active command drift. |
-
-## Changed file table
-| File | Reason |
-| --- | --- |
-| `ui/package.json` | Use supported temporary TypeScript project-file command shapes without unsupported flags. |
-| `scripts/bootstrap_repo.py` | Seed supported UI package command surfaces without restoring unsupported flags. |
-| `scripts/check.sh` | Remove unsupported TypeScript flags from full-check UI validation by delegating to `npm run test:api`. |
-| `docs/operations/ui-typescript-command-drift-fix-phase-129-1.md` | Add Phase 129.1 operations report. |
-| `checklists/current-phase.md` | Update current procedural truth to Phase 129.1. |
-| `CHANGELOG.md` | Add active Phase 129.1 changelog entry. |
-
-## Validation log table
-| Command | Result | Notes |
-| --- | --- | --- |
-| `git status --short` | pass | Initial working tree clean. |
-| `rg -n --hidden --glob '!core/target/**' --glob '!ui/node_modules/**' --glob '!.git/**' -- '--ignoreConfig|--ignoreDeprecations 6.0|ignoreDeprecations|test:api|runBehaviorTests|localReviewRuntime' .` | pass | Every hit classified. |
-| `rg -n --hidden --glob '!core/target/**' --glob '!ui/node_modules/**' --glob '!.git/**' -- '--ignoreConfig|--ignoreDeprecations 6.0' .` | pass | After correction, active command surfaces clean; only prohibition context remains. |
-| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/bootstrap_repo.py > /dev/null` | pass | Bootstrap idempotence passed. |
-| `cd ui && npm run test:api && npm run typecheck && npm run lint && npm run build` | pass | UI validation passed. |
-| `git diff --check` | pass | No whitespace errors. |
-| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py` | pass | Structure validation passed. |
-| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py` | pass | Documentation validation passed. |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-129-1-target ./scripts/check.sh` | pass | Full deterministic check passed. |
-| Guarded diff | pass | No guarded source, test, schema, governance, architecture, roadmap, lockfile, README, or AGENTS drift. |
-| Authority/readiness scan | pass | No new approval or activation claim. |
-
-## Zero-drift checklist
-- [x] Unsupported TypeScript flags are absent from active UI command surfaces.
-- [x] `scripts/bootstrap_repo.py` does not restore unsupported TypeScript flags.
-- [x] Bootstrap idempotence passes.
-- [x] `npm run test:api` passes.
-- [x] Full `scripts/check.sh` passes.
-- [x] No UI source changes are introduced.
-- [x] No UI behavior test assertions are changed.
-- [x] No runtime behavior is changed.
-- [x] No authority behavior is changed.
-- [x] No release/deployment/monitoring behavior is added.
-- [x] No readiness claims are introduced.
-- [x] CHANGELOG entry matches actual diff.
+- [x] Phase 131+ work is not implemented.
