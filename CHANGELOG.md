@@ -17,6 +17,64 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.125 - 2026-05-10
+**Status:** Phase 125 - Roadmap, Changelog, and Production-Path Reassessment
+
+### Added
+- Add the Phase 125 roadmap, changelog, and production-path reassessment report.
+
+### Changed
+- Update roadmap planned-truth surfaces to preserve Phase 126-130 with caveats and clarify post-130 planning expansion.
+- Update checklists/current-phase.md to Phase 125 procedural truth.
+- Update CHANGELOG.md with v0.0.125.
+
+### Notes
+- Phase 125 is roadmap, changelog, and production-path reassessment only.
+- Phase 125 is a 0/5 checkpoint.
+- Phase 125 is not a green light phase.
+- Reconciliation is not readiness approval.
+- Feedback is evidence, not authority.
+- Remediation is documentation clarity, not readiness.
+- Usability clarity is not safety.
+- Operator workflow clarity is not release readiness.
+- Evidence capture clarity is not public usability.
+- No remediation item may imply runtime behavior.
+- No remediation item may imply release or deployment behavior.
+- No remediation item may imply authority activation.
+- No remediation item may imply Release Candidate or Production Candidate readiness.
+- No remediation item may imply public/general use.
+- Phase 125 adds no runtime behavior.
+- Phase 125 adds no new capability.
+- Phase 125 makes no Rust source changes.
+- Phase 125 makes no TypeScript source changes.
+- Phase 125 makes no test changes.
+- Phase 125 makes no schema changes.
+- Phase 125 implements no Phase 126.
+- Phase 125 implements no Phase 130.
+- Phase 125 adds no deployment automation.
+- Phase 125 creates no release artifacts.
+- Phase 125 creates no packages.
+- Phase 125 creates no installer behavior.
+- Phase 125 creates no update-channel behavior.
+- Phase 125 adds no signing/publishing behavior.
+- Phase 125 creates no GitHub release, release tag, or public download asset.
+- Phase 125 adds no public release behavior.
+- Phase 125 adds no production deployment behavior.
+- Phase 125 adds no persistence authority expansion.
+- Phase 125 adds no replay repair.
+- Phase 125 adds no recovery promotion.
+- Phase 125 adds no action execution.
+- Phase 125 adds no provider trust.
+- Phase 125 adds no provider output promotion.
+- Phase 125 grants no readiness approval.
+- Phase 125 grants no Release Candidate approval.
+- Phase 125 grants no release-candidate approval.
+- Phase 125 grants no Production Candidate approval.
+- Phase 125 grants no public-usability approval.
+- Phase 125 grants no public/general-use approval.
+- Phase 125 grants no production-human-use approval.
+- Production-path estimates are non-authoritative planned-truth scenarios, not commitments.
+
 ## v0.0.124 - 2026-05-10
 **Status:** Phase 124 - Operational Usability Remediation Boundary
 

@@ -257,8 +257,8 @@ Boundary: usability remediation only; no readiness approval.
 Non-goals: no release approval, no Production Candidate approval, no public usability approval, no production deployment, and no provider/persistence/recovery/action authority expansion.
 Evidence gate: remediation evidence must be specific to operator ergonomics, UI usability, transport usability, supportability, or documentation; it does not approve later ladder rungs.
 
-### Phase 125 - Roadmap and Changelog Alignment Check
-Goal: Reconcile Phase 121-124 outcomes and decide whether release-candidate hardening may proceed.
+### Phase 125 - Roadmap, Changelog, and Production-Path Reassessment
+Goal: Reconcile Phase 121-124 outcomes and reassess whether Phase 126-130 should be preserved, preserved with caveats, remapped, deferred, or expanded beyond Phase 130.
 Boundary: alignment/checkpoint only; no readiness approval.
 Non-goals: no Release Candidate approval, no Production Candidate approval, no public/general-use approval, no production human-use approval, no release artifact creation, and no public release.
 Evidence gate: preserves the 0/5 checkpoint cadence; Phase 119 remains an intentional decision-gate exception and does not redefine the 0/5 convention.

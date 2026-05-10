@@ -4,450 +4,461 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current phase checklist - Phase 124 Operational Usability Remediation Boundary
+# Current Phase Checklist - Phase 125 Roadmap, Changelog, and Production-Path Reassessment
 
 ## Phase name
-- [x] Phase 124 - Operational Usability Remediation Boundary.
+- [x] Phase 125 - Roadmap, Changelog, and Production-Path Reassessment.
 
 ## Phase goal
-- [x] Improve local operator evidence-capture clarity.
-- [x] Improve participant instruction clarity only as bounded documentation/procedure, not public-use documentation.
-- [x] Improve manual-review packet traceability.
-- [x] Improve operator workflow, stop-condition, escalation, and residual-risk traceability clarity.
-- [x] Preserve feedback as evidence, trial evidence as non-readiness evidence, and Phase 124 as usability remediation only.
-- [x] Produce a Phase 125 alignment/checkpoint handoff without implementing Phase 125 or Phase 130.
+- [x] Reconcile Phase 121-124 outcomes and determine whether the Phase 126-130 plan should be preserved, preserved with caveats, remapped, deferred, or expanded beyond Phase 130.
+- [x] Phase 125 is roadmap, changelog, and production-path reassessment only.
+- [x] Phase 125 is a 0/5 checkpoint.
+- [x] Phase 125 is not a green light phase.
+- [x] Reconciliation is not readiness approval.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits.
 - [x] Remove generated artifact drift before edits if present.
-- [x] Keep staged files limited to allowed Phase 124 surfaces.
+- [x] Record cleanup if generated drift is found.
 
 ## Allowed surfaces
-- [x] `docs/operations/operational-usability-remediation-phase-124.md` may be created.
-- [x] `docs/operations/early-human-use-evidence-capture-template-phase-124.md` may be created.
-- [x] `checklists/current-phase.md` may be updated.
-- [x] `CHANGELOG.md` may be updated.
-- [x] No Rust source, TypeScript source, tests, schemas, scripts, workflows, README, AGENTS, governance docs, architecture docs, roadmap files, archived changelog files, package files, lockfiles, deployment infrastructure, or release infrastructure are changed.
+- [x] `docs/operations/roadmap-changelog-production-path-reassessment-phase-125.md`.
+- [x] `docs/roadmap/phase-map.md` if planned-truth alignment requires it.
+- [x] `docs/roadmap/phases.md` if planned-truth alignment requires it.
+- [x] `docs/roadmap/sequencing.md` if planned-truth alignment requires it.
+- [x] `checklists/current-phase.md`.
+- [x] `CHANGELOG.md`.
 
 ## Boundary rules
-- [x] Phase 124 is operational usability remediation only.
-- [x] Phase 124 does not implement runtime behavior.
-- [x] Phase 124 does not implement UI behavior changes.
-- [x] Phase 124 does not implement authority changes.
-- [x] Phase 124 does not implement Phase 125.
-- [x] Phase 124 does not implement Phase 130.
-- [x] Phase 124 does not approve Release Candidate status, release-candidate readiness, Production Candidate status, production readiness, public usability, public/general use, or production human use.
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No tests changes.
+- [x] No schema changes.
+- [x] No runtime behavior changes.
+- [x] No UI behavior changes.
+- [x] No authority behavior changes.
+- [x] No Phase 126 implementation.
+- [x] No Phase 130 implementation.
+- [x] No release artifacts.
 
 ## Evidence-only checklist
 - [x] Count only committed source files, tests, UI behavior tests, validation scripts, governance docs, architecture docs, roadmap docs, operations docs, changelog surfaces, checklists, schemas, and CI/workflow files.
-- [x] Do not count prompt intent, prior chat summaries, uncommitted work, speculative roadmap claims, or future phase descriptions as implemented behavior.
-- [x] Do not treat passing validation as release approval or readiness approval.
-- [x] Do not treat Phase 124 remediation as readiness.
-- [x] Do not treat absence of blockers as approval.
+- [x] Do not count prompt intent.
+- [x] Do not count prior chat summaries.
+- [x] Do not count uncommitted work.
+- [x] Do not count speculative roadmap claims as implementation.
+- [x] Do not count future phase descriptions as implemented behavior.
+- [x] Do not count passing validation as release approval.
+- [x] Do not count passing validation as readiness approval.
+- [x] Do not count Phase 124 remediation as readiness.
 
-## Phase 123 relationship checklist
-- [x] Phase 123 is complete.
-- [x] Phase 123 is evidence review and operator feedback audit only.
+## 0/5 checkpoint checklist
+- [x] Phase 125 remains a 0/5 checkpoint.
+- [x] Phase 125 is not a green light phase.
+- [x] Phase 125 is reconciliation and remapping, not readiness.
+- [x] Phase 125 may reconcile roadmap/changelog truth.
+- [x] Phase 125 may classify Phase 121-124 outcomes.
+- [x] Phase 125 may produce production-path forecast scenarios.
+- [x] Phase 125 may not approve later ladder rungs.
+
+## Required enforcement lines checklist
 - [x] Feedback is evidence, not authority.
-- [x] Trial evidence is not readiness, Release Candidate approval, Production Candidate approval, public/general use, or production human use.
-- [x] Phase 123 did not implement Phase 124 remediation, Phase 125 alignment, or Phase 130 Release Candidate Decision Gate.
-- [x] Phase 123 did not expand Phase 120 early-human-use authority.
-- [x] Phase 123 approved no Release Candidate, release-candidate readiness, Production Candidate, production readiness, public usability, public/general use, or production human use status.
-- [x] Phase 123 created no release artifacts, packages, installers, update channels, signing/publishing behavior, GitHub releases, release tags, public downloads, or public assets.
-- [x] Phase 123 added no public release behavior, production deployment behavior, deployment automation, provider execution expansion, persistence authority expansion, replay repair, recovery promotion, action execution, provider trust, or provider output promotion.
-
-## Phase 122 relationship checklist
-- [x] Phase 122 is complete.
-- [x] Phase 122 remains Controlled Early Human-Use Trial Boundary only.
-- [x] Phase 122 is local/non-public, named-participant, manually reviewed, Trial-coordinator-owned, and evidence-capture-required.
-- [x] Phase 122 does not approve Release Candidate status, release-candidate readiness, Production Candidate status, production readiness, public usability, public/general use, production deployment, or production human use.
-- [x] Phase 124 only clarifies Phase 122 trial evidence-capture and usability surfaces.
-
-## Phase 120 relationship checklist
-- [x] Phase 120 is complete.
-- [x] Phase 120 remains Early Human-Use Candidate Gate only.
-- [x] Phase 120 constrained early-human-use candidacy remains bounded, non-public, local/trial-only, manually reviewed, and limited to named internal/trial participants.
-- [x] Phase 124 does not expand Phase 120 early-human-use authority.
+- [x] Remediation is documentation clarity, not readiness.
+- [x] Usability clarity is not safety.
+- [x] Operator workflow clarity is not release readiness.
+- [x] Evidence capture clarity is not public usability.
+- [x] No remediation item may imply runtime behavior.
+- [x] No remediation item may imply release or deployment behavior.
+- [x] No remediation item may imply authority activation.
+- [x] No remediation item may imply Release Candidate or Production Candidate readiness.
+- [x] No remediation item may imply public/general use.
 
 ## Phase 121 relationship checklist
-- [x] Phase 121 is complete.
-- [x] Phase 121 remains Post-120 Roadmap Expansion and Production Gap Reassessment only.
-- [x] Phase 121 roadmap expansion remains planned truth, not implementation.
-- [x] Phase 125 remains the next 0/5 checkpoint.
-- [x] Phase 130 remains Release Candidate Decision Gate only.
+- [x] Phase 121 expanded the roadmap through Phase 130.
+- [x] Phase 126 is currently planned as Release Packaging Contract.
+- [x] Phase 127 is currently planned as Installer and Update-Channel Threat Boundary.
+- [x] Phase 128 is currently planned as Observability and Operational Evidence Boundary.
+- [x] Phase 129 is currently planned as Release Candidate Dry Run.
+- [x] Phase 130 is currently planned as Release Candidate Decision Gate.
+- [x] Public/general use remains a later final rung.
+
+## Phase 122 relationship checklist
+- [x] Phase 122 remains controlled early-human-use trial boundary only.
+- [x] Phase 122 did not approve public release.
+- [x] Phase 122 did not approve Production Candidate status.
+- [x] Phase 122 did not approve production human use.
+
+## Phase 123 relationship checklist
+- [x] Phase 123 remains early-human-use evidence review and operator feedback audit only.
+- [x] Participant-specific feedback remains evidence-insufficient.
+- [x] Per-session manual-review records remain evidence-insufficient.
+- [x] Stop-condition incident records remain evidence-insufficient.
+- [x] Escalation incident records remain evidence-insufficient.
+- [x] Committed trial packets remain evidence-insufficient.
+
+## Phase 124 relationship checklist
+- [x] Phase 124 is complete.
+- [x] Phase 124 is operational usability remediation only.
+- [x] Usability remediation is not readiness approval.
+- [x] Feedback is evidence, not authority.
+- [x] Trial evidence is not readiness.
+- [x] The evidence-capture template is procedural guidance only.
+- [x] Phase 124 did not implement runtime behavior, UI behavior changes, authority changes, Phase 125, or Phase 130.
+
+## Phase 124 remediation-boundary checklist
+- [x] Evidence-capture clarity was improved procedurally.
+- [x] Participant instruction clarity was improved procedurally.
+- [x] Manual-review packet traceability was improved procedurally.
+- [x] Operator workflow clarity was improved procedurally.
+- [x] Stop-condition clarity was improved procedurally.
+- [x] Escalation clarity was improved procedurally.
+- [x] Residual-risk traceability was improved procedurally.
+- [x] Phase 124 remediation did not close production/public-use evidence gaps.
+
+## Roadmap alignment checklist
+- [x] Phase 125 title/scope confirmed from roadmap files and aligned to Roadmap, Changelog, and Production-Path Reassessment.
+- [x] Phase 126-130 preservation is planned truth only.
+- [x] Phase 130 may still decide not ready.
+- [x] Phase 126-130 does not cover Production Candidate approval, production readiness, production deployment, production human use, public usability, or public/general use.
+- [x] Post-130 planning note is present.
+
+## Changelog alignment checklist
+- [x] CHANGELOG.md updated with v0.0.125.
+- [x] CHANGELOG surfaces remain historical truth.
+- [x] Archived changelog files are unchanged.
+
+## Phase 121-124 reconciliation checklist
+- [x] Phase 121 roadmap expansion reconciled.
+- [x] Phase 122 controlled early-human-use trial boundary reconciled.
+- [x] Phase 123 evidence review and operator feedback audit reconciled.
+- [x] Phase 124 operational usability remediation reconciled.
 
 ## Ladder-Preservation Invariant checklist
 - [x] Ladder steps are not interchangeable.
-- [x] No implicit promotion from usability remediation, clearer documentation, evidence packet templates, validation success, operator notes, participant feedback, provider output, or absence of blockers.
+- [x] No implicit promotion is allowed.
 - [x] Absence of blockers is not approval.
 - [x] Evidence assembly is not readiness.
 - [x] Dry runs are not release.
-- [x] Decision gates may approve only their explicitly authorized decision.
-- [x] Phase 124 cannot retroactively rewrite Phase 120, Phase 121, Phase 122, or Phase 123.
+- [x] Decision/checkpoint phases approve only explicitly authorized decisions.
+- [x] No retroactive rewrite of earlier gates.
 - [x] Human use is not binary.
 - [x] Deployment is not release.
-- [x] Phase 124 is not the final gate.
+- [x] No phase claims to be final gate.
 - [x] Public/general use is always the final rung.
-- [x] No trust inference from provider output, operator notes, participant notes, or feedback.
-- [x] No cross-category inference across usability, trial, operator workflow, observability, security, release, governance, roadmap, changelog, validation, provider, persistence, recovery, action, deployment, or public-use evidence.
+- [x] No trust inference from provider output or human feedback.
+- [x] No cross-category inference.
 - [x] No authority activation without explicit roadmap permission.
 - [x] Every rung requires its own evidence.
 - [x] Roadmap continuation remains required.
 
 ## Production-human-use ladder checklist
-- [x] Local operator testing remains a distinct rung.
-- [x] Controlled human trial remains a distinct rung.
-- [x] Early human-use candidate remains a distinct rung.
-- [x] Release candidate remains a distinct rung.
-- [x] Production candidate remains a distinct rung.
+- [x] Local operator testing remains distinct.
+- [x] Controlled human trial remains distinct.
+- [x] Early human-use candidate remains distinct.
+- [x] Release candidate remains distinct.
+- [x] Production candidate remains distinct.
 - [x] Public/general use remains the final rung.
-- [x] Phase 124 operates only within operational usability remediation for the Early human-use candidate rung.
 
-## Usability-remediation-not-readiness checklist
-- [x] Usability remediation is not readiness approval.
-- [x] Clearer instructions are not release evidence.
-- [x] Evidence packet templates are not readiness evidence.
-- [x] Manual-review packet traceability is not authority.
-- [x] Absence of blockers is not approval.
+## Current ladder rung checklist
+- [x] AJENTIC remains at constrained early-human-use candidate / usability-remediation stage.
+- [x] AJENTIC is not Release Candidate ready.
+- [x] AJENTIC is not Production Candidate ready.
+- [x] AJENTIC is not public/general-use ready.
 
-## Feedback-is-evidence checklist
-- [x] Feedback is evidence, not authority.
-- [x] Participant feedback does not create trust.
-- [x] Operator feedback does not create trust.
-- [x] Provider output remains untrusted.
-- [x] Participant/operator preferences do not become requirements without review.
+## Remediation-boundary verification checklist
+- [x] Remediation is documentation clarity, not readiness.
+- [x] Usability clarity is not safety.
+- [x] Operator workflow clarity is not release readiness.
+- [x] Evidence capture clarity is not public usability.
+- [x] No remediation item may imply runtime behavior.
+- [x] No remediation item may imply release or deployment behavior.
+- [x] No remediation item may imply authority activation.
+- [x] No remediation item may imply Release Candidate or Production Candidate readiness.
+- [x] No remediation item may imply public/general use.
 
-## Trial-evidence-not-readiness checklist
-- [x] Trial evidence is not readiness.
-- [x] Trial evidence is not Release Candidate approval.
-- [x] Trial evidence is not Production Candidate approval.
-- [x] Trial evidence is not public/general-use approval.
-- [x] Trial evidence is not production-human-use approval.
+## Residual-risk carry-forward checklist
+- [x] Participant-specific feedback risk carried forward.
+- [x] Per-session manual-review risk carried forward.
+- [x] Stop-condition incident risk carried forward.
+- [x] Escalation incident risk carried forward.
+- [x] Committed trial packet risk carried forward.
+- [x] Production/public-use evidence gaps carried forward.
 
-## Remediation status model checklist
-- [x] `remediation_defined` is permitted.
-- [x] `remediation_completed` is permitted.
-- [x] `remediation_completed_with_findings` is permitted.
-- [x] `remediation_deferred` is permitted.
-- [x] `remediation_blocked` is permitted.
-- [x] `remediation_requires_phase_125_review` is permitted.
-- [x] `remediation_not_applicable` is permitted.
-- [x] Approval/ready status wording is not used as a Phase 124 remediation status.
+## Evidence-insufficient carry-forward checklist
+- [x] Participant-specific feedback remains evidence-insufficient.
+- [x] Per-session manual-review records remain evidence-insufficient.
+- [x] Stop-condition incident records remain evidence-insufficient.
+- [x] Escalation incident records remain evidence-insufficient.
+- [x] Committed trial packets remain evidence-insufficient.
+- [x] Public/general-use evidence remains evidence-insufficient.
 
-## Remediation disposition model checklist
-- [x] `clarified` is permitted.
-- [x] `documented` is permitted.
-- [x] `deferred` is permitted.
-- [x] `blocked` is permitted.
-- [x] `requires_phase_125_alignment` is permitted.
-- [x] `requires_phase_126_or_later_release_work` is permitted.
-- [x] `requires_phase_130_or_later_decision` is permitted.
-- [x] `requires_later_public_use_planning` is permitted.
-- [x] `not_applicable` is permitted.
-
-## Remediation category model checklist
-- [x] `evidence_capture_clarity` is permitted.
-- [x] `participant_instruction_clarity` is permitted.
-- [x] `manual_review_packet_traceability` is permitted.
-- [x] `operator_workflow_clarity` is permitted.
-- [x] `usability_documentation` is permitted.
-- [x] `trial_boundary_clarity` is permitted.
-- [x] `stop_condition_clarity` is permitted.
-- [x] `escalation_clarity` is permitted.
-- [x] `residual_risk_traceability` is permitted.
-- [x] `phase_125_handoff` is permitted.
-- [x] `non_readiness_language` is permitted.
-- [x] `not_applicable` is permitted.
-
-## Phase 123 remediation candidate checklist
-- [x] Local operator evidence-capture clarity is addressed as documentation/template clarity.
-- [x] Participant instruction clarity is addressed only as bounded trial guidance.
-- [x] Manual-review packet traceability is addressed only as procedural traceability.
-- [x] Operator ergonomics and UI usability remain candidate remediation topics only; no UI behavior changes are made.
-- [x] Evidence-capture and manual-review burden are addressed as usability documentation only.
-
-## Evidence-capture clarity checklist
-- [x] Participant name or identifier field is required by the template.
-- [x] Internal/trial participant status field is required by the template.
-- [x] Session identifier field is required by the template.
-- [x] Surfaces used field is required by the template.
-- [x] Validation commands run field is required by the template when applicable.
-- [x] Observed outcomes field is required by the template.
-- [x] Evidence category field is required by the template.
-
-## Participant instruction clarity checklist
-- [x] Participant instructions remain bounded to local/non-public trial context.
-- [x] Participant feedback is recorded as evidence only.
-- [x] Participant preferences do not become requirements without review.
-- [x] Participant guidance is not public-use documentation.
-
-## Manual-review packet traceability checklist
-- [x] Manual-review packet identifier is required.
-- [x] Reviewer is required.
-- [x] Manual-review disposition is required.
-- [x] Evidence references are required when committed evidence exists.
-- [x] Stop-condition status is required.
-- [x] Escalation status is required.
-- [x] Phase 125 handoff status is required.
-
-## Operator workflow clarity checklist
-- [x] Operator is required.
-- [x] Trial coordinator is required.
-- [x] Reviewer is required.
-- [x] Local/non-public context is confirmed before use.
-- [x] Provider output if present is recorded as untrusted evidence only.
-- [x] Prohibited claim checks are completed.
-
-## Stop-condition clarity checklist
-- [x] Stop-condition status is required.
-- [x] Stop-condition trigger is required if observed.
-- [x] Immediate pause or containment action is required if observed.
-- [x] Affected surface and reviewer are recorded if observed.
-- [x] Stop-condition evidence remains descriptive and non-readiness evidence.
-
-## Escalation clarity checklist
-- [x] Escalation status is required.
-- [x] Escalation reason is required when escalation status is not none.
-- [x] Security reviewer if escalated is required for security review.
-- [x] Release steward if escalated is required for release-boundary escalation.
-- [x] Escalation outcomes remain descriptive and non-approving.
-
-## Residual-risk traceability checklist
-- [x] Residual-risk notes are required.
-- [x] Related evidence category is required.
-- [x] Stop-condition or escalation links are recorded when applicable.
-- [x] Risk owner for Phase 125 review is recorded when unresolved.
-- [x] Residual risks do not approve readiness.
-
-## Evidence-category separation checklist
-- [x] Usability evidence remains separate.
-- [x] Trial evidence remains separate.
-- [x] Operator workflow evidence remains separate.
-- [x] Observability, security, release, governance, roadmap, changelog, validation, provider, persistence, recovery, action, deployment, and public-use evidence remain separate.
-- [x] No evidence category satisfies another by implication.
-
-## Participant/operator preference handling checklist
-- [x] Participant preferences are evidence only.
-- [x] Operator preferences are evidence only.
-- [x] Preferences do not become requirements without review.
-- [x] Preferences do not create authority, trust, readiness, release approval, deployment approval, or public-use approval.
-
-## Phase 125 handoff checklist
-- [x] Phase 124 report is part of the handoff package.
-- [x] Phase 124 evidence-capture template is part of the handoff package.
-- [x] Current-phase checklist is part of the handoff package.
-- [x] Changelog entry is part of the handoff package after acceptance.
-- [x] Handoff is non-approving and limited to operational usability remediation evidence.
-
-## Phase 125 blocker assessment checklist
-- [x] Participant-specific feedback remains evidence-insufficient and requires Phase 125 review.
-- [x] Committed per-session manual-review records remain evidence-insufficient and require Phase 125 review.
-- [x] Committed stop-condition incident records remain evidence-insufficient and require Phase 125 review.
-- [x] Committed escalation incident records remain evidence-insufficient and require Phase 125 review.
-- [x] Committed trial packets remain evidence-insufficient and require Phase 125 review.
-
-## Phase 125 checkpoint expectation checklist
-- [x] Phase 125 remains the next 0/5 checkpoint.
-- [x] Phase 125, if recommended, is roadmap/changelog alignment and production-path reassessment only.
-- [x] Phase 124 does not implement Phase 125.
-
-## Phase 130 deferral checklist
+## Phase 126-130 planning/deferment checklist
+- [x] Primary outcome is `preserve_with_caveats`.
+- [x] Secondary outcome is `expand_post_130_plan`.
+- [x] `preserve_phase_126_130_plan` remains a permitted outcome label but is not the primary outcome.
+- [x] `remap_phase_126_130` is not selected.
+- [x] `defer_release_candidate_hardening` is not selected as primary outcome.
+- [x] Phase 126 remains Release Packaging Contract only.
+- [x] Phase 127 remains Installer and Update-Channel Threat Boundary only.
+- [x] Phase 128 remains Observability and Operational Evidence Boundary only.
+- [x] Phase 129 remains Release Candidate Dry Run only.
 - [x] Phase 130 remains Release Candidate Decision Gate only.
-- [x] Phase 124 does not implement Phase 130.
-- [x] Release Candidate status and release-candidate readiness remain not approved by Phase 124.
+
+## Post-130 planning note checklist
+- [x] Post-130 planning includes Production Candidate reassessment.
+- [x] Post-130 planning includes production deployment contract.
+- [x] Post-130 planning includes production-readiness evidence.
+- [x] Post-130 planning includes public/general-use readiness audit.
+- [x] Post-130 planning includes public/general-use decision gate.
+- [x] Post-130 planning includes support, incident response, rollback, and distribution governance.
+
+## Production-path forecast checklist
+- [x] Forecast is non-authoritative.
+- [x] Forecast uses planned-truth scenarios only.
+- [x] `minimum_plausible_path`: Phases 126-135.
+- [x] `likely_path`: Phases 126-145.
+- [x] `extended_path`: Phases 126-160+.
+- [x] `insufficient_evidence_to_estimate` applies where committed evidence is absent.
+- [x] Production-path forecast table is complete.
+
+## Phase 126 handoff checklist
+- [x] Phase 126 handoff is explicit.
+- [x] Phase 126, if recommended, is release packaging contract only.
+- [x] Phase 126 creates no package, artifact, publication, installer, update channel, signing, GitHub release, release tag, public download, or public asset.
+
+## Phase 130 decision-gate realism checklist
+- [x] Phase 130 remains Release Candidate Decision Gate only.
+- [x] Phase 130 may still decide not ready.
+- [x] Additional evidence phases may be inserted before or after Phase 130 if needed.
+
+## Release Candidate readiness assessment checklist
+- [x] Phase 121-124 outcomes are not sufficient to claim release-candidate readiness.
+- [x] Phase 125 does not approve Release Candidate status.
+
+## Production Candidate readiness assessment checklist
+- [x] Phase 121-124 outcomes are not sufficient to claim Production Candidate readiness.
+- [x] Phase 125 does not approve Production Candidate status.
+
+## Public/general-use readiness assessment checklist
+- [x] Phase 121-124 outcomes are not sufficient to claim public usability.
+- [x] Phase 121-124 outcomes are not sufficient to claim public/general use.
+
+## Production-human-use readiness assessment checklist
+- [x] Phase 121-124 outcomes are not sufficient to claim production human use.
+- [x] Controlled early human-use evidence is distinct from production-human-use evidence.
 
 ## Public/general-use final-rung checklist
 - [x] Public/general use remains a later final rung.
-- [x] Phase 124 does not approve public usability.
-- [x] Phase 124 does not approve public/general use.
-- [x] Phase 124 does not approve production human use.
+- [x] No Phase 125 finding implies general availability or public distribution.
 
 ## Release artifact prohibition checklist
-- [x] No release artifacts are created.
-- [x] No packages are created.
-- [x] No public downloads or public assets are created.
+- [x] No release artifact creation.
+- [x] `release_artifact_created` remains a rejected Phase 125 claim.
 
 ## Deployment automation prohibition checklist
-- [x] No deployment automation is added.
-- [x] No deployment automation is run.
-- [x] No production deployment behavior is added.
+- [x] No deployment automation.
+- [x] `deployment_automation` remains a rejected Phase 125 claim.
 
 ## Installer/update-channel prohibition checklist
-- [x] No installer behavior is added.
-- [x] No update-channel behavior is added.
+- [x] No installer behavior.
+- [x] No update-channel behavior.
+- [x] `installer_enabled` and `update_channel_enabled` remain rejected Phase 125 claims.
 
 ## Signing/publishing prohibition checklist
-- [x] No signing behavior is added.
-- [x] No publishing behavior is added.
+- [x] No signing behavior.
+- [x] No publishing behavior.
+- [x] `signing_enabled` and `publishing_enabled` remain rejected Phase 125 claims.
 
 ## GitHub release/tag/public asset prohibition checklist
-- [x] No GitHub release is created.
-- [x] No release tag is created.
-- [x] No public download asset is created.
-- [x] No public asset is created.
+- [x] No GitHub release creation.
+- [x] No release tag creation.
+- [x] No public download or public asset creation.
+- [x] `github_release_created`, `release_tag_created`, and `public_download` remain rejected Phase 125 claims.
 
 ## Public-release prohibition checklist
-- [x] No public release behavior is added.
-- [x] No public release approval is claimed.
+- [x] No public release behavior.
+- [x] `public_release_enabled` remains rejected.
 
 ## Production-deployment prohibition checklist
-- [x] No production deployment behavior is added.
-- [x] No production deployment approval is claimed.
+- [x] No production deployment behavior.
+- [x] `production_deployment_enabled` remains rejected.
 
 ## Public/general-use approval prohibition checklist
-- [x] No public/general-use approval is claimed.
-- [x] No public-usability approval is claimed.
-- [x] No public readiness is claimed.
+- [x] No public usability approval.
+- [x] No public/general-use approval.
 
 ## Production-human-use approval prohibition checklist
-- [x] No production-human-use approval is claimed.
-- [x] No production human-use readiness is claimed.
+- [x] No production-human-use approval.
 
 ## Production Candidate approval prohibition checklist
-- [x] No Production Candidate approval is claimed.
-- [x] No Production Candidate readiness is claimed.
+- [x] No Production Candidate approval.
 
 ## Release-candidate approval prohibition checklist
-- [x] No Release Candidate approval is claimed.
-- [x] No release-candidate readiness is claimed.
+- [x] No Release Candidate approval.
+- [x] No release-candidate approval.
 
 ## Provider trust/output promotion prohibition checklist
-- [x] No provider execution expansion is added.
-- [x] No provider trust is added.
-- [x] No provider output promotion is added.
-- [x] Provider output remains untrusted.
+- [x] No provider trust.
+- [x] No provider output promotion.
 
 ## Replay-repair prohibition checklist
-- [x] No replay repair is added.
-- [x] No replay patching or promotion is added.
+- [x] No replay repair.
 
 ## Recovery-promotion prohibition checklist
-- [x] No recovery promotion is added.
-- [x] No recovery automation is added.
+- [x] No recovery promotion.
 
 ## Action-execution prohibition checklist
-- [x] No action execution is added.
-- [x] No operator action automation is added.
+- [x] No action execution.
 
 ## Readiness prohibition checklist
-- [x] Phase 124 grants no readiness approval.
-- [x] Phase 124 grants no Release Candidate approval.
-- [x] Phase 124 grants no Production Candidate approval.
-- [x] Phase 124 grants no public/general-use approval.
-- [x] Phase 124 grants no production-human-use approval.
+- [x] No readiness approval.
+- [x] No release-candidate readiness approval.
+- [x] No Production Candidate readiness approval.
+- [x] No public-use readiness approval.
 
 ## Production Candidate status checklist
-- [x] Production Candidate status is not approved by Phase 124.
-- [x] Production Candidate evidence remains separate from Phase 124 usability remediation evidence.
+- [x] Production Candidate status is not approved.
 
 ## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness status is not approved by Phase 124.
-- [x] Public/general use status is not approved by Phase 124.
-- [x] Public/general use remains a later final rung.
+- [x] Release-candidate readiness status is not approved.
+- [x] Public/general use status is not approved.
 
 ## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
-- [x] CHANGELOG surfaces remain historical truth.
-- [x] Phase 124 operations docs are advisory/procedural evidence only.
+- [x] CHANGELOG remains historical truth.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-124-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-125-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run Phase 124 remediation boundary scan.
-- [x] Run remediation model scan.
-- [x] Run evidence template scan.
+- [x] Run Phase 125 checkpoint scan.
+- [x] Run required enforcement lines scan.
+- [x] Run reconciliation output scan.
 - [x] Run phase relationship scan.
+- [x] Run production-path forecast scan.
 - [x] Run ladder invariant scan.
 - [x] Run no-deployment/release authority scan.
 - [x] Run no-authority scan.
 - [x] Run readiness scan.
 - [x] Run source guard.
+- [x] Run roadmap diff review.
 
 ## Findings table
-| Finding | Status | Disposition | Category | Notes |
-| --- | --- | --- | --- | --- |
-| Phase 123 participant-specific feedback evidence insufficient | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `participant_instruction_clarity` | Preserved as a Phase 125 review item. |
-| Per-session manual-review records evidence insufficient | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `manual_review_packet_traceability` | Template clarifies packet fields without creating authority. |
-| Stop-condition incident records evidence insufficient | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `stop_condition_clarity` | Template clarifies stop-condition fields. |
-| Escalation incident records evidence insufficient | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `escalation_clarity` | Template clarifies escalation fields. |
-| Committed trial packets evidence insufficient | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `evidence_capture_clarity` | Template clarifies future packet capture. |
+| Question | Finding |
+| --- | --- |
+| Are Phase 121-124 outcomes sufficient to proceed to Phase 126 release packaging contract work? | Yes, with caveats, for contract-only work. |
+| Did Phase 124 produce only usability documentation/procedural remediation? | Yes. |
+| Did Phase 124 expose security, governance, release, deployment, or authority-boundary gaps? | It carried forward evidence gaps; it did not close production/public-use gaps. |
+| Does Phase 126-130 remain the right next block? | Yes, as planned truth only and with caveats. |
+| Is Phase 130 realistically a Release Candidate Decision Gate? | Yes, only as a decision gate that may decide not ready; additional evidence phases may be inserted. |
+| What post-130 phases are required? | Production Candidate reassessment, production deployment contract, production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, and distribution governance. |
+| Which ladder rung is AJENTIC actually on after Phase 124? | Constrained early-human-use candidate / usability-remediation stage. |
+| Are Phase 121-124 outcomes sufficient to claim public usability? | No. |
+| Are Phase 121-124 outcomes sufficient to claim release-candidate readiness? | No. |
+| Are Phase 121-124 outcomes sufficient to claim Production Candidate readiness? | No. |
 
-## Remediation table
-| Remediation | Status | Disposition | Category | Boundary |
-| --- | --- | --- | --- | --- |
-| Evidence-capture clarity | `remediation_completed_with_findings` | `clarified` | `evidence_capture_clarity` | Procedural guidance only. |
-| Participant instruction clarity | `remediation_completed_with_findings` | `documented` | `participant_instruction_clarity` | Bounded trial guidance only. |
-| Manual-review packet traceability | `remediation_completed_with_findings` | `documented` | `manual_review_packet_traceability` | Traceability fields only. |
-| Operator workflow clarity | `remediation_completed_with_findings` | `clarified` | `operator_workflow_clarity` | No UI/runtime behavior changes. |
-| Stop-condition clarity | `remediation_completed_with_findings` | `documented` | `stop_condition_clarity` | Non-readiness routing clarity only. |
-| Escalation clarity | `remediation_completed_with_findings` | `documented` | `escalation_clarity` | Non-approving routing clarity only. |
-| Residual-risk traceability | `remediation_completed_with_findings` | `clarified` | `residual_risk_traceability` | Traceability only. |
-| Phase 125 handoff | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `phase_125_handoff` | Alignment/checkpoint only. |
-
-## Evidence template table
-| Template area | Required fields | Boundary |
+## Phase 121-124 reconciliation table
+| Phase | Reconciled outcome | Finding |
 | --- | --- | --- |
-| Participant record fields | participant name or identifier, internal/trial participant status, participant feedback | Evidence only. |
-| Trial coordinator record fields | Trial coordinator, stop-condition owner, escalation owner | Procedure only. |
-| Operator record fields | operator, operator feedback, validation notes | Evidence only. |
-| Reviewer record fields | reviewer, manual-review disposition, Security reviewer if escalated, Release steward if escalated | Manual review only. |
-| Session context fields | session identifier, surfaces used, validation commands run, observed outcomes | Evidence capture only. |
-| Evidence category fields | evidence category, category separation statement | No cross-category inference. |
-| Manual-review packet fields | manual-review disposition, stop-condition status, escalation status, Phase 125 handoff status | Traceability only. |
+| 121 | Roadmap expansion through Phase 130. | Planned truth only. |
+| 122 | Controlled early-human-use trial boundary. | No release/production/public-use approval. |
+| 123 | Evidence review and feedback audit. | Evidence gaps carried forward. |
+| 124 | Operational usability remediation. | Documentation/procedural clarity only. |
 
-## Phase 125 handoff table
-| Handoff item | Status | Disposition | Category |
-| --- | --- | --- | --- |
-| Phase 124 report | `remediation_completed` | `documented` | `phase_125_handoff` |
-| Evidence-capture template | `remediation_completed_with_findings` | `documented` | `evidence_capture_clarity` |
-| Current checklist | `remediation_completed` | `documented` | `phase_125_handoff` |
-| Changelog entry | `remediation_completed` | `documented` | `phase_125_handoff` |
-| Phase 125 blocker assessment | `remediation_requires_phase_125_review` | `requires_phase_125_alignment` | `phase_125_handoff` |
+## Ladder-preservation verification table
+| Invariant | Finding |
+| --- | --- |
+| Local operator testing distinct. | Preserved. |
+| Controlled human trial distinct. | Preserved. |
+| Early human-use candidate distinct. | Current rung remains constrained early-human-use candidate / usability-remediation stage. |
+| Release candidate distinct. | Not approved. |
+| Production candidate distinct. | Not approved. |
+| Public/general use final rung. | Preserved. |
+| Absence of blockers. | Not approval. |
+| Evidence assembly is not readiness. | Preserved. |
+| Dry runs are not release. | Preserved. |
+| Deployment is not release. | Preserved. |
+| No trust inference. | Preserved. |
+| No cross-category inference. | Preserved. |
+
+## Remediation-boundary verification table
+| Item | Finding |
+| --- | --- |
+| Evidence capture clarity | Procedural guidance only; not public usability. |
+| Participant instruction clarity | Procedural guidance only; not public/general use. |
+| Manual-review traceability | Procedural guidance only; not authority activation. |
+| Operator workflow clarity | Procedural guidance only; not release readiness. |
+| Stop-condition clarity | Procedural guidance only; not safety closure. |
+| Escalation clarity | Procedural guidance only; not governance approval. |
+| Residual-risk traceability | Procedural guidance only; not risk closure. |
+
+## Residual-risk carry-forward table
+| Risk | Carry-forward |
+| --- | --- |
+| Participant-specific feedback evidence-insufficient. | Later committed evidence required. |
+| Per-session manual-review records evidence-insufficient. | Later committed evidence required. |
+| Stop-condition incident records evidence-insufficient. | Later committed evidence required. |
+| Escalation incident records evidence-insufficient. | Later committed evidence required. |
+| Committed trial packets evidence-insufficient. | Later committed evidence required. |
+| Production/public-use evidence gaps. | Post-130 planning expansion required. |
+
+## Phase 126+ planning/deferment table
+| Phase/outcome | Planning disposition |
+| --- | --- |
+| `preserve_with_caveats` | Primary outcome. |
+| `expand_post_130_plan` | Secondary outcome. |
+| Phase 126 | Release Packaging Contract only. |
+| Phase 127 | Installer and Update-Channel Threat Boundary only. |
+| Phase 128 | Observability and Operational Evidence Boundary only. |
+| Phase 129 | Release Candidate Dry Run only. |
+| Phase 130 | Release Candidate Decision Gate only; Phase 130 may still decide not ready. |
+| post-130 | Expand Production Candidate and public/general-use planning. |
+
+## Production-path forecast table
+| Scenario | Forecast |
+| --- | --- |
+| minimum_plausible_path | Phases 126-135 if usability, release packaging, observability, and security evidence are clean. |
+| likely_path | Phases 126-145 if release hardening, installer/update governance, observability, Production Candidate reassessment, support, incident response, rollback, and distribution governance require separate phases. |
+| extended_path | Phases 126-160+ if controlled-use evidence reveals UI, trust, recovery, deployment, support, or security gaps requiring additional remediation cycles. |
+| insufficient_evidence_to_estimate | Use where committed evidence cannot support a scenario. |
 
 ## Deferred items table
-| Deferred item | Disposition | Notes |
-| --- | --- | --- |
-| Phase 125 implementation | `requires_phase_125_alignment` | Phase 124 does not implement Phase 125. |
-| Phase 130 decision | `requires_phase_130_or_later_decision` | Phase 130 remains Release Candidate Decision Gate only. |
-| Release work | `requires_phase_126_or_later_release_work` | No release artifacts, packages, installers, updates, signing, publishing, releases, tags, public downloads, or public assets. |
-| Public/general-use planning | `requires_later_public_use_planning` | Public/general use remains a later final rung. |
-| Runtime/UI authority work | `deferred` | No runtime, UI, or authority behavior changes. |
+| Deferred item | Status |
+| --- | --- |
+| Release artifacts/packages/installers/update channels/signing/publishing | Deferred; not created. |
+| GitHub releases/release tags/public downloads/public assets | Deferred; not created. |
+| Public release/production deployment/deployment automation | Deferred; not added. |
+| Provider trust/provider output promotion | Deferred; not added. |
+| Persistence authority/replay repair/recovery promotion/action execution | Deferred; not added. |
+| Release Candidate, Production Candidate, public/general-use, and production-human-use approval | Deferred; not approved. |
 
 ## Validation log table
-| Command | Expected result | Status |
-| --- | --- | --- |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-124-target ./scripts/check.sh` | Full validation passes | Completed after final edits. |
-| `git diff --check` | No whitespace errors | Completed after final edits. |
-| `git status --short` | Only allowed Phase 124 files before commit | Completed after final edits. |
-| Phase 124 remediation boundary scan | Required Phase 124 terms present | Completed after final edits. |
-| Remediation model scan | Required statuses, dispositions, and categories present | Completed after final edits. |
-| Evidence template scan | Required template fields present | Completed after final edits. |
-| Phase relationship scan | Required phase relationship terms present | Completed after final edits. |
-| Ladder invariant scan | Required ladder invariant terms present | Completed after final edits. |
-| No-deployment/release authority scan | No Phase 124 unauthorized behavior introduced | Completed after final edits. |
-| No-authority scan | No Phase 124 unauthorized authority introduced | Completed after final edits. |
-| Readiness scan | No Phase 124 approval claims introduced | Completed after final edits. |
-| Source guard | No prohibited source/test/schema/script/workflow/orientation/package/archive/governance/architecture/roadmap drift | Completed after final edits. |
+| Command | Expected result |
+| --- | --- |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-125-target ./scripts/check.sh` | Pass. |
+| `git diff --check` | Pass. |
+| `git status --short` | Shows only allowed Phase 125 surfaces before commit. |
+| Phase 125 checkpoint scan | Finds required checkpoint terms. |
+| Required enforcement lines scan | Finds exact enforcement lines. |
+| Reconciliation output scan | Finds required report/table names. |
+| Phase relationship scan | Finds Phase 121-130 and post-130 boundaries. |
+| Production-path forecast scan | Finds scenario forecast terms. |
+| Ladder invariant scan | Finds ladder invariant terms. |
+| No-deployment/release authority scan | No active Phase 125 behavior introduced; docs mentions only. |
+| No-authority scan | No active unauthorized authority claims. |
+| Readiness scan | No readiness approval claims. |
+| Source guard | No source/test/schema/script/workflow/orientation/package/archive/governance/architecture drift. |
+| Roadmap diff review | Planned-truth alignment only. |
 
 ## Zero-drift checklist
-- [x] Full validation passes after final edits.
-- [x] No masked failures exist.
-- [x] Staged files match allowed Phase 124 surfaces.
 - [x] Generated artifacts are cleaned.
-- [x] Phase 124 remediation boundary is explicit.
-- [x] Usability remediation is not readiness approval.
-- [x] Feedback is evidence, not authority.
-- [x] Trial evidence is not readiness.
-- [x] Evidence-capture template is procedural guidance only and creates no runtime behavior, schemas, source code, automation, or authoritative record status.
-- [x] Evidence categories remain separate.
-- [x] Participant/operator preferences are not converted into requirements without review.
-- [x] Evidence-capture, participant instruction, manual-review packet, operator workflow, stop-condition, escalation, and residual-risk traceability clarity are improved.
-- [x] Phase 125 handoff and blockers are explicit.
-- [x] Phase 125 remains the next 0/5 checkpoint.
-- [x] Phase 130 remains Release Candidate Decision Gate only.
-- [x] Public/general use remains a later final rung.
-- [x] Deployment automation, release artifact/package/installer/update/signing/publishing/GitHub release/tag/public download, public release, and production deployment behavior are not added.
-- [x] Provider trust/output promotion, replay repair, recovery promotion, and action execution remain prohibited.
-- [x] Readiness, Release Candidate, release-candidate, Production Candidate, public-use, and production-human-use approvals remain prohibited.
+- [x] Staged files match allowed Phase 125 surfaces.
+- [x] No runtime/source/test/schema changes are introduced.
+- [x] No deployment automation is added.
+- [x] No release artifact/package/installer/update/signing/publishing/GitHub release/tag/public download behavior is added.
+- [x] Public release and production deployment behavior are not added.
+- [x] Provider trust/output promotion remains prohibited.
+- [x] Replay repair, recovery promotion, and action execution remain prohibited.
+- [x] Readiness approvals remain prohibited.
+- [x] Phase 126 is not implemented.

@@ -197,9 +197,9 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Confirmed operator ergonomics, UI usability, transport usability/safety, non-developer documentation, and supportability blockers may be remediated before release-candidate hardening.
    - Boundary: usability remediation only; no public usability approval, release approval, Production Candidate approval, or production readiness.
 
-25. **Phase 125 preserves the 0/5 checkpoint cadence**
-   - Phase 125 reconciles Phase 121-124 outcomes before release-candidate hardening may proceed. Phase 119 was an intentional decision-gate exception and does not redefine the 0/5 convention.
-   - Boundary: alignment/checkpoint only; no readiness approval.
+25. **Phase 125 reassesses roadmap, changelog, and production path while preserving the 0/5 checkpoint cadence**
+   - Phase 125 reconciles Phase 121-124 outcomes before release-candidate preparation proceeds as planned truth. Phase 119 was an intentional decision-gate exception and does not redefine the 0/5 convention.
+   - Boundary: 0/5 checkpoint only; not a green light phase; reconciliation is not readiness approval. Phase 126-130 preservation is planned truth only, Phase 130 may still decide not ready, and Phase 126-130 does not cover Production Candidate approval, production readiness, production deployment, production human use, public usability, or public/general use.
 
 26. **Phase 126 defines release packaging contracts before release-candidate dry run**
    - Packaging, artifact provenance, checksum, signing contract, distribution governance, public download governance, and non-public/public-boundary rules must be contractual before dry-run assembly.
@@ -225,4 +225,4 @@ Deployment configuration, policy/governance versioning, security audit, local de
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 121-130 are the next detailed block, not the final production/public-use roadmap. Potential post-130 work remains non-binding planned truth for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and final public/general-use gate only after all earlier rungs are satisfied.
+Phase 121-130 are the next detailed block, not the final production/public-use roadmap. Phase 125 preserves Phase 126-130 only with caveats as planned truth and expands post-130 planning as non-binding planned truth for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and final public/general-use gate only after all earlier rungs are satisfied.
