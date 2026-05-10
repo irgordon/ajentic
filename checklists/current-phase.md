@@ -4,30 +4,24 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 132.1 Out-of-Band Artifact Contract Correction
-
-## Out-of-band maintenance status
-- [x] Phase 132.1 is out-of-band maintenance only.
-- [x] Phase 132.1 corrects the artifact contract gap discovered in Phase 132.
-- [x] Phase 132.1 is not artifact creation.
-- [x] Phase 132.1 is not package creation.
-- [x] Phase 132.1 is not release infrastructure.
-- [x] Phase 132.1 is not Release Candidate approval.
-- [x] Phase 132.1 preserves Phase 130 `rc_candidate_not_ready`.
+# Current Phase Checklist - Phase 133 Checksum and Provenance Evidence Boundary
 
 ## Working-tree hygiene
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits: no uncommitted files were present.
-- [x] Keep changes limited to the Phase 132.1 operations report, current-phase checklist, and changelog.
+- [x] Keep changes limited to `docs/operations/checksum-provenance-evidence-boundary-phase-133.md`, `checklists/current-phase.md`, and `CHANGELOG.md`.
 - [x] Do not create generated binary/package artifacts.
-- [x] Do not create local artifact output files.
-- [x] Do not create release tags, GitHub releases, public downloads, or public assets.
+- [x] Do not create `artifacts/local/`.
+- [x] Do not create an artifact manifest.
+- [x] Do not generate checksums.
+- [x] Do not create provenance attestations.
+- [x] Do not create signing keys, signatures, release tags, GitHub releases, public downloads, public assets, installers, update-channel metadata, deployment automation, or monitoring/logging/telemetry activation.
 - [x] Run final `git status --short` after validation and commit.
 
 ## Allowed surfaces
-- [x] Create `docs/operations/artifact-contract-correction-phase-132-1.md`.
-- [x] Update `checklists/current-phase.md` to Phase 132.1 procedural truth.
-- [x] Update `CHANGELOG.md` with `v0.0.132.1`.
+- [x] Create `docs/operations/checksum-provenance-evidence-boundary-phase-133.md`.
+- [x] Update `checklists/current-phase.md` to Phase 133 procedural truth.
+- [x] Update `CHANGELOG.md` with `v0.0.133`.
 - [x] Do not modify Rust source.
 - [x] Do not modify TypeScript source.
 - [x] Do not modify tests.
@@ -40,16 +34,35 @@ mutation_path: checklist_revision
 - [x] Do not modify signing/key custody behavior.
 - [x] Do not modify installer/update-channel behavior.
 - [x] Do not modify monitoring/logging/telemetry behavior.
-- [x] Do not modify provider execution, persistence, replay repair, recovery promotion, or action execution behavior.
+- [x] Do not modify provider execution, persistence authority, replay repair, recovery promotion, or action execution behavior.
 
 ## Evidence-only rule
 - [x] Count only committed repository evidence.
-- [x] Do not count prompt intent, prior chat summaries, roadmap text alone, requirements alone, uncommitted files, temporary build outputs, validation success alone, or absence of scan findings alone as artifact evidence.
+- [x] Do not count roadmap plans, prompt text, clean validation, requirements, Phase 132 documentation, or Phase 132.1 documentation as checksum/provenance evidence.
+- [x] Do not treat checksum/provenance requirements as generated checksums or provenance attestations.
+- [x] Do not treat checksum/provenance evidence as signing or release evidence.
 - [x] Requirements remain separate from evidence.
-- [x] Contract correction is not artifact evidence.
-- [x] Output directory definition is not artifact output.
-- [x] Generation command contract is not command execution.
-- [x] Artifact manifest requirements are not artifact manifest evidence.
+- [x] Checksum requirements are not checksum evidence.
+- [x] Provenance requirements are not provenance evidence.
+- [x] Artifact contract correction is not artifact creation.
+- [x] Missing governed artifact evidence blocks checksum/provenance generation.
+- [x] Phase 133 must not create artifacts to satisfy checksum/provenance evidence.
+- [x] Checksum/provenance evidence is not signing, publishing, release, deployment, or readiness.
+
+## Status model
+- [x] Use `checksum_provenance_boundary_defined`.
+- [x] Use `checksum_provenance_blocked_by_missing_artifact`.
+- [x] Use `checksum_provenance_blocked_by_artifact_contract_gap` only for artifact-contract-gap classification.
+- [x] Use `checksum_provenance_deferred`.
+- [x] Use `checksum_requirement_recorded`.
+- [x] Use `provenance_requirement_recorded`.
+- [x] Use `checksum_evidence_recorded` only if governed checksum evidence exists.
+- [x] Use `provenance_evidence_recorded` only if governed provenance evidence exists.
+- [x] Use `requires_artifact_creation_rerun`.
+- [x] Use `requires_phase_134_signing_key_custody`.
+- [x] Use `requires_phase_139_reassembly`.
+- [x] Use `not_applicable`.
+- [x] Do not use prohibited readiness, release, publication, deployment, signing, checksum-generation, or provenance-attestation status terms.
 
 ## Phase 130 carry-forward checklist
 - [x] Phase 130 is complete.
@@ -57,102 +70,96 @@ mutation_path: checklist_revision
 - [x] AJENTIC is not Release Candidate ready.
 - [x] AJENTIC is not Production Candidate ready.
 - [x] AJENTIC is not public/general-use ready.
-- [x] Phase 132.1 does not rerun Phase 130.
-- [x] Phase 132.1 does not approve Release Candidate status.
-- [x] Phase 132.1 does not approve Production Candidate status.
-- [x] Phase 132.1 does not approve public/general use.
-- [x] Phase 132.1 does not approve production human use.
+- [x] Phase 133 does not rerun Phase 130.
+- [x] Phase 133 does not approve Release Candidate status.
 
 ## Phase 132 relationship checklist
 - [x] Phase 132 is complete.
 - [x] Phase 132 recorded `artifact_creation_deferred`.
 - [x] Phase 132 recorded `artifact_contract_gap`.
 - [x] Phase 132 created no binary/package artifact files.
-- [x] Phase 132 found that Phase 126 did not define an explicit Phase 132 local artifact output directory.
-- [x] Phase 132 found that Phase 126 did not define a deterministic artifact generation command.
-- [x] Phase 132.1 corrects the contract gap without creating artifacts.
-- [x] Phase 132.1 does not supersede Phase 132 artifact absence evidence.
+- [x] Phase 132 did not create checksum evidence.
+- [x] Phase 132 did not create provenance evidence.
+- [x] Phase 133 does not infer checksum/provenance evidence from Phase 132 documentation.
+- [x] Phase 133 does not create artifacts to resolve Phase 132 deferral.
 
-## Artifact contract gap checklist
-- [x] Record `artifact_contract_correction_defined`.
-- [x] Record `artifact_contract_gap_resolved_for_future_phase`.
-- [x] Preserve `artifact_creation_still_deferred`.
-- [x] Record `requires_phase_132_artifact_creation_rerun`.
-- [x] Record `requires_phase_133_checksum_provenance`.
-- [x] Confirm Phase 133 must not infer checksum/provenance evidence from Phase 132 or Phase 132.1 documentation alone.
+## Phase 132.1 relationship checklist
+- [x] Phase 132.1 is complete.
+- [x] Phase 132.1 corrected the future artifact contract only.
+- [x] Phase 132.1 did not create artifacts.
+- [x] Phase 132.1 did not create `artifacts/local/`.
+- [x] Phase 132.1 did not create an artifact manifest.
+- [x] Phase 132.1 did not execute artifact generation.
+- [x] Phase 132.1 defines `artifacts/local/` as the future local/non-public output directory contract.
+- [x] No current repository command is classified as the Phase 132 deterministic artifact generation command.
+- [x] Future artifact creation must decide tracked manifest handling versus ignored generated outputs before writing files.
+- [x] Phase 133 does not infer checksum/provenance evidence from Phase 132.1 documentation.
 
-## Output directory contract checklist
-- [x] Define the local/non-public artifact output directory contract as `artifacts/local/`.
-- [x] Record `artifact_output_directory_contract_defined`.
-- [x] Do not create `artifacts/local/` in Phase 132.1.
-- [x] Do not commit files under `artifacts/local/` in Phase 132.1.
-- [x] Do not add ignore rules in Phase 132.1 because no artifact outputs are created.
-- [x] Record that a future artifact-creation phase must decide committed manifest handling versus ignored generated outputs before creating files.
+## Governed artifact existence checklist
+- [x] Ask whether a governed committed local/non-public artifact file exists that Phase 133 may use.
+- [x] Run artifact and checksum/provenance scans.
+- [x] Record that no governed committed local/non-public artifact file exists.
+- [x] Record `checksum_provenance_blocked_by_missing_artifact`.
+- [x] Record `checksum_provenance_deferred`.
+- [x] Do not create artifacts to make checksum/provenance generation possible.
+- [x] Do not create checksum/provenance evidence files.
 
-## Generation command contract checklist
-- [x] Define the deterministic generation command shape as `<committed repo command> --output artifacts/local/ --manifest artifacts/local/artifact-manifest.json --source-revision <git-revision>`.
-- [x] Record `artifact_generation_command_contract_defined`.
-- [x] Record that no current repository command is classified as the Phase 132 deterministic artifact generation command.
-- [x] Record that the command is deferred to a future scoped artifact-creation phase.
-- [x] Do not execute an artifact generation command in Phase 132.1.
-- [x] Do not add runtime or release infrastructure to make a command exist.
+## Artifact contract correction checklist
+- [x] Preserve that Phase 132.1 corrected only the future artifact contract.
+- [x] Preserve that artifact contract correction is not artifact creation.
+- [x] Preserve that output directory definition is not artifact output.
+- [x] Preserve that generation command contract is not command execution.
+- [x] Preserve that artifact manifest requirements are not artifact manifest evidence.
+- [x] Record that current checksum/provenance generation remains blocked by missing governed artifact evidence.
 
-## Manifest requirement checklist
-- [x] Record `artifact_manifest_requirements_defined`.
-- [x] Require future manifest field `artifact_id`.
-- [x] Require future manifest field `artifact_name`.
-- [x] Require future manifest field `artifact_kind`.
-- [x] Require future manifest field `source_revision`.
-- [x] Require future manifest field `build_command`.
-- [x] Require future manifest field `output_path`.
-- [x] Require future manifest field `created_by_phase`.
-- [x] Require future manifest field `non_public`.
-- [x] Require future manifest field `release_artifact_claim`.
-- [x] Require future manifest field `checksum_status`.
-- [x] Require future manifest field `provenance_status`.
-- [x] Require future manifest field `signing_status`.
-- [x] Require future manifest field `publishing_status`.
-- [x] Require future manifest field `deployment_status`.
-- [x] Require future manifest field `readiness_claim`.
-- [x] Require future manifest field `deferred_to_phase`.
-- [x] Do not create artifact manifest evidence in Phase 132.1.
+## Checksum requirement checklist
+- [x] Record `checksum_requirement_recorded` for future checksum evidence requirements.
+- [x] Require future checksum evidence to identify governed artifact input path.
+- [x] Require future checksum evidence to identify source revision.
+- [x] Require future checksum evidence to identify digest algorithm.
+- [x] Require future checksum evidence to identify digest value and checksum file path only when governed evidence exists.
+- [x] Preserve non-public boundary handling.
+- [x] Record that checksum requirements are not checksum evidence.
 
-## Non-public boundary checklist
-- [x] Files under `artifacts/local/` are local/non-public generated outputs by default.
-- [x] Files under `artifacts/local/` are not public assets.
-- [x] Files under `artifacts/local/` are not public downloads.
-- [x] Files under `artifacts/local/` are not GitHub release assets.
-- [x] Files under `artifacts/local/` are not release artifacts until a later decision phase classifies them.
-- [x] Files under `artifacts/local/` are not readiness evidence by inference.
-- [x] Files under `artifacts/local/` are not provider trust, persistence authority, replay repair, recovery promotion, or action execution evidence by inference.
+## Provenance requirement checklist
+- [x] Record `provenance_requirement_recorded` for future provenance evidence requirements.
+- [x] Require future provenance evidence to identify governed artifact input path.
+- [x] Require future provenance evidence to identify source revision and build command evidence.
+- [x] Require future provenance evidence to identify artifact manifest reference when one exists.
+- [x] Require future provenance evidence to identify provenance file path and provenance content only when governed evidence exists.
+- [x] Preserve non-public boundary handling.
+- [x] Record that provenance requirements are not provenance evidence.
 
-## No-artifact-creation checklist
-- [x] No artifact creation.
-- [x] No package creation.
-- [x] No checksum generation.
-- [x] No provenance attestation creation.
-- [x] No signing.
-- [x] No publishing.
-- [x] No installer behavior.
-- [x] No update-channel behavior.
-- [x] No GitHub release.
-- [x] No release tag.
-- [x] No public download.
-- [x] No public asset.
-- [x] No deployment automation.
-- [x] No production deployment.
-- [x] No monitoring/logging/telemetry activation.
+## Blocked/deferred evidence checklist
+- [x] Classify checksum digest evidence as `checksum_provenance_blocked_by_missing_artifact`.
+- [x] Classify checksum file evidence as `checksum_provenance_blocked_by_missing_artifact`.
+- [x] Classify provenance attestation evidence as `checksum_provenance_blocked_by_missing_artifact`.
+- [x] Classify artifact manifest-linked checksum/provenance evidence as `requires_artifact_creation_rerun`.
+- [x] Classify reassembled evidence as `requires_phase_139_reassembly`.
 
-## Deferral checklist
-- [x] Defer actual artifact creation to a future scoped Phase 132 artifact-creation rerun or explicitly scoped successor phase before Phase 133.
-- [x] Defer checksum/provenance to Phase 133.
-- [x] Defer signing/key custody to Phase 134.
-- [x] Defer installer/update-channel behavior to Phase 136.
-- [x] Defer evidence reassembly to Phase 139.
-- [x] Defer readiness re-decision to Phase 140.
-- [x] Do not implement Phase 133.
+## Cross-category inference checklist
+- [x] Do not infer checksum/provenance evidence from Phase 126 packaging requirements.
+- [x] Do not infer checksum/provenance evidence from Phase 130 missing evidence findings.
+- [x] Do not infer checksum/provenance evidence from Phase 131 roadmap remap.
+- [x] Do not infer checksum/provenance evidence from Phase 132 artifact deferral.
+- [x] Do not infer checksum/provenance evidence from Phase 132.1 contract correction.
+- [x] Do not infer checksum/provenance evidence from clean validation.
+- [x] Do not infer checksum/provenance evidence from absence of prohibited scan findings.
+- [x] Do not infer signing, publishing, release, deployment, or readiness from checksum/provenance requirements or evidence.
+
+## Phase 134 handoff checklist
+- [x] Record `requires_phase_134_signing_key_custody`.
+- [x] Do not implement Phase 134.
+- [x] Do not create signing keys.
+- [x] Do not create signatures.
+- [x] Do not modify signing/key custody behavior.
+- [x] Preserve that checksum/provenance requirements are separate from signing/key custody.
+
+## Phase 139 handoff checklist
+- [x] Record `requires_phase_139_reassembly`.
 - [x] Do not implement Phase 139.
-- [x] Do not implement Phase 140.
+- [x] Do not reassemble release evidence.
+- [x] Do not convert requirements into evidence during reassembly.
 
 ## Readiness prohibition checklist
 - [x] No readiness approval.
@@ -160,25 +167,29 @@ mutation_path: checklist_revision
 - [x] No Production Candidate approval.
 - [x] No public/general-use approval.
 - [x] No production-human-use approval.
-- [x] Phase 132.1 does not approve Release Candidate status.
-- [x] Phase 132.1 preserves Phase 130 rc_candidate_not_ready.
+- [x] Phase 133 does not approve Release Candidate status.
+- [x] Phase 133 preserves Phase 130 rc_candidate_not_ready.
+- [x] Phase 133 does not sign, publish, release, deploy, package, create installers, create update channels, activate monitoring, or approve readiness.
+- [x] Phase 133 does not implement Phase 134, Phase 139, or Phase 140.
 
 ## Required enforcement lines
+- [x] Checksum requirements are not checksum evidence.
+- [x] Provenance requirements are not provenance evidence.
 - [x] Artifact contract correction is not artifact creation.
-- [x] Output directory definition is not artifact output.
-- [x] Generation command contract is not command execution.
-- [x] Artifact manifest requirements are not artifact manifest evidence.
-- [x] Phase 132.1 does not create artifacts, packages, checksums, provenance attestations, signatures, releases, public downloads, or deployment behavior.
-- [x] Phase 132.1 does not approve Release Candidate status.
-- [x] Phase 132.1 preserves Phase 130 rc_candidate_not_ready.
+- [x] Missing governed artifact evidence blocks checksum/provenance generation.
+- [x] Phase 133 must not create artifacts to satisfy checksum/provenance evidence.
+- [x] Checksum/provenance evidence is not signing, publishing, release, deployment, or readiness.
+- [x] Phase 133 does not approve Release Candidate status.
+- [x] Phase 133 does not implement Phase 134, Phase 139, or Phase 140.
 
 ## Validation log
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-133-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
-- [x] Run artifact scan for package, signature, key, checksum, provenance, installer, update-channel, and public release file extensions.
-- [x] Run targeted Phase 132.1 enforcement/status scan.
+- [x] Run `git status --short`.
+- [x] Run artifact and checksum/provenance scan.
+- [x] Run targeted Phase 133 enforcement/status scan.
 - [x] Run prohibited behavior scan and classify matches as historical, planned, specification, or prohibition context.
 - [x] Run guarded diff scan.
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-132-1-target ./scripts/check.sh` after commit-clean state is available.
 - [x] Run final `git status --short` after commit.
 
 ## Zero-drift checklist
@@ -196,3 +207,18 @@ mutation_path: checklist_revision
 - [x] No installer/update-channel behavior drift.
 - [x] No monitoring/logging/telemetry behavior drift.
 - [x] No provider execution, persistence authority, replay repair, recovery promotion, or action execution drift.
+
+## Zero-debt checklist
+- [x] Full validation passes.
+- [x] Final git status is clean after commit.
+- [x] Phase 130 rc_candidate_not_ready is preserved.
+- [x] Phase 132 artifact_creation_deferred is preserved.
+- [x] Phase 132.1 artifact contract correction remains contract-only.
+- [x] Missing governed artifact evidence blocks checksum/provenance generation.
+- [x] Requirements are separated from evidence.
+- [x] No artifact is created to satisfy Phase 133.
+- [x] No signing, publishing, deployment, installer/update-channel, monitoring, or readiness behavior is introduced.
+- [x] Phase 134 is not implemented.
+- [x] Phase 139 is not implemented.
+- [x] Phase 140 is not implemented.
+- [x] CHANGELOG entry matches actual diff.
