@@ -12,7 +12,6 @@ jobs:
   memory-lint:
     name: Memory Placement Gate
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('memory/**') != '' }}
 
     steps:
       - name: Checkout repository
@@ -23,28 +22,46 @@ jobs:
         run: |
           set -euo pipefail
 
-          if find memory -type f -name "*.md" | grep -q .; then
+          if [ ! -d memory ]; then
+            echo "memory/ not present; memory placement checks passed."
+            exit 0
+          fi
+
+          if find memory -type f -name "*.md" -print -quit | grep -q .; then
             echo "::error::memory/ must not contain Markdown documentation"
+            find memory -type f -name "*.md" -print
             exit 1
           fi
 
-          if find memory -type f -name "*.schema.json" | grep -q .; then
+          if find memory -type f -name "*.schema.json" -print -quit | grep -q .; then
             echo "::error::memory/ must not contain schemas"
+            find memory -type f -name "*.schema.json" -print
             exit 1
           fi
 
           if [ -d memory/ephemeral ]; then
-            unexpected="$(find memory/ephemeral -type f ! -name ".gitignore" -print)"
-            if [ -n "$unexpected" ]; then
+            if find memory/ephemeral -type f ! -name ".gitignore" -print -quit | grep -q .; then
               echo "::error::ephemeral memory files must not be committed"
-              echo "$unexpected"
+              find memory/ephemeral -type f ! -name ".gitignore" -print
               exit 1
             fi
           fi
 
-          if find memory -type f -name "*.json" | grep -q .; then
+          if find memory -type f -name "*.json" -print -quit | grep -q .; then
             find memory -type f -name "*.json" -print0 |
               xargs -0 -n1 python3 -m json.tool > /dev/null
+          fi
+
+          if find memory -type f \
+            ! -name ".gitignore" \
+            ! -name "*.json" \
+            -print -quit | grep -q .; then
+            echo "::error::memory/ may contain only JSON data files and .gitignore placeholders"
+            find memory -type f \
+              ! -name ".gitignore" \
+              ! -name "*.json" \
+              -print
+            exit 1
           fi
 
           echo "Memory placement checks passed."
