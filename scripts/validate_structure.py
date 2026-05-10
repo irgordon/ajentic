@@ -49,22 +49,6 @@ ALLOWED_DOCS_DIRS = {
     "examples",
 }
 
-TRUTH_ROOTS = {
-    "normative": [Path("docs/governance")],
-    "structural": [Path("docs/architecture")],
-    "planned": [Path("docs/roadmap")],
-    "historical": [Path("CHANGELOG.md"), Path("docs/changelog")],
-    "procedural": [
-        Path("checklists"),
-        Path("docs/operations/early-human-use-evidence-capture-template-phase-124.md"),
-    ],
-    "contract": [Path("schemas")],
-    "data": [Path("memory")],
-    "example": [Path("docs/examples")],
-    "orientation": [Path("README.md"), Path("docs/operations")],
-    "navigation": [Path("AGENTS.md")],
-}
-
 IGNORED_DIR_NAMES = {
     ".git",
     "target",
@@ -77,6 +61,11 @@ IGNORED_DIR_NAMES = {
     ".mypy_cache",
     ".ruff_cache",
 }
+
+OPERATIONS_PROCEDURAL_NAME_MARKERS = (
+    "template",
+    "checklist",
+)
 
 CHANGELOG_ARCHIVE_PATTERN = re.compile(r"^CHANGELOG-\d{4}-\d{4}\.md$")
 
@@ -123,13 +112,58 @@ def is_github_instruction_path(path: Path) -> bool:
     )
 
 
+def allowed_truth_dimensions_for_path(path: Path) -> set[str]:
+    path_text = path.as_posix()
+    name = path.name.lower()
+
+    if path_text == "README.md":
+        return {"orientation"}
+
+    if path_text == "AGENTS.md":
+        return {"navigation"}
+
+    if path_text == "CHANGELOG.md":
+        return {"historical"}
+
+    if is_under(path, Path("docs/governance")):
+        return {"normative"}
+
+    if is_under(path, Path("docs/architecture")):
+        return {"structural"}
+
+    if is_under(path, Path("docs/changelog")):
+        return {"historical"}
+
+    if is_under(path, Path("docs/roadmap")):
+        return {"planned"}
+
+    if is_under(path, Path("docs/operations")):
+        if any(marker in name for marker in OPERATIONS_PROCEDURAL_NAME_MARKERS):
+            return {"procedural"}
+        return {"orientation"}
+
+    if is_under(path, Path("docs/examples")):
+        return {"example"}
+
+    if is_under(path, Path("checklists")):
+        return {"procedural"}
+
+    if is_under(path, Path("schemas")):
+        return {"contract"}
+
+    if is_under(path, Path("memory")):
+        return {"data"}
+
+    return set()
+
+
 def allowed_for_truth(path: Path, truth_dimension: str) -> bool:
-    roots = TRUTH_ROOTS.get(truth_dimension)
-    if not roots:
-        fail(f"{path.as_posix()}: unknown truth_dimension '{truth_dimension}'")
+    allowed = allowed_truth_dimensions_for_path(path)
+    if not allowed:
+        fail(f"{path.as_posix()}: no truth dimensions are defined for this location")
         return False
 
-    return any(is_under(path, root) for root in roots)
+    return truth_dimension in allowed
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -144,6 +178,7 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
     for line in lines[1:]:
         if line.strip() == "---":
             return data
+
         if ":" not in line:
             continue
 
@@ -222,6 +257,7 @@ if memory.exists():
     for path in iter_files(memory):
         if path.suffix == ".md":
             fail(f"{path.as_posix()}: memory/ must not contain Markdown documentation")
+
         if path.name.endswith(".schema.json"):
             fail(f"{path.as_posix()}: memory/ must not contain schemas")
 
@@ -245,17 +281,18 @@ markdown_paths = [
 ]
 
 for path in markdown_paths:
+    path_text = path.as_posix()
     fm = parse_frontmatter(path)
 
     requires_frontmatter = (
         path.name in REQUIRED_ROOT_FILES
-        or path.as_posix() in REQUIRED_DOC_ANCHORS
+        or path_text in REQUIRED_DOC_ANCHORS
         or is_under(path, Path("docs"))
         or is_under(path, Path("checklists"))
     )
 
     if requires_frontmatter and not fm:
-        fail(f"{path.as_posix()}: missing required frontmatter")
+        fail(f"{path_text}: missing required frontmatter")
         continue
 
     if not fm:
@@ -263,12 +300,12 @@ for path in markdown_paths:
 
     for key in ["truth_dimension", "authority_level", "mutation_path"]:
         if key not in fm:
-            fail(f"{path.as_posix()}: missing frontmatter key '{key}'")
+            fail(f"{path_text}: missing frontmatter key '{key}'")
 
     truth_dimension = fm.get("truth_dimension")
     if truth_dimension and not allowed_for_truth(path, truth_dimension):
         fail(
-            f"{path.as_posix()}: truth_dimension '{truth_dimension}' "
+            f"{path_text}: truth_dimension '{truth_dimension}' "
             "is not allowed in this location"
         )
 
