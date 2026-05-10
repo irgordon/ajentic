@@ -293,8 +293,73 @@ Boundary: decision gate only.
 Non-goals: no Production Candidate status, no production readiness, no production deployment, no production human use, no public usability approval, and no public/general use.
 Evidence gate: Release Candidate evidence must be fresh and phase-scoped; approval, if any, applies only to Release Candidate status and cannot imply Production Candidate status or public/general use.
 
-## Post-130 planning note
+## Post-130 planned evidence block
 
-If Phase 130 evidence is insufficient, another hardening block is required. If Phase 130 evidence supports a Release Candidate decision, later planning still must keep separate phases for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and the final public/general-use gate only after all earlier rungs are satisfied.
+Phase 130 is complete with decision status `rc_candidate_not_ready`. Phase 130 did not approve Release Candidate status, Production Candidate status, public/general use, or production-human-use approval, and Phase 130 did not create the missing evidence it identified. Phase 131 must not be a rerun of Phase 130 without new evidence.
 
-Phase 121-130 are sufficient for the next detailed roadmap block, but they are not sufficient to complete the ladder. Later phases may extend beyond Phase 130 if evidence requires it.
+
+### Phase 131 - Post-130 Roadmap Expansion and Release Evidence Remap
+Goal: Convert Phase 130's `rc_candidate_not_ready` findings into the next evidence-producing block.
+Boundary: audit/planning only.
+Non-goals: no Phase 132+ implementation, no Release Candidate approval, no Production Candidate approval, no public/general use, and no rerun of Phase 130 without new evidence.
+Evidence gate: Phase 131 must map the categories that blocked Release Candidate supportability to production or explicit deferral in later phases.
+
+### Phase 132 - Release Artifact Creation Boundary
+Goal: Create controlled release artifact outputs under the Phase 126 contract.
+Boundary: local/non-public artifact creation only; no publishing.
+Non-goals: no public asset, GitHub release, release tag, public download, signing, publishing, deployment, or readiness approval.
+Evidence gate: artifact outputs must remain controlled and non-public.
+
+### Phase 133 - Checksum and Provenance Evidence Boundary
+Goal: Generate and validate checksum/provenance evidence for controlled artifacts.
+Boundary: checksum/provenance evidence only; no signing or publishing.
+Non-goals: no publication, public download, release approval, or public/general-use approval.
+Evidence gate: checksum and provenance evidence cannot imply release, deployment, or readiness.
+
+### Phase 134 - Signing and Key-Custody Implementation Boundary
+Goal: Introduce signing/key-custody controls or explicitly defer them.
+Boundary: signing/key-custody implementation only if evidence permits; no publishing.
+Non-goals: no public signatures, public assets, publication, public download, or automatic Release Candidate approval.
+Evidence gate: key custody and signing controls must be scoped, non-public, and separately justified or explicitly deferred.
+
+### Phase 135 - Roadmap and Changelog Alignment Check
+Goal: Reconcile Phase 131-134 and decide whether installer/update-channel or release dry-run work may proceed.
+Boundary: alignment only; no readiness approval.
+Non-goals: no installer/update-channel implementation, no release approval, no Production Candidate approval, and no public/general use.
+Evidence gate: reconciliation can authorize later scoped work only as planned truth.
+
+### Phase 136 - Installer/Update-Channel Implementation Boundary
+Goal: Implement or further defer installer/update-channel surfaces under Phase 127 constraints.
+Boundary: controlled implementation only; no public distribution.
+Non-goals: no public update service, public installer distribution, publishing, deployment automation, background service, or readiness approval.
+Evidence gate: installer/update-channel evidence must remain constrained or be explicitly deferred.
+
+### Phase 137 - Operational Observability Implementation Boundary
+Goal: Implement local/non-production observability evidence capture if permitted.
+Boundary: controlled observability implementation only; no production monitoring claim.
+Non-goals: no production monitoring, production telemetry endpoint, alerting, dashboarding, public service, deployment, or readiness approval.
+Evidence gate: observability evidence capture is not monitoring supportability and cannot imply production operations.
+
+### Phase 138 - Incident, Support, and Rollback Evidence Boundary
+Goal: Define and test incident, support, rollback, and recovery evidence.
+Boundary: operational procedure/evidence only; no production support claim.
+Non-goals: no production support operations, deployment automation, recovery promotion, replay repair, public support commitment, or readiness approval.
+Evidence gate: procedure evidence must stay separate from support, deployment, and recovery authority.
+
+### Phase 139 - Release Candidate Evidence Reassembly
+Goal: Reassemble Release Candidate evidence after artifact, provenance, signing, installer/update, and observability work.
+Boundary: evidence assembly only; no approval.
+Non-goals: no Release Candidate approval, Production Candidate approval, public/general use, release, deployment, or publication.
+Evidence gate: evidence reassembly cannot substitute for the Phase 140 decision gate.
+
+### Phase 140 - Release Candidate Re-Decision Gate
+Goal: Decide whether Release Candidate status is now supportable or whether another hardening block is required.
+Boundary: decision gate only.
+Non-goals: no automatic Release Candidate approval, no Production Candidate approval, no production readiness, no production deployment, no production human use, and no public/general use.
+Evidence gate: Phase 140 may approve only if category-specific committed evidence supports it; otherwise another hardening block is required.
+
+## Post-140 dependency note
+
+Do not map Production Candidate or public/general-use as automatically following Phase 140. Any post-140 block depends on the Phase 140 decision and must preserve the ladder: Local operator testing → Controlled human trial → Early human-use candidate → Release candidate → Production candidate → Public/general use.
+
+Public/general use remains the later final rung. Phase 131-140 are sufficient for the next detailed roadmap block after Phase 130, but they are not sufficient to complete the ladder.
