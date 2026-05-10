@@ -26,7 +26,8 @@ Archive guarantees:
 ### Changed
 - Update checklists/current-phase.md to Phase 128 procedural truth.
 - Update CHANGELOG.md with v0.0.128.
-- Update scripts/check.sh for TypeScript 6 validation compatibility when running UI API behavior tests from the canonical aggregate check.
+- Update scripts/check.sh for validation compatibility so the canonical aggregate check continues to run the existing UI API behavior test surface without changing UI source, UI behavior, or test assertions.
+- Correct the UI API behavior test TypeScript invocation by preserving the CI-compatible compiler flags and not using unsupported `--ignoreConfig` or `--ignoreDeprecations 6.0` options.
 
 ### Notes
 - Phase 128 is observability and operational-evidence boundary only.
@@ -47,7 +48,8 @@ Archive guarantees:
 - no Rust source changes
 - no TypeScript source changes
 - no test changes
-- no UI behavior change; scripts/check.sh validation compatibility keeps the existing UI API behavior test surface runnable under TypeScript 6.
+- no UI behavior change; validation compatibility keeps the existing UI API behavior test surface runnable under the CI TypeScript compiler.
+- no unsupported TypeScript compiler flags are required for the UI API behavior test command
 - no schema changes
 - no monitoring activation
 - no logging activation
