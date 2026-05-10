@@ -18,6 +18,53 @@ Archive guarantees:
 - CHANGELOG surfaces remain historical truth.
 
 
+
+## v0.0.132 - 2026-05-10
+**Status:** Phase 132 - Release Artifact Creation Boundary
+
+### Added
+- Add the Phase 132 release artifact creation boundary report.
+- Add controlled local/non-public artifact evidence only if created within the Phase 132 boundary.
+
+### Changed
+- Update checklists/current-phase.md to Phase 132 procedural truth.
+- Update CHANGELOG.md with v0.0.132.
+- Update only narrowly required local artifact generation or manifest surfaces if Phase 132 creates controlled non-public artifact evidence.
+
+### Notes
+- Phase 132 is local/non-public artifact evidence only.
+- Local artifact creation is not release.
+- Artifact evidence is not readiness.
+- Artifact manifest evidence is not publication.
+- Local artifacts are non-public evidence only.
+- Phase 132 does not approve Release Candidate status.
+- Phase 132 does not approve Production Candidate status.
+- Phase 132 does not approve public/general use.
+- Phase 132 does not approve production human use.
+- Phase 132 does not create public assets, GitHub releases, release tags, or public downloads.
+- Phase 132 does not sign, publish, deploy, or activate installer/update-channel behavior.
+- Phase 132 does not satisfy checksum, provenance, signing, installer, update-channel, observability, deployment, Production Candidate, or public/general-use evidence by inference.
+- No public release behavior.
+- No public asset creation.
+- No GitHub release creation.
+- No release tag creation.
+- No public download creation.
+- No signing behavior.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- Phase 133 is not implemented.
+- Phase 139 is not implemented.
+- Phase 140 is not implemented.
+
 ## v0.0.131 - 2026-05-10
 **Status:** Phase 131 - Post-130 Roadmap Expansion and Release Evidence Remap
 
