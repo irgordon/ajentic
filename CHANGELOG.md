@@ -18,6 +18,62 @@ Archive guarantees:
 - CHANGELOG surfaces remain historical truth.
 
 
+## v0.0.132.1 - 2026-05-10
+**Status:** Out-of-Band Maintenance - Artifact Contract Correction
+
+### Added
+- Add the Phase 132.1 artifact contract correction report.
+- Define the local/non-public artifact output directory contract.
+- Define the deterministic artifact generation command contract.
+- Define artifact manifest field requirements for future artifact evidence work.
+
+### Changed
+- Update checklists/current-phase.md to Phase 132.1 procedural truth.
+- Update CHANGELOG.md with v0.0.132.1.
+
+### Notes
+- Out-of-band maintenance only.
+- Artifact contract correction is not artifact creation.
+- Output directory definition is not artifact output.
+- Generation command contract is not command execution.
+- Artifact manifest requirements are not artifact manifest evidence.
+- Phase 132.1 does not create artifacts, packages, checksums, provenance attestations, signatures, releases, public downloads, or deployment behavior.
+- Phase 132.1 does not approve Release Candidate status.
+- Phase 132.1 preserves Phase 130 rc_candidate_not_ready.
+- Phase 130 rc_candidate_not_ready is preserved.
+- Phase 132 artifact_creation_deferred is preserved unless explicitly superseded by future evidence.
+- No artifact creation.
+- No package creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No publishing behavior.
+- No installer/update-channel behavior.
+- No GitHub release/tag/public download asset creation.
+- No public release behavior.
+- No production deployment behavior.
+- No monitoring/logging/telemetry activation.
+- No runtime behavior.
+- No new runtime capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 133 implementation.
+- No Phase 139 implementation.
+- No Phase 140 implementation.
+
 
 ## v0.0.132 - 2026-05-10
 **Status:** Phase 132 - Release Artifact Creation Boundary
