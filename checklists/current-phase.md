@@ -449,3 +449,168 @@ mutation_path: checklist_revision
 - [x] No release artifacts created.
 - [x] No generated artifacts retained.
 - [x] Allowed Phase 127 surfaces only.
+
+# Out-of-Band Maintenance - Stale Bootstrap Artifact Sweep
+
+## Task name
+- [x] Out-of-band stale bootstrap artifact sweep.
+
+## Out-of-band maintenance status
+- [x] Recorded as out-of-band maintenance only.
+- [x] No Phase 127 implementation performed.
+- [x] No Phase 128 implementation performed.
+
+## Working-tree hygiene gate
+- [x] Initial `git status --short` was clean.
+- [x] No generated artifacts from prior runs were present at start.
+
+## Allowed surfaces
+- [x] Added `docs/operations/stale-bootstrap-artifact-sweep-oob.md`.
+- [x] Updated `checklists/current-phase.md`.
+- [x] Updated `CHANGELOG.md`.
+- [x] Deleted only stale tracked artifacts satisfying deletion criteria.
+- [x] Updated `scripts/bootstrap_repo.py` only to prevent deleted stale artifacts from being recreated during bootstrap idempotence validation.
+
+## Boundary rules
+- [x] Cleanup only.
+- [x] No new command surface introduced.
+- [x] No replacement runtime behavior introduced.
+- [x] Historical truth remains in CHANGELOG rather than stale executable surfaces.
+
+## Candidate inventory checklist
+- [x] Ran tracked-file inventory with `git ls-files`.
+- [x] Ran stale/bootstrap/placeholder search.
+- [x] Inspected `scripts/`.
+- [x] Inspected `.github/workflows/`.
+- [x] Inspected `docs/examples/`.
+- [x] Inspected `docs/operations/`.
+- [x] Inspected README and AGENTS references.
+- [x] Inspected package and UI package scripts.
+- [x] Inspected check and validator references.
+
+## Reference scan checklist
+- [x] Checked exact references for deleted script names.
+- [x] Checked exact references for deleted placeholder documents.
+- [x] Checked exact references for the stale operator handbook.
+- [x] Confirmed no active CI references to deleted artifacts.
+- [x] Confirmed no active `scripts/check.sh` references to deleted artifacts.
+- [x] Confirmed no package script references to deleted artifacts.
+- [x] Confirmed no README/AGENTS references to deleted artifacts.
+
+## Keep/delete/defer classification checklist
+- [x] Classified active validation surfaces as keep.
+- [x] Classified stale placeholder wrappers as delete.
+- [x] Classified placeholder examples as delete.
+- [x] Classified stale placeholder operator handbook as delete.
+- [x] Classified bootstrap regeneration entries as reference cleanup.
+- [x] Classified historical changelog references as keep.
+
+## Deletion criteria checklist
+- [x] Deleted files were tracked by git.
+- [x] Deleted files were not active CI/check/validator/package/README/AGENTS/current-roadmap/current-checklist dependencies.
+- [x] Deleted files were stale, misleading, placeholder-only, or obsolete wrappers.
+- [x] Deletions required no replacement runtime behavior.
+- [x] Historical value remains captured in CHANGELOG/archive truth.
+
+## Validator impact checklist
+- [x] Structure validation impact assessed.
+- [x] Documentation validation impact assessed.
+- [x] Bootstrap idempotence impact addressed by removing regeneration entries.
+
+## CI impact checklist
+- [x] No workflow files changed.
+- [x] No deleted artifact was referenced by active CI.
+
+## README/AGENTS impact checklist
+- [x] README did not require updates.
+- [x] AGENTS did not require updates.
+
+## Runtime non-change checklist
+- [x] No Rust source changes.
+- [x] No runtime behavior added.
+- [x] No provider execution behavior changed.
+- [x] No persistence authority changed.
+- [x] No replay repair added.
+- [x] No recovery promotion added.
+- [x] No action execution added.
+
+## UI non-change checklist
+- [x] No TypeScript source changes.
+- [x] No UI behavior changed.
+- [x] No UI source changed.
+- [x] UI API behavior test command adjusted only for TypeScript command-line configuration compatibility; no UI behavior or test assertions changed.
+
+## Authority non-change checklist
+- [x] No authority semantics changed.
+- [x] No model-output trust boundary changed.
+
+## Release/deployment non-change checklist
+- [x] No package creation.
+- [x] No release artifact creation.
+- [x] No installer behavior.
+- [x] No update-channel behavior.
+- [x] No signing/publishing behavior.
+- [x] No GitHub release/tag/public download asset creation.
+- [x] No deployment automation.
+- [x] No production deployment behavior.
+
+## Readiness prohibition checklist
+- [x] No readiness approval.
+- [x] No Release Candidate approval.
+- [x] No Production Candidate approval.
+- [x] No public/general-use approval.
+- [x] No production-human-use approval.
+
+## Findings table
+| finding | status | evidence |
+| --- | --- | --- |
+| Stale convenience wrappers existed | confirmed | exact-name reference scans |
+| Placeholder example documents existed | confirmed | `docs/examples/*/placeholder.md` |
+| Placeholder operator handbook advertised stale wrappers | confirmed | `docs/operations/operator-handbook.md` |
+| Active validation depended on deleted wrappers | not found | CI/check/package/reference scans |
+| Bootstrap regeneration would recreate deleted artifacts | confirmed and corrected | `scripts/bootstrap_repo.py` cleanup |
+
+## Deleted artifact table
+| artifact | deletion rationale |
+| --- | --- |
+| `scripts/dev-run.sh` | Placeholder convenience wrapper unreferenced by active surfaces. |
+| `scripts/ui-start.sh` | Misleading UI-start/dev-server wrapper that ran build and was unreferenced by active surfaces. |
+| `scripts/replay.sh` | Placeholder replay wrapper unreferenced by active surfaces. |
+| `scripts/memory-snapshot.sh` | Placeholder memory wrapper unreferenced by active surfaces. |
+| `scripts/memory-clear-ephemeral.sh` | Placeholder memory mutation wrapper unreferenced by active surfaces. |
+| `docs/examples/prompts/placeholder.md` | Phase 0 placeholder-only example document. |
+| `docs/examples/workflows/placeholder.md` | Phase 0 placeholder-only example document. |
+| `docs/operations/operator-handbook.md` | Phase 0 placeholder handbook that advertised stale wrappers. |
+
+## Deferred artifact table
+| artifact | reason |
+| --- | --- |
+| `scripts/bootstrap_repo.py` | Used by `scripts/check.sh`; stale regeneration entries removed instead of deleting script. |
+| `ui/package.json` placeholder validation commands | Used by CI and `scripts/check.sh`; deletion would alter validation behavior. |
+| Archived changelog bootstrap mentions | Historical truth. |
+| Current stub-provider terminology | Active governed runtime/test terminology, not stale bootstrap artifact. |
+
+## Validation log table
+| command | status |
+| --- | --- |
+| `git status --short` | passed before edits and clean after commit |
+| `git diff --check` | passed |
+| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py` | passed |
+| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py` | passed |
+| `CARGO_TARGET_DIR=/tmp/ajentic-oob-stale-sweep-target ./scripts/check.sh` | passed after commit on clean tree |
+| post-deletion reference scan | passed with remaining hits limited to historical, active kept, deferred, or explicit sweep documentation context |
+| guarded source diff | passed; no guarded drift output |
+| release/deployment authority scan | passed with existing prohibition/planned-boundary/lint-token context only |
+| readiness scan | passed with existing prohibition/evidence-gap/historical/planned-boundary context only |
+
+## Zero-drift checklist
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No tests changed.
+- [x] No schemas changed.
+- [x] No governance docs changed.
+- [x] No architecture docs changed.
+- [x] No lockfiles changed.
+- [x] `ui/package.json` changed only for validation command compatibility after the required full check exposed TypeScript CLI configuration drift.
+- [x] No release infrastructure changed.
+- [x] No deployment infrastructure changed.
