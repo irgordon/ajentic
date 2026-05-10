@@ -59,8 +59,6 @@ DIRS = [
     "docs/architecture",
     "docs/roadmap",
     "docs/operations",
-    "docs/examples/prompts",
-    "docs/examples/workflows",
     "schemas/docs",
     "schemas/context",
     "schemas/memory",
@@ -466,30 +464,6 @@ Bring the blank repository to the Phase 0 skeleton baseline.
         "Planned truth. Does not record completed work.\n",
     ),
 
-    "docs/operations/operator-handbook.md": governed_md(
-        "orientation",
-        "advisory",
-        "readme_update",
-        "Operator handbook",
-        "Human operator explanation. Not procedural authority.\n",
-    ),
-
-    "docs/examples/prompts/placeholder.md": governed_md(
-        "example",
-        "non_authoritative",
-        "example_update",
-        "Prompt examples",
-        "Placeholder examples only. Not authoritative.\n",
-    ),
-
-    "docs/examples/workflows/placeholder.md": governed_md(
-        "example",
-        "non_authoritative",
-        "example_update",
-        "Workflow examples",
-        "Placeholder examples only. Not authoritative.\n",
-    ),
-
     "schemas/docs/artifact-frontmatter.schema.json": schema_placeholder(),
     "schemas/context/context-packet.schema.json": schema_placeholder(),
     "schemas/context/context-slice.schema.json": schema_placeholder(),
@@ -517,37 +491,6 @@ EXECUTABLE_FILES = {
 set -euo pipefail
 
 cargo check --manifest-path core/Cargo.toml
-""",
-    "scripts/dev-run.sh": """\
-#!/usr/bin/env bash
-set -euo pipefail
-
-cargo run --manifest-path core/Cargo.toml
-""",
-    "scripts/replay.sh": """\
-#!/usr/bin/env bash
-set -euo pipefail
-
-cargo run --manifest-path core/Cargo.toml -- replay "$@"
-""",
-    "scripts/memory-snapshot.sh": """\
-#!/usr/bin/env bash
-set -euo pipefail
-
-cargo run --manifest-path core/Cargo.toml -- memory snapshot "$@"
-""",
-    "scripts/memory-clear-ephemeral.sh": """\
-#!/usr/bin/env bash
-set -euo pipefail
-
-cargo run --manifest-path core/Cargo.toml -- memory clear-ephemeral "$@"
-""",
-    "scripts/ui-start.sh": """\
-#!/usr/bin/env bash
-set -euo pipefail
-
-cd ui
-npm run build
 """,
 }
 

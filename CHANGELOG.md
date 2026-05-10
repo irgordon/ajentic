@@ -17,6 +17,52 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.127.5 - 2026-05-10
+**Status:** Out-of-Band Maintenance - Stale Bootstrap Artifact Sweep
+
+### Removed
+
+* Remove stale, unused, and misleading bootstrap artifacts identified by reference scans.
+
+### Changed
+
+* Update checklists/current-phase.md to record the out-of-band maintenance sweep.
+* Add the out-of-band maintenance report documenting candidate classification, deletions, deferrals, and validation.
+* Update active references only if needed to remove stale links to deleted artifacts.
+* Keep the existing UI API behavior test command compatible with the installed TypeScript command-line configuration boundary without changing UI source or test assertions.
+
+### Notes
+
+* This is out-of-band maintenance only.
+* No Phase 127 implementation.
+* No Phase 128 implementation.
+* No runtime behavior.
+* No new capability.
+* No UI behavior change.
+* No Rust source changes unless a deleted stale Rust artifact is proven unused and explicitly justified; no Rust source was changed in this sweep.
+* No TypeScript source changes unless a deleted stale TypeScript artifact is proven unused and explicitly justified; no TypeScript source was changed in this sweep.
+* No test assertions changed; the UI API behavior test command remains the existing validation surface with TypeScript command-line configuration compatibility.
+* No schema changes.
+* No provider execution change.
+* No persistence authority change.
+* No replay repair.
+* No recovery promotion.
+* No action execution.
+* No package creation.
+* No release artifact creation.
+* No installer behavior.
+* No update-channel behavior.
+* No signing/publishing behavior.
+* No GitHub release/tag/public download asset creation.
+* No public release behavior.
+* No production deployment behavior.
+* No readiness approval.
+* No Release Candidate approval.
+* No Production Candidate approval.
+* No public/general-use approval.
+* No production-human-use approval.
+* Historical truth remains in CHANGELOG, not stale executable surfaces.
+
 ## v0.0.127.1 - 2026-05-10
 **Status:** Out-of-Band Maintenance - CI and Validator Alignment
 
