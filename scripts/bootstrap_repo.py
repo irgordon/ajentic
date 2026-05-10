@@ -225,12 +225,15 @@ fn main() {
   "scripts": {
     "lint": "echo \\"ui lint placeholder\\"",
     "typecheck": "tsc --noEmit",
-    "build": "echo \\"ui build placeholder\\""
+    "build": "echo \\"ui build placeholder\\"",
+    "test:api": "sh -c 'OUT=$(mktemp -d /tmp/ajentic-ui-api-behavior-XXXXXX) && export OUT && CONFIG=\\"$OUT/tsconfig.api.json\\" && export CONFIG && trap \\"rm -rf \\\\\\"$OUT\\\\\\"\\" EXIT && node -e \\"require(\\\\\\"fs\\\\\\").writeFileSync(process.env.CONFIG, JSON.stringify({compilerOptions:{target:\\\\\\"ES2020\\\\\\",module:\\\\\\"commonjs\\\\\\",strict:true,esModuleInterop:true,skipLibCheck:true,rootDir:process.cwd()+\\\\\\"/src\\\\\\",outDir:process.env.OUT},files:[process.cwd()+\\\\\\"/src/api/runBehaviorTests.ts\\\\\\"]}))\\" && tsc -p \\"$CONFIG\\" && node \\"$OUT/api/runBehaviorTests.js\\"'",
+    "dev": "sh -c 'OUT=/tmp/ajentic-ui-runtime && export OUT && CONFIG=\\"$OUT/tsconfig.dev.json\\" && export CONFIG && rm -rf \\"$OUT\\" && mkdir -p \\"$OUT\\" && node -e \\"require(\\\\\\"fs\\\\\\").writeFileSync(process.env.CONFIG, JSON.stringify({compilerOptions:{target:\\\\\\"ES2020\\\\\\",module:\\\\\\"commonjs\\\\\\",strict:true,esModuleInterop:true,skipLibCheck:true,rootDir:process.cwd()+\\\\\\"/src\\\\\\",outDir:process.env.OUT},files:[process.cwd()+\\\\\\"/src/app/localReviewRuntime.ts\\\\\\"]}))\\" && tsc -p \\"$CONFIG\\" && node -e \\"const runtime=require(\\\\\\"/tmp/ajentic-ui-runtime/app/localReviewRuntime.js\\\\\\"); console.log(runtime.renderLocalReviewRuntime())\\"'"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
   }
 }
+
 """,
 
     "ui/tsconfig.json": """\

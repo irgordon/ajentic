@@ -84,10 +84,7 @@ echo "Running UI validation..."
   npm run typecheck
   npm run lint
   npm run build
-  OUT=$(mktemp -d /tmp/ajentic-ui-api-behavior-XXXXXX)
-  trap 'rm -rf "$OUT"' EXIT
-  npx tsc --ignoreConfig --ignoreDeprecations 6.0 --target ES2020 --module commonjs --moduleResolution node --strict --esModuleInterop --skipLibCheck --rootDir src --outDir "$OUT" src/api/runBehaviorTests.ts
-  node "$OUT/api/runBehaviorTests.js"
+  npm run test:api
 )
 echo "  UI validation OK"
 

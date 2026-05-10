@@ -4,324 +4,183 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 129 Release Candidate Dry Run
+# Current Phase Checklist - Phase 129.1 Out-of-Band UI TypeScript Command Drift Fix
 
-## Phase name
-- [x] Phase 129 - Release Candidate Dry Run.
+## Task name
+- [x] Phase 129.1 - Out-of-Band Maintenance - UI TypeScript Command Drift Fix.
 
-## Phase goal
-- [x] Rehearse Release Candidate evidence assembly using committed Phase 126-128 contract/specification evidence without creating release artifacts, packages, installers, update channels, signatures, publications, GitHub releases, release tags, public downloads, deployment behavior, monitoring activation, or readiness approval.
+## Out-of-band maintenance status
+- [x] Phase 129.1 is out-of-band validation-compatibility maintenance only.
+- [x] Validation compatibility is not runtime capability.
+- [x] UI command correction is not UI behavior change.
+- [x] Bootstrap idempotence must not restore stale TypeScript flags.
+- [x] Unsupported TypeScript flags must not exist in active UI command surfaces.
+- [x] Phase 129.1 does not implement Phase 130.
+- [x] Phase 129.1 does not approve Release Candidate readiness.
 
 ## Working-tree hygiene gate
-- [x] Run git status --short before edits.
-- [x] Classify uncommitted files as empty before edits.
-- [x] Remove generated artifact drift before edits if present.
+- [x] Run `git status --short` before edits.
+- [x] Classify uncommitted files as clean before edits.
+- [x] Remove or revert generated artifacts from prior runs before edits if present.
 - [x] Record cleanup: no generated artifact drift was present before edits.
 
 ## Allowed surfaces
-- [x] docs/operations/release-candidate-dry-run-phase-129.md
-- [x] checklists/current-phase.md
-- [x] CHANGELOG.md
+- [x] `scripts/check.sh` because it injected unsupported TypeScript flags and needed correction.
+- [x] `docs/operations/ui-typescript-command-drift-fix-phase-129-1.md`.
+- [x] `checklists/current-phase.md`.
+- [x] `CHANGELOG.md`.
+- [x] `ui/package.json` updated to use supported temporary TypeScript project-file command shape after validation proved direct file-argument compilation conflicts with local TypeScript when `tsconfig.json` is present.
+- [x] `scripts/bootstrap_repo.py` updated to seed the same supported UI package command surfaces and not restore stale TypeScript flags.
+- [x] `.github/workflows/ci.yml` inspected; no edit required because CI delegates to `npm run test:api`.
 
 ## Boundary rules
-- [x] Phase 129 is Release Candidate Dry Run only.
-- [x] Phase 129 is dry-run evidence assembly only.
-- [x] Phase 129 adds no runtime behavior.
-- [x] Phase 129 adds no new runtime capability.
-- [x] Phase 129 creates no packages, release artifacts, checksums, provenance attestations, installers, updater services, update channels, update-channel metadata, signing behavior, publishing behavior, GitHub releases, release tags, public downloads, public assets, public release behavior, production deployment behavior, or deployment automation.
-- [x] Phase 129 activates no monitoring, logging, telemetry collection, collectors, exporters, dashboards, alerting, production telemetry endpoints, telemetry tokens, ingestion URLs, cron jobs, service files, scheduled collectors, background services, or daemon behavior.
-- [x] Phase 129 does not expand provider execution, persistence authority, replay repair, recovery promotion, action execution, provider trust, or provider output promotion.
-- [x] Phase 129 does not approve Release Candidate status, release-candidate readiness, Production Candidate status, production readiness, public usability, public/general use, or production human use.
-- [x] Phase 130 remains Release Candidate Decision Gate only.
-- [x] Phase 130 may still decide not ready.
-- [x] Public/general use remains a later final rung.
-- [x] Roadmap remains planned truth.
-- [x] CHANGELOG surfaces remain historical truth.
+- [x] Phase 129.1 does not implement Phase 130.
+- [x] Phase 129.1 does not change UI behavior.
+- [x] Phase 129.1 does not change runtime behavior.
+- [x] Phase 129.1 does not change authority behavior.
+- [x] Phase 129.1 does not change tests, schemas, release behavior, deployment behavior, monitoring behavior, or readiness posture.
+- [x] Phase 129.1 does not add provider execution, persistence authority, replay repair, recovery promotion, or action execution.
 
-## Evidence-only checklist
-- [x] Count only committed evidence.
-- [x] Do not count prompt intent, prior chat summaries, uncommitted work, future planned behavior as implementation, validation success as approval, dry-run package index as release package, evidence map as readiness, dry-run completeness as approval, Phase 126 contract as package creation, Phase 127 spec as activation, Phase 128 spec as monitoring activation, absence of blockers as approval, or roadmap preservation as implementation.
+## Unsupported TypeScript flag scan checklist
+- [x] Scan for `--ignoreConfig`.
+- [x] Scan for `--ignoreDeprecations 6.0`.
+- [x] Scan for broader `ignoreDeprecations` occurrences.
+- [x] Classify matches as active command surface, bootstrap template, validation script, documentation/report context, changelog context, checklist context, or historical/prohibition context.
+- [x] Confirm known bad flags are absent from active UI command surfaces after correction.
 
-## Required verbatim non-approval statement checklist
-- [x] Explicit non-approval statement present.
-- [x] Phase 129 is Release Candidate dry run only; it does not create release artifacts, publish packages, activate monitoring, deploy, or approve Release Candidate readiness.
+## Active command-surface checklist
+- [x] `ui/package.json` `test:api` does not use `--ignoreConfig`.
+- [x] `ui/package.json` `test:api` does not use `--ignoreDeprecations 6.0`.
+- [x] `ui/package.json` `dev` does not use `--ignoreConfig`.
+- [x] `ui/package.json` `dev` does not use `--ignoreDeprecations 6.0`.
+- [x] `scripts/check.sh` delegates to `npm run test:api` without injecting unsupported flags.
+- [x] `.github/workflows/ci.yml` delegates to `npm run test:api` without injecting unsupported flags.
 
-## Required enforcement lines checklist
-- [x] Feedback is evidence, not authority.
-- [x] Dry run is not release.
-- [x] Evidence map is not readiness.
-- [x] Specification evidence is not artifact creation.
-- [x] Operational evidence is not release evidence unless a later decision phase explicitly classifies it.
-- [x] Release Candidate dry run does not approve Release Candidate readiness.
-- [x] Phase 129 must not decide what Phase 130 is scoped to decide.
-- [x] Missing Phase-130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
-- [x] Phase 130 may still decide not ready.
+## Bootstrap template checklist
+- [x] Inspect `scripts/bootstrap_repo.py` for stale UI command generation.
+- [x] Confirm bootstrap does not contain `--ignoreConfig`.
+- [x] Confirm bootstrap does not contain `--ignoreDeprecations 6.0`.
+- [x] Confirm bootstrap does not restore stale TypeScript flags.
 
-## Top drift vectors checklist
-- [x] Dry-run-to-release drift documented.
-- [x] Evidence-map-to-readiness drift documented.
-- [x] Specification-to-artifact drift documented.
-- [x] Observability-to-production drift documented.
-- [x] Decision-gate preemption documented.
-- [x] Cross-category inference documented.
-- [x] Absence-of-blockers drift documented.
+## Bootstrap idempotence checklist
+- [x] Run bootstrap idempotence command.
+- [x] Re-scan for unsupported TypeScript flags after bootstrap.
+- [x] Confirm bootstrap idempotence did not restore stale flags in `ui/package.json` or `scripts/check.sh`.
 
-## Mechanically checkable pre-handoff checklist
-- [x] Every dry-run/evidence/coverage/dependency/handoff row includes dry_run_only=true and either evidence_pointer or deferred_to_phase marker.
-- [x] Dry-run package index exists only as documentation and includes no artifact creation.
-- [x] Repository absence scans are required.
-- [x] Phase 126, Phase 127, and Phase 128 coverage gaps are listed.
-- [x] Missing dependencies are classified as remap_phase_126_130 or defer_release_candidate_hardening.
-- [x] Phase 130 handoff rows include phase_130_decision_required=true and phase_129_decision_made=false.
-- [x] Phase 129 does not decide Release Candidate status.
+## UI package command correction checklist
+- [x] Confirm `test:api` uses a supported temporary TypeScript project-file invocation that compiles `src/api/runBehaviorTests.ts` without stale flags.
+- [x] Confirm `dev` uses a supported temporary TypeScript project-file invocation that compiles `src/app/localReviewRuntime.ts` without stale flags.
+- [x] Confirm no `name`, `private`, `version`, `type`, or `devDependencies` changes were required.
 
-## Stop-condition trigger checklist
-- [x] Stop on package creation, release artifact creation, checksum generation, provenance attestation creation, installer creation, updater service creation, update-channel creation, update-channel metadata creation, signing behavior, publishing behavior, GitHub release creation, release tag creation, public download creation, public asset creation, deployment automation, production deployment behavior, monitoring activation, logging activation, telemetry collection, collector/exporter creation, dashboard creation, alerting creation, production telemetry endpoint, telemetry token, ingestion URL, cron job, service file, scheduled collector, background service, daemon behavior, readiness inference, public-use inference, production-human-use inference, or Phase 130 decision preemption unless historical/prohibition/test text is explicitly classified.
+## CI relationship checklist
+- [x] Inspect `.github/workflows/ci.yml`.
+- [x] Confirm CI runs `npm run test:api`.
+- [x] Confirm CI does not inject unsupported TypeScript flags.
 
-## Phase 128 relationship checklist
-- [x] Phase 128 is complete; Observability and Operational Evidence Boundary only; specification only; activated no monitoring/logging/telemetry and approved no readiness.
+## scripts/check.sh relationship checklist
+- [x] Inspect `scripts/check.sh`.
+- [x] Correct stale direct TypeScript invocation with unsupported flags.
+- [x] Confirm `scripts/check.sh` delegates to `npm run test:api`.
 
-## Phase 127 relationship checklist
-- [x] Phase 127 is complete; Installer and Update-Channel Threat Boundary only; threat-model and contract-only; created no installer/update-channel/signing/publishing/release/deployment/readiness behavior.
+## Runtime non-change checklist
+- [x] No Rust source changes.
+- [x] No runtime behavior changes.
+- [x] No runtime capability changes.
 
-## Phase 126 relationship checklist
-- [x] Phase 126 is complete; Release Packaging Contract only; packaging/artifact/checksum/provenance/distribution/signing/publishing contracts are not creation, generation, attestation, distribution, signing, publishing, or readiness.
+## UI non-change checklist
+- [x] No TypeScript source changes.
+- [x] No UI behavior changes.
+- [x] UI command correction is not UI behavior change.
 
-## Phase 125 relationship checklist
-- [x] Phase 125 selected preserve_with_caveats and expand_post_130_plan; AJENTIC remains constrained early-human-use candidate / usability-remediation / release-preparation; not Release Candidate ready, not Production Candidate ready, and not public/general-use ready.
+## Test assertion non-change checklist
+- [x] No UI behavior test source changes.
+- [x] No test assertion changes.
+- [x] No test files changed.
 
-## Phase 126-130 caveated plan checklist
-- [x] Phase 126-130 remains caveated planned truth only; Phase 130 may still decide not ready; public/general use remains a later final rung.
+## Authority non-change checklist
+- [x] No governance authority changes.
+- [x] No runtime authority changes.
+- [x] No provider authority changes.
+- [x] No persistence authority changes.
+- [x] No replay, recovery, or action-execution authority changes.
 
-## Dry-run status model checklist
-- [x] Use dry_run_defined, dry_run_completed, dry_run_completed_with_findings, dry_run_partial, dry_run_deferred, dry_run_blocked, evidence_map_complete, evidence_map_incomplete, requires_phase_130_decision, remap_phase_126_130, defer_release_candidate_hardening, requires_post_130_public_use_phase, and not_applicable.
-- [x] Do not use approval or artifact-creation statuses.
+## Release/deployment non-change checklist
+- [x] No package creation.
+- [x] No release artifact creation.
+- [x] No checksum generation.
+- [x] No provenance attestation creation.
+- [x] No installer/update-channel/signing/publishing changes.
+- [x] No GitHub release, tag, public asset, public release, deployment automation, or production deployment behavior.
 
-## Required dry-run table flags checklist
-- [x] Include dry_run_only=true, evidence_pointer or deferred_to_phase, no_artifact_created=true, no_package_created=true, no_release_created=true, no_signing_enabled=true, no_publishing_enabled=true, no_monitoring_enabled=true, no_deployment_enabled=true, no_release_readiness_claim=true, no_production_candidate_claim=true, no_public_use_claim=true, phase_130_decision_required=true where applicable, and phase_129_decision_made=false for handoff rows.
+## Monitoring/logging/telemetry non-change checklist
+- [x] No monitoring activation.
+- [x] No logging activation.
+- [x] No telemetry collection activation.
+- [x] No collector, exporter, dashboard, alerting, production telemetry endpoint, telemetry token, ingestion URL, cron job, service file, scheduled collector, background service, or daemon behavior.
 
-## Dry-run category model checklist
-- [x] release_candidate_evidence_inventory.
-- [x] dry_run_package_index.
-- [x] Phase_126_packaging_contract_coverage.
-- [x] Phase_127_installer_update_channel_coverage.
-- [x] Phase_128_observability_operational_evidence_coverage.
-- [x] missing_evidence_dependency.
-- [x] release_artifact_absence; package_absence; checksum_absence; provenance_absence; installer_absence; update_channel_absence; signing_absence; publishing_absence; monitoring_activation_absence; deployment_absence.
-- [x] readiness_non_approval; Phase_130_decision_handoff; post_130_deferral; production_path_tightening_assessment.
-
-## Production-human-use ladder checklist
-- [x] Local operator testing.
-- [x] Controlled human trial.
-- [x] Early human-use candidate.
-- [x] Release candidate.
-- [x] Production candidate.
-- [x] Public/general use.
-
-## Ladder-Preservation Invariant checklist
-- [x] Ladder-Preservation invariants preserved.
-- [x] No implicit promotion.
-- [x] Absence of blockers is not approval.
-- [x] Evidence assembly is not readiness.
-- [x] Dry runs are not release.
-- [x] Deployment is not release.
-- [x] Public/general use is always the final rung.
-- [x] No trust inference.
-- [x] No cross-category inference.
-
-## Dry-run question checklist
-- [x] Core question answered as non-authoritative dry-run evidence_map_complete with Phase 130 decision required.
-
-## Dry-Run Evidence Inventory Table checklist
-- [x] Complete; see table below.
-
-## Dry-Run Package Index Table checklist
-- [x] Complete; see table below.
-
-## Phase 126 Packaging Contract Coverage Table checklist
-- [x] Complete; see table below.
-
-## Phase 127 Installer/Update-Channel Coverage Table checklist
-- [x] Complete; see table below.
-
-## Phase 128 Observability/Operational-Evidence Coverage Table checklist
-- [x] Complete; see table below.
-
-## Missing Evidence and Dependency Table checklist
-- [x] Complete; see table below.
-
-## Release Artifact Absence Table checklist
-- [x] Complete; see table below.
-
-## Readiness Non-Approval Table checklist
-- [x] Complete; see table below.
-
-## Phase 130 Decision-Gate Handoff Table checklist
-- [x] Complete; see table below.
-
-## Post-130 Deferral Table checklist
-- [x] Complete; see table below.
-
-## Production-Path Tightening Assessment checklist
-- [x] Complete; see table below.
-
-## Repository artifact/release/monitoring absence check checklist
-- [x] Required validation scans document that Phase 129 introduced only documentation/checklist/changelog changes.
-
-## Phase 130 decision-gate expectation checklist
-- [x] Phase 130 remains Release Candidate Decision Gate only and may still decide not ready.
-
-## Post-130 production/public-use deferral checklist
-- [x] Production Candidate, production readiness, production deployment, public usability, public/general use, production human use, support, incident response, rollback, distribution governance, and final public/general-use gate remain deferred.
-
-## Drift assessment checklists
-- [x] Dry-run-to-release drift checklist complete.
-- [x] Evidence-map-to-readiness drift checklist complete.
-- [x] Specification-to-artifact drift checklist complete.
-- [x] Observability-to-production drift checklist complete.
-- [x] Decision-gate preemption checklist complete.
-- [x] Cross-category inference checklist complete.
-- [x] Absence-of-blockers checklist complete.
-
-## Prohibition checklists
-- [x] Package creation prohibition checklist complete.
-- [x] Release artifact prohibition checklist complete.
-- [x] Checksum generation prohibition checklist complete.
-- [x] Provenance attestation prohibition checklist complete.
-- [x] Installer/update-channel prohibition checklist complete.
-- [x] Signing/publishing prohibition checklist complete.
-- [x] Distribution prohibition checklist complete.
-- [x] GitHub release/tag/public asset prohibition checklist complete.
-- [x] Deployment automation prohibition checklist complete.
-- [x] Monitoring/logging/telemetry activation prohibition checklist complete.
-- [x] Collector/exporter prohibition checklist complete.
-- [x] Dashboard/alerting prohibition checklist complete.
-- [x] Production endpoint/token/ingestion URL prohibition checklist complete.
-- [x] Background service/daemon prohibition checklist complete.
-- [x] Public-release prohibition checklist complete.
-- [x] Production-deployment prohibition checklist complete.
-- [x] Public/general-use approval prohibition checklist complete.
-- [x] Production-human-use approval prohibition checklist complete.
-- [x] Production Candidate approval prohibition checklist complete.
-- [x] Release-candidate approval prohibition checklist complete.
-- [x] Provider trust/output promotion prohibition checklist complete.
-- [x] Replay-repair prohibition checklist complete.
-- [x] Recovery-promotion prohibition checklist complete.
-- [x] Action-execution prohibition checklist complete.
-- [x] Readiness prohibition checklist complete.
-
-## Production Candidate status checklist
-- [x] Production Candidate status remains not approved and requires_post_130_public_use_phase.
-
-## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness requires_phase_130_decision.
-- [x] Public/general use remains a later final rung.
-
-## Roadmap/changelog truth checklist
-- [x] Roadmap remains planned truth.
-- [x] CHANGELOG remains historical truth.
+## Readiness prohibition checklist
+- [x] No readiness approval.
+- [x] No Release Candidate approval.
+- [x] No Production Candidate approval.
+- [x] No public/general-use approval.
+- [x] No production-human-use approval.
+- [x] Phase 129.1 does not approve Release Candidate readiness.
 
 ## Validation checklist
-- [x] CARGO_TARGET_DIR=/tmp/ajentic-phase-129-target ./scripts/check.sh
-- [x] git diff --check
-- [x] git status --short
-- [x] Phase 129 dry-run scan
-- [x] required enforcement lines scan
-- [x] drift-vector scan
-- [x] table flag scan
-- [x] required output scan
-- [x] phase relationship scan
-- [x] ladder invariant scan
-- [x] no-observability-activation scan
-- [x] no-release/deployment artifact scan
-- [x] key/signature/public asset presence scan
-- [x] no-deployment/release authority scan
-- [x] no-authority scan
-- [x] readiness scan
-- [x] source guard
-- [x] roadmap guard
+- [x] Required investigation scan completed.
+- [x] Pre-bootstrap unsupported flag scan completed after correction.
+- [x] Bootstrap idempotence completed.
+- [x] Post-bootstrap unsupported flag scan completed.
+- [x] UI validation completed.
+- [x] Canonical validation completed.
+- [x] Guarded diff completed.
+- [x] Authority/readiness scan completed.
 
 ## Findings table
-| finding | status | evidence_pointer | required flags |
-| --- | --- | --- | --- |
-| Phase 129 boundary | dry_run_completed | evidence_pointer=docs/operations/release-candidate-dry-run-phase-129.md | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| Phase 130 decision preserved | requires_phase_130_decision | evidence_pointer=docs/roadmap/phases.md; docs/roadmap/sequencing.md | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true; phase_129_decision_made=false |
+| Surface | Classification | Finding |
+| --- | --- | --- |
+| `ui/package.json` | active command surface | Updated to supported `test:api` and `dev` temporary project-file command shapes without stale flags. |
+| `scripts/check.sh` | validation script / active command surface | Removed direct unsupported TypeScript flag invocation by delegating to `npm run test:api`. |
+| `scripts/bootstrap_repo.py` | bootstrap template | Updated to seed supported UI package command surfaces without unsupported TypeScript flags. |
+| `.github/workflows/ci.yml` | CI command surface | Delegates to `npm run test:api`; no unsupported flags. |
+| Phase 129.1 report/checklist/changelog | documentation/report/checklist/changelog context | Contains known bad flags only as prohibition/historical context. |
+| Archived and prior operations docs | historical/prohibition context | Existing references remain historical or operator context, not active command drift. |
 
-## Dry-run evidence inventory table
-| evidence category | committed evidence pointer | evidence status | gap if any | required flags |
-| --- | --- | --- | --- | --- |
-| release_candidate_evidence_inventory | evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; docs/operations/installer-update-channel-threat-boundary-phase-127.md; docs/operations/observability-operational-evidence-boundary-phase-128.md | evidence_map_complete | no readiness decision in Phase 129 | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| validation evidence | evidence_pointer=scripts/check.sh; scripts/validate_structure.py; scripts/validate_docs.py; .github/workflows/ci.yml | dry_run_completed | validation is not readiness | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Dry-run package index table
-| index row | referenced evidence | missing item if any | required flags |
-| --- | --- | --- | --- |
-| package identity index | evidence_pointer=docs/operations/release-packaging-contract-phase-126.md | actual package deferred_to_phase=post_130_package_artifact_boundary | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| artifact/checksum/provenance index | evidence_pointer=docs/operations/release-packaging-contract-phase-126.md | artifacts, checksums, and attestations deferred_to_phase=post_130_package_artifact_boundary | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Coverage table
-| coverage category | committed evidence pointer or deferred marker | status | required flags |
-| --- | --- | --- | --- |
-| Phase_126_packaging_contract_coverage | evidence_pointer=docs/operations/release-packaging-contract-phase-126.md | dry_run_completed_with_findings | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| Phase_127_installer_update_channel_coverage | evidence_pointer=docs/operations/installer-update-channel-threat-boundary-phase-127.md | dry_run_completed_with_findings | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true; no_installer_created=true; no_update_channel_active=true |
-| Phase_128_observability_operational_evidence_coverage | evidence_pointer=docs/operations/observability-operational-evidence-boundary-phase-128.md | dry_run_completed_with_findings | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true; no_runtime_collection=true |
-
-## Dependency table
-| missing dependency | source phase | affected target phase | consequence | decision outcome candidate | required flags |
-| --- | --- | --- | --- | --- | --- |
-| implementation release evidence | Phase 126 | Phase 130 | contract cannot equal artifact | remap_phase_126_130 | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| monitoring implementation evidence | Phase 128 | post-130 | spec cannot equal monitoring | defer_release_candidate_hardening | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Artifact absence table
-| artifact class | absence evidence pointer | result | required flags |
-| --- | --- | --- | --- |
-| release_artifact_absence | evidence_pointer=release artifact absence scan | dry_run_completed | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=false |
-| package_absence | evidence_pointer=package absence scan | dry_run_completed | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=false |
-| monitoring_activation_absence | evidence_pointer=no-observability-activation scan | dry_run_completed | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=false |
-
-## Readiness non-approval table
-| readiness category | status | reason | later phase | required flags |
-| --- | --- | --- | --- | --- |
-| Release Candidate | requires_phase_130_decision | Phase 129 is dry run only | Phase 130 | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| Production Candidate | requires_post_130_public_use_phase | outside Phase 129 | post-130 | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| Public/general use | requires_post_130_public_use_phase | final rung | post-130 | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Phase 130 handoff table
-| decision input | evidence pointer | missing dependency if any | decision status candidate | required flags |
-| --- | --- | --- | --- | --- |
-| dry-run package | evidence_pointer=docs/operations/release-candidate-dry-run-phase-129.md | implementation evidence may be missing | requires_phase_130_decision | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true; phase_129_decision_made=false |
-| dependency gaps | evidence_pointer=Dependency table | listed gaps | remap_phase_126_130 or defer_release_candidate_hardening | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true; phase_129_decision_made=false |
-
-## Post-130 deferral table
-| deferred work item | reason | likely future phase class | current authority status | required flags |
-| --- | --- | --- | --- | --- |
-| package/artifact creation | dry run is not release | release implementation boundary | deferred_to_phase=post_130_package_artifact_boundary; no_current_approval=true | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| public/general-use decision | public/general use is final rung | public-use gate | deferred_to_phase=post_130_public_use_phase; no_current_approval=true | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Production-path tightening table
-| tightening lever | evidence basis | unavoidable based on dry run | target post-130 phase class | current Phase 129 status | required flags |
-| --- | --- | --- | --- | --- | --- |
-| release implementation evidence | Phase 126 contract is not artifact creation | yes | post_130_package_artifact_boundary | dry_run_deferred | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| operational implementation evidence | Phase 128 spec is not monitoring | yes | post_130_observability_boundary | dry_run_deferred | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-
-## Deferred items table
-| item | deferred_to_phase | reason | required flags |
-| --- | --- | --- | --- |
-| artifacts/checksums/provenance | deferred_to_phase=post_130_package_artifact_boundary | Phase 129 creates none | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
-| monitoring/deployment/public use | deferred_to_phase=post_130_public_use_phase | Phase 129 activates none and approves none | dry_run_only=true; no_artifact_created=true; no_package_created=true; no_release_created=true; no_signing_enabled=true; no_publishing_enabled=true; no_monitoring_enabled=true; no_deployment_enabled=true; no_release_readiness_claim=true; no_production_candidate_claim=true; no_public_use_claim=true; phase_130_decision_required=true |
+## Changed file table
+| File | Reason |
+| --- | --- |
+| `ui/package.json` | Use supported temporary TypeScript project-file command shapes without unsupported flags. |
+| `scripts/bootstrap_repo.py` | Seed supported UI package command surfaces without restoring unsupported flags. |
+| `scripts/check.sh` | Remove unsupported TypeScript flags from full-check UI validation by delegating to `npm run test:api`. |
+| `docs/operations/ui-typescript-command-drift-fix-phase-129-1.md` | Add Phase 129.1 operations report. |
+| `checklists/current-phase.md` | Update current procedural truth to Phase 129.1. |
+| `CHANGELOG.md` | Add active Phase 129.1 changelog entry. |
 
 ## Validation log table
-| command | status | notes |
+| Command | Result | Notes |
 | --- | --- | --- |
-| CARGO_TARGET_DIR=/tmp/ajentic-phase-129-target ./scripts/check.sh | pass | canonical aggregate validation after final edits |
-| git diff --check | pass | whitespace validation after final edits |
-| git status --short | pass | only allowed Phase 129 surfaces changed before commit |
+| `git status --short` | pass | Initial working tree clean. |
+| `rg -n --hidden --glob '!core/target/**' --glob '!ui/node_modules/**' --glob '!.git/**' -- '--ignoreConfig|--ignoreDeprecations 6.0|ignoreDeprecations|test:api|runBehaviorTests|localReviewRuntime' .` | pass | Every hit classified. |
+| `rg -n --hidden --glob '!core/target/**' --glob '!ui/node_modules/**' --glob '!.git/**' -- '--ignoreConfig|--ignoreDeprecations 6.0' .` | pass | After correction, active command surfaces clean; only prohibition context remains. |
+| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/bootstrap_repo.py > /dev/null` | pass | Bootstrap idempotence passed. |
+| `cd ui && npm run test:api && npm run typecheck && npm run lint && npm run build` | pass | UI validation passed. |
+| `git diff --check` | pass | No whitespace errors. |
+| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py` | pass | Structure validation passed. |
+| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py` | pass | Documentation validation passed. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-129-1-target ./scripts/check.sh` | pass | Full deterministic check passed. |
+| Guarded diff | pass | No guarded source, test, schema, governance, architecture, roadmap, lockfile, README, or AGENTS drift. |
+| Authority/readiness scan | pass | No new approval or activation claim. |
 
 ## Zero-drift checklist
-- [x] No Rust source changes.
-- [x] No TypeScript source changes.
-- [x] No test changes.
-- [x] No schema changes.
-- [x] No script/workflow/package/lockfile changes.
-- [x] No runtime/source/test/schema changes introduced.
-- [x] No package, release artifact, checksum, provenance, installer, update-channel, signing, publishing, GitHub release/tag/public download, public release, production deployment, deployment automation, monitoring/logging/telemetry, collector/exporter, dashboard/alerting, production endpoint/token/ingestion URL, background service, daemon, provider trust, replay repair, recovery promotion, action execution, readiness approval, Release Candidate approval, Production Candidate approval, public/general-use approval, or Phase 130 implementation introduced.
+- [x] Unsupported TypeScript flags are absent from active UI command surfaces.
+- [x] `scripts/bootstrap_repo.py` does not restore unsupported TypeScript flags.
+- [x] Bootstrap idempotence passes.
+- [x] `npm run test:api` passes.
+- [x] Full `scripts/check.sh` passes.
+- [x] No UI source changes are introduced.
+- [x] No UI behavior test assertions are changed.
+- [x] No runtime behavior is changed.
+- [x] No authority behavior is changed.
+- [x] No release/deployment/monitoring behavior is added.
+- [x] No readiness claims are introduced.
+- [x] CHANGELOG entry matches actual diff.
