@@ -18,6 +18,52 @@ Archive guarantees:
 - CHANGELOG surfaces remain historical truth.
 
 
+## v0.0.131 - 2026-05-10
+**Status:** Phase 131 - Post-130 Roadmap Expansion and Release Evidence Remap
+
+### Added
+- Add the Phase 131 post-130 release evidence remap report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 131 procedural truth.
+- Update CHANGELOG.md with v0.0.131.
+
+### Notes
+- Phase 131 is audit/planning only.
+- Phase 131 preserves Phase 130's rc_candidate_not_ready decision as starting truth.
+- Phase 131 does not rerun the Release Candidate decision gate.
+- Phase 131 does not implement Phase 132.
+- Phase 131-140 are pre-RC evidence-producing phases, not post-RC hardening.
+- Roadmap is not implementation.
+- Requirements are not evidence.
+- Evidence is not approval.
+- No runtime behavior.
+- No new runtime capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No package creation.
+- No release artifact creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No installer/update-channel behavior.
+- No signing/publishing behavior.
+- No monitoring/logging/telemetry activation.
+- No deployment automation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+
+
 ## v0.0.130.1 - 2026-05-10
 **Status:** Out-of-Band Roadmap Expansion After Release Candidate Decision
 
