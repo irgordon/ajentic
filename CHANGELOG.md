@@ -17,6 +17,79 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.128 - 2026-05-10
+**Status:** Phase 128 - Observability and Operational Evidence Boundary
+
+### Added
+- Add the Phase 128 observability and operational-evidence boundary report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 128 procedural truth.
+- Update CHANGELOG.md with v0.0.128.
+- Update scripts/check.sh for TypeScript 6 validation compatibility when running UI API behavior tests from the canonical aggregate check.
+
+### Notes
+- Phase 128 is observability and operational-evidence boundary only.
+- Phase 128 is observability specification only.
+- Phase 128 is operational-evidence specification only.
+- Phase 128 is observability and operational-evidence boundary only; it does not activate monitoring, logging, deployment, release, or approve readiness.
+- Feedback is evidence, not authority.
+- Observability is specification, not monitoring.
+- Telemetry is not safety.
+- Failure reporting is not reliability.
+- Operational evidence is not release evidence.
+- Audit-trail requirements are not audit authority.
+- No observability row may imply readiness, deployment, or public/general use.
+- No observability row may imply active collection, export, dashboarding, alerting, or production monitoring.
+- Missing Phase-129/130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
+- no runtime behavior
+- no new runtime capability
+- no Rust source changes
+- no TypeScript source changes
+- no test changes
+- no UI behavior change; scripts/check.sh validation compatibility keeps the existing UI API behavior test surface runnable under TypeScript 6.
+- no schema changes
+- no monitoring activation
+- no logging activation
+- no telemetry collection
+- no collector creation
+- no exporter creation
+- no dashboard creation
+- no alerting creation
+- no production telemetry endpoint creation
+- no telemetry token creation
+- no ingestion URL creation
+- no cron job creation
+- no service file creation
+- no scheduled collector creation
+- no background service
+- no daemon behavior
+- no package creation
+- no release artifact creation
+- no checksum generation
+- no provenance attestation creation
+- no installer behavior
+- no update-channel behavior
+- no signing/publishing behavior
+- no GitHub release/tag/public download asset creation
+- no public release behavior
+- no production deployment behavior
+- no persistence authority expansion
+- no replay repair
+- no recovery promotion
+- no action execution
+- no provider trust
+- no provider output promotion
+- no readiness approval
+- no Release Candidate approval
+- no release-candidate approval
+- no Production Candidate approval
+- no public-usability approval
+- no public/general-use approval
+- no production-human-use approval
+- no Phase 129 implementation
+- no Phase 130 implementation
+
 ## v0.0.127.5 - 2026-05-10
 **Status:** Out-of-Band Maintenance - Stale Bootstrap Artifact Sweep
 

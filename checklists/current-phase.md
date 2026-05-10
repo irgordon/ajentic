@@ -4,12 +4,12 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 127 Installer and Update-Channel Threat Boundary
+# Current Phase Checklist - Phase 128 Observability and Operational Evidence Boundary
 ## Phase name
-- [x] Phase 127 - Installer and Update-Channel Threat Boundary.
+- [x] Phase 128 - Observability and Operational Evidence Boundary.
 
 ## Phase goal
-- [x] Define installer/update-channel risks, constraints, prohibited behaviors, trust boundaries, rollback/update abuse cases, signing/publishing dependencies, distribution deferrals, and future evidence requirements without creating installers, update channels, signing, publishing, release artifacts, or readiness approval.
+- [x] Define observability, telemetry, failure-reporting, audit-trail, incident-evidence, operational-evidence, runtime collection, dashboard, alerting, production endpoint, dry-run, and decision-gate evidence requirements without activating monitoring, logging, telemetry collection, deployment, release, or readiness approval.
 
 ## Working-tree hygiene gate
 - [x] Run git status --short before edits.
@@ -18,134 +18,135 @@ mutation_path: checklist_revision
 - [x] Record cleanup: no generated artifact drift was present before edits.
 
 ## Allowed surfaces
-- [x] docs/operations/installer-update-channel-threat-boundary-phase-127.md
+- [x] docs/operations/observability-operational-evidence-boundary-phase-128.md
 - [x] checklists/current-phase.md
 - [x] CHANGELOG.md
+- [x] Conditional validation compatibility surface: scripts/check.sh, limited to TypeScript 6 UI API behavior test invocation compatibility.
 
 ## Boundary rules
-- [x] Phase 127 is Installer and Update-Channel Threat Boundary only.
-- [x] Phase 127 is threat-model and contract-only.
-- [x] Phase 127 adds no runtime behavior and no new runtime capability.
-- [x] Phase 127 creates no packages, release artifacts, checksums, provenance attestations, installers, updater services, update channels, update-channel metadata, signing keys, key custody behavior, signatures, GitHub releases, release tags, public downloads, or public assets.
-- [x] Phase 127 adds no installer behavior, update-channel behavior, signing behavior, publishing behavior, public release behavior, production deployment behavior, deployment automation, rollback automation, background services, daemon behavior, provider execution expansion, persistence authority expansion, replay repair, recovery promotion, action execution, provider trust, or provider output promotion.
-- [x] Phase 127 approves no readiness, Release Candidate status, release-candidate readiness, Production Candidate status, production readiness, public usability, public/general use, or production human use.
-- [x] Phase 127 does not implement Phase 128, Phase 129, Phase 130, or any post-130 phase.
+- [x] Phase 128 is Observability and Operational Evidence Boundary only.
+- [x] Phase 128 is observability specification and operational-evidence specification only.
+- [x] Phase 128 adds no runtime behavior.
+- [x] Phase 128 adds no new runtime capability.
+- [x] Phase 128 activates no monitoring.
+- [x] Phase 128 activates no logging.
+- [x] Phase 128 activates no telemetry collection.
+- [x] Phase 128 creates no collectors.
+- [x] Phase 128 creates no exporters.
+- [x] Phase 128 creates no dashboards.
+- [x] Phase 128 creates no alerting.
+- [x] Phase 128 creates no production telemetry endpoints.
+- [x] Phase 128 creates no telemetry tokens.
+- [x] Phase 128 creates no ingestion URLs.
+- [x] Phase 128 creates no cron jobs.
+- [x] Phase 128 creates no service files.
+- [x] Phase 128 creates no scheduled collectors.
+- [x] Phase 128 creates no background services.
+- [x] Phase 128 creates no daemon behavior.
+- [x] Phase 128 creates no packages.
+- [x] Phase 128 creates no release artifacts.
+- [x] Phase 128 generates no checksums.
+- [x] Phase 128 creates no provenance attestations.
+- [x] Phase 128 creates no installers.
+- [x] Phase 128 creates no updater services.
+- [x] Phase 128 creates no update channels.
+- [x] Phase 128 creates no update-channel metadata.
+- [x] Phase 128 adds no signing behavior.
+- [x] Phase 128 adds no publishing behavior.
+- [x] Phase 128 creates no GitHub releases.
+- [x] Phase 128 creates no release tags.
+- [x] Phase 128 creates no public downloads.
+- [x] Phase 128 creates no public assets.
+- [x] Phase 128 adds no public release behavior.
+- [x] Phase 128 adds no production deployment behavior.
+- [x] Phase 128 adds no deployment automation.
+- [x] Phase 128 does not expand provider execution.
+- [x] Phase 128 does not expand persistence authority.
+- [x] Phase 128 does not add replay repair.
+- [x] Phase 128 does not add recovery promotion.
+- [x] Phase 128 does not add action execution.
+- [x] Phase 128 does not add provider trust.
+- [x] Phase 128 does not promote provider output.
+- [x] Phase 128 does not approve Release Candidate status.
+- [x] Phase 128 does not approve release-candidate readiness.
+- [x] Phase 128 does not approve Production Candidate status.
+- [x] Phase 128 does not approve production readiness.
+- [x] Phase 128 does not approve public usability.
+- [x] Phase 128 does not approve public/general use.
+- [x] Phase 128 does not approve production human use.
 
 ## Evidence-only checklist
 - [x] Count only committed evidence.
 - [x] Do not count prompt intent, prior chat summaries, uncommitted work, speculative roadmap claims, future phase descriptions as implemented behavior, or validation success as approval.
-- [x] Do not count Phase 127 installer/update-channel/signing/publishing/rollback/distribution specifications as created artifacts or active behavior.
+- [x] Do not count Phase 128 observability spec as monitoring activation, telemetry requirement as telemetry collection, logging requirement as logging activation, audit-trail requirement as audit authority, failure-reporting requirement as reliability evidence, or operational-evidence specification as Release Candidate evidence.
 
 ## Required verbatim non-approval statement checklist
 - [x] Explicit non-approval statement is present.
-- [x] Phase 127 is threat-model and contract-only; it does not create installers, update channels, signing, publishing, or approve readiness.
+- [x] Phase 128 is observability and operational-evidence boundary only; it does not activate monitoring, logging, deployment, release, or approve readiness.
 
 ## Required enforcement lines checklist
-- [x] - Feedback is evidence, not authority.
-- [x] - Remediation is documentation clarity, not readiness.
-- [x] - Contract/spec is specification only, not artifact creation.
-- [x] - No installer/update-channel spec row may imply activation, signing, publishing, or release readiness.
-- [x] - Missing Phase-128/129/130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
+- [x] Feedback is evidence, not authority.
+- [x] Observability is specification, not monitoring.
+- [x] Telemetry is not safety.
+- [x] Failure reporting is not reliability.
+- [x] Operational evidence is not release evidence.
+- [x] Audit-trail requirements are not audit authority.
+- [x] No observability row may imply readiness, deployment, or public/general use.
+- [x] No observability row may imply active collection, export, dashboarding, alerting, or production monitoring.
+- [x] Missing Phase-129/130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
 
 ## Top drift vectors checklist
-- [x] Spec-to-creation drift documented.
-- [x] Signing/publishing shortcut documented.
-- [x] Update channel treated as live documented.
-- [x] Rollback/auto-update misread as automation documented.
+- [x] Observability-to-production-monitoring drift documented.
+- [x] Telemetry-to-safety-inference drift documented.
+- [x] Failure-reporting-to-reliability-inference drift documented.
+- [x] Operational-evidence-to-release-evidence drift documented.
 - [x] Cross-category inference documented.
+- [x] Spec-to-activation drift documented.
 
 ## Mechanically checkable pre-handoff checklist
-- [x] Every installer/update-channel/specification row includes spec_is_spec=true and either evidence_pointer or deferred_to_phase.
+- [x] Every observability, telemetry, audit, failure-reporting, operational-evidence, and dependency row includes spec_is_spec=true and either evidence_pointer or deferred_to_phase.
 - [x] Repository artifact-presence check is defined.
-- [x] Signing requirements include custody_plan_pointer or deferred_to_phase and verification_process_pointer or deferred_to_phase.
-- [x] Missing custody or verification evidence requires requires_release_steward_escalation.
-- [x] Each update-channel row includes channel_type, attacker_scenario, vector, impact, mitigation, evidence_pointer, and deferred_activation=true.
-- [x] Rollback entries include playbook_pointer or deferred_to_phase and no_automation=true, no_background_service=true, no_update_execution=true.
-- [x] Each distribution entry is non_public, deferred_to_phase_130_decision, or deferred_to_post_130_public_use_phase.
-- [x] Missing Phase 128/129/130 dependencies produce remap_phase_126_130 or defer_release_candidate_hardening.
+- [x] Every observability row includes no_monitoring_enabled=true.
+- [x] Every telemetry row includes no_runtime_collection=true and no_production_endpoints=true.
+- [x] Every failure-reporting row includes reliability_claim=false.
+- [x] Every operational-evidence row includes no_release_readiness_claim=true.
+- [x] Every observability row includes no_public_use_claim=true.
+- [x] Phase 129/130 dependencies are enumerated and missing dependencies produce remap_phase_126_130 or defer_release_candidate_hardening.
+
+## Stop-condition trigger checklist
+- [x] Active monitoring agent, exporter, collector, dashboard, alerting system, production telemetry endpoint, ingestion URL, telemetry token, cron job, service file, scheduled collector, logging/monitoring daemon, background monitoring service, production endpoint update, readiness inference, release bundle, installer, updater, update-channel metadata, signing behavior, publishing behavior, or deployment automation is a stop condition unless historical/prohibition/test text is explicitly classified.
+
+## Phase 127 relationship checklist
+- [x] Phase 127 is complete and Installer and Update-Channel Threat Boundary only.
+- [x] Phase 127 created no installers, updater services, update channels, update-channel metadata, signing keys, signatures, packages, release artifacts, checksums, provenance attestations, GitHub releases, release tags, public downloads, or public assets.
+- [x] Phase 127 approved no readiness status and did not implement Phase 128, Phase 129, or Phase 130.
 
 ## Phase 126 relationship checklist
-- [x] Phase 126 is complete.
-- [x] Phase 126 is Release Packaging Contract only.
+- [x] Phase 126 is complete and Release Packaging Contract only.
 - [x] Packaging contract is not package creation; artifact contract is not artifact creation; checksum contract is not checksum generation; provenance contract is not provenance attestation; distribution contract is not distribution; signing contract is not signing; publishing contract is not publishing.
-- [x] Phase 126 created no packages, release artifacts, checksums, provenance attestations, installers, update channels, signing/publishing behavior, GitHub releases, release tags, public downloads, public assets, public release behavior, production deployment behavior, deployment automation, runtime behavior, or new runtime capability.
-- [x] Phase 126 changed no Rust source, TypeScript source, tests, or schemas.
-- [x] Phase 126 approved no readiness status and did not implement Phase 127 or Phase 130.
 
 ## Phase 125 relationship checklist
-- [x] Phase 125 selected preserve_with_caveats as the primary outcome.
-- [x] Phase 125 selected expand_post_130_plan as the secondary outcome.
-- [x] AJENTIC remains at constrained early-human-use candidate / usability-remediation stage.
-- [x] AJENTIC is not Release Candidate ready, not Production Candidate ready, and not public/general-use ready.
-- [x] Phase 126-130 remains valid only as caveated planned truth.
-- [x] Phase 130 may still decide not ready.
-- [x] Post-130 planning remains required for later production and public/general-use gates.
+- [x] Phase 125 selected preserve_with_caveats as primary outcome.
+- [x] Phase 125 selected expand_post_130_plan as secondary outcome.
+- [x] AJENTIC remains at constrained early-human-use candidate / usability-remediation stage and is not Release Candidate ready, Production Candidate ready, or public/general-use ready.
 
 ## Phase 126-130 caveated plan checklist
-- [x] Phase 127 remains Installer and Update-Channel Threat Boundary only.
-- [x] Phase 128 remains Observability and Operational Evidence Boundary only.
-- [x] Phase 129 remains Release Candidate Dry Run only.
-- [x] Phase 130 remains Release Candidate Decision Gate only.
+- [x] Phase 126-130 remains caveated planned truth only.
 - [x] Phase 130 may still decide not ready.
 - [x] Public/general use remains a later final rung.
 
-## Threat-boundary status model checklist
-- [x] threat_boundary_defined
-- [x] threat_boundary_defined_with_findings
-- [x] threat_boundary_partial
-- [x] threat_boundary_deferred
-- [x] threat_boundary_blocked
-- [x] requires_release_steward_escalation
-- [x] requires_security_reviewer_escalation
-- [x] remap_phase_126_130
-- [x] defer_release_candidate_hardening
-- [x] requires_phase_128_evidence
-- [x] requires_phase_129_dry_run
-- [x] requires_phase_130_decision
-- [x] requires_post_130_public_use_phase
-- [x] not_applicable
+## Observability-boundary status model checklist
+- [x] Allowed status model recorded: observability_boundary_defined, observability_boundary_defined_with_findings, observability_boundary_partial, observability_boundary_deferred, observability_boundary_blocked, requires_phase_129_dry_run_dependency, requires_phase_130_decision_dependency, remap_phase_126_130, defer_release_candidate_hardening, requires_post_130_public_use_phase, not_applicable.
+- [x] Prohibited status model recorded: approved, production_ready, release_ready, public_ready, monitoring_enabled, telemetry_enabled, logging_enabled, dashboard_enabled, alerting_enabled, released, controlled_human_use_approved, early_human_use_approved, production_human_use_approved, release_candidate_approved, production_candidate_approved.
 
 ## Required table flags checklist
-- [x] spec_is_spec=true
-- [x] evidence_pointer or deferred_to_phase marker
-- [x] activation_enabled=false
-- [x] signing_enabled=false
-- [x] publishing_enabled=false
-- [x] release_readiness_claim=false
-- [x] deferred_activation=true for update-channel rows
-- [x] no_automation=true for rollback rows
-- [x] no_background_service=true for rollback rows
-- [x] no_update_execution=true for rollback rows
-- [x] custody_plan_pointer or deferred_to_phase for signing/key custody rows
-- [x] verification_process_pointer or deferred_to_phase for signing/key custody rows
-- [x] requires_release_steward_escalation when custody or verification evidence is missing
-- [x] non_public, deferred_to_phase_130_decision, or deferred_to_post_130_public_use_phase for distribution rows
+- [x] spec_is_spec=true; no_monitoring_enabled=true; no_runtime_collection=true; no_log_collection_enabled=true; no_exporter_enabled=true; no_dashboard_enabled=true; no_alerting_enabled=true; no_production_endpoints=true; no_release_readiness_claim=true; no_public_use_claim=true
+- [x] failure rows include reliability_claim=false and release_readiness_claim=false.
+- [x] audit rows include audit_authority_claim=false and release_readiness_claim=false.
+- [x] observability-to-release rows include release_readiness_claim=false, production_candidate_claim=false, and public_use_claim=false.
 
-## Threat/contract category model checklist
-- [x] installer_specification
-- [x] updater_specification
-- [x] update_channel_metadata
-- [x] update_channel_auth_model
-- [x] update_channel_distribution_boundary
-- [x] signing_requirement
-- [x] key_custody_requirement
-- [x] verification_process_requirement
-- [x] publishing_requirement
-- [x] rollback_procedure
-- [x] rollback_automation_prohibition
-- [x] background_service_prohibition
-- [x] daemon_prohibition
-- [x] public_distribution_deferral
-- [x] non_public_distribution_boundary
-- [x] GitHub_release_deferral
-- [x] release_tag_deferral
-- [x] public_download_deferral
-- [x] public_asset_deferral
-- [x] Phase_128_observability_dependency
-- [x] Phase_129_dry_run_dependency
-- [x] Phase_130_decision_dependency
-- [x] post_130_public_use_dependency
-- [x] readiness_non_approval_statement
+## Observability/contract category model checklist
+- [x] metrics_requirement, log_requirement, trace_requirement, telemetry_boundary, runtime_collection_prohibition, log_collection_prohibition, exporter_prohibition, dashboard_prohibition, alerting_prohibition, production_endpoint_prohibition, telemetry_token_prohibition, ingestion_url_prohibition, failure_reporting_requirement, incident_evidence_requirement, audit_trail_requirement, retention_expectation, operational_evidence_boundary, observability_to_release_boundary, Phase_129_dry_run_dependency, Phase_130_decision_dependency, post_130_public_use_dependency, readiness_non_approval_statement.
 
 ## Production-human-use ladder checklist
 - [x] Local operator testing
@@ -156,461 +157,318 @@ mutation_path: checklist_revision
 - [x] Public/general use
 
 ## Ladder-Preservation Invariant checklist
-- [x] Ladder-Preservation invariants applied.
-- [x] No implicit promotion.
-- [x] Absence of blockers is not approval.
-- [x] Evidence assembly is not readiness.
-- [x] Dry runs are not release.
-- [x] Deployment is not release.
-- [x] Public/general use is always the final rung.
-- [x] No trust inference.
-- [x] No cross-category inference.
-- [x] Every rung requires its own evidence.
+- [x] 1. Ladder steps are not interchangeable; each rung is a distinct authority boundary.
+- [x] 2. No implicit promotion: observability specifications, telemetry requirements, failure-reporting requirements, audit-trail requirements, operational-evidence specifications, validation success, operator notes, participant feedback, provider output, absence of blockers, roadmap expansion, or changelog alignment cannot promote later rungs.
+- [x] 3. Absence of blockers is not approval.
+- [x] 4. Evidence assembly is not readiness.
+- [x] 5. Dry runs are not release.
+- [x] 6. Decision/checkpoint phases may approve only their explicitly authorized decision; Phase 128 is not such a decision gate.
+- [x] 7. No phase may retroactively rewrite earlier gates.
+- [x] 8. Human use is not binary.
+- [x] 9. Deployment is not release.
+- [x] 10. No phase may claim to be the final gate.
+- [x] 11. Public/general use is always the final rung.
+- [x] 12. No trust inference: provider output, operator notes, participant notes, telemetry requirements, failure-reporting requirements, audit requirements, or feedback do not imply trust, readiness, safety, reliability, or authority.
+- [x] 13. No cross-category inference: observability evidence, telemetry evidence, logging evidence, audit evidence, failure-reporting evidence, incident evidence, operational evidence, installer evidence, update-channel evidence, signing evidence, publishing evidence, rollback evidence, distribution evidence, packaging evidence, artifact evidence, checksum evidence, provenance evidence, usability evidence, trial evidence, operator workflow evidence, security evidence, release evidence, governance evidence, roadmap evidence, changelog evidence, validation evidence, provider evidence, persistence evidence, recovery evidence, action evidence, deployment evidence, and public-use evidence remain separate.
+- [x] 14. No phase may activate authority without explicit roadmap permission.
+- [x] 15. Every rung requires its own evidence, not inherited evidence.
+- [x] 16. Roadmap continuation remains required.
 
-## Installer specification threat boundary checklist
-- [x] installer specification threat boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Metrics requirement boundary checklist
+- [x] metrics requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Updater specification threat boundary checklist
-- [x] updater specification threat boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Log requirement boundary checklist
+- [x] log requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Update-channel metadata threat boundary checklist
-- [x] update-channel metadata threat boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Trace requirement boundary checklist
+- [x] trace requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Update-channel auth model boundary checklist
-- [x] update-channel auth model boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Telemetry boundary checklist
+- [x] telemetry boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Update-channel distribution boundary checklist
-- [x] update-channel distribution boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Runtime collection prohibition checklist
+- [x] runtime collection prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Signing requirement boundary checklist
-- [x] signing requirement boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Log collection prohibition checklist
+- [x] log collection prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Key custody requirement boundary checklist
-- [x] key custody requirement boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Exporter prohibition checklist
+- [x] exporter prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Verification process requirement boundary checklist
-- [x] verification process requirement boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Dashboard prohibition checklist
+- [x] dashboard prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Publishing requirement boundary checklist
-- [x] publishing requirement boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Alerting prohibition checklist
+- [x] alerting prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Rollback procedure boundary checklist
-- [x] rollback procedure boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Production endpoint prohibition checklist
+- [x] production endpoint prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Rollback automation prohibition checklist
-- [x] rollback automation prohibition defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Telemetry token prohibition checklist
+- [x] telemetry token prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Background service prohibition checklist
-- [x] background service prohibition defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Ingestion url prohibition checklist
+- [x] ingestion URL prohibition documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Daemon prohibition checklist
-- [x] daemon prohibition defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Failure-reporting requirement boundary checklist
+- [x] failure-reporting requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Public distribution deferral checklist
-- [x] public distribution deferral defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Incident-evidence requirement boundary checklist
+- [x] incident-evidence requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Non-public distribution boundary checklist
-- [x] non-public distribution boundary defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Audit-trail requirement boundary checklist
+- [x] audit-trail requirement boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Github release deferral checklist
-- [x] GitHub release deferral defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Retention expectation boundary checklist
+- [x] retention expectation boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Release tag deferral checklist
-- [x] release tag deferral defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Operational-evidence boundary checklist
+- [x] operational-evidence boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Public download deferral checklist
-- [x] public download deferral defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Observability-to-release boundary checklist
+- [x] observability-to-release boundary documented as specification only with no activation, no readiness claim, no public-use claim, and required Phase 128 flags.
 
-## Public asset deferral checklist
-- [x] public asset deferral defined as threat_boundary_defined or deferred with spec_is_spec=true; evidence_pointer=docs/operations/release-packaging-contract-phase-126.md; activation_enabled=false; signing_enabled=false; publishing_enabled=false; release_readiness_claim=false.
+## Observability Requirement Table checklist
+- [x] Observability Requirement Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Installer/Updater Threat Table checklist
-- [x] Installer/Updater Threat Table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Telemetry Boundary Table checklist
+- [x] Telemetry Boundary Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Update-Channel Boundary Table checklist
-- [x] Update-Channel Boundary Table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Failure-Reporting Table checklist
+- [x] Failure-Reporting Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Signing/Key Custody Table checklist
-- [x] Signing/Key Custody Table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Audit Trail Requirement Table checklist
+- [x] Audit Trail Requirement Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Rollback Procedure Template checklist
-- [x] Rollback Procedure Template completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Operational Evidence Boundary Table checklist
+- [x] Operational Evidence Boundary Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Distribution Deferral Table checklist
-- [x] Distribution Deferral Table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Runtime Collection Prohibition Table checklist
+- [x] Runtime Collection Prohibition Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Phase 128/129/130 Dependency Table checklist
-- [x] Phase 128/129/130 Dependency Table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+## Observability-to-Release Boundary Table checklist
+- [x] Observability-to-Release Boundary Table is present in the Phase 128 operations report and mirrored below as procedural truth.
+
+## Phase 129/130 Dependency Table checklist
+- [x] Phase 129/130 Dependency Table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
 ## Missing-dependency decision candidate table checklist
-- [x] Missing-dependency decision candidate table completed in docs/operations/installer-update-channel-threat-boundary-phase-127.md.
+- [x] Missing-dependency decision candidate table is present in the Phase 128 operations report and mirrored below as procedural truth.
 
-## Repository artifact-presence check checklist
-- [x] Repository artifact-presence check defined and validation scan planned.
-
-## Phase 128 observability evidence expectation checklist
-- [x] Phase 128 observability evidence expectation recorded as requires_phase_128_evidence.
+## Repository observability artifact-presence check checklist
+- [x] Repository scans classify any monitoring/release/deployment terms as historical/prohibition/test/docs/planned/security context unless active artifacts are found.
 
 ## Phase 129 dry-run expectation checklist
-- [x] Phase 129 Release Candidate dry-run expectation recorded as requires_phase_129_dry_run.
+- [x] Phase 129 is Release Candidate Dry Run only and may receive specifications, required evidence fields, dry-run dependency requirements, and explicit deferrals only.
 
 ## Phase 130 decision-gate expectation checklist
-- [x] Phase 130 Release Candidate decision-gate expectation recorded as requires_phase_130_decision and may still decide not ready.
+- [x] Phase 130 remains Release Candidate Decision Gate only and may still decide not ready.
 
 ## Post-130 production/public-use deferral checklist
-- [x] Post-130 production/public-use deferrals recorded and public/general use remains final rung.
+- [x] Production Candidate reassessment, production deployment contract, production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and final public/general-use gate remain post-130 deferrals.
 
-## Installer creation prohibition checklist
-- [x] installer creation prohibition preserved.
+## Phase 129 handoff checklist
+- [x] Phase 129 must not receive or rely on active telemetry, live logs, production monitoring, dashboards, collectors, exporters, alerting systems, production endpoints, or public-use evidence.
 
-## Updater service prohibition checklist
-- [x] updater service prohibition preserved.
+## Monitoring activation prohibition checklist
+- [x] monitoring activation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Update-channel activation prohibition checklist
-- [x] update-channel activation prohibition preserved.
+## Logging activation prohibition checklist
+- [x] logging activation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Update-channel metadata creation prohibition checklist
-- [x] update-channel metadata creation prohibition preserved.
+## Runtime collection prohibition checklist
+- [x] runtime collection prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Signing key creation prohibition checklist
-- [x] signing key creation prohibition preserved.
+## Collector/exporter prohibition checklist
+- [x] collector/exporter prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Key custody behavior prohibition checklist
-- [x] key custody behavior prohibition preserved.
+## Dashboard prohibition checklist
+- [x] dashboard prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Signature creation prohibition checklist
-- [x] signature creation prohibition preserved.
+## Alerting prohibition checklist
+- [x] alerting prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Publishing prohibition checklist
-- [x] publishing prohibition preserved.
+## Production endpoint prohibition checklist
+- [x] production endpoint prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
-## Release artifact prohibition checklist
-- [x] release artifact prohibition preserved.
-
-## Package creation prohibition checklist
-- [x] package creation prohibition preserved.
-
-## Checksum generation prohibition checklist
-- [x] checksum generation prohibition preserved.
-
-## Provenance attestation prohibition checklist
-- [x] provenance attestation prohibition preserved.
-
-## Distribution prohibition checklist
-- [x] distribution prohibition preserved.
-
-## Deployment automation prohibition checklist
-- [x] deployment automation prohibition preserved.
-
-## Rollback automation prohibition checklist
-- [x] rollback automation prohibition preserved.
+## Telemetry token/ingestion url prohibition checklist
+- [x] telemetry token/ingestion URL prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Background service/daemon prohibition checklist
-- [x] background service/daemon prohibition preserved.
+- [x] background service/daemon prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Release artifact prohibition checklist
+- [x] release artifact prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Package creation prohibition checklist
+- [x] package creation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Checksum generation prohibition checklist
+- [x] checksum generation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Provenance attestation prohibition checklist
+- [x] provenance attestation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Installer/update-channel prohibition checklist
+- [x] installer/update-channel prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Signing/publishing prohibition checklist
+- [x] signing/publishing prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Distribution prohibition checklist
+- [x] distribution prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
+
+## Deployment automation prohibition checklist
+- [x] deployment automation prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Github release/tag/public asset prohibition checklist
-- [x] GitHub release/tag/public asset prohibition preserved.
+- [x] GitHub release/tag/public asset prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Public-release prohibition checklist
-- [x] public-release prohibition preserved.
+- [x] public-release prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Production-deployment prohibition checklist
-- [x] production-deployment prohibition preserved.
+- [x] production-deployment prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Public/general-use approval prohibition checklist
-- [x] public/general-use approval prohibition preserved.
+- [x] public/general-use approval prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Production-human-use approval prohibition checklist
-- [x] production-human-use approval prohibition preserved.
+- [x] production-human-use approval prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Production candidate approval prohibition checklist
-- [x] Production Candidate approval prohibition preserved.
+- [x] Production Candidate approval prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Release-candidate approval prohibition checklist
-- [x] release-candidate approval prohibition preserved.
+- [x] release-candidate approval prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Provider trust/output promotion prohibition checklist
-- [x] provider trust/output promotion prohibition preserved.
+- [x] provider trust/output promotion prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Replay-repair prohibition checklist
-- [x] replay-repair prohibition preserved.
+- [x] replay-repair prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Recovery-promotion prohibition checklist
-- [x] recovery-promotion prohibition preserved.
+- [x] recovery-promotion prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Action-execution prohibition checklist
-- [x] action-execution prohibition preserved.
+- [x] action-execution prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Readiness prohibition checklist
-- [x] readiness prohibition preserved.
+- [x] readiness prohibition confirmed for Phase 128; no runtime/source/test/schema behavior implements it.
 
 ## Production Candidate status checklist
-- [x] Production Candidate status remains not approved.
+- [x] AJENTIC is not Production Candidate ready and Phase 128 does not approve Production Candidate status.
 
 ## Release-candidate/public-use status checklist
-- [x] Release-candidate readiness remains not approved.
-- [x] Public/general use remains not approved.
+- [x] AJENTIC is not Release Candidate ready and not public/general-use ready.
 
 ## Roadmap/changelog truth checklist
 - [x] Roadmap remains planned truth.
-- [x] CHANGELOG remains historical truth.
+- [x] CHANGELOG surfaces remain historical truth.
 
 ## Validation checklist
-- [x] CARGO_TARGET_DIR=/tmp/ajentic-phase-127-target ./scripts/check.sh
+- [x] CARGO_TARGET_DIR=/tmp/ajentic-phase-128-target ./scripts/check.sh
 - [x] git diff --check
 - [x] git status --short
-- [x] Phase 127 threat-boundary scan
-- [x] Required enforcement lines scan
-- [x] Drift-vector scan
-- [x] Table flag scan
-- [x] Required output scan
-- [x] Phase relationship scan
-- [x] Ladder invariant scan
-- [x] No-installer/updater/release-artifact scan
-- [x] Key/signature/public asset presence scan
-- [x] No-deployment/release authority scan
-- [x] No-authority scan
-- [x] Readiness scan
-- [x] Source guard
-- [x] Roadmap guard
+- [x] Phase 128 scans, enforcement scans, drift scans, flag scans, output scans, relationship scans, ladder scans, artifact scans, source guards, roadmap guards, and readiness scans are run before handoff.
 
 ## Findings table
-| finding | status | evidence_pointer |
+| finding | classification | status |
 | --- | --- | --- |
-| Phase 127 scope | threat_boundary_defined | docs/operations/installer-update-channel-threat-boundary-phase-127.md |
-| Missing future evidence | remap_phase_126_130 | deferred_to_phase_128/deferred_to_phase_129/deferred_to_phase_130 |
+| Phase 128 scope | observability and operational-evidence boundary only | observability_boundary_defined |
+| Runtime/source/test/schema drift | none introduced by Phase 128 | observability_boundary_defined |
+| Required non-approval statement | present | observability_boundary_defined |
 
+## observability requirement table
+| requirement | requirement boundary | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| metrics requirement | Future counters/durations for validation, failure, and operator evidence categories only | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| log requirement | Future operator-readable log fields only; no log collection activation | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| trace requirement | Future correlation identifiers for dry-run evidence only | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
 
-## Threat table
-| category | status | spec_is_spec | evidence_pointer |
-| --- | --- | --- | --- |
-| installer_specification | threat_boundary_defined | spec_is_spec=true | docs/operations/release-packaging-contract-phase-126.md |
-| updater_specification | threat_boundary_defined | spec_is_spec=true | docs/roadmap/phases.md |
-| update_channel_metadata | threat_boundary_defined_with_findings | spec_is_spec=true | deferred_to_phase_128 |
+## telemetry boundary table
+| allowed surface | prohibited surface | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| operator evidence field definitions | active telemetry collection, production endpoint, token, ingestion URL, collector, exporter, dashboard, alerting | docs/roadmap/phase-map.md | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| future dry-run telemetry requirements | live metrics, live logs, traces, SaaS monitoring, webhooks, background service | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
+| future decision evidence classification | production telemetry endpoint, active monitoring, readiness inference | deferred_to_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
 
+## failure-reporting table
+| failure category | reporting requirement | evidence_pointer or deferred_to_phase marker | spec_is_spec | reliability_claim | release_readiness_claim | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| validation failure | Record future required summary, reproduction step, and evidence pointer fields only | deferred_to_phase_129 | spec_is_spec=true | reliability_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | observability_boundary_defined |
+| operator workflow failure | Record future participant/operator report fields only | deferred_to_phase_129 | spec_is_spec=true | reliability_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | observability_boundary_defined_with_findings |
+| release dry-run failure | Record future dry-run failure category without readiness inference | deferred_to_phase_129 | spec_is_spec=true | reliability_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
+| decision-gate evidence failure | Record future Phase 130 decision missing evidence marker | deferred_to_phase_130 | spec_is_spec=true | reliability_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
 
-## Update-channel boundary table
-| channel_type | auth_model | distribution_boundary | attacker_scenario | vector | impact | mitigation | evidence_pointer | deferred_activation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| appcast_specification | future signed metadata required | non_public | forged appcast | appcast claim | live update confusion | defer metadata | deferred_to_phase_128 | deferred_activation=true |
-| package_repository_specification | future repository auth required | deferred_to_phase_130_decision | mirror compromise | repository claim | distribution confusion | defer repository | deferred_to_phase_130 | deferred_activation=true |
+## audit trail requirement table
+| audit field | retention expectation | evidence_pointer or deferred_to_phase marker | deferred_to_phase_130_decision if needed | spec_is_spec | audit_authority_claim | release_readiness_claim | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| event category | Future evidence field; not audit authority | docs/governance/GOVERNANCE.md | deferred_to_phase_130_decision | spec_is_spec=true | audit_authority_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | observability_boundary_defined |
+| actor/operator marker | Future dry-run actor classification only | deferred_to_phase_129 | deferred_to_phase_130_decision | spec_is_spec=true | audit_authority_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
+| timestamp/source pointer | Future committed evidence pointer or deferral marker | deferred_to_phase_129 | deferred_to_phase_130_decision | spec_is_spec=true | audit_authority_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | observability_boundary_deferred |
+| retention expectation | Future classification of retention duration and owner only | deferred_to_phase_130 | deferred_to_phase_130_decision | spec_is_spec=true | audit_authority_claim=false | release_readiness_claim=false | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
 
+## operational evidence boundary table
+| operational evidence category | counts as operational evidence | does not count as release evidence | deferred category if any | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| observability spec completeness | operational evidence only | does not count as release evidence | Phase 129 dry-run classification | docs/roadmap/phases.md | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| telemetry boundary completeness | operational evidence only | does not count as Release Candidate evidence | Phase 130 decision classification | deferred_to_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
+| failure reporting requirements | operational evidence only | does not imply reliability or release readiness | Phase 129 dry-run finding | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
+| audit-trail requirements | operational evidence only | does not create audit authority | Phase 130 decision input if assembled | deferred_to_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
+| repository artifact-presence scan | operational evidence only | does not count as release evidence | Phase 129 dry-run input | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined_with_findings |
 
-## Signing/key custody table
-| signer_role | custody_plan_pointer | verification_process_pointer | signing_enabled | publishing_enabled | escalation status |
-| --- | --- | --- | --- | --- | --- |
-| release steward and security reviewer separation required | deferred_to_phase_130 | deferred_to_phase_129 | signing_enabled=false | publishing_enabled=false | requires_release_steward_escalation |
+## runtime collection prohibition table
+| collection surface | prohibited runtime behavior | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| runtime collection | no telemetry, metrics, trace, or background collection | docs/governance/GOVERNANCE.md | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| log collection | no logging daemon, log exporter, central collection, or log ingestion | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| collector/exporter | no collector, exporter, metrics server, trace exporter, or log exporter | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| dashboard/alerting | no dashboard, alert rule, alerting system, webhook, or paging behavior | deferred_to_phase_129 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| production endpoint/token/ingestion URL | no production telemetry endpoint, telemetry token, API key, or ingestion URL | deferred_to_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
 
+## observability-to-release boundary table
+| observability requirement | may become later dry-run input | may become later Release Candidate decision input | current Phase 128 authority status | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | release_readiness_claim | production_candidate_claim | public_use_claim | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| metrics requirement | yes, if Phase 129 explicitly assembles it | yes, if Phase 130 explicitly evaluates it | Phase 128 specification only | deferred_to_phase_129_or_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | release_readiness_claim=false | production_candidate_claim=false | public_use_claim=false | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| log requirement | yes, as required field definition only | yes, only as classified decision input | Phase 128 specification only | deferred_to_phase_129_or_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | release_readiness_claim=false | production_candidate_claim=false | public_use_claim=false | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| trace requirement | yes, as correlation requirement only | yes, only as classified decision input | Phase 128 specification only | deferred_to_phase_129_or_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | release_readiness_claim=false | production_candidate_claim=false | public_use_claim=false | no_release_readiness_claim=true | no_public_use_claim=true | observability_boundary_defined |
+| telemetry boundary | yes, as prohibition evidence | yes, only to show no activation claim | Phase 128 specification only | deferred_to_phase_129_or_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | release_readiness_claim=false | production_candidate_claim=false | public_use_claim=false | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
+| operational evidence boundary | yes, as candidate dry-run input | yes, only if assembled in Phase 130 | Phase 128 specification only | deferred_to_phase_129_or_phase_130 | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | release_readiness_claim=false | production_candidate_claim=false | public_use_claim=false | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
 
-## Rollback procedure table
-| playbook_pointer | no_automation | no_background_service | no_update_execution |
-| --- | --- | --- | --- |
-| deferred_to_phase_128 | no_automation=true | no_background_service=true | no_update_execution=true |
-
-
-## Distribution deferral table
-| artifact or channel | distribution marker | evidence_pointer |
-| --- | --- | --- |
-| installer artifact | non_public | docs/operations/release-packaging-contract-phase-126.md |
-| GitHub release | deferred_to_phase_130_decision | deferred_to_phase_130 |
-| public download | deferred_to_post_130_public_use_phase | deferred_to_post_130_public_use_phase |
-
+## phase 129/130 dependency table
+| phase | target_phase | required evidence | current evidence status | missing dependency | decision outcome candidate | evidence_pointer or deferred_to_phase marker | spec_is_spec | no_monitoring_enabled | no_runtime_collection | no_log_collection_enabled | no_exporter_enabled | no_dashboard_enabled | no_alerting_enabled | no_production_endpoints | no_release_readiness_claim | no_public_use_claim | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Phase 129 | target_phase=Phase 129 | Release Candidate dry-run evidence fields, artifact-presence scan evidence, failure-reporting dry-run report, observability handoff classification | requires_phase_129_dry_run_dependency | dry run not performed in Phase 128 | defer_release_candidate_hardening | deferred_to_phase marker | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_129_dry_run_dependency |
+| Phase 130 | target_phase=Phase 130 | Release Candidate Decision Gate classification for observability, audit, failure, incident, and operational evidence | requires_phase_130_decision_dependency | decision evidence not assembled or evaluated in Phase 128 | remap_phase_126_130 | deferred_to_phase marker | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_phase_130_decision_dependency |
+| post-130 public-use phase | target_phase=post_130_public_use_phase | public/general-use readiness audit, support, incident response, rollback, distribution governance, production deployment evidence | requires_post_130_public_use_phase | public/general-use evidence is outside Phase 128 and outside Phase 130 RC decision scope | defer_release_candidate_hardening | deferred_to_phase marker | spec_is_spec=true | no_monitoring_enabled=true | no_runtime_collection=true | no_log_collection_enabled=true | no_exporter_enabled=true | no_dashboard_enabled=true | no_alerting_enabled=true | no_production_endpoints=true | no_release_readiness_claim=true | no_public_use_claim=true | requires_post_130_public_use_phase |
 
 ## Dependency table
-| phase | required evidence | current evidence status | missing dependency | decision outcome candidate |
-| --- | --- | --- | --- | --- |
-| Phase 128 | observability evidence | requires_phase_128_evidence | not implemented in Phase 127 | remap_phase_126_130 |
-| Phase 129 | dry-run evidence | requires_phase_129_dry_run | not implemented in Phase 127 | defer_release_candidate_hardening |
-| Phase 130 | decision evidence | requires_phase_130_decision | Phase 128/129 evidence missing | remap_phase_126_130 |
-
+See Phase 129/130 Dependency Table above; missing Phase-129/130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
 
 ## Deferred items table
-| deferred item | marker |
-| --- | --- |
-| installer creation | deferred_to_phase_130_decision |
-| update-channel activation | deferred_to_phase_130_decision |
-| public/general use | deferred_to_post_130_public_use_phase |
-
+| item | deferred_to_phase | status |
+| --- | --- | --- |
+| dry-run observability evidence | deferred_to_phase_129 | requires_phase_129_dry_run_dependency |
+| Release Candidate decision evidence | deferred_to_phase_130 | requires_phase_130_decision_dependency |
+| public/general-use evidence | deferred_to_post_130_public_use_phase | requires_post_130_public_use_phase |
 
 ## Validation log table
-| command | status |
-| --- | --- |
-| CARGO_TARGET_DIR=/tmp/ajentic-phase-127-target ./scripts/check.sh | passed |
-| git diff --check | passed |
-| git status --short | clean after commit |
-
+| command | status | notes |
+| --- | --- | --- |
+| CARGO_TARGET_DIR=/tmp/ajentic-phase-128-target ./scripts/check.sh | passed | canonical validation |
+| git diff --check | passed | whitespace guard |
+| git status --short | passed | working-tree guard; clean output |
 
 ## Zero-drift checklist
 - [x] No Rust source changes.
 - [x] No TypeScript source changes.
 - [x] No test changes.
+- [x] scripts/check.sh changed only for validation compatibility; no UI source, UI behavior, or test assertion changed.
 - [x] No schema changes.
-- [x] No scripts changed.
-- [x] No release artifacts created.
-- [x] No generated artifacts retained.
-- [x] Allowed Phase 127 surfaces only.
-
-# Out-of-Band Maintenance - Stale Bootstrap Artifact Sweep
-
-## Task name
-- [x] Out-of-band stale bootstrap artifact sweep.
-
-## Out-of-band maintenance status
-- [x] Recorded as out-of-band maintenance only.
-- [x] No Phase 127 implementation performed.
-- [x] No Phase 128 implementation performed.
-
-## Working-tree hygiene gate
-- [x] Initial `git status --short` was clean.
-- [x] No generated artifacts from prior runs were present at start.
-
-## Allowed surfaces
-- [x] Added `docs/operations/stale-bootstrap-artifact-sweep-oob.md`.
-- [x] Updated `checklists/current-phase.md`.
-- [x] Updated `CHANGELOG.md`.
-- [x] Deleted only stale tracked artifacts satisfying deletion criteria.
-- [x] Updated `scripts/bootstrap_repo.py` only to prevent deleted stale artifacts from being recreated during bootstrap idempotence validation.
-
-## Boundary rules
-- [x] Cleanup only.
-- [x] No new command surface introduced.
-- [x] No replacement runtime behavior introduced.
-- [x] Historical truth remains in CHANGELOG rather than stale executable surfaces.
-
-## Candidate inventory checklist
-- [x] Ran tracked-file inventory with `git ls-files`.
-- [x] Ran stale/bootstrap/placeholder search.
-- [x] Inspected `scripts/`.
-- [x] Inspected `.github/workflows/`.
-- [x] Inspected `docs/examples/`.
-- [x] Inspected `docs/operations/`.
-- [x] Inspected README and AGENTS references.
-- [x] Inspected package and UI package scripts.
-- [x] Inspected check and validator references.
-
-## Reference scan checklist
-- [x] Checked exact references for deleted script names.
-- [x] Checked exact references for deleted placeholder documents.
-- [x] Checked exact references for the stale operator handbook.
-- [x] Confirmed no active CI references to deleted artifacts.
-- [x] Confirmed no active `scripts/check.sh` references to deleted artifacts.
-- [x] Confirmed no package script references to deleted artifacts.
-- [x] Confirmed no README/AGENTS references to deleted artifacts.
-
-## Keep/delete/defer classification checklist
-- [x] Classified active validation surfaces as keep.
-- [x] Classified stale placeholder wrappers as delete.
-- [x] Classified placeholder examples as delete.
-- [x] Classified stale placeholder operator handbook as delete.
-- [x] Classified bootstrap regeneration entries as reference cleanup.
-- [x] Classified historical changelog references as keep.
-
-## Deletion criteria checklist
-- [x] Deleted files were tracked by git.
-- [x] Deleted files were not active CI/check/validator/package/README/AGENTS/current-roadmap/current-checklist dependencies.
-- [x] Deleted files were stale, misleading, placeholder-only, or obsolete wrappers.
-- [x] Deletions required no replacement runtime behavior.
-- [x] Historical value remains captured in CHANGELOG/archive truth.
-
-## Validator impact checklist
-- [x] Structure validation impact assessed.
-- [x] Documentation validation impact assessed.
-- [x] Bootstrap idempotence impact addressed by removing regeneration entries.
-
-## CI impact checklist
-- [x] No workflow files changed.
-- [x] No deleted artifact was referenced by active CI.
-
-## README/AGENTS impact checklist
-- [x] README did not require updates.
-- [x] AGENTS did not require updates.
-
-## Runtime non-change checklist
-- [x] No Rust source changes.
-- [x] No runtime behavior added.
-- [x] No provider execution behavior changed.
-- [x] No persistence authority changed.
-- [x] No replay repair added.
-- [x] No recovery promotion added.
-- [x] No action execution added.
-
-## UI non-change checklist
-- [x] No TypeScript source changes.
-- [x] No UI behavior changed.
-- [x] No UI source changed.
-- [x] UI API behavior test command adjusted only for TypeScript command-line configuration compatibility; no UI behavior or test assertions changed.
-
-## Authority non-change checklist
-- [x] No authority semantics changed.
-- [x] No model-output trust boundary changed.
-
-## Release/deployment non-change checklist
-- [x] No package creation.
-- [x] No release artifact creation.
-- [x] No installer behavior.
-- [x] No update-channel behavior.
-- [x] No signing/publishing behavior.
-- [x] No GitHub release/tag/public download asset creation.
-- [x] No deployment automation.
-- [x] No production deployment behavior.
-
-## Readiness prohibition checklist
-- [x] No readiness approval.
-- [x] No Release Candidate approval.
-- [x] No Production Candidate approval.
-- [x] No public/general-use approval.
-- [x] No production-human-use approval.
-
-## Findings table
-| finding | status | evidence |
-| --- | --- | --- |
-| Stale convenience wrappers existed | confirmed | exact-name reference scans |
-| Placeholder example documents existed | confirmed | `docs/examples/*/placeholder.md` |
-| Placeholder operator handbook advertised stale wrappers | confirmed | `docs/operations/operator-handbook.md` |
-| Active validation depended on deleted wrappers | not found | CI/check/package/reference scans |
-| Bootstrap regeneration would recreate deleted artifacts | confirmed and corrected | `scripts/bootstrap_repo.py` cleanup |
-
-## Deleted artifact table
-| artifact | deletion rationale |
-| --- | --- |
-| `scripts/dev-run.sh` | Placeholder convenience wrapper unreferenced by active surfaces. |
-| `scripts/ui-start.sh` | Misleading UI-start/dev-server wrapper that ran build and was unreferenced by active surfaces. |
-| `scripts/replay.sh` | Placeholder replay wrapper unreferenced by active surfaces. |
-| `scripts/memory-snapshot.sh` | Placeholder memory wrapper unreferenced by active surfaces. |
-| `scripts/memory-clear-ephemeral.sh` | Placeholder memory mutation wrapper unreferenced by active surfaces. |
-| `docs/examples/prompts/placeholder.md` | Phase 0 placeholder-only example document. |
-| `docs/examples/workflows/placeholder.md` | Phase 0 placeholder-only example document. |
-| `docs/operations/operator-handbook.md` | Phase 0 placeholder handbook that advertised stale wrappers. |
-
-## Deferred artifact table
-| artifact | reason |
-| --- | --- |
-| `scripts/bootstrap_repo.py` | Used by `scripts/check.sh`; stale regeneration entries removed instead of deleting script. |
-| `ui/package.json` placeholder validation commands | Used by CI and `scripts/check.sh`; deletion would alter validation behavior. |
-| Archived changelog bootstrap mentions | Historical truth. |
-| Current stub-provider terminology | Active governed runtime/test terminology, not stale bootstrap artifact. |
-
-## Validation log table
-| command | status |
-| --- | --- |
-| `git status --short` | passed before edits and clean after commit |
-| `git diff --check` | passed |
-| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py` | passed |
-| `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py` | passed |
-| `CARGO_TARGET_DIR=/tmp/ajentic-oob-stale-sweep-target ./scripts/check.sh` | passed after commit on clean tree |
-| post-deletion reference scan | passed with remaining hits limited to historical, active kept, deferred, or explicit sweep documentation context |
-| guarded source diff | passed; no guarded drift output |
-| release/deployment authority scan | passed with existing prohibition/planned-boundary/lint-token context only |
-| readiness scan | passed with existing prohibition/evidence-gap/historical/planned-boundary context only |
-
-## Zero-drift checklist
-- [x] No Rust source changes.
-- [x] No TypeScript source changes.
-- [x] No tests changed.
-- [x] No schemas changed.
-- [x] No governance docs changed.
-- [x] No architecture docs changed.
-- [x] No lockfiles changed.
-- [x] `ui/package.json` changed only for validation command compatibility after the required full check exposed TypeScript CLI configuration drift.
-- [x] No release infrastructure changed.
-- [x] No deployment infrastructure changed.
+- [x] No monitoring/logging/telemetry activation.
+- [x] No release/deployment/installer/update/signing/publishing behavior.
+- [x] No readiness approval claims.
+- [x] Phase 129 is not implemented.
+- [x] Phase 130 is not implemented.
