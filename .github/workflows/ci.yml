@@ -23,10 +23,16 @@ jobs:
           node-version: "22"
 
       - name: Validate repository structure
-        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py
 
       - name: Validate documentation boundaries
-        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py
 
       - name: Run Rust boundary lint self-tests
         run: node scripts/test_rust_boundary_lint.mjs
@@ -210,4 +216,6 @@ jobs:
 
       - name: Run full deterministic validation
         shell: bash
-        run: ./scripts/check.sh
+        run: |
+          set -euo pipefail
+          ./scripts/check.sh
