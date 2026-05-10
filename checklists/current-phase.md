@@ -4,20 +4,20 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 131 Post-130 Roadmap Expansion and Release Evidence Remap
+# Current Phase Checklist - Phase 132 Release Artifact Creation Boundary
 
 ## Working-tree hygiene
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits: no uncommitted files were present.
 - [x] Keep changes limited to required operations, checklist, and changelog surfaces.
-- [x] Leave optional roadmap planned-truth surfaces unchanged because Phase 130.1 already maps Phases 131-140 with sufficient boundary language.
+- [x] Do not create broad artifact generation infrastructure.
+- [x] Do not commit generated binary/package artifacts.
 - [x] Run final `git status --short` after validation and before commit.
 
 ## Allowed surfaces
-- [x] Create `docs/operations/post-130-release-evidence-remap-phase-131.md`.
-- [x] Update `checklists/current-phase.md` to Phase 131 procedural truth.
-- [x] Update `CHANGELOG.md` with `v0.0.131`.
-- [x] Modify roadmap planned-truth surfaces only if narrow clarification is required; no clarification was required.
+- [x] Create `docs/operations/release-artifact-creation-boundary-phase-132.md`.
+- [x] Update `checklists/current-phase.md` to Phase 132 procedural truth.
+- [x] Update `CHANGELOG.md` with `v0.0.132`.
 - [x] Do not modify Rust source.
 - [x] Do not modify TypeScript source.
 - [x] Do not modify tests.
@@ -27,19 +27,35 @@ mutation_path: checklist_revision
 - [x] Do not modify archived changelog files.
 - [x] Do not modify package files or lockfiles.
 - [x] Do not modify deployment infrastructure or release infrastructure.
+- [x] Do not modify signing/key custody behavior.
+- [x] Do not modify installer/update-channel behavior.
 - [x] Do not modify monitoring/logging/telemetry behavior.
-- [x] Do not modify installer/update/signing/publishing behavior.
 - [x] Do not modify provider execution, persistence, replay repair, recovery promotion, or action execution behavior.
 
 ## Evidence-only rule
+- [x] Count only committed repository evidence.
+- [x] Do not count prompt intent, prior chat summaries, roadmap text alone, requirements alone, or clean validation alone as artifact evidence.
 - [x] Roadmap is not implementation.
 - [x] Requirements are not evidence.
 - [x] Evidence is not approval.
 - [x] Artifact creation is evidence, not release.
-- [x] Phase 131-140 are pre-RC evidence-producing phases, not post-RC hardening.
-- [x] Phase 131 is audit/planning only.
-- [x] Phase 131 does not implement Phase 132.
-- [x] Phase 131 does not create artifacts, checksums, provenance attestations, signatures, installers, update channels, monitoring, deployment, or readiness.
+- [x] Local artifact creation is not release.
+- [x] Artifact evidence is not readiness.
+- [x] Artifact manifest evidence is not publication.
+- [x] Local artifacts are non-public evidence only.
+
+## Artifact status model
+- [x] Use `artifact_boundary_defined`.
+- [x] Use `artifact_created_local_non_public` only if a controlled local/non-public artifact file is actually created; Phase 132 did not use this status as a finding.
+- [x] Use `artifact_creation_deferred`.
+- [x] Use `artifact_creation_blocked` only for blockers; Phase 132 did not use this status as the primary decision.
+- [x] Use `artifact_contract_gap`.
+- [x] Use `artifact_evidence_recorded`.
+- [x] Use `artifact_evidence_incomplete`.
+- [x] Use `requires_phase_133_checksum_provenance`.
+- [x] Use `requires_phase_134_signing_key_custody`.
+- [x] Use `requires_phase_139_reassembly`.
+- [x] Use `not_applicable`.
 
 ## Phase 130 carry-forward checklist
 - [x] Phase 130 is complete.
@@ -47,116 +63,134 @@ mutation_path: checklist_revision
 - [x] AJENTIC is not Release Candidate ready.
 - [x] AJENTIC is not Production Candidate ready.
 - [x] AJENTIC is not public/general-use ready.
-- [x] Phase 130 did not create missing evidence.
-- [x] Phase 130 did not approve Release Candidate status.
-- [x] Phase 130 did not approve Production Candidate status.
-- [x] Phase 130 did not approve public/general use.
-- [x] Phase 130 did not approve production-human-use.
-- [x] Phase 131 does not rerun Phase 130.
+- [x] Phase 132 does not rerun Phase 130.
+- [x] Phase 132 does not approve Release Candidate status.
+- [x] Phase 132 does not approve Production Candidate status.
+- [x] Phase 132 does not approve public/general use.
+- [x] Phase 132 does not approve production human use.
 
-## Phase 130.1 relationship checklist
-- [x] Phase 130.1 mapped Phases 131-140 as planned truth only.
-- [x] Phase 130.1 roadmap mapping is input to Phase 131.
-- [x] Phase 130.1 is not evidence of artifact creation, checksum generation, signing, installer/update-channel implementation, observability, deployment, readiness, or public/general-use authority.
-- [x] Phase 131 converts Phase 130 findings into a bounded Phase 132-140 evidence plan.
-- [x] Phase 131 leaves roadmap surfaces unchanged because no narrow planned-truth clarification is required.
+## Phase 131 relationship checklist
+- [x] Phase 131 is complete.
+- [x] Phase 131 remapped the post-130 evidence path.
+- [x] Phase 131 did not rerun Phase 130.
+- [x] Phase 131 did not implement Phase 132.
+- [x] Phase 131-140 are pre-RC evidence-producing phases, not post-RC hardening.
+- [x] Phase 132 does not implement Phase 133.
+- [x] Phase 132 does not implement Phase 139.
+- [x] Phase 132 does not implement Phase 140.
 
-## Meta-boundary checklist
-- [x] Roadmap is not implementation.
-- [x] Requirements are not evidence.
-- [x] Evidence is not approval.
-- [x] Dry runs are not release.
-- [x] Artifact creation is evidence, not release.
-- [x] Phase 126-129 specification/dry-run evidence is not treated as implementation.
-- [x] Phase 131 is not a Phase 130 rerun.
-- [x] Phase 140 is not automatic Release Candidate approval.
-- [x] Production Candidate and public/general use remain later rungs.
+## Phase 126 contract input checklist
+- [x] Read `docs/operations/release-packaging-contract-phase-126.md`.
+- [x] Treat Phase 126 as committed evidence.
+- [x] Confirm Phase 126 defines packaging and artifact contract categories only.
+- [x] Confirm Phase 126 does not create packages.
+- [x] Confirm Phase 126 does not create release artifacts.
+- [x] Confirm Phase 126 does not define an explicit Phase 132 local artifact output directory.
+- [x] Confirm Phase 126 does not define a deterministic Phase 132 artifact generation command.
+- [x] Record `artifact_contract_gap` for missing explicit local output path/generation command.
+- [x] Record `artifact_creation_deferred` rather than inventing broad infrastructure.
 
-## Phase 132-140 evidence-plan checklist
-- [x] Phase 132 maps local/non-public artifact evidence only and not release.
-- [x] Phase 133 maps checksum/provenance evidence only and not signing or publishing.
-- [x] Phase 134 maps signing/key-custody controls only and not trust or release.
-- [x] Phase 135 maps checkpoint reconciliation only and not readiness approval.
-- [x] Phase 136 maps controlled installer/update-channel surfaces only and not public distribution, update-service activation, daemon behavior, deployment, or readiness.
-- [x] Phase 137 maps controlled local/non-production observability evidence capture only and not production monitoring.
-- [x] Phase 138 maps incident/support/rollback evidence only and not production support or recovery authority.
-- [x] Phase 139 maps evidence reassembly only and not approval.
-- [x] Phase 140 maps a decision gate only and may decide not ready.
-- [x] Post-140 work remains dependent on Phase 140's decision.
-- [x] Public/general use remains the final rung.
+## Local/non-public artifact boundary checklist
+- [x] Local artifact creation is not release.
+- [x] Artifact evidence is not readiness.
+- [x] Artifact manifest evidence is not publication.
+- [x] Local artifacts are non-public evidence only.
+- [x] Phase 132 does not approve Release Candidate status.
+- [x] Phase 132 does not create public assets, GitHub releases, release tags, or public downloads.
+- [x] Phase 132 does not sign, publish, deploy, or activate installer/update-channel behavior.
+- [x] Phase 132 does not satisfy checksum, provenance, signing, installer, update-channel, observability, deployment, Production Candidate, or public/general-use evidence by inference.
+- [x] No public release artifacts are created.
+- [x] No GitHub releases are created.
+- [x] No release tags are created.
+- [x] No public downloads are created.
+- [x] No public assets are created.
 
-## Boundary/ladder preservation table
-| Verification | Status | Finding |
+## Artifact evidence table
+| Evidence item | Path or result | Status |
 | --- | --- | --- |
-| Preserve `rc_candidate_not_ready` as starting truth. | pass | Every planned phase starts from Phase 130's not-ready decision. |
-| Prevent Release Candidate approval before Phase 140. | pass | Phases 132-139 are evidence, deferral, reconciliation, or reassembly only. |
-| Prevent automatic Phase 140 approval. | pass | Phase 140 may decide not ready. |
-| Prevent Production Candidate readiness implication. | pass | Production Candidate remains a later rung. |
-| Prevent public/general-use readiness implication. | pass | Public/general use remains the final rung. |
-| Preserve Phase 126-129 as specification/dry-run evidence only. | pass | Phase 131 does not treat contracts or dry runs as implementation. |
+| Operations report | `docs/operations/release-artifact-creation-boundary-phase-132.md` | `artifact_evidence_recorded` |
+| Checklist procedural truth | `checklists/current-phase.md` | `artifact_evidence_recorded` |
+| Changelog historical truth | `CHANGELOG.md` | `artifact_evidence_recorded` |
+| Controlled binary/package artifact file | Not created because Phase 126 does not define an explicit local output directory or deterministic generation command. | `artifact_creation_deferred` |
+| Separate artifact manifest file | Not created; manifest findings are recorded in the operations report only. | `artifact_creation_deferred` |
+| Explicit local output directory | Not present in committed contract evidence. | `artifact_contract_gap` |
 
-## Evidence-category separation table
-| Category | Status | Separation finding |
-| --- | --- | --- |
-| Artifact evidence | pass | Separate from checksum, signing, installer/update-channel, observability, deployment, release, and readiness. |
-| Checksum/provenance evidence | pass | Separate from signing, publishing, deployment, and readiness. |
-| Signing/key-custody controls | pass | Separate from public trust, publication, deployment, and readiness. |
-| Installer/update-channel evidence | pass | Separate from public distribution, update-service activation, daemon behavior, deployment, and readiness. |
-| Observability evidence | pass | Separate from production monitoring, telemetry endpoints, alerting, dashboards, exporters, deployment, and readiness. |
-| Incident/support/rollback evidence | pass | Separate from production support, recovery authority, deployment, and readiness. |
-| Evidence reassembly | pass | Separate from approval. |
+## Temporary artifact cleanup checklist
+- [x] Do not commit generated artifacts.
+- [x] Keep Cargo target output outside the repository with `CARGO_TARGET_DIR=/tmp/ajentic-phase-132-target` during validation.
+- [x] Treat UI build output as validation-only and uncommitted.
+- [x] Run artifact scan for release archives, installers, signatures, keys, update-channel metadata, and public assets.
+- [x] Confirm scan output has no intentional Phase 132 binary/package artifacts.
+- [x] Confirm no temporary artifact drift remains in final status.
 
-## Activation prohibition table
-| Surface | Status | Prohibition |
-| --- | --- | --- |
-| Release artifacts | pass | No package creation, public asset, GitHub release, release tag, public download, or release. |
-| Checksum/provenance | pass | No checksum generation or provenance attestation creation in Phase 131. |
-| Signing/publishing | pass | No signing activation, key publication, public signature, publishing behavior, or release trust. |
-| Installer/update-channel | pass | No public distribution, public update service, daemon, background service, deployment automation, or readiness claim. |
-| Observability | pass | No production monitoring, production telemetry endpoint, alerting, dashboard, exporter, public telemetry, or readiness claim. |
-| Deployment | pass | No deployment automation or production deployment behavior. |
-| Runtime authority | pass | No provider trust, provider output promotion, persistence authority expansion, replay repair, recovery promotion, or action execution. |
+## Cross-category inference checklist
+- [x] Artifact boundary evidence does not satisfy Phase 133 checksum/provenance evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 134 signing/key-custody evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 136 installer/update-channel evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 137 observability evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 138 operational evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 139 reassembly evidence.
+- [x] Artifact boundary evidence does not satisfy Phase 140 Release Candidate re-decision evidence.
+- [x] Artifact boundary evidence does not satisfy Production Candidate evidence.
+- [x] Artifact boundary evidence does not satisfy public/general-use evidence.
 
-## Decision-gate vocabulary table
-| Vocabulary | Status | Finding |
-| --- | --- | --- |
-| `rc_candidate_not_ready` | pass | Used as starting truth from Phase 130. |
-| Release Candidate approval | pass | Used only as prohibited before Phase 140 or as Phase 140's bounded possible decision if evidence supports it. |
-| Production Candidate approval | pass | Prohibited and deferred beyond this block. |
-| Public/general-use approval | pass | Prohibited and deferred as final rung. |
-| Ready/readiness | pass | Used only for negative, prohibited, or later-gate contexts. |
-| Implemented/activated/published/released/deployed | pass | Used only for later planned boundaries or explicit prohibitions; Phase 131 does not perform them. |
+## Phase 133 handoff checklist
+- [x] Record that checksum evidence is deferred to Phase 133.
+- [x] Record that provenance evidence is deferred to Phase 133.
+- [x] Do not create checksums in Phase 132.
+- [x] Do not create provenance attestations in Phase 132.
+- [x] Do not allow Phase 133 to infer checksum/provenance evidence from Phase 132 documentation alone.
 
-## Post-140 guardrail table
-| Topic | Status | Guardrail |
-| --- | --- | --- |
-| Phase 140 outcome | pass | Phase 140 may decide not ready. |
-| Production Candidate | pass | Does not automatically follow Phase 140. |
-| Public/general use | pass | Remains the final rung. |
-| Deployment | pass | Requires later authority and is not created by Phase 131-140. |
-| Production monitoring | pass | Requires later authority and is not created by Phase 137. |
-| Public release | pass | Requires later authority and is not created by artifact/signing evidence. |
+## Release/public/deployment prohibition checklist
+- [x] No public release behavior.
+- [x] No public asset creation.
+- [x] No GitHub release creation.
+- [x] No release tag creation.
+- [x] No public download creation.
+- [x] No signing behavior.
+- [x] No publishing behavior.
+- [x] No deployment automation.
+- [x] No production deployment behavior.
+- [x] No installer/update-channel activation.
+- [x] No monitoring/logging/telemetry activation.
+- [x] No provider trust.
+- [x] No provider output promotion.
+- [x] No persistence authority expansion.
+- [x] No replay repair.
+- [x] No recovery promotion.
+- [x] No action execution.
+
+## Readiness prohibition checklist
+- [x] Phase 132 does not approve Release Candidate status.
+- [x] Phase 132 does not approve Production Candidate status.
+- [x] Phase 132 does not approve public/general use.
+- [x] Phase 132 does not approve production human use.
+- [x] Phase 132 preserves `rc_candidate_not_ready`.
+- [x] Artifact evidence is not readiness.
+- [x] Local artifact creation is not release.
 
 ## Validation log
-| Check | Status | Notes |
+| Check | Result | Notes |
 | --- | --- | --- |
 | Initial `git status --short` | pass | No uncommitted files before edits. |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-131-target ./scripts/check.sh` | pass | Runs on the committed clean tree because the script requires initial repository cleanliness. |
-| `git diff --check` | pass | No whitespace errors. |
-| `git status --short` | pass | Shows only intended Phase 131 documentation/checklist/changelog changes before commit. |
-| Targeted Phase 131 scan | pass | Required Phase 131, Phase 132-140, and boundary terms are present. |
-| Targeted guarded vocabulary scan | pass | Matches are limited to prohibitions, historical Phase 130 context, or planned-truth boundary language. |
-| Guarded diff scan | pass | No guarded drift. |
-| Final `git status --short` after commit | pass | Must be clean after commit. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-132-target ./scripts/check.sh` | pass | Full validation completed before final commit. |
+| `git diff --check` | pass | Whitespace validation completed before final commit. |
+| `git status --short` | pass | Pre-commit status showed only intentional Phase 132 documentation changes; final status must be clean after commit. |
+| Artifact scan | pass | No release archives, installers, signatures, keys, update-channel metadata, or public assets were found outside ignored build/dependency paths. |
+| Targeted Phase 132 scan | pass | Phase 132 boundary vocabulary and required enforcement lines are present in required surfaces. |
+| Guarded behavior scan | pass | Matches are historical, planned, test, specification, or prohibition context; Phase 132 introduced no active behavior. |
+| Guarded diff scan | pass | No guarded source, schema, workflow, README, governance, architecture, archived changelog, or lockfile drift. |
 
 ## Zero-drift checklist
-- [x] Phase 130 `rc_candidate_not_ready` is preserved.
-- [x] Phase 131 does not rerun Phase 130.
-- [x] Phase 131-140 are framed as pre-RC evidence-producing work, not post-RC hardening.
-- [x] Phase 132-140 evidence requirements are mapped or explicitly deferred.
-- [x] No planned phase implies automatic approval.
-- [x] Production Candidate and public/general use remain later rungs.
-- [x] No runtime/source/test/schema changes are introduced.
-- [x] No release/deployment/monitoring/authority behavior is introduced.
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No test changes.
+- [x] No schema changes.
+- [x] No package or lockfile changes.
+- [x] No governance doc changes.
+- [x] No architecture doc changes.
+- [x] No archived changelog changes.
+- [x] No deployment infrastructure changes.
+- [x] No release infrastructure changes.
+- [x] No generated artifact files committed.
 - [x] CHANGELOG entry matches the actual diff.
-- [x] Phase 132 is not implemented.
