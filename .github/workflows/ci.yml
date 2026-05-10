@@ -43,7 +43,6 @@ jobs:
   rust:
     name: Rust
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('core/Cargo.toml') != '' }}
     env:
       CARGO_TARGET_DIR: /tmp/ajentic-ci-rust-target
 
@@ -51,25 +50,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check Rust surface exists
+        id: rust-surface
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f core/Cargo.toml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install Rust toolchain
+        if: steps.rust-surface.outputs.present == 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Check Rust formatting
+        if: steps.rust-surface.outputs.present == 'true'
         run: cargo fmt --manifest-path core/Cargo.toml -- --check
 
       - name: Check Rust build
+        if: steps.rust-surface.outputs.present == 'true'
         run: cargo check --manifest-path core/Cargo.toml --all-targets
 
       - name: Run Rust tests
+        if: steps.rust-surface.outputs.present == 'true'
         run: cargo test --manifest-path core/Cargo.toml --all-targets
 
       - name: Run Clippy
+        if: steps.rust-surface.outputs.present == 'true'
         run: cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
 
   ui:
     name: TypeScript UI
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('ui/package.json') != '' }}
 
     defaults:
       run:
@@ -79,12 +94,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check UI surface exists
+        id: ui-surface
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f ui/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up Node.js
+        if: steps.ui-surface.outputs.present == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
       - name: Detect package manager lockfile
+        if: steps.ui-surface.outputs.present == 'true'
         id: lockfile
         shell: bash
         run: |
@@ -102,48 +132,58 @@ jobs:
           fi
 
       - name: Install UI dependencies
+        if: steps.ui-surface.outputs.present == 'true'
         shell: bash
         run: ${{ steps.lockfile.outputs.install }}
 
       - name: Run UI typecheck
+        if: steps.ui-surface.outputs.present == 'true'
         run: npm run typecheck
 
       - name: Run UI lint
+        if: steps.ui-surface.outputs.present == 'true'
         run: npm run lint
 
       - name: Run UI build
+        if: steps.ui-surface.outputs.present == 'true'
         run: npm run build
 
       - name: Run UI API behavior tests
+        if: steps.ui-surface.outputs.present == 'true'
         run: npm run test:api
 
       - name: Run UI boundary AST lint self-tests
+        if: steps.ui-surface.outputs.present == 'true'
         run: node ../scripts/test_lint_ui_boundaries.mjs
 
       - name: Run UI boundary AST lint
+        if: steps.ui-surface.outputs.present == 'true'
         run: node ../scripts/lint_ui_boundaries.mjs
 
   schemas:
     name: Schemas
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('schemas/**/*.json') != '' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate JSON syntax
+      - name: Validate schemas
         shell: bash
         run: |
           set -euo pipefail
 
-          find schemas -type f -name "*.json" -print0 |
-            xargs -0 -n1 python3 -m json.tool > /dev/null
+          if [ ! -d schemas ]; then
+            echo "schemas/ not present; schema checks skipped."
+            exit 0
+          fi
 
-      - name: Ensure schemas stay under canonical root
-        shell: bash
-        run: |
-          set -euo pipefail
+          if find schemas -type f -name "*.json" -print -quit | grep -q .; then
+            find schemas -type f -name "*.json" -print0 |
+              xargs -0 -n1 python3 -m json.tool > /dev/null
+          else
+            echo "No JSON schemas found; schema syntax check skipped."
+          fi
 
           if find . -type f -name "*.schema.json" ! -path "./schemas/*" | grep -q .; then
             echo "::error::Schema files must live under schemas/"
@@ -153,7 +193,6 @@ jobs:
   scripts:
     name: Scripts
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('scripts/**/*.sh') != '' }}
 
     steps:
       - name: Checkout repository
@@ -164,8 +203,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          find scripts -type f -name "*.sh" -print0 |
-            xargs -0 -n1 bash -n
+          if [ ! -d scripts ]; then
+            echo "scripts/ not present; shell script checks skipped."
+            exit 0
+          fi
+
+          if find scripts -type f -name "*.sh" -print -quit | grep -q .; then
+            find scripts -type f -name "*.sh" -print0 |
+              xargs -0 -n1 bash -n
+          else
+            echo "No shell scripts found; parse check skipped."
+          fi
 
   full-check:
     name: Full deterministic check
