@@ -29,7 +29,7 @@ Archive guarantees:
 * Update checklists/current-phase.md to record the out-of-band maintenance sweep.
 * Add the out-of-band maintenance report documenting candidate classification, deletions, deferrals, and validation.
 * Update active references only if needed to remove stale links to deleted artifacts.
-* Keep the existing UI API behavior test command compatible with the installed TypeScript command-line configuration boundary without changing UI source or test assertions.
+* Update scripts/bootstrap_repo.py so bootstrap idempotence no longer recreates deleted stale bootstrap artifacts.
 
 ### Notes
 
@@ -41,7 +41,9 @@ Archive guarantees:
 * No UI behavior change.
 * No Rust source changes unless a deleted stale Rust artifact is proven unused and explicitly justified; no Rust source was changed in this sweep.
 * No TypeScript source changes unless a deleted stale TypeScript artifact is proven unused and explicitly justified; no TypeScript source was changed in this sweep.
-* No test assertions changed; the UI API behavior test command remains the existing validation surface with TypeScript command-line configuration compatibility.
+* No test assertions changed.
+* No TypeScript command-line compatibility change is recorded in this entry.
+* UI API behavior test command compatibility is handled by the later corrective validation change, not by this stale-artifact sweep entry.
 * No schema changes.
 * No provider execution change.
 * No persistence authority change.
