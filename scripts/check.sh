@@ -3,6 +3,11 @@ set -euo pipefail
 
 # check.sh - Run deterministic non-mutating local validation checks.
 # This script does not implement policy or mutate authoritative runtime state.
+#
+# CARGO_TARGET_DIR defaults outside the repository to prevent Cargo-generated
+# target metadata from creating tracked working-tree drift during validation.
+
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-/tmp/ajentic-check-target}"
 
 require_clean_worktree() {
   local label="$1"
