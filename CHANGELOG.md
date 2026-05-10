@@ -17,6 +17,65 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.126 - 2026-05-10
+**Status:** Phase 126 - Release Packaging Contract
+
+### Added
+- Add the Phase 126 release packaging contract report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 126 procedural truth.
+- Update CHANGELOG.md with v0.0.126.
+
+### Notes
+- Phase 126 is release packaging contract only.
+- Packaging contract is not package creation.
+- Artifact contract is not artifact creation.
+- Checksum contract is not checksum generation.
+- Provenance contract is not provenance attestation.
+- Distribution contract is not distribution.
+- Signing contract is not signing.
+- Publishing contract is not publishing.
+- Release packaging contract is not Release Candidate readiness.
+- Release packaging contract is not Production Candidate readiness.
+- Release packaging contract is not public/general use.
+- Phase 126 adds no runtime behavior.
+- Phase 126 adds no new runtime capability.
+- Phase 126 makes no Rust source changes.
+- Phase 126 makes no TypeScript source changes.
+- Phase 126 makes no test changes.
+- Phase 126 makes no schema changes.
+- Phase 126 creates no packages.
+- Phase 126 creates no release artifacts.
+- Phase 126 generates no checksums.
+- Phase 126 creates no provenance attestations.
+- Phase 126 adds no deployment automation.
+- Phase 126 creates no installer behavior.
+- Phase 126 creates no update-channel behavior.
+- Phase 126 adds no signing/publishing behavior.
+- Phase 126 creates no GitHub release, release tag, or public download asset.
+- Phase 126 adds no public release behavior.
+- Phase 126 adds no production deployment behavior.
+- Phase 126 adds no persistence authority expansion.
+- Phase 126 adds no replay repair.
+- Phase 126 adds no recovery promotion.
+- Phase 126 adds no action execution.
+- Phase 126 adds no provider trust.
+- Phase 126 adds no provider output promotion.
+- Phase 126 grants no readiness approval.
+- Phase 126 grants no Release Candidate approval.
+- Phase 126 grants no release-candidate approval.
+- Phase 126 grants no Production Candidate approval.
+- Phase 126 grants no public-usability approval.
+- Phase 126 grants no public/general-use approval.
+- Phase 126 grants no production-human-use approval.
+- Phase 126 implements no Phase 127.
+- Phase 126 implements no Phase 130.
+- No Phase 126 contract may imply release artifact creation.
+- No Phase 126 contract may imply installer or update-channel activation.
+- No Phase 126 contract may imply signing, publishing, GitHub release, release tag, public download, or public asset creation.
+- No Phase 126 contract may imply public release, production deployment, readiness, or production human use.
+
 ## v0.0.125 - 2026-05-10
 **Status:** Phase 125 - Roadmap, Changelog, and Production-Path Reassessment
 
