@@ -41,6 +41,15 @@ ROOT_EXPECTED = {
     },
 }
 
+
+PATH_EXPECTED = {
+    "docs/operations/early-human-use-evidence-capture-template-phase-124.md": {
+        "truth_dimension": "procedural",
+        "authority_level": "advisory",
+        "mutation_path": "checklist_revision",
+    },
+}
+
 LOCATION_EXPECTED = [
     ("docs/governance/", "normative", "authoritative", "governance_pr"),
     ("docs/architecture/", "structural", "authoritative", "architecture_pr"),
@@ -207,14 +216,20 @@ for path in markdown_files:
     if path_text.startswith("memory/"):
         fail(f"{path}: Markdown documentation must not live in memory/")
 
-    for prefix, truth_dimension, authority_level, mutation_path in LOCATION_EXPECTED:
-        if path_text.startswith(prefix):
-            if fm.get("truth_dimension") != truth_dimension:
-                fail(f"{path}: expected truth_dimension: {truth_dimension}, found {fm.get('truth_dimension')!r}")
-            if authority_level and fm.get("authority_level") != authority_level:
-                fail(f"{path}: expected authority_level: {authority_level}, found {fm.get('authority_level')!r}")
-            if fm.get("mutation_path") != mutation_path:
-                fail(f"{path}: expected mutation_path: {mutation_path}, found {fm.get('mutation_path')!r}")
+    path_expected = PATH_EXPECTED.get(path_text)
+    if path_expected:
+        for key, expected_value in path_expected.items():
+            if fm.get(key) != expected_value:
+                fail(f"{path}: expected {key}: {expected_value}, found {fm.get(key)!r}")
+    else:
+        for prefix, truth_dimension, authority_level, mutation_path in LOCATION_EXPECTED:
+            if path_text.startswith(prefix):
+                if fm.get("truth_dimension") != truth_dimension:
+                    fail(f"{path}: expected truth_dimension: {truth_dimension}, found {fm.get('truth_dimension')!r}")
+                if authority_level and fm.get("authority_level") != authority_level:
+                    fail(f"{path}: expected authority_level: {authority_level}, found {fm.get('authority_level')!r}")
+                if fm.get("mutation_path") != mutation_path:
+                    fail(f"{path}: expected mutation_path: {mutation_path}, found {fm.get('mutation_path')!r}")
 
     if path_text == "CHANGELOG.md":
         check_patterns(path, CHANGELOG_FUTURE_PATTERNS, "changelog must not contain future planning language")

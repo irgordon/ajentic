@@ -17,6 +17,54 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.124 - 2026-05-10
+**Status:** Phase 124 - Operational Usability Remediation Boundary
+
+### Added
+- Add the Phase 124 operational usability remediation report.
+- Add the Phase 124 early human-use evidence-capture template.
+
+### Changed
+- Update checklists/current-phase.md to Phase 124 procedural truth.
+- Update CHANGELOG.md with v0.0.124.
+
+### Notes
+- Phase 124 is operational usability remediation only.
+- Usability remediation is not readiness approval.
+- Feedback is evidence, not authority.
+- Trial evidence is not readiness.
+- The evidence-capture template is procedural guidance only.
+- Phase 124 adds no runtime behavior.
+- Phase 124 adds no new runtime capability.
+- Phase 124 makes no Rust source changes.
+- Phase 124 makes no TypeScript source changes.
+- Phase 124 makes no test changes.
+- Phase 124 makes no schema changes.
+- Phase 124 implements no Phase 125.
+- Phase 124 implements no Phase 130.
+- Phase 124 adds no deployment automation.
+- Phase 124 creates no release artifacts.
+- Phase 124 creates no packages.
+- Phase 124 creates no installer behavior.
+- Phase 124 creates no update-channel behavior.
+- Phase 124 adds no signing/publishing behavior.
+- Phase 124 creates no GitHub release, release tag, or public download asset.
+- Phase 124 adds no public release behavior.
+- Phase 124 adds no production deployment behavior.
+- Phase 124 adds no persistence authority expansion.
+- Phase 124 adds no replay repair.
+- Phase 124 adds no recovery promotion.
+- Phase 124 adds no action execution.
+- Phase 124 adds no provider trust.
+- Phase 124 adds no provider output promotion.
+- Phase 124 grants no readiness approval.
+- Phase 124 grants no Release Candidate approval.
+- Phase 124 grants no release-candidate approval.
+- Phase 124 grants no Production Candidate approval.
+- Phase 124 grants no public-usability approval.
+- Phase 124 grants no public/general-use approval.
+- Phase 124 grants no production-human-use approval.
+
 ## v0.0.123 - 2026-05-09
 **Status:** Phase 123 - Early Human-Use Evidence Review and Operator Feedback Audit
 

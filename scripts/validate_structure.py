@@ -54,7 +54,10 @@ TRUTH_ROOTS = {
     "structural": [Path("docs/architecture")],
     "planned": [Path("docs/roadmap")],
     "historical": [Path("CHANGELOG.md"), Path("docs/changelog")],
-    "procedural": [Path("checklists")],
+    "procedural": [
+        Path("checklists"),
+        Path("docs/operations/early-human-use-evidence-capture-template-phase-124.md"),
+    ],
     "contract": [Path("schemas")],
     "data": [Path("memory")],
     "example": [Path("docs/examples")],
