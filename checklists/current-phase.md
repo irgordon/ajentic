@@ -4,176 +4,128 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 130 Release Candidate Decision Gate
+# Current Phase Checklist - Phase 130.1 Out-of-Band Roadmap Expansion After Release Candidate Decision
 
 ## Working-tree hygiene
 - [x] Run `git status --short` before edits.
 - [x] Classify uncommitted files before edits: no uncommitted files were present.
-- [x] Clean generated artifacts before edits if present: no generated artifacts were present.
-- [x] Run final `git status --short` after validation.
+- [x] Keep changes limited to required roadmap, operations, checklist, and changelog surfaces.
+- [x] Run final `git status --short` after validation and commit.
+
+## Out-of-band roadmap alignment status
+- [x] Phase 130.1 is out-of-band roadmap alignment only.
+- [x] Phase 130.1 updates planned-truth surfaces after the Phase 130 `rc_candidate_not_ready` decision.
+- [x] Phase 130.1 does not implement Phase 131 or any later phase.
+- [x] Phase 130.1 does not alter runtime behavior.
+- [x] Phase 130.1 does not create readiness approval.
 
 ## Allowed surfaces
-- [x] Create `docs/operations/release-candidate-decision-gate-phase-130.md`.
-- [x] Update `checklists/current-phase.md` to Phase 130 procedural truth.
-- [x] Update `CHANGELOG.md` with `v0.0.130`.
+- [x] Update `docs/roadmap/phase-map.md`.
+- [x] Update `docs/roadmap/phases.md`.
+- [x] Update `docs/roadmap/sequencing.md`.
+- [x] Create `docs/operations/post-130-roadmap-expansion-phase-130-1.md`.
+- [x] Update `checklists/current-phase.md` to Phase 130.1 procedural truth.
+- [x] Update `CHANGELOG.md` with `v0.0.130.1`.
 - [x] Do not modify Rust source.
 - [x] Do not modify TypeScript source.
 - [x] Do not modify tests.
 - [x] Do not modify schemas.
 - [x] Do not modify governance docs.
 - [x] Do not modify architecture docs.
-- [x] Do not modify package files, lockfiles, deployment infrastructure, release infrastructure, monitoring behavior, installer/update/signing/publishing behavior, provider execution behavior, persistence behavior, replay repair behavior, recovery promotion behavior, or action execution behavior.
+- [x] Do not modify archived changelog files.
+- [x] Do not modify package files or lockfiles.
+- [x] Do not modify deployment infrastructure or release infrastructure.
 
 ## Evidence-only rule
-- [x] Count only committed evidence.
-- [x] Do not count prompt intent.
-- [x] Do not count prior chat summaries.
-- [x] Do not count speculative roadmap entries as implementation.
-- [x] Do not count clean validation alone as approval.
-- [x] Do not count dry-run completeness as readiness.
-- [x] Do not count evidence-map completeness as approval.
-- [x] Do not count contract/spec language as artifact creation.
-- [x] Do not count absence of blockers as approval.
+- [x] Roadmap expansion is planned truth, not implementation.
+- [x] Count Phase 130 decision findings only as carry-forward input.
+- [x] Do not count prompt intent as evidence.
+- [x] Do not count future roadmap entries as completed work.
+- [x] Do not count clean validation alone as readiness.
+- [x] Do not count Phase 131-140 mapping as release evidence.
+- [x] Require later category-specific evidence before any Release Candidate re-decision can rely on it.
 
-## Decision status model
-- [x] Use only `rc_candidate_rejected_due_to_missing_dependencies`.
-- [x] Use only `rc_candidate_rejected_due_to_boundary_violation`.
-- [x] Use only `rc_candidate_rejected_due_to_release_artifact_absence`.
-- [x] Use only `rc_candidate_rejected_due_to_no_artifact_creation_boundary`.
-- [x] Use only `rc_candidate_deferred_to_post_130_phase`.
-- [x] Use only `rc_candidate_requires_remap_phase_126_130`.
-- [x] Use only `rc_candidate_requires_additional_evidence`.
-- [x] Use only `rc_candidate_not_ready`.
-- [x] Use only `rc_candidate_not_applicable`.
-- [x] Do not use prohibited approval/readiness words as finding statuses.
+## Phase 130 carry-forward checklist
+- [x] Phase 130 is complete.
+- [x] Phase 130 decision status remains `rc_candidate_not_ready`.
+- [x] Phase 130 did not approve Release Candidate status.
+- [x] Phase 130 did not approve Production Candidate status.
+- [x] Phase 130 did not approve public/general use.
+- [x] Phase 130 did not approve production-human-use.
+- [x] Phase 130 did not create the missing evidence it identified.
+- [x] Phase 131 must not be treated as a Phase 130 rerun without new evidence.
 
-## Enforcement-line checklist
-- [x] Dry-run completeness is not readiness.
-- [x] Evidence-map completeness is not approval.
-- [x] Specification evidence is not artifact creation.
-- [x] Operational evidence is not monitoring.
-- [x] Phase 129 did not decide Release Candidate status.
-- [x] Clean scans do not imply readiness.
-- [x] No evidence category may satisfy another category by inference.
-- [x] Phase 130 may still decide not ready.
-- [x] Release Candidate decision does not imply Production Candidate status.
-- [x] Release Candidate decision does not imply public/general use.
+## Phase 131-140 mapping checklist
+- [x] Phase 131 maps Post-130 Roadmap Expansion and Release Evidence Remap as audit/planning only.
+- [x] Phase 132 maps Release Artifact Creation Boundary as local/non-public artifact creation only; no publishing.
+- [x] Phase 133 maps Checksum and Provenance Evidence Boundary as checksum/provenance evidence only; no signing or publishing.
+- [x] Phase 134 maps Signing and Key-Custody Implementation Boundary as signing/key-custody implementation only if evidence permits; no publishing.
+- [x] Phase 135 maps Roadmap and Changelog Alignment Check as alignment only; no readiness approval.
+- [x] Phase 136 maps Installer/Update-Channel Implementation Boundary as controlled implementation only; no public distribution.
+- [x] Phase 137 maps Operational Observability Implementation Boundary as controlled observability implementation only; no production monitoring claim.
+- [x] Phase 138 maps Incident, Support, and Rollback Evidence Boundary as operational procedure/evidence only; no production support claim.
+- [x] Phase 139 maps Release Candidate Evidence Reassembly as evidence assembly only; no approval.
+- [x] Phase 140 maps Release Candidate Re-Decision Gate as decision gate only.
 
-## Phase 126-129 input checks
-| Input | Phase 130 finding | Decision status |
-| --- | --- | --- |
-| Phase 126 packaging contract specs | Contracts only, not artifacts. | `rc_candidate_rejected_due_to_no_artifact_creation_boundary` |
-| Phase 127 installer/update-channel threat boundaries | Threat boundaries only, not installers or update channels. | `rc_candidate_rejected_due_to_missing_dependencies` |
-| Phase 128 observability/operational-evidence specifications | Specifications only, not monitoring. | `rc_candidate_rejected_due_to_missing_dependencies` |
-| Phase 129 dry-run evidence maps | Dry-run evidence map only, not release artifacts. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Phase 125 production-path forecast | Planned truth only. | `rc_candidate_not_applicable` |
+## Ladder-preservation checklist
+- [x] Preserve Local operator testing as a distinct rung.
+- [x] Preserve Controlled human trial as a distinct rung.
+- [x] Preserve Early human-use candidate as a distinct rung.
+- [x] Preserve Release candidate as a distinct rung.
+- [x] Preserve Production candidate as a distinct rung.
+- [x] Preserve Public/general use as the final rung.
+- [x] Do not map Production Candidate as automatically following Phase 140.
+- [x] Do not map public/general-use as automatically following Phase 140.
+- [x] State that any post-140 block depends on the Phase 140 decision.
 
-## Phase 129.1 relationship check
-- [x] Phase 129.1 fixed UI TypeScript command drift only.
-- [x] Phase 129.1 did not alter UI behavior.
-- [x] Phase 129.1 did not alter runtime behavior.
-- [x] Phase 129.1 did not alter authority.
-- [x] Phase 129.1 did not alter tests.
-- [x] Phase 129.1 did not alter release behavior.
-- [x] Phase 129.1 did not alter monitoring behavior.
-- [x] Phase 129.1 did not alter readiness posture.
-- [x] Phase 129.1 does not satisfy missing Release Candidate evidence.
+## Roadmap/changelog truth checklist
+- [x] `docs/roadmap/phase-map.md` records Phase 131-140 as planned truth only.
+- [x] `docs/roadmap/phases.md` records Phase 131-140 detailed boundaries as planned truth only.
+- [x] `docs/roadmap/sequencing.md` records Phase 131-140 sequencing rationale as planned truth only.
+- [x] `docs/operations/post-130-roadmap-expansion-phase-130-1.md` records advisory orientation only.
+- [x] `CHANGELOG.md` records Phase 130.1 historical changes only.
+- [x] `checklists/current-phase.md` records Phase 130.1 procedural truth only.
 
-## Decision outcome table
-| Question | Finding | Decision status |
-| --- | --- | --- |
-| Is Release Candidate status supportable from committed evidence without contract/spec/dry-run inference? | No. | `rc_candidate_not_ready` |
-| Is additional category-specific evidence required? | Yes. | `rc_candidate_requires_additional_evidence` |
-| Must missing dependencies block the claim? | Yes. | `rc_candidate_rejected_due_to_missing_dependencies` |
-| Does artifact absence block the claim? | Yes. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Does the no-artifact-creation gate prevent Phase 130 from repairing the gap? | Yes. | `rc_candidate_rejected_due_to_no_artifact_creation_boundary` |
-
-## Missing dependency table
-| Missing dependency | Phase 130 treatment | Decision status |
-| --- | --- | --- |
-| Actual release artifacts or scoped artifact outputs | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
-| Package creation outputs | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
-| Checksums and provenance attestations | Required after Phase 130 or explicitly remapped. | `rc_candidate_requires_additional_evidence` |
-| Signing/publishing controls or explicit non-use decision | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
-| Installer/update-channel implementation evidence or scope remap | Required after Phase 130. | `rc_candidate_requires_remap_phase_126_130` |
-| Operational evidence records | Required after Phase 130. | `rc_candidate_requires_additional_evidence` |
-
-## Boundary violation table
-| Boundary | Finding | Decision status |
-| --- | --- | --- |
-| Runtime behavior | No Phase 130 runtime behavior introduced. | `rc_candidate_not_applicable` |
-| Release behavior | No Phase 130 release behavior introduced. | `rc_candidate_not_applicable` |
-| Deployment behavior | No Phase 130 deployment behavior introduced. | `rc_candidate_not_applicable` |
-| Monitoring behavior | No Phase 130 monitoring behavior introduced. | `rc_candidate_not_applicable` |
-| Provider/persistence/replay/recovery/action authority | No Phase 130 authority expansion introduced. | `rc_candidate_not_applicable` |
-| Overall supportability | Evidence absence still blocks supportability. | `rc_candidate_not_ready` |
-
-## Release artifact absence table
-| Artifact category | Finding | Decision status |
-| --- | --- | --- |
-| Release artifacts | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Packages | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Checksums | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Provenance attestations | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Signatures/publication outputs | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-| Installer/update-channel outputs | Absent. | `rc_candidate_rejected_due_to_release_artifact_absence` |
-
-## Cross-category inference table
-| Inference attempted | Phase 130 decision | Decision status |
-| --- | --- | --- |
-| Packaging contract satisfies artifact evidence | Rejected. | `rc_candidate_requires_additional_evidence` |
-| Threat boundary satisfies installer/update-channel behavior | Rejected. | `rc_candidate_requires_additional_evidence` |
-| Observability specification satisfies monitoring | Rejected. | `rc_candidate_requires_additional_evidence` |
-| Dry-run evidence map satisfies release artifact evidence | Rejected. | `rc_candidate_requires_additional_evidence` |
-| Clean scans satisfy readiness | Rejected. | `rc_candidate_requires_additional_evidence` |
-| Absence of blockers satisfies approval | Rejected. | `rc_candidate_requires_additional_evidence` |
-
-## Post-130 required work table
-| Work item | Required evidence | Decision status |
-| --- | --- | --- |
-| Release artifact evidence | Committed artifact outputs or explicit scoped release-output decision. | `rc_candidate_requires_additional_evidence` |
-| Package/checksum/provenance evidence | Committed outputs or explicit remap. | `rc_candidate_requires_additional_evidence` |
-| Signing/publishing evidence | Committed controls, outputs, or explicit non-use decision. | `rc_candidate_requires_additional_evidence` |
-| Installer/update-channel evidence | Committed implementation evidence or explicit scope remap. | `rc_candidate_requires_remap_phase_126_130` |
-| Operational evidence | Committed operational records distinct from monitoring activation. | `rc_candidate_requires_additional_evidence` |
-| Later decision gate | Re-run after category-specific evidence exists. | `rc_candidate_deferred_to_post_130_phase` |
-
-## Validation log
-| Command | Result | Notes |
-| --- | --- | --- |
-| `git status --short` | complete | Initial working tree was clean. |
-| `CARGO_TARGET_DIR=/tmp/ajentic-phase-130-target ./scripts/check.sh` | pass | Full validation passed on a clean committed tree. |
-| `git diff --check` | pass | No whitespace errors. |
-| Targeted Phase 130 scan | pass | Required Phase 130 terms were present. |
-| Approval/readiness vocabulary scan | pass | Matches were limited to explicit prohibition, required lines, historical context, or status-model discussion. |
-| Release/deployment/monitoring authority scan | pass | Matches were historical, planned, test, specification, lint-fixture, or prohibition context. |
-| Guarded diff scan | pass | No guarded drift. |
-| Final `git status --short` | pass | Clean after commit. |
-
-## Zero-drift checklist
-- [x] No release artifact creation.
-- [x] No package creation.
-- [x] No checksum generation.
-- [x] No provenance attestation creation.
-- [x] No installer/update-channel behavior.
-- [x] No signing/publishing behavior.
-- [x] No GitHub release/tag/public download asset creation.
-- [x] No monitoring/logging/telemetry activation.
-- [x] No deployment automation.
-- [x] No production deployment behavior.
+## Non-implementation checklist
 - [x] No runtime behavior.
 - [x] No new runtime capability.
 - [x] No Rust source changes.
 - [x] No TypeScript source changes.
-- [x] No test assertion changes.
+- [x] No test changes.
 - [x] No schema changes.
+- [x] No package creation.
+- [x] No release artifact creation.
+- [x] No checksum generation.
+- [x] No provenance attestation creation.
+- [x] No installer/update-channel behavior.
+- [x] No signing/publishing behavior.
+- [x] No monitoring/logging/telemetry activation.
+- [x] No deployment automation.
 - [x] No provider trust.
 - [x] No provider output promotion.
 - [x] No persistence authority expansion.
 - [x] No replay repair.
 - [x] No recovery promotion.
 - [x] No action execution.
-- [x] No Production Candidate approval.
-- [x] No public/general-use approval.
-- [x] No production-human-use approval.
-- [x] Phase 131+ work is not implemented.
+
+## Validation log
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git status --short` | complete | Initial working tree was clean before Phase 130.1 edits. |
+| `CARGO_TARGET_DIR=/tmp/ajentic-phase-130-1-target ./scripts/check.sh` | pass | Full validation must pass on the clean committed tree. |
+| `git diff --check` | pass | No whitespace errors. |
+| Phase 131-140 roadmap scan | pass | Required Phase 131-140 and carry-forward terms are present. |
+| Non-implementation scan | pass | Matches are limited to planned-truth, historical, or prohibition context. |
+| Guarded diff scan | pass | No guarded drift. |
+| Final `git status --short` | pass | Must be clean after commit. |
+
+## Zero-drift checklist
+- [x] Phase 131-140 are mapped as planned truth only.
+- [x] Phase 130 `rc_candidate_not_ready` is preserved.
+- [x] Phase 131 is not treated as a Phase 130 rerun.
+- [x] Phase 140 is not treated as automatic Release Candidate approval.
+- [x] Production Candidate remains a later rung.
+- [x] Public/general use remains a later final rung.
+- [x] No runtime/source/test/schema changes are introduced.
+- [x] No release/deployment/monitoring/authority behavior is introduced.
+- [x] CHANGELOG entry matches the actual diff.

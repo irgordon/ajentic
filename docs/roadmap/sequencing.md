@@ -218,11 +218,51 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: dry run only; no release approval.
 
 30. **Phase 130 decides only Release Candidate status**
-   - Phase 130 is a Release Candidate Decision Gate. It does not approve Production Candidate status, production readiness, production deployment, production human use, public usability, or public/general use.
-   - Boundary: decision gate only; Public/general use remains a later final rung and later phases may extend beyond Phase 130 if evidence requires it.
+   - Phase 130 is complete with decision status `rc_candidate_not_ready`. It did not approve Release Candidate status, Production Candidate status, production readiness, production deployment, production human use, public usability, or public/general use.
+   - Boundary: decision gate only; Phase 130 did not create the missing evidence it identified.
+
+31. **Phase 131 remaps Phase 130 findings before evidence production resumes**
+   - Phase 131 converts Phase 130's `rc_candidate_not_ready` findings into the next evidence-producing block and must not be a Phase 130 rerun without new evidence.
+   - Boundary: audit/planning only; roadmap expansion is planned truth, not implementation.
+
+32. **Phase 132 creates only controlled non-public release artifact outputs**
+   - Phase 132 may create local/non-public artifact outputs under the Phase 126 contract.
+   - Boundary: local/non-public artifact creation only; no publishing.
+
+33. **Phase 133 generates checksum and provenance evidence without publication**
+   - Phase 133 addresses checksum/provenance evidence that Phase 130 found missing.
+   - Boundary: checksum/provenance evidence only; no signing or publishing.
+
+34. **Phase 134 scopes signing and key custody without publication**
+   - Phase 134 introduces signing/key-custody controls only if evidence permits, or explicitly defers them.
+   - Boundary: signing/key-custody implementation only if evidence permits; no publishing.
+
+35. **Phase 135 reconciles before installer/update-channel or renewed dry-run work**
+   - Phase 135 checks roadmap/changelog alignment after Phase 131-134.
+   - Boundary: alignment only; no readiness approval.
+
+36. **Phase 136 constrains installer/update-channel work to non-public surfaces**
+   - Phase 136 implements or further defers installer/update-channel surfaces under Phase 127 constraints.
+   - Boundary: controlled implementation only; no public distribution.
+
+37. **Phase 137 keeps observability evidence local and non-production**
+   - Phase 137 implements local/non-production observability evidence capture if permitted.
+   - Boundary: controlled observability implementation only; no production monitoring claim.
+
+38. **Phase 138 separates operational evidence from production support claims**
+   - Phase 138 defines and tests incident, support, rollback, and recovery evidence.
+   - Boundary: operational procedure/evidence only; no production support claim.
+
+39. **Phase 139 reassembles evidence without approval**
+   - Phase 139 reassembles Release Candidate evidence after artifact, provenance, signing, installer/update, and observability work.
+   - Boundary: evidence assembly only; no approval.
+
+40. **Phase 140 re-decides Release Candidate posture only**
+   - Phase 140 decides whether Release Candidate status is now supportable or whether another hardening block is required.
+   - Boundary: decision gate only; not automatic Release Candidate approval, Production Candidate approval, or public/general-use approval.
 
 ## Ladder-Preservation sequencing invariants
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 121-130 are the next detailed block, not the final production/public-use roadmap. Phase 125 preserves Phase 126-130 only with caveats as planned truth and expands post-130 planning as non-binding planned truth for Production Candidate reassessment after Release Candidate decision evidence, production deployment contract and production-readiness evidence, public/general-use readiness audit, public/general-use decision gate, support, incident response, rollback, distribution governance, and final public/general-use gate only after all earlier rungs are satisfied.
+Phase 131-140 are the next detailed block after the Phase 130 `rc_candidate_not_ready` decision, not the final production/public-use roadmap. The block must produce or explicitly defer the evidence categories that blocked Release Candidate supportability. Public/general use remains the later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140; any post-140 block depends on the Phase 140 decision and must preserve the ladder: Local operator testing → Controlled human trial → Early human-use candidate → Release candidate → Production candidate → Public/general use.

@@ -17,6 +17,49 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+
+## v0.0.130.1 - 2026-05-10
+**Status:** Out-of-Band Roadmap Expansion After Release Candidate Decision
+
+### Added
+- Add the Phase 130.1 post-130 roadmap expansion report.
+
+### Changed
+- Update roadmap planned-truth surfaces to map the Phase 131-140 evidence-producing block after the Phase 130 rc_candidate_not_ready decision.
+- Update checklists/current-phase.md to Phase 130.1 procedural truth.
+- Update CHANGELOG.md with v0.0.130.1.
+
+### Notes
+- Out-of-band roadmap alignment only.
+- Roadmap expansion is planned truth, not implementation.
+- Phase 130 decision status remains rc_candidate_not_ready.
+- Phase 131-140 are planned evidence-producing and decision phases, not completed work.
+- No runtime behavior.
+- No new runtime capability.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No package creation.
+- No release artifact creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No installer/update-channel behavior.
+- No signing/publishing behavior.
+- No monitoring/logging/telemetry activation.
+- No deployment automation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+
 ## v0.0.130 - 2026-05-10
 **Status:** Phase 130 - Release Candidate Decision Gate
 
