@@ -17,6 +17,75 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.127 - 2026-05-10
+**Status:** Phase 127 - Installer and Update-Channel Threat Boundary
+
+### Added
+- Add the Phase 127 installer and update-channel threat-boundary report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 127 procedural truth.
+- Update CHANGELOG.md with v0.0.127.
+
+### Notes
+- Phase 127 is installer and update-channel threat boundary only.
+- Phase 127 is threat-model and contract-only.
+- Phase 127 is threat-model and contract-only; it does not create installers, update channels, signing, publishing, or approve readiness.
+- Feedback is evidence, not authority.
+- Remediation is documentation clarity, not readiness.
+- Contract/spec is specification only, not artifact creation.
+- No installer/update-channel spec row may imply activation, signing, publishing, or release readiness.
+- Missing Phase-128/129/130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
+- Phase 127 adds no runtime behavior.
+- Phase 127 adds no new runtime capability.
+- Phase 127 makes no Rust source changes.
+- Phase 127 makes no TypeScript source changes.
+- Phase 127 makes no test changes.
+- Phase 127 makes no schema changes.
+- Phase 127 creates no packages.
+- Phase 127 creates no release artifacts.
+- Phase 127 generates no checksums.
+- Phase 127 creates no provenance attestations.
+- Phase 127 creates no installers.
+- Phase 127 creates no updater services.
+- Phase 127 creates no update channels.
+- Phase 127 creates no update-channel metadata.
+- Phase 127 creates no signing keys.
+- Phase 127 creates no key custody behavior.
+- Phase 127 creates no signatures.
+- Phase 127 adds no deployment automation.
+- Phase 127 adds no rollback automation.
+- Phase 127 adds no background service.
+- Phase 127 adds no daemon behavior.
+- Phase 127 creates no installer behavior.
+- Phase 127 creates no update-channel behavior.
+- Phase 127 adds no signing/publishing behavior.
+- Phase 127 creates no GitHub release/tag/public download asset.
+- Phase 127 adds no public release behavior.
+- Phase 127 adds no production deployment behavior.
+- Phase 127 adds no persistence authority expansion.
+- Phase 127 adds no replay repair.
+- Phase 127 adds no recovery promotion.
+- Phase 127 adds no action execution.
+- Phase 127 adds no provider trust.
+- Phase 127 adds no provider output promotion.
+- Phase 127 grants no readiness approval.
+- Phase 127 grants no Release Candidate approval.
+- Phase 127 grants no release-candidate approval.
+- Phase 127 grants no Production Candidate approval.
+- Phase 127 grants no public-usability approval.
+- Phase 127 grants no public/general-use approval.
+- Phase 127 grants no production-human-use approval.
+- Phase 127 implements no Phase 128.
+- Phase 127 implements no Phase 129.
+- Phase 127 implements no Phase 130.
+- Phase 128 remains Observability and Operational Evidence Boundary only.
+- Phase 129 remains Release Candidate Dry Run only.
+- Phase 130 remains Release Candidate Decision Gate only.
+- Phase 130 may still decide not ready.
+- Public/general use remains a later final rung.
+- Phase 125 preserve_with_caveats and expand_post_130_plan remain active caveated planned truth.
+
 ## v0.0.126 - 2026-05-10
 **Status:** Phase 126 - Release Packaging Contract
 
