@@ -86,17 +86,12 @@ jobs:
     name: TypeScript UI
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ui
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Check UI surface exists
         id: ui-surface
-        working-directory: .
         shell: bash
         run: |
           set -euo pipefail
@@ -116,6 +111,7 @@ jobs:
       - name: Detect package manager lockfile
         if: steps.ui-surface.outputs.present == 'true'
         id: lockfile
+        working-directory: ui
         shell: bash
         run: |
           set -euo pipefail
@@ -133,31 +129,38 @@ jobs:
 
       - name: Install UI dependencies
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         shell: bash
         run: ${{ steps.lockfile.outputs.install }}
 
       - name: Run UI typecheck
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: npm run typecheck
 
       - name: Run UI lint
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: npm run lint
 
       - name: Run UI build
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: npm run build
 
       - name: Run UI API behavior tests
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: npm run test:api
 
       - name: Run UI boundary AST lint self-tests
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: node ../scripts/test_lint_ui_boundaries.mjs
 
       - name: Run UI boundary AST lint
         if: steps.ui-surface.outputs.present == 'true'
+        working-directory: ui
         run: node ../scripts/lint_ui_boundaries.mjs
 
   schemas:
