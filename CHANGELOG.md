@@ -17,6 +17,76 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.129 - 2026-05-10
+**Status:** Phase 129 - Release Candidate Dry Run
+
+### Added
+- Add the Phase 129 Release Candidate dry-run report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 129 procedural truth.
+- Update CHANGELOG.md with v0.0.129.
+
+### Notes
+- Release Candidate dry run only.
+- dry-run evidence assembly only.
+- Phase 129 is Release Candidate dry run only; it does not create release artifacts, publish packages, activate monitoring, deploy, or approve Release Candidate readiness.
+- Feedback is evidence, not authority.
+- Dry run is not release.
+- Evidence map is not readiness.
+- Specification evidence is not artifact creation.
+- Operational evidence is not release evidence unless a later decision phase explicitly classifies it.
+- Release Candidate dry run does not approve Release Candidate readiness.
+- Phase 129 must not decide what Phase 130 is scoped to decide.
+- Missing Phase-130 dependencies must trigger remap_phase_126_130 or defer_release_candidate_hardening.
+- Phase 130 may still decide not ready.
+- no runtime behavior.
+- no new runtime capability.
+- no Rust source changes.
+- no TypeScript source changes.
+- no test changes.
+- no schema changes.
+- no package creation.
+- no release artifact creation.
+- no checksum generation.
+- no provenance attestation creation.
+- no installer behavior.
+- no update-channel behavior.
+- no signing/publishing behavior.
+- no GitHub release/tag/public download asset creation.
+- no public release behavior.
+- no production deployment behavior.
+- no deployment automation.
+- no monitoring activation.
+- no logging activation.
+- no telemetry collection.
+- no collector creation.
+- no exporter creation.
+- no dashboard creation.
+- no alerting creation.
+- no production telemetry endpoint creation.
+- no telemetry token creation.
+- no ingestion URL creation.
+- no cron job creation.
+- no service file creation.
+- no scheduled collector creation.
+- no background service.
+- no daemon behavior.
+- no persistence authority expansion.
+- no replay repair.
+- no recovery promotion.
+- no action execution.
+- no provider trust.
+- no provider output promotion.
+- no readiness approval.
+- no Release Candidate approval.
+- no release-candidate approval.
+- no Production Candidate approval.
+- no public-usability approval.
+- no public/general-use approval.
+- no production-human-use approval.
+- no Phase 130 implementation.
+
 ## v0.0.128 - 2026-05-10
 **Status:** Phase 128 - Observability and Operational Evidence Boundary
 
