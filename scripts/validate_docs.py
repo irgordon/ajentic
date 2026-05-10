@@ -41,24 +41,20 @@ ROOT_EXPECTED = {
     },
 }
 
-
-PATH_EXPECTED = {
-    "docs/operations/early-human-use-evidence-capture-template-phase-124.md": {
-        "truth_dimension": "procedural",
-        "authority_level": "advisory",
-        "mutation_path": "checklist_revision",
-    },
-}
-
 LOCATION_EXPECTED = [
     ("docs/governance/", "normative", "authoritative", "governance_pr"),
     ("docs/architecture/", "structural", "authoritative", "architecture_pr"),
     ("docs/changelog/", "historical", "authoritative", "changelog_entry"),
     ("docs/roadmap/", "planned", None, "roadmap_update"),
-    ("docs/operations/", "orientation", None, "readme_update"),
+    ("docs/operations/", "orientation", "advisory", "readme_update"),
     ("docs/examples/", "example", "non_authoritative", "example_update"),
     ("checklists/", "procedural", "authoritative", "checklist_revision"),
 ]
+
+OPERATIONS_PROCEDURAL_NAME_MARKERS = (
+    "template",
+    "checklist",
+)
 
 CHANGELOG_FUTURE_PATTERNS = [
     r"\bplanned next\b",
@@ -141,6 +137,7 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
         if ":" in line:
             key, value = line.split(":", 1)
             data[key.strip()] = value.strip().strip('"').strip("'")
+
     return {}
 
 
@@ -150,6 +147,7 @@ def body_text(path: Path) -> str:
         for index, line in enumerate(lines[1:], start=1):
             if line.strip() == "---":
                 return "\n".join(lines[index + 1 :])
+
     return "\n".join(lines)
 
 
@@ -175,8 +173,50 @@ def check_patterns(path: Path, patterns: list[str], message: str) -> None:
             fail(f"{path}: {message}; matched pattern {pattern!r}")
 
 
+def expected_for_operations_doc(path_text: str) -> dict[str, str]:
+    name = Path(path_text).name.lower()
+
+    if any(marker in name for marker in OPERATIONS_PROCEDURAL_NAME_MARKERS):
+        return {
+            "truth_dimension": "procedural",
+            "authority_level": "advisory",
+            "mutation_path": "checklist_revision",
+        }
+
+    return {
+        "truth_dimension": "orientation",
+        "authority_level": "advisory",
+        "mutation_path": "readme_update",
+    }
+
+
+def expected_frontmatter_for_path(path_text: str) -> dict[str, str] | None:
+    if path_text in EXPECTED_DOCS_ANCHORS:
+        return EXPECTED_DOCS_ANCHORS[path_text]
+
+    if path_text in ROOT_EXPECTED:
+        return ROOT_EXPECTED[path_text]
+
+    if path_text.startswith("docs/operations/"):
+        return expected_for_operations_doc(path_text)
+
+    for prefix, truth_dimension, authority_level, mutation_path in LOCATION_EXPECTED:
+        if path_text.startswith(prefix):
+            expected = {
+                "truth_dimension": truth_dimension,
+                "mutation_path": mutation_path,
+            }
+            if authority_level:
+                expected["authority_level"] = authority_level
+            return expected
+
+    return None
+
+
 markdown_files = [
-    path for path in Path(".").rglob("*.md") if not is_git_path(path) and not is_github_instruction_path(path)
+    path
+    for path in Path(".").rglob("*.md")
+    if not is_git_path(path) and not is_github_instruction_path(path)
 ]
 
 if Path("GOVERNANCE.md").exists():
@@ -202,12 +242,8 @@ for path in markdown_files:
     path_text = path.as_posix()
     fm = parse_frontmatter(path)
 
-    requires_frontmatter = (
-        path_text in EXPECTED_DOCS_ANCHORS
-        or path_text in ROOT_EXPECTED
-        or path_text.startswith("docs/")
-        or path_text.startswith("checklists/")
-    )
+    expected = expected_frontmatter_for_path(path_text)
+    requires_frontmatter = expected is not None
 
     if requires_frontmatter and not fm:
         fail(f"{path}: missing required frontmatter")
@@ -216,20 +252,14 @@ for path in markdown_files:
     if path_text.startswith("memory/"):
         fail(f"{path}: Markdown documentation must not live in memory/")
 
-    path_expected = PATH_EXPECTED.get(path_text)
-    if path_expected:
-        for key, expected_value in path_expected.items():
+    if expected:
+        missing = REQUIRED_FRONTMATTER_KEYS - set(fm)
+        for key in sorted(missing):
+            fail(f"{path}: missing frontmatter key '{key}'")
+
+        for key, expected_value in expected.items():
             if fm.get(key) != expected_value:
                 fail(f"{path}: expected {key}: {expected_value}, found {fm.get(key)!r}")
-    else:
-        for prefix, truth_dimension, authority_level, mutation_path in LOCATION_EXPECTED:
-            if path_text.startswith(prefix):
-                if fm.get("truth_dimension") != truth_dimension:
-                    fail(f"{path}: expected truth_dimension: {truth_dimension}, found {fm.get('truth_dimension')!r}")
-                if authority_level and fm.get("authority_level") != authority_level:
-                    fail(f"{path}: expected authority_level: {authority_level}, found {fm.get('authority_level')!r}")
-                if fm.get("mutation_path") != mutation_path:
-                    fail(f"{path}: expected mutation_path: {mutation_path}, found {fm.get('mutation_path')!r}")
 
     if path_text == "CHANGELOG.md":
         check_patterns(path, CHANGELOG_FUTURE_PATTERNS, "changelog must not contain future planning language")
