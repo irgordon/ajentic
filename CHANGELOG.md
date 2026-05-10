@@ -17,6 +17,45 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.129.1 - 2026-05-10
+**Status:** Out-of-Band Maintenance - UI TypeScript Command Drift Fix
+
+### Changed
+- Correct the UI API behavior test command so active UI command surfaces do not use unsupported TypeScript compiler flags.
+- Update bootstrap-generated UI package command surfaces if needed so bootstrap idempotence cannot restore stale TypeScript flags.
+- Add the Phase 129.1 out-of-band maintenance report documenting the recurring CI failure, unsupported flag scan, bootstrap check, corrected command surface, and validation.
+- Update checklists/current-phase.md to Phase 129.1 procedural truth.
+
+### Notes
+- This is out-of-band validation-compatibility maintenance only.
+- Validation compatibility is not runtime capability.
+- UI command correction is not UI behavior change.
+- Bootstrap idempotence must not restore stale TypeScript flags.
+- Unsupported TypeScript flags must not exist in active UI command surfaces.
+- No UI source changes.
+- No UI behavior changes.
+- No UI test assertion changes.
+- No Rust source changes.
+- No runtime behavior changes.
+- No authority behavior changes.
+- No provider execution change.
+- No persistence authority change.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No package creation.
+- No release artifact creation.
+- No monitoring activation.
+- No logging activation.
+- No telemetry collection.
+- No deployment automation.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 130 implementation.
+
 ## v0.0.129 - 2026-05-10
 **Status:** Phase 129 - Release Candidate Dry Run
 
