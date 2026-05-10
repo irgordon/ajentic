@@ -7,8 +7,8 @@
     "lint": "echo \"ui lint placeholder\"",
     "typecheck": "tsc --noEmit",
     "build": "echo \"ui build placeholder\"",
-    "test:api": "sh -c 'OUT=$(mktemp -d /tmp/ajentic-ui-api-behavior-XXXXXX) && trap \"rm -rf \\\"$OUT\\\"\" EXIT && tsc --target ES2020 --module commonjs --moduleResolution node --ignoreDeprecations 6.0 --strict --esModuleInterop --skipLibCheck --rootDir src --outDir \"$OUT\" src/api/runBehaviorTests.ts && node \"$OUT/api/runBehaviorTests.js\"'",
-    "dev": "sh -c 'OUT=/tmp/ajentic-ui-runtime && rm -rf \"$OUT\" && mkdir -p \"$OUT\" && tsc --target ES2020 --module commonjs --moduleResolution node --ignoreDeprecations 6.0 --strict --esModuleInterop --skipLibCheck --rootDir src --outDir \"$OUT\" src/app/localReviewRuntime.ts && node -e \"const runtime=require(\\\"/tmp/ajentic-ui-runtime/app/localReviewRuntime.js\\\"); console.log(runtime.renderLocalReviewRuntime())\"'"
+    "test:api": "sh -c 'OUT=$(mktemp -d /tmp/ajentic-ui-api-behavior-XXXXXX) && trap \"rm -rf \\\"$OUT\\\"\" EXIT && tsc --target ES2020 --module commonjs --moduleResolution node --strict --esModuleInterop --skipLibCheck --rootDir src --outDir \"$OUT\" src/api/runBehaviorTests.ts && node \"$OUT/api/runBehaviorTests.js\"'",
+    "dev": "sh -c 'OUT=/tmp/ajentic-ui-runtime && rm -rf \"$OUT\" && mkdir -p \"$OUT\" && tsc --target ES2020 --module commonjs --moduleResolution node --strict --esModuleInterop --skipLibCheck --rootDir src --outDir \"$OUT\" src/app/localReviewRuntime.ts && node -e \"const runtime=require(\\\"/tmp/ajentic-ui-runtime/app/localReviewRuntime.js\\\"); console.log(runtime.renderLocalReviewRuntime())\"'"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
