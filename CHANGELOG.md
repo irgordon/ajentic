@@ -17,6 +17,54 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.127.1 - 2026-05-10
+**Status:** Out-of-Band Maintenance - CI and Validator Alignment
+
+### Added
+- Add hardened `ci.yml` coverage for repository validation, Rust validation, UI validation, schema validation, shell-script parsing, and full deterministic `scripts/check.sh` validation.
+- Add CI repository-validation coverage for `scripts/validate_structure.py`, `scripts/validate_docs.py`, Rust boundary lint self-tests, and Rust boundary lint.
+- Add explicit CI UI validation coverage for typecheck, lint, build, UI API behavior tests, UI boundary AST lint self-tests, and UI boundary AST lint.
+
+### Changed
+- Update `ci.yml` to remove unsupported job-level `hashFiles(...)` expressions and replace them with post-checkout shell-based surface detection.
+- Update UI CI execution so UI package commands run from `ui/`, while repository boundary lint scripts run from the repository root.
+- Update `ui/package.json` script commands to remove unsupported TypeScript compiler flags and keep behavior-test output under `/tmp`.
+- Update `scripts/check.sh` to remain the canonical aggregate local validation surface, including clean-worktree checks, documentation validation, structure validation, schema validation, shell parsing, Rust/UI boundary linting, UI validation, Rust formatting, Rust checks, Rust tests, and Clippy.
+- Update `scripts/validate_docs.py` to replace exact-path procedural operations exceptions with filename-convention handling for procedural operations templates.
+- Update `scripts/validate_structure.py` to replace exact-path procedural truth exceptions with path/filename truth-dimension classification for operations templates.
+
+### Removed
+- Remove redundant `docs-gate.yml` after documentation boundary validation moved under `ci.yml` repository-validation and full-check coverage.
+- Remove redundant `structure-lint.yml` after repository structure validation moved under `ci.yml` repository-validation and full-check coverage.
+- Remove misleading advisory `pr-agent-review.yml` placeholder because it did not perform review, produce typed evidence, approve merges, or approve readiness.
+
+### Notes
+- This is out-of-band maintenance only.
+- CI validation is now consolidated around canonical repository validators and `scripts/check.sh`.
+- Duplicate workflow surfaces were removed to reduce governance drift and avoid misleading green checks.
+- Workflow checks are diagnostic validation only and do not create authority.
+- `ci.yml` does not approve readiness, Release Candidate status, Production Candidate status, public/general use, production readiness, production deployment, or production human use.
+- No runtime behavior was added.
+- No new runtime capability was added.
+- No Rust authority behavior was changed.
+- No provider execution behavior was changed.
+- No persistence authority was changed.
+- No replay repair was added.
+- No recovery promotion was added.
+- No action execution was added.
+- No package creation was added.
+- No release artifact creation was added.
+- No checksum generation was added.
+- No provenance attestation creation was added.
+- No installer behavior was added.
+- No update-channel behavior was added.
+- No signing or publishing behavior was added.
+- No GitHub release, release tag, public download, or public asset behavior was added.
+- No public release behavior was added.
+- No production deployment behavior was added.
+- Phase 127 remains complete as installer/update-channel threat-boundary work only.
+- Phase 128 was not implemented.
+
 ## v0.0.127 - 2026-05-10
 **Status:** Phase 127 - Installer and Update-Channel Threat Boundary
 
