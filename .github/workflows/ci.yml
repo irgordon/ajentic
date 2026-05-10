@@ -155,13 +155,11 @@ jobs:
 
       - name: Run UI boundary AST lint self-tests
         if: steps.ui-surface.outputs.present == 'true'
-        working-directory: ui
-        run: node ../scripts/test_lint_ui_boundaries.mjs
+        run: node scripts/test_lint_ui_boundaries.mjs
 
       - name: Run UI boundary AST lint
         if: steps.ui-surface.outputs.present == 'true'
-        working-directory: ui
-        run: node ../scripts/lint_ui_boundaries.mjs
+        run: node scripts/lint_ui_boundaries.mjs
 
   schemas:
     name: Schemas
