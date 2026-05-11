@@ -1,5 +1,5 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
 import { createLocalOperatorShellTransport, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
@@ -392,6 +392,99 @@ function assertLocalProviderExecutionRejectsForbiddenAndUnsupportedRequests(): v
   assertEqual(JSON.stringify(transport.getCurrentState().state.providerExecution), JSON.stringify(accepted.state.providerExecution), "previous execution projection preserved");
 }
 
+
+function assertLocalProviderOutputValidationPanelRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Provider output validation", "provider output validation panel visible");
+  assertContains(rendered, "Validation status: not_validated", "initial validation status visible");
+  assertContains(rendered, "Reviewability status: not_reviewable", "initial reviewability visible");
+  assertContains(rendered, "Candidate-boundary status: not_candidate_material", "initial candidate boundary visible");
+  assertContains(rendered, "Validation reasons: candidate_conversion_not_available_in_phase_143, missing_execution_result, no_provider_execution_result", "initial validation reasons visible");
+  assertContains(rendered, "No-effect summary: trust_effect=none", "no-effect summary visible");
+  assertEqual(response.state.providerOutputValidation.status, "not_validated", "initial provider output validation state carried by transport");
+}
+
+function assertLocalProviderOutputValidationAcceptsReviewableUntrustedOnly(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const before = transport.getCurrentState().state;
+  const response = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 143 visible output"));
+  const validation = response.state.providerOutputValidation;
+  assertEqual(validation.status, "reviewable_untrusted", "valid deterministic output is reviewable_untrusted");
+  assertEqual(validation.reviewabilityStatus, "reviewable_untrusted", "reviewability is reviewable_untrusted");
+  assertEqual(validation.candidateBoundaryStatus, "not_candidate_material", "validation output is not candidate material");
+  assertContains(validation.candidateBoundaryStatuses.join(","), "candidate_conversion_not_performed", "candidate conversion not performed");
+  assertContains(validation.candidateBoundaryStatuses.join(","), "candidate_conversion_requires_future_phase", "candidate conversion requires future phase");
+  assertContains(validation.reasons.join(","), "deterministic_stub_output_shape_valid", "shape-valid reason visible");
+  assertContains(validation.reasons.join(","), "candidate_conversion_not_available_in_phase_143", "candidate conversion unavailable reason visible");
+  assertEqual(validation.trustEffect, "none", "trust effect none");
+  assertEqual(validation.candidateEffect, "none", "candidate effect none");
+  assertEqual(validation.decisionLedgerEffect, "none", "decision ledger effect none");
+  assertEqual(validation.replayEffect, "none", "replay effect none");
+  assertEqual(validation.exportEffect, "none", "export effect none");
+  assertEqual(validation.actionEffect, "none", "action effect none");
+  assertEqual(validation.readinessEffect, "none", "readiness effect none");
+  assertEqual(validation.releaseEffect, "none", "release effect none");
+  assertEqual(validation.deploymentEffect, "none", "deployment effect none");
+  assertEqual(response.state.decisionLedger.records.length, before.decisionLedger.records.length, "validation does not append decision records");
+  assertEqual(response.state.run.decisionReplay.replayStatus, before.run.decisionReplay.replayStatus, "validation does not alter replay");
+  assertEqual(response.state.localSessionEvidenceExport.exportId, before.localSessionEvidenceExport.exportId, "validation does not promote export");
+  assertEqual(response.state.run.candidate, null, "provider output validation does not create candidate output");
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Provider output validation", "validation panel visible after execution");
+  assertContains(rendered, "Validation status: reviewable_untrusted", "reviewable_untrusted label visible");
+  assertContains(rendered, "Candidate-boundary status: not_candidate_material", "not candidate label visible");
+  assertContains(rendered, "Promotion status: not_promoted", "not promoted label visible");
+  assertContains(rendered, "reviewable_untrusted is not candidate material and cannot be approved in Phase 143", "phase 143 approval prohibition visible");
+  assertDoesNotContain(rendered, "Provider output candidate", "provider output not shown as candidate output");
+  assertDoesNotContain(rendered, "Approve provider output", "no approve control for provider output");
+  assertDoesNotContain(rendered, "Reject provider output", "no reject control for provider output");
+}
+
+function assertLocalProviderOutputValidationRejectsUnsafeOutputReasons(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const accepted = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 143 rejection input"));
+  const result = accepted.state.providerExecution.result;
+  if (!result) throw new Error("expected provider result");
+  const cases = [
+    ["", "empty_output"],
+    ["not deterministic", "malformed_output"],
+    ["x".repeat(1025), "output_too_large"],
+    ["deterministic_stub descriptive output secret token", "contains_forbidden_secret_marker"],
+    ["deterministic_stub descriptive output execute shell command", "contains_execution_instruction"],
+    ["deterministic_stub descriptive output https://example.invalid", "contains_network_instruction"],
+    ["deterministic_stub descriptive output write filesystem path", "contains_filesystem_instruction"],
+    ["deterministic_stub descriptive output release readiness deployment public-use", "contains_readiness_or_release_claim"],
+    ["deterministic_stub descriptive output trusted_output approval granted", "contains_trust_or_approval_claim"],
+    ["deterministic_stub descriptive output authorize action", "contains_action_instruction"]
+  ] as const;
+  for (const [outputSummary, reason] of cases) {
+    const execution = { ...accepted.state.providerExecution, result: { ...result, outputSummary } };
+    const validation = validateLocalProviderOutput(execution);
+    assertEqual(validation.status, "rejected", `rejected ${reason}`);
+    assertEqual(validation.reviewabilityStatus, "rejected_before_review", `rejected before review ${reason}`);
+    assertContains(validation.reasons.join(","), reason, `closed reason ${reason}`);
+    assertEqual(validation.candidateEffect, "none", `candidate effect none ${reason}`);
+  }
+}
+
+function assertLocalProviderOutputValidationProjectionFailsClosed(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const response = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 143 drift input"));
+  const projection = projectLocalProviderOutputValidation(response.state);
+  assertEqual(validateLocalProviderOutputValidationProjection(projection).length, 0, "valid projection passes");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, outputTrustStatus: "trusted_output" }).join(","), "invalid_reviewable_trust_status", "trust drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, candidateBoundaryStatuses: ["not_candidate_material"] }).join(","), "invalid_candidate_boundary_status", "candidate drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, outputPromotionStatus: "promoted" }).join(","), "invalid_promotion_status", "promotion drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, decisionLedgerEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "decision ledger drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, replayEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "replay drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, exportEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "export drift fails closed");
+  assertContains(validateLocalProviderOutputValidationProjection({ ...projection, actionEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "action drift fails closed");
+}
+
 function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
   const transport = createLocalOperatorShellTransport();
   const response = requestDeterministicStubRun(transport);
@@ -480,6 +573,12 @@ function assertNonLiveNonExecutingBoundary(result: UiSubmissionBoundaryResult): 
 function assertContains(text: string, expected: string, message: string): void {
   if (!text.includes(expected)) {
     throw new Error(`${message}: expected text to include ${expected}`);
+  }
+}
+
+function assertDoesNotContain(text: string, unexpected: string, message: string): void {
+  if (text.includes(unexpected)) {
+    throw new Error(`${message}: expected text not to include ${unexpected}`);
   }
 }
 
@@ -832,6 +931,23 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_provider_execution_rejects_forbidden_and_unsupported_requests",
     run: assertLocalProviderExecutionRejectsForbiddenAndUnsupportedRequests
+  },
+
+  {
+    name: "local_provider_output_validation_panel_renders_initial_state",
+    run: assertLocalProviderOutputValidationPanelRendersInitialState
+  },
+  {
+    name: "local_provider_output_validation_accepts_reviewable_untrusted_only",
+    run: assertLocalProviderOutputValidationAcceptsReviewableUntrustedOnly
+  },
+  {
+    name: "local_provider_output_validation_rejects_unsafe_output_reasons",
+    run: assertLocalProviderOutputValidationRejectsUnsafeOutputReasons
+  },
+  {
+    name: "local_provider_output_validation_projection_fails_closed",
+    run: assertLocalProviderOutputValidationProjectionFailsClosed
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

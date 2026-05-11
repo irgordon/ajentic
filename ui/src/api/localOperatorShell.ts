@@ -508,6 +508,68 @@ export type LocalProviderOutputPromotionStatus =
   | "promotion_not_available_in_phase_142"
   | "promoted";
 
+
+export type LocalProviderOutputValidationStatus =
+  | "not_validated"
+  | "reviewable_untrusted"
+  | "rejected"
+  | "validation_not_applicable"
+  | "invalid_validation_input";
+export type LocalProviderOutputReviewabilityStatus =
+  | "not_reviewable"
+  | "reviewable_untrusted"
+  | "rejected_before_review";
+export type LocalProviderOutputCandidateBoundaryStatus =
+  | "not_candidate_material"
+  | "candidate_conversion_not_performed"
+  | "candidate_conversion_requires_future_phase";
+export type LocalProviderOutputValidationReason =
+  | "no_provider_execution_result"
+  | "provider_execution_not_projected"
+  | "deterministic_stub_output_shape_valid"
+  | "missing_execution_result"
+  | "unsupported_provider_kind"
+  | "empty_output"
+  | "malformed_output"
+  | "output_too_large"
+  | "contains_forbidden_secret_marker"
+  | "contains_execution_instruction"
+  | "contains_network_instruction"
+  | "contains_filesystem_instruction"
+  | "contains_readiness_or_release_claim"
+  | "contains_trust_or_approval_claim"
+  | "contains_action_instruction"
+  | "candidate_conversion_not_available_in_phase_143";
+export type LocalProviderOutputValidationEffect = "none" | "effect_detected";
+export type LocalProviderOutputValidationError =
+  | "invalid_reviewable_trust_status"
+  | "invalid_candidate_boundary_status"
+  | "invalid_promotion_status"
+  | "invalid_no_effect_boundary"
+  | "missing_validation_reason";
+
+export type LocalProviderOutputValidationProjection = Readonly<{
+  status: LocalProviderOutputValidationStatus;
+  reviewabilityStatus: LocalProviderOutputReviewabilityStatus;
+  candidateBoundaryStatus: LocalProviderOutputCandidateBoundaryStatus;
+  candidateBoundaryStatuses: readonly LocalProviderOutputCandidateBoundaryStatus[];
+  reasons: readonly LocalProviderOutputValidationReason[];
+  providerExecutionResultId: string | null;
+  providerKind: string;
+  outputTrustStatus: LocalProviderOutputTrustStatus;
+  outputPromotionStatus: LocalProviderOutputPromotionStatus;
+  trustEffect: LocalProviderOutputValidationEffect;
+  candidateEffect: LocalProviderOutputValidationEffect;
+  decisionLedgerEffect: LocalProviderOutputValidationEffect;
+  replayEffect: LocalProviderOutputValidationEffect;
+  exportEffect: LocalProviderOutputValidationEffect;
+  actionEffect: LocalProviderOutputValidationEffect;
+  readinessEffect: LocalProviderOutputValidationEffect;
+  releaseEffect: LocalProviderOutputValidationEffect;
+  deploymentEffect: LocalProviderOutputValidationEffect;
+  note: string;
+}>;
+
 export type LocalProviderExecutionResultLinkage = Readonly<{
   shellStateLabel: string;
   runId: string;
@@ -632,6 +694,117 @@ export function localProviderExecutionCapabilitySurface(): LocalProviderExecutio
     publicUseEnabled: false,
     summary: "sandboxed deterministic provider execution supports deterministic_stub only; no cloud, network, shell, filesystem, secrets, trust, readiness, release, deployment, signing, publishing, or public-use capability"
   };
+}
+
+
+export function localProviderOutputValidationNoEffects(): LocalProviderOutputValidationEffect {
+  return "none";
+}
+
+function localProviderOutputCandidateBoundaryStatuses(): readonly LocalProviderOutputCandidateBoundaryStatus[] {
+  return ["not_candidate_material", "candidate_conversion_not_performed", "candidate_conversion_requires_future_phase"];
+}
+
+export function initialLocalProviderOutputValidationProjection(): LocalProviderOutputValidationProjection {
+  return {
+    status: "not_validated",
+    reviewabilityStatus: "not_reviewable",
+    candidateBoundaryStatus: "not_candidate_material",
+    candidateBoundaryStatuses: localProviderOutputCandidateBoundaryStatuses(),
+    reasons: ["no_provider_execution_result", "missing_execution_result", "candidate_conversion_not_available_in_phase_143"],
+    providerExecutionResultId: null,
+    providerKind: "none",
+    outputTrustStatus: "untrusted_descriptive",
+    outputPromotionStatus: "not_promoted",
+    trustEffect: localProviderOutputValidationNoEffects(),
+    candidateEffect: localProviderOutputValidationNoEffects(),
+    decisionLedgerEffect: localProviderOutputValidationNoEffects(),
+    replayEffect: localProviderOutputValidationNoEffects(),
+    exportEffect: localProviderOutputValidationNoEffects(),
+    actionEffect: localProviderOutputValidationNoEffects(),
+    readinessEffect: localProviderOutputValidationNoEffects(),
+    releaseEffect: localProviderOutputValidationNoEffects(),
+    deploymentEffect: localProviderOutputValidationNoEffects(),
+    note: "Provider output validation has not run; provider output is not candidate material and cannot be approved in Phase 143."
+  };
+}
+
+export function localProviderOutputValidationReasons(execution: LocalProviderExecutionProjection): readonly LocalProviderOutputValidationReason[] {
+  const reasons = new Set<LocalProviderOutputValidationReason>();
+  if (execution.projectionStatus !== "execution_projected") reasons.add("provider_execution_not_projected");
+  const result = execution.result;
+  if (!result) {
+    reasons.add("no_provider_execution_result");
+    reasons.add("missing_execution_result");
+    reasons.add("candidate_conversion_not_available_in_phase_143");
+    return [...reasons].sort();
+  }
+  if (result.providerKind !== "deterministic_stub") reasons.add("unsupported_provider_kind");
+  const output = result.outputSummary.trim();
+  if (output.length === 0) reasons.add("empty_output");
+  if (result.outputSummary.length > 1024) reasons.add("output_too_large");
+  if (!result.outputSummary.startsWith("deterministic_stub descriptive output for input_bytes=") || !result.outputSummary.includes(" checksum=") || result.sandboxStatus !== "sandboxed_deterministic_no_external_effects" || result.outputTrustStatus !== "untrusted/descriptive" || result.outputMaterializationStatus !== "projected_as_untrusted_output" || result.outputPromotionStatus !== "not_promoted" || result.promotionAvailabilityStatus !== "promotion_not_available_in_phase_142" || !result.descriptiveOnly || result.providerOutputTrusted || result.candidateOutputPromoted || result.decisionAppended || result.replayRepaired || result.releaseOrDeploymentEvidenceCreated) reasons.add("malformed_output");
+  const lower = result.outputSummary.toLowerCase();
+  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => lower.includes(needle))) reasons.add("contains_forbidden_secret_marker");
+  if (["command", "shell", "process", "execute ", "run "].some((needle) => lower.includes(needle))) reasons.add("contains_execution_instruction");
+  if (["http://", "https://", "network", "socket", "fetch("].some((needle) => lower.includes(needle))) reasons.add("contains_network_instruction");
+  if (["filesystem", "file ", "write ", "path", "directory", "fs::write"].some((needle) => lower.includes(needle))) reasons.add("contains_filesystem_instruction");
+  if (["readiness", "release", "deployment", "public-use", "public use", "production ready"].some((needle) => lower.includes(needle))) reasons.add("contains_readiness_or_release_claim");
+  if (["trusted_output", "trusted output", "approved_output", "approved output", "approval granted", "trust_granted"].some((needle) => lower.includes(needle))) reasons.add("contains_trust_or_approval_claim");
+  if (["action_executed", "authorize action", "action authorization", "perform action"].some((needle) => lower.includes(needle))) reasons.add("contains_action_instruction");
+  if (reasons.size === 0) reasons.add("deterministic_stub_output_shape_valid");
+  reasons.add("candidate_conversion_not_available_in_phase_143");
+  return [...reasons].sort();
+}
+
+export function validateLocalProviderOutput(execution: LocalProviderExecutionProjection): LocalProviderOutputValidationProjection {
+  const reasons = localProviderOutputValidationReasons(execution);
+  const result = execution.result;
+  const validReasons = reasons.every((reason) => reason === "deterministic_stub_output_shape_valid" || reason === "candidate_conversion_not_available_in_phase_143");
+  const status: LocalProviderOutputValidationStatus = !result
+    ? "not_validated"
+    : execution.projectionStatus !== "execution_projected"
+      ? "validation_not_applicable"
+      : validReasons
+        ? "reviewable_untrusted"
+        : "rejected";
+  const reviewabilityStatus: LocalProviderOutputReviewabilityStatus = status === "reviewable_untrusted" ? "reviewable_untrusted" : status === "rejected" ? "rejected_before_review" : "not_reviewable";
+  return {
+    status,
+    reviewabilityStatus,
+    candidateBoundaryStatus: "not_candidate_material",
+    candidateBoundaryStatuses: localProviderOutputCandidateBoundaryStatuses(),
+    reasons,
+    providerExecutionResultId: result?.resultId ?? null,
+    providerKind: result?.providerKind ?? execution.configuredProviderKind,
+    outputTrustStatus: "untrusted_descriptive",
+    outputPromotionStatus: result?.outputPromotionStatus ?? "not_promoted",
+    trustEffect: "none",
+    candidateEffect: "none",
+    decisionLedgerEffect: "none",
+    replayEffect: "none",
+    exportEffect: "none",
+    actionEffect: "none",
+    readinessEffect: "none",
+    releaseEffect: "none",
+    deploymentEffect: "none",
+    note: "reviewable_untrusted is not candidate material and cannot be approved in Phase 143; provider output is not promoted."
+  };
+}
+
+export function projectLocalProviderOutputValidation(state: LocalOperatorShellState): LocalProviderOutputValidationProjection {
+  return validateLocalProviderOutput(projectLocalProviderExecution(state));
+}
+
+export function validateLocalProviderOutputValidationProjection(projection: LocalProviderOutputValidationProjection): readonly LocalProviderOutputValidationError[] {
+  const errors: LocalProviderOutputValidationError[] = [];
+  if (projection.reasons.length === 0) errors.push("missing_validation_reason");
+  if (projection.status === "reviewable_untrusted" && projection.outputTrustStatus !== "untrusted_descriptive") errors.push("invalid_reviewable_trust_status");
+  if (projection.candidateBoundaryStatus !== "not_candidate_material" || !projection.candidateBoundaryStatuses.includes("not_candidate_material") || !projection.candidateBoundaryStatuses.includes("candidate_conversion_not_performed") || !projection.candidateBoundaryStatuses.includes("candidate_conversion_requires_future_phase")) errors.push("invalid_candidate_boundary_status");
+  if (projection.outputPromotionStatus !== "not_promoted") errors.push("invalid_promotion_status");
+  const effects = [projection.trustEffect, projection.candidateEffect, projection.decisionLedgerEffect, projection.replayEffect, projection.exportEffect, projection.actionEffect, projection.readinessEffect, projection.releaseEffect, projection.deploymentEffect];
+  if (effects.some((effect) => effect !== "none")) errors.push("invalid_no_effect_boundary");
+  return errors;
 }
 
 export function localProviderExecutionResultAbsenceMarkers(): LocalProviderExecutionResultAbsenceMarkers {
@@ -835,13 +1008,8 @@ export function applyLocalProviderExecution(
   const validation = validateLocalProviderExecutionRequest(state.providerConfiguration, request);
   if (validation.status !== "executed") return { status: "rejected", reason: validation.reason, state };
   const result = executeSandboxedDeterministicProvider(request);
-  return {
-    status: "accepted",
-    reason: "local_provider_execution_accepted",
-    state: {
-      ...state,
-      providerExecution: withProviderExecutionProjectionValidation({
-        status: "executed",
+  const providerExecution = withProviderExecutionProjectionValidation({
+    status: "executed",
         projectionStatus: "execution_projected",
         configuredProviderKind: "deterministic_stub",
         sandboxStatus: "sandboxed_deterministic_no_external_effects",
@@ -857,8 +1025,15 @@ export function applyLocalProviderExecution(
         validationErrorCodes: [],
         validationReason: validation.reason,
         capabilitySurface: localProviderExecutionCapabilitySurface(),
-        note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142."
-      })
+    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142."
+  });
+  return {
+    status: "accepted",
+    reason: "local_provider_execution_accepted",
+    state: {
+      ...state,
+      providerExecution,
+      providerOutputValidation: validateLocalProviderOutput(providerExecution)
     }
   };
 }
@@ -901,6 +1076,7 @@ export type LocalOperatorShellState = Readonly<{
   localSessionEvidenceExport: LocalSessionEvidenceExport;
   providerConfiguration: LocalProviderConfiguration;
   providerExecution: LocalProviderExecutionProjection;
+  providerOutputValidation: LocalProviderOutputValidationProjection;
 }>;
 
 
@@ -1016,7 +1192,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     },
     decisionLedger,
     providerConfiguration: initialLocalProviderConfiguration(),
-    providerExecution: initialLocalProviderExecutionProjection()
+    providerExecution: initialLocalProviderExecutionProjection(),
+    providerOutputValidation: initialLocalProviderOutputValidationProjection()
   });
 }
 

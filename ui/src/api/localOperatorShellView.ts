@@ -1,4 +1,4 @@
-import { projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorShellState } from "./localOperatorShell";
+import { projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
   const decisionHistory = state.run.decisionTimeline.records.length === 0
@@ -37,6 +37,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
 
   const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
   const providerExecution = projectLocalProviderExecution(state);
+  const providerOutputValidation = projectLocalProviderOutputValidation(state);
   const providerConfigurationLines = [
     `Configured provider kind: ${providerConfiguration.configuredProviderKind}`,
     `Provider configuration status: ${providerConfiguration.status}`,
@@ -68,6 +69,22 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Validation/error code: ${providerExecution.validationErrorCodes.join(", ") || "none"}`,
     `Capability surface: ${providerExecution.capabilitySurface.summary}`,
     providerExecution.note
+  ].join("\n");
+
+
+  const providerOutputValidationLines = [
+    `Validation status: ${providerOutputValidation.status}`,
+    `Reviewability status: ${providerOutputValidation.reviewabilityStatus}`,
+    `Candidate-boundary status: ${providerOutputValidation.candidateBoundaryStatus}`,
+    `Candidate-boundary details: ${providerOutputValidation.candidateBoundaryStatuses.join(", ")}`,
+    `Validation reasons: ${providerOutputValidation.reasons.join(", ") || "none"}`,
+    `Provider execution result ID: ${providerOutputValidation.providerExecutionResultId ?? "none"}`,
+    `Provider kind: ${providerOutputValidation.providerKind}`,
+    `Output trust status: ${providerOutputValidation.outputTrustStatus}`,
+    `Promotion status: ${providerOutputValidation.outputPromotionStatus}`,
+    `No-effect summary: trust_effect=${providerOutputValidation.trustEffect}, candidate_effect=${providerOutputValidation.candidateEffect}, decision_ledger_effect=${providerOutputValidation.decisionLedgerEffect}, replay_effect=${providerOutputValidation.replayEffect}, export_effect=${providerOutputValidation.exportEffect}, action_effect=${providerOutputValidation.actionEffect}, readiness_effect=${providerOutputValidation.readinessEffect}, release_effect=${providerOutputValidation.releaseEffect}, deployment_effect=${providerOutputValidation.deploymentEffect}`,
+    "Explicit Phase 143 note: reviewable_untrusted is not candidate material and cannot be approved in Phase 143; provider output is not promoted",
+    providerOutputValidation.note
   ].join("\n");
 
   const candidate = state.run.candidate
@@ -104,6 +121,9 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Provider execution result projection",
     "Run deterministic provider",
     providerExecutionLines,
+    "Provider output validation",
+    "Provider output reviewability",
+    providerOutputValidationLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",

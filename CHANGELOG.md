@@ -28,6 +28,49 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.143 - 2026-05-11
+**Status:** Phase 143 - Provider Output Validation and Rejection Flow
+
+### Added
+- Add Rust-owned provider output validation and rejection projection for sandboxed deterministic provider output.
+- Add closed validation, reviewability, candidate-boundary, and rejection-reason statuses.
+- Add validation behavior that classifies deterministic_stub output as reviewable_untrusted or rejected without converting it into candidate material.
+- Add explicit no-effect boundaries for trust, candidate conversion, decision ledger, replay, export, action, readiness, release, and deployment effects.
+- Add UI rendering for provider output validation status, reviewability, candidate-boundary status, and rejection reasons.
+- Add Rust and TypeScript tests for reviewable-untrusted classification, rejection reasons, determinism, and non-promotion boundaries.
+
+### Changed
+- Extend the local operator shell transport projection with provider output validation data.
+- Update the local UI shell to display provider output validation and rejection details.
+- Update checklists/current-phase.md to Phase 143 procedural truth.
+
+### Notes
+- Code-production phase.
+- Provider output validation is a reviewability filter only.
+- reviewable_untrusted is not candidate material.
+- reviewable_untrusted is not approved output.
+- reviewable_untrusted is not trusted output.
+- Provider output is not promoted.
+- Provider output is not eligible for approve/reject in Phase 143.
+- No candidate conversion.
+- No candidate replacement.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable provider execution storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.142 - 2026-05-11
 **Status:** Phase 142 - Provider Execution Result Projection
 
