@@ -4,144 +4,115 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 143
-
-## Phase name
-- [x] Phase 143 - Provider Output Validation and Rejection Flow.
+# Current Phase Checklist - Phase 144 Provider Output Review in UI
 
 ## Phase goal
-- [x] Add a Rust-owned provider output validation and rejection flow for sandboxed `deterministic_stub` output.
-- [x] Classify provider output only as `reviewable_untrusted`, `rejected`, `not_validated`, `validation_not_applicable`, or `invalid_validation_input`.
+- [x] Add a browser-visible provider output review panel for local deterministic provider execution and validation results.
+- [x] Keep review inspection-only: no candidate conversion, approval, trust, promotion, action authorization, readiness, release, deployment, public-use, or durable storage behavior.
 
 ## Working-tree hygiene gate
-- [x] Inspect existing work before editing.
-- [x] Keep changes limited to Phase 143 allowed code, test, checklist, and changelog surfaces.
-- [x] Do not modify `AGENTS.md`, governance docs, architecture docs, roadmap docs, release workflows, package lockfiles, or production/deployment infrastructure.
+- [x] Start from the current branch and preserve existing user work.
+- [x] Keep changes limited to Phase 144 UI, TypeScript behavior tests, changelog, and current checklist surfaces.
+- [x] Clean generated UI build output after validation.
 
 ## Allowed surfaces
-- [x] `core/src/**`
 - [x] `ui/src/**`
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
+- [x] No Rust projection changes were required.
 
 ## Code-production deliverable checklist
-- [x] Rust provider output validation projection exists.
-- [x] Local shell state carries provider output validation data.
-- [x] Browser UI renders provider output validation data.
-- [x] Rust and TypeScript tests cover validation, rejection, determinism, and non-promotion.
+- [x] Provider output review UI panel is visible in the local browser shell.
+- [x] Panel renders already-projected provider execution result and provider output validation state.
+- [x] TypeScript behavior tests cover rendering and boundary behavior.
 
-## Rust provider output validation checklist
-- [x] Add closed validation statuses.
-- [x] Add closed reviewability statuses.
-- [x] Add closed candidate-boundary statuses.
-- [x] Add closed validation/rejection reasons.
-- [x] Validate deterministic `deterministic_stub` output shape.
-- [x] Classify valid output as `reviewable_untrusted`.
-- [x] Classify missing, malformed, empty, oversized, unsafe, unsupported, or claim-bearing output as not reviewable or rejected.
-- [x] Projection validation fails closed on trust, candidate, promotion, decision-ledger, replay, export, action, readiness, release, or deployment effect drift.
-
-## Validation/rejection reason checklist
-- [x] `no_provider_execution_result`
-- [x] `provider_execution_not_projected`
-- [x] `deterministic_stub_output_shape_valid`
-- [x] `missing_execution_result`
-- [x] `unsupported_provider_kind`
-- [x] `empty_output`
-- [x] `malformed_output`
-- [x] `output_too_large`
-- [x] `contains_forbidden_secret_marker`
-- [x] `contains_execution_instruction`
-- [x] `contains_network_instruction`
-- [x] `contains_filesystem_instruction`
-- [x] `contains_readiness_or_release_claim`
-- [x] `contains_trust_or_approval_claim`
-- [x] `contains_action_instruction`
-- [x] `candidate_conversion_not_available_in_phase_143`
+## Provider output review UI checklist
+- [x] Shows provider kind and execution result ID.
+- [x] Shows execution status and output summary.
+- [x] Shows validation status and validation state detail.
+- [x] Shows reviewability status.
+- [x] Shows candidate-boundary status and details.
+- [x] Shows closed validation/rejection reasons.
+- [x] Shows output trust status and promotion status.
+- [x] Shows absence marker summary.
+- [x] Shows no-effect summary for trust, candidate, decision ledger, replay, export, action, readiness, release, and deployment effects.
+- [x] Renders rejected output distinctly from `reviewable_untrusted` output.
+- [x] Clearly renders `not_validated`, `validation_not_applicable`, and `invalid_validation_input` states in TypeScript behavior coverage.
 
 ## Reviewable-untrusted boundary checklist
-- [x] `reviewable_untrusted` means human-inspectable only.
-- [x] `reviewable_untrusted` remains untrusted/descriptive.
-- [x] `reviewable_untrusted` is not approved output.
-- [x] `reviewable_untrusted` is not trusted output.
-- [x] `reviewable_untrusted` is not decision, replay, export, action, readiness, release, or deployment evidence.
+- [x] UI says: “Reviewable untrusted output is visible for inspection only. It is not candidate material and cannot be approved in this phase.”
+- [x] UI labels `reviewable_untrusted` as inspection-only.
+- [x] UI states `reviewable_untrusted` is not candidate material.
+- [x] UI states `reviewable_untrusted` cannot be approved in Phase 144.
+- [x] UI states candidate conversion was not performed and requires a future boundary.
+
+## Absence marker preservation checklist
+- [x] UI says: “Absence markers show prohibited or inactive effects. They do not mean the output is safe or ready.”
+- [x] Absence markers are rendered as negative capability/effect markers only.
+- [x] Absence markers are not rendered as trust, approval, safety, readiness, release, deployment, production, or public-use evidence.
+
+## State mutation boundary checklist
+- [x] Review UI does not append decision ledger records.
+- [x] Review UI does not mutate replay state.
+- [x] Review UI does not mutate export state.
+- [x] Review UI does not mutate provider configuration.
+- [x] Review UI does not mutate provider execution result projection.
+- [x] Review UI does not mutate provider output validation projection.
+- [x] Display-only rendering remains deterministic for identical shell state.
 
 ## Non-candidate/non-promotion checklist
-- [x] Provider output is labeled `not_candidate_material`.
-- [x] Candidate conversion is labeled `candidate_conversion_not_performed`.
-- [x] Candidate conversion is labeled `candidate_conversion_requires_future_phase`.
-- [x] Provider output is labeled `not_promoted`.
-- [x] Provider output does not replace candidate output.
-- [x] Provider output does not become operator-approvable material.
-
-## TypeScript transport projection checklist
-- [x] TypeScript shell state includes provider output validation projection.
-- [x] TypeScript transport carries provider output validation after initial state and accepted provider execution.
-- [x] Rejected provider execution preserves prior shell state and prior provider output validation.
-- [x] TypeScript validation projection mirrors Rust-shaped statuses, reasons, and no-effect fields.
-
-## UI provider output validation checklist
-- [x] UI shows a `Provider output validation` panel/region.
-- [x] UI shows validation status.
-- [x] UI shows reviewability status.
-- [x] UI shows candidate-boundary status and details.
-- [x] UI shows validation/rejection reasons.
-- [x] UI shows provider execution result ID and provider kind.
-- [x] UI shows output trust status and promotion status.
-- [x] UI shows no-effect summary.
-- [x] UI states that `reviewable_untrusted` is not candidate material and cannot be approved in Phase 143.
-- [x] UI does not expose provider-output approve/reject controls.
-- [x] UI does not display provider output as candidate output.
-
-## Rust test checklist
-- [x] Initial provider output validation state is covered.
-- [x] Valid deterministic provider output is classified `reviewable_untrusted`.
-- [x] Malformed, empty, oversized, unsafe, and claim-bearing output rejection reasons are covered.
-- [x] Repeated validation is deterministic.
-- [x] Non-promotion and no-effect boundaries are covered.
-- [x] Projection drift fail-closed cases are covered.
+- [x] Provider output is not displayed as candidate output.
+- [x] Provider output is not converted into candidate material.
+- [x] Provider output is not promoted.
+- [x] Provider output has no approve/reject controls.
+- [x] Provider output is not decision evidence or replay evidence.
 
 ## TypeScript test checklist
-- [x] Visible validation panel is covered.
-- [x] Initial `not_validated` display is covered.
-- [x] `reviewable_untrusted` display is covered.
-- [x] Closed rejection reasons are covered.
-- [x] No-candidate/no-approval controls display behavior is covered.
-- [x] Projection drift fail-closed behavior is covered.
+- [x] Initial `not_validated` provider output review state.
+- [x] Accepted deterministic execution producing `reviewable_untrusted` output.
+- [x] Rejected output with closed rejection reasons.
+- [x] `validation_not_applicable` display.
+- [x] `invalid_validation_input` display.
+- [x] Absence marker and no-effect summary rendering.
+- [x] Explicit inspection-only and absence-not-safety/readiness text.
+- [x] No provider-output approve/reject controls.
+- [x] No provider output as candidate output.
+- [x] Non-mutation boundaries for decision ledger, replay, export, provider configuration, and promotion.
+- [x] Deterministic repeated rendering.
+
+## Rust test checklist
+- [x] No Rust code changed; existing Rust validation remains covered by the full check script.
 
 ## Local-only/non-production boundary checklist
 - [x] No new provider kinds.
 - [x] No additional provider execution capability.
-- [x] No arbitrary local model execution.
-- [x] No cloud model execution.
-- [x] No shell command execution or local binary invocation.
-- [x] No network sockets.
-- [x] No filesystem persistence or durable provider execution storage.
-- [x] No durable ledger writes or production persistence.
-- [x] No replay repair, recovery promotion, action execution, release, deployment, signing, publishing, public-use, or readiness approval behavior.
+- [x] No arbitrary local model execution, cloud model execution, shell command execution, local binary invocation, network sockets, or filesystem persistence.
+- [x] No durable provider execution storage, durable ledger writes, production persistence, replay repair, recovery promotion, action execution, release artifact, installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
 
-## Phase 144 handoff checklist
-- [x] Phase 144 remains the next code-production phase for provider output review in UI.
-- [x] Phase 143 does not add candidate conversion, approval, trust, promotion, action authorization, or durable provider output validation storage.
+## Phase 145 handoff checklist
+- [x] Phase 145 remains the next code-production alignment checkpoint.
+- [x] Candidate conversion, provider output approval, provider trust, provider output promotion, release/deployment/readiness approval, and public-use behavior remain deferred.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-143-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-144-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run direct UI commands if not covered by `check.sh`.
-- [x] Run direct Rust tests if not covered by `check.sh`.
+- [x] Run direct UI typecheck, lint, build, and behavior tests.
+- [x] Run direct Rust tests because `check.sh` does not replace final explicit verification.
 - [x] Run local dev smoke test.
-- [x] Run validation projection scan.
-- [x] Run rejection reason scan.
+- [x] Run UI review scan.
+- [x] Run absence marker scan.
+- [x] Run state mutation boundary scan.
 - [x] Run no-candidate-promotion scan.
 - [x] Run no-unsafe-execution/release/deployment authority scan.
 - [x] Run no-persistence scan.
 - [x] Run changed-file source guard.
 
 ## Deferred items
-- [x] Provider output review surface beyond validation remains deferred.
 - [x] Candidate conversion remains deferred.
-- [x] Provider output promotion remains deferred.
-- [x] Arbitrary local model execution, cloud calls, shell commands, network sockets, filesystem persistence, durable storage, replay repair, recovery promotion, action execution, and release/deployment/readiness behavior remain deferred.
+- [x] Provider output approval, trust, promotion, and action authorization remain deferred.
+- [x] Durable provider review storage and production persistence remain deferred.
+- [x] Release, deployment, signing, publishing, installer, update-channel, readiness, and public-use behavior remain deferred.
 
 ## Validation log
 - [x] Full validation completed after final edits.
@@ -149,10 +120,9 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] Changelog entry matches the actual Phase 143 diff.
-- [x] Staged files are limited to allowed Phase 143 surfaces.
-- [x] Rust remains authoritative for provider output validation.
-- [x] UI remains non-authoritative.
-- [x] Provider output remains reviewable-untrusted at most.
-- [x] Provider output remains not candidate material, not approved, not trusted, and not promoted.
-- [x] Phase 144 remains the handoff for provider output review in UI.
+- [x] Changelog entry matches the actual Phase 144 diff.
+- [x] Staged files are limited to allowed Phase 144 surfaces.
+- [x] Rust remains authoritative for provider execution, projection, and validation state.
+- [x] TypeScript UI remains non-authoritative and display-only for provider output review.
+- [x] Provider output remains reviewable-untrusted at most and is not candidate, approved, trusted, or promoted material.
+- [x] Phase 145 remains the next code-production alignment checkpoint.

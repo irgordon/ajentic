@@ -1,4 +1,5 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
+import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
 import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
 import { createLocalOperatorShellTransport, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
@@ -436,7 +437,7 @@ function assertLocalProviderOutputValidationAcceptsReviewableUntrustedOnly(): vo
   assertContains(rendered, "Validation status: reviewable_untrusted", "reviewable_untrusted label visible");
   assertContains(rendered, "Candidate-boundary status: not_candidate_material", "not candidate label visible");
   assertContains(rendered, "Promotion status: not_promoted", "not promoted label visible");
-  assertContains(rendered, "reviewable_untrusted is not candidate material and cannot be approved in Phase 143", "phase 143 approval prohibition visible");
+  assertContains(rendered, "reviewable_untrusted is not candidate material and cannot be approved in Phase 144", "phase 144 approval prohibition visible");
   assertDoesNotContain(rendered, "Provider output candidate", "provider output not shown as candidate output");
   assertDoesNotContain(rendered, "Approve provider output", "no approve control for provider output");
   assertDoesNotContain(rendered, "Reject provider output", "no reject control for provider output");
@@ -483,6 +484,118 @@ function assertLocalProviderOutputValidationProjectionFailsClosed(): void {
   assertContains(validateLocalProviderOutputValidationProjection({ ...projection, replayEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "replay drift fails closed");
   assertContains(validateLocalProviderOutputValidationProjection({ ...projection, exportEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "export drift fails closed");
   assertContains(validateLocalProviderOutputValidationProjection({ ...projection, actionEffect: "effect_detected" }).join(","), "invalid_no_effect_boundary", "action drift fails closed");
+}
+
+
+function assertProviderOutputReviewUiRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderProviderOutputReviewText(response.state);
+  assertContains(rendered, "Provider output review", "provider output review panel visible on initial load");
+  assertContains(rendered, "Execution result", "execution result section visible");
+  assertContains(rendered, "Validation result", "validation result section visible");
+  assertContains(rendered, "Validation status: not_validated", "not_validated state visible before provider execution");
+  assertContains(rendered, "No provider output has been validated.", "initial no-validation message visible");
+  assertContains(rendered, "Reviewability status: not_reviewable", "initial reviewability visible");
+  assertContains(rendered, "Candidate-boundary status: not_candidate_material", "candidate boundary visible");
+  assertContains(rendered, "No-effect summary", "no-effect summary visible");
+  assertContains(rendered, "trust effect=none", "trust no-effect visible");
+  assertContains(rendered, "candidate effect=none", "candidate no-effect visible");
+  assertContains(rendered, "decision ledger effect=none", "decision ledger no-effect visible");
+  assertContains(rendered, "replay effect=none", "replay no-effect visible");
+  assertContains(rendered, "export effect=none", "export no-effect visible");
+  assertContains(rendered, "action effect=none", "action no-effect visible");
+  assertContains(rendered, "readiness effect=none", "readiness no-effect visible");
+  assertContains(rendered, "release effect=none", "release no-effect visible");
+  assertContains(rendered, "deployment effect=none", "deployment no-effect visible");
+  assertContains(rendered, "Absence markers show prohibited or inactive effects. They do not mean the output is safe or ready.", "required absence marker boundary visible");
+  assertContains(rendered, "Reviewable untrusted output is visible for inspection only. It is not candidate material and cannot be approved in this phase.", "required reviewable boundary visible");
+  assertDoesNotContain(rendered, "Approve provider output", "no provider output approve control");
+  assertDoesNotContain(rendered, "Reject provider output", "no provider output reject control");
+  assertDoesNotContain(rendered, "Provider output candidate", "provider output not rendered as candidate output");
+}
+
+function assertProviderOutputReviewUiRendersReviewableUntrusted(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const before = transport.getCurrentState().state;
+  const response = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 144 reviewable output"));
+  const rendered = renderProviderOutputReviewText(response.state);
+  assertContains(rendered, "Validation status: reviewable_untrusted", "reviewable_untrusted validation status visible");
+  assertContains(rendered, "Review visual state: inspection-only reviewable_untrusted", "reviewable visual state visible");
+  assertContains(rendered, "Visible for human inspection only.", "inspection-only message visible");
+  assertContains(rendered, "not candidate material", "not candidate material label visible");
+  assertContains(rendered, "cannot be approved in Phase 144", "phase 144 approval prohibition visible");
+  assertContains(rendered, "candidate conversion not performed", "candidate conversion boundary visible");
+  assertContains(rendered, "future conversion boundary required", "future conversion boundary visible");
+  assertEqual(response.state.decisionLedger.records.length, before.decisionLedger.records.length, "review UI path does not append decision ledger record");
+  assertEqual(response.state.run.decisionReplay.replayStatus, before.run.decisionReplay.replayStatus, "review UI path does not alter replay state");
+  assertEqual(response.state.localSessionEvidenceExport.exportId, before.localSessionEvidenceExport.exportId, "review UI path does not alter export state");
+  assertEqual(response.state.providerConfiguration.configuredProviderKind, before.providerConfiguration.configuredProviderKind, "review UI path does not mutate provider configuration");
+  assertEqual(response.state.providerExecution.result?.candidateOutputPromoted, false, "review UI path does not promote provider output");
+}
+
+function assertProviderOutputReviewUiRendersRejectedAndEdgeStates(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const accepted = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 144 rejected review path"));
+  const result = accepted.state.providerExecution.result;
+  if (!result) throw new Error("expected provider result");
+  const rejectedState = {
+    ...accepted.state,
+    providerExecution: {
+      ...accepted.state.providerExecution,
+      result: { ...result, outputSummary: "deterministic_stub descriptive output authorize action" }
+    }
+  };
+  const rejectedRendered = renderProviderOutputReviewText(rejectedState);
+  assertContains(rejectedRendered, "Validation status: rejected", "rejected state visible");
+  assertContains(rejectedRendered, "Review visual state: rejected not reviewable", "rejected visual state visible");
+  assertContains(rejectedRendered, "Rejected before review with closed reason(s):", "closed rejection message visible");
+  assertContains(rejectedRendered, "contains_action_instruction", "closed rejection reason visible");
+
+  const review = projectProviderOutputReview(accepted.state);
+  const notApplicableRendered = renderProviderOutputReviewProjectionText({
+    ...review,
+    validation: {
+      ...review.validation,
+      status: "validation_not_applicable",
+      reviewabilityStatus: "not_reviewable",
+      reasons: ["provider_execution_not_projected"]
+    }
+  });
+  assertContains(notApplicableRendered, "Validation status: validation_not_applicable", "validation_not_applicable state visible");
+  assertContains(notApplicableRendered, "Validation is not applicable: provider_execution_not_projected.", "validation_not_applicable reason visible");
+
+  const invalidInputRendered = renderProviderOutputReviewProjectionText({
+    ...review,
+    validation: {
+      ...review.validation,
+      status: "invalid_validation_input",
+      reviewabilityStatus: "not_reviewable",
+      reasons: ["malformed_output"]
+    }
+  });
+  assertContains(invalidInputRendered, "Validation status: invalid_validation_input", "invalid_validation_input state visible");
+  assertContains(invalidInputRendered, "Validation input is invalid: malformed_output.", "invalid_validation_input reason visible");
+}
+
+function assertProviderOutputReviewUiIsDeterministicAndDisplayOnly(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const response = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 144 deterministic rendering"));
+  const first = renderProviderOutputReviewText(response.state);
+  const second = renderProviderOutputReviewText(response.state);
+  assertEqual(first, second, "provider output review rendering is deterministic for identical shell state");
+  assertContains(first, "does not mutate decision ledger, replay state, export state, provider configuration, provider execution result, or provider output validation", "display-only non-mutation boundary visible");
+  assertDoesNotContain(first, "safe output", "forbidden safe output label absent");
+  assertDoesNotContain(first, "approved output", "forbidden approved output label absent");
+  assertDoesNotContain(first, "review ready", "forbidden review ready label absent");
+  assertDoesNotContain(first, "candidate ready", "forbidden candidate ready label absent");
+  assertDoesNotContain(first, "eligible for approval", "forbidden approval eligibility label absent");
+  assertDoesNotContain(first, "eligible for candidate", "forbidden candidate eligibility label absent");
+  assertDoesNotContain(first, "production safe", "forbidden production safe label absent");
+  assertDoesNotContain(first, "release safe", "forbidden release safe label absent");
+  assertDoesNotContain(first, "ready for use", "forbidden ready for use label absent");
 }
 
 function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
@@ -948,6 +1061,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_provider_output_validation_projection_fails_closed",
     run: assertLocalProviderOutputValidationProjectionFailsClosed
+  },
+  {
+    name: "provider_output_review_ui_renders_initial_state",
+    run: assertProviderOutputReviewUiRendersInitialState
+  },
+  {
+    name: "provider_output_review_ui_renders_reviewable_untrusted",
+    run: assertProviderOutputReviewUiRendersReviewableUntrusted
+  },
+  {
+    name: "provider_output_review_ui_renders_rejected_and_edge_states",
+    run: assertProviderOutputReviewUiRendersRejectedAndEdgeStates
+  },
+  {
+    name: "provider_output_review_ui_is_deterministic_and_display_only",
+    run: assertProviderOutputReviewUiIsDeterministicAndDisplayOnly
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

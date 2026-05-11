@@ -1,4 +1,5 @@
 import { projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
+import { renderProviderOutputReviewText } from "./providerOutputReview";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
   const decisionHistory = state.run.decisionTimeline.records.length === 0
@@ -83,7 +84,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Output trust status: ${providerOutputValidation.outputTrustStatus}`,
     `Promotion status: ${providerOutputValidation.outputPromotionStatus}`,
     `No-effect summary: trust_effect=${providerOutputValidation.trustEffect}, candidate_effect=${providerOutputValidation.candidateEffect}, decision_ledger_effect=${providerOutputValidation.decisionLedgerEffect}, replay_effect=${providerOutputValidation.replayEffect}, export_effect=${providerOutputValidation.exportEffect}, action_effect=${providerOutputValidation.actionEffect}, readiness_effect=${providerOutputValidation.readinessEffect}, release_effect=${providerOutputValidation.releaseEffect}, deployment_effect=${providerOutputValidation.deploymentEffect}`,
-    "Explicit Phase 143 note: reviewable_untrusted is not candidate material and cannot be approved in Phase 143; provider output is not promoted",
+    "Explicit Phase 144 note: reviewable_untrusted is not candidate material and cannot be approved in Phase 144; provider output is not promoted",
     providerOutputValidation.note
   ].join("\n");
 
@@ -124,6 +125,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Provider output validation",
     "Provider output reviewability",
     providerOutputValidationLines,
+    renderProviderOutputReviewText(state),
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",

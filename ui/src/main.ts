@@ -1,4 +1,5 @@
 import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
 import {
   createLocalOperatorShellTransport,
   getInitialLocalOperatorShellState,
@@ -70,7 +71,7 @@ function renderCandidate(state: LocalOperatorShellState): string {
     <dl>
       <div><dt>Candidate</dt><dd>${candidate.candidateId}</dd></div>
       <div><dt>Provider</dt><dd>${candidate.providerKind}</dd></div>
-      <div><dt>Provider output trusted</dt><dd>${candidate.providerOutputTrusted}</dd></div>
+      <div><dt>Provider output trust flag</dt><dd>${candidate.providerOutputTrusted}</dd></div>
       <div><dt>Provider execution enabled</dt><dd>${candidate.providerExecutionEnabled}</dd></div>
     </dl>`;
 }
@@ -221,6 +222,10 @@ function render(): void {
       <section class="panel" aria-label="Sandboxed provider execution">
         <h2>Sandboxed provider execution</h2>
         ${renderProviderExecution(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Provider output review">
+        ${renderProviderOutputReviewHtml(shellState)}
       </section>
 
       <section class="panel replay-panel">

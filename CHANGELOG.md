@@ -28,6 +28,55 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.144 - 2026-05-11
+**Status:** Phase 144 - Provider Output Review in UI
+
+### Added
+- Add a visible provider output review UI surface for provider execution and validation results.
+- Add UI rendering for reviewability status, candidate-boundary status, validation reasons, absence markers, and no-effect summaries.
+- Add explicit UI boundary text that reviewable_untrusted is inspection-only, not candidate material, and cannot be approved in Phase 144.
+- Add explicit UI boundary text that absence markers are not safety or readiness.
+- Add TypeScript behavior tests for provider output review UI, rejection reason display, absence marker rendering, and non-mutation boundaries.
+
+### Changed
+- Refine the local UI shell to make provider output validation results easier to inspect without adding candidate conversion or approval controls.
+- Update checklists/current-phase.md to Phase 144 procedural truth.
+
+### Notes
+- Code-production phase.
+- UI/provider-output review phase only.
+- Provider output review is inspection-only.
+- reviewable_untrusted is not candidate material.
+- reviewable_untrusted is not approved output.
+- reviewable_untrusted is not trusted output.
+- reviewable_untrusted is not promoted output.
+- Absence markers are not safety.
+- Absence markers are not readiness.
+- No candidate conversion.
+- No candidate replacement.
+- No approve/reject controls for provider output.
+- No decision ledger mutation.
+- No replay mutation.
+- No export promotion.
+- No provider configuration mutation from review UI.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable provider execution storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 145 remains the next code-production alignment checkpoint.
+
 ## v0.0.143 - 2026-05-11
 **Status:** Phase 143 - Provider Output Validation and Rejection Flow
 
