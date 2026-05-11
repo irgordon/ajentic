@@ -490,6 +490,58 @@ export type LocalProviderExecutionError =
   | "publishing_claim_rejected"
   | "unknown_field_rejected";
 
+export type LocalProviderExecutionResultProjectionStatus =
+  | "not_executed"
+  | "execution_projected"
+  | "execution_rejected"
+  | "unsupported_provider"
+  | "invalid_execution_request";
+export type LocalProviderOutputMaterializationStatus =
+  | "not_materialized"
+  | "projected_as_untrusted_output"
+  | "not_candidate_material"
+  | "candidate_material";
+export type LocalProviderOutputTrustStatus = "untrusted_descriptive" | "trusted_output";
+export type LocalProviderExecutionResultOutputTrustStatus = "untrusted/descriptive" | "trusted_output";
+export type LocalProviderOutputPromotionStatus =
+  | "not_promoted"
+  | "promotion_not_available_in_phase_142"
+  | "promoted";
+
+export type LocalProviderExecutionResultLinkage = Readonly<{
+  shellStateLabel: string;
+  runId: string;
+  providerConfigurationKind: string;
+  providerConfigurationStatus: string;
+  executionResultId: string;
+  candidateId: string;
+  sourceBoundary: "sandboxed_deterministic_provider_execution";
+}>;
+
+export type LocalProviderExecutionResultAbsenceMarkers = Readonly<{
+  noProcessSpawned: true;
+  noNetworkSocketOpened: true;
+  noFilesystemPersistence: true;
+  noSecretsRead: true;
+  noReleaseCreated: true;
+  noDeploymentCreated: true;
+  noSigningPerformed: true;
+  noPublishingPerformed: true;
+  noPublicUseApproved: true;
+  noReadinessApproved: true;
+  noReplayRepair: true;
+  noRecoveryPromotion: true;
+  noActionExecution: true;
+  providerOutputNotCandidateMaterial: true;
+  markerSummary: readonly string[];
+}>;
+
+export type LocalProviderExecutionResultProjectionValidation = Readonly<{
+  status: "valid" | "invalid";
+  errorCodes: readonly string[];
+  reason: string;
+}>;
+
 export type LocalProviderExecutionRequest = Readonly<{
   providerKind?: string;
   inputSummary: string;
@@ -519,7 +571,10 @@ export type LocalProviderExecutionResult = Readonly<{
   providerKind: "deterministic_stub";
   sandboxStatus: LocalProviderExecutionSandboxStatus;
   outputSummary: string;
-  outputTrustStatus: "untrusted/descriptive";
+  outputTrustStatus: LocalProviderExecutionResultOutputTrustStatus;
+  outputMaterializationStatus: LocalProviderOutputMaterializationStatus;
+  outputPromotionStatus: LocalProviderOutputPromotionStatus;
+  promotionAvailabilityStatus: LocalProviderOutputPromotionStatus;
   descriptiveOnly: true;
   providerOutputTrusted: false;
   candidateOutputPromoted: false;
@@ -537,9 +592,17 @@ export type LocalProviderExecutionValidation = Readonly<{
 
 export type LocalProviderExecutionProjection = Readonly<{
   status: LocalProviderExecutionStatus;
+  projectionStatus: LocalProviderExecutionResultProjectionStatus;
   configuredProviderKind: string;
   sandboxStatus: LocalProviderExecutionSandboxStatus;
   result: LocalProviderExecutionResult | null;
+  outputTrustStatus: LocalProviderOutputTrustStatus;
+  outputMaterializationStatus: LocalProviderOutputMaterializationStatus;
+  outputPromotionStatus: LocalProviderOutputPromotionStatus;
+  promotionAvailabilityStatus: LocalProviderOutputPromotionStatus;
+  linkage: LocalProviderExecutionResultLinkage;
+  absenceMarkers: LocalProviderExecutionResultAbsenceMarkers;
+  projectionValidation: LocalProviderExecutionResultProjectionValidation;
   validationStatus: LocalProviderExecutionStatus;
   validationErrorCodes: readonly LocalProviderExecutionError[];
   validationReason: string;
@@ -571,25 +634,103 @@ export function localProviderExecutionCapabilitySurface(): LocalProviderExecutio
   };
 }
 
-export function initialLocalProviderExecutionProjection(): LocalProviderExecutionProjection {
+export function localProviderExecutionResultAbsenceMarkers(): LocalProviderExecutionResultAbsenceMarkers {
   return {
+    noProcessSpawned: true,
+    noNetworkSocketOpened: true,
+    noFilesystemPersistence: true,
+    noSecretsRead: true,
+    noReleaseCreated: true,
+    noDeploymentCreated: true,
+    noSigningPerformed: true,
+    noPublishingPerformed: true,
+    noPublicUseApproved: true,
+    noReadinessApproved: true,
+    noReplayRepair: true,
+    noRecoveryPromotion: true,
+    noActionExecution: true,
+    providerOutputNotCandidateMaterial: true,
+    markerSummary: [
+      "no process",
+      "no network",
+      "no filesystem persistence",
+      "no secrets",
+      "no release/deployment/signing/publishing/public-use/readiness",
+      "no replay repair/recovery promotion/action execution",
+      "provider output is not candidate material"
+    ]
+  };
+}
+
+function initialLocalProviderExecutionLinkage(): LocalProviderExecutionResultLinkage {
+  return {
+    shellStateLabel: "idle_local_harness",
+    runId: "local-stub-run-133",
+    providerConfigurationKind: "none",
+    providerConfigurationStatus: "not_configured",
+    executionResultId: "none",
+    candidateId: "not_candidate_material",
+    sourceBoundary: "sandboxed_deterministic_provider_execution"
+  };
+}
+
+function localProviderExecutionLinkage(state: LocalOperatorShellState, executionResultId: string): LocalProviderExecutionResultLinkage {
+  return {
+    shellStateLabel: state.harnessStatus,
+    runId: state.run.runId,
+    providerConfigurationKind: state.providerConfiguration.configuredProviderKind ?? "none",
+    providerConfigurationStatus: state.providerConfiguration.status,
+    executionResultId,
+    candidateId: state.run.candidate?.candidateId ?? "not_candidate_material",
+    sourceBoundary: "sandboxed_deterministic_provider_execution"
+  };
+}
+
+export function validateLocalProviderExecutionResultProjection(projection: LocalProviderExecutionProjection): LocalProviderExecutionResultProjectionValidation {
+  const errors: string[] = [];
+  if (projection.outputTrustStatus !== "untrusted_descriptive") errors.push("invalid_trust_status");
+  if (projection.outputMaterializationStatus === "candidate_material") errors.push("invalid_materialization_status");
+  if (projection.outputPromotionStatus !== "not_promoted" || projection.promotionAvailabilityStatus !== "promotion_not_available_in_phase_142") errors.push("invalid_promotion_status");
+  const markers = projection.absenceMarkers;
+  if (!markers.noProcessSpawned || !markers.noNetworkSocketOpened || !markers.noFilesystemPersistence || !markers.noSecretsRead || !markers.noReleaseCreated || !markers.noDeploymentCreated || !markers.noSigningPerformed || !markers.noPublishingPerformed || !markers.noPublicUseApproved || !markers.noReadinessApproved || !markers.noReplayRepair || !markers.noRecoveryPromotion || !markers.noActionExecution || !markers.providerOutputNotCandidateMaterial || markers.markerSummary.length === 0) errors.push("missing_absence_marker");
+  if (projection.linkage.runId.length === 0 || projection.linkage.providerConfigurationKind.length === 0 || projection.linkage.providerConfigurationStatus.length === 0 || projection.linkage.executionResultId.length === 0 || projection.linkage.sourceBoundary !== "sandboxed_deterministic_provider_execution") errors.push("missing_linkage");
+  return errors.length === 0
+    ? { status: "valid", errorCodes: [], reason: "provider execution result projection is valid; output remains untrusted_descriptive, not_candidate_material, and not_promoted" }
+    : { status: "invalid", errorCodes: errors, reason: "provider execution result projection rejected fail-closed" };
+}
+
+function withProviderExecutionProjectionValidation(projection: LocalProviderExecutionProjection): LocalProviderExecutionProjection {
+  return { ...projection, projectionValidation: validateLocalProviderExecutionResultProjection(projection) };
+}
+
+export function initialLocalProviderExecutionProjection(): LocalProviderExecutionProjection {
+  return withProviderExecutionProjectionValidation({
     status: "not_executed",
+    projectionStatus: "not_executed",
     configuredProviderKind: "none",
     sandboxStatus: "not_entered",
     result: null,
+    outputTrustStatus: "untrusted_descriptive",
+    outputMaterializationStatus: "not_materialized",
+    outputPromotionStatus: "not_promoted",
+    promotionAvailabilityStatus: "promotion_not_available_in_phase_142",
+    linkage: initialLocalProviderExecutionLinkage(),
+    absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
+    projectionValidation: { status: "invalid", errorCodes: [], reason: "projection validation pending" },
     validationStatus: "not_executed",
     validationErrorCodes: [],
     validationReason: "deterministic_stub execution has not been requested",
     capabilitySurface: localProviderExecutionCapabilitySurface(),
-    note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision."
-  };
+    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, and not eligible for approve/reject in Phase 142."
+  });
 }
 
 export function projectLocalProviderExecution(state: LocalOperatorShellState): LocalProviderExecutionProjection {
-  return {
+  return withProviderExecutionProjectionValidation({
     ...state.providerExecution,
-    configuredProviderKind: state.providerConfiguration.configuredProviderKind ?? "none"
-  };
+    configuredProviderKind: state.providerConfiguration.configuredProviderKind ?? "none",
+    linkage: localProviderExecutionLinkage(state, state.providerExecution.result?.resultId ?? "none")
+  });
 }
 
 function forbiddenProviderExecutionField(key: string, value: string): LocalProviderExecutionError {
@@ -675,6 +816,9 @@ export function executeSandboxedDeterministicProvider(request: LocalProviderExec
     sandboxStatus: "sandboxed_deterministic_no_external_effects",
     outputSummary: `deterministic_stub descriptive output for input_bytes=${request.inputSummary.length} checksum=${hex}`,
     outputTrustStatus: "untrusted/descriptive",
+    outputMaterializationStatus: "projected_as_untrusted_output",
+    outputPromotionStatus: "not_promoted",
+    promotionAvailabilityStatus: "promotion_not_available_in_phase_142",
     descriptiveOnly: true,
     providerOutputTrusted: false,
     candidateOutputPromoted: false,
@@ -696,17 +840,25 @@ export function applyLocalProviderExecution(
     reason: "local_provider_execution_accepted",
     state: {
       ...state,
-      providerExecution: {
+      providerExecution: withProviderExecutionProjectionValidation({
         status: "executed",
+        projectionStatus: "execution_projected",
         configuredProviderKind: "deterministic_stub",
         sandboxStatus: "sandboxed_deterministic_no_external_effects",
         result,
+        outputTrustStatus: "untrusted_descriptive",
+        outputMaterializationStatus: "not_candidate_material",
+        outputPromotionStatus: result.outputPromotionStatus,
+        promotionAvailabilityStatus: result.promotionAvailabilityStatus,
+        linkage: localProviderExecutionLinkage(state, result.resultId),
+        absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
+        projectionValidation: { status: "invalid", errorCodes: [], reason: "projection validation pending" },
         validationStatus: validation.status,
         validationErrorCodes: [],
         validationReason: validation.reason,
         capabilitySurface: localProviderExecutionCapabilitySurface(),
-        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision."
-      }
+        note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142."
+      })
     }
   };
 }

@@ -102,12 +102,21 @@ function renderProviderExecution(state: LocalOperatorShellState): string {
   const result = providerExecution.result;
   return `
     <dl>
-      <div><dt>Execution status</dt><dd>${providerExecution.status}</dd></div>
+      <div><dt>Projection status</dt><dd>${providerExecution.projectionStatus}</dd></div>
       <div><dt>Configured provider kind</dt><dd>${providerExecution.configuredProviderKind}</dd></div>
+      <div><dt>Execution status</dt><dd>${providerExecution.status}</dd></div>
       <div><dt>Sandbox status</dt><dd>${providerExecution.sandboxStatus}</dd></div>
       <div><dt>Execution result ID</dt><dd>${result?.resultId ?? "none"}</dd></div>
       <div><dt>Provider output summary</dt><dd>${result?.outputSummary ?? "none"}</dd></div>
-      <div><dt>Output trust status</dt><dd>${result?.outputTrustStatus ?? "untrusted/descriptive"}</dd></div>
+      <div><dt>Output trust status</dt><dd>untrusted/descriptive (${providerExecution.outputTrustStatus})</dd></div>
+      <div><dt>Output materialization status</dt><dd>${providerExecution.outputMaterializationStatus}</dd></div>
+      <div><dt>Output promotion status</dt><dd>${providerExecution.outputPromotionStatus}</dd></div>
+      <div><dt>Promotion availability</dt><dd>${providerExecution.promotionAvailabilityStatus}</dd></div>
+      <div><dt>Run/session linkage</dt><dd>${providerExecution.linkage.runId} / ${providerExecution.linkage.shellStateLabel} / ${providerExecution.linkage.providerConfigurationKind} / ${providerExecution.linkage.providerConfigurationStatus}</dd></div>
+      <div><dt>Source boundary</dt><dd>${providerExecution.linkage.sourceBoundary}</dd></div>
+      <div><dt>Projection validation</dt><dd>${providerExecution.projectionValidation.status} (${providerExecution.projectionValidation.errorCodes.join(", ") || "none"})</dd></div>
+      <div><dt>Absence markers</dt><dd>${providerExecution.absenceMarkers.markerSummary.join(", ")}</dd></div>
+      <div><dt>Phase 142 boundary</dt><dd>provider output is not candidate material and is not review/approval material</dd></div>
       <div><dt>Validation/error reason</dt><dd>${providerExecution.validationReason}</dd></div>
       <div><dt>Validation/error code</dt><dd>${providerExecution.validationErrorCodes.join(", ") || "none"}</dd></div>
       <div><dt>Capability surface</dt><dd>${providerExecution.capabilitySurface.summary}</dd></div>
