@@ -328,9 +328,15 @@ Boundary: alignment only; no readiness approval.
 Non-goals: no installer/update-channel implementation, no release approval, no Production Candidate approval, and no public/general use.
 Evidence gate: reconciliation can authorize later scoped work only as planned truth.
 
+### Phase 135.1 - Artifact Chain Correction Before Installer/Update-Channel Work
+Goal: Resolve or explicitly defer the blocked artifact chain before Phase 136 implementation proceeds.
+Boundary: artifact-chain correction boundary only; no signing, publishing, installer/update-channel activation, deployment, monitoring, or readiness approval.
+Non-goals: no Phase 136 implementation, no signing behavior, no publishing behavior, no deployment behavior, no monitoring activation, no Release Candidate approval, no Production Candidate approval, and no public/general use.
+Evidence gate: determine whether Phase 132 artifact creation can be rerun under the Phase 132.1 contract, create or defer governed local/non-public artifacts, produce or defer artifact manifest evidence, and determine whether Phase 133 checksum/provenance can proceed afterward.
+
 ### Phase 136 - Installer/Update-Channel Implementation Boundary
-Goal: Implement or further defer installer/update-channel surfaces under Phase 127 constraints.
-Boundary: controlled implementation only; no public distribution.
+Goal: Implement or further defer installer/update-channel surfaces under Phase 127 constraints after Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
+Boundary: controlled implementation only; no public distribution; deferred until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
 Non-goals: no public update service, public installer distribution, publishing, deployment automation, background service, or readiness approval.
 Evidence gate: installer/update-channel evidence must remain constrained or be explicitly deferred.
 
