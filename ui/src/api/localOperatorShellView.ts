@@ -1,6 +1,12 @@
 import type { LocalOperatorShellState } from "./localOperatorShell";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
+  const decisionHistory = state.run.decisionTimeline.records.length === 0
+    ? state.run.decisionTimeline.emptyMessage
+    : state.run.decisionTimeline.records
+        .map((record) => `#${record.recordedSequence} ${record.intentKind} ${record.decisionStatus} run=${record.runId} candidate=${record.candidateId} operator=${record.operatorId}`)
+        .join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -27,6 +33,8 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Approve",
     "Reject",
     `Selected operator intent: ${state.run.selectedIntent ?? "none"}`,
+    "Local decision ledger",
+    decisionHistory,
     "Bottom panel: Replay/status projection placeholder",
     state.run.replayStatus
   ].join("\n");
