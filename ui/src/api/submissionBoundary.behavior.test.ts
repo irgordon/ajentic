@@ -296,9 +296,15 @@ function assertLocalProviderExecutionPanelRendersInitialState(): void {
   const rendered = renderLocalOperatorShellSnapshot(response.state);
   assertContains(rendered, "Sandboxed provider execution", "provider execution panel visible");
   assertContains(rendered, "Run deterministic provider", "provider execution control visible");
+  assertContains(rendered, "Projection status: not_executed", "initial provider result projection status");
   assertContains(rendered, "Execution status: not_executed", "initial provider execution status");
   assertContains(rendered, "Output trust status: untrusted/descriptive", "output trust visible");
+  assertContains(rendered, "Output materialization status: not_materialized", "initial materialization visible");
+  assertContains(rendered, "Output promotion status: not_promoted", "initial non-promotion visible");
+  assertContains(rendered, "Promotion availability: promotion_not_available_in_phase_142", "phase 142 promotion boundary visible");
+  assertContains(rendered, "provider output is not candidate material", "non-candidate marker visible");
   assertEqual(response.state.providerExecution.status, "not_executed", "initial execution projection status");
+  assertEqual(response.state.providerExecution.projectionValidation.status, "valid", "initial projection validation valid");
 }
 
 function assertLocalProviderExecutionAcceptsDeterministicStub(): void {
@@ -310,6 +316,15 @@ function assertLocalProviderExecutionAcceptsDeterministicStub(): void {
   assertEqual(response.reason, "local_provider_execution_accepted", "provider execution reason");
   assertEqual(response.state.providerExecution.status, "executed", "executed projection status");
   assertEqual(response.state.providerExecution.result?.providerKind, "deterministic_stub", "executed provider kind");
+  assertEqual(response.state.providerExecution.projectionStatus, "execution_projected", "execution result projection status");
+  assertEqual(response.state.providerExecution.outputTrustStatus, "untrusted_descriptive", "projection output trust");
+  assertEqual(response.state.providerExecution.outputMaterializationStatus, "not_candidate_material", "projection materialization status");
+  assertEqual(response.state.providerExecution.outputPromotionStatus, "not_promoted", "projection promotion status");
+  assertEqual(response.state.providerExecution.promotionAvailabilityStatus, "promotion_not_available_in_phase_142", "phase 142 promotion unavailable");
+  assertEqual(response.state.providerExecution.projectionValidation.status, "valid", "projection validation valid");
+  assertEqual(response.state.providerExecution.linkage.providerConfigurationKind, "deterministic_stub", "provider configuration linkage visible");
+  assertEqual(response.state.providerExecution.linkage.runId, response.state.run.runId, "run linkage visible");
+  assertEqual(response.state.providerExecution.absenceMarkers.providerOutputNotCandidateMaterial, true, "absence marker says not candidate material");
   assertEqual(response.state.providerExecution.result?.outputTrustStatus, "untrusted/descriptive", "execution output trust");
   assertEqual(response.state.providerExecution.result?.providerOutputTrusted, false, "provider output remains untrusted");
   assertEqual(response.state.providerExecution.result?.candidateOutputPromoted, false, "provider output is not candidate output");
@@ -317,7 +332,11 @@ function assertLocalProviderExecutionAcceptsDeterministicStub(): void {
   assertEqual(response.state.decisionLedger.records.length, before.decisionLedger.records.length, "execution does not append ledger");
   assertEqual(response.state.run.decisionReplay.replayStatus, before.run.decisionReplay.replayStatus, "execution does not alter replay");
   assertEqual(response.state.localSessionEvidenceExport.exportId, before.localSessionEvidenceExport.exportId, "execution does not promote evidence export");
-  assertContains(renderLocalOperatorShellSnapshot(response.state), "Provider output summary: deterministic_stub descriptive output", "execution result visible");
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Provider output summary: deterministic_stub descriptive output", "execution result visible");
+  assertContains(rendered, "Output materialization status: not_candidate_material", "non-candidate display visible");
+  assertContains(rendered, "Output promotion status: not_promoted", "non-promotion display visible");
+  assertContains(rendered, "provider output is not candidate material and is not review/approval material", "approval boundary visible");
 }
 
 function assertLocalProviderExecutionIsDeterministic(): void {

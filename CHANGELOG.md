@@ -28,6 +28,47 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.142 - 2026-05-11
+**Status:** Phase 142 - Provider Execution Result Projection
+
+### Added
+- Add refined Rust-owned provider execution result projection for sandboxed deterministic provider execution.
+- Add explicit provider output trust, materialization, promotion, linkage, and absence-marker projection fields.
+- Add projection validation proving provider output remains untrusted, descriptive, not candidate material, and not promoted.
+- Add UI rendering for provider execution result projection details.
+- Add Rust and TypeScript tests for projection determinism, visible projection behavior, and non-promotion boundaries.
+
+### Changed
+- Extend the local operator shell transport projection with refined provider execution result data.
+- Update the local UI shell to display provider execution result projection details and non-candidate status.
+- Update checklists/current-phase.md to Phase 142 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session provider execution result projection only.
+- Rust remains authoritative for provider execution result projection.
+- UI remains non-authoritative.
+- Provider output remains untrusted/descriptive.
+- Provider output is not candidate material.
+- Provider output is not promoted.
+- Provider output is not eligible for approve/reject in Phase 142.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable provider execution storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.141 - 2026-05-11
 **Status:** Phase 141 - Sandboxed Deterministic Provider Execution Boundary
 

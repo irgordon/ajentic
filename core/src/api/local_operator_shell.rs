@@ -966,6 +966,151 @@ impl LocalProviderExecutionError {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderExecutionResultProjectionStatus {
+    NotExecuted,
+    ExecutionProjected,
+    ExecutionRejected,
+    UnsupportedProvider,
+    InvalidExecutionRequest,
+}
+
+impl LocalProviderExecutionResultProjectionStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotExecuted => "not_executed",
+            Self::ExecutionProjected => "execution_projected",
+            Self::ExecutionRejected => "execution_rejected",
+            Self::UnsupportedProvider => "unsupported_provider",
+            Self::InvalidExecutionRequest => "invalid_execution_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderOutputMaterializationStatus {
+    NotMaterialized,
+    ProjectedAsUntrustedOutput,
+    NotCandidateMaterial,
+    CandidateMaterial,
+}
+
+impl LocalProviderOutputMaterializationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotMaterialized => "not_materialized",
+            Self::ProjectedAsUntrustedOutput => "projected_as_untrusted_output",
+            Self::NotCandidateMaterial => "not_candidate_material",
+            Self::CandidateMaterial => "candidate_material",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderOutputTrustStatus {
+    UntrustedDescriptive,
+    TrustedOutput,
+}
+
+impl LocalProviderOutputTrustStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::UntrustedDescriptive => "untrusted_descriptive",
+            Self::TrustedOutput => "trusted_output",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderOutputPromotionStatus {
+    NotPromoted,
+    PromotionNotAvailableInPhase142,
+    Promoted,
+}
+
+impl LocalProviderOutputPromotionStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotPromoted => "not_promoted",
+            Self::PromotionNotAvailableInPhase142 => "promotion_not_available_in_phase_142",
+            Self::Promoted => "promoted",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionResultLinkage {
+    pub shell_state_label: String,
+    pub run_id: String,
+    pub provider_configuration_kind: String,
+    pub provider_configuration_status: String,
+    pub execution_result_id: String,
+    pub candidate_id: String,
+    pub source_boundary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionResultAbsenceMarkers {
+    pub no_process_spawned: bool,
+    pub no_network_socket_opened: bool,
+    pub no_filesystem_persistence: bool,
+    pub no_secrets_read: bool,
+    pub no_release_created: bool,
+    pub no_deployment_created: bool,
+    pub no_signing_performed: bool,
+    pub no_publishing_performed: bool,
+    pub no_public_use_approved: bool,
+    pub no_readiness_approved: bool,
+    pub no_replay_repair: bool,
+    pub no_recovery_promotion: bool,
+    pub no_action_execution: bool,
+    pub provider_output_not_candidate_material: bool,
+    pub marker_summary: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderExecutionResultProjectionValidationStatus {
+    Valid,
+    Invalid,
+}
+
+impl LocalProviderExecutionResultProjectionValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderExecutionResultProjectionError {
+    InvalidTrustStatus,
+    InvalidMaterializationStatus,
+    InvalidPromotionStatus,
+    MissingAbsenceMarker,
+    MissingLinkage,
+}
+
+impl LocalProviderExecutionResultProjectionError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::InvalidTrustStatus => "invalid_trust_status",
+            Self::InvalidMaterializationStatus => "invalid_materialization_status",
+            Self::InvalidPromotionStatus => "invalid_promotion_status",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::MissingLinkage => "missing_linkage",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionResultProjectionValidation {
+    pub status: LocalProviderExecutionResultProjectionValidationStatus,
+    pub error_codes: Vec<String>,
+    pub reason: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalProviderExecutionRequest {
     pub provider_kind: Option<String>,
@@ -1008,7 +1153,10 @@ pub struct LocalProviderExecutionResult {
     pub provider_kind: LocalProviderKind,
     pub sandbox_status: LocalProviderExecutionSandboxStatus,
     pub output_summary: String,
-    pub output_trust_status: String,
+    pub output_trust_status: LocalProviderOutputTrustStatus,
+    pub output_materialization_status: LocalProviderOutputMaterializationStatus,
+    pub output_promotion_status: LocalProviderOutputPromotionStatus,
+    pub promotion_availability_status: LocalProviderOutputPromotionStatus,
     pub descriptive_only: bool,
     pub provider_output_trusted: bool,
     pub candidate_output_promoted: bool,
@@ -1028,14 +1176,175 @@ pub struct LocalProviderExecutionValidation {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalProviderExecutionProjection {
     pub status: LocalProviderExecutionStatus,
+    pub projection_status: LocalProviderExecutionResultProjectionStatus,
     pub configured_provider_kind: String,
     pub sandbox_status: LocalProviderExecutionSandboxStatus,
     pub result: Option<LocalProviderExecutionResult>,
+    pub output_trust_status: LocalProviderOutputTrustStatus,
+    pub output_materialization_status: LocalProviderOutputMaterializationStatus,
+    pub output_promotion_status: LocalProviderOutputPromotionStatus,
+    pub promotion_availability_status: LocalProviderOutputPromotionStatus,
+    pub linkage: LocalProviderExecutionResultLinkage,
+    pub absence_markers: LocalProviderExecutionResultAbsenceMarkers,
+    pub projection_validation: LocalProviderExecutionResultProjectionValidation,
     pub validation_status: String,
     pub validation_error_codes: Vec<String>,
     pub validation_reason: String,
     pub capability_surface: LocalProviderExecutionCapabilitySurface,
     pub note: String,
+}
+
+pub fn local_provider_execution_result_absence_markers(
+) -> LocalProviderExecutionResultAbsenceMarkers {
+    LocalProviderExecutionResultAbsenceMarkers {
+        no_process_spawned: true,
+        no_network_socket_opened: true,
+        no_filesystem_persistence: true,
+        no_secrets_read: true,
+        no_release_created: true,
+        no_deployment_created: true,
+        no_signing_performed: true,
+        no_publishing_performed: true,
+        no_public_use_approved: true,
+        no_readiness_approved: true,
+        no_replay_repair: true,
+        no_recovery_promotion: true,
+        no_action_execution: true,
+        provider_output_not_candidate_material: true,
+        marker_summary: vec![
+            "no process".to_string(),
+            "no network".to_string(),
+            "no filesystem persistence".to_string(),
+            "no secrets".to_string(),
+            "no release/deployment/signing/publishing/public-use/readiness".to_string(),
+            "no replay repair/recovery promotion/action execution".to_string(),
+            "provider output is not candidate material".to_string(),
+        ],
+    }
+}
+
+fn initial_local_provider_execution_linkage() -> LocalProviderExecutionResultLinkage {
+    LocalProviderExecutionResultLinkage {
+        shell_state_label: "idle_local_harness".to_string(),
+        run_id: "local-stub-run-133".to_string(),
+        provider_configuration_kind: "none".to_string(),
+        provider_configuration_status: "not_configured".to_string(),
+        execution_result_id: "none".to_string(),
+        candidate_id: "not_candidate_material".to_string(),
+        source_boundary: "sandboxed_deterministic_provider_execution".to_string(),
+    }
+}
+
+fn local_provider_execution_linkage(
+    state: &LocalOperatorShellState,
+    execution_result_id: &str,
+) -> LocalProviderExecutionResultLinkage {
+    LocalProviderExecutionResultLinkage {
+        shell_state_label: state.harness_status.clone(),
+        run_id: state.run.run_id.clone(),
+        provider_configuration_kind: state
+            .provider_configuration
+            .configured_provider_kind
+            .map(|kind| kind.code().to_string())
+            .unwrap_or_else(|| "none".to_string()),
+        provider_configuration_status: state.provider_configuration.status.code().to_string(),
+        execution_result_id: execution_result_id.to_string(),
+        candidate_id: state
+            .run
+            .candidate
+            .as_ref()
+            .map(|candidate| candidate.candidate_id.clone())
+            .unwrap_or_else(|| "not_candidate_material".to_string()),
+        source_boundary: "sandboxed_deterministic_provider_execution".to_string(),
+    }
+}
+
+pub fn validate_local_provider_execution_result_projection(
+    projection: &LocalProviderExecutionProjection,
+) -> LocalProviderExecutionResultProjectionValidation {
+    let mut errors = Vec::new();
+    if projection.output_trust_status != LocalProviderOutputTrustStatus::UntrustedDescriptive {
+        errors.push(
+            LocalProviderExecutionResultProjectionError::InvalidTrustStatus
+                .code()
+                .to_string(),
+        );
+    }
+    if projection.output_materialization_status
+        == LocalProviderOutputMaterializationStatus::CandidateMaterial
+    {
+        errors.push(
+            LocalProviderExecutionResultProjectionError::InvalidMaterializationStatus
+                .code()
+                .to_string(),
+        );
+    }
+    if projection.output_promotion_status != LocalProviderOutputPromotionStatus::NotPromoted
+        || projection.promotion_availability_status
+            != LocalProviderOutputPromotionStatus::PromotionNotAvailableInPhase142
+    {
+        errors.push(
+            LocalProviderExecutionResultProjectionError::InvalidPromotionStatus
+                .code()
+                .to_string(),
+        );
+    }
+    let markers = &projection.absence_markers;
+    if !markers.no_process_spawned
+        || !markers.no_network_socket_opened
+        || !markers.no_filesystem_persistence
+        || !markers.no_secrets_read
+        || !markers.no_release_created
+        || !markers.no_deployment_created
+        || !markers.no_signing_performed
+        || !markers.no_publishing_performed
+        || !markers.no_public_use_approved
+        || !markers.no_readiness_approved
+        || !markers.no_replay_repair
+        || !markers.no_recovery_promotion
+        || !markers.no_action_execution
+        || !markers.provider_output_not_candidate_material
+        || markers.marker_summary.is_empty()
+    {
+        errors.push(
+            LocalProviderExecutionResultProjectionError::MissingAbsenceMarker
+                .code()
+                .to_string(),
+        );
+    }
+    if projection.linkage.run_id.is_empty()
+        || projection.linkage.provider_configuration_kind.is_empty()
+        || projection.linkage.provider_configuration_status.is_empty()
+        || projection.linkage.execution_result_id.is_empty()
+        || projection.linkage.source_boundary != "sandboxed_deterministic_provider_execution"
+    {
+        errors.push(
+            LocalProviderExecutionResultProjectionError::MissingLinkage
+                .code()
+                .to_string(),
+        );
+    }
+    if errors.is_empty() {
+        LocalProviderExecutionResultProjectionValidation {
+            status: LocalProviderExecutionResultProjectionValidationStatus::Valid,
+            error_codes: Vec::new(),
+            reason: "provider execution result projection is valid; output remains untrusted_descriptive, not_candidate_material, and not_promoted".to_string(),
+        }
+    } else {
+        LocalProviderExecutionResultProjectionValidation {
+            status: LocalProviderExecutionResultProjectionValidationStatus::Invalid,
+            error_codes: errors,
+            reason: "provider execution result projection rejected fail-closed".to_string(),
+        }
+    }
+}
+
+fn with_provider_execution_projection_validation(
+    mut projection: LocalProviderExecutionProjection,
+) -> LocalProviderExecutionProjection {
+    projection.projection_validation =
+        validate_local_provider_execution_result_projection(&projection);
+    projection
 }
 
 pub fn local_provider_execution_capability_surface() -> LocalProviderExecutionCapabilitySurface {
@@ -1059,30 +1368,49 @@ pub fn local_provider_execution_capability_surface() -> LocalProviderExecutionCa
 }
 
 pub fn initial_local_provider_execution_projection() -> LocalProviderExecutionProjection {
-    LocalProviderExecutionProjection {
+    with_provider_execution_projection_validation(LocalProviderExecutionProjection {
         status: LocalProviderExecutionStatus::NotExecuted,
+        projection_status: LocalProviderExecutionResultProjectionStatus::NotExecuted,
         configured_provider_kind: "none".to_string(),
         sandbox_status: LocalProviderExecutionSandboxStatus::NotEntered,
         result: None,
+        output_trust_status: LocalProviderOutputTrustStatus::UntrustedDescriptive,
+        output_materialization_status: LocalProviderOutputMaterializationStatus::NotMaterialized,
+        output_promotion_status: LocalProviderOutputPromotionStatus::NotPromoted,
+        promotion_availability_status: LocalProviderOutputPromotionStatus::PromotionNotAvailableInPhase142,
+        linkage: initial_local_provider_execution_linkage(),
+        absence_markers: local_provider_execution_result_absence_markers(),
+        projection_validation: LocalProviderExecutionResultProjectionValidation {
+            status: LocalProviderExecutionResultProjectionValidationStatus::Invalid,
+            error_codes: Vec::new(),
+            reason: "projection validation pending".to_string(),
+        },
         validation_status: "not_executed".to_string(),
         validation_error_codes: Vec::new(),
         validation_reason: "deterministic_stub execution has not been requested".to_string(),
         capability_surface: local_provider_execution_capability_surface(),
-        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision.".to_string(),
-    }
+        note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, and not eligible for approve/reject in Phase 142.".to_string(),
+    })
 }
 
 pub fn project_local_provider_execution(
     state: &LocalOperatorShellState,
 ) -> LocalProviderExecutionProjection {
-    LocalProviderExecutionProjection {
+    let execution_result_id = state
+        .provider_execution
+        .result
+        .as_ref()
+        .map(|result| result.result_id.as_str())
+        .unwrap_or("none");
+    with_provider_execution_projection_validation(LocalProviderExecutionProjection {
         configured_provider_kind: state
             .provider_configuration
             .configured_provider_kind
             .map(|kind| kind.code().to_string())
             .unwrap_or_else(|| "none".to_string()),
+        linkage: local_provider_execution_linkage(state, execution_result_id),
         ..state.provider_execution.clone()
-    }
+    })
 }
 
 pub fn validate_local_provider_execution_request(
@@ -1225,7 +1553,12 @@ pub fn execute_sandboxed_deterministic_provider(
             "deterministic_stub descriptive output for input_bytes={} checksum={checksum:08x}",
             request.input_summary.len()
         ),
-        output_trust_status: "untrusted/descriptive".to_string(),
+        output_trust_status: LocalProviderOutputTrustStatus::UntrustedDescriptive,
+        output_materialization_status:
+            LocalProviderOutputMaterializationStatus::ProjectedAsUntrustedOutput,
+        output_promotion_status: LocalProviderOutputPromotionStatus::NotPromoted,
+        promotion_availability_status:
+            LocalProviderOutputPromotionStatus::PromotionNotAvailableInPhase142,
         descriptive_only: true,
         provider_output_trusted: false,
         candidate_output_promoted: false,
@@ -1253,17 +1586,30 @@ pub fn apply_local_provider_execution(
 
     let result = execute_sandboxed_deterministic_provider(&request);
     let mut next = state.clone();
-    next.provider_execution = LocalProviderExecutionProjection {
+    let linkage = local_provider_execution_linkage(state, &result.result_id);
+    next.provider_execution = with_provider_execution_projection_validation(LocalProviderExecutionProjection {
         status: LocalProviderExecutionStatus::Executed,
+        projection_status: LocalProviderExecutionResultProjectionStatus::ExecutionProjected,
         configured_provider_kind: "deterministic_stub".to_string(),
         sandbox_status: LocalProviderExecutionSandboxStatus::SandboxedDeterministicNoExternalEffects,
+        output_trust_status: result.output_trust_status,
+        output_materialization_status: LocalProviderOutputMaterializationStatus::NotCandidateMaterial,
+        output_promotion_status: result.output_promotion_status,
+        promotion_availability_status: result.promotion_availability_status,
+        linkage,
+        absence_markers: local_provider_execution_result_absence_markers(),
+        projection_validation: LocalProviderExecutionResultProjectionValidation {
+            status: LocalProviderExecutionResultProjectionValidationStatus::Invalid,
+            error_codes: Vec::new(),
+            reason: "projection validation pending".to_string(),
+        },
         result: Some(result),
         validation_status: validation.status.code().to_string(),
         validation_error_codes: Vec::new(),
         validation_reason: validation.reason,
         capability_surface: local_provider_execution_capability_surface(),
-        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision.".to_string(),
-    };
+        note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142.".to_string(),
+    });
     Ok(next)
 }
 
@@ -2816,7 +3162,10 @@ mod tests {
             result.sandbox_status,
             LocalProviderExecutionSandboxStatus::SandboxedDeterministicNoExternalEffects
         );
-        assert_eq!(result.output_trust_status, "untrusted/descriptive");
+        assert_eq!(
+            result.output_trust_status,
+            LocalProviderOutputTrustStatus::UntrustedDescriptive
+        );
         assert!(result.descriptive_only);
         assert!(!result.provider_output_trusted);
         assert!(!result.candidate_output_promoted);
@@ -2857,6 +3206,118 @@ mod tests {
             second.state.provider_execution
         );
         assert_eq!(second.state.decision_ledger.records.len(), 0);
+    }
+
+    #[test]
+    fn phase_142_projection_validation_linkage_and_non_promotion_are_explicit() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        let before = transport.current_state();
+        let first = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("phase 142 projection input"),
+        );
+        let second = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("phase 142 projection input"),
+        );
+
+        let projection = project_local_provider_execution(&first.state);
+        assert_eq!(first.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(
+            projection.projection_status,
+            LocalProviderExecutionResultProjectionStatus::ExecutionProjected
+        );
+        assert_eq!(
+            projection.output_trust_status,
+            LocalProviderOutputTrustStatus::UntrustedDescriptive
+        );
+        assert_eq!(
+            projection.output_materialization_status,
+            LocalProviderOutputMaterializationStatus::NotCandidateMaterial
+        );
+        assert_eq!(
+            projection.output_promotion_status,
+            LocalProviderOutputPromotionStatus::NotPromoted
+        );
+        assert_eq!(
+            projection.promotion_availability_status,
+            LocalProviderOutputPromotionStatus::PromotionNotAvailableInPhase142
+        );
+        assert_eq!(
+            projection.projection_validation.status,
+            LocalProviderExecutionResultProjectionValidationStatus::Valid
+        );
+        assert_eq!(projection.linkage.run_id, "local-stub-run-133");
+        assert_eq!(
+            projection.linkage.provider_configuration_kind,
+            "deterministic_stub"
+        );
+        assert_eq!(projection.linkage.provider_configuration_status, "accepted");
+        assert_eq!(
+            projection.linkage.source_boundary,
+            "sandboxed_deterministic_provider_execution"
+        );
+        assert!(projection.absence_markers.no_process_spawned);
+        assert!(projection.absence_markers.no_network_socket_opened);
+        assert!(projection.absence_markers.no_filesystem_persistence);
+        assert!(
+            projection
+                .absence_markers
+                .provider_output_not_candidate_material
+        );
+        assert_eq!(
+            first.state.provider_execution,
+            second.state.provider_execution
+        );
+        assert_eq!(first.state.decision_ledger, before.decision_ledger);
+        assert_eq!(first.state.run.candidate, before.run.candidate);
+    }
+
+    #[test]
+    fn phase_142_projection_validation_fails_closed_for_invalid_boundaries() {
+        let mut projection = initial_local_provider_execution_projection();
+        assert_eq!(
+            validate_local_provider_execution_result_projection(&projection).status,
+            LocalProviderExecutionResultProjectionValidationStatus::Valid
+        );
+
+        projection.output_trust_status = LocalProviderOutputTrustStatus::TrustedOutput;
+        assert!(
+            validate_local_provider_execution_result_projection(&projection)
+                .error_codes
+                .contains(&"invalid_trust_status".to_string())
+        );
+        projection.output_trust_status = LocalProviderOutputTrustStatus::UntrustedDescriptive;
+
+        projection.output_materialization_status =
+            LocalProviderOutputMaterializationStatus::CandidateMaterial;
+        assert!(
+            validate_local_provider_execution_result_projection(&projection)
+                .error_codes
+                .contains(&"invalid_materialization_status".to_string())
+        );
+        projection.output_materialization_status =
+            LocalProviderOutputMaterializationStatus::NotCandidateMaterial;
+
+        projection.output_promotion_status = LocalProviderOutputPromotionStatus::Promoted;
+        assert!(
+            validate_local_provider_execution_result_projection(&projection)
+                .error_codes
+                .contains(&"invalid_promotion_status".to_string())
+        );
+        projection.output_promotion_status = LocalProviderOutputPromotionStatus::NotPromoted;
+
+        projection.absence_markers.no_process_spawned = false;
+        let first = validate_local_provider_execution_result_projection(&projection);
+        let second = validate_local_provider_execution_result_projection(&projection);
+        assert_eq!(first, second);
+        assert!(first
+            .error_codes
+            .contains(&"missing_absence_marker".to_string()));
     }
 
     #[test]
