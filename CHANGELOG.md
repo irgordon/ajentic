@@ -3,6 +3,7 @@ truth_dimension: historical
 authority_level: authoritative
 mutation_path: changelog_entry
 ---
+
 # CHANGELOG
 
 Historical truth surface for the active development range.
@@ -16,6 +17,58 @@ Archive guarantees:
 - Archived entries are not duplicated in this active changelog.
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
+
+## v0.0.134 - 2026-05-10
+**Status:** Phase 134 - Signing and Key-Custody Implementation Boundary
+
+### Added
+- Add the Phase 134 signing and key-custody boundary report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 134 procedural truth.
+- Update CHANGELOG.md with v0.0.134.
+
+### Notes
+- Phase 134 is signing/key-custody boundary only.
+- Signing controls are governance, not signing.
+- Key custody is policy, not key creation.
+- Verification requirements are not signature verification evidence.
+- Missing governed artifact evidence blocks signing.
+- Missing checksum evidence blocks signing.
+- Missing provenance evidence blocks signing.
+- Phase 134 does not create signatures, keys, attestations, release artifacts, or public assets.
+- Phase 134 does not activate signing, publishing, distribution, deployment, monitoring, or readiness.
+- Phase 134 does not satisfy artifact, checksum, provenance, reassembly, or decision-gate evidence.
+- Phase 130 rc_candidate_not_ready is preserved.
+- Phase 132 artifact_creation_deferred is preserved.
+- Phase 132.1 artifact contract correction remains contract-only.
+- Phase 133 checksum_provenance_blocked_by_missing_artifact is preserved.
+- No package creation.
+- No release artifact creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No key creation.
+- No certificate creation.
+- No signature creation.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 139 implementation.
+- No Phase 140 implementation.
 
 ## v0.0.133 - 2026-05-10
 **Status:** Phase 133 - Checksum and Provenance Evidence Boundary
