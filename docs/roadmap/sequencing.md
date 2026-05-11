@@ -257,12 +257,32 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 139 must add a visible local provider configuration surface with validation and fail-closed rejection of unsafe or unsupported settings.
    - Boundary: code-production phase; must produce Rust model, UI panel, validation tests, and UI tests; no provider execution or credential activation.
 
-40. **Phase 140 remains the next code-production alignment checkpoint**
-   - Phase 140 reconciles Phases 136-139 and decides whether Phase 141 may introduce sandboxed local provider execution.
-   - Boundary: 0/5 alignment checkpoint only; no new implementation, readiness approval, release/deployment claim, or provider execution enablement.
+40. **Phase 140 reconciles the Phase 136-139 code-production block**
+   - Phase 140 confirms the in-memory decision ledger, replay/status projection, local session evidence export preview, and constrained deterministic_stub provider configuration validation are aligned with code-production mode.
+   - Boundary: 0/5 alignment checkpoint only; gate decision is `proceed_with_caveats` for Phase 141 sandboxed deterministic provider execution, not general provider execution, readiness, release, deployment, local model execution, or cloud provider execution approval.
+
+41. **Phase 141 introduces only sandboxed deterministic provider execution**
+   - Phase 141 must add a Rust-owned execution path for deterministic_stub as a sandboxed provider execution boundary.
+   - Boundary: code-production phase; no arbitrary local model execution, cloud calls, shell commands, network sockets, default filesystem persistence, provider trust approval, or readiness claims.
+
+42. **Phase 142 projects deterministic provider execution results**
+   - Phase 142 must expose deterministic provider execution results through local transport and UI as typed projections.
+   - Boundary: code-production phase; projection only, with no broad provider enablement or persistence authority.
+
+43. **Phase 143 validates or rejects provider output before candidate conversion**
+   - Phase 143 must route provider output through typed validation/rejection before it can become candidate output.
+   - Boundary: code-production phase; provider output remains untrusted and cannot bypass Rust-owned validation.
+
+44. **Phase 144 makes provider output review visible in the UI**
+   - Phase 144 must render provider output, validation result, rejection reason, candidate conversion status, and operator review path.
+   - Boundary: code-production phase; UI remains non-authoritative and cannot approve trust or readiness.
+
+45. **Phase 145 remains the next code-production alignment checkpoint**
+   - Phase 145 reconciles Phases 141-144 and decides whether later phases may introduce constrained local model adapter support.
+   - Boundary: 0/5 alignment checkpoint only; no new implementation, readiness approval, arbitrary provider execution approval, local model execution approval, or cloud provider execution approval.
 
 ## Ladder-Preservation sequencing invariants
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 136-140 are the next detailed block after the Phase 133/134 code-production correction, not a final production/public-use roadmap. Phases 136-139 must produce usable, testable code or concrete executable artifacts, and Phase 140 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140.
+Phase 136-140 are reconciled as the completed block after the Phase 133/134 code-production correction and Phase 135 remap. Phase 141-145 are the next detailed block, not a final production/public-use roadmap. Phases 141-144 must produce usable, testable code or concrete executable artifacts, and Phase 145 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140 or Phase 145.

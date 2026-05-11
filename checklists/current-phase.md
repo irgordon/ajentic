@@ -4,91 +4,104 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 139 Constrained Local Provider Configuration Stub
+# Current Phase Checklist - Phase 140 Code-Production Alignment Checkpoint
 
 ## Phase name
-- [x] Phase 139 - Constrained Local Provider Configuration Stub.
+- [x] Phase 140 - Code-Production Alignment Checkpoint.
 
 ## Phase goal
-- [x] Add a visible, Rust-validated local provider configuration surface without enabling provider execution.
-- [x] Accept only `deterministic_stub` configuration candidates as local-session, in-memory, configuration-only state.
+- [x] Reconcile Phases 136-139 after the Phase 135 code-production remap.
+- [x] Decide whether Phase 141 may proceed toward sandboxed deterministic provider execution.
 
 ## Working-tree hygiene gate
-- [x] Keep changes limited to Phase 139 code-production, tests, changelog, and checklist surfaces.
-- [x] Do not modify governance, architecture, roadmap, release, installer, update-channel, signing, publishing, deployment, archived changelog, or AGENTS surfaces.
+- [x] Keep changes limited to Phase 140 roadmap, changelog, and checklist surfaces.
+- [x] Do not modify Rust source, TypeScript source, tests, schemas, UI behavior, package files, lockfiles, CI workflows, archived changelogs, release infrastructure, deployment infrastructure, README.md, or AGENTS.md.
 
 ## Allowed surfaces
-- [x] `core/src/**`
-- [x] `core/tests/**` or `tests/**`
-- [x] `ui/src/**`
-- [x] `ui/index.html` only if needed
-- [x] `ui/package.json` only if needed for existing script correction
-- [x] `ui/tsconfig.json` only if needed for source inclusion
-- [x] `scripts/check.sh` only if validation compatibility is required
+- [x] `docs/roadmap/phase-map.md`
+- [x] `docs/roadmap/phases.md`
+- [x] `docs/roadmap/sequencing.md`
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 
-## Code-production deliverable checklist
-- [x] Add usable provider configuration submission behavior through the local shell transport abstraction.
-- [x] Return accepted/rejected/unsupported validation results through the projected shell state.
-- [x] Keep provider configuration descriptive, local-only, in-memory, and non-production.
+## Phase 136 carry-forward checklist
+- [x] In-memory local decision ledger is carried forward as completed code-production work.
+- [x] Approve/reject operator intent remains local-session and Rust-owned.
+- [x] No durable decision ledger write is approved.
 
-## Rust provider configuration checklist
-- [x] Add Rust-owned provider configuration candidate, status, validation, error, capability, and projection types.
-- [x] Add initial provider configuration state to the local shell projection.
-- [x] Add explicit apply path for accepted provider configuration candidates.
-- [x] Ensure validation does not mutate state outside the apply path.
+## Phase 137 carry-forward checklist
+- [x] Deterministic replay/status projection is carried forward as completed code-production work.
+- [x] Replay remains descriptive local projection only.
+- [x] No replay repair or recovery promotion is approved.
 
-## Provider validation edge-case checklist
-- [x] Accept valid `deterministic_stub` with no unsafe fields.
-- [x] Reject missing, malformed, whitespace-only, case-variant, unknown, disabled-future, cloud, local executable, HTTP/network, shell command, and filesystem provider kinds.
-- [x] Reject endpoint/URL/host/port, command/args/shell/process, path/file/directory, secret/token/API key/credential, execution, trust, readiness, release, deployment, public-use, signing, publishing, and unknown fields.
-- [x] Preserve previously accepted state after rejected candidates.
-- [x] Keep duplicate safe submissions deterministic and non-executing.
+## Phase 138 carry-forward checklist
+- [x] Local session evidence export preview is carried forward as completed code-production work.
+- [x] Export remains local-only, non-production, and non-release evidence.
+- [x] No production persistence or release artifact creation is approved.
 
-## TypeScript transport projection checklist
-- [x] Extend TypeScript shell state with provider configuration projection.
-- [x] Add local transport adapter support for provider configuration submission.
-- [x] Keep rejected submissions non-mutating and browser-usable.
+## Phase 139 carry-forward checklist
+- [x] Constrained provider configuration validation is carried forward as completed code-production work.
+- [x] `deterministic_stub` remains the only accepted provider configuration kind.
+- [x] Provider execution remains disabled in Phase 140.
 
-## UI provider configuration checklist
-- [x] Render a visible local provider configuration panel.
-- [x] Show configured provider kind, configuration status, validation status, validation reason/error code, execution status, capability surface summary, and configuration-only note.
-- [x] Provide local UI controls for safe `deterministic_stub` submission and visible rejected unsafe candidate behavior.
+## Code-production rule checklist
+- [x] Phase 136 produced usable, testable decision ledger code.
+- [x] Phase 137 produced usable, testable replay/status projection code.
+- [x] Phase 138 produced usable, testable local evidence export preview behavior.
+- [x] Phase 139 produced usable, testable provider configuration validation behavior.
+- [x] Every non-0/5 phase after Phase 135 remains required to produce usable, testable code or a concrete executable artifact.
+- [x] 0/5 phases remain alignment checkpoints only.
 
-## Rust test checklist
-- [x] Test valid `deterministic_stub` acceptance.
-- [x] Test unsupported provider kinds and required fail-closed fields.
-- [x] Test rejected candidate preservation, deterministic validation, duplicate submission, and no decision/replay/export promotion.
+## Current product-loop status checklist
+- [x] Browser UI shell is present.
+- [x] Rust-shaped local transport is present.
+- [x] Deterministic stub run is present.
+- [x] Candidate and validation projection are present.
+- [x] Approve/reject operator intent is present.
+- [x] In-memory decision ledger is present.
+- [x] Replay/status projection is present.
+- [x] Local session evidence export preview is present.
+- [x] Provider configuration validation panel is present.
+- [x] The UI is materially usable for a local deterministic harness loop.
 
-## TypeScript test checklist
-- [x] Test initial visible provider configuration panel.
-- [x] Test accepted `deterministic_stub` projection.
-- [x] Test forbidden and unsupported candidate rejection.
-- [x] Test provider validation determinism and unchanged ledger/replay/export behavior.
+## Provider-execution blocker checklist
+- [x] Arbitrary provider execution remains blocked.
+- [x] Local model execution remains blocked.
+- [x] Cloud model calls remain blocked.
+- [x] Shell command execution remains blocked.
+- [x] Network sockets remain blocked.
+- [x] Filesystem persistence remains blocked by default for Phase 141 planning.
+- [x] Provider trust approval remains blocked.
+- [x] Readiness, release, deployment, signing, publishing, and public-use approval remain blocked.
 
-## Local-only/non-production boundary checklist
-- [x] No provider execution, local binary invocation, cloud call, network socket, shell command execution, filesystem persistence, durable provider configuration storage, durable ledger write, production persistence, replay repair, recovery promotion, action execution, release artifact, installer, update channel, signing, publishing, deployment, public-use, trust approval, or readiness approval.
+## Phase 141 gate decision checklist
+- [x] Decision outcome: `proceed_with_caveats`.
+- [x] Phase 141 may proceed only toward sandboxed deterministic provider execution.
+- [x] Phase 141 must not approve general provider execution, arbitrary local model execution, cloud calls, shell commands, network sockets, default filesystem persistence, provider trust, readiness, release, deployment, or public/general use.
 
-## Phase 140 handoff checklist
-- [x] Phase 140 remains the next roadmap and changelog alignment checkpoint.
-- [x] Provider execution remains deferred.
+## Phase 141-145 remap checklist
+- [x] Phase 141 - Sandboxed Deterministic Provider Execution Boundary; must produce usable/testable code.
+- [x] Phase 142 - Provider Execution Result Projection; must produce usable/testable code.
+- [x] Phase 143 - Provider Output Validation and Rejection Flow; must produce usable/testable code.
+- [x] Phase 144 - Provider Output Review in UI; must produce usable/testable code.
+- [x] Phase 145 - Code-Production Alignment Checkpoint; alignment only.
+
+## 0/5 checkpoint rule checklist
+- [x] Phase 140 is alignment only.
+- [x] Phase 140 does not implement Phase 141.
+- [x] Phase 145 remains alignment only in planned truth.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-139-target ./scripts/check.sh` (after commit, because check.sh enforces clean working tree).
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-140-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run UI typecheck, lint, build, API behavior tests, and local dev smoke directly if needed.
-- [x] Run Rust tests directly if needed.
-- [x] Run provider configuration scan.
-- [x] Run no-provider-execution/release/deployment authority scan.
-- [x] Run no-persistence scan.
-- [x] Run changed-file source guard.
+- [x] Run roadmap/code-production scan.
+- [x] Run no-source-drift guard.
+- [x] Run readiness/release/provider-execution scan.
 
 ## Deferred items
-- [x] Provider execution and provider trust approval remain deferred.
-- [x] Filesystem persistence and durable provider configuration storage remain deferred.
-- [x] Cloud/network, shell command, local executable, replay repair, recovery promotion, action execution, release, deployment, signing, publishing, installer, update-channel, public-use, and readiness approval remain deferred.
+- [x] Provider execution implementation is deferred to Phase 141.
+- [x] General provider execution, arbitrary local model execution, cloud model execution, shell command execution, network sockets, filesystem persistence by default, provider trust approval, release artifacts, installer/update-channel behavior, signing, publishing, deployment, public-use, and readiness approval remain deferred.
 
 ## Validation log
 - [x] Validation commands completed after final edits.
@@ -96,9 +109,13 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] Changelog entry matches the intended Phase 139 code-production diff.
-- [x] Staged files are limited to allowed Phase 139 surfaces.
-- [x] Rust-owned provider configuration types exist.
-- [x] `deterministic_stub` is the only accepted provider kind.
-- [x] UI visibly renders accepted and rejected provider configuration behavior.
-- [x] No local-only/non-production boundary drift introduced.
+- [x] Changelog entry matches the actual Phase 140 documentation diff.
+- [x] Staged files are limited to allowed Phase 140 surfaces.
+- [x] Roadmap reflects Phases 136-139 as completed code-production work.
+- [x] Current product loop is described accurately.
+- [x] Phase 141 gate decision is explicit.
+- [x] Phases 141-144 remain usable/testable implementation phases.
+- [x] Phase 145 remains an alignment checkpoint.
+- [x] Provider execution remains disabled in Phase 140.
+- [x] No Rust/TypeScript/test/schema drift is introduced.
+- [x] No readiness, release, deployment, arbitrary provider-execution, local model execution, cloud model execution, signing, publishing, or public-use approval is introduced.
