@@ -18,7 +18,7 @@ Archived historical ranges:
 Archive guarantees:
 - Historical entries are partitioned without changing their recorded wording, timestamps, ordering within each deterministic archive extraction, headings, or semantic interpretation.
 - Archived entries are not duplicated in this active changelog.
-- The active changelog begins with v0.0.135.2 and retains current entries only.
+- The active changelog begins with v0.0.135 and retains current entries only.
 - CHANGELOG surfaces remain historical truth.
 - Changelog archiving is historical maintenance, not historical rewriting.
 - Archive movement must preserve historical entry content.
@@ -307,52 +307,22 @@ Archive guarantees:
 - No Phase 140 implementation.
 
 ## v0.0.135 - 2026-05-11
-**Status:** Phase 135 - Roadmap and Changelog Alignment Check
-
-### Added
-- Add the Phase 135 roadmap and changelog alignment report.
-- Add the planned Phase 135.1 follow-up for artifact-chain correction before installer/update-channel work.
+**Status:** Phase 135 - Code-Production Roadmap and Changelog Alignment
 
 ### Changed
+- Remap the next roadmap block into code-production mode after the Phase 133 and Phase 134 local operator shell implementation work.
+- Establish that every non-0/5 phase must produce usable, testable code or a concrete executable artifact.
+- Preserve 0/5 phases as alignment checkpoints for reconciling implementation progress and remapping the next block.
 - Update checklists/current-phase.md to Phase 135 procedural truth.
-- Update CHANGELOG.md with v0.0.135.
-- Update roadmap planned-truth surfaces only if required to record Phase 135.1 or clarify Phase 136 deferment.
 
 ### Notes
-- Phase 135 is alignment only.
-- Alignment is not implementation.
-- Roadmap is not implementation.
-- Requirements are not evidence.
-- Evidence is not approval.
-- Phase 130 rc_candidate_not_ready is preserved.
-- Artifact creation remains blocked or deferred.
-- Checksum/provenance evidence remains blocked or deferred.
-- Signing/key-custody evidence remains blocked or deferred.
-- Phase 136 remains mapped, but implementation must not proceed until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
-- No artifact creation.
-- No package creation.
-- No checksum generation.
-- No provenance attestation creation.
-- No signing behavior.
-- No key creation.
-- No certificate creation.
-- No signature creation.
-- No publishing behavior.
-- No deployment automation.
-- No production deployment behavior.
-- No installer/update-channel activation.
-- No monitoring/logging/telemetry activation.
-- No provider trust.
-- No provider output promotion.
-- No persistence authority expansion.
-- No replay repair.
-- No recovery promotion.
-- No action execution.
-- No readiness approval.
-- No Release Candidate approval.
-- No Production Candidate approval.
-- No public/general-use approval.
-- No production-human-use approval.
-- No Phase 136 implementation.
-- No Phase 139 implementation.
-- No Phase 140 implementation.
+- Alignment phase only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No provider execution.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 136 is expected to resume code production.
