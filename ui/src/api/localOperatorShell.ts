@@ -458,6 +458,259 @@ export function applyLocalProviderConfigurationCandidate(
   };
 }
 
+
+export type LocalProviderExecutionStatus =
+  | "not_executed"
+  | "executed"
+  | "rejected"
+  | "unsupported_provider"
+  | "configuration_required"
+  | "invalid_request";
+export type LocalProviderExecutionSandboxStatus =
+  | "not_entered"
+  | "sandboxed_deterministic_no_external_effects"
+  | "rejected_before_sandbox";
+export type LocalProviderExecutionError =
+  | "missing_provider_configuration"
+  | "rejected_provider_configuration"
+  | "missing_provider_kind"
+  | "malformed_provider_kind"
+  | "unsupported_provider_kind"
+  | "forbidden_endpoint_field"
+  | "forbidden_command_field"
+  | "forbidden_path_field"
+  | "forbidden_secret_field"
+  | "provider_execution_flag_rejected"
+  | "trust_grant_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected"
+  | "unknown_field_rejected";
+
+export type LocalProviderExecutionRequest = Readonly<{
+  providerKind?: string;
+  inputSummary: string;
+  fields?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+export type LocalProviderExecutionCapabilitySurface = Readonly<{
+  deterministicStubExecutionSupported: true;
+  supportedProviderKind: "deterministic_stub";
+  cloudCallsEnabled: false;
+  networkEnabled: false;
+  shellCommandsEnabled: false;
+  filesystemEnabled: false;
+  secretsAllowed: false;
+  trustGranted: false;
+  readinessApproved: false;
+  releaseApproved: false;
+  deploymentEnabled: false;
+  signingEnabled: false;
+  publishingEnabled: false;
+  publicUseEnabled: false;
+  summary: string;
+}>;
+
+export type LocalProviderExecutionResult = Readonly<{
+  resultId: string;
+  providerKind: "deterministic_stub";
+  sandboxStatus: LocalProviderExecutionSandboxStatus;
+  outputSummary: string;
+  outputTrustStatus: "untrusted/descriptive";
+  descriptiveOnly: true;
+  providerOutputTrusted: false;
+  candidateOutputPromoted: false;
+  decisionAppended: false;
+  replayRepaired: false;
+  releaseOrDeploymentEvidenceCreated: false;
+}>;
+
+export type LocalProviderExecutionValidation = Readonly<{
+  status: LocalProviderExecutionStatus;
+  providerKind: LocalProviderKind | null;
+  errorCodes: readonly LocalProviderExecutionError[];
+  reason: string;
+}>;
+
+export type LocalProviderExecutionProjection = Readonly<{
+  status: LocalProviderExecutionStatus;
+  configuredProviderKind: string;
+  sandboxStatus: LocalProviderExecutionSandboxStatus;
+  result: LocalProviderExecutionResult | null;
+  validationStatus: LocalProviderExecutionStatus;
+  validationErrorCodes: readonly LocalProviderExecutionError[];
+  validationReason: string;
+  capabilitySurface: LocalProviderExecutionCapabilitySurface;
+  note: string;
+}>;
+
+export function deterministicStubProviderExecutionRequest(inputSummary = "local deterministic provider input"): LocalProviderExecutionRequest {
+  return { providerKind: "deterministic_stub", inputSummary, fields: [] };
+}
+
+export function localProviderExecutionCapabilitySurface(): LocalProviderExecutionCapabilitySurface {
+  return {
+    deterministicStubExecutionSupported: true,
+    supportedProviderKind: "deterministic_stub",
+    cloudCallsEnabled: false,
+    networkEnabled: false,
+    shellCommandsEnabled: false,
+    filesystemEnabled: false,
+    secretsAllowed: false,
+    trustGranted: false,
+    readinessApproved: false,
+    releaseApproved: false,
+    deploymentEnabled: false,
+    signingEnabled: false,
+    publishingEnabled: false,
+    publicUseEnabled: false,
+    summary: "sandboxed deterministic provider execution supports deterministic_stub only; no cloud, network, shell, filesystem, secrets, trust, readiness, release, deployment, signing, publishing, or public-use capability"
+  };
+}
+
+export function initialLocalProviderExecutionProjection(): LocalProviderExecutionProjection {
+  return {
+    status: "not_executed",
+    configuredProviderKind: "none",
+    sandboxStatus: "not_entered",
+    result: null,
+    validationStatus: "not_executed",
+    validationErrorCodes: [],
+    validationReason: "deterministic_stub execution has not been requested",
+    capabilitySurface: localProviderExecutionCapabilitySurface(),
+    note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision."
+  };
+}
+
+export function projectLocalProviderExecution(state: LocalOperatorShellState): LocalProviderExecutionProjection {
+  return {
+    ...state.providerExecution,
+    configuredProviderKind: state.providerConfiguration.configuredProviderKind ?? "none"
+  };
+}
+
+function forbiddenProviderExecutionField(key: string, value: string): LocalProviderExecutionError {
+  const loweredKey = key.toLowerCase();
+  const combined = `${loweredKey}=${value.toLowerCase()}`;
+  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "forbidden_endpoint_field";
+  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "forbidden_command_field";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "forbidden_path_field";
+  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "forbidden_secret_field";
+  if (loweredKey === "provider_execution_enabled") return "provider_execution_flag_rejected";
+  if (loweredKey === "trust_granted") return "trust_grant_rejected";
+  if (loweredKey === "readiness_approved") return "readiness_claim_rejected";
+  if (loweredKey === "release_candidate_approved") return "release_claim_rejected";
+  if (loweredKey === "deployment_enabled") return "deployment_claim_rejected";
+  if (loweredKey === "public_use_approved") return "public_use_claim_rejected";
+  if (loweredKey === "signing_enabled") return "signing_claim_rejected";
+  if (loweredKey === "publishing_enabled") return "publishing_claim_rejected";
+  return "unknown_field_rejected";
+}
+
+export function validateLocalProviderExecutionRequest(
+  configuration: LocalProviderConfiguration,
+  request: LocalProviderExecutionRequest
+): LocalProviderExecutionValidation {
+  const errors = new Set<LocalProviderExecutionError>();
+  if (configuration.status !== "accepted" || configuration.configuredProviderKind !== "deterministic_stub") {
+    errors.add(configuration.status === "not_configured" ? "missing_provider_configuration" : "rejected_provider_configuration");
+  }
+
+  let providerKind: LocalProviderKind | null = null;
+  const rawKind = request.providerKind;
+  if (rawKind === undefined || rawKind.trim().length === 0) {
+    errors.add("missing_provider_kind");
+  } else if (rawKind.trim() !== rawKind) {
+    errors.add("malformed_provider_kind");
+  } else if (supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)) {
+    providerKind = rawKind as LocalProviderKind;
+    if (providerKind !== "deterministic_stub") errors.add("unsupported_provider_kind");
+  } else {
+    errors.add("unsupported_provider_kind");
+  }
+
+  if (request.inputSummary.trim().length === 0 || request.inputSummary.length > 4096) errors.add("malformed_provider_kind");
+  for (const field of request.fields ?? []) errors.add(forbiddenProviderExecutionField(field.key, field.value));
+
+  const errorCodes = [...errors].sort();
+  if (errorCodes.length === 0 && providerKind === "deterministic_stub") {
+    return {
+      status: "executed",
+      providerKind,
+      errorCodes: [],
+      reason: "deterministic_stub execution accepted inside Rust-owned sandboxed deterministic boundary"
+    };
+  }
+  const status: LocalProviderExecutionStatus = errors.has("unsupported_provider_kind")
+    ? "unsupported_provider"
+    : errors.has("missing_provider_configuration") || errors.has("rejected_provider_configuration")
+      ? "configuration_required"
+      : "invalid_request";
+  return {
+    status,
+    providerKind,
+    errorCodes,
+    reason: "provider execution rejected fail-closed; previous shell state is preserved"
+  };
+}
+
+function deterministicProviderInputChecksum(input: string): number {
+  let accumulator = 0x141;
+  for (let index = 0; index < input.length; index += 1) {
+    accumulator = Math.imul(accumulator, 33) + input.charCodeAt(index);
+    accumulator >>>= 0;
+  }
+  return accumulator;
+}
+
+export function executeSandboxedDeterministicProvider(request: LocalProviderExecutionRequest): LocalProviderExecutionResult {
+  const checksum = deterministicProviderInputChecksum(request.inputSummary);
+  const hex = checksum.toString(16).padStart(8, "0");
+  return {
+    resultId: `local-provider-execution-deterministic_stub-${hex}`,
+    providerKind: "deterministic_stub",
+    sandboxStatus: "sandboxed_deterministic_no_external_effects",
+    outputSummary: `deterministic_stub descriptive output for input_bytes=${request.inputSummary.length} checksum=${hex}`,
+    outputTrustStatus: "untrusted/descriptive",
+    descriptiveOnly: true,
+    providerOutputTrusted: false,
+    candidateOutputPromoted: false,
+    decisionAppended: false,
+    replayRepaired: false,
+    releaseOrDeploymentEvidenceCreated: false
+  };
+}
+
+export function applyLocalProviderExecution(
+  state: LocalOperatorShellState,
+  request: LocalProviderExecutionRequest
+): LocalOperatorIntentResult {
+  const validation = validateLocalProviderExecutionRequest(state.providerConfiguration, request);
+  if (validation.status !== "executed") return { status: "rejected", reason: validation.reason, state };
+  const result = executeSandboxedDeterministicProvider(request);
+  return {
+    status: "accepted",
+    reason: "local_provider_execution_accepted",
+    state: {
+      ...state,
+      providerExecution: {
+        status: "executed",
+        configuredProviderKind: "deterministic_stub",
+        sandboxStatus: "sandboxed_deterministic_no_external_effects",
+        result,
+        validationStatus: validation.status,
+        validationErrorCodes: [],
+        validationReason: validation.reason,
+        capabilitySurface: localProviderExecutionCapabilitySurface(),
+        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision."
+      }
+    }
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -495,6 +748,7 @@ export type LocalOperatorShellState = Readonly<{
   decisionLedger: LocalDecisionLedger;
   localSessionEvidenceExport: LocalSessionEvidenceExport;
   providerConfiguration: LocalProviderConfiguration;
+  providerExecution: LocalProviderExecutionProjection;
 }>;
 
 
@@ -609,7 +863,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       decisionReplay
     },
     decisionLedger,
-    providerConfiguration: initialLocalProviderConfiguration()
+    providerConfiguration: initialLocalProviderConfiguration(),
+    providerExecution: initialLocalProviderExecutionProjection()
   });
 }
 
