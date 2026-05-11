@@ -20,6 +20,21 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Summary: ${replay.summary}`
   ].join("\n");
 
+  const exportPreview = state.localSessionEvidenceExport;
+  const exportLines = [
+    `Export ID: ${exportPreview.exportId}`,
+    `Export classification: ${exportPreview.exportClassification}`,
+    `Production classification: ${exportPreview.productionClassification}`,
+    `Export status: ${exportPreview.exportStatus}`,
+    `Run ID/status: ${exportPreview.runId} / ${exportPreview.runStatus}`,
+    `Candidate ID: ${exportPreview.candidateId}`,
+    `Validation/policy status: ${exportPreview.validationStatus} / ${exportPreview.policyStatus}`,
+    `Decision count: ${exportPreview.decisionCount}`,
+    `Replay status: ${exportPreview.replayStatus}`,
+    `Replay integrity: ${exportPreview.replayIntegrityStatus}`,
+    `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`
+  ].join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -49,6 +64,8 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Local decision ledger",
     decisionHistory,
     "Bottom panel: Replay/status projection",
-    replayLines
+    replayLines,
+    "Local session evidence export",
+    exportLines
   ].join("\n");
 }
