@@ -4,14 +4,17 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 138 Local Session Evidence Export
+# Current Phase Checklist - Phase 139 Constrained Local Provider Configuration Stub
+
+## Phase name
+- [x] Phase 139 - Constrained Local Provider Configuration Stub.
 
 ## Phase goal
-- [x] Add a deterministic Rust-owned local session evidence export for the local operator shell.
-- [x] Render the export preview in the local browser UI from the transport-shaped shell state.
+- [x] Add a visible, Rust-validated local provider configuration surface without enabling provider execution.
+- [x] Accept only `deterministic_stub` configuration candidates as local-session, in-memory, configuration-only state.
 
 ## Working-tree hygiene gate
-- [x] Keep changes limited to Phase 138 code-production, tests, changelog, and checklist surfaces.
+- [x] Keep changes limited to Phase 139 code-production, tests, changelog, and checklist surfaces.
 - [x] Do not modify governance, architecture, roadmap, release, installer, update-channel, signing, publishing, deployment, archived changelog, or AGENTS surfaces.
 
 ## Allowed surfaces
@@ -26,75 +29,66 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Produce executable product behavior for Phase 138.
-- [x] Provide default non-mutating export payload derivation and UI-visible preview.
-- [x] Keep export local-session, local-only, non-production, and descriptive.
+- [x] Add usable provider configuration submission behavior through the local shell transport abstraction.
+- [x] Return accepted/rejected/unsupported validation results through the projected shell state.
+- [x] Keep provider configuration descriptive, local-only, in-memory, and non-production.
 
-## Rust export derivation checklist
-- [x] Add typed local session evidence export structures and closed status values.
-- [x] Derive export payload from shell status, run projection, bounded context, candidate output, validation/policy projection, decision ledger, and replay/status projection.
-- [x] Preserve deterministic output for identical shell state and ledger input.
-- [x] Do not mutate local shell state or decision ledger during export derivation.
-- [x] Update export projection after initial, stub-run, approve, and reject flows.
+## Rust provider configuration checklist
+- [x] Add Rust-owned provider configuration candidate, status, validation, error, capability, and projection types.
+- [x] Add initial provider configuration state to the local shell projection.
+- [x] Add explicit apply path for accepted provider configuration candidates.
+- [x] Ensure validation does not mutate state outside the apply path.
 
-## Export validation/classification checklist
-- [x] Classify exports as `local_session_evidence_only`.
-- [x] Classify production status as `non-production`.
-- [x] Include absence markers for provider execution, persistence, release, deployment, signing, publishing, installer, update-channel, public-use, and readiness approval.
-- [x] Fail closed for missing required fields, wrong classification, wrong production classification, missing absence markers, missing run evidence, or missing decision/replay evidence.
+## Provider validation edge-case checklist
+- [x] Accept valid `deterministic_stub` with no unsafe fields.
+- [x] Reject missing, malformed, whitespace-only, case-variant, unknown, disabled-future, cloud, local executable, HTTP/network, shell command, and filesystem provider kinds.
+- [x] Reject endpoint/URL/host/port, command/args/shell/process, path/file/directory, secret/token/API key/credential, execution, trust, readiness, release, deployment, public-use, signing, publishing, and unknown fields.
+- [x] Preserve previously accepted state after rejected candidates.
+- [x] Keep duplicate safe submissions deterministic and non-executing.
 
 ## TypeScript transport projection checklist
-- [x] Extend TypeScript local shell state with Rust-shaped export payload data.
-- [x] Return export payload data after initial state, deterministic stub run, approve, and reject flows.
-- [x] Keep invalid, duplicate, and forbidden requests non-mutating and browser-usable.
+- [x] Extend TypeScript shell state with provider configuration projection.
+- [x] Add local transport adapter support for provider configuration submission.
+- [x] Keep rejected submissions non-mutating and browser-usable.
 
-## UI export preview checklist
-- [x] Render a visible local session evidence export panel.
-- [x] Show export ID, export classification, production classification, run ID/status, candidate ID, validation/policy status, decision count, replay status, replay integrity, and absence markers summary.
-- [x] Render no-completed-run, run-evidence, and decision-evidence states.
+## UI provider configuration checklist
+- [x] Render a visible local provider configuration panel.
+- [x] Show configured provider kind, configuration status, validation status, validation reason/error code, execution status, capability surface summary, and configuration-only note.
+- [x] Provide local UI controls for safe `deterministic_stub` submission and visible rejected unsafe candidate behavior.
 
 ## Rust test checklist
-- [x] Test export derivation for initial, stub-run, and decision states.
-- [x] Test export completeness and classification.
-- [x] Test deterministic and non-mutating export derivation.
-- [x] Test validation fail-closed behavior.
-- [x] Test forbidden requests do not promote export evidence.
+- [x] Test valid `deterministic_stub` acceptance.
+- [x] Test unsupported provider kinds and required fail-closed fields.
+- [x] Test rejected candidate preservation, deterministic validation, duplicate submission, and no decision/replay/export promotion.
 
 ## TypeScript test checklist
-- [x] Test visible export preview before a run.
-- [x] Test visible run/candidate/validation export evidence after stub run.
-- [x] Test visible decision/replay export evidence after approve/reject.
-- [x] Test forbidden actions do not produce accepted-decision export evidence.
-- [x] Test export derivation determinism.
+- [x] Test initial visible provider configuration panel.
+- [x] Test accepted `deterministic_stub` projection.
+- [x] Test forbidden and unsupported candidate rejection.
+- [x] Test provider validation determinism and unchanged ledger/replay/export behavior.
 
 ## Local-only/non-production boundary checklist
-- [x] No filesystem persistence.
-- [x] No durable ledger writes.
-- [x] No provider execution.
-- [x] No broad command execution.
-- [x] No production persistence.
-- [x] No replay repair or recovery promotion.
-- [x] No action execution.
-- [x] No release/deployment/signing/publishing behavior.
-- [x] No readiness, Release Candidate, Production Candidate, public-use, or production-human-use approval.
+- [x] No provider execution, local binary invocation, cloud call, network socket, shell command execution, filesystem persistence, durable provider configuration storage, durable ledger write, production persistence, replay repair, recovery promotion, action execution, release artifact, installer, update channel, signing, publishing, deployment, public-use, trust approval, or readiness approval.
+
+## Phase 140 handoff checklist
+- [x] Phase 140 remains the next roadmap and changelog alignment checkpoint.
+- [x] Provider execution remains deferred.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-138-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-139-target ./scripts/check.sh` (after commit, because check.sh enforces clean working tree).
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run UI typecheck, lint, build, and API behavior tests directly if needed.
+- [x] Run UI typecheck, lint, build, API behavior tests, and local dev smoke directly if needed.
 - [x] Run Rust tests directly if needed.
-- [x] Run local dev smoke test.
-- [x] Run export scan.
-- [x] Run no-persistence/provider/release/deployment authority scan.
+- [x] Run provider configuration scan.
+- [x] Run no-provider-execution/release/deployment authority scan.
+- [x] Run no-persistence scan.
 - [x] Run changed-file source guard.
 
 ## Deferred items
-- [x] Filesystem persistence and durable ledger writes remain deferred.
-- [x] Provider execution and broad command execution remain deferred.
-- [x] Replay repair and recovery promotion remain deferred.
-- [x] Action execution remains deferred.
-- [x] Release artifacts, installer/update-channel behavior, signing, publishing, deployment, and readiness approval remain deferred.
+- [x] Provider execution and provider trust approval remain deferred.
+- [x] Filesystem persistence and durable provider configuration storage remain deferred.
+- [x] Cloud/network, shell command, local executable, replay repair, recovery promotion, action execution, release, deployment, signing, publishing, installer, update-channel, public-use, and readiness approval remain deferred.
 
 ## Validation log
 - [x] Validation commands completed after final edits.
@@ -102,9 +96,9 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] Changelog entry matches the Phase 138 code-production diff.
-- [x] Staged files are limited to allowed Phase 138 surfaces.
-- [x] Rust-derived local session evidence export exists.
-- [x] Transport projection includes local session evidence export data.
-- [x] UI visibly renders local session evidence export preview.
+- [x] Changelog entry matches the intended Phase 139 code-production diff.
+- [x] Staged files are limited to allowed Phase 139 surfaces.
+- [x] Rust-owned provider configuration types exist.
+- [x] `deterministic_stub` is the only accepted provider kind.
+- [x] UI visibly renders accepted and rejected provider configuration behavior.
 - [x] No local-only/non-production boundary drift introduced.

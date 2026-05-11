@@ -1,9 +1,10 @@
-import { type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import { deterministicStubProviderConfigurationCandidate, projectLocalProviderConfiguration, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
 import {
   createLocalOperatorShellTransport,
   getInitialLocalOperatorShellState,
   requestDeterministicStubRun,
   submitLocalOperatorIntent,
+  submitLocalProviderConfiguration,
   type LocalOperatorShellResponse
 } from "./api/localOperatorShellTransport.js";
 
@@ -31,6 +32,17 @@ function recordIntent(kind: LocalOperatorIntentKind): void {
   }));
 }
 
+function submitProviderConfiguration(): void {
+  applyTransportResponse(submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate()));
+}
+
+function submitUnsafeProviderConfiguration(): void {
+  applyTransportResponse(submitLocalProviderConfiguration(transport, {
+    providerKind: "deterministic_stub",
+    fields: [{ key: "endpoint", value: "http://localhost:11434" }]
+  }));
+}
+
 function renderList(items: readonly string[], emptyText: string): string {
   if (items.length === 0) return `<p class="muted">${emptyText}</p>`;
   return `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
@@ -50,6 +62,26 @@ function renderCandidate(state: LocalOperatorShellState): string {
     </dl>`;
 }
 
+
+
+function renderProviderConfiguration(state: LocalOperatorShellState): string {
+  const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
+  return `
+    <dl>
+      <div><dt>Configured provider kind</dt><dd>${providerConfiguration.configuredProviderKind}</dd></div>
+      <div><dt>Provider configuration status</dt><dd>${providerConfiguration.status}</dd></div>
+      <div><dt>Validation status</dt><dd>${providerConfiguration.validationStatus}</dd></div>
+      <div><dt>Validation reason</dt><dd>${providerConfiguration.validationReason}</dd></div>
+      <div><dt>Validation reason/error code</dt><dd>${providerConfiguration.validationErrorCodes.join(", ") || "none"}</dd></div>
+      <div><dt>Execution status</dt><dd>${providerConfiguration.executionStatus}</dd></div>
+      <div><dt>Capability surface</dt><dd>${providerConfiguration.capabilitySurface.summary}</dd></div>
+    </dl>
+    <p class="muted">${providerConfiguration.note}</p>
+    <div class="button-row">
+      <button id="submit-provider-config" type="button">Submit deterministic_stub configuration</button>
+      <button id="reject-provider-config" type="button">Submit forbidden endpoint candidate</button>
+    </div>`;
+}
 
 function renderReplayProjection(state: LocalOperatorShellState): string {
   const replay = state.run.decisionReplay;
@@ -136,6 +168,11 @@ function render(): void {
         </aside>
       </section>
 
+      <section class="panel" aria-label="Local provider configuration">
+        <h2>Local provider configuration</h2>
+        ${renderProviderConfiguration(shellState)}
+      </section>
+
       <section class="panel replay-panel">
         <h2>Replay / status projection</h2>
         ${renderReplayProjection(shellState)}
@@ -146,6 +183,8 @@ function render(): void {
   document.querySelector<HTMLButtonElement>("#start-run")?.addEventListener("click", startRun);
   document.querySelector<HTMLButtonElement>("#approve-run")?.addEventListener("click", () => recordIntent("approve"));
   document.querySelector<HTMLButtonElement>("#reject-run")?.addEventListener("click", () => recordIntent("reject"));
+  document.querySelector<HTMLButtonElement>("#submit-provider-config")?.addEventListener("click", submitProviderConfiguration);
+  document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
 }
 
 render();

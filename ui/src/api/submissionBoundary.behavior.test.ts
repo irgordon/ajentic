@@ -1,7 +1,7 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, initialLocalOperatorShellState, startDeterministicStubRun } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, initialLocalOperatorShellState, startDeterministicStubRun, validateLocalProviderConfiguration } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -223,6 +223,71 @@ function assertLocalOperatorShellEvidenceExportIsDeterministic(): void {
   assertContains(first.absenceMarkers.markerSummary.join(", "), "deployment absent", "deployment absence marker");
   assertContains(first.absenceMarkers.markerSummary.join(", "), "readiness absent", "readiness absence marker");
   assertEqual(accepted.state.decisionLedger.records.length, 1, "derive leaves ledger length unchanged");
+}
+
+function assertLocalProviderConfigurationPanelRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Local provider configuration", "provider configuration panel");
+  assertContains(rendered, "Configured provider kind: none", "initial provider kind");
+  assertContains(rendered, "Provider configuration status: not_configured", "initial provider status");
+  assertContains(rendered, "Execution status: disabled_not_executed", "execution disabled status");
+  assertContains(rendered, "deterministic_stub is configuration-only", "configuration only note");
+}
+
+function assertLocalProviderConfigurationAcceptsDeterministicStub(): void {
+  const transport = createLocalOperatorShellTransport();
+  const before = transport.getCurrentState().state;
+  const response = submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  assertEqual(response.status, "accepted", "provider configuration status");
+  assertEqual(response.reason, "local_provider_configuration_accepted", "provider configuration reason");
+  assertEqual(response.state.providerConfiguration.configuredProviderKind, "deterministic_stub", "configured provider kind");
+  assertEqual(response.state.providerConfiguration.status, "accepted", "accepted provider status");
+  assertEqual(response.state.run.status, before.run.status, "provider config does not start run");
+  assertEqual(response.state.decisionLedger.records.length, 0, "provider config does not append ledger");
+  assertEqual(response.state.run.decisionReplay.replayStatus, "no_decision_recorded", "provider config does not alter replay");
+  assertEqual(response.state.localSessionEvidenceExport.decisionCount, 0, "provider config does not create execution evidence");
+  assertContains(renderLocalOperatorShellSnapshot(response.state), "Configured provider kind: deterministic_stub", "accepted provider visible");
+  assertContains(renderLocalOperatorShellSnapshot(response.state), "Provider validation status: accepted", "accepted validation visible");
+}
+
+function assertLocalProviderConfigurationRejectsForbiddenAndUnsupportedCandidates(): void {
+  const transport = createLocalOperatorShellTransport();
+  const accepted = submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const forbiddenCases = [
+    { providerKind: undefined, fields: [] },
+    { providerKind: "unknown_kind", fields: [] },
+    { providerKind: "Deterministic_Stub", fields: [] },
+    { providerKind: "cloud_model", fields: [] },
+    { providerKind: "local_model", fields: [] },
+    { providerKind: "external_http", fields: [] },
+    { providerKind: "shell_command", fields: [] },
+    { providerKind: "filesystem_provider", fields: [] },
+    { providerKind: "deterministic_stub", fields: [{ key: "endpoint", value: "http://localhost" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "command", value: "run model" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "path", value: "/tmp/model" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "api_key", value: "secret" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "provider_execution_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "trust_granted", value: "true" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "readiness_approved", value: "true" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "release_candidate_approved", value: "true" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "deployment_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", fields: [{ key: "extra", value: "field" }] }
+  ];
+  for (const candidate of forbiddenCases) {
+    const response = submitLocalProviderConfiguration(transport, candidate);
+    assertEqual(response.status, "rejected", `candidate rejected ${candidate.providerKind ?? "missing"}`);
+    assertEqual(response.state.providerConfiguration.configuredProviderKind, accepted.state.providerConfiguration.configuredProviderKind, "rejected candidate preserves accepted state");
+    assertContains(renderLocalOperatorShellSnapshot(response.state), "Local provider configuration", "UI remains usable after provider rejection");
+  }
+}
+
+function assertLocalProviderValidationIsDeterministic(): void {
+  const candidate = { providerKind: "deterministic_stub", fields: [{ key: "provider_execution_enabled", value: "true" }] };
+  const first = validateLocalProviderConfiguration(candidate);
+  const second = validateLocalProviderConfiguration(candidate);
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic provider validation");
+  assertEqual(first.status, "rejected", "deterministic forbidden status");
 }
 
 function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
@@ -633,6 +698,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_operator_shell_evidence_export_is_deterministic",
     run: assertLocalOperatorShellEvidenceExportIsDeterministic
+  },
+  {
+    name: "local_provider_configuration_panel_renders_initial_state",
+    run: assertLocalProviderConfigurationPanelRendersInitialState
+  },
+  {
+    name: "local_provider_configuration_accepts_deterministic_stub",
+    run: assertLocalProviderConfigurationAcceptsDeterministicStub
+  },
+  {
+    name: "local_provider_configuration_rejects_forbidden_and_unsupported_candidates",
+    run: assertLocalProviderConfigurationRejectsForbiddenAndUnsupportedCandidates
+  },
+  {
+    name: "local_provider_validation_is_deterministic",
+    run: assertLocalProviderValidationIsDeterministic
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

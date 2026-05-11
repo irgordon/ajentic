@@ -1,4 +1,4 @@
-import type { LocalOperatorShellState } from "./localOperatorShell";
+import { projectLocalProviderConfiguration, type LocalOperatorShellState } from "./localOperatorShell";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
   const decisionHistory = state.run.decisionTimeline.records.length === 0
@@ -35,6 +35,18 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`
   ].join("\n");
 
+  const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
+  const providerConfigurationLines = [
+    `Configured provider kind: ${providerConfiguration.configuredProviderKind}`,
+    `Provider configuration status: ${providerConfiguration.status}`,
+    `Provider validation status: ${providerConfiguration.validationStatus}`,
+    `Provider validation reason: ${providerConfiguration.validationReason}`,
+    `Provider validation error code: ${providerConfiguration.validationErrorCodes.join(", ") || "none"}`,
+    `Execution status: ${providerConfiguration.executionStatus}`,
+    `Capability surface: ${providerConfiguration.capabilitySurface.summary}`,
+    providerConfiguration.note
+  ].join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -63,6 +75,8 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Selected operator intent: ${state.run.selectedIntent ?? "none"}`,
     "Local decision ledger",
     decisionHistory,
+    "Local provider configuration",
+    providerConfigurationLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",
