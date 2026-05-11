@@ -1,6 +1,7 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { applyForbiddenUiAction, applyLocalOperatorIntent, initialLocalOperatorShellState, startDeterministicStubRun } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
+import { createLocalOperatorShellTransport, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -58,7 +59,9 @@ const adversarialUiSubmissionCases: readonly { name: string; input: UiSubmission
 ] as const;
 
 function assertLocalOperatorShellRendersIdleState(): void {
-  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  assertEqual(response.status, "accepted", "initial transport status");
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
   assertContains(rendered, "AJENTIC local operator shell - non-production", "local shell banner");
   assertContains(rendered, "Harness status: idle_local_harness", "idle harness status");
   assertContains(rendered, "Approve", "approve control");
@@ -66,27 +69,36 @@ function assertLocalOperatorShellRendersIdleState(): void {
 }
 
 function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
-  const state = startDeterministicStubRun(initialLocalOperatorShellState());
+  const transport = createLocalOperatorShellTransport();
+  const response = requestDeterministicStubRun(transport);
+  assertEqual(response.status, "accepted", "stub run transport status");
+  assertEqual(response.state.run.candidate?.providerExecutionEnabled, false, "stub provider execution");
+  const state = response.state;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Deterministic local stub candidate", "candidate title");
   assertContains(rendered, "Validation/policy result: pass_for_local_stub_review / pass_for_local_stub_review", "validation result");
 }
 
 function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
-  const state = startDeterministicStubRun(initialLocalOperatorShellState());
-  const approved = applyLocalOperatorIntent(state, {
+  const approveTransport = createLocalOperatorShellTransport();
+  const approveState = requestDeterministicStubRun(approveTransport).state;
+  const approved = submitLocalOperatorIntent(approveTransport, {
     kind: "approve",
     operatorId: "local-operator",
-    targetRunId: state.run.runId,
+    targetRunId: approveState.run.runId,
+    targetCandidateId: approveState.run.candidate?.candidateId,
     reason: "approved locally"
   });
   assertEqual(approved.status, "accepted", "approve status");
   assertEqual(approved.state.run.selectedIntent, "approve", "approve selected intent");
 
-  const rejected = applyLocalOperatorIntent(state, {
+  const rejectTransport = createLocalOperatorShellTransport();
+  const rejectState = requestDeterministicStubRun(rejectTransport).state;
+  const rejected = submitLocalOperatorIntent(rejectTransport, {
     kind: "reject",
     operatorId: "local-operator",
-    targetRunId: state.run.runId,
+    targetRunId: rejectState.run.runId,
+    targetCandidateId: rejectState.run.candidate?.candidateId,
     reason: "rejected locally"
   });
   assertEqual(rejected.status, "accepted", "reject status");
@@ -94,17 +106,42 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
 }
 
 function assertLocalOperatorShellForbiddenActionsFailClosed(): void {
-  const state = startDeterministicStubRun(initialLocalOperatorShellState());
-  assertEqual(applyForbiddenUiAction(state, "mark_production_readiness").status, "rejected", "readiness status");
-  assertEqual(applyForbiddenUiAction(state, "approve_release_candidate_status").status, "rejected", "candidate status");
-  assertEqual(applyForbiddenUiAction(state, "invoke_provider_execution").status, "rejected", "provider execution status");
-  assertEqual(applyLocalOperatorIntent(state, {
+  const transport = createLocalOperatorShellTransport();
+  const state = requestDeterministicStubRun(transport).state;
+  assertEqual(rejectForbiddenUiAction(transport, "readiness_claim").status, "rejected", "readiness status");
+  assertEqual(rejectForbiddenUiAction(transport, "release_artifact_creation").status, "rejected", "candidate status");
+  assertEqual(rejectForbiddenUiAction(transport, "provider_execution").status, "rejected", "provider execution status");
+  assertEqual(submitLocalOperatorIntent(transport, {
     kind: "approve",
     operatorId: "local-operator",
     targetRunId: state.run.runId,
+    targetCandidateId: state.run.candidate?.candidateId,
     reason: "spoof provider execution",
     requestsProviderExecution: true
   }).reason, "provider_execution_rejected", "provider execution reason");
+}
+
+function assertLocalOperatorShellRejectsInvalidTargetThroughTransport(): void {
+  const transport = createLocalOperatorShellTransport();
+  const state = requestDeterministicStubRun(transport).state;
+  const response = submitLocalOperatorIntent(transport, {
+    kind: "approve",
+    operatorId: "local-operator",
+    targetRunId: state.run.runId,
+    targetCandidateId: "wrong-candidate",
+    reason: "invalid candidate"
+  });
+  assertEqual(response.status, "rejected", "invalid candidate status");
+  assertEqual(response.state.run.selectedIntent, null, "invalid candidate selected intent");
+  assertContains(renderLocalOperatorShellSnapshot(response.state), "AJENTIC local operator shell - non-production", "render after rejection");
+}
+
+function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
+  const transport = createLocalOperatorShellTransport();
+  const response = requestDeterministicStubRun(transport);
+  assertEqual(response.capabilities.readinessApprovalEnabled, false, "readiness approval disabled");
+  assertEqual(response.capabilities.releaseArtifactCreationEnabled, false, "release artifacts disabled");
+  assertEqual(response.capabilities.providerExecutionEnabled, false, "provider execution disabled");
 }
 
 
@@ -495,6 +532,14 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_operator_shell_forbidden_actions_fail_closed",
     run: assertLocalOperatorShellForbiddenActionsFailClosed
+  },
+  {
+    name: "local_operator_shell_rejects_invalid_target_through_transport",
+    run: assertLocalOperatorShellRejectsInvalidTargetThroughTransport
+  },
+  {
+    name: "local_operator_shell_transport_capabilities_stay_disabled",
+    run: assertLocalOperatorShellTransportCapabilitiesStayDisabled
   },
   {
     name: "ui_behavioral_test_harness_fails_on_failed_assertion",

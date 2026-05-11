@@ -39,6 +39,7 @@ export type LocalOperatorIntent = Readonly<{
   kind: LocalOperatorIntentKind;
   operatorId: string;
   targetRunId: string;
+  targetCandidateId?: string;
   reason: string;
   requestsAuthorityGrant?: boolean;
   requestsProviderExecution?: boolean;
@@ -122,6 +123,8 @@ export function applyLocalOperatorIntent(
   if (intent.operatorId.length === 0) return rejection("empty_operator_id");
   if (intent.reason.length === 0) return rejection("empty_reason");
   if (intent.targetRunId !== state.run.runId) return rejection("target_mismatch");
+  if (!state.run.candidate) return rejection("run_not_started");
+  if ((intent.targetCandidateId ?? "candidate-local-stub-133") !== state.run.candidate.candidateId) return rejection("candidate_target_mismatch");
   if (intent.requestsAuthorityGrant) return rejection("authority_grant_rejected");
   if (intent.requestsProviderExecution) return rejection("provider_execution_rejected");
   if (intent.claimsReadiness) return rejection("readiness_claim_rejected");

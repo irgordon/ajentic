@@ -36,6 +36,7 @@ pub enum LocalOperatorShellError {
     EmptyOperatorId,
     EmptyReason,
     TargetMismatch,
+    CandidateTargetMismatch,
     AuthorityClaimRejected,
     ProviderExecutionRejected,
     ReadinessClaimRejected,
@@ -48,6 +49,7 @@ impl LocalOperatorShellError {
             Self::EmptyOperatorId => "empty_operator_id",
             Self::EmptyReason => "empty_reason",
             Self::TargetMismatch => "target_mismatch",
+            Self::CandidateTargetMismatch => "candidate_target_mismatch",
             Self::AuthorityClaimRejected => "authority_claim_rejected",
             Self::ProviderExecutionRejected => "provider_execution_rejected",
             Self::ReadinessClaimRejected => "readiness_claim_rejected",
@@ -98,6 +100,7 @@ pub struct LocalOperatorIntent {
     pub kind: LocalOperatorIntentKind,
     pub operator_id: String,
     pub target_run_id: String,
+    pub target_candidate_id: String,
     pub reason: String,
     pub requests_authority_grant: bool,
     pub requests_provider_execution: bool,
@@ -115,6 +118,7 @@ impl LocalOperatorIntent {
             kind,
             operator_id: operator_id.into(),
             target_run_id: target_run_id.into(),
+            target_candidate_id: "candidate-local-stub-133".to_string(),
             reason: reason.into(),
             requests_authority_grant: false,
             requests_provider_execution: false,
@@ -191,6 +195,12 @@ pub fn apply_local_operator_intent(
     if intent.target_run_id != state.run.run_id {
         return Err(LocalOperatorShellError::TargetMismatch);
     }
+    let Some(candidate) = state.run.candidate.as_ref() else {
+        return Err(LocalOperatorShellError::RunNotStarted);
+    };
+    if intent.target_candidate_id != candidate.candidate_id {
+        return Err(LocalOperatorShellError::CandidateTargetMismatch);
+    }
     if intent.requests_authority_grant {
         return Err(LocalOperatorShellError::AuthorityClaimRejected);
     }
@@ -212,9 +222,331 @@ pub fn apply_local_operator_intent(
     Ok(next)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalOperatorShellTransportStatus {
+    Accepted,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalOperatorShellForbiddenRequest {
+    AuthorityGrant,
+    ProviderExecution,
+    ReadinessClaim,
+    ProductionStateMutation,
+    ReleaseArtifactCreation,
+    DeploymentEnablement,
+    SigningEnablement,
+    PublishingEnablement,
+}
+
+impl LocalOperatorShellForbiddenRequest {
+    pub fn rejection_code(&self) -> &'static str {
+        match self {
+            Self::AuthorityGrant => "authority_grant_rejected",
+            Self::ProviderExecution => "provider_execution_rejected",
+            Self::ReadinessClaim => "readiness_claim_rejected",
+            Self::ProductionStateMutation => "production_state_mutation_rejected",
+            Self::ReleaseArtifactCreation => "release_artifact_creation_rejected",
+            Self::DeploymentEnablement => "deployment_enablement_rejected",
+            Self::SigningEnablement => "signing_enablement_rejected",
+            Self::PublishingEnablement => "publishing_enablement_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LocalOperatorShellRequest {
+    GetInitialState,
+    GetCurrentState,
+    StartDeterministicStubRun,
+    SubmitOperatorIntent(LocalOperatorIntent),
+    Forbidden(LocalOperatorShellForbiddenRequest),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalOperatorShellCapabilities {
+    pub local_only: bool,
+    pub non_production: bool,
+    pub provider_execution_enabled: bool,
+    pub cloud_model_calls_enabled: bool,
+    pub broad_command_execution_enabled: bool,
+    pub production_persistence_enabled: bool,
+    pub release_artifact_creation_enabled: bool,
+    pub deployment_enabled: bool,
+    pub signing_authority_available: bool,
+    pub publishing_authority_available: bool,
+    pub readiness_approval_enabled: bool,
+}
+
+impl LocalOperatorShellCapabilities {
+    pub fn local_stub_only() -> Self {
+        Self {
+            local_only: true,
+            non_production: true,
+            provider_execution_enabled: false,
+            cloud_model_calls_enabled: false,
+            broad_command_execution_enabled: false,
+            production_persistence_enabled: false,
+            release_artifact_creation_enabled: false,
+            deployment_enabled: false,
+            signing_authority_available: false,
+            publishing_authority_available: false,
+            readiness_approval_enabled: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalOperatorShellResponse {
+    pub status: LocalOperatorShellTransportStatus,
+    pub reason: String,
+    pub state: LocalOperatorShellState,
+    pub capabilities: LocalOperatorShellCapabilities,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalOperatorShellTransport {
+    state: LocalOperatorShellState,
+}
+
+impl LocalOperatorShellTransport {
+    pub fn new() -> Self {
+        Self {
+            state: initial_local_operator_shell_state(),
+        }
+    }
+
+    pub fn current_state(&self) -> LocalOperatorShellState {
+        self.state.clone()
+    }
+
+    pub fn step(&mut self, request: LocalOperatorShellRequest) -> LocalOperatorShellResponse {
+        let response = local_operator_shell_transport_step(&self.state, request);
+        if response.status == LocalOperatorShellTransportStatus::Accepted {
+            self.state = response.state.clone();
+        }
+        response
+    }
+}
+
+impl Default for LocalOperatorShellTransport {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+pub fn get_local_operator_shell_state(
+    transport: &LocalOperatorShellTransport,
+) -> LocalOperatorShellState {
+    transport.current_state()
+}
+
+pub fn start_local_operator_shell_stub_run(
+    transport: &mut LocalOperatorShellTransport,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::StartDeterministicStubRun)
+}
+
+pub fn submit_local_operator_shell_intent(
+    transport: &mut LocalOperatorShellTransport,
+    intent: LocalOperatorIntent,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::SubmitOperatorIntent(intent))
+}
+
+pub fn local_operator_shell_transport_step(
+    state: &LocalOperatorShellState,
+    request: LocalOperatorShellRequest,
+) -> LocalOperatorShellResponse {
+    match request {
+        LocalOperatorShellRequest::GetInitialState => accepted(
+            "initial_shell_state_returned",
+            initial_local_operator_shell_state(),
+        ),
+        LocalOperatorShellRequest::GetCurrentState => {
+            accepted("current_shell_state_returned", state.clone())
+        }
+        LocalOperatorShellRequest::StartDeterministicStubRun => accepted(
+            "deterministic_stub_run_completed",
+            start_deterministic_stub_run(state),
+        ),
+        LocalOperatorShellRequest::SubmitOperatorIntent(intent) => {
+            match apply_local_operator_intent(state, intent) {
+                Ok(next) => accepted("local_operator_intent_recorded", next),
+                Err(err) => rejected(err.code(), state.clone()),
+            }
+        }
+        LocalOperatorShellRequest::Forbidden(forbidden) => {
+            rejected(forbidden.rejection_code(), state.clone())
+        }
+    }
+}
+
+fn accepted(
+    reason: impl Into<String>,
+    state: LocalOperatorShellState,
+) -> LocalOperatorShellResponse {
+    LocalOperatorShellResponse {
+        status: LocalOperatorShellTransportStatus::Accepted,
+        reason: reason.into(),
+        state,
+        capabilities: LocalOperatorShellCapabilities::local_stub_only(),
+    }
+}
+
+fn rejected(
+    reason: impl Into<String>,
+    state: LocalOperatorShellState,
+) -> LocalOperatorShellResponse {
+    LocalOperatorShellResponse {
+        status: LocalOperatorShellTransportStatus::Rejected,
+        reason: reason.into(),
+        state,
+        capabilities: LocalOperatorShellCapabilities::local_stub_only(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn transport_initial_state_returns_idle_non_production_projection() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let response = transport.step(LocalOperatorShellRequest::GetInitialState);
+
+        assert_eq!(response.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(response.reason, "initial_shell_state_returned");
+        assert!(response.state.non_production);
+        assert_eq!(response.state.run.status, LocalRunStatus::Idle);
+        assert!(response.capabilities.local_only);
+        assert!(!response.capabilities.provider_execution_enabled);
+    }
+
+    #[test]
+    fn transport_stub_run_returns_deterministic_output() {
+        let state = initial_local_operator_shell_state();
+        let first = local_operator_shell_transport_step(
+            &state,
+            LocalOperatorShellRequest::StartDeterministicStubRun,
+        );
+        let second = local_operator_shell_transport_step(
+            &state,
+            LocalOperatorShellRequest::StartDeterministicStubRun,
+        );
+
+        assert_eq!(first, second);
+        assert_eq!(first.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(first.state.run.status, LocalRunStatus::StubCompleted);
+        assert_eq!(
+            first.state.run.candidate.as_ref().unwrap().candidate_id,
+            "candidate-local-stub-133"
+        );
+    }
+
+    #[test]
+    fn transport_records_approve_and_reject_intents() {
+        for kind in [
+            LocalOperatorIntentKind::Approve,
+            LocalOperatorIntentKind::Reject,
+        ] {
+            let mut transport = LocalOperatorShellTransport::new();
+            let started = start_local_operator_shell_stub_run(&mut transport);
+            let response = submit_local_operator_shell_intent(
+                &mut transport,
+                LocalOperatorIntent::new(
+                    kind,
+                    "operator-local",
+                    &started.state.run.run_id,
+                    "reviewed locally",
+                ),
+            );
+
+            assert_eq!(response.status, LocalOperatorShellTransportStatus::Accepted);
+            assert_eq!(response.state.run.selected_intent, Some(kind));
+            assert!(response.state.run.timeline.contains(&format!(
+                "operator intent recorded: {} by operator-local",
+                kind.code()
+            )));
+        }
+    }
+
+    #[test]
+    fn transport_rejects_invalid_target_run_and_candidate() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let started = start_local_operator_shell_stub_run(&mut transport);
+
+        let invalid_run = submit_local_operator_shell_intent(
+            &mut transport,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Approve,
+                "operator-local",
+                "wrong-run",
+                "reviewed locally",
+            ),
+        );
+        assert_eq!(
+            invalid_run.status,
+            LocalOperatorShellTransportStatus::Rejected
+        );
+        assert_eq!(invalid_run.reason, "target_mismatch");
+
+        let mut invalid_candidate = LocalOperatorIntent::new(
+            LocalOperatorIntentKind::Approve,
+            "operator-local",
+            &started.state.run.run_id,
+            "reviewed locally",
+        );
+        invalid_candidate.target_candidate_id = "wrong-candidate".to_string();
+        let response = submit_local_operator_shell_intent(&mut transport, invalid_candidate);
+        assert_eq!(response.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(response.reason, "candidate_target_mismatch");
+    }
+
+    #[test]
+    fn forbidden_transport_requests_fail_closed() {
+        let state = start_deterministic_stub_run(&initial_local_operator_shell_state());
+        for request in [
+            LocalOperatorShellForbiddenRequest::AuthorityGrant,
+            LocalOperatorShellForbiddenRequest::ProviderExecution,
+            LocalOperatorShellForbiddenRequest::ReadinessClaim,
+            LocalOperatorShellForbiddenRequest::ProductionStateMutation,
+            LocalOperatorShellForbiddenRequest::ReleaseArtifactCreation,
+            LocalOperatorShellForbiddenRequest::DeploymentEnablement,
+            LocalOperatorShellForbiddenRequest::SigningEnablement,
+            LocalOperatorShellForbiddenRequest::PublishingEnablement,
+        ] {
+            let response = local_operator_shell_transport_step(
+                &state,
+                LocalOperatorShellRequest::Forbidden(request),
+            );
+            assert_eq!(response.status, LocalOperatorShellTransportStatus::Rejected);
+            assert_eq!(response.reason, request.rejection_code());
+            assert_eq!(response.state, state);
+        }
+    }
+
+    #[test]
+    fn transport_exposes_no_production_or_provider_authority() {
+        let response = local_operator_shell_transport_step(
+            &initial_local_operator_shell_state(),
+            LocalOperatorShellRequest::GetCurrentState,
+        );
+        let capabilities = response.capabilities;
+
+        assert!(capabilities.local_only);
+        assert!(capabilities.non_production);
+        assert!(!capabilities.provider_execution_enabled);
+        assert!(!capabilities.cloud_model_calls_enabled);
+        assert!(!capabilities.broad_command_execution_enabled);
+        assert!(!capabilities.production_persistence_enabled);
+        assert!(!capabilities.release_artifact_creation_enabled);
+        assert!(!capabilities.deployment_enabled);
+        assert!(!capabilities.signing_authority_available);
+        assert!(!capabilities.publishing_authority_available);
+        assert!(!capabilities.readiness_approval_enabled);
+    }
 
     #[test]
     fn deterministic_stub_run_produces_identical_projection() {

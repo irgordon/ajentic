@@ -1,30 +1,34 @@
+import { type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
 import {
-  applyLocalOperatorIntent,
-  initialLocalOperatorShellState,
-  startDeterministicStubRun,
-  type LocalOperatorIntentKind,
-  type LocalOperatorShellState
-} from "./api/localOperatorShell.js";
+  createLocalOperatorShellTransport,
+  getInitialLocalOperatorShellState,
+  requestDeterministicStubRun,
+  submitLocalOperatorIntent,
+  type LocalOperatorShellResponse
+} from "./api/localOperatorShellTransport.js";
 
-let shellState = initialLocalOperatorShellState();
+const transport = createLocalOperatorShellTransport();
+let shellState = getInitialLocalOperatorShellState(transport).state;
+let lastTransportMessage = "initial shell state loaded through local transport boundary";
 
-function setState(next: LocalOperatorShellState): void {
-  shellState = next;
+function applyTransportResponse(response: LocalOperatorShellResponse): void {
+  shellState = response.state;
+  lastTransportMessage = `${response.status}: ${response.reason}`;
   render();
 }
 
 function startRun(): void {
-  setState(startDeterministicStubRun(shellState));
+  applyTransportResponse(requestDeterministicStubRun(transport));
 }
 
 function recordIntent(kind: LocalOperatorIntentKind): void {
-  const result = applyLocalOperatorIntent(shellState, {
+  applyTransportResponse(submitLocalOperatorIntent(transport, {
     kind,
     operatorId: "local-operator",
     targetRunId: shellState.run.runId,
+    targetCandidateId: shellState.run.candidate?.candidateId,
     reason: `${kind} selected in local non-production browser shell`
-  });
-  setState(result.state);
+  }));
 }
 
 function renderList(items: readonly string[], emptyText: string): string {
@@ -77,6 +81,12 @@ function render(): void {
           <strong>${shellState.run.status}</strong>
         </div>
       </header>
+
+      <section class="panel" aria-label="Local transport boundary status">
+        <h2>Local transport boundary</h2>
+        <p>${lastTransportMessage}</p>
+        <p class="muted">The browser shell submits typed local requests only; Rust remains the authoritative state-transition owner.</p>
+      </section>
 
       <section class="local-shell__grid" aria-label="AJENTIC local operator workflow">
         <aside class="panel timeline-panel">

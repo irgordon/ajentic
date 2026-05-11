@@ -28,6 +28,31 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.134 - 2026-05-11
+**Status:** Phase 134 - Rust-to-UI Local Transport Boundary
+
+### Added
+- Add a local Rust-owned transport/API boundary for the local operator shell.
+- Add local transport behavior for initial shell state, deterministic stub run start, and approve/reject operator intent submission.
+- Add Rust and TypeScript tests for the local transport boundary.
+
+### Changed
+- Update the local UI shell to use a typed local transport abstraction for shell state and operator intent flow.
+- Update checklists/current-phase.md to Phase 134 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-only non-production transport boundary.
+- Rust remains authoritative for local shell state transitions.
+- UI remains non-authoritative.
+- Deterministic stub workflow only.
+- No external provider execution.
+- No cloud model calls.
+- No broad command execution.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 
 ## v0.0.133 - 2026-05-11
 **Status:** Phase 133 - Usable Local Operator UI Shell
