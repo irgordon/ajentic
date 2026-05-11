@@ -28,6 +28,61 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.136 - 2026-05-11
+**Status:** Phase 136 - Installer/Update-Channel Dependency Reassessment
+
+### Added
+- Add the Phase 136 installer/update-channel dependency reassessment report.
+
+### Changed
+- Update checklists/current-phase.md to Phase 136 procedural truth.
+- Update CHANGELOG.md with v0.0.136.
+- Update roadmap planned-truth surfaces only if a narrow clarification is required to preserve Phase 136 deferment.
+
+### Notes
+- Phase 136 is installer/update-channel dependency reassessment only.
+- Installer/update-channel dependency reassessment is not installer/update-channel activation.
+- Installer requirements are not installer evidence.
+- Update-channel requirements are not update-channel evidence.
+- Missing governed artifact evidence blocks installer/update-channel implementation.
+- Missing checksum/provenance evidence blocks installer/update-channel implementation.
+- Missing signing/key-custody decision evidence blocks installer/update-channel implementation.
+- Phase 136 does not create installers, update channels, updater services, daemons, background services, public distribution, deployment automation, or readiness.
+- Phase 136 does not approve Release Candidate status.
+- Phase 136 does not implement Phase 139 or Phase 140.
+- Phase 130 rc_candidate_not_ready is preserved.
+- Phase 136 implementation remains deferred unless committed evidence proves otherwise.
+- No package creation.
+- No release artifact creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No key creation.
+- No certificate creation.
+- No signature creation.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No daemon behavior.
+- No background service behavior.
+- No public distribution.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 137 implementation.
+- No Phase 139 implementation.
+- No Phase 140 implementation.
+
 ## v0.0.135.2 - 2026-05-11
 **Status:** Out-of-Band Maintenance - Changelog Archive Split
 
