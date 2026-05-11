@@ -18,6 +18,51 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.135.1 - 2026-05-11
+**Status:** Out-of-Band Maintenance - Artifact Chain Correction Before Installer/Update-Channel Work
+
+### Added
+- Add the Phase 135.1 artifact-chain correction report.
+- Add governed local/non-public artifact or manifest evidence only if the existing repository contract and deterministic command evidence support it.
+
+### Changed
+- Update checklists/current-phase.md to Phase 135.1 procedural truth.
+- Update CHANGELOG.md with v0.0.135.1.
+- Update artifact-chain planning surfaces only if needed to preserve Phase 136 deferment or record Phase 133 readiness-to-proceed status.
+
+### Notes
+- Phase 135.1 is artifact-chain correction only.
+- Artifact-chain correction is not release.
+- Local artifact evidence is not Release Candidate readiness.
+- Artifact manifest evidence is not checksum evidence.
+- Artifact manifest evidence is not provenance evidence.
+- Artifact creation does not imply signing, publishing, installer/update-channel activation, deployment, monitoring, or readiness.
+- Phase 130 rc_candidate_not_ready is preserved.
+- Phase 136 remains deferred unless the artifact chain is explicitly ready for Phase 133 and downstream dependencies remain separated.
+- No signing behavior.
+- No key creation.
+- No certificate creation.
+- No signature creation.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 136 implementation.
+- No Phase 139 implementation.
+- No Phase 140 implementation.
+
 ## v0.0.135 - 2026-05-11
 **Status:** Phase 135 - Roadmap and Changelog Alignment Check
 
