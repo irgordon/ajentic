@@ -28,6 +28,32 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.140 - 2026-05-11
+**Status:** Phase 140 - Code-Production Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 136-139 code-production block.
+- Confirm the current local product loop includes decision ledger, replay/status projection, local session evidence export preview, and constrained provider configuration validation.
+- Remap Phase 141-145 as the next code-production block focused on sandboxed deterministic provider execution.
+- Preserve the rule that every non-0/5 phase must produce usable, testable code or a concrete executable artifact.
+- Update checklists/current-phase.md to Phase 140 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No provider execution.
+- No local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No network sockets.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 141 is expected to resume code production.
+
 ## v0.0.139 - 2026-05-11
 **Status:** Phase 139 - Constrained Local Provider Configuration Stub
 

@@ -351,12 +351,37 @@ Must produce: Rust provider configuration model, UI configuration panel, validat
 Boundary: configuration stub only; no provider execution, cloud calls, credential activation, deployment, or readiness approval.
 
 ### Phase 140 - Code-Production Alignment Checkpoint
-Goal: Reconcile Phases 136-139 and decide whether Phase 141 may introduce sandboxed local provider execution.
+Goal: Reconcile Phases 136-139 and decide whether Phase 141 may proceed toward sandboxed deterministic provider execution.
 Boundary: 0/5 alignment checkpoint only; no new implementation, no readiness approval, no release/deployment claims, and no provider execution enablement.
-Non-goals: no source/test/schema/UI changes, Release Candidate approval, Production Candidate approval, production approval, public/general-use approval, or Phase 141 implementation.
+Alignment note: Phases 136-139 are present as code-production work: in-memory decision ledger, replay/status projection, local session evidence export preview, and constrained deterministic_stub provider configuration validation. The current local product loop is materially usable for a deterministic harness loop, but provider execution remains disabled.
+Gate decision: `proceed_with_caveats`; Phase 141 may pursue sandboxed deterministic provider execution only, with no arbitrary local model execution, cloud calls, shell command execution, network sockets, default filesystem persistence, provider trust approval, readiness/release/deployment claims, or public/general-use approval.
+
+### Phase 141 - Sandboxed Deterministic Provider Execution Boundary
+Goal: Add a Rust-owned execution path for deterministic_stub as an actual provider execution boundary, without external model calls, shell commands, network sockets, or production persistence.
+Must produce: usable, testable Rust-owned deterministic provider execution behavior and tests.
+Boundary: sandboxed deterministic_stub only; no arbitrary local model execution, cloud calls, shell commands, network sockets, filesystem persistence by default, provider trust approval, readiness, release, deployment, or public/general-use claims.
+
+### Phase 142 - Provider Execution Result Projection
+Goal: Expose deterministic provider execution results through the local transport and UI as typed execution result projections.
+Must produce: usable, testable transport and UI projection code.
+Boundary: result projection only; no broad provider enablement, persistence authority, trust approval, readiness, release, deployment, or public/general-use claims.
+
+### Phase 143 - Provider Output Validation and Rejection Flow
+Goal: Route provider execution output through typed validation/rejection before it can become candidate output.
+Must produce: usable, testable provider output validation and rejection behavior.
+Boundary: validation/rejection only; provider output remains untrusted and cannot bypass Rust-owned validation.
+
+### Phase 144 - Provider Output Review in UI
+Goal: Update the UI so provider execution output, validation result, rejection reason, candidate conversion status, and operator review path are visible and testable.
+Must produce: usable, testable UI review behavior.
+Boundary: UI review only; UI remains non-authoritative and cannot approve trust, readiness, release, deployment, or public/general use.
+
+### Phase 145 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 141-144 and decide whether later phases may introduce constrained local model adapter support.
+Boundary: 0/5 alignment checkpoint only; no new implementation, no readiness approval, no local/cloud model execution approval, and no arbitrary provider execution approval.
 
 ## Post-140 dependency note
 
-Do not map Production Candidate or public/general-use as automatically following Phase 140. Phase 140 may only reconcile the Phase 136-139 code-production block and decide whether Phase 141 may consider sandboxed local provider execution.
+Do not map Production Candidate or public/general-use as automatically following Phase 140. Phase 140 reconciles the Phase 136-139 code-production block and permits only the narrow Phase 141 sandboxed deterministic provider execution boundary with caveats.
 
-Public/general use remains a later final rung. Phase 136-139 are the next implementation block for local operator product behavior, and Phase 140 is not sufficient to complete any readiness ladder.
+Public/general use remains a later final rung. Phase 141-144 are the next implementation block for local deterministic provider behavior, and Phase 145 is the next alignment checkpoint.
