@@ -66,6 +66,9 @@ function assertLocalOperatorShellRendersIdleState(): void {
   assertContains(rendered, "Harness status: idle_local_harness", "idle harness status");
   assertContains(rendered, "Approve", "approve control");
   assertContains(rendered, "Reject", "reject control");
+  assertContains(rendered, "Local decision ledger", "decision ledger panel");
+  assertContains(rendered, "No recorded local operator decisions", "empty decision ledger");
+  assertEqual(response.state.run.decisionTimeline.records.length, 0, "initial decision timeline length");
 }
 
 function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
@@ -91,6 +94,21 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
   });
   assertEqual(approved.status, "accepted", "approve status");
   assertEqual(approved.state.run.selectedIntent, "approve", "approve selected intent");
+  assertEqual(approved.state.run.decisionTimeline.records.length, 1, "approve decision count");
+  assertEqual(approved.state.run.decisionTimeline.records[0]?.intentKind, "approve", "approve decision kind");
+  assertEqual(approved.state.run.decisionTimeline.records[0]?.decisionStatus, "recorded", "approve decision status");
+  assertContains(renderLocalOperatorShellSnapshot(approved.state), "#1 approve recorded", "approve decision history visible");
+
+  const duplicateApprove = submitLocalOperatorIntent(approveTransport, {
+    kind: "approve",
+    operatorId: "local-operator",
+    targetRunId: approveState.run.runId,
+    targetCandidateId: approveState.run.candidate?.candidateId,
+    reason: "duplicate approval"
+  });
+  assertEqual(duplicateApprove.status, "rejected", "duplicate decision status");
+  assertEqual(duplicateApprove.reason, "duplicate_decision_rejected", "duplicate decision reason");
+  assertEqual(duplicateApprove.state.run.decisionTimeline.records.length, 1, "duplicate decision count unchanged");
 
   const rejectTransport = createLocalOperatorShellTransport();
   const rejectState = requestDeterministicStubRun(rejectTransport).state;
@@ -103,6 +121,9 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
   });
   assertEqual(rejected.status, "accepted", "reject status");
   assertEqual(rejected.state.run.selectedIntent, "reject", "reject selected intent");
+  assertEqual(rejected.state.run.decisionTimeline.records.length, 1, "reject decision count");
+  assertEqual(rejected.state.run.decisionTimeline.records[0]?.intentKind, "reject", "reject decision kind");
+  assertContains(renderLocalOperatorShellSnapshot(rejected.state), "#1 reject recorded", "reject decision history visible");
 }
 
 function assertLocalOperatorShellForbiddenActionsFailClosed(): void {
@@ -111,14 +132,17 @@ function assertLocalOperatorShellForbiddenActionsFailClosed(): void {
   assertEqual(rejectForbiddenUiAction(transport, "readiness_claim").status, "rejected", "readiness status");
   assertEqual(rejectForbiddenUiAction(transport, "release_artifact_creation").status, "rejected", "candidate status");
   assertEqual(rejectForbiddenUiAction(transport, "provider_execution").status, "rejected", "provider execution status");
-  assertEqual(submitLocalOperatorIntent(transport, {
+  const forbiddenIntent = submitLocalOperatorIntent(transport, {
     kind: "approve",
     operatorId: "local-operator",
     targetRunId: state.run.runId,
     targetCandidateId: state.run.candidate?.candidateId,
     reason: "spoof provider execution",
     requestsProviderExecution: true
-  }).reason, "provider_execution_rejected", "provider execution reason");
+  });
+  assertEqual(forbiddenIntent.reason, "provider_execution_rejected", "provider execution reason");
+  assertEqual(forbiddenIntent.state.run.decisionTimeline.records.length, 0, "forbidden decision count");
+  assertContains(renderLocalOperatorShellSnapshot(forbiddenIntent.state), "No recorded local operator decisions", "usable after forbidden rejection");
 }
 
 function assertLocalOperatorShellRejectsInvalidTargetThroughTransport(): void {
@@ -133,6 +157,7 @@ function assertLocalOperatorShellRejectsInvalidTargetThroughTransport(): void {
   });
   assertEqual(response.status, "rejected", "invalid candidate status");
   assertEqual(response.state.run.selectedIntent, null, "invalid candidate selected intent");
+  assertEqual(response.state.run.decisionTimeline.records.length, 0, "invalid candidate decision count");
   assertContains(renderLocalOperatorShellSnapshot(response.state), "AJENTIC local operator shell - non-production", "render after rejection");
 }
 

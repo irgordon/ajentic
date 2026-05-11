@@ -28,6 +28,34 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.136 - 2026-05-11
+**Status:** Phase 136 - In-Memory Local Decision Ledger
+
+### Added
+- Add a Rust-owned in-memory local decision ledger for approve/reject operator decisions.
+- Add typed local decision records and deterministic decision timeline projection.
+- Add UI rendering for the local decision ledger/timeline.
+- Add Rust and TypeScript tests for decision ledger behavior and visible decision history updates.
+
+### Changed
+- Extend the local operator shell transport projection to include decision ledger/timeline data.
+- Update the local UI shell so approve/reject interactions display recorded local decision history.
+- Update checklists/current-phase.md to Phase 136 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session in-memory decision ledger only.
+- Rust remains authoritative for decision recording.
+- UI remains non-authoritative.
+- No filesystem persistence.
+- No durable ledger writes.
+- No provider execution.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.134 - 2026-05-11
 **Status:** Phase 134 - Rust-to-UI Local Transport Boundary
 

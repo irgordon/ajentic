@@ -4,67 +4,88 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 135 Code-Production Roadmap and Changelog Alignment
+# Current Phase Checklist - Phase 136 In-Memory Local Decision Ledger
 
 ## Phase goal
-- [x] Reconcile Phase 133 and Phase 134 implementation work.
-- [x] Remap Phase 136-140 into code-production mode without implementing Phase 136.
+- [x] Add usable local-session decision recording for approve/reject operator intents submitted through the local transport boundary.
+- [x] Expose the Rust-owned in-memory decision timeline in the local UI shell.
 
 ## Working-tree hygiene gate
-- [x] Modify only allowed Phase 135 roadmap, changelog, and checklist surfaces.
-- [x] Do not modify Rust, TypeScript, tests, schemas, package files, workflows, archived changelogs, README.md, or AGENTS.md.
+- [x] Keep changes limited to Phase 136 code-production, tests, changelog, and checklist surfaces.
+- [x] Do not modify governance, architecture, roadmap, release, installer, update-channel, signing, publishing, deployment, archived changelog, or AGENTS surfaces.
 
 ## Allowed surfaces
-- [x] `docs/roadmap/phase-map.md`
-- [x] `docs/roadmap/phases.md`
-- [x] `docs/roadmap/sequencing.md`
+- [x] `core/src/**`
+- [x] `core/tests/**` or `tests/**`
+- [x] `ui/src/**`
+- [x] `ui/index.html` only if needed
+- [x] `ui/package.json` only if needed for existing script correction
+- [x] `ui/tsconfig.json` only if needed for source inclusion
+- [x] `scripts/check.sh` only if validation compatibility is required
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 
-## Code-production remap checklist
-- [x] Record Phase 135 as an alignment/remap checkpoint only.
-- [x] Preserve the Phase 133/134 code-production correction.
-- [x] Prevent drift back into governance-only phase expansion.
+## Code-production deliverable checklist
+- [x] Produce executable product behavior for Phase 136.
+- [x] Preserve deterministic stub output for identical input.
+- [x] Keep all behavior local-only and non-production.
 
-## Phase 133 carry-forward checklist
-- [x] Phase 133 is complete.
-- [x] Carry forward the usable local browser operator shell.
-- [x] Carry forward Rust-owned local shell projection types and deterministic stub run flow.
-- [x] Carry forward approve/reject controls, local non-production operator intent handling, and Rust/TypeScript tests.
+## Rust decision ledger checklist
+- [x] Add Rust-owned in-memory local decision ledger types.
+- [x] Add typed approve/reject decision records.
+- [x] Append exactly one decision record for a valid approve/reject intent.
+- [x] Keep initial shell state and started stub run ledger/timeline empty until operator action.
+- [x] Reject malformed, duplicate, wrong-run, wrong-candidate, authority-granting, readiness-claiming, and provider-execution-related requests without ledger mutation.
+- [x] Preserve deterministic decision sequence ordering.
 
-## Phase 134 carry-forward checklist
-- [x] Phase 134 is complete.
-- [x] Carry forward the Rust-owned local transport/API boundary.
-- [x] Carry forward typed handling for initial state, deterministic stub run, approve/reject intent submission, forbidden/malformed request rejection, and capability exposure.
-- [x] Preserve Rust authority, UI non-authority, and no direct Rust-to-browser runtime bridge.
+## TypeScript transport projection checklist
+- [x] Extend TypeScript shell state with decision ledger/timeline projection data.
+- [x] Return updated decision timeline data after approve/reject through the local transport adapter.
+- [x] Keep rejected requests non-mutating and browser-usable.
 
-## Phase 136-140 remap checklist
-- [x] Phase 136: In-Memory Local Decision Ledger.
-- [x] Phase 137: Replay Projection for Local Decisions.
-- [x] Phase 138: Local Session Evidence Export.
-- [x] Phase 139: Constrained Local Provider Configuration Stub.
-- [x] Phase 140: Code-Production Alignment Checkpoint.
+## UI decision ledger checklist
+- [x] Render a visible local decision ledger/timeline region.
+- [x] Show empty-ledger text before approve/reject.
+- [x] Show decision sequence, run ID, candidate ID, operator ID, decision kind, and decision status after approve/reject.
 
-## Non-0/5 implementation rule checklist
-- [x] Every non-0/5 phase must produce usable, testable code or a concrete executable artifact.
-- [x] Phases 136-139 are mapped as implementation phases with required tests or executable artifacts.
+## Rust test checklist
+- [x] Test empty initial ledger/timeline projection.
+- [x] Test deterministic stub run preserves an empty ledger/timeline.
+- [x] Test valid approve/reject records exactly one typed decision.
+- [x] Test duplicate and invalid/forbidden requests fail closed without ledger mutation.
 
-## 0/5 alignment checkpoint rule checklist
-- [x] 0/5 phases remain alignment checkpoints only.
-- [x] 0/5 phases reconcile implementation progress and remap the next block without implementing the next phase.
-- [x] Phase 140 remains alignment only.
+## TypeScript test checklist
+- [x] Test visible empty local decision ledger.
+- [x] Test visible approve and reject decision history updates.
+- [x] Test forbidden and invalid UI actions do not add decision records.
+- [x] Test transport capabilities remain disabled.
+
+## Local-only/non-production boundary checklist
+- [x] No filesystem persistence.
+- [x] No durable ledger writes.
+- [x] No provider execution.
+- [x] No broad command execution.
+- [x] No production persistence.
+- [x] No replay repair or recovery promotion.
+- [x] No release/deployment/signing/publishing behavior.
+- [x] No readiness, Release Candidate, Production Candidate, public-use, or production-human-use approval.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-135-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-136-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run required roadmap scan.
-- [x] Run no-source-drift guard.
-- [x] Run readiness/release scan.
+- [x] Run UI typecheck, lint, build, and API behavior tests directly if needed.
+- [x] Run Rust tests directly if needed.
+- [x] Run local dev smoke test.
+- [x] Run decision ledger scan.
+- [x] Run no-persistence/provider/release/deployment authority scan.
+- [x] Run changed-file source guard.
 
 ## Deferred items
-- [x] Phase 136 implementation is deferred to Phase 136.
-- [x] Provider execution, production persistence, release artifacts, installer/update-channel behavior, signing, publishing, deployment, and readiness approval remain deferred.
+- [x] Filesystem persistence and durable ledger writes remain deferred.
+- [x] Provider execution and broad command execution remain deferred.
+- [x] Replay repair and recovery promotion remain deferred.
+- [x] Release artifacts, installer/update-channel behavior, signing, publishing, deployment, and readiness approval remain deferred.
 
 ## Validation log
 - [x] Validation commands completed after final edits.
@@ -72,7 +93,9 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] Changelog entry matches the Phase 135 alignment-only diff.
-- [x] Staged files are limited to allowed Phase 135 surfaces.
-- [x] No Rust, TypeScript, test, schema, UI, package, workflow, archive, README, or AGENTS drift introduced.
-- [x] No readiness, release, deployment, provider-execution, signing, publishing, public-use, or production approval introduced.
+- [x] Changelog entry matches the Phase 136 code-production diff.
+- [x] Staged files are limited to allowed Phase 136 surfaces.
+- [x] Rust-owned in-memory decision ledger exists.
+- [x] Transport projection includes decision ledger/timeline data.
+- [x] UI visibly renders local decision history.
+- [x] No local-only/non-production boundary drift introduced.

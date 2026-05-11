@@ -1,5 +1,43 @@
 export type LocalRunStatus = "idle" | "stub_completed" | "intent_recorded";
 export type LocalOperatorIntentKind = "approve" | "reject";
+export type LocalDecisionRecordStatus = "recorded";
+
+export type LocalDecisionRecord = Readonly<{
+  decisionId: string;
+  runId: string;
+  candidateId: string;
+  operatorId: string;
+  intentKind: LocalOperatorIntentKind;
+  decisionStatus: LocalDecisionRecordStatus;
+  validationStatus: string;
+  recordedSequence: number;
+  recordedAtLabel: string;
+  reason: string;
+}>;
+
+export type LocalDecisionTimelineProjection = Readonly<{
+  records: readonly LocalDecisionRecord[];
+  emptyMessage: string;
+}>;
+
+export type LocalDecisionLedger = Readonly<{
+  records: readonly LocalDecisionRecord[];
+}>;
+
+export function initialLocalDecisionLedger(): LocalDecisionLedger {
+  return { records: [] };
+}
+
+export function projectLocalDecisionTimeline(ledger: LocalDecisionLedger): LocalDecisionTimelineProjection {
+  return {
+    records: ledger.records,
+    emptyMessage: "No recorded local operator decisions"
+  };
+}
+
+function nextLocalDecisionSequence(ledger: LocalDecisionLedger): number {
+  return ledger.records.length + 1;
+}
 
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
@@ -27,12 +65,14 @@ export type LocalRunProjection = Readonly<{
   selectedIntent: LocalOperatorIntentKind | null;
   timeline: readonly string[];
   replayStatus: string;
+  decisionTimeline: LocalDecisionTimelineProjection;
 }>;
 
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
   run: LocalRunProjection;
+  decisionLedger: LocalDecisionLedger;
 }>;
 
 export type LocalOperatorIntent = Readonly<{
@@ -69,8 +109,10 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       validation: null,
       selectedIntent: null,
       timeline: ["idle local harness initialized"],
-      replayStatus: "placeholder: replay/status projection is typed but not executing"
-    }
+      replayStatus: "placeholder: replay/status projection is typed but not executing",
+      decisionTimeline: projectLocalDecisionTimeline(initialLocalDecisionLedger())
+    },
+    decisionLedger: initialLocalDecisionLedger()
   };
 }
 
@@ -108,7 +150,8 @@ export function startDeterministicStubRun(state: LocalOperatorShellState): Local
         "deterministic stub run started",
         "candidate output projected",
         "validation and policy projection completed"
-      ]
+      ],
+      decisionTimeline: projectLocalDecisionTimeline(state.decisionLedger)
     }
   };
 }
@@ -124,21 +167,43 @@ export function applyLocalOperatorIntent(
   if (intent.reason.length === 0) return rejection("empty_reason");
   if (intent.targetRunId !== state.run.runId) return rejection("target_mismatch");
   if (!state.run.candidate) return rejection("run_not_started");
-  if ((intent.targetCandidateId ?? "candidate-local-stub-133") !== state.run.candidate.candidateId) return rejection("candidate_target_mismatch");
+  const candidate = state.run.candidate;
+  if ((intent.targetCandidateId ?? "candidate-local-stub-133") !== candidate.candidateId) return rejection("candidate_target_mismatch");
   if (intent.requestsAuthorityGrant) return rejection("authority_grant_rejected");
   if (intent.requestsProviderExecution) return rejection("provider_execution_rejected");
   if (intent.claimsReadiness) return rejection("readiness_claim_rejected");
+
+  if (state.decisionLedger.records.some((record) => record.runId === intent.targetRunId && record.candidateId === candidate.candidateId)) {
+    return rejection("duplicate_decision_rejected");
+  }
+
+  const recordedSequence = nextLocalDecisionSequence(state.decisionLedger);
+  const decisionRecord: LocalDecisionRecord = {
+    decisionId: `local-decision-${String(recordedSequence).padStart(4, "0")}`,
+    runId: intent.targetRunId,
+    candidateId: candidate.candidateId,
+    operatorId: intent.operatorId,
+    intentKind: intent.kind,
+    decisionStatus: "recorded",
+    validationStatus: "accepted_by_rust_local_validation",
+    recordedSequence,
+    recordedAtLabel: `local-sequence-${String(recordedSequence).padStart(4, "0")}`,
+    reason: intent.reason
+  };
+  const decisionLedger: LocalDecisionLedger = { records: [...state.decisionLedger.records, decisionRecord] };
 
   return {
     status: "accepted",
     reason: "local_operator_intent_recorded",
     state: {
       ...state,
+      decisionLedger,
       run: {
         ...state.run,
         status: "intent_recorded",
         selectedIntent: intent.kind,
-        timeline: [...state.run.timeline, `operator intent recorded: ${intent.kind} by ${intent.operatorId}`]
+        decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
+        timeline: [...state.run.timeline, `operator intent recorded: ${intent.kind} by ${intent.operatorId} as decision ${decisionRecord.decisionId}`]
       }
     }
   };

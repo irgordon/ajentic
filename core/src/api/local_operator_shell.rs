@@ -37,6 +37,7 @@ pub enum LocalOperatorShellError {
     EmptyReason,
     TargetMismatch,
     CandidateTargetMismatch,
+    DuplicateDecisionRejected,
     AuthorityClaimRejected,
     ProviderExecutionRejected,
     ReadinessClaimRejected,
@@ -50,11 +51,129 @@ impl LocalOperatorShellError {
             Self::EmptyReason => "empty_reason",
             Self::TargetMismatch => "target_mismatch",
             Self::CandidateTargetMismatch => "candidate_target_mismatch",
+            Self::DuplicateDecisionRejected => "duplicate_decision_rejected",
             Self::AuthorityClaimRejected => "authority_claim_rejected",
             Self::ProviderExecutionRejected => "provider_execution_rejected",
             Self::ReadinessClaimRejected => "readiness_claim_rejected",
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalDecisionRecordKind {
+    Approve,
+    Reject,
+}
+
+impl LocalDecisionRecordKind {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Approve => "approve",
+            Self::Reject => "reject",
+        }
+    }
+}
+
+impl From<LocalOperatorIntentKind> for LocalDecisionRecordKind {
+    fn from(kind: LocalOperatorIntentKind) -> Self {
+        match kind {
+            LocalOperatorIntentKind::Approve => Self::Approve,
+            LocalOperatorIntentKind::Reject => Self::Reject,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalDecisionRecordStatus {
+    Recorded,
+}
+
+impl LocalDecisionRecordStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Recorded => "recorded",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalDecisionRecord {
+    pub decision_id: String,
+    pub run_id: String,
+    pub candidate_id: String,
+    pub operator_id: String,
+    pub intent_kind: LocalDecisionRecordKind,
+    pub decision_status: LocalDecisionRecordStatus,
+    pub validation_status: String,
+    pub recorded_sequence: u64,
+    pub recorded_at_label: String,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalDecisionTimelineProjection {
+    pub records: Vec<LocalDecisionRecord>,
+    pub empty_message: String,
+}
+
+impl LocalDecisionTimelineProjection {
+    pub fn is_empty(&self) -> bool {
+        self.records.is_empty()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalDecisionLedger {
+    pub records: Vec<LocalDecisionRecord>,
+}
+
+pub fn initial_local_decision_ledger() -> LocalDecisionLedger {
+    LocalDecisionLedger {
+        records: Vec::new(),
+    }
+}
+
+pub fn project_local_decision_timeline(
+    ledger: &LocalDecisionLedger,
+) -> LocalDecisionTimelineProjection {
+    LocalDecisionTimelineProjection {
+        records: ledger.records.clone(),
+        empty_message: "No recorded local operator decisions".to_string(),
+    }
+}
+
+pub fn next_local_decision_sequence(ledger: &LocalDecisionLedger) -> u64 {
+    ledger.records.len() as u64 + 1
+}
+
+fn append_local_decision(
+    ledger: &LocalDecisionLedger,
+    intent: &LocalOperatorIntent,
+    candidate_id: &str,
+) -> Result<LocalDecisionLedger, LocalOperatorShellError> {
+    if ledger
+        .records
+        .iter()
+        .any(|record| record.run_id == intent.target_run_id && record.candidate_id == candidate_id)
+    {
+        return Err(LocalOperatorShellError::DuplicateDecisionRejected);
+    }
+
+    let recorded_sequence = next_local_decision_sequence(ledger);
+    let mut next = ledger.clone();
+    next.records.push(LocalDecisionRecord {
+        decision_id: format!("local-decision-{recorded_sequence:04}"),
+        run_id: intent.target_run_id.clone(),
+        candidate_id: candidate_id.to_string(),
+        operator_id: intent.operator_id.clone(),
+        intent_kind: intent.kind.into(),
+        decision_status: LocalDecisionRecordStatus::Recorded,
+        validation_status: "accepted_by_rust_local_validation".to_string(),
+        recorded_sequence,
+        recorded_at_label: format!("local-sequence-{recorded_sequence:04}"),
+        reason: intent.reason.clone(),
+    });
+    Ok(next)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -86,6 +205,7 @@ pub struct LocalRunProjection {
     pub selected_intent: Option<LocalOperatorIntentKind>,
     pub timeline: Vec<String>,
     pub replay_status: String,
+    pub decision_timeline: LocalDecisionTimelineProjection,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -93,6 +213,7 @@ pub struct LocalOperatorShellState {
     pub harness_status: String,
     pub non_production: bool,
     pub run: LocalRunProjection,
+    pub decision_ledger: LocalDecisionLedger,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -141,7 +262,9 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
             timeline: vec!["idle local harness initialized".to_string()],
             replay_status: "placeholder: replay/status projection is typed but not executing"
                 .to_string(),
+            decision_timeline: project_local_decision_timeline(&initial_local_decision_ledger()),
         },
+        decision_ledger: initial_local_decision_ledger(),
     }
 }
 
@@ -176,6 +299,7 @@ pub fn start_deterministic_stub_run(state: &LocalOperatorShellState) -> LocalOpe
         "candidate output projected".to_string(),
         "validation and policy projection completed".to_string(),
     ];
+    next.run.decision_timeline = project_local_decision_timeline(&next.decision_ledger);
     next
 }
 
@@ -211,13 +335,24 @@ pub fn apply_local_operator_intent(
         return Err(LocalOperatorShellError::ReadinessClaimRejected);
     }
 
+    let next_ledger =
+        append_local_decision(&state.decision_ledger, &intent, &candidate.candidate_id)?;
+
     let mut next = state.clone();
+    next.decision_ledger = next_ledger;
     next.run.status = LocalRunStatus::IntentRecorded;
     next.run.selected_intent = Some(intent.kind);
+    next.run.decision_timeline = project_local_decision_timeline(&next.decision_ledger);
     next.run.timeline.push(format!(
-        "operator intent recorded: {} by {}",
+        "operator intent recorded: {} by {} as decision {}",
         intent.kind.code(),
-        intent.operator_id
+        intent.operator_id,
+        next.run
+            .decision_timeline
+            .records
+            .last()
+            .map(|record| record.decision_id.as_str())
+            .unwrap_or("local-decision-missing")
     ));
     Ok(next)
 }
@@ -422,6 +557,8 @@ mod tests {
         assert_eq!(response.state.run.status, LocalRunStatus::Idle);
         assert!(response.capabilities.local_only);
         assert!(!response.capabilities.provider_execution_enabled);
+        assert!(response.state.decision_ledger.records.is_empty());
+        assert!(response.state.run.decision_timeline.is_empty());
     }
 
     #[test]
@@ -443,6 +580,8 @@ mod tests {
             first.state.run.candidate.as_ref().unwrap().candidate_id,
             "candidate-local-stub-133"
         );
+        assert!(first.state.decision_ledger.records.is_empty());
+        assert!(first.state.run.decision_timeline.records.is_empty());
     }
 
     #[test]
@@ -465,8 +604,15 @@ mod tests {
 
             assert_eq!(response.status, LocalOperatorShellTransportStatus::Accepted);
             assert_eq!(response.state.run.selected_intent, Some(kind));
-            assert!(response.state.run.timeline.contains(&format!(
-                "operator intent recorded: {} by operator-local",
+            assert_eq!(response.state.run.decision_timeline.records.len(), 1);
+            let record = &response.state.run.decision_timeline.records[0];
+            assert_eq!(record.intent_kind, kind.into());
+            assert_eq!(record.decision_status, LocalDecisionRecordStatus::Recorded);
+            assert_eq!(record.recorded_sequence, 1);
+            assert_eq!(record.decision_id, "local-decision-0001");
+            assert!(response.state.run.timeline.iter().any(|entry| entry
+                == &format!(
+                "operator intent recorded: {} by operator-local as decision local-decision-0001",
                 kind.code()
             )));
         }
@@ -502,6 +648,42 @@ mod tests {
         let response = submit_local_operator_shell_intent(&mut transport, invalid_candidate);
         assert_eq!(response.status, LocalOperatorShellTransportStatus::Rejected);
         assert_eq!(response.reason, "candidate_target_mismatch");
+        assert!(response.state.decision_ledger.records.is_empty());
+        assert!(transport.current_state().decision_ledger.records.is_empty());
+    }
+
+    #[test]
+    fn duplicate_decision_for_same_run_candidate_fails_closed() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let started = start_local_operator_shell_stub_run(&mut transport);
+        let first = submit_local_operator_shell_intent(
+            &mut transport,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Approve,
+                "operator-local",
+                &started.state.run.run_id,
+                "reviewed locally",
+            ),
+        );
+        assert_eq!(first.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(first.state.decision_ledger.records.len(), 1);
+
+        let duplicate = submit_local_operator_shell_intent(
+            &mut transport,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Reject,
+                "operator-local",
+                &started.state.run.run_id,
+                "duplicate local decision",
+            ),
+        );
+        assert_eq!(
+            duplicate.status,
+            LocalOperatorShellTransportStatus::Rejected
+        );
+        assert_eq!(duplicate.reason, "duplicate_decision_rejected");
+        assert_eq!(duplicate.state.decision_ledger.records.len(), 1);
+        assert_eq!(transport.current_state().decision_ledger.records.len(), 1);
     }
 
     #[test]
@@ -582,6 +764,8 @@ mod tests {
                 apply_local_operator_intent(&state, intent).expect("typed intent should record");
             assert_eq!(updated.run.status, LocalRunStatus::IntentRecorded);
             assert_eq!(updated.run.selected_intent, Some(kind));
+            assert_eq!(updated.decision_ledger.records.len(), 1);
+            assert_eq!(updated.run.decision_timeline.records.len(), 1);
         }
     }
 
