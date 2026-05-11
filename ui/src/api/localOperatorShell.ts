@@ -1,6 +1,20 @@
 export type LocalRunStatus = "idle" | "stub_completed" | "intent_recorded";
 export type LocalOperatorIntentKind = "approve" | "reject";
 export type LocalDecisionRecordStatus = "recorded";
+export type LocalDecisionReplayStatus =
+  | "no_decision_recorded"
+  | "approved_decision_replayed"
+  | "rejected_decision_replayed"
+  | "inconsistent_decision_ledger"
+  | "replay_not_applicable";
+export type LocalDecisionReplayIntegrityStatus = "consistent" | "inconsistent";
+export type LocalDecisionReplayError =
+  | "empty_record_field"
+  | "sequence_mismatch"
+  | "decision_id_mismatch"
+  | "run_mismatch"
+  | "candidate_mismatch"
+  | "unsupported_decision_status";
 
 export type LocalDecisionRecord = Readonly<{
   decisionId: string;
@@ -39,6 +53,136 @@ function nextLocalDecisionSequence(ledger: LocalDecisionLedger): number {
   return ledger.records.length + 1;
 }
 
+
+export type LocalDecisionReplayEntry = Readonly<{
+  replaySequence: string;
+  decisionId: string;
+  runId: string;
+  candidateId: string;
+  operatorId: string;
+  decisionKind: LocalOperatorIntentKind;
+  decisionStatus: LocalDecisionRecordStatus;
+}>;
+
+export type LocalDecisionReplayProjection = Readonly<{
+  replayStatus: LocalDecisionReplayStatus;
+  replaySequence: string;
+  sourceDecisionCount: number;
+  latestDecisionId: string | null;
+  latestRunId: string | null;
+  latestCandidateId: string | null;
+  latestOperatorId: string | null;
+  latestDecisionKind: LocalOperatorIntentKind | null;
+  latestDecisionStatus: LocalDecisionRecordStatus | null;
+  integrityStatus: LocalDecisionReplayIntegrityStatus;
+  error: LocalDecisionReplayError | null;
+  entries: readonly LocalDecisionReplayEntry[];
+  summary: string;
+}>;
+
+export function initialLocalDecisionReplayProjection(): LocalDecisionReplayProjection {
+  return {
+    replayStatus: "no_decision_recorded",
+    replaySequence: "local-replay-sequence-0000",
+    sourceDecisionCount: 0,
+    latestDecisionId: null,
+    latestRunId: null,
+    latestCandidateId: null,
+    latestOperatorId: null,
+    latestDecisionKind: null,
+    latestDecisionStatus: null,
+    integrityStatus: "consistent",
+    error: null,
+    entries: [],
+    summary: "No local operator decision has been recorded for replay projection."
+  };
+}
+
+function inconsistentLocalDecisionReplayProjection(
+  ledger: LocalDecisionLedger,
+  error: LocalDecisionReplayError
+): LocalDecisionReplayProjection {
+  const latest = ledger.records.length === 0 ? null : ledger.records[ledger.records.length - 1];
+  return {
+    replayStatus: "inconsistent_decision_ledger",
+    replaySequence: `local-replay-sequence-${String(ledger.records.length).padStart(4, "0")}`,
+    sourceDecisionCount: ledger.records.length,
+    latestDecisionId: latest?.decisionId ?? null,
+    latestRunId: latest?.runId ?? null,
+    latestCandidateId: latest?.candidateId ?? null,
+    latestOperatorId: latest?.operatorId ?? null,
+    latestDecisionKind: latest?.intentKind ?? null,
+    latestDecisionStatus: latest?.decisionStatus ?? null,
+    integrityStatus: "inconsistent",
+    error,
+    entries: [],
+    summary: `Local decision ledger is inconsistent: ${error}.`
+  };
+}
+
+export function validateLocalDecisionReplayInput(
+  run: LocalRunProjection,
+  ledger: LocalDecisionLedger
+): LocalDecisionReplayError | null {
+  for (const [index, record] of ledger.records.entries()) {
+    const expectedSequence = index + 1;
+    if (record.decisionId.length === 0 || record.runId.length === 0 || record.candidateId.length === 0 || record.operatorId.length === 0) {
+      return "empty_record_field";
+    }
+    if (record.recordedSequence !== expectedSequence) return "sequence_mismatch";
+    if (record.decisionId !== `local-decision-${String(expectedSequence).padStart(4, "0")}`) return "decision_id_mismatch";
+    if (record.decisionStatus !== "recorded") return "unsupported_decision_status";
+  }
+
+  const latest = ledger.records.length === 0 ? undefined : ledger.records[ledger.records.length - 1];
+  if (latest) {
+    if (latest.runId !== run.runId) return "run_mismatch";
+    if (run.candidate && latest.candidateId !== run.candidate.candidateId) return "candidate_mismatch";
+  }
+
+  return null;
+}
+
+export function deriveLocalDecisionReplayProjection(
+  run: LocalRunProjection,
+  ledger: LocalDecisionLedger
+): LocalDecisionReplayProjection {
+  if (ledger.records.length === 0) return initialLocalDecisionReplayProjection();
+
+  const error = validateLocalDecisionReplayInput(run, ledger);
+  if (error) return inconsistentLocalDecisionReplayProjection(ledger, error);
+
+  const entries = ledger.records.map((record): LocalDecisionReplayEntry => ({
+    replaySequence: `local-replay-entry-${String(record.recordedSequence).padStart(4, "0")}`,
+    decisionId: record.decisionId,
+    runId: record.runId,
+    candidateId: record.candidateId,
+    operatorId: record.operatorId,
+    decisionKind: record.intentKind,
+    decisionStatus: record.decisionStatus
+  }));
+  const latest = ledger.records[ledger.records.length - 1];
+  const replayStatus: LocalDecisionReplayStatus = latest.intentKind === "approve"
+    ? "approved_decision_replayed"
+    : "rejected_decision_replayed";
+
+  return {
+    replayStatus,
+    replaySequence: `local-replay-sequence-${String(ledger.records.length).padStart(4, "0")}`,
+    sourceDecisionCount: ledger.records.length,
+    latestDecisionId: latest.decisionId,
+    latestRunId: latest.runId,
+    latestCandidateId: latest.candidateId,
+    latestOperatorId: latest.operatorId,
+    latestDecisionKind: latest.intentKind,
+    latestDecisionStatus: latest.decisionStatus,
+    integrityStatus: "consistent",
+    error: null,
+    entries,
+    summary: `Local decision replay projection derived ${ledger.records.length} recorded decision(s); latest decision ${latest.decisionId} is ${replayStatus}.`
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -64,8 +208,9 @@ export type LocalRunProjection = Readonly<{
   validation: LocalValidationProjection | null;
   selectedIntent: LocalOperatorIntentKind | null;
   timeline: readonly string[];
-  replayStatus: string;
+  replayStatus: LocalDecisionReplayStatus;
   decisionTimeline: LocalDecisionTimelineProjection;
+  decisionReplay: LocalDecisionReplayProjection;
 }>;
 
 export type LocalOperatorShellState = Readonly<{
@@ -109,8 +254,9 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       validation: null,
       selectedIntent: null,
       timeline: ["idle local harness initialized"],
-      replayStatus: "placeholder: replay/status projection is typed but not executing",
-      decisionTimeline: projectLocalDecisionTimeline(initialLocalDecisionLedger())
+      replayStatus: initialLocalDecisionReplayProjection().replayStatus,
+      decisionTimeline: projectLocalDecisionTimeline(initialLocalDecisionLedger()),
+      decisionReplay: initialLocalDecisionReplayProjection()
     },
     decisionLedger: initialLocalDecisionLedger()
   };
@@ -151,7 +297,9 @@ export function startDeterministicStubRun(state: LocalOperatorShellState): Local
         "candidate output projected",
         "validation and policy projection completed"
       ],
-      decisionTimeline: projectLocalDecisionTimeline(state.decisionLedger)
+      decisionTimeline: projectLocalDecisionTimeline(state.decisionLedger),
+      decisionReplay: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger),
+      replayStatus: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger).replayStatus
     }
   };
 }
@@ -192,6 +340,15 @@ export function applyLocalOperatorIntent(
   };
   const decisionLedger: LocalDecisionLedger = { records: [...state.decisionLedger.records, decisionRecord] };
 
+  const nextRun: LocalRunProjection = {
+    ...state.run,
+    status: "intent_recorded",
+    selectedIntent: intent.kind,
+    decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
+    timeline: [...state.run.timeline, `operator intent recorded: ${intent.kind} by ${intent.operatorId} as decision ${decisionRecord.decisionId}`]
+  };
+  const decisionReplay = deriveLocalDecisionReplayProjection(nextRun, decisionLedger);
+
   return {
     status: "accepted",
     reason: "local_operator_intent_recorded",
@@ -199,11 +356,9 @@ export function applyLocalOperatorIntent(
       ...state,
       decisionLedger,
       run: {
-        ...state.run,
-        status: "intent_recorded",
-        selectedIntent: intent.kind,
-        decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
-        timeline: [...state.run.timeline, `operator intent recorded: ${intent.kind} by ${intent.operatorId} as decision ${decisionRecord.decisionId}`]
+        ...nextRun,
+        decisionReplay,
+        replayStatus: decisionReplay.replayStatus
       }
     }
   };

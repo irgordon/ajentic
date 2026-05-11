@@ -84,6 +84,7 @@ echo "Running UI validation..."
   npm run typecheck
   npm run lint
   npm run build
+  rm -rf dist
   npm run test:api
 )
 echo "  UI validation OK"

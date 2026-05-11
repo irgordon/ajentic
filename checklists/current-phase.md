@@ -4,14 +4,14 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 136 In-Memory Local Decision Ledger
+# Current Phase Checklist - Phase 137 Replay Projection for Local Decisions
 
 ## Phase goal
-- [x] Add usable local-session decision recording for approve/reject operator intents submitted through the local transport boundary.
-- [x] Expose the Rust-owned in-memory decision timeline in the local UI shell.
+- [x] Derive a deterministic Rust-owned local replay/status projection from the in-memory local decision ledger.
+- [x] Render the replay/status projection in the local browser UI after initial, stub-run, approve, and reject flows.
 
 ## Working-tree hygiene gate
-- [x] Keep changes limited to Phase 136 code-production, tests, changelog, and checklist surfaces.
+- [x] Keep changes limited to Phase 137 code-production, tests, changelog, and checklist surfaces.
 - [x] Do not modify governance, architecture, roadmap, release, installer, update-channel, signing, publishing, deployment, archived changelog, or AGENTS surfaces.
 
 ## Allowed surfaces
@@ -26,39 +26,41 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Produce executable product behavior for Phase 136.
-- [x] Preserve deterministic stub output for identical input.
-- [x] Keep all behavior local-only and non-production.
+- [x] Produce executable product behavior for Phase 137.
+- [x] Preserve deterministic replay projection output for identical local shell and ledger input.
+- [x] Keep replay descriptive, local-session, in-memory, local-only, and non-production.
 
-## Rust decision ledger checklist
-- [x] Add Rust-owned in-memory local decision ledger types.
-- [x] Add typed approve/reject decision records.
-- [x] Append exactly one decision record for a valid approve/reject intent.
-- [x] Keep initial shell state and started stub run ledger/timeline empty until operator action.
-- [x] Reject malformed, duplicate, wrong-run, wrong-candidate, authority-granting, readiness-claiming, and provider-execution-related requests without ledger mutation.
-- [x] Preserve deterministic decision sequence ordering.
+## Rust replay projection checklist
+- [x] Add typed Rust replay/status projection structures and closed status values.
+- [x] Expose explicit no-decision, approved-decision, rejected-decision, and inconsistent-ledger projection states.
+- [x] Derive replay projection from current local shell state and decision ledger without mutating either input.
+- [x] Update replay projection after accepted approve/reject decisions.
+- [x] Leave replay projection unchanged for invalid, duplicate, or forbidden requests.
+- [x] Fail closed with an inconsistent projection for malformed representable ledger state.
 
 ## TypeScript transport projection checklist
-- [x] Extend TypeScript shell state with decision ledger/timeline projection data.
-- [x] Return updated decision timeline data after approve/reject through the local transport adapter.
+- [x] Extend TypeScript local shell state with Rust-shaped replay/status projection data.
+- [x] Return replay projection data after initial state, deterministic stub run, approve, and reject flows.
 - [x] Keep rejected requests non-mutating and browser-usable.
 
-## UI decision ledger checklist
-- [x] Render a visible local decision ledger/timeline region.
-- [x] Show empty-ledger text before approve/reject.
-- [x] Show decision sequence, run ID, candidate ID, operator ID, decision kind, and decision status after approve/reject.
+## UI replay/status panel checklist
+- [x] Replace the replay/status placeholder with a visible local replay/status projection panel.
+- [x] Show replay status, decision count, latest decision ID, latest run ID, latest candidate ID, latest operator ID, latest decision kind, and integrity summary.
+- [x] Render no-decision, approved-decision, and rejected-decision states.
 
 ## Rust test checklist
-- [x] Test empty initial ledger/timeline projection.
-- [x] Test deterministic stub run preserves an empty ledger/timeline.
-- [x] Test valid approve/reject records exactly one typed decision.
-- [x] Test duplicate and invalid/forbidden requests fail closed without ledger mutation.
+- [x] Test initial no-decision replay projection.
+- [x] Test deterministic stub run preserves no-decision replay projection.
+- [x] Test valid approve/reject decisions update replay projection.
+- [x] Test invalid/forbidden/duplicate requests do not update replay projection as accepted.
+- [x] Test deterministic and non-mutating replay derivation.
+- [x] Test malformed ledger state fails closed with inconsistent replay projection.
 
 ## TypeScript test checklist
-- [x] Test visible empty local decision ledger.
-- [x] Test visible approve and reject decision history updates.
-- [x] Test forbidden and invalid UI actions do not add decision records.
-- [x] Test transport capabilities remain disabled.
+- [x] Test visible no-decision replay/status output.
+- [x] Test visible approved and rejected replay/status updates.
+- [x] Test forbidden and duplicate actions do not update replay projection as accepted.
+- [x] Test replay derivation determinism.
 
 ## Local-only/non-production boundary checklist
 - [x] No filesystem persistence.
@@ -67,17 +69,18 @@ mutation_path: checklist_revision
 - [x] No broad command execution.
 - [x] No production persistence.
 - [x] No replay repair or recovery promotion.
+- [x] No action execution.
 - [x] No release/deployment/signing/publishing behavior.
 - [x] No readiness, Release Candidate, Production Candidate, public-use, or production-human-use approval.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-136-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-137-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
 - [x] Run UI typecheck, lint, build, and API behavior tests directly if needed.
 - [x] Run Rust tests directly if needed.
 - [x] Run local dev smoke test.
-- [x] Run decision ledger scan.
+- [x] Run replay projection scan.
 - [x] Run no-persistence/provider/release/deployment authority scan.
 - [x] Run changed-file source guard.
 
@@ -85,6 +88,7 @@ mutation_path: checklist_revision
 - [x] Filesystem persistence and durable ledger writes remain deferred.
 - [x] Provider execution and broad command execution remain deferred.
 - [x] Replay repair and recovery promotion remain deferred.
+- [x] Action execution remains deferred.
 - [x] Release artifacts, installer/update-channel behavior, signing, publishing, deployment, and readiness approval remain deferred.
 
 ## Validation log
@@ -93,9 +97,9 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] Changelog entry matches the Phase 136 code-production diff.
-- [x] Staged files are limited to allowed Phase 136 surfaces.
-- [x] Rust-owned in-memory decision ledger exists.
-- [x] Transport projection includes decision ledger/timeline data.
-- [x] UI visibly renders local decision history.
+- [x] Changelog entry matches the Phase 137 code-production diff.
+- [x] Staged files are limited to allowed Phase 137 surfaces.
+- [x] Rust-derived replay/status projection exists.
+- [x] Transport projection includes replay/status data.
+- [x] UI visibly renders replay/status projection.
 - [x] No local-only/non-production boundary drift introduced.

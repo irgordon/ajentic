@@ -28,6 +28,35 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.137 - 2026-05-11
+**Status:** Phase 137 - Replay Projection for Local Decisions
+
+### Added
+- Add a Rust-derived local replay/status projection for in-memory local decision ledger records.
+- Add replay projection states for no decision, approved decision, and rejected decision local flows.
+- Add UI rendering for the local replay/status projection.
+- Add Rust and TypeScript tests for replay projection determinism and visible replay/status updates.
+
+### Changed
+- Extend the local operator shell transport projection to include decision replay/status data.
+- Replace the UI replay/status placeholder with a real local replay/status projection panel.
+- Update checklists/current-phase.md to Phase 137 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session in-memory replay/status projection only.
+- Rust remains authoritative for replay projection derivation.
+- UI remains non-authoritative.
+- Replay is descriptive only.
+- No replay repair.
+- No recovery promotion.
+- No filesystem persistence.
+- No durable ledger writes.
+- No provider execution.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.136 - 2026-05-11
 **Status:** Phase 136 - In-Memory Local Decision Ledger
 
