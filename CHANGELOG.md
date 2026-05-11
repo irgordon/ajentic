@@ -28,6 +28,51 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.132.3 - 2026-05-11
+**Status:** Phase 132.3 - Local Artifact Manifest Producer
+
+### Added
+- Add Rust local artifact manifest producer support.
+- Add deterministic producer statuses and reason codes.
+- Add tests proving produced manifest candidates validate through the local artifact manifest validator.
+- Add adversarial coverage for unsafe paths and prohibited claims.
+- Add the Phase 132.3 operations report.
+
+### Changed
+- Export or extend the local artifact manifest API as needed.
+- Update checklists/current-phase.md to Phase 132.3 procedural truth.
+- Update CHANGELOG.md with v0.0.132.3.
+
+### Notes
+- Manifest production is not artifact release.
+- Manifest evidence is not checksum evidence.
+- Manifest evidence is not provenance evidence.
+- Manifest evidence is not signing evidence.
+- Manifest evidence is not publishing evidence.
+- Manifest evidence is not deployment evidence.
+- Manifest evidence is not readiness approval.
+- No release artifact creation.
+- No public asset creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No key creation.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+
 ## v0.0.136.2 - 2026-05-11
 **Status:** Phase 136.2 - Local Artifact Manifest Validation
 
