@@ -1809,3 +1809,167 @@ fn phase_116_adversarial_local_deployment_candidate_payloads_fail_closed() {
         assert!(!local_deployment_candidate_grants_authority(&report));
     }
 }
+
+mod phase_136_2_local_artifact_manifest_adversarial_tests {
+    use ajentic_core::api::{
+        validate_local_artifact_manifest, ArtifactManifestValidationStatus,
+        LocalArtifactEvidenceStatus, LocalArtifactKind, LocalArtifactKindField,
+        LocalArtifactManifest, LocalArtifactManifestValidationReason,
+    };
+
+    fn manifest() -> LocalArtifactManifest {
+        LocalArtifactManifest {
+            artifact_id: Some("phase-136-2-local-runtime".to_string()),
+            artifact_name: Some("Phase 136.2 local runtime evidence".to_string()),
+            artifact_kind: Some(LocalArtifactKindField::Known(
+                LocalArtifactKind::LocalRuntimeBuild,
+            )),
+            source_revision: Some("abcdef1234567890".to_string()),
+            build_command: Some("cargo build --manifest-path core/Cargo.toml".to_string()),
+            output_path: Some("artifacts/local/phase-136-2/runtime-manifest.json".to_string()),
+            created_by_phase: Some("phase_136_2".to_string()),
+            non_public: Some(true),
+            release_artifact_claim: Some(false),
+            checksum_status: Some(LocalArtifactEvidenceStatus::Deferred),
+            provenance_status: Some(LocalArtifactEvidenceStatus::Deferred),
+            signing_status: Some(LocalArtifactEvidenceStatus::Absent),
+            publishing_status: Some(LocalArtifactEvidenceStatus::Absent),
+            deployment_status: Some(LocalArtifactEvidenceStatus::Absent),
+            readiness_claim: Some(false),
+            deferred_to_phase: Some("phase_139".to_string()),
+            extra_fields: Vec::new(),
+        }
+    }
+
+    fn assert_reason(
+        manifest: LocalArtifactManifest,
+        reason: LocalArtifactManifestValidationReason,
+    ) {
+        let report = validate_local_artifact_manifest(&manifest);
+        assert_eq!(report.status, ArtifactManifestValidationStatus::Rejected);
+        assert!(report.reasons.contains(&reason), "{:?}", report.reasons);
+        assert!(!report.creates_artifact);
+        assert!(!report.creates_checksum);
+        assert!(!report.creates_provenance);
+        assert!(!report.signs_artifact);
+        assert!(!report.publishes_artifact);
+        assert!(!report.deploys_artifact);
+        assert!(!report.readiness_granted);
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_public_release_rejects() {
+        let mut manifest = manifest();
+        manifest.release_artifact_claim = Some(true);
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::ReleaseArtifactClaimPresent,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_production_deployment_rejects() {
+        let mut manifest = manifest();
+        manifest.deployment_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::DeploymentClaimPresent,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_release_candidate_readiness_rejects() {
+        let mut manifest = manifest();
+        manifest.readiness_claim = Some(true);
+        manifest.extra_fields = vec!["release_candidate_readiness".to_string()];
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::ReadinessClaimPresent,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_production_candidate_readiness_rejects() {
+        let mut manifest = manifest();
+        manifest.readiness_claim = Some(true);
+        manifest.extra_fields = vec!["production_candidate_readiness".to_string()];
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::ReadinessClaimPresent,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_signing_complete_rejects() {
+        let mut manifest = manifest();
+        manifest.signing_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::SigningClaimPresent,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_provenance_complete_rejects() {
+        let mut manifest = manifest();
+        manifest.provenance_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::ProvenanceClaimNotDeferred,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_claiming_checksum_complete_rejects() {
+        let mut manifest = manifest();
+        manifest.checksum_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::ChecksumClaimNotDeferred,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_path_escaping_local_artifacts_rejects() {
+        let mut manifest = manifest();
+        manifest.output_path = Some("artifacts/local/phase-136-2/../../../etc/shadow".to_string());
+        assert_reason(
+            manifest,
+            LocalArtifactManifestValidationReason::UnsafeOutputPath,
+        );
+    }
+
+    #[test]
+    fn adversarial_manifest_path_targeting_release_download_dist_public_rejects() {
+        for path in [
+            "artifacts/local/phase-136-2/release/package.json",
+            "artifacts/local/phase-136-2/download/package.json",
+            "artifacts/local/phase-136-2/dist/package.json",
+            "artifacts/local/phase-136-2/public/package.json",
+        ] {
+            let mut manifest = manifest();
+            manifest.output_path = Some(path.to_string());
+            assert_reason(
+                manifest,
+                LocalArtifactManifestValidationReason::UnsafeOutputPath,
+            );
+        }
+    }
+
+    #[test]
+    fn adversarial_manifest_path_targeting_system_directories_rejects() {
+        for path in [
+            "/etc/ajentic/manifest.json",
+            "/var/lib/ajentic/manifest.json",
+            "~/ajentic/manifest.json",
+            "artifacts/local/phase-136-2/usr/bin/manifest.json",
+        ] {
+            let mut manifest = manifest();
+            manifest.output_path = Some(path.to_string());
+            assert_reason(
+                manifest,
+                LocalArtifactManifestValidationReason::UnsafeOutputPath,
+            );
+        }
+    }
+}
