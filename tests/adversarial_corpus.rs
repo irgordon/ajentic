@@ -1812,9 +1812,11 @@ fn phase_116_adversarial_local_deployment_candidate_payloads_fail_closed() {
 
 mod phase_136_2_local_artifact_manifest_adversarial_tests {
     use ajentic_core::api::{
-        validate_local_artifact_manifest, ArtifactManifestValidationStatus,
-        LocalArtifactEvidenceStatus, LocalArtifactKind, LocalArtifactKindField,
-        LocalArtifactManifest, LocalArtifactManifestValidationReason,
+        produce_local_artifact_manifest_candidate, validate_local_artifact_manifest,
+        ArtifactManifestValidationStatus, LocalArtifactEvidenceStatus, LocalArtifactKind,
+        LocalArtifactKindField, LocalArtifactManifest, LocalArtifactManifestProducerInput,
+        LocalArtifactManifestProducerReason, LocalArtifactManifestProducerStatus,
+        LocalArtifactManifestValidationReason,
     };
 
     fn manifest() -> LocalArtifactManifest {
@@ -1841,6 +1843,36 @@ mod phase_136_2_local_artifact_manifest_adversarial_tests {
         }
     }
 
+    fn producer_input() -> LocalArtifactManifestProducerInput {
+        LocalArtifactManifestProducerInput {
+            artifact_id: Some("phase-132-3-local-runtime".to_string()),
+            artifact_name: Some("Phase 132.3 local runtime manifest candidate".to_string()),
+            artifact_kind: Some(LocalArtifactKind::LocalRuntimeBuild),
+            source_revision: Some("abcdef1234567890".to_string()),
+            build_command: Some("cargo build --manifest-path core/Cargo.toml".to_string()),
+            output_path: None,
+            deferred_to_phase: None,
+        }
+    }
+
+    fn assert_producer_path_rejected(path: &str) {
+        let mut input = producer_input();
+        input.output_path = Some(path.to_string());
+
+        let report = produce_local_artifact_manifest_candidate(&input);
+
+        assert_eq!(report.status, LocalArtifactManifestProducerStatus::Rejected);
+        assert!(report
+            .reasons
+            .contains(&LocalArtifactManifestProducerReason::InvalidOutputPath));
+        assert!(report.manifest.is_none());
+        assert!(!report.mutates_filesystem);
+        assert!(!report.creates_artifact);
+        assert!(!report.publishes_artifact);
+        assert!(!report.deploys_artifact);
+        assert!(!report.readiness_granted);
+    }
+
     fn assert_reason(
         manifest: LocalArtifactManifest,
         reason: LocalArtifactManifestValidationReason,
@@ -1855,6 +1887,87 @@ mod phase_136_2_local_artifact_manifest_adversarial_tests {
         assert!(!report.publishes_artifact);
         assert!(!report.deploys_artifact);
         assert!(!report.readiness_granted);
+    }
+
+    #[test]
+    fn adversarial_producer_input_attempting_public_release_path_rejects() {
+        for path in [
+            "artifacts/local/phase-132-3/public/manifest.json",
+            "artifacts/local/phase-132-3/release/manifest.json",
+            "artifacts/local/phase-132-3/download/manifest.json",
+            "artifacts/local/phase-132-3/dist/manifest.json",
+        ] {
+            assert_producer_path_rejected(path);
+        }
+    }
+
+    #[test]
+    fn adversarial_producer_input_attempting_traversal_path_rejects() {
+        assert_producer_path_rejected("artifacts/local/phase-132-3/../../release/manifest.json");
+    }
+
+    #[test]
+    fn adversarial_producer_input_attempting_absolute_system_path_rejects() {
+        for path in [
+            "/etc/ajentic/manifest.json",
+            "/var/lib/ajentic/manifest.json",
+            "~/ajentic/manifest.json",
+            "artifacts/local/phase-132-3/usr/bin/manifest.json",
+        ] {
+            assert_producer_path_rejected(path);
+        }
+    }
+
+    #[test]
+    fn adversarial_producer_readiness_shaped_text_does_not_create_claims() {
+        let mut input = producer_input();
+        input.artifact_name = Some(
+            "release candidate readiness public production approval text is inert".to_string(),
+        );
+
+        let report = produce_local_artifact_manifest_candidate(&input);
+        let manifest = report.manifest.expect("manifest candidate");
+
+        assert_eq!(
+            report.status,
+            LocalArtifactManifestProducerStatus::ProducedAndValidated
+        );
+        assert_eq!(manifest.release_artifact_claim, Some(false));
+        assert_eq!(manifest.readiness_claim, Some(false));
+        assert_eq!(
+            manifest.publishing_status,
+            Some(LocalArtifactEvidenceStatus::Absent)
+        );
+        assert_eq!(
+            manifest.deployment_status,
+            Some(LocalArtifactEvidenceStatus::Absent)
+        );
+        assert!(!report.readiness_granted);
+    }
+
+    #[test]
+    fn adversarial_produced_manifest_with_complete_downstream_claims_fails_validation() {
+        let report = produce_local_artifact_manifest_candidate(&producer_input());
+        let mut manifest = report.manifest.expect("manifest candidate");
+        manifest.checksum_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        manifest.provenance_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+        manifest.signing_status = Some(LocalArtifactEvidenceStatus::ClaimedComplete);
+
+        let validation = validate_local_artifact_manifest(&manifest);
+
+        assert_eq!(
+            validation.status,
+            ArtifactManifestValidationStatus::Rejected
+        );
+        assert!(validation
+            .reasons
+            .contains(&LocalArtifactManifestValidationReason::ChecksumClaimNotDeferred));
+        assert!(validation
+            .reasons
+            .contains(&LocalArtifactManifestValidationReason::ProvenanceClaimNotDeferred));
+        assert!(validation
+            .reasons
+            .contains(&LocalArtifactManifestValidationReason::SigningClaimPresent));
     }
 
     #[test]
