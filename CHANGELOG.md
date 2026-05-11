@@ -18,6 +18,57 @@ Archive guarantees:
 - The active changelog begins with v0.0.104.5 and later entries only.
 - CHANGELOG surfaces remain historical truth.
 
+## v0.0.135 - 2026-05-11
+**Status:** Phase 135 - Roadmap and Changelog Alignment Check
+
+### Added
+- Add the Phase 135 roadmap and changelog alignment report.
+- Add the planned Phase 135.1 follow-up for artifact-chain correction before installer/update-channel work.
+
+### Changed
+- Update checklists/current-phase.md to Phase 135 procedural truth.
+- Update CHANGELOG.md with v0.0.135.
+- Update roadmap planned-truth surfaces only if required to record Phase 135.1 or clarify Phase 136 deferment.
+
+### Notes
+- Phase 135 is alignment only.
+- Alignment is not implementation.
+- Roadmap is not implementation.
+- Requirements are not evidence.
+- Evidence is not approval.
+- Phase 130 rc_candidate_not_ready is preserved.
+- Artifact creation remains blocked or deferred.
+- Checksum/provenance evidence remains blocked or deferred.
+- Signing/key-custody evidence remains blocked or deferred.
+- Phase 136 remains mapped, but implementation must not proceed until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
+- No artifact creation.
+- No package creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No key creation.
+- No certificate creation.
+- No signature creation.
+- No publishing behavior.
+- No deployment automation.
+- No production deployment behavior.
+- No installer/update-channel activation.
+- No monitoring/logging/telemetry activation.
+- No provider trust.
+- No provider output promotion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+- No Phase 136 implementation.
+- No Phase 139 implementation.
+- No Phase 140 implementation.
+
 ## v0.0.134 - 2026-05-10
 **Status:** Phase 134 - Signing and Key-Custody Implementation Boundary
 

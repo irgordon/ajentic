@@ -241,9 +241,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 135 checks roadmap/changelog alignment after Phase 131-134.
    - Boundary: alignment only; no readiness approval.
 
+35.1. **Phase 135.1 corrects the artifact chain before installer/update-channel work**
+   - Phase 135.1 resolves or explicitly defers the blocked artifact chain before Phase 136 implementation proceeds.
+   - Boundary: artifact-chain correction boundary only; no signing, publishing, installer/update-channel activation, deployment, monitoring, or readiness approval.
+
 36. **Phase 136 constrains installer/update-channel work to non-public surfaces**
-   - Phase 136 implements or further defers installer/update-channel surfaces under Phase 127 constraints.
-   - Boundary: controlled implementation only; no public distribution.
+   - Phase 136 implements or further defers installer/update-channel surfaces under Phase 127 constraints after Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
+   - Boundary: controlled implementation only; no public distribution; deferred until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
 
 37. **Phase 137 keeps observability evidence local and non-production**
    - Phase 137 implements local/non-production observability evidence capture if permitted.
