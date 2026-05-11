@@ -28,6 +28,36 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.136.2 - 2026-05-11
+**Status:** Phase 136.2 - Local Artifact Manifest Validation
+
+### Added
+- Add Rust local artifact manifest validation.
+- Add deterministic validation statuses and rejection reasons.
+- Add tests for local/non-public manifest acceptance, unsafe path rejection, claim rejection, and deterministic non-mutating validation.
+- Add the Phase 136.2 operations report.
+
+### Changed
+- Export the local artifact manifest validation surface from the Rust API module.
+- Update checklists/current-phase.md to Phase 136.2 procedural truth.
+- Update CHANGELOG.md with v0.0.136.2.
+
+### Notes
+- Manifest validation is evidence validation, not release approval.
+- No artifact creation.
+- No checksum generation.
+- No provenance attestation creation.
+- No signing behavior.
+- No publishing behavior.
+- No installer/update-channel behavior.
+- No deployment automation.
+- No monitoring/logging/telemetry activation.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No production-human-use approval.
+
 ## v0.0.136 - 2026-05-11
 **Status:** Phase 136 - Installer/Update-Channel Dependency Reassessment
 
