@@ -1,4 +1,4 @@
-import { projectLocalProviderConfiguration, type LocalOperatorShellState } from "./localOperatorShell";
+import { projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorShellState } from "./localOperatorShell";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
   const decisionHistory = state.run.decisionTimeline.records.length === 0
@@ -36,6 +36,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
   ].join("\n");
 
   const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
+  const providerExecution = projectLocalProviderExecution(state);
   const providerConfigurationLines = [
     `Configured provider kind: ${providerConfiguration.configuredProviderKind}`,
     `Provider configuration status: ${providerConfiguration.status}`,
@@ -45,6 +46,19 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Execution status: ${providerConfiguration.executionStatus}`,
     `Capability surface: ${providerConfiguration.capabilitySurface.summary}`,
     providerConfiguration.note
+  ].join("\n");
+
+  const providerExecutionLines = [
+    `Execution status: ${providerExecution.status}`,
+    `Configured provider kind: ${providerExecution.configuredProviderKind}`,
+    `Sandbox status: ${providerExecution.sandboxStatus}`,
+    `Execution result ID: ${providerExecution.result?.resultId ?? "none"}`,
+    `Provider output summary: ${providerExecution.result?.outputSummary ?? "none"}`,
+    `Output trust status: ${providerExecution.result?.outputTrustStatus ?? "untrusted/descriptive"}`,
+    `Validation/error reason: ${providerExecution.validationReason}`,
+    `Validation/error code: ${providerExecution.validationErrorCodes.join(", ") || "none"}`,
+    `Capability surface: ${providerExecution.capabilitySurface.summary}`,
+    providerExecution.note
   ].join("\n");
 
   const candidate = state.run.candidate
@@ -77,6 +91,9 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     decisionHistory,
     "Local provider configuration",
     providerConfigurationLines,
+    "Sandboxed provider execution",
+    "Run deterministic provider",
+    providerExecutionLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",

@@ -28,6 +28,44 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.141 - 2026-05-11
+**Status:** Phase 141 - Sandboxed Deterministic Provider Execution Boundary
+
+### Added
+- Add Rust-owned sandboxed deterministic provider execution for deterministic_stub only.
+- Add provider execution request validation, execution result projection, and capability surface.
+- Add local transport support for deterministic provider execution requests and results.
+- Add UI rendering for sandboxed deterministic provider execution status and result.
+- Add Rust and TypeScript tests for accepted deterministic_stub execution and rejected unsafe/unsupported execution attempts.
+
+### Changed
+- Extend the local operator shell projection with provider execution status/result data.
+- Update the local UI shell to display provider execution controls, status, and untrusted/descriptive output.
+- Update checklists/current-phase.md to Phase 141 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session sandboxed deterministic provider execution only.
+- deterministic_stub is the only executable provider.
+- Rust remains authoritative for provider execution.
+- UI remains non-authoritative.
+- Provider output remains untrusted/descriptive.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable provider configuration storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.140 - 2026-05-11
 **Status:** Phase 140 - Code-Production Alignment Checkpoint
 

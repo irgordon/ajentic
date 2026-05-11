@@ -877,6 +877,396 @@ pub fn apply_local_provider_configuration_candidate(
     Ok(attach_local_session_evidence_export(next))
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderExecutionStatus {
+    NotExecuted,
+    Executed,
+    Rejected,
+    UnsupportedProvider,
+    ConfigurationRequired,
+    InvalidRequest,
+}
+
+impl LocalProviderExecutionStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotExecuted => "not_executed",
+            Self::Executed => "executed",
+            Self::Rejected => "rejected",
+            Self::UnsupportedProvider => "unsupported_provider",
+            Self::ConfigurationRequired => "configuration_required",
+            Self::InvalidRequest => "invalid_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderExecutionSandboxStatus {
+    NotEntered,
+    SandboxedDeterministicNoExternalEffects,
+    RejectedBeforeSandbox,
+}
+
+impl LocalProviderExecutionSandboxStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotEntered => "not_entered",
+            Self::SandboxedDeterministicNoExternalEffects => {
+                "sandboxed_deterministic_no_external_effects"
+            }
+            Self::RejectedBeforeSandbox => "rejected_before_sandbox",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LocalProviderExecutionError {
+    MissingProviderConfiguration,
+    RejectedProviderConfiguration,
+    MissingProviderKind,
+    MalformedProviderKind,
+    UnsupportedProviderKind,
+    ForbiddenEndpointField,
+    ForbiddenCommandField,
+    ForbiddenPathField,
+    ForbiddenSecretField,
+    ProviderExecutionFlagRejected,
+    TrustGrantRejected,
+    ReadinessClaimRejected,
+    ReleaseClaimRejected,
+    DeploymentClaimRejected,
+    PublicUseClaimRejected,
+    SigningClaimRejected,
+    PublishingClaimRejected,
+    UnknownFieldRejected,
+}
+
+impl LocalProviderExecutionError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingProviderConfiguration => "missing_provider_configuration",
+            Self::RejectedProviderConfiguration => "rejected_provider_configuration",
+            Self::MissingProviderKind => "missing_provider_kind",
+            Self::MalformedProviderKind => "malformed_provider_kind",
+            Self::UnsupportedProviderKind => "unsupported_provider_kind",
+            Self::ForbiddenEndpointField => "forbidden_endpoint_field",
+            Self::ForbiddenCommandField => "forbidden_command_field",
+            Self::ForbiddenPathField => "forbidden_path_field",
+            Self::ForbiddenSecretField => "forbidden_secret_field",
+            Self::ProviderExecutionFlagRejected => "provider_execution_flag_rejected",
+            Self::TrustGrantRejected => "trust_grant_rejected",
+            Self::ReadinessClaimRejected => "readiness_claim_rejected",
+            Self::ReleaseClaimRejected => "release_claim_rejected",
+            Self::DeploymentClaimRejected => "deployment_claim_rejected",
+            Self::PublicUseClaimRejected => "public_use_claim_rejected",
+            Self::SigningClaimRejected => "signing_claim_rejected",
+            Self::PublishingClaimRejected => "publishing_claim_rejected",
+            Self::UnknownFieldRejected => "unknown_field_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionRequest {
+    pub provider_kind: Option<String>,
+    pub input_summary: String,
+    pub fields: Vec<(String, String)>,
+}
+
+impl LocalProviderExecutionRequest {
+    pub fn deterministic_stub(input_summary: impl Into<String>) -> Self {
+        Self {
+            provider_kind: Some("deterministic_stub".to_string()),
+            input_summary: input_summary.into(),
+            fields: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionCapabilitySurface {
+    pub deterministic_stub_execution_supported: bool,
+    pub supported_provider_kind: String,
+    pub cloud_calls_enabled: bool,
+    pub network_enabled: bool,
+    pub shell_commands_enabled: bool,
+    pub filesystem_enabled: bool,
+    pub secrets_allowed: bool,
+    pub trust_granted: bool,
+    pub readiness_approved: bool,
+    pub release_approved: bool,
+    pub deployment_enabled: bool,
+    pub signing_enabled: bool,
+    pub publishing_enabled: bool,
+    pub public_use_enabled: bool,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionResult {
+    pub result_id: String,
+    pub provider_kind: LocalProviderKind,
+    pub sandbox_status: LocalProviderExecutionSandboxStatus,
+    pub output_summary: String,
+    pub output_trust_status: String,
+    pub descriptive_only: bool,
+    pub provider_output_trusted: bool,
+    pub candidate_output_promoted: bool,
+    pub decision_appended: bool,
+    pub replay_repaired: bool,
+    pub release_or_deployment_evidence_created: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionValidation {
+    pub status: LocalProviderExecutionStatus,
+    pub provider_kind: Option<LocalProviderKind>,
+    pub error_codes: Vec<LocalProviderExecutionError>,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderExecutionProjection {
+    pub status: LocalProviderExecutionStatus,
+    pub configured_provider_kind: String,
+    pub sandbox_status: LocalProviderExecutionSandboxStatus,
+    pub result: Option<LocalProviderExecutionResult>,
+    pub validation_status: String,
+    pub validation_error_codes: Vec<String>,
+    pub validation_reason: String,
+    pub capability_surface: LocalProviderExecutionCapabilitySurface,
+    pub note: String,
+}
+
+pub fn local_provider_execution_capability_surface() -> LocalProviderExecutionCapabilitySurface {
+    LocalProviderExecutionCapabilitySurface {
+        deterministic_stub_execution_supported: true,
+        supported_provider_kind: "deterministic_stub".to_string(),
+        cloud_calls_enabled: false,
+        network_enabled: false,
+        shell_commands_enabled: false,
+        filesystem_enabled: false,
+        secrets_allowed: false,
+        trust_granted: false,
+        readiness_approved: false,
+        release_approved: false,
+        deployment_enabled: false,
+        signing_enabled: false,
+        publishing_enabled: false,
+        public_use_enabled: false,
+        summary: "sandboxed deterministic provider execution supports deterministic_stub only; no cloud, network, shell, filesystem, secrets, trust, readiness, release, deployment, signing, publishing, or public-use capability".to_string(),
+    }
+}
+
+pub fn initial_local_provider_execution_projection() -> LocalProviderExecutionProjection {
+    LocalProviderExecutionProjection {
+        status: LocalProviderExecutionStatus::NotExecuted,
+        configured_provider_kind: "none".to_string(),
+        sandbox_status: LocalProviderExecutionSandboxStatus::NotEntered,
+        result: None,
+        validation_status: "not_executed".to_string(),
+        validation_error_codes: Vec::new(),
+        validation_reason: "deterministic_stub execution has not been requested".to_string(),
+        capability_surface: local_provider_execution_capability_surface(),
+        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision.".to_string(),
+    }
+}
+
+pub fn project_local_provider_execution(
+    state: &LocalOperatorShellState,
+) -> LocalProviderExecutionProjection {
+    LocalProviderExecutionProjection {
+        configured_provider_kind: state
+            .provider_configuration
+            .configured_provider_kind
+            .map(|kind| kind.code().to_string())
+            .unwrap_or_else(|| "none".to_string()),
+        ..state.provider_execution.clone()
+    }
+}
+
+pub fn validate_local_provider_execution_request(
+    configuration: &LocalProviderConfiguration,
+    request: &LocalProviderExecutionRequest,
+) -> LocalProviderExecutionValidation {
+    let mut errors = std::collections::BTreeSet::new();
+    if configuration.status != LocalProviderConfigurationStatus::Accepted
+        || configuration.configured_provider_kind != Some(LocalProviderKind::DeterministicStub)
+    {
+        if configuration.status == LocalProviderConfigurationStatus::NotConfigured {
+            errors.insert(LocalProviderExecutionError::MissingProviderConfiguration);
+        } else {
+            errors.insert(LocalProviderExecutionError::RejectedProviderConfiguration);
+        }
+    }
+
+    let parsed_kind = match request.provider_kind.as_deref() {
+        None => {
+            errors.insert(LocalProviderExecutionError::MissingProviderKind);
+            None
+        }
+        Some(kind) if kind.trim().is_empty() => {
+            errors.insert(LocalProviderExecutionError::MissingProviderKind);
+            None
+        }
+        Some(kind) if kind.trim() != kind => {
+            errors.insert(LocalProviderExecutionError::MalformedProviderKind);
+            None
+        }
+        Some(kind) => match LocalProviderKind::parse(kind) {
+            Some(LocalProviderKind::DeterministicStub) => {
+                Some(LocalProviderKind::DeterministicStub)
+            }
+            Some(other) => {
+                errors.insert(LocalProviderExecutionError::UnsupportedProviderKind);
+                Some(other)
+            }
+            None => {
+                errors.insert(LocalProviderExecutionError::UnsupportedProviderKind);
+                None
+            }
+        },
+    };
+
+    if request.input_summary.trim().is_empty() || request.input_summary.len() > 4096 {
+        errors.insert(LocalProviderExecutionError::MalformedProviderKind);
+    }
+
+    for (key, value) in &request.fields {
+        reject_forbidden_provider_execution_field(key, value, &mut errors);
+    }
+
+    if errors.is_empty() && parsed_kind == Some(LocalProviderKind::DeterministicStub) {
+        LocalProviderExecutionValidation {
+            status: LocalProviderExecutionStatus::Executed,
+            provider_kind: parsed_kind,
+            error_codes: Vec::new(),
+            reason: "deterministic_stub execution accepted inside Rust-owned sandboxed deterministic boundary".to_string(),
+        }
+    } else {
+        let status = if errors.contains(&LocalProviderExecutionError::UnsupportedProviderKind) {
+            LocalProviderExecutionStatus::UnsupportedProvider
+        } else if errors.contains(&LocalProviderExecutionError::MissingProviderConfiguration)
+            || errors.contains(&LocalProviderExecutionError::RejectedProviderConfiguration)
+        {
+            LocalProviderExecutionStatus::ConfigurationRequired
+        } else {
+            LocalProviderExecutionStatus::InvalidRequest
+        };
+        LocalProviderExecutionValidation {
+            status,
+            provider_kind: parsed_kind,
+            error_codes: errors.into_iter().collect(),
+            reason: "provider execution rejected fail-closed; previous shell state is preserved"
+                .to_string(),
+        }
+    }
+}
+
+fn reject_forbidden_provider_execution_field(
+    key: &str,
+    value: &str,
+    errors: &mut std::collections::BTreeSet<LocalProviderExecutionError>,
+) {
+    let key = key.to_ascii_lowercase();
+    let value = value.to_ascii_lowercase();
+    let combined = format!("{key}={value}");
+    if ["endpoint", "url", "host", "port", "http", "network"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderExecutionError::ForbiddenEndpointField);
+    } else if ["command", "args", "shell", "process"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderExecutionError::ForbiddenCommandField);
+    } else if ["path", "file", "directory"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderExecutionError::ForbiddenPathField);
+    } else if ["secret", "token", "api_key", "apikey", "credential"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderExecutionError::ForbiddenSecretField);
+    } else if key == "provider_execution_enabled" {
+        errors.insert(LocalProviderExecutionError::ProviderExecutionFlagRejected);
+    } else if key == "trust_granted" {
+        errors.insert(LocalProviderExecutionError::TrustGrantRejected);
+    } else if key == "readiness_approved" {
+        errors.insert(LocalProviderExecutionError::ReadinessClaimRejected);
+    } else if key == "release_candidate_approved" {
+        errors.insert(LocalProviderExecutionError::ReleaseClaimRejected);
+    } else if key == "deployment_enabled" {
+        errors.insert(LocalProviderExecutionError::DeploymentClaimRejected);
+    } else if key == "public_use_approved" {
+        errors.insert(LocalProviderExecutionError::PublicUseClaimRejected);
+    } else if key == "signing_enabled" {
+        errors.insert(LocalProviderExecutionError::SigningClaimRejected);
+    } else if key == "publishing_enabled" {
+        errors.insert(LocalProviderExecutionError::PublishingClaimRejected);
+    } else {
+        errors.insert(LocalProviderExecutionError::UnknownFieldRejected);
+    }
+}
+
+pub fn execute_sandboxed_deterministic_provider(
+    request: &LocalProviderExecutionRequest,
+) -> LocalProviderExecutionResult {
+    let checksum = deterministic_provider_input_checksum(&request.input_summary);
+    LocalProviderExecutionResult {
+        result_id: format!("local-provider-execution-deterministic_stub-{checksum:08x}"),
+        provider_kind: LocalProviderKind::DeterministicStub,
+        sandbox_status:
+            LocalProviderExecutionSandboxStatus::SandboxedDeterministicNoExternalEffects,
+        output_summary: format!(
+            "deterministic_stub descriptive output for input_bytes={} checksum={checksum:08x}",
+            request.input_summary.len()
+        ),
+        output_trust_status: "untrusted/descriptive".to_string(),
+        descriptive_only: true,
+        provider_output_trusted: false,
+        candidate_output_promoted: false,
+        decision_appended: false,
+        replay_repaired: false,
+        release_or_deployment_evidence_created: false,
+    }
+}
+
+fn deterministic_provider_input_checksum(input: &str) -> u32 {
+    input.bytes().fold(0x141u32, |accumulator, byte| {
+        accumulator.wrapping_mul(33).wrapping_add(u32::from(byte))
+    })
+}
+
+pub fn apply_local_provider_execution(
+    state: &LocalOperatorShellState,
+    request: LocalProviderExecutionRequest,
+) -> Result<LocalOperatorShellState, LocalProviderExecutionValidation> {
+    let validation =
+        validate_local_provider_execution_request(&state.provider_configuration, &request);
+    if validation.status != LocalProviderExecutionStatus::Executed {
+        return Err(validation);
+    }
+
+    let result = execute_sandboxed_deterministic_provider(&request);
+    let mut next = state.clone();
+    next.provider_execution = LocalProviderExecutionProjection {
+        status: LocalProviderExecutionStatus::Executed,
+        configured_provider_kind: "deterministic_stub".to_string(),
+        sandbox_status: LocalProviderExecutionSandboxStatus::SandboxedDeterministicNoExternalEffects,
+        result: Some(result),
+        validation_status: validation.status.code().to_string(),
+        validation_error_codes: Vec::new(),
+        validation_reason: validation.reason,
+        capability_surface: local_provider_execution_capability_surface(),
+        note: "Provider execution output is untrusted/descriptive and is not candidate output, trust approval, readiness evidence, release evidence, deployment evidence, or a decision.".to_string(),
+    };
+    Ok(next)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalCandidateOutput {
     pub candidate_id: String,
@@ -918,6 +1308,7 @@ pub struct LocalOperatorShellState {
     pub decision_ledger: LocalDecisionLedger,
     pub local_session_evidence_export: LocalSessionEvidenceExport,
     pub provider_configuration: LocalProviderConfiguration,
+    pub provider_execution: LocalProviderExecutionProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -1128,6 +1519,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         decision_ledger: ledger,
         local_session_evidence_export: export,
         provider_configuration: initial_local_provider_configuration(),
+        provider_execution: initial_local_provider_execution_projection(),
     }
 }
 
@@ -1266,6 +1658,7 @@ pub enum LocalOperatorShellRequest {
     StartDeterministicStubRun,
     SubmitOperatorIntent(LocalOperatorIntent),
     SubmitProviderConfiguration(LocalProviderConfigurationCandidate),
+    ExecuteProvider(LocalProviderExecutionRequest),
     Forbidden(LocalOperatorShellForbiddenRequest),
 }
 
@@ -1370,6 +1763,13 @@ pub fn submit_local_provider_configuration(
     ))
 }
 
+pub fn execute_local_provider(
+    transport: &mut LocalOperatorShellTransport,
+    request: LocalProviderExecutionRequest,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::ExecuteProvider(request))
+}
+
 pub fn local_operator_shell_transport_step(
     state: &LocalOperatorShellState,
     request: LocalOperatorShellRequest,
@@ -1395,6 +1795,12 @@ pub fn local_operator_shell_transport_step(
         LocalOperatorShellRequest::SubmitProviderConfiguration(candidate) => {
             match apply_local_provider_configuration_candidate(state, candidate) {
                 Ok(next) => accepted("local_provider_configuration_accepted", next),
+                Err(validation) => rejected(validation.reason, state.clone()),
+            }
+        }
+        LocalOperatorShellRequest::ExecuteProvider(request) => {
+            match apply_local_provider_execution(state, request) {
+                Ok(next) => accepted("local_provider_execution_accepted", next),
                 Err(validation) => rejected(validation.reason, state.clone()),
             }
         }
@@ -2355,5 +2761,330 @@ mod tests {
             second.state.provider_configuration
         );
         assert_eq!(second.state.decision_ledger.records.len(), 0);
+    }
+
+    #[test]
+    fn phase_141_initial_execution_projection_is_not_executed() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.provider_execution.status,
+            LocalProviderExecutionStatus::NotExecuted
+        );
+        assert_eq!(
+            state.provider_execution.sandbox_status,
+            LocalProviderExecutionSandboxStatus::NotEntered
+        );
+        assert_eq!(state.provider_execution.configured_provider_kind, "none");
+        assert!(state.provider_execution.result.is_none());
+        assert!(
+            state
+                .provider_execution
+                .capability_surface
+                .deterministic_stub_execution_supported
+        );
+        assert_eq!(
+            state
+                .provider_execution
+                .capability_surface
+                .supported_provider_kind,
+            "deterministic_stub"
+        );
+    }
+
+    #[test]
+    fn phase_141_executes_accepted_deterministic_stub_inside_sandbox() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        let before = transport.current_state();
+        let response = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("local deterministic provider input"),
+        );
+
+        assert_eq!(response.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(response.reason, "local_provider_execution_accepted");
+        assert_eq!(
+            response.state.provider_execution.status,
+            LocalProviderExecutionStatus::Executed
+        );
+        let result = response.state.provider_execution.result.as_ref().unwrap();
+        assert_eq!(result.provider_kind, LocalProviderKind::DeterministicStub);
+        assert_eq!(
+            result.sandbox_status,
+            LocalProviderExecutionSandboxStatus::SandboxedDeterministicNoExternalEffects
+        );
+        assert_eq!(result.output_trust_status, "untrusted/descriptive");
+        assert!(result.descriptive_only);
+        assert!(!result.provider_output_trusted);
+        assert!(!result.candidate_output_promoted);
+        assert!(!result.decision_appended);
+        assert!(!result.replay_repaired);
+        assert!(!result.release_or_deployment_evidence_created);
+        assert_eq!(response.state.decision_ledger, before.decision_ledger);
+        assert_eq!(
+            response.state.run.decision_replay,
+            before.run.decision_replay
+        );
+        assert_eq!(
+            response.state.local_session_evidence_export,
+            before.local_session_evidence_export
+        );
+    }
+
+    #[test]
+    fn phase_141_deterministic_stub_execution_repeats_identically() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        let first = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("same deterministic input"),
+        );
+        let second = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("same deterministic input"),
+        );
+
+        assert_eq!(first.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(second.status, LocalOperatorShellTransportStatus::Accepted);
+        assert_eq!(
+            first.state.provider_execution,
+            second.state.provider_execution
+        );
+        assert_eq!(second.state.decision_ledger.records.len(), 0);
+    }
+
+    #[test]
+    fn phase_141_execution_requires_accepted_deterministic_stub_configuration() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let missing = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("input"),
+        );
+        assert_eq!(missing.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(
+            missing.state.provider_execution.status,
+            LocalProviderExecutionStatus::NotExecuted
+        );
+
+        let rejected_config = submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate {
+                provider_kind: Some("cloud_model".to_string()),
+                fields: Vec::new(),
+            },
+        );
+        assert_eq!(
+            rejected_config.status,
+            LocalOperatorShellTransportStatus::Rejected
+        );
+        let after_rejected = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("input"),
+        );
+        assert_eq!(
+            after_rejected.status,
+            LocalOperatorShellTransportStatus::Rejected
+        );
+        assert_eq!(
+            transport.current_state().provider_execution.status,
+            LocalProviderExecutionStatus::NotExecuted
+        );
+    }
+
+    #[test]
+    fn phase_141_unsupported_provider_execution_fails_closed() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        for provider_kind in [
+            None,
+            Some(""),
+            Some(" deterministic_stub"),
+            Some("Deterministic_Stub"),
+            Some("local_model"),
+            Some("cloud_model"),
+            Some("external_http"),
+            Some("shell_command"),
+            Some("filesystem_provider"),
+            Some("unknown"),
+            Some("surprise_provider"),
+        ] {
+            let before = transport.current_state();
+            let response = execute_local_provider(
+                &mut transport,
+                LocalProviderExecutionRequest {
+                    provider_kind: provider_kind.map(str::to_string),
+                    input_summary: "input".to_string(),
+                    fields: Vec::new(),
+                },
+            );
+            assert_eq!(response.status, LocalOperatorShellTransportStatus::Rejected);
+            assert_eq!(response.state, before);
+            assert_eq!(transport.current_state(), before);
+        }
+    }
+
+    #[test]
+    fn phase_141_forbidden_execution_fields_fail_closed_and_preserve_state() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        let accepted = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("safe input"),
+        );
+        assert_eq!(accepted.status, LocalOperatorShellTransportStatus::Accepted);
+
+        let cases = [
+            (
+                "endpoint",
+                "http://localhost",
+                LocalProviderExecutionError::ForbiddenEndpointField,
+            ),
+            (
+                "url",
+                "https://example.invalid",
+                LocalProviderExecutionError::ForbiddenEndpointField,
+            ),
+            (
+                "host",
+                "localhost",
+                LocalProviderExecutionError::ForbiddenEndpointField,
+            ),
+            (
+                "port",
+                "11434",
+                LocalProviderExecutionError::ForbiddenEndpointField,
+            ),
+            (
+                "command",
+                "ollama run",
+                LocalProviderExecutionError::ForbiddenCommandField,
+            ),
+            (
+                "args",
+                "--serve",
+                LocalProviderExecutionError::ForbiddenCommandField,
+            ),
+            (
+                "shell",
+                "bash",
+                LocalProviderExecutionError::ForbiddenCommandField,
+            ),
+            (
+                "process",
+                "provider",
+                LocalProviderExecutionError::ForbiddenCommandField,
+            ),
+            (
+                "path",
+                "/tmp/model",
+                LocalProviderExecutionError::ForbiddenPathField,
+            ),
+            (
+                "file",
+                "model.bin",
+                LocalProviderExecutionError::ForbiddenPathField,
+            ),
+            (
+                "directory",
+                "/models",
+                LocalProviderExecutionError::ForbiddenPathField,
+            ),
+            (
+                "secret",
+                "value",
+                LocalProviderExecutionError::ForbiddenSecretField,
+            ),
+            (
+                "token",
+                "value",
+                LocalProviderExecutionError::ForbiddenSecretField,
+            ),
+            (
+                "api_key",
+                "value",
+                LocalProviderExecutionError::ForbiddenSecretField,
+            ),
+            (
+                "credential",
+                "value",
+                LocalProviderExecutionError::ForbiddenSecretField,
+            ),
+            (
+                "provider_execution_enabled",
+                "true",
+                LocalProviderExecutionError::ProviderExecutionFlagRejected,
+            ),
+            (
+                "trust_granted",
+                "true",
+                LocalProviderExecutionError::TrustGrantRejected,
+            ),
+            (
+                "readiness_approved",
+                "true",
+                LocalProviderExecutionError::ReadinessClaimRejected,
+            ),
+            (
+                "release_candidate_approved",
+                "true",
+                LocalProviderExecutionError::ReleaseClaimRejected,
+            ),
+            (
+                "deployment_enabled",
+                "true",
+                LocalProviderExecutionError::DeploymentClaimRejected,
+            ),
+            (
+                "public_use_approved",
+                "true",
+                LocalProviderExecutionError::PublicUseClaimRejected,
+            ),
+            (
+                "signing_enabled",
+                "true",
+                LocalProviderExecutionError::SigningClaimRejected,
+            ),
+            (
+                "publishing_enabled",
+                "true",
+                LocalProviderExecutionError::PublishingClaimRejected,
+            ),
+            (
+                "extra",
+                "field",
+                LocalProviderExecutionError::UnknownFieldRejected,
+            ),
+        ];
+
+        for (key, value, expected_error) in cases {
+            let before = transport.current_state();
+            let request = LocalProviderExecutionRequest {
+                provider_kind: Some("deterministic_stub".to_string()),
+                input_summary: "safe input".to_string(),
+                fields: vec![(key.to_string(), value.to_string())],
+            };
+            let validation =
+                validate_local_provider_execution_request(&before.provider_configuration, &request);
+            assert!(
+                validation.error_codes.contains(&expected_error),
+                "missing {expected_error:?} for {key}"
+            );
+            let response = execute_local_provider(&mut transport, request);
+            assert_eq!(response.status, LocalOperatorShellTransportStatus::Rejected);
+            assert_eq!(response.state, before);
+            assert_eq!(transport.current_state(), before);
+        }
     }
 }

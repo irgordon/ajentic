@@ -1,8 +1,9 @@
-import { deterministicStubProviderConfigurationCandidate, projectLocalProviderConfiguration, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
 import {
   createLocalOperatorShellTransport,
   getInitialLocalOperatorShellState,
   requestDeterministicStubRun,
+  executeLocalProvider,
   submitLocalOperatorIntent,
   submitLocalProviderConfiguration,
   type LocalOperatorShellResponse
@@ -43,6 +44,18 @@ function submitUnsafeProviderConfiguration(): void {
   }));
 }
 
+function runDeterministicProvider(): void {
+  applyTransportResponse(executeLocalProvider(transport, deterministicStubProviderExecutionRequest("local deterministic browser execution input")));
+}
+
+function runForbiddenProviderExecution(): void {
+  applyTransportResponse(executeLocalProvider(transport, {
+    providerKind: "deterministic_stub",
+    inputSummary: "unsafe local browser execution input",
+    fields: [{ key: "command", value: "run model" }]
+  }));
+}
+
 function renderList(items: readonly string[], emptyText: string): string {
   if (items.length === 0) return `<p class="muted">${emptyText}</p>`;
   return `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
@@ -80,6 +93,29 @@ function renderProviderConfiguration(state: LocalOperatorShellState): string {
     <div class="button-row">
       <button id="submit-provider-config" type="button">Submit deterministic_stub configuration</button>
       <button id="reject-provider-config" type="button">Submit forbidden endpoint candidate</button>
+    </div>`;
+}
+
+
+function renderProviderExecution(state: LocalOperatorShellState): string {
+  const providerExecution = projectLocalProviderExecution(state);
+  const result = providerExecution.result;
+  return `
+    <dl>
+      <div><dt>Execution status</dt><dd>${providerExecution.status}</dd></div>
+      <div><dt>Configured provider kind</dt><dd>${providerExecution.configuredProviderKind}</dd></div>
+      <div><dt>Sandbox status</dt><dd>${providerExecution.sandboxStatus}</dd></div>
+      <div><dt>Execution result ID</dt><dd>${result?.resultId ?? "none"}</dd></div>
+      <div><dt>Provider output summary</dt><dd>${result?.outputSummary ?? "none"}</dd></div>
+      <div><dt>Output trust status</dt><dd>${result?.outputTrustStatus ?? "untrusted/descriptive"}</dd></div>
+      <div><dt>Validation/error reason</dt><dd>${providerExecution.validationReason}</dd></div>
+      <div><dt>Validation/error code</dt><dd>${providerExecution.validationErrorCodes.join(", ") || "none"}</dd></div>
+      <div><dt>Capability surface</dt><dd>${providerExecution.capabilitySurface.summary}</dd></div>
+    </dl>
+    <p class="muted">${providerExecution.note}</p>
+    <div class="button-row">
+      <button id="run-provider" type="button" ${state.providerConfiguration.status === "accepted" ? "" : "disabled"}>Run deterministic provider</button>
+      <button id="reject-provider-execution" type="button">Submit forbidden command execution</button>
     </div>`;
 }
 
@@ -173,6 +209,11 @@ function render(): void {
         ${renderProviderConfiguration(shellState)}
       </section>
 
+      <section class="panel" aria-label="Sandboxed provider execution">
+        <h2>Sandboxed provider execution</h2>
+        ${renderProviderExecution(shellState)}
+      </section>
+
       <section class="panel replay-panel">
         <h2>Replay / status projection</h2>
         ${renderReplayProjection(shellState)}
@@ -185,6 +226,8 @@ function render(): void {
   document.querySelector<HTMLButtonElement>("#reject-run")?.addEventListener("click", () => recordIntent("reject"));
   document.querySelector<HTMLButtonElement>("#submit-provider-config")?.addEventListener("click", submitProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
+  document.querySelector<HTMLButtonElement>("#run-provider")?.addEventListener("click", runDeterministicProvider);
+  document.querySelector<HTMLButtonElement>("#reject-provider-execution")?.addEventListener("click", runForbiddenProviderExecution);
 }
 
 render();

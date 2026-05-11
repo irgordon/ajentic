@@ -1,7 +1,7 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, initialLocalOperatorShellState, startDeterministicStubRun, validateLocalProviderConfiguration } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -288,6 +288,89 @@ function assertLocalProviderValidationIsDeterministic(): void {
   const second = validateLocalProviderConfiguration(candidate);
   assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic provider validation");
   assertEqual(first.status, "rejected", "deterministic forbidden status");
+}
+
+
+function assertLocalProviderExecutionPanelRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Sandboxed provider execution", "provider execution panel visible");
+  assertContains(rendered, "Run deterministic provider", "provider execution control visible");
+  assertContains(rendered, "Execution status: not_executed", "initial provider execution status");
+  assertContains(rendered, "Output trust status: untrusted/descriptive", "output trust visible");
+  assertEqual(response.state.providerExecution.status, "not_executed", "initial execution projection status");
+}
+
+function assertLocalProviderExecutionAcceptsDeterministicStub(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const before = transport.getCurrentState().state;
+  const response = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("same input"));
+  assertEqual(response.status, "accepted", "provider execution status");
+  assertEqual(response.reason, "local_provider_execution_accepted", "provider execution reason");
+  assertEqual(response.state.providerExecution.status, "executed", "executed projection status");
+  assertEqual(response.state.providerExecution.result?.providerKind, "deterministic_stub", "executed provider kind");
+  assertEqual(response.state.providerExecution.result?.outputTrustStatus, "untrusted/descriptive", "execution output trust");
+  assertEqual(response.state.providerExecution.result?.providerOutputTrusted, false, "provider output remains untrusted");
+  assertEqual(response.state.providerExecution.result?.candidateOutputPromoted, false, "provider output is not candidate output");
+  assertEqual(response.state.providerExecution.result?.decisionAppended, false, "execution does not append decision");
+  assertEqual(response.state.decisionLedger.records.length, before.decisionLedger.records.length, "execution does not append ledger");
+  assertEqual(response.state.run.decisionReplay.replayStatus, before.run.decisionReplay.replayStatus, "execution does not alter replay");
+  assertEqual(response.state.localSessionEvidenceExport.exportId, before.localSessionEvidenceExport.exportId, "execution does not promote evidence export");
+  assertContains(renderLocalOperatorShellSnapshot(response.state), "Provider output summary: deterministic_stub descriptive output", "execution result visible");
+}
+
+function assertLocalProviderExecutionIsDeterministic(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const first = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("same input"));
+  const second = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("same input"));
+  assertEqual(JSON.stringify(first.state.providerExecution), JSON.stringify(second.state.providerExecution), "deterministic provider execution projection");
+}
+
+function assertLocalProviderExecutionRejectsForbiddenAndUnsupportedRequests(): void {
+  const transport = createLocalOperatorShellTransport();
+  const beforeConfig = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("input"));
+  assertEqual(beforeConfig.status, "rejected", "execution before configuration rejected");
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const accepted = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("safe input"));
+  const forbiddenRequests = [
+    { providerKind: undefined, inputSummary: "input", fields: [] },
+    { providerKind: "", inputSummary: "input", fields: [] },
+    { providerKind: " deterministic_stub", inputSummary: "input", fields: [] },
+    { providerKind: "Deterministic_Stub", inputSummary: "input", fields: [] },
+    { providerKind: "cloud_model", inputSummary: "input", fields: [] },
+    { providerKind: "local_model", inputSummary: "input", fields: [] },
+    { providerKind: "external_http", inputSummary: "input", fields: [] },
+    { providerKind: "shell_command", inputSummary: "input", fields: [] },
+    { providerKind: "filesystem_provider", inputSummary: "input", fields: [] },
+    { providerKind: "unknown", inputSummary: "input", fields: [] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "endpoint", value: "http://localhost" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "command", value: "run model" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "path", value: "/tmp/model" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "token", value: "secret" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "api_key", value: "secret" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "provider_execution_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "trust_granted", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "readiness_approved", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "release_candidate_approved", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "deployment_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "public_use_approved", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "signing_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "publishing_enabled", value: "true" }] },
+    { providerKind: "deterministic_stub", inputSummary: "input", fields: [{ key: "extra", value: "field" }] }
+  ];
+  for (const request of forbiddenRequests) {
+    const before = transport.getCurrentState().state;
+    const validation = validateLocalProviderExecutionRequest(before.providerConfiguration, request);
+    if (validation.status === "executed") throw new Error(`validation rejected ${request.providerKind ?? "missing"}`);
+    const response = executeLocalProvider(transport, request);
+    assertEqual(response.status, "rejected", `execution rejected ${request.providerKind ?? "missing"}`);
+    assertEqual(JSON.stringify(response.state), JSON.stringify(before), "rejected execution preserves response state");
+    assertEqual(JSON.stringify(transport.getCurrentState().state), JSON.stringify(before), "rejected execution preserves transport state");
+    assertContains(renderLocalOperatorShellSnapshot(response.state), "Sandboxed provider execution", "UI remains usable after execution rejection");
+  }
+  assertEqual(JSON.stringify(transport.getCurrentState().state.providerExecution), JSON.stringify(accepted.state.providerExecution), "previous execution projection preserved");
 }
 
 function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
@@ -714,6 +797,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_provider_validation_is_deterministic",
     run: assertLocalProviderValidationIsDeterministic
+  },
+  {
+    name: "local_provider_execution_panel_renders_initial_state",
+    run: assertLocalProviderExecutionPanelRendersInitialState
+  },
+  {
+    name: "local_provider_execution_accepts_deterministic_stub",
+    run: assertLocalProviderExecutionAcceptsDeterministicStub
+  },
+  {
+    name: "local_provider_execution_is_deterministic",
+    run: assertLocalProviderExecutionIsDeterministic
+  },
+  {
+    name: "local_provider_execution_rejects_forbidden_and_unsupported_requests",
+    run: assertLocalProviderExecutionRejectsForbiddenAndUnsupportedRequests
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",
