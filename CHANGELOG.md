@@ -28,6 +28,39 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.145 - 2026-05-11
+**Status:** Phase 145 - Code-Production Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 141-144 code-production block.
+- Confirm the current provider-output pipeline includes sandboxed deterministic provider execution, execution result projection, provider output validation/rejection, and provider output review UI.
+- Remap Phase 146-150 as the next code-production block focused on staged candidate-conversion proposal work.
+- Preserve the rule that every non-0/5 phase must produce usable, testable code or a concrete executable artifact.
+- Update checklists/current-phase.md to Phase 145 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No candidate conversion.
+- No candidate approval.
+- No provider-output approval.
+- No provider-output trust.
+- No trust elevation.
+- No readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No network sockets.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 146 is expected to resume code production.
+
 ## v0.0.144 - 2026-05-11
 **Status:** Phase 144 - Provider Output Review in UI
 

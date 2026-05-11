@@ -277,12 +277,32 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 144 must render provider output, validation result, rejection reason, candidate conversion status, and operator review path.
    - Boundary: code-production phase; UI remains non-authoritative and cannot approve trust or readiness.
 
-45. **Phase 145 remains the next code-production alignment checkpoint**
-   - Phase 145 reconciles Phases 141-144 and decides whether later phases may introduce constrained local model adapter support.
-   - Boundary: 0/5 alignment checkpoint only; no new implementation, readiness approval, arbitrary provider execution approval, local model execution approval, or cloud provider execution approval.
+45. **Phase 145 reconciles the Phase 141-144 code-production block**
+   - Phase 145 confirms sandboxed deterministic provider execution, execution result projection, provider output validation/rejection, and provider output review UI are aligned with code-production mode.
+   - Boundary: 0/5 alignment checkpoint only; gate decision is `proceed_with_caveats` for Phase 146 staged candidate-conversion proposal creation only, not direct candidate conversion, provider-output approval, provider-output trust, readiness approval, release approval, Production Candidate status, or public/general use.
+
+46. **Phase 146 creates only staged candidate-conversion proposals**
+   - Phase 146 must create a Rust-owned staged candidate-conversion proposal from `reviewable_untrusted` provider output.
+   - Boundary: code-production phase; usable, testable staged-proposal code only; no direct candidate output, provider-output approval, trust elevation, operator candidate decision, or accepted-provider-output mutation.
+
+47. **Phase 147 validates staged conversion proposals**
+   - Phase 147 must validate staged conversion proposals and reject malformed, unsafe, trust-claiming, approval-claiming, action-bearing, or boundary-crossing attempts.
+   - Boundary: code-production phase; provider output remains untrusted and `reviewable_untrusted` is not candidate material.
+
+48. **Phase 148 renders validated staged proposals without approval authority**
+   - Phase 148 must render validated staged candidate-conversion proposals in the UI.
+   - Boundary: code-production phase; display-only review surface with no provider-output approval, trust elevation, or approval controls.
+
+49. **Phase 149 permits operator decisions only after validated staged proposals exist**
+   - Phase 149 must allow approve/reject only for validated staged candidate proposals and record decisions through Rust-owned state.
+   - Boundary: code-production phase; provider output must not jump directly to approved candidate output.
+
+50. **Phase 150 remains the next code-production alignment checkpoint**
+   - Phase 150 reconciles Phases 146-149 and decides whether later phases may introduce persistence, local model adapter work, or additional hardening.
+   - Boundary: alignment only; no implementation, readiness approval, release approval, Production Candidate status, or public/general-use approval.
 
 ## Ladder-Preservation sequencing invariants
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 136-140 are reconciled as the completed block after the Phase 133/134 code-production correction and Phase 135 remap. Phase 141-145 are the next detailed block, not a final production/public-use roadmap. Phases 141-144 must produce usable, testable code or concrete executable artifacts, and Phase 145 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140 or Phase 145.
+Phase 141-145 are reconciled as a completed provider-output code-production block. Phase 146-150 are the next detailed block, not a final production/public-use roadmap. Phases 146-149 must produce usable, testable code or concrete executable artifacts, and Phase 150 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 145 or Phase 150.

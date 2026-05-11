@@ -377,11 +377,41 @@ Must produce: usable, testable UI review behavior.
 Boundary: UI review only; UI remains non-authoritative and cannot approve trust, readiness, release, deployment, or public/general use.
 
 ### Phase 145 - Code-Production Alignment Checkpoint
-Goal: Reconcile Phases 141-144 and decide whether later phases may introduce constrained local model adapter support.
-Boundary: 0/5 alignment checkpoint only; no new implementation, no readiness approval, no local/cloud model execution approval, and no arbitrary provider execution approval.
+Goal: Reconcile Phases 141-144 and decide whether Phase 146 may proceed toward staged candidate-conversion proposal work.
+
+Decision: `proceed_with_caveats`. Phase 146 may create staged candidate-conversion proposals only; it must not create candidate output directly, approve provider output, trust provider output, record an operator candidate decision, or mutate the existing candidate output path as if provider output were accepted.
+
+Reconciliation: Phase 141 added Rust-owned sandboxed deterministic provider execution for `deterministic_stub` only; Phase 142 added provider execution result projection; Phase 143 added provider output validation and rejection; Phase 144 added provider output review UI. Provider output remains untrusted/descriptive. `reviewable_untrusted` remains inspection-only and is not candidate material, approved output, trusted output, promoted output, decision evidence, replay evidence, export promotion, or action authorization. Absence markers are not safety or readiness.
+
+Boundary: Alignment checkpoint only. Phase 145 does not implement Phase 146, does not add runtime behavior, does not add implementation tasks, does not imply candidate conversion, trust elevation, readiness approval, Release Candidate status, Production Candidate status, or public/general use.
+
+### Phase 146 - Candidate Conversion Staging Boundary
+Goal: Create a Rust-owned staged candidate-conversion proposal from `reviewable_untrusted` provider output.
+
+Boundary: Code-production phase with usable, testable code. Staged proposal creation only; no direct candidate output, provider-output approval, provider-output trust, operator candidate decision, or mutation of the existing candidate output path as accepted provider output.
+
+### Phase 147 - Candidate Conversion Validation
+Goal: Validate staged conversion proposals and reject malformed, unsafe, trust-claiming, approval-claiming, action-bearing, or boundary-crossing conversion attempts.
+
+Boundary: Code-production phase with usable, testable validation/rejection code. Provider output remains untrusted; `reviewable_untrusted` is not candidate material.
+
+### Phase 148 - Candidate Review Surface
+Goal: Render validated staged candidate-conversion proposals in the UI without approval authority.
+
+Boundary: Code-production phase with usable, testable UI behavior. Display only; no approval controls, provider-output approval, or trust elevation.
+
+### Phase 149 - Operator Candidate Decision Boundary
+Goal: Allow approve/reject only for validated staged candidate proposals and record the decision through Rust-owned state.
+
+Boundary: Code-production phase with usable, testable decision-boundary code. Candidate approval must not appear before a validated staged candidate proposal exists; provider output must not jump directly to approved candidate output.
+
+### Phase 150 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 146-149 and decide whether later phases may introduce persistence, local model adapter work, or additional hardening.
+
+Boundary: Alignment checkpoint only; no implementation, readiness approval, release approval, Production Candidate status, or public/general use.
 
 ## Post-140 dependency note
 
-Do not map Production Candidate or public/general-use as automatically following Phase 140. Phase 140 reconciles the Phase 136-139 code-production block and permits only the narrow Phase 141 sandboxed deterministic provider execution boundary with caveats.
+Do not map Production Candidate or public/general-use as automatically following Phase 145. Phase 145 reconciles the Phase 141-144 code-production block and permits only the narrow Phase 146 staged candidate-conversion proposal boundary with caveats.
 
-Public/general use remains a later final rung. Phase 141-144 are the next implementation block for local deterministic provider behavior, and Phase 145 is the next alignment checkpoint.
+Public/general use remains a later final rung. Phase 146-149 are the next implementation block for staged candidate-conversion proposal work, and Phase 150 is the next alignment checkpoint.
