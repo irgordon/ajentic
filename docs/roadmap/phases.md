@@ -310,62 +310,53 @@ Boundary: local/non-public artifact creation only; no publishing.
 Non-goals: no public asset, GitHub release, release tag, public download, signing, publishing, deployment, or readiness approval.
 Evidence gate: artifact outputs must remain controlled and non-public.
 
-### Phase 133 - Checksum and Provenance Evidence Boundary
-Goal: Generate and validate checksum/provenance evidence for controlled artifacts.
-Boundary: checksum/provenance evidence only; no signing or publishing.
-Non-goals: no publication, public download, release approval, or public/general-use approval.
-Evidence gate: checksum and provenance evidence cannot imply release, deployment, or readiness.
+### Phase 133 - Usable Local Operator UI Shell
+Goal: Add a usable local browser operator shell with Rust-owned local shell projection types and deterministic stub run flow.
+Boundary: complete code-production phase; local-only, non-production operator shell.
+Carry-forward: Phase 133 added approve/reject controls, local non-production operator intent handling, and Rust and TypeScript tests for the local shell.
+Non-goals: no external provider execution, cloud model calls, production persistence, release artifact creation, installer/update-channel behavior, signing, publishing, deployment, or readiness approval.
 
-### Phase 134 - Signing and Key-Custody Implementation Boundary
-Goal: Introduce signing/key-custody controls or explicitly defer them.
-Boundary: signing/key-custody implementation only if evidence permits; no publishing.
-Non-goals: no public signatures, public assets, publication, public download, or automatic Release Candidate approval.
-Evidence gate: key custody and signing controls must be scoped, non-public, and separately justified or explicitly deferred.
+### Phase 134 - Rust-to-UI Local Transport Boundary
+Goal: Add a Rust-owned local transport/API boundary for initial state, deterministic stub run, and approve/reject operator intent submission.
+Boundary: complete code-production phase; Rust remains authoritative and the UI remains non-authoritative.
+Carry-forward: Phase 134 added typed transport handling for initial state, deterministic stub run, approve/reject intent submission, forbidden/malformed request rejection, and capability exposure; it updated the UI to use a typed local transport abstraction.
+Non-goals: no direct Rust-to-browser runtime bridge, provider execution, production persistence, release artifacts, installer behavior, signing, publishing, deployment, or readiness approval.
 
-### Phase 135 - Roadmap and Changelog Alignment Check
-Goal: Reconcile Phase 131-134 and decide whether installer/update-channel or release dry-run work may proceed.
-Boundary: alignment only; no readiness approval.
-Non-goals: no installer/update-channel implementation, no release approval, no Production Candidate approval, and no public/general use.
-Evidence gate: reconciliation can authorize later scoped work only as planned truth.
+### Phase 135 - Code-Production Roadmap and Changelog Alignment
+Goal: Reconcile the Phase 133 and Phase 134 course correction and remap Phase 136-140 into executable product-delivery phases.
+Boundary: 0/5 alignment checkpoint only; no Phase 136 implementation and no source, test, schema, UI, package, workflow, release, deployment, provider-execution, or persistence behavior changes.
+Alignment note: Phase 135 preserves the code-production direction by making Phases 136-139 implementation phases and Phase 140 the next 0/5 alignment checkpoint.
+Rules: every non-0/5 phase must produce usable, testable code or a concrete executable artifact; 0/5 phases remain alignment checkpoints only.
+Handoff: Phase 136 starts the in-memory local decision ledger for approve/reject decisions already submitted through the Rust-owned local transport boundary.
+Non-goals: no readiness approval, Release Candidate approval, Production Candidate approval, public/general-use approval, provider execution, or release/deployment claim.
 
-### Phase 135.1 - Artifact Chain Correction Before Installer/Update-Channel Work
-Goal: Resolve or explicitly defer the blocked artifact chain before Phase 136 implementation proceeds.
-Boundary: artifact-chain correction boundary only; no signing, publishing, installer/update-channel activation, deployment, monitoring, or readiness approval.
-Non-goals: no Phase 136 implementation, no signing behavior, no publishing behavior, no deployment behavior, no monitoring activation, no Release Candidate approval, no Production Candidate approval, and no public/general use.
-Evidence gate: determine whether Phase 132 artifact creation can be rerun under the Phase 132.1 contract, create or defer governed local/non-public artifacts, produce or defer artifact manifest evidence, and determine whether Phase 133 checksum/provenance can proceed afterward.
+### Phase 136 - In-Memory Local Decision Ledger
+Goal: Record approve/reject decisions from the Rust-owned transport boundary into an in-memory typed local decision ledger and expose the decision timeline through the UI.
+Must produce: Rust implementation, TypeScript integration, visible UI update, Rust tests, and TypeScript tests.
+Boundary: local-only in-memory decision tracking; no production persistence or provider execution.
 
-### Phase 136 - Installer/Update-Channel Implementation Boundary
-Goal: Implement or further defer installer/update-channel surfaces under Phase 127 constraints after Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
-Boundary: controlled implementation only; no public distribution; deferred until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
-Non-goals: no public update service, public installer distribution, publishing, deployment automation, background service, or readiness approval.
-Evidence gate: installer/update-channel evidence must remain constrained or be explicitly deferred.
+### Phase 137 - Replay Projection for Local Decisions
+Goal: Derive a replay/status projection from the in-memory local decision ledger and render it in the UI replay/status panel.
+Must produce: Rust replay projection logic, UI replay panel behavior, deterministic replay tests, and UI behavior tests.
+Boundary: local replay/status projection only; no replay repair, recovery promotion, or persistence authority expansion.
 
-### Phase 137 - Operational Observability Implementation Boundary
-Goal: Implement local/non-production observability evidence capture if permitted.
-Boundary: controlled observability implementation only; no production monitoring claim.
-Non-goals: no production monitoring, production telemetry endpoint, alerting, dashboarding, public service, deployment, or readiness approval.
-Evidence gate: observability evidence capture is not monitoring supportability and cannot imply production operations.
+### Phase 138 - Local Session Evidence Export
+Goal: Add an explicit local-only session evidence export artifact for the stub run, decision record, validation projection, and replay projection.
+Must produce: executable export artifact generation, local-only artifact boundary, and tests proving export content and no release/deployment claims.
+Boundary: local session evidence only; no release artifact creation, publishing, signing, deployment, or readiness approval.
 
-### Phase 138 - Incident, Support, and Rollback Evidence Boundary
-Goal: Define and test incident, support, rollback, and recovery evidence.
-Boundary: operational procedure/evidence only; no production support claim.
-Non-goals: no production support operations, deployment automation, recovery promotion, replay repair, public support commitment, or readiness approval.
-Evidence gate: procedure evidence must stay separate from support, deployment, and recovery authority.
+### Phase 139 - Constrained Local Provider Configuration Stub
+Goal: Add a non-executing local provider configuration surface visible in the UI, with validation and fail-closed rejection of unsafe or unsupported provider settings.
+Must produce: Rust provider configuration model, UI configuration panel, validation tests, and UI tests.
+Boundary: configuration stub only; no provider execution, cloud calls, credential activation, deployment, or readiness approval.
 
-### Phase 139 - Release Candidate Evidence Reassembly
-Goal: Reassemble Release Candidate evidence after artifact, provenance, signing, installer/update, and observability work.
-Boundary: evidence assembly only; no approval.
-Non-goals: no Release Candidate approval, Production Candidate approval, public/general use, release, deployment, or publication.
-Evidence gate: evidence reassembly cannot substitute for the Phase 140 decision gate.
-
-### Phase 140 - Release Candidate Re-Decision Gate
-Goal: Decide whether Release Candidate status is now supportable or whether another hardening block is required.
-Boundary: decision gate only.
-Non-goals: no automatic Release Candidate approval, no Production Candidate approval, no production readiness, no production deployment, no production human use, and no public/general use.
-Evidence gate: Phase 140 may approve only if category-specific committed evidence supports it; otherwise another hardening block is required.
+### Phase 140 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 136-139 and decide whether Phase 141 may introduce sandboxed local provider execution.
+Boundary: 0/5 alignment checkpoint only; no new implementation, no readiness approval, no release/deployment claims, and no provider execution enablement.
+Non-goals: no source/test/schema/UI changes, Release Candidate approval, Production Candidate approval, production approval, public/general-use approval, or Phase 141 implementation.
 
 ## Post-140 dependency note
 
-Do not map Production Candidate or public/general-use as automatically following Phase 140. Any post-140 block depends on the Phase 140 decision and must preserve the ladder: Local operator testing → Controlled human trial → Early human-use candidate → Release candidate → Production candidate → Public/general use.
+Do not map Production Candidate or public/general-use as automatically following Phase 140. Phase 140 may only reconcile the Phase 136-139 code-production block and decide whether Phase 141 may consider sandboxed local provider execution.
 
-Public/general use remains the later final rung. Phase 131-140 are sufficient for the next detailed roadmap block after Phase 130, but they are not sufficient to complete the ladder.
+Public/general use remains a later final rung. Phase 136-139 are the next implementation block for local operator product behavior, and Phase 140 is not sufficient to complete any readiness ladder.

@@ -229,44 +229,40 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 132 may create local/non-public artifact outputs under the Phase 126 contract.
    - Boundary: local/non-public artifact creation only; no publishing.
 
-33. **Phase 133 generates checksum and provenance evidence without publication**
-   - Phase 133 addresses checksum/provenance evidence that Phase 130 found missing.
-   - Boundary: checksum/provenance evidence only; no signing or publishing.
+33. **Phase 133 completes the usable local operator UI shell**
+   - Phase 133 added a usable local browser operator shell, Rust-owned local shell projection types, deterministic stub run flow, approve/reject controls, local non-production operator intent handling, and Rust and TypeScript tests.
+   - Boundary: local-only code-production phase; no provider execution, production persistence, release artifact creation, or readiness approval.
 
-34. **Phase 134 scopes signing and key custody without publication**
-   - Phase 134 introduces signing/key-custody controls only if evidence permits, or explicitly defers them.
-   - Boundary: signing/key-custody implementation only if evidence permits; no publishing.
+34. **Phase 134 completes the Rust-owned local transport boundary**
+   - Phase 134 added typed local transport handling for initial state, deterministic stub run, approve/reject intent submission, forbidden/malformed request rejection, and capability exposure, while keeping the UI non-authoritative.
+   - Boundary: local-only code-production phase; no direct Rust-to-browser runtime bridge, provider execution, production persistence, release artifacts, installer behavior, signing, publishing, deployment, or readiness approval.
 
-35. **Phase 135 reconciles before installer/update-channel or renewed dry-run work**
-   - Phase 135 checks roadmap/changelog alignment after Phase 131-134.
-   - Boundary: alignment only; no readiness approval.
+35. **Phase 135 remaps the next block into code-production mode**
+   - Phase 135 reconciles Phase 133 and Phase 134 implementation work, updates roadmap/changelog/checklist surfaces, and hands Phase 136 the next concrete implementation step.
+   - Boundary: 0/5 alignment checkpoint only; no Phase 136 implementation, source/test/schema changes, readiness approval, release/deployment claim, or provider execution.
 
-35.1. **Phase 135.1 corrects the artifact chain before installer/update-channel work**
-   - Phase 135.1 resolves or explicitly defers the blocked artifact chain before Phase 136 implementation proceeds.
-   - Boundary: artifact-chain correction boundary only; no signing, publishing, installer/update-channel activation, deployment, monitoring, or readiness approval.
+36. **Phase 136 records local decisions in an in-memory ledger**
+   - Phase 136 must record approve/reject decisions from the Rust-owned transport boundary into an in-memory typed local decision ledger and expose the decision timeline through the UI.
+   - Boundary: code-production phase; must produce usable, testable Rust and TypeScript behavior without production persistence or provider execution.
 
-36. **Phase 136 constrains installer/update-channel work to non-public surfaces**
-   - Phase 136 implements or further defers installer/update-channel surfaces under Phase 127 constraints after Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
-   - Boundary: controlled implementation only; no public distribution; deferred until Phase 135.1 resolves or explicitly defers the artifact-chain dependency.
+37. **Phase 137 derives replay/status projection from local decisions**
+   - Phase 137 must derive a replay/status projection from the in-memory local decision ledger and render it in the UI replay/status panel.
+   - Boundary: code-production phase; must produce Rust replay projection logic, UI behavior, deterministic replay tests, and UI behavior tests without recovery promotion.
 
-37. **Phase 137 keeps observability evidence local and non-production**
-   - Phase 137 implements local/non-production observability evidence capture if permitted.
-   - Boundary: controlled observability implementation only; no production monitoring claim.
+38. **Phase 138 exports local-only session evidence**
+   - Phase 138 must generate an explicit local-only evidence artifact for the stub run, decision record, validation projection, and replay projection.
+   - Boundary: code-production phase; executable export artifact only, with tests proving export content and no release/deployment claims.
 
-38. **Phase 138 separates operational evidence from production support claims**
-   - Phase 138 defines and tests incident, support, rollback, and recovery evidence.
-   - Boundary: operational procedure/evidence only; no production support claim.
+39. **Phase 139 adds a constrained provider configuration stub without execution**
+   - Phase 139 must add a visible local provider configuration surface with validation and fail-closed rejection of unsafe or unsupported settings.
+   - Boundary: code-production phase; must produce Rust model, UI panel, validation tests, and UI tests; no provider execution or credential activation.
 
-39. **Phase 139 reassembles evidence without approval**
-   - Phase 139 reassembles Release Candidate evidence after artifact, provenance, signing, installer/update, and observability work.
-   - Boundary: evidence assembly only; no approval.
-
-40. **Phase 140 re-decides Release Candidate posture only**
-   - Phase 140 decides whether Release Candidate status is now supportable or whether another hardening block is required.
-   - Boundary: decision gate only; not automatic Release Candidate approval, Production Candidate approval, or public/general-use approval.
+40. **Phase 140 remains the next code-production alignment checkpoint**
+   - Phase 140 reconciles Phases 136-139 and decides whether Phase 141 may introduce sandboxed local provider execution.
+   - Boundary: 0/5 alignment checkpoint only; no new implementation, readiness approval, release/deployment claim, or provider execution enablement.
 
 ## Ladder-Preservation sequencing invariants
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 131-140 are the next detailed block after the Phase 130 `rc_candidate_not_ready` decision, not the final production/public-use roadmap. The block must produce or explicitly defer the evidence categories that blocked Release Candidate supportability. Public/general use remains the later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140; any post-140 block depends on the Phase 140 decision and must preserve the ladder: Local operator testing → Controlled human trial → Early human-use candidate → Release candidate → Production candidate → Public/general use.
+Phase 136-140 are the next detailed block after the Phase 133/134 code-production correction, not a final production/public-use roadmap. Phases 136-139 must produce usable, testable code or concrete executable artifacts, and Phase 140 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 140.
