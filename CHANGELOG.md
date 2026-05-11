@@ -28,6 +28,40 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.138 - 2026-05-11
+**Status:** Phase 138 - Local Session Evidence Export
+
+### Added
+- Add a Rust-derived deterministic local session evidence export for the local operator shell flow.
+- Add export content covering shell status, run projection, bounded context, candidate output, validation/policy projection, decision ledger, and replay/status projection.
+- Add explicit local-only and non-production export classification and absence markers.
+- Add UI rendering for the local session evidence export preview.
+- Add Rust and TypeScript tests for export determinism, completeness, classification, and visible export behavior.
+
+### Changed
+- Extend the local operator shell transport projection to include local session evidence export data.
+- Update the local UI shell to display local session evidence export content.
+- Update checklists/current-phase.md to Phase 138 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session evidence export only.
+- Rust remains authoritative for export derivation.
+- UI remains non-authoritative.
+- Export is not release evidence.
+- Export is not deployment evidence.
+- Export is not production readiness evidence.
+- Export does not authorize provider output.
+- Default export behavior is non-mutating.
+- No filesystem persistence unless an explicit optional helper is added and tested with temp paths only.
+- No durable ledger writes.
+- No provider execution.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.137 - 2026-05-11
 **Status:** Phase 137 - Replay Projection for Local Decisions
 

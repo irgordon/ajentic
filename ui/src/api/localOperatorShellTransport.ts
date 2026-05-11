@@ -3,7 +3,8 @@ import {
   initialLocalOperatorShellState,
   startDeterministicStubRun,
   type LocalOperatorIntent,
-  type LocalOperatorShellState
+  type LocalOperatorShellState,
+  type LocalSessionEvidenceExport
 } from "./localOperatorShell";
 
 export type LocalOperatorShellTransportStatus = "accepted" | "rejected";
@@ -43,6 +44,7 @@ export type LocalOperatorShellResponse = Readonly<{
   status: LocalOperatorShellTransportStatus;
   reason: string;
   state: LocalOperatorShellState;
+  localSessionEvidenceExport: LocalSessionEvidenceExport;
   capabilities: LocalOperatorShellCapabilities;
 }>;
 
@@ -84,11 +86,11 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
 
   function accepted(reason: string, next: LocalOperatorShellState): LocalOperatorShellResponse {
     state = next;
-    return { status: "accepted", reason, state, capabilities: localStubOnlyCapabilities };
+    return { status: "accepted", reason, state, localSessionEvidenceExport: state.localSessionEvidenceExport, capabilities: localStubOnlyCapabilities };
   }
 
   function rejected(reason: string): LocalOperatorShellResponse {
-    return { status: "rejected", reason, state, capabilities: localStubOnlyCapabilities };
+    return { status: "rejected", reason, state, localSessionEvidenceExport: state.localSessionEvidenceExport, capabilities: localStubOnlyCapabilities };
   }
 
   function step(request: LocalOperatorShellRequest): LocalOperatorShellResponse {

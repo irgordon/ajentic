@@ -411,6 +411,126 @@ pub fn project_local_decision_replay(
     derive_local_decision_replay_projection(&state.run, &state.decision_ledger)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionEvidenceExportStatus {
+    NoCompletedRunEvidence,
+    RunEvidenceProjected,
+    DecisionEvidenceProjected,
+}
+
+impl LocalSessionEvidenceExportStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoCompletedRunEvidence => "no_completed_run_evidence",
+            Self::RunEvidenceProjected => "run_evidence_projected",
+            Self::DecisionEvidenceProjected => "decision_evidence_projected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionEvidenceExportValidationStatus {
+    Complete,
+    Incomplete,
+}
+
+impl LocalSessionEvidenceExportValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Complete => "complete",
+            Self::Incomplete => "incomplete",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionEvidenceExportError {
+    MissingRequiredField,
+    InvalidExportClassification,
+    InvalidProductionClassification,
+    MissingAbsenceMarker,
+    MissingRunEvidence,
+    MissingDecisionReplayEvidence,
+}
+
+impl LocalSessionEvidenceExportError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingRequiredField => "missing_required_field",
+            Self::InvalidExportClassification => "invalid_export_classification",
+            Self::InvalidProductionClassification => "invalid_production_classification",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::MissingRunEvidence => "missing_run_evidence",
+            Self::MissingDecisionReplayEvidence => "missing_decision_replay_evidence",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionEvidenceExportAbsenceMarkers {
+    pub provider_execution_absent: bool,
+    pub persistence_absent: bool,
+    pub release_absent: bool,
+    pub deployment_absent: bool,
+    pub signing_absent: bool,
+    pub publishing_absent: bool,
+    pub installer_absent: bool,
+    pub update_channel_absent: bool,
+    pub public_use_absent: bool,
+    pub readiness_approval_absent: bool,
+    pub marker_summary: Vec<String>,
+}
+
+pub fn local_session_evidence_export_absence_markers() -> LocalSessionEvidenceExportAbsenceMarkers {
+    LocalSessionEvidenceExportAbsenceMarkers {
+        provider_execution_absent: true,
+        persistence_absent: true,
+        release_absent: true,
+        deployment_absent: true,
+        signing_absent: true,
+        publishing_absent: true,
+        installer_absent: true,
+        update_channel_absent: true,
+        public_use_absent: true,
+        readiness_approval_absent: true,
+        marker_summary: vec![
+            "provider execution absent".to_string(),
+            "persistence absent".to_string(),
+            "release absent".to_string(),
+            "deployment absent".to_string(),
+            "signing absent".to_string(),
+            "publishing absent".to_string(),
+            "installer absent".to_string(),
+            "update-channel absent".to_string(),
+            "public-use absent".to_string(),
+            "readiness absent".to_string(),
+        ],
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionEvidenceExport {
+    pub export_id: String,
+    pub export_status: LocalSessionEvidenceExportStatus,
+    pub export_classification: String,
+    pub production_classification: String,
+    pub shell_status: String,
+    pub run_id: String,
+    pub run_status: LocalRunStatus,
+    pub bounded_context_summary: Vec<String>,
+    pub candidate_id: String,
+    pub candidate_output_summary: String,
+    pub validation_status: String,
+    pub policy_status: String,
+    pub decision_count: usize,
+    pub decision_records: Vec<LocalDecisionRecord>,
+    pub replay_status: LocalDecisionReplayStatus,
+    pub replay_integrity_status: LocalDecisionReplayIntegrityStatus,
+    pub absence_markers: LocalSessionEvidenceExportAbsenceMarkers,
+    pub export_validation_status: LocalSessionEvidenceExportValidationStatus,
+    pub summary: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalCandidateOutput {
     pub candidate_id: String,
@@ -450,6 +570,160 @@ pub struct LocalOperatorShellState {
     pub non_production: bool,
     pub run: LocalRunProjection,
     pub decision_ledger: LocalDecisionLedger,
+    pub local_session_evidence_export: LocalSessionEvidenceExport,
+}
+
+pub fn derive_local_session_evidence_export(
+    harness_status: &str,
+    non_production: bool,
+    run: &LocalRunProjection,
+    ledger: &LocalDecisionLedger,
+) -> LocalSessionEvidenceExport {
+    let replay = derive_local_decision_replay_projection(run, ledger);
+    let export_status = match (run.status, ledger.records.is_empty()) {
+        (LocalRunStatus::Idle, _) => LocalSessionEvidenceExportStatus::NoCompletedRunEvidence,
+        (_, true) => LocalSessionEvidenceExportStatus::RunEvidenceProjected,
+        (_, false) => LocalSessionEvidenceExportStatus::DecisionEvidenceProjected,
+    };
+    let candidate_id = run
+        .candidate
+        .as_ref()
+        .map(|candidate| candidate.candidate_id.clone())
+        .unwrap_or_else(|| "not_applicable_until_stub_run".to_string());
+    let candidate_output_summary = run
+        .candidate
+        .as_ref()
+        .map(|candidate| format!("{}: {}", candidate.title, candidate.body))
+        .unwrap_or_else(|| "no completed deterministic stub run candidate evidence".to_string());
+    let validation_status = run
+        .validation
+        .as_ref()
+        .map(|validation| validation.validation_status.clone())
+        .unwrap_or_else(|| "not_applicable_until_stub_run".to_string());
+    let policy_status = run
+        .validation
+        .as_ref()
+        .map(|validation| validation.policy_status.clone())
+        .unwrap_or_else(|| "not_applicable_until_stub_run".to_string());
+    let mut export = LocalSessionEvidenceExport {
+        export_id: format!(
+            "local-session-evidence-export-{}-decisions-{:04}",
+            run.run_id,
+            ledger.records.len()
+        ),
+        export_status,
+        export_classification: "local_session_evidence_only".to_string(),
+        production_classification: "non-production".to_string(),
+        shell_status: harness_status.to_string(),
+        run_id: run.run_id.clone(),
+        run_status: run.status,
+        bounded_context_summary: run.bounded_context.clone(),
+        candidate_id,
+        candidate_output_summary,
+        validation_status,
+        policy_status,
+        decision_count: ledger.records.len(),
+        decision_records: ledger.records.clone(),
+        replay_status: replay.replay_status,
+        replay_integrity_status: replay.integrity_status,
+        absence_markers: local_session_evidence_export_absence_markers(),
+        export_validation_status: LocalSessionEvidenceExportValidationStatus::Incomplete,
+        summary: format!(
+            "Local session evidence export preview for run {} is {}; local only, non-production, and non-mutating.",
+            run.run_id,
+            export_status.code()
+        ),
+    };
+    export.export_validation_status =
+        match validate_local_session_evidence_export(&export, non_production) {
+            Ok(()) => LocalSessionEvidenceExportValidationStatus::Complete,
+            Err(_) => LocalSessionEvidenceExportValidationStatus::Incomplete,
+        };
+    export
+}
+
+pub fn project_local_session_evidence_export(
+    state: &LocalOperatorShellState,
+) -> LocalSessionEvidenceExport {
+    derive_local_session_evidence_export(
+        &state.harness_status,
+        state.non_production,
+        &state.run,
+        &state.decision_ledger,
+    )
+}
+
+pub fn validate_local_session_evidence_export(
+    export: &LocalSessionEvidenceExport,
+    non_production: bool,
+) -> Result<(), LocalSessionEvidenceExportError> {
+    if export.export_id.is_empty() || export.shell_status.is_empty() || export.run_id.is_empty() {
+        return Err(LocalSessionEvidenceExportError::MissingRequiredField);
+    }
+    if export.export_classification != "local_session_evidence_only" {
+        return Err(LocalSessionEvidenceExportError::InvalidExportClassification);
+    }
+    if !non_production || export.production_classification != "non-production" {
+        return Err(LocalSessionEvidenceExportError::InvalidProductionClassification);
+    }
+    let markers = &export.absence_markers;
+    if !markers.provider_execution_absent
+        || !markers.persistence_absent
+        || !markers.release_absent
+        || !markers.deployment_absent
+        || !markers.signing_absent
+        || !markers.publishing_absent
+        || !markers.installer_absent
+        || !markers.update_channel_absent
+        || !markers.public_use_absent
+        || !markers.readiness_approval_absent
+    {
+        return Err(LocalSessionEvidenceExportError::MissingAbsenceMarker);
+    }
+    if matches!(
+        export.export_status,
+        LocalSessionEvidenceExportStatus::RunEvidenceProjected
+            | LocalSessionEvidenceExportStatus::DecisionEvidenceProjected
+    ) && (export.bounded_context_summary.is_empty()
+        || export.candidate_id == "not_applicable_until_stub_run"
+        || export.validation_status == "not_applicable_until_stub_run"
+        || export.policy_status == "not_applicable_until_stub_run")
+    {
+        return Err(LocalSessionEvidenceExportError::MissingRunEvidence);
+    }
+    if export.export_status == LocalSessionEvidenceExportStatus::DecisionEvidenceProjected
+        && (export.decision_count == 0
+            || export.decision_records.is_empty()
+            || export.replay_status == LocalDecisionReplayStatus::NoDecisionRecorded)
+    {
+        return Err(LocalSessionEvidenceExportError::MissingDecisionReplayEvidence);
+    }
+    Ok(())
+}
+
+pub fn initial_local_session_evidence_export() -> LocalSessionEvidenceExport {
+    let ledger = initial_local_decision_ledger();
+    let replay = initial_local_decision_replay_projection();
+    let run = LocalRunProjection {
+        run_id: "local-stub-run-133".to_string(),
+        status: LocalRunStatus::Idle,
+        bounded_context: Vec::new(),
+        candidate: None,
+        validation: None,
+        selected_intent: None,
+        timeline: vec!["idle local harness initialized".to_string()],
+        replay_status: replay.replay_status.code().to_string(),
+        decision_timeline: project_local_decision_timeline(&ledger),
+        decision_replay: replay,
+    };
+    derive_local_session_evidence_export("idle_local_harness", true, &run, &ledger)
+}
+
+fn attach_local_session_evidence_export(
+    mut state: LocalOperatorShellState,
+) -> LocalOperatorShellState {
+    state.local_session_evidence_export = project_local_session_evidence_export(&state);
+    state
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -485,25 +759,27 @@ impl LocalOperatorIntent {
 }
 
 pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
+    let ledger = initial_local_decision_ledger();
+    let replay = initial_local_decision_replay_projection();
+    let run = LocalRunProjection {
+        run_id: "local-stub-run-133".to_string(),
+        status: LocalRunStatus::Idle,
+        bounded_context: Vec::new(),
+        candidate: None,
+        validation: None,
+        selected_intent: None,
+        timeline: vec!["idle local harness initialized".to_string()],
+        replay_status: replay.replay_status.code().to_string(),
+        decision_timeline: project_local_decision_timeline(&ledger),
+        decision_replay: replay,
+    };
+    let export = derive_local_session_evidence_export("idle_local_harness", true, &run, &ledger);
     LocalOperatorShellState {
         harness_status: "idle_local_harness".to_string(),
         non_production: true,
-        run: LocalRunProjection {
-            run_id: "local-stub-run-133".to_string(),
-            status: LocalRunStatus::Idle,
-            bounded_context: Vec::new(),
-            candidate: None,
-            validation: None,
-            selected_intent: None,
-            timeline: vec!["idle local harness initialized".to_string()],
-            replay_status: initial_local_decision_replay_projection()
-                .replay_status
-                .code()
-                .to_string(),
-            decision_timeline: project_local_decision_timeline(&initial_local_decision_ledger()),
-            decision_replay: initial_local_decision_replay_projection(),
-        },
-        decision_ledger: initial_local_decision_ledger(),
+        run,
+        decision_ledger: ledger,
+        local_session_evidence_export: export,
     }
 }
 
@@ -542,7 +818,7 @@ pub fn start_deterministic_stub_run(state: &LocalOperatorShellState) -> LocalOpe
     next.run.decision_replay =
         derive_local_decision_replay_projection(&next.run, &next.decision_ledger);
     next.run.replay_status = next.run.decision_replay.replay_status.code().to_string();
-    next
+    attach_local_session_evidence_export(next)
 }
 
 pub fn apply_local_operator_intent(
@@ -599,7 +875,7 @@ pub fn apply_local_operator_intent(
             .map(|record| record.decision_id.as_str())
             .unwrap_or("local-decision-missing")
     ));
-    Ok(next)
+    Ok(attach_local_session_evidence_export(next))
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -682,6 +958,7 @@ pub struct LocalOperatorShellResponse {
     pub status: LocalOperatorShellTransportStatus,
     pub reason: String,
     pub state: LocalOperatorShellState,
+    pub local_session_evidence_export: LocalSessionEvidenceExport,
     pub capabilities: LocalOperatorShellCapabilities,
 }
 
@@ -770,6 +1047,7 @@ fn accepted(
     LocalOperatorShellResponse {
         status: LocalOperatorShellTransportStatus::Accepted,
         reason: reason.into(),
+        local_session_evidence_export: state.local_session_evidence_export.clone(),
         state,
         capabilities: LocalOperatorShellCapabilities::local_stub_only(),
     }
@@ -782,6 +1060,7 @@ fn rejected(
     LocalOperatorShellResponse {
         status: LocalOperatorShellTransportStatus::Rejected,
         reason: reason.into(),
+        local_session_evidence_export: state.local_session_evidence_export.clone(),
         state,
         capabilities: LocalOperatorShellCapabilities::local_stub_only(),
     }
@@ -1207,5 +1486,192 @@ mod tests {
                 .expect_err("readiness claim fails"),
             LocalOperatorShellError::ReadinessClaimRejected
         );
+    }
+
+    #[test]
+    fn session_evidence_export_initial_stub_and_decision_states_are_complete() {
+        let initial = initial_local_operator_shell_state();
+        assert_eq!(
+            initial.local_session_evidence_export.export_status,
+            LocalSessionEvidenceExportStatus::NoCompletedRunEvidence
+        );
+        assert_eq!(
+            initial.local_session_evidence_export.export_classification,
+            "local_session_evidence_only"
+        );
+        assert_eq!(
+            initial
+                .local_session_evidence_export
+                .production_classification,
+            "non-production"
+        );
+        assert_eq!(
+            validate_local_session_evidence_export(&initial.local_session_evidence_export, true),
+            Ok(())
+        );
+
+        let started = start_deterministic_stub_run(&initial);
+        let export = &started.local_session_evidence_export;
+        assert_eq!(
+            export.export_status,
+            LocalSessionEvidenceExportStatus::RunEvidenceProjected
+        );
+        assert_eq!(export.run_id, "local-stub-run-133");
+        assert_eq!(export.run_status, LocalRunStatus::StubCompleted);
+        assert_eq!(export.candidate_id, "candidate-local-stub-133");
+        assert_eq!(export.validation_status, "pass_for_local_stub_review");
+        assert_eq!(export.policy_status, "pass_for_local_stub_review");
+        assert_eq!(export.decision_count, 0);
+        assert_eq!(
+            export.replay_status,
+            LocalDecisionReplayStatus::NoDecisionRecorded
+        );
+        assert_eq!(
+            export.export_validation_status,
+            LocalSessionEvidenceExportValidationStatus::Complete
+        );
+
+        let decided = apply_local_operator_intent(
+            &started,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Approve,
+                "operator-local",
+                &started.run.run_id,
+                "reviewed locally",
+            ),
+        )
+        .expect("valid decision should record");
+        let export = &decided.local_session_evidence_export;
+        assert_eq!(
+            export.export_status,
+            LocalSessionEvidenceExportStatus::DecisionEvidenceProjected
+        );
+        assert_eq!(export.decision_count, 1);
+        assert_eq!(
+            export.decision_records[0].decision_id,
+            "local-decision-0001"
+        );
+        assert_eq!(
+            export.replay_status,
+            LocalDecisionReplayStatus::ApprovedDecisionReplayed
+        );
+        assert_eq!(
+            export.replay_integrity_status,
+            LocalDecisionReplayIntegrityStatus::Consistent
+        );
+        assert!(export.absence_markers.provider_execution_absent);
+        assert!(export.absence_markers.persistence_absent);
+        assert!(export.absence_markers.release_absent);
+        assert!(export.absence_markers.deployment_absent);
+        assert!(export.absence_markers.signing_absent);
+        assert!(export.absence_markers.publishing_absent);
+        assert!(export.absence_markers.installer_absent);
+        assert!(export.absence_markers.update_channel_absent);
+        assert!(export.absence_markers.public_use_absent);
+        assert!(export.absence_markers.readiness_approval_absent);
+        assert!(export
+            .absence_markers
+            .marker_summary
+            .contains(&"provider execution absent".to_string()));
+        assert!(export
+            .absence_markers
+            .marker_summary
+            .contains(&"release absent".to_string()));
+        assert!(export
+            .absence_markers
+            .marker_summary
+            .contains(&"deployment absent".to_string()));
+        assert!(export
+            .absence_markers
+            .marker_summary
+            .contains(&"readiness absent".to_string()));
+    }
+
+    #[test]
+    fn session_evidence_export_is_deterministic_and_non_mutating() {
+        let started = start_deterministic_stub_run(&initial_local_operator_shell_state());
+        let decided = apply_local_operator_intent(
+            &started,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Reject,
+                "operator-local",
+                &started.run.run_id,
+                "reviewed locally",
+            ),
+        )
+        .expect("valid decision should record");
+        let before = decided.clone();
+
+        let first = project_local_session_evidence_export(&decided);
+        let second = project_local_session_evidence_export(&decided);
+
+        assert_eq!(first, second);
+        assert_eq!(decided, before);
+        assert_eq!(decided.decision_ledger.records.len(), 1);
+        assert_eq!(first.decision_records, decided.decision_ledger.records);
+    }
+
+    #[test]
+    fn session_evidence_export_validation_fails_closed_for_bad_classification_and_markers() {
+        let state = start_deterministic_stub_run(&initial_local_operator_shell_state());
+        let mut export = state.local_session_evidence_export.clone();
+
+        export.export_classification = "release_evidence".to_string();
+        assert_eq!(
+            validate_local_session_evidence_export(&export, true),
+            Err(LocalSessionEvidenceExportError::InvalidExportClassification)
+        );
+
+        let mut export = state.local_session_evidence_export.clone();
+        export.production_classification = "production".to_string();
+        assert_eq!(
+            validate_local_session_evidence_export(&export, true),
+            Err(LocalSessionEvidenceExportError::InvalidProductionClassification)
+        );
+
+        let mut export = state.local_session_evidence_export.clone();
+        export.absence_markers.provider_execution_absent = false;
+        assert_eq!(
+            validate_local_session_evidence_export(&export, true),
+            Err(LocalSessionEvidenceExportError::MissingAbsenceMarker)
+        );
+
+        let mut export = state.local_session_evidence_export.clone();
+        export.candidate_id = "not_applicable_until_stub_run".to_string();
+        assert_eq!(
+            validate_local_session_evidence_export(&export, true),
+            Err(LocalSessionEvidenceExportError::MissingRunEvidence)
+        );
+    }
+
+    #[test]
+    fn rejected_or_forbidden_requests_do_not_promote_export_evidence() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let started = start_local_operator_shell_stub_run(&mut transport);
+        let before = started.state.local_session_evidence_export.clone();
+        let mut forbidden_intent = LocalOperatorIntent::new(
+            LocalOperatorIntentKind::Approve,
+            "operator-local",
+            &started.state.run.run_id,
+            "request provider execution",
+        );
+        forbidden_intent.requests_provider_execution = true;
+
+        let rejected = submit_local_operator_shell_intent(&mut transport, forbidden_intent);
+        assert_eq!(rejected.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(rejected.state.local_session_evidence_export, before);
+        assert_eq!(
+            transport.current_state().local_session_evidence_export,
+            before
+        );
+
+        let forbidden = transport.step(LocalOperatorShellRequest::Forbidden(
+            LocalOperatorShellForbiddenRequest::ReleaseArtifactCreation,
+        ));
+        assert_eq!(
+            forbidden.status,
+            LocalOperatorShellTransportStatus::Rejected
+        );
+        assert_eq!(forbidden.state.local_session_evidence_export, before);
     }
 }

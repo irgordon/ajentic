@@ -183,6 +183,76 @@ export function deriveLocalDecisionReplayProjection(
   };
 }
 
+
+export type LocalSessionEvidenceExportStatus =
+  | "no_completed_run_evidence"
+  | "run_evidence_projected"
+  | "decision_evidence_projected";
+export type LocalSessionEvidenceExportValidationStatus = "complete" | "incomplete";
+
+export type LocalSessionEvidenceExportAbsenceMarkers = Readonly<{
+  providerExecutionAbsent: true;
+  persistenceAbsent: true;
+  releaseAbsent: true;
+  deploymentAbsent: true;
+  signingAbsent: true;
+  publishingAbsent: true;
+  installerAbsent: true;
+  updateChannelAbsent: true;
+  publicUseAbsent: true;
+  readinessApprovalAbsent: true;
+  markerSummary: readonly string[];
+}>;
+
+export type LocalSessionEvidenceExport = Readonly<{
+  exportId: string;
+  exportStatus: LocalSessionEvidenceExportStatus;
+  exportClassification: "local_session_evidence_only";
+  productionClassification: "non-production";
+  shellStatus: string;
+  runId: string;
+  runStatus: LocalRunStatus;
+  boundedContextSummary: readonly string[];
+  candidateId: string;
+  candidateOutputSummary: string;
+  validationStatus: string;
+  policyStatus: string;
+  decisionCount: number;
+  decisionRecords: readonly LocalDecisionRecord[];
+  replayStatus: LocalDecisionReplayStatus;
+  replayIntegrityStatus: LocalDecisionReplayIntegrityStatus;
+  absenceMarkers: LocalSessionEvidenceExportAbsenceMarkers;
+  exportValidationStatus: LocalSessionEvidenceExportValidationStatus;
+  summary: string;
+}>;
+
+export function localSessionEvidenceExportAbsenceMarkers(): LocalSessionEvidenceExportAbsenceMarkers {
+  return {
+    providerExecutionAbsent: true,
+    persistenceAbsent: true,
+    releaseAbsent: true,
+    deploymentAbsent: true,
+    signingAbsent: true,
+    publishingAbsent: true,
+    installerAbsent: true,
+    updateChannelAbsent: true,
+    publicUseAbsent: true,
+    readinessApprovalAbsent: true,
+    markerSummary: [
+      "provider execution absent",
+      "persistence absent",
+      "release absent",
+      "deployment absent",
+      "signing absent",
+      "publishing absent",
+      "installer absent",
+      "update-channel absent",
+      "public-use absent",
+      "readiness absent"
+    ]
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -218,7 +288,79 @@ export type LocalOperatorShellState = Readonly<{
   nonProduction: true;
   run: LocalRunProjection;
   decisionLedger: LocalDecisionLedger;
+  localSessionEvidenceExport: LocalSessionEvidenceExport;
 }>;
+
+
+export function deriveLocalSessionEvidenceExport(
+  harnessStatus: string,
+  nonProduction: boolean,
+  run: LocalRunProjection,
+  ledger: LocalDecisionLedger
+): LocalSessionEvidenceExport {
+  const replay = deriveLocalDecisionReplayProjection(run, ledger);
+  const exportStatus: LocalSessionEvidenceExportStatus = run.status === "idle"
+    ? "no_completed_run_evidence"
+    : ledger.records.length === 0
+      ? "run_evidence_projected"
+      : "decision_evidence_projected";
+  const candidateId = run.candidate?.candidateId ?? "not_applicable_until_stub_run";
+  const candidateOutputSummary = run.candidate
+    ? `${run.candidate.title}: ${run.candidate.body}`
+    : "no completed deterministic stub run candidate evidence";
+  const validationStatus = run.validation?.validationStatus ?? "not_applicable_until_stub_run";
+  const policyStatus = run.validation?.policyStatus ?? "not_applicable_until_stub_run";
+  const exportPayload: Omit<LocalSessionEvidenceExport, "exportValidationStatus"> = {
+    exportId: `local-session-evidence-export-${run.runId}-decisions-${String(ledger.records.length).padStart(4, "0")}`,
+    exportStatus,
+    exportClassification: "local_session_evidence_only",
+    productionClassification: "non-production",
+    shellStatus: harnessStatus,
+    runId: run.runId,
+    runStatus: run.status,
+    boundedContextSummary: run.boundedContext,
+    candidateId,
+    candidateOutputSummary,
+    validationStatus,
+    policyStatus,
+    decisionCount: ledger.records.length,
+    decisionRecords: ledger.records,
+    replayStatus: replay.replayStatus,
+    replayIntegrityStatus: replay.integrityStatus,
+    absenceMarkers: localSessionEvidenceExportAbsenceMarkers(),
+    summary: `Local session evidence export preview for run ${run.runId} is ${exportStatus}; local only, non-production, and non-mutating.`
+  };
+  return {
+    ...exportPayload,
+    exportValidationStatus: validateLocalSessionEvidenceExport(exportPayload, nonProduction) ? "complete" : "incomplete"
+  };
+}
+
+export function validateLocalSessionEvidenceExport(
+  exportPayload: Omit<LocalSessionEvidenceExport, "exportValidationStatus"> | LocalSessionEvidenceExport,
+  nonProduction: boolean
+): boolean {
+  if (exportPayload.exportId.length === 0 || exportPayload.shellStatus.length === 0 || exportPayload.runId.length === 0) return false;
+  if (exportPayload.exportClassification !== "local_session_evidence_only") return false;
+  if (!nonProduction || exportPayload.productionClassification !== "non-production") return false;
+  const markers = exportPayload.absenceMarkers;
+  if (!markers.providerExecutionAbsent || !markers.persistenceAbsent || !markers.releaseAbsent || !markers.deploymentAbsent || !markers.signingAbsent || !markers.publishingAbsent || !markers.installerAbsent || !markers.updateChannelAbsent || !markers.publicUseAbsent || !markers.readinessApprovalAbsent) return false;
+  if (exportPayload.exportStatus !== "no_completed_run_evidence" && (exportPayload.boundedContextSummary.length === 0 || exportPayload.candidateId === "not_applicable_until_stub_run" || exportPayload.validationStatus === "not_applicable_until_stub_run" || exportPayload.policyStatus === "not_applicable_until_stub_run")) return false;
+  if (exportPayload.exportStatus === "decision_evidence_projected" && (exportPayload.decisionCount === 0 || exportPayload.decisionRecords.length === 0 || exportPayload.replayStatus === "no_decision_recorded")) return false;
+  return true;
+}
+
+function attachLocalSessionEvidenceExport(state: Omit<LocalOperatorShellState, "localSessionEvidenceExport">): LocalOperatorShellState {
+  return {
+    ...state,
+    localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
+      state.harnessStatus,
+      state.nonProduction,
+      state.run,
+      state.decisionLedger
+    )
+  };
+}
 
 export type LocalOperatorIntent = Readonly<{
   kind: LocalOperatorIntentKind;
@@ -243,7 +385,9 @@ export type LocalOperatorUiForbiddenAction =
   | "invoke_provider_execution";
 
 export function initialLocalOperatorShellState(): LocalOperatorShellState {
-  return {
+  const decisionLedger = initialLocalDecisionLedger();
+  const decisionReplay = initialLocalDecisionReplayProjection();
+  return attachLocalSessionEvidenceExport({
     harnessStatus: "idle_local_harness",
     nonProduction: true,
     run: {
@@ -254,16 +398,16 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       validation: null,
       selectedIntent: null,
       timeline: ["idle local harness initialized"],
-      replayStatus: initialLocalDecisionReplayProjection().replayStatus,
-      decisionTimeline: projectLocalDecisionTimeline(initialLocalDecisionLedger()),
-      decisionReplay: initialLocalDecisionReplayProjection()
+      replayStatus: decisionReplay.replayStatus,
+      decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
+      decisionReplay
     },
-    decisionLedger: initialLocalDecisionLedger()
-  };
+    decisionLedger
+  });
 }
 
 export function startDeterministicStubRun(state: LocalOperatorShellState): LocalOperatorShellState {
-  return {
+  return attachLocalSessionEvidenceExport({
     ...state,
     harnessStatus: "deterministic_stub_completed",
     run: {
@@ -301,7 +445,7 @@ export function startDeterministicStubRun(state: LocalOperatorShellState): Local
       decisionReplay: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger),
       replayStatus: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger).replayStatus
     }
-  };
+  });
 }
 
 export function applyLocalOperatorIntent(
@@ -352,7 +496,7 @@ export function applyLocalOperatorIntent(
   return {
     status: "accepted",
     reason: "local_operator_intent_recorded",
-    state: {
+    state: attachLocalSessionEvidenceExport({
       ...state,
       decisionLedger,
       run: {
@@ -360,7 +504,7 @@ export function applyLocalOperatorIntent(
         decisionReplay,
         replayStatus: decisionReplay.replayStatus
       }
-    }
+    })
   };
 }
 
