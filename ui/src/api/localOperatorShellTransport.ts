@@ -1,8 +1,10 @@
 import {
   applyLocalOperatorIntent,
+  applyLocalProviderConfigurationCandidate,
   initialLocalOperatorShellState,
   startDeterministicStubRun,
   type LocalOperatorIntent,
+  type LocalProviderConfigurationCandidate,
   type LocalOperatorShellState,
   type LocalSessionEvidenceExport
 } from "./localOperatorShell";
@@ -24,6 +26,7 @@ export type LocalOperatorShellRequest =
   | Readonly<{ kind: "get_current_state" }>
   | Readonly<{ kind: "start_deterministic_stub_run" }>
   | Readonly<{ kind: "submit_operator_intent"; intent: LocalOperatorIntent }>
+  | Readonly<{ kind: "submit_provider_configuration"; candidate: LocalProviderConfigurationCandidate }>
   | Readonly<{ kind: "forbidden"; request: LocalOperatorShellForbiddenRequest }>;
 
 export type LocalOperatorShellCapabilities = Readonly<{
@@ -53,6 +56,7 @@ export type LocalOperatorShellTransport = Readonly<{
   getCurrentState: () => LocalOperatorShellResponse;
   startDeterministicStubRun: () => LocalOperatorShellResponse;
   submitOperatorIntent: (intent: LocalOperatorIntent) => LocalOperatorShellResponse;
+  submitProviderConfiguration: (candidate: LocalProviderConfigurationCandidate) => LocalOperatorShellResponse;
   rejectForbiddenUiAction: (request: LocalOperatorShellForbiddenRequest) => LocalOperatorShellResponse;
 }>;
 
@@ -106,6 +110,11 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
         if (result.status === "accepted") return accepted(result.reason, result.state);
         return rejected(result.reason);
       }
+      case "submit_provider_configuration": {
+        const result = applyLocalProviderConfigurationCandidate(state, request.candidate);
+        if (result.status === "accepted") return accepted(result.reason, result.state);
+        return rejected(result.reason);
+      }
       case "forbidden":
         return rejected(forbiddenReasons[request.request]);
     }
@@ -116,6 +125,7 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
     getCurrentState: () => step({ kind: "get_current_state" }),
     startDeterministicStubRun: () => step({ kind: "start_deterministic_stub_run" }),
     submitOperatorIntent: (intent) => step({ kind: "submit_operator_intent", intent }),
+    submitProviderConfiguration: (candidate) => step({ kind: "submit_provider_configuration", candidate }),
     rejectForbiddenUiAction: (request) => step({ kind: "forbidden", request })
   };
 }
@@ -144,4 +154,11 @@ export function rejectForbiddenUiAction(
   request: LocalOperatorShellForbiddenRequest
 ): LocalOperatorShellResponse {
   return transport.rejectForbiddenUiAction(request);
+}
+
+export function submitLocalProviderConfiguration(
+  transport: LocalOperatorShellTransport,
+  candidate: LocalProviderConfigurationCandidate
+): LocalOperatorShellResponse {
+  return transport.submitProviderConfiguration(candidate);
 }

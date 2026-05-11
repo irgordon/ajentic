@@ -28,6 +28,43 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.139 - 2026-05-11
+**Status:** Phase 139 - Constrained Local Provider Configuration Stub
+
+### Added
+- Add Rust-owned local provider configuration types and validation for a deterministic_stub configuration surface.
+- Add fail-closed validation for unsupported provider kinds, endpoints, commands, file paths, secrets, execution flags, trust flags, readiness claims, release claims, and deployment claims.
+- Add local transport support for provider configuration submission and validation projection.
+- Add UI rendering for local provider configuration and validation results.
+- Add Rust and TypeScript tests for accepted deterministic_stub configuration and rejected unsafe/unsupported provider configuration candidates.
+
+### Changed
+- Extend the local operator shell projection with provider configuration state.
+- Update the local UI shell to display provider configuration status and validation results.
+- Update checklists/current-phase.md to Phase 139 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local-session in-memory provider configuration stub only.
+- deterministic_stub configuration only.
+- Rust remains authoritative for provider configuration validation.
+- UI remains non-authoritative.
+- No provider execution.
+- No local binary invocation.
+- No cloud calls.
+- No network sockets.
+- No shell command execution.
+- No filesystem persistence.
+- No durable provider configuration storage.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 140 remains the next roadmap and changelog alignment checkpoint.
+
 ## v0.0.138 - 2026-05-11
 **Status:** Phase 138 - Local Session Evidence Export
 

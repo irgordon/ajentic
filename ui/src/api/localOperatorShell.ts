@@ -253,6 +253,211 @@ export function localSessionEvidenceExportAbsenceMarkers(): LocalSessionEvidence
   };
 }
 
+
+export type LocalProviderKind =
+  | "deterministic_stub"
+  | "local_model"
+  | "cloud_model"
+  | "external_http"
+  | "shell_command"
+  | "filesystem_provider"
+  | "unknown";
+export type LocalProviderConfigurationStatus = "not_configured" | "accepted" | "rejected" | "unsupported";
+export type LocalProviderConfigurationError =
+  | "missing_provider_kind"
+  | "malformed_provider_kind"
+  | "unsupported_provider_kind"
+  | "forbidden_endpoint_field"
+  | "forbidden_command_field"
+  | "forbidden_path_field"
+  | "forbidden_secret_field"
+  | "provider_execution_rejected"
+  | "trust_grant_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected"
+  | "unknown_field_rejected";
+
+export type LocalProviderConfigurationCapabilitySurface = Readonly<{
+  configurationOnly: true;
+  providerExecutionEnabled: false;
+  cloudCallsEnabled: false;
+  networkEnabled: false;
+  shellCommandsEnabled: false;
+  filesystemEnabled: false;
+  secretsAllowed: false;
+  trustGranted: false;
+  readinessApproved: false;
+  releaseApproved: false;
+  deploymentEnabled: false;
+  summary: string;
+}>;
+
+export type LocalProviderConfigurationValidation = Readonly<{
+  status: LocalProviderConfigurationStatus;
+  providerKind: LocalProviderKind | null;
+  errorCodes: readonly LocalProviderConfigurationError[];
+  reason: string;
+}>;
+
+export type LocalProviderConfigurationProjection = Readonly<{
+  configuredProviderKind: string;
+  status: LocalProviderConfigurationStatus;
+  validationStatus: LocalProviderConfigurationStatus;
+  validationReason: string;
+  validationErrorCodes: readonly LocalProviderConfigurationError[];
+  executionStatus: "disabled_not_executed";
+  capabilitySurface: LocalProviderConfigurationCapabilitySurface;
+  note: string;
+}>;
+
+export type LocalProviderConfiguration = Readonly<{
+  configuredProviderKind: LocalProviderKind | null;
+  status: LocalProviderConfigurationStatus;
+  lastValidation: LocalProviderConfigurationValidation;
+}>;
+
+export type LocalProviderConfigurationCandidate = Readonly<{
+  providerKind?: string;
+  fields?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+const supportedLocalProviderKinds: readonly LocalProviderKind[] = [
+  "deterministic_stub",
+  "local_model",
+  "cloud_model",
+  "external_http",
+  "shell_command",
+  "filesystem_provider",
+  "unknown"
+];
+
+export function deterministicStubProviderConfigurationCandidate(): LocalProviderConfigurationCandidate {
+  return { providerKind: "deterministic_stub", fields: [] };
+}
+
+export function localProviderConfigurationCapabilitySurface(): LocalProviderConfigurationCapabilitySurface {
+  return {
+    configurationOnly: true,
+    providerExecutionEnabled: false,
+    cloudCallsEnabled: false,
+    networkEnabled: false,
+    shellCommandsEnabled: false,
+    filesystemEnabled: false,
+    secretsAllowed: false,
+    trustGranted: false,
+    readinessApproved: false,
+    releaseApproved: false,
+    deploymentEnabled: false,
+    summary: "deterministic_stub configuration-only surface; no execution, cloud, network, shell, filesystem, secrets, trust, readiness, release, or deployment capability"
+  };
+}
+
+export function initialLocalProviderConfiguration(): LocalProviderConfiguration {
+  return {
+    configuredProviderKind: null,
+    status: "not_configured",
+    lastValidation: {
+      status: "not_configured",
+      providerKind: null,
+      errorCodes: [],
+      reason: "no executable provider configured; deterministic_stub is available for configuration-only validation"
+    }
+  };
+}
+
+export function projectLocalProviderConfiguration(configuration: LocalProviderConfiguration): LocalProviderConfigurationProjection {
+  return {
+    configuredProviderKind: configuration.configuredProviderKind ?? "none",
+    status: configuration.status,
+    validationStatus: configuration.lastValidation.status,
+    validationReason: configuration.lastValidation.reason,
+    validationErrorCodes: configuration.lastValidation.errorCodes,
+    executionStatus: "disabled_not_executed",
+    capabilitySurface: localProviderConfigurationCapabilitySurface(),
+    note: "Phase 139 deterministic_stub is configuration-only; validation does not execute providers or approve trust/readiness/release/deployment."
+  };
+}
+
+function forbiddenProviderConfigurationField(key: string, value: string): LocalProviderConfigurationError | null {
+  const loweredKey = key.toLowerCase();
+  const combined = `${loweredKey}=${value.toLowerCase()}`;
+  if (loweredKey === "label" || loweredKey === "description") return null;
+  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "forbidden_endpoint_field";
+  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "forbidden_command_field";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "forbidden_path_field";
+  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "forbidden_secret_field";
+  if (loweredKey === "provider_execution_enabled" && value === "true") return "provider_execution_rejected";
+  if (loweredKey === "trust_granted" && value === "true") return "trust_grant_rejected";
+  if (loweredKey === "readiness_approved" && value === "true") return "readiness_claim_rejected";
+  if (loweredKey === "release_candidate_approved" && value === "true") return "release_claim_rejected";
+  if (loweredKey === "deployment_enabled" && value === "true") return "deployment_claim_rejected";
+  if (loweredKey === "public_use_approved" && value === "true") return "public_use_claim_rejected";
+  if (loweredKey === "signing_enabled" && value === "true") return "signing_claim_rejected";
+  if (loweredKey === "publishing_enabled" && value === "true") return "publishing_claim_rejected";
+  return "unknown_field_rejected";
+}
+
+export function validateLocalProviderConfiguration(candidate: LocalProviderConfigurationCandidate): LocalProviderConfigurationValidation {
+  const errors = new Set<LocalProviderConfigurationError>();
+  let providerKind: LocalProviderKind | null = null;
+  const rawKind = candidate.providerKind;
+  if (rawKind === undefined || rawKind.trim().length === 0) {
+    errors.add("missing_provider_kind");
+  } else if (rawKind.trim() !== rawKind) {
+    errors.add("malformed_provider_kind");
+  } else if (supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)) {
+    providerKind = rawKind as LocalProviderKind;
+    if (providerKind !== "deterministic_stub") errors.add("unsupported_provider_kind");
+  } else {
+    errors.add("unsupported_provider_kind");
+  }
+
+  for (const field of candidate.fields ?? []) {
+    const error = forbiddenProviderConfigurationField(field.key, field.value);
+    if (error) errors.add(error);
+  }
+
+  const errorCodes = [...errors].sort();
+  if (errorCodes.length === 0 && providerKind === "deterministic_stub") {
+    return {
+      status: "accepted",
+      providerKind,
+      errorCodes: [],
+      reason: "deterministic_stub configuration accepted as local-session configuration-only state; provider execution remains disabled"
+    };
+  }
+  return {
+    status: errors.has("unsupported_provider_kind") ? "unsupported" : "rejected",
+    providerKind,
+    errorCodes,
+    reason: "provider configuration rejected fail-closed; prior configuration remains unchanged and no provider execution occurs"
+  };
+}
+
+export function applyLocalProviderConfigurationCandidate(
+  state: LocalOperatorShellState,
+  candidate: LocalProviderConfigurationCandidate
+): LocalOperatorIntentResult {
+  const validation = validateLocalProviderConfiguration(candidate);
+  if (validation.status !== "accepted") return { status: "rejected", reason: validation.reason, state };
+  return {
+    status: "accepted",
+    reason: "local_provider_configuration_accepted",
+    state: attachLocalSessionEvidenceExport({
+      ...state,
+      providerConfiguration: {
+        configuredProviderKind: validation.providerKind,
+        status: "accepted",
+        lastValidation: validation
+      }
+    })
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -289,6 +494,7 @@ export type LocalOperatorShellState = Readonly<{
   run: LocalRunProjection;
   decisionLedger: LocalDecisionLedger;
   localSessionEvidenceExport: LocalSessionEvidenceExport;
+  providerConfiguration: LocalProviderConfiguration;
 }>;
 
 
@@ -402,7 +608,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
       decisionReplay
     },
-    decisionLedger
+    decisionLedger,
+    providerConfiguration: initialLocalProviderConfiguration()
   });
 }
 
