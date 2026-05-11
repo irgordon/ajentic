@@ -1,5 +1,5 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, initialLocalOperatorShellState, startDeterministicStubRun } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, initialLocalOperatorShellState, startDeterministicStubRun } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
 import { createLocalOperatorShellTransport, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
@@ -68,7 +68,10 @@ function assertLocalOperatorShellRendersIdleState(): void {
   assertContains(rendered, "Reject", "reject control");
   assertContains(rendered, "Local decision ledger", "decision ledger panel");
   assertContains(rendered, "No recorded local operator decisions", "empty decision ledger");
+  assertContains(rendered, "Replay status: no_decision_recorded", "initial replay status visible");
+  assertContains(rendered, "Decision count: 0", "initial replay decision count visible");
   assertEqual(response.state.run.decisionTimeline.records.length, 0, "initial decision timeline length");
+  assertEqual(response.state.run.decisionReplay.replayStatus, "no_decision_recorded", "initial replay status");
 }
 
 function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
@@ -80,6 +83,8 @@ function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Deterministic local stub candidate", "candidate title");
   assertContains(rendered, "Validation/policy result: pass_for_local_stub_review / pass_for_local_stub_review", "validation result");
+  assertContains(rendered, "Replay status: no_decision_recorded", "stub run preserves no-decision replay");
+  assertEqual(state.run.decisionReplay.sourceDecisionCount, 0, "stub replay decision count");
 }
 
 function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
@@ -97,7 +102,10 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
   assertEqual(approved.state.run.decisionTimeline.records.length, 1, "approve decision count");
   assertEqual(approved.state.run.decisionTimeline.records[0]?.intentKind, "approve", "approve decision kind");
   assertEqual(approved.state.run.decisionTimeline.records[0]?.decisionStatus, "recorded", "approve decision status");
+  assertEqual(approved.state.run.decisionReplay.replayStatus, "approved_decision_replayed", "approve replay status");
+  assertEqual(approved.state.run.decisionReplay.latestDecisionId, "local-decision-0001", "approve latest decision id");
   assertContains(renderLocalOperatorShellSnapshot(approved.state), "#1 approve recorded", "approve decision history visible");
+  assertContains(renderLocalOperatorShellSnapshot(approved.state), "Replay status: approved_decision_replayed", "approve replay visible");
 
   const duplicateApprove = submitLocalOperatorIntent(approveTransport, {
     kind: "approve",
@@ -109,6 +117,7 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
   assertEqual(duplicateApprove.status, "rejected", "duplicate decision status");
   assertEqual(duplicateApprove.reason, "duplicate_decision_rejected", "duplicate decision reason");
   assertEqual(duplicateApprove.state.run.decisionTimeline.records.length, 1, "duplicate decision count unchanged");
+  assertEqual(duplicateApprove.state.run.decisionReplay.replayStatus, "approved_decision_replayed", "duplicate replay unchanged");
 
   const rejectTransport = createLocalOperatorShellTransport();
   const rejectState = requestDeterministicStubRun(rejectTransport).state;
@@ -123,7 +132,9 @@ function assertLocalOperatorShellUpdatesStateAfterApproveReject(): void {
   assertEqual(rejected.state.run.selectedIntent, "reject", "reject selected intent");
   assertEqual(rejected.state.run.decisionTimeline.records.length, 1, "reject decision count");
   assertEqual(rejected.state.run.decisionTimeline.records[0]?.intentKind, "reject", "reject decision kind");
+  assertEqual(rejected.state.run.decisionReplay.replayStatus, "rejected_decision_replayed", "reject replay status");
   assertContains(renderLocalOperatorShellSnapshot(rejected.state), "#1 reject recorded", "reject decision history visible");
+  assertContains(renderLocalOperatorShellSnapshot(rejected.state), "Replay status: rejected_decision_replayed", "reject replay visible");
 }
 
 function assertLocalOperatorShellForbiddenActionsFailClosed(): void {
@@ -142,6 +153,7 @@ function assertLocalOperatorShellForbiddenActionsFailClosed(): void {
   });
   assertEqual(forbiddenIntent.reason, "provider_execution_rejected", "provider execution reason");
   assertEqual(forbiddenIntent.state.run.decisionTimeline.records.length, 0, "forbidden decision count");
+  assertEqual(forbiddenIntent.state.run.decisionReplay.replayStatus, "no_decision_recorded", "forbidden replay unchanged");
   assertContains(renderLocalOperatorShellSnapshot(forbiddenIntent.state), "No recorded local operator decisions", "usable after forbidden rejection");
 }
 
@@ -159,6 +171,22 @@ function assertLocalOperatorShellRejectsInvalidTargetThroughTransport(): void {
   assertEqual(response.state.run.selectedIntent, null, "invalid candidate selected intent");
   assertEqual(response.state.run.decisionTimeline.records.length, 0, "invalid candidate decision count");
   assertContains(renderLocalOperatorShellSnapshot(response.state), "AJENTIC local operator shell - non-production", "render after rejection");
+}
+
+function assertLocalOperatorShellReplayProjectionIsDeterministic(): void {
+  const state = startDeterministicStubRun(initialLocalOperatorShellState());
+  const accepted = applyLocalOperatorIntent(state, {
+    kind: "approve",
+    operatorId: "local-operator",
+    targetRunId: state.run.runId,
+    targetCandidateId: state.run.candidate?.candidateId,
+    reason: "approved locally"
+  });
+  assertEqual(accepted.status, "accepted", "deterministic replay setup");
+  const first = deriveLocalDecisionReplayProjection(accepted.state.run, accepted.state.decisionLedger);
+  const second = deriveLocalDecisionReplayProjection(accepted.state.run, accepted.state.decisionLedger);
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic replay projection");
+  assertEqual(accepted.state.decisionLedger.records.length, 1, "derive leaves ledger length unchanged");
 }
 
 function assertLocalOperatorShellTransportCapabilitiesStayDisabled(): void {
@@ -561,6 +589,10 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_operator_shell_rejects_invalid_target_through_transport",
     run: assertLocalOperatorShellRejectsInvalidTargetThroughTransport
+  },
+  {
+    name: "local_operator_shell_replay_projection_is_deterministic",
+    run: assertLocalOperatorShellReplayProjectionIsDeterministic
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

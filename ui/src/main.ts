@@ -50,6 +50,23 @@ function renderCandidate(state: LocalOperatorShellState): string {
     </dl>`;
 }
 
+
+function renderReplayProjection(state: LocalOperatorShellState): string {
+  const replay = state.run.decisionReplay;
+  return `
+    <dl>
+      <div><dt>Replay status</dt><dd>${replay.replayStatus}</dd></div>
+      <div><dt>Decision count</dt><dd>${replay.sourceDecisionCount}</dd></div>
+      <div><dt>Latest decision ID</dt><dd>${replay.latestDecisionId ?? "none"}</dd></div>
+      <div><dt>Latest run ID</dt><dd>${replay.latestRunId ?? "none"}</dd></div>
+      <div><dt>Latest candidate ID</dt><dd>${replay.latestCandidateId ?? "none"}</dd></div>
+      <div><dt>Latest operator ID</dt><dd>${replay.latestOperatorId ?? "none"}</dd></div>
+      <div><dt>Latest decision kind</dt><dd>${replay.latestDecisionKind ?? "none"}</dd></div>
+      <div><dt>Integrity</dt><dd>${replay.integrityStatus}</dd></div>
+      <div><dt>Summary</dt><dd>${replay.summary}</dd></div>
+    </dl>`;
+}
+
 function renderValidation(state: LocalOperatorShellState): string {
   if (!state.run.validation) return `<p class="muted">Validation and policy projection appears after the stub run.</p>`;
   const validation = state.run.validation;
@@ -120,9 +137,9 @@ function render(): void {
       </section>
 
       <section class="panel replay-panel">
-        <h2>Replay / status projection placeholder</h2>
-        <p>${shellState.run.replayStatus}</p>
-        <p class="muted">Typed local state backs this placeholder; replay repair and status promotion are not available in the UI.</p>
+        <h2>Replay / status projection</h2>
+        ${renderReplayProjection(shellState)}
+        <p class="muted">Rust-derived local replay projection only; replay repair, recovery promotion, readiness approval, provider execution, and action execution are not available in the UI.</p>
       </section>
     </main>`;
 

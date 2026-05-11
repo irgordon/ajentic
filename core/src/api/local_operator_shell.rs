@@ -176,6 +176,241 @@ fn append_local_decision(
     Ok(next)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalDecisionReplayStatus {
+    NoDecisionRecorded,
+    ApprovedDecisionReplayed,
+    RejectedDecisionReplayed,
+    InconsistentDecisionLedger,
+    ReplayNotApplicable,
+}
+
+impl LocalDecisionReplayStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoDecisionRecorded => "no_decision_recorded",
+            Self::ApprovedDecisionReplayed => "approved_decision_replayed",
+            Self::RejectedDecisionReplayed => "rejected_decision_replayed",
+            Self::InconsistentDecisionLedger => "inconsistent_decision_ledger",
+            Self::ReplayNotApplicable => "replay_not_applicable",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalDecisionReplayIntegrityStatus {
+    Consistent,
+    Inconsistent,
+}
+
+impl LocalDecisionReplayIntegrityStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Inconsistent => "inconsistent",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalDecisionReplayError {
+    EmptyRecordField,
+    SequenceMismatch,
+    DecisionIdMismatch,
+    RunMismatch,
+    CandidateMismatch,
+    UnsupportedDecisionStatus,
+}
+
+impl LocalDecisionReplayError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EmptyRecordField => "empty_record_field",
+            Self::SequenceMismatch => "sequence_mismatch",
+            Self::DecisionIdMismatch => "decision_id_mismatch",
+            Self::RunMismatch => "run_mismatch",
+            Self::CandidateMismatch => "candidate_mismatch",
+            Self::UnsupportedDecisionStatus => "unsupported_decision_status",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalDecisionReplayEntry {
+    pub replay_sequence: String,
+    pub decision_id: String,
+    pub run_id: String,
+    pub candidate_id: String,
+    pub operator_id: String,
+    pub decision_kind: LocalDecisionRecordKind,
+    pub decision_status: LocalDecisionRecordStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalDecisionReplayProjection {
+    pub replay_status: LocalDecisionReplayStatus,
+    pub replay_sequence: String,
+    pub source_decision_count: usize,
+    pub latest_decision_id: Option<String>,
+    pub latest_run_id: Option<String>,
+    pub latest_candidate_id: Option<String>,
+    pub latest_operator_id: Option<String>,
+    pub latest_decision_kind: Option<LocalDecisionRecordKind>,
+    pub latest_decision_status: Option<LocalDecisionRecordStatus>,
+    pub integrity_status: LocalDecisionReplayIntegrityStatus,
+    pub error: Option<LocalDecisionReplayError>,
+    pub entries: Vec<LocalDecisionReplayEntry>,
+    pub summary: String,
+}
+
+pub fn initial_local_decision_replay_projection() -> LocalDecisionReplayProjection {
+    LocalDecisionReplayProjection {
+        replay_status: LocalDecisionReplayStatus::NoDecisionRecorded,
+        replay_sequence: "local-replay-sequence-0000".to_string(),
+        source_decision_count: 0,
+        latest_decision_id: None,
+        latest_run_id: None,
+        latest_candidate_id: None,
+        latest_operator_id: None,
+        latest_decision_kind: None,
+        latest_decision_status: None,
+        integrity_status: LocalDecisionReplayIntegrityStatus::Consistent,
+        error: None,
+        entries: Vec::new(),
+        summary: "No local operator decision has been recorded for replay projection.".to_string(),
+    }
+}
+
+fn inconsistent_local_decision_replay_projection(
+    ledger: &LocalDecisionLedger,
+    error: LocalDecisionReplayError,
+) -> LocalDecisionReplayProjection {
+    LocalDecisionReplayProjection {
+        replay_status: LocalDecisionReplayStatus::InconsistentDecisionLedger,
+        replay_sequence: format!("local-replay-sequence-{:04}", ledger.records.len()),
+        source_decision_count: ledger.records.len(),
+        latest_decision_id: ledger
+            .records
+            .last()
+            .map(|record| record.decision_id.clone()),
+        latest_run_id: ledger.records.last().map(|record| record.run_id.clone()),
+        latest_candidate_id: ledger
+            .records
+            .last()
+            .map(|record| record.candidate_id.clone()),
+        latest_operator_id: ledger
+            .records
+            .last()
+            .map(|record| record.operator_id.clone()),
+        latest_decision_kind: ledger.records.last().map(|record| record.intent_kind),
+        latest_decision_status: ledger.records.last().map(|record| record.decision_status),
+        integrity_status: LocalDecisionReplayIntegrityStatus::Inconsistent,
+        error: Some(error),
+        entries: Vec::new(),
+        summary: format!("Local decision ledger is inconsistent: {}.", error.code()),
+    }
+}
+
+pub fn validate_local_decision_replay_input(
+    run: &LocalRunProjection,
+    ledger: &LocalDecisionLedger,
+) -> Result<(), LocalDecisionReplayError> {
+    for (index, record) in ledger.records.iter().enumerate() {
+        let expected_sequence = index as u64 + 1;
+        if record.decision_id.is_empty()
+            || record.run_id.is_empty()
+            || record.candidate_id.is_empty()
+            || record.operator_id.is_empty()
+        {
+            return Err(LocalDecisionReplayError::EmptyRecordField);
+        }
+        if record.recorded_sequence != expected_sequence {
+            return Err(LocalDecisionReplayError::SequenceMismatch);
+        }
+        if record.decision_id != format!("local-decision-{expected_sequence:04}") {
+            return Err(LocalDecisionReplayError::DecisionIdMismatch);
+        }
+        if record.decision_status != LocalDecisionRecordStatus::Recorded {
+            return Err(LocalDecisionReplayError::UnsupportedDecisionStatus);
+        }
+    }
+
+    if let Some(latest) = ledger.records.last() {
+        if latest.run_id != run.run_id {
+            return Err(LocalDecisionReplayError::RunMismatch);
+        }
+        if let Some(candidate) = run.candidate.as_ref() {
+            if latest.candidate_id != candidate.candidate_id {
+                return Err(LocalDecisionReplayError::CandidateMismatch);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn derive_local_decision_replay_projection(
+    run: &LocalRunProjection,
+    ledger: &LocalDecisionLedger,
+) -> LocalDecisionReplayProjection {
+    if ledger.records.is_empty() {
+        return initial_local_decision_replay_projection();
+    }
+
+    if let Err(error) = validate_local_decision_replay_input(run, ledger) {
+        return inconsistent_local_decision_replay_projection(ledger, error);
+    }
+
+    let entries = ledger
+        .records
+        .iter()
+        .map(|record| LocalDecisionReplayEntry {
+            replay_sequence: format!("local-replay-entry-{:04}", record.recorded_sequence),
+            decision_id: record.decision_id.clone(),
+            run_id: record.run_id.clone(),
+            candidate_id: record.candidate_id.clone(),
+            operator_id: record.operator_id.clone(),
+            decision_kind: record.intent_kind,
+            decision_status: record.decision_status,
+        })
+        .collect::<Vec<_>>();
+    let latest = ledger
+        .records
+        .last()
+        .expect("non-empty ledger has latest decision");
+    let replay_status = match latest.intent_kind {
+        LocalDecisionRecordKind::Approve => LocalDecisionReplayStatus::ApprovedDecisionReplayed,
+        LocalDecisionRecordKind::Reject => LocalDecisionReplayStatus::RejectedDecisionReplayed,
+    };
+
+    LocalDecisionReplayProjection {
+        replay_status,
+        replay_sequence: format!("local-replay-sequence-{:04}", ledger.records.len()),
+        source_decision_count: ledger.records.len(),
+        latest_decision_id: Some(latest.decision_id.clone()),
+        latest_run_id: Some(latest.run_id.clone()),
+        latest_candidate_id: Some(latest.candidate_id.clone()),
+        latest_operator_id: Some(latest.operator_id.clone()),
+        latest_decision_kind: Some(latest.intent_kind),
+        latest_decision_status: Some(latest.decision_status),
+        integrity_status: LocalDecisionReplayIntegrityStatus::Consistent,
+        error: None,
+        entries,
+        summary: format!(
+            "Local decision replay projection derived {} recorded decision(s); latest decision {} is {}.",
+            ledger.records.len(),
+            latest.decision_id,
+            replay_status.code()
+        ),
+    }
+}
+
+pub fn project_local_decision_replay(
+    state: &LocalOperatorShellState,
+) -> LocalDecisionReplayProjection {
+    derive_local_decision_replay_projection(&state.run, &state.decision_ledger)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalCandidateOutput {
     pub candidate_id: String,
@@ -206,6 +441,7 @@ pub struct LocalRunProjection {
     pub timeline: Vec<String>,
     pub replay_status: String,
     pub decision_timeline: LocalDecisionTimelineProjection,
+    pub decision_replay: LocalDecisionReplayProjection,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -260,9 +496,12 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
             validation: None,
             selected_intent: None,
             timeline: vec!["idle local harness initialized".to_string()],
-            replay_status: "placeholder: replay/status projection is typed but not executing"
+            replay_status: initial_local_decision_replay_projection()
+                .replay_status
+                .code()
                 .to_string(),
             decision_timeline: project_local_decision_timeline(&initial_local_decision_ledger()),
+            decision_replay: initial_local_decision_replay_projection(),
         },
         decision_ledger: initial_local_decision_ledger(),
     }
@@ -300,6 +539,9 @@ pub fn start_deterministic_stub_run(state: &LocalOperatorShellState) -> LocalOpe
         "validation and policy projection completed".to_string(),
     ];
     next.run.decision_timeline = project_local_decision_timeline(&next.decision_ledger);
+    next.run.decision_replay =
+        derive_local_decision_replay_projection(&next.run, &next.decision_ledger);
+    next.run.replay_status = next.run.decision_replay.replay_status.code().to_string();
     next
 }
 
@@ -343,6 +585,9 @@ pub fn apply_local_operator_intent(
     next.run.status = LocalRunStatus::IntentRecorded;
     next.run.selected_intent = Some(intent.kind);
     next.run.decision_timeline = project_local_decision_timeline(&next.decision_ledger);
+    next.run.decision_replay =
+        derive_local_decision_replay_projection(&next.run, &next.decision_ledger);
+    next.run.replay_status = next.run.decision_replay.replay_status.code().to_string();
     next.run.timeline.push(format!(
         "operator intent recorded: {} by {} as decision {}",
         intent.kind.code(),
@@ -707,6 +952,141 @@ mod tests {
             assert_eq!(response.reason, request.rejection_code());
             assert_eq!(response.state, state);
         }
+    }
+
+    #[test]
+    fn replay_projection_exposes_no_decision_then_approved_and_rejected_states() {
+        let initial = initial_local_operator_shell_state();
+        assert_eq!(
+            initial.run.decision_replay.replay_status,
+            LocalDecisionReplayStatus::NoDecisionRecorded
+        );
+        assert_eq!(initial.run.decision_replay.source_decision_count, 0);
+
+        let started = start_deterministic_stub_run(&initial);
+        assert_eq!(
+            started.run.decision_replay.replay_status,
+            LocalDecisionReplayStatus::NoDecisionRecorded
+        );
+
+        for (kind, expected_status) in [
+            (
+                LocalOperatorIntentKind::Approve,
+                LocalDecisionReplayStatus::ApprovedDecisionReplayed,
+            ),
+            (
+                LocalOperatorIntentKind::Reject,
+                LocalDecisionReplayStatus::RejectedDecisionReplayed,
+            ),
+        ] {
+            let state = start_deterministic_stub_run(&initial_local_operator_shell_state());
+            let updated = apply_local_operator_intent(
+                &state,
+                LocalOperatorIntent::new(
+                    kind,
+                    "operator-local",
+                    &state.run.run_id,
+                    "reviewed locally",
+                ),
+            )
+            .expect("valid local decision should record");
+            assert_eq!(updated.run.decision_replay.replay_status, expected_status);
+            assert_eq!(updated.run.decision_replay.source_decision_count, 1);
+            assert_eq!(
+                updated.run.decision_replay.latest_decision_id.as_deref(),
+                Some("local-decision-0001")
+            );
+            assert_eq!(
+                updated.run.decision_replay.latest_operator_id.as_deref(),
+                Some("operator-local")
+            );
+            assert_eq!(
+                updated.run.decision_replay.latest_decision_kind,
+                Some(kind.into())
+            );
+            assert_eq!(
+                updated.run.decision_replay.integrity_status,
+                LocalDecisionReplayIntegrityStatus::Consistent
+            );
+        }
+    }
+
+    #[test]
+    fn replay_projection_is_deterministic_and_does_not_mutate_inputs() {
+        let state = start_deterministic_stub_run(&initial_local_operator_shell_state());
+        let updated = apply_local_operator_intent(
+            &state,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Approve,
+                "operator-local",
+                &state.run.run_id,
+                "reviewed locally",
+            ),
+        )
+        .expect("valid local decision should record");
+        let run_before = updated.run.clone();
+        let ledger_before = updated.decision_ledger.clone();
+
+        let first = derive_local_decision_replay_projection(&updated.run, &updated.decision_ledger);
+        let second =
+            derive_local_decision_replay_projection(&updated.run, &updated.decision_ledger);
+
+        assert_eq!(first, second);
+        assert_eq!(updated.run, run_before);
+        assert_eq!(updated.decision_ledger, ledger_before);
+    }
+
+    #[test]
+    fn replay_projection_fails_closed_for_malformed_ledger() {
+        let state = start_deterministic_stub_run(&initial_local_operator_shell_state());
+        let mut ledger = state.decision_ledger.clone();
+        ledger.records.push(LocalDecisionRecord {
+            decision_id: "local-decision-0002".to_string(),
+            run_id: state.run.run_id.clone(),
+            candidate_id: state.run.candidate.as_ref().unwrap().candidate_id.clone(),
+            operator_id: "operator-local".to_string(),
+            intent_kind: LocalDecisionRecordKind::Approve,
+            decision_status: LocalDecisionRecordStatus::Recorded,
+            validation_status: "accepted_by_rust_local_validation".to_string(),
+            recorded_sequence: 2,
+            recorded_at_label: "local-sequence-0002".to_string(),
+            reason: "malformed sequence".to_string(),
+        });
+
+        let projection = derive_local_decision_replay_projection(&state.run, &ledger);
+
+        assert_eq!(
+            projection.replay_status,
+            LocalDecisionReplayStatus::InconsistentDecisionLedger
+        );
+        assert_eq!(
+            projection.integrity_status,
+            LocalDecisionReplayIntegrityStatus::Inconsistent
+        );
+        assert_eq!(
+            projection.error,
+            Some(LocalDecisionReplayError::SequenceMismatch)
+        );
+    }
+
+    #[test]
+    fn invalid_intent_leaves_replay_projection_unchanged() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let started = start_local_operator_shell_stub_run(&mut transport);
+        let before = started.state.run.decision_replay.clone();
+        let rejected = submit_local_operator_shell_intent(
+            &mut transport,
+            LocalOperatorIntent::new(
+                LocalOperatorIntentKind::Approve,
+                "",
+                &started.state.run.run_id,
+                "reviewed locally",
+            ),
+        );
+
+        assert_eq!(rejected.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(rejected.state.run.decision_replay, before);
+        assert_eq!(transport.current_state().run.decision_replay, before);
     }
 
     #[test]

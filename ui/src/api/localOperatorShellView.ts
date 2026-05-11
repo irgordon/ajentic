@@ -7,6 +7,19 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
         .map((record) => `#${record.recordedSequence} ${record.intentKind} ${record.decisionStatus} run=${record.runId} candidate=${record.candidateId} operator=${record.operatorId}`)
         .join("\n");
 
+  const replay = state.run.decisionReplay;
+  const replayLines = [
+    `Replay status: ${replay.replayStatus}`,
+    `Decision count: ${replay.sourceDecisionCount}`,
+    `Latest decision ID: ${replay.latestDecisionId ?? "none"}`,
+    `Latest run ID: ${replay.latestRunId ?? "none"}`,
+    `Latest candidate ID: ${replay.latestCandidateId ?? "none"}`,
+    `Latest operator ID: ${replay.latestOperatorId ?? "none"}`,
+    `Latest decision kind: ${replay.latestDecisionKind ?? "none"}`,
+    `Integrity: ${replay.integrityStatus}`,
+    `Summary: ${replay.summary}`
+  ].join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -35,7 +48,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Selected operator intent: ${state.run.selectedIntent ?? "none"}`,
     "Local decision ledger",
     decisionHistory,
-    "Bottom panel: Replay/status projection placeholder",
-    state.run.replayStatus
+    "Bottom panel: Replay/status projection",
+    replayLines
   ].join("\n");
 }
