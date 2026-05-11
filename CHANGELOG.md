@@ -28,6 +28,33 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+
+## v0.0.133 - 2026-05-11
+**Status:** Phase 133 - Usable Local Operator UI Shell
+
+### Added
+- Add a usable local operator UI shell.
+- Add a deterministic local stub run workflow visible in the UI.
+- Add candidate output, validation/policy result, run timeline, and operator approve/reject controls.
+- Add Rust and TypeScript tests for the local UI shell and typed local operator workflow.
+
+### Changed
+- Replace placeholder local UI behavior with a browser-usable development shell.
+- Update local validation as needed for the new Rust/UI capability.
+
+### Notes
+- Code-production phase.
+- Local-only non-production operator shell.
+- Deterministic stub provider/workflow only.
+- No external provider execution.
+- No cloud model calls.
+- No production readiness approval.
+- No Release Candidate approval.
+- No Production Candidate approval.
+- No public/general-use approval.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, or deployment behavior.
+
 ## v0.0.132.3 - 2026-05-11
 **Status:** Phase 132.3 - Local Artifact Manifest Producer
 
