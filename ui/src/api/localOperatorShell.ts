@@ -1694,6 +1694,198 @@ export function initialLocalSessionPackageProjection(): LocalSessionPackageProje
   };
 }
 
+
+export type LocalSessionHistoryStatus = "no_session_history" | "session_history_projected";
+
+export type LocalSessionHistoryEntry = Readonly<{
+  packageId: string;
+  packageVersion: string;
+  packageClassification: "local_session_package_only";
+  productionClassification: "non_production";
+  packageStatus: LocalSessionPackageStatus;
+  validationStatus: LocalSessionPackageValidationStatus;
+  readBackValidationStatus: LocalSessionPackageValidationStatus | null;
+  includedSectionSummary: readonly string[];
+  absenceMarkerSummary: readonly string[];
+}>;
+
+export type LocalSessionHistoryProjection = Readonly<{
+  status: LocalSessionHistoryStatus;
+  entries: readonly LocalSessionHistoryEntry[];
+  selectedPackageId: string | null;
+  boundaryNote: "Session history is derived only from explicit local package entries; No automatic filesystem scanning.";
+}>;
+
+export type LocalSessionRestoreStatus =
+  | "restore_not_requested"
+  | "package_selected"
+  | "package_read_back_validated"
+  | "restore_preview_projected"
+  | "restore_projected"
+  | "restore_rejected"
+  | "invalid_restore_input";
+
+export type LocalSessionRestoreValidationStatus = "not_validated" | "valid" | "invalid";
+export type LocalSessionRestoreReadBackStatus = "not_read" | "package_read_back_validated" | "read_back_rejected";
+export type LocalSessionRestoreBoundaryStatus =
+  | "local_restore_projection_only"
+  | "no_recovery_promotion"
+  | "no_replay_repair"
+  | "no_production_persistence_claim"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+
+export type LocalSessionRestoreError =
+  | "no_package_selected"
+  | "package_read_failed"
+  | "package_parse_failed"
+  | "package_validation_failed"
+  | "invalid_package_classification"
+  | "invalid_production_classification"
+  | "missing_required_package_section"
+  | "missing_absence_marker"
+  | "readiness_claim_detected"
+  | "release_claim_detected"
+  | "deployment_claim_detected"
+  | "public_use_claim_detected"
+  | "provider_trust_claim_detected"
+  | "candidate_approval_claim_detected"
+  | "action_execution_claim_detected"
+  | "replay_repair_claim_detected"
+  | "recovery_promotion_claim_detected"
+  | "nondeterministic_restore_projection";
+
+export type LocalSessionRestoreProjection = Readonly<{
+  status: LocalSessionRestoreStatus;
+  packageId: string | null;
+  packageVersion: string | null;
+  packageClassification: "local_session_package_only" | null;
+  productionClassification: "non_production" | null;
+  validationStatus: LocalSessionRestoreValidationStatus;
+  readBackStatus: LocalSessionRestoreReadBackStatus;
+  errors: readonly LocalSessionRestoreError[];
+  includedSectionSummary: readonly string[];
+  absenceMarkerSummary: readonly string[];
+  boundaryStatus: readonly LocalSessionRestoreBoundaryStatus[];
+  localOnlyNote: "Session restore is local-only and non-production.";
+  readBackNote: "Read-back validation checks package structure; it is not restore authority.";
+  previewBoundaryNote: "Restore preview does not repair replay or promote recovery.";
+  restoredProjectionNote: "Restored session projection does not imply readiness, release, deployment, or public use.";
+  remoteBackgroundNote: "No remote sync or background restore is active.";
+}>;
+
+export function initialLocalSessionHistoryProjection(): LocalSessionHistoryProjection {
+  return {
+    status: "no_session_history",
+    entries: [],
+    selectedPackageId: null,
+    boundaryNote: "Session history is derived only from explicit local package entries; No automatic filesystem scanning."
+  };
+}
+
+export function initialLocalSessionRestoreProjection(): LocalSessionRestoreProjection {
+  return {
+    status: "restore_not_requested",
+    packageId: null,
+    packageVersion: null,
+    packageClassification: null,
+    productionClassification: null,
+    validationStatus: "not_validated",
+    readBackStatus: "not_read",
+    errors: [],
+    includedSectionSummary: [],
+    absenceMarkerSummary: initialLocalSessionPackageProjection().absenceMarkerSummary,
+    boundaryStatus: [
+      "local_restore_projection_only",
+      "no_recovery_promotion",
+      "no_replay_repair",
+      "no_production_persistence_claim",
+      "no_readiness_effect",
+      "no_release_effect",
+      "no_deployment_effect",
+      "no_public_use_effect"
+    ],
+    localOnlyNote: "Session restore is local-only and non-production.",
+    readBackNote: "Read-back validation checks package structure; it is not restore authority.",
+    previewBoundaryNote: "Restore preview does not repair replay or promote recovery.",
+    restoredProjectionNote: "Restored session projection does not imply readiness, release, deployment, or public use.",
+    remoteBackgroundNote: "No remote sync or background restore is active."
+  };
+}
+
+export function projectLocalSessionHistoryFromPackages(
+  packages: readonly LocalSessionPackageProjection[]
+): LocalSessionHistoryProjection {
+  const entries = packages
+    .filter((projection): projection is LocalSessionPackageProjection & { packageId: string } => projection.packageId !== null)
+    .map((projection) => ({
+      packageId: projection.packageId,
+      packageVersion: projection.packageVersion,
+      packageClassification: projection.packageClassification,
+      productionClassification: projection.productionClassification,
+      packageStatus: projection.status,
+      validationStatus: projection.validationStatus,
+      readBackValidationStatus: projection.readBackValidationStatus,
+      includedSectionSummary: projection.includedSectionSummary,
+      absenceMarkerSummary: projection.absenceMarkerSummary
+    }));
+  return {
+    status: entries.length === 0 ? "no_session_history" : "session_history_projected",
+    entries,
+    selectedPackageId: entries[0]?.packageId ?? null,
+    boundaryNote: "Session history is derived only from explicit local package entries; No automatic filesystem scanning."
+  };
+}
+
+export function projectLocalSessionRestoreFromPackageProjection(
+  projection: LocalSessionPackageProjection
+): LocalSessionRestoreProjection {
+  if (projection.packageId === null) {
+    return {
+      ...initialLocalSessionRestoreProjection(),
+      status: "restore_rejected",
+      validationStatus: "invalid",
+      readBackStatus: "read_back_rejected",
+      errors: ["no_package_selected"]
+    };
+  }
+  if (projection.validationStatus !== "valid") {
+    return {
+      ...initialLocalSessionRestoreProjection(),
+      status: "restore_rejected",
+      packageId: projection.packageId,
+      packageVersion: projection.packageVersion,
+      packageClassification: projection.packageClassification,
+      productionClassification: projection.productionClassification,
+      validationStatus: "invalid",
+      readBackStatus: "read_back_rejected",
+      errors: projection.validationErrors.includes("invalid_package_classification")
+        ? ["invalid_package_classification"]
+        : ["package_validation_failed"]
+    };
+  }
+  return {
+    status: "restore_preview_projected",
+    packageId: projection.packageId,
+    packageVersion: projection.packageVersion,
+    packageClassification: projection.packageClassification,
+    productionClassification: projection.productionClassification,
+    validationStatus: "valid",
+    readBackStatus: "package_read_back_validated",
+    errors: [],
+    includedSectionSummary: projection.includedSectionSummary,
+    absenceMarkerSummary: projection.absenceMarkerSummary,
+    boundaryStatus: initialLocalSessionRestoreProjection().boundaryStatus,
+    localOnlyNote: "Session restore is local-only and non-production.",
+    readBackNote: "Read-back validation checks package structure; it is not restore authority.",
+    previewBoundaryNote: "Restore preview does not repair replay or promote recovery.",
+    restoredProjectionNote: "Restored session projection does not imply readiness, release, deployment, or public use.",
+    remoteBackgroundNote: "No remote sync or background restore is active."
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -1738,6 +1930,8 @@ export type LocalOperatorShellState = Readonly<{
   operatorCandidateDecision: OperatorCandidateDecisionProjection;
   phase150CodeProductionHandoff: Phase150CodeProductionHandoff;
   localSessionPackageProjection: LocalSessionPackageProjection;
+  localSessionHistoryProjection: LocalSessionHistoryProjection;
+  localSessionRestoreProjection: LocalSessionRestoreProjection;
 }>;
 
 
@@ -1866,7 +2060,9 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       remapRecommendations: [],
       phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
     },
-    localSessionPackageProjection: initialLocalSessionPackageProjection()
+    localSessionPackageProjection: initialLocalSessionPackageProjection(),
+    localSessionHistoryProjection: initialLocalSessionHistoryProjection(),
+    localSessionRestoreProjection: initialLocalSessionRestoreProjection()
   });
   return { ...state, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(state) };
 }

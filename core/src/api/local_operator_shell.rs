@@ -4373,6 +4373,582 @@ pub fn validate_local_session_package_read_back(
     )
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionHistoryStatus {
+    NoSessionHistory,
+    SessionHistoryProjected,
+}
+
+impl LocalSessionHistoryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoSessionHistory => "no_session_history",
+            Self::SessionHistoryProjected => "session_history_projected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionHistoryEntry {
+    pub package_id: String,
+    pub package_version: String,
+    pub package_classification: String,
+    pub production_classification: String,
+    pub package_status: LocalSessionPackageStatus,
+    pub validation_status: LocalSessionPackageValidationStatus,
+    pub read_back_validation_status: Option<LocalSessionPackageValidationStatus>,
+    pub included_section_summary: Vec<String>,
+    pub absence_marker_summary: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionHistoryProjection {
+    pub status: LocalSessionHistoryStatus,
+    pub entries: Vec<LocalSessionHistoryEntry>,
+    pub selected_package_id: Option<String>,
+    pub boundary_note: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionRestoreStatus {
+    RestoreNotRequested,
+    PackageSelected,
+    PackageReadBackValidated,
+    RestorePreviewProjected,
+    RestoreProjected,
+    RestoreRejected,
+    InvalidRestoreInput,
+}
+
+impl LocalSessionRestoreStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::RestoreNotRequested => "restore_not_requested",
+            Self::PackageSelected => "package_selected",
+            Self::PackageReadBackValidated => "package_read_back_validated",
+            Self::RestorePreviewProjected => "restore_preview_projected",
+            Self::RestoreProjected => "restore_projected",
+            Self::RestoreRejected => "restore_rejected",
+            Self::InvalidRestoreInput => "invalid_restore_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionRestoreValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+}
+
+impl LocalSessionRestoreValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotValidated => "not_validated",
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionRestoreReadBackStatus {
+    NotRead,
+    PackageReadBackValidated,
+    ReadBackRejected,
+}
+
+impl LocalSessionRestoreReadBackStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotRead => "not_read",
+            Self::PackageReadBackValidated => "package_read_back_validated",
+            Self::ReadBackRejected => "read_back_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionRestoreBoundaryStatus {
+    LocalRestoreProjectionOnly,
+    NoRecoveryPromotion,
+    NoReplayRepair,
+    NoProductionPersistenceClaim,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl LocalSessionRestoreBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LocalRestoreProjectionOnly => "local_restore_projection_only",
+            Self::NoRecoveryPromotion => "no_recovery_promotion",
+            Self::NoReplayRepair => "no_replay_repair",
+            Self::NoProductionPersistenceClaim => "no_production_persistence_claim",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionRestoreError {
+    NoPackageSelected,
+    PackageReadFailed,
+    PackageParseFailed,
+    PackageValidationFailed,
+    InvalidPackageClassification,
+    InvalidProductionClassification,
+    MissingRequiredPackageSection,
+    MissingAbsenceMarker,
+    ReadinessClaimDetected,
+    ReleaseClaimDetected,
+    DeploymentClaimDetected,
+    PublicUseClaimDetected,
+    ProviderTrustClaimDetected,
+    CandidateApprovalClaimDetected,
+    ActionExecutionClaimDetected,
+    ReplayRepairClaimDetected,
+    RecoveryPromotionClaimDetected,
+    NondeterministicRestoreProjection,
+}
+
+impl LocalSessionRestoreError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoPackageSelected => "no_package_selected",
+            Self::PackageReadFailed => "package_read_failed",
+            Self::PackageParseFailed => "package_parse_failed",
+            Self::PackageValidationFailed => "package_validation_failed",
+            Self::InvalidPackageClassification => "invalid_package_classification",
+            Self::InvalidProductionClassification => "invalid_production_classification",
+            Self::MissingRequiredPackageSection => "missing_required_package_section",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::ReadinessClaimDetected => "readiness_claim_detected",
+            Self::ReleaseClaimDetected => "release_claim_detected",
+            Self::DeploymentClaimDetected => "deployment_claim_detected",
+            Self::PublicUseClaimDetected => "public_use_claim_detected",
+            Self::ProviderTrustClaimDetected => "provider_trust_claim_detected",
+            Self::CandidateApprovalClaimDetected => "candidate_approval_claim_detected",
+            Self::ActionExecutionClaimDetected => "action_execution_claim_detected",
+            Self::ReplayRepairClaimDetected => "replay_repair_claim_detected",
+            Self::RecoveryPromotionClaimDetected => "recovery_promotion_claim_detected",
+            Self::NondeterministicRestoreProjection => "nondeterministic_restore_projection",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LocalSessionRestoreRequest {
+    ExplicitPackagePayload(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionRestoreCandidate {
+    pub package_id: Option<String>,
+    pub package_version: Option<String>,
+    pub package_classification: Option<String>,
+    pub production_classification: Option<String>,
+    pub read_back_status: LocalSessionRestoreReadBackStatus,
+    pub validation_status: LocalSessionRestoreValidationStatus,
+    pub errors: Vec<LocalSessionRestoreError>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionRestoreProjection {
+    pub status: LocalSessionRestoreStatus,
+    pub package_id: Option<String>,
+    pub package_version: Option<String>,
+    pub package_classification: Option<String>,
+    pub production_classification: Option<String>,
+    pub validation_status: LocalSessionRestoreValidationStatus,
+    pub read_back_status: LocalSessionRestoreReadBackStatus,
+    pub errors: Vec<LocalSessionRestoreError>,
+    pub included_section_summary: Vec<String>,
+    pub absence_marker_summary: Vec<String>,
+    pub boundary_status: Vec<LocalSessionRestoreBoundaryStatus>,
+    pub local_only_note: String,
+    pub read_back_note: String,
+    pub preview_boundary_note: String,
+    pub restored_projection_note: String,
+    pub remote_background_note: String,
+}
+
+pub fn initial_local_session_history_projection() -> LocalSessionHistoryProjection {
+    LocalSessionHistoryProjection {
+        status: LocalSessionHistoryStatus::NoSessionHistory,
+        entries: Vec::new(),
+        selected_package_id: None,
+        boundary_note: "Session history is derived only from explicit local package entries; No automatic filesystem scanning.".to_string(),
+    }
+}
+
+pub fn initial_local_session_restore_projection() -> LocalSessionRestoreProjection {
+    LocalSessionRestoreProjection {
+        status: LocalSessionRestoreStatus::RestoreNotRequested,
+        package_id: None,
+        package_version: None,
+        package_classification: None,
+        production_classification: None,
+        validation_status: LocalSessionRestoreValidationStatus::NotValidated,
+        read_back_status: LocalSessionRestoreReadBackStatus::NotRead,
+        errors: Vec::new(),
+        included_section_summary: Vec::new(),
+        absence_marker_summary: local_session_package_absence_markers().marker_summary,
+        boundary_status: local_session_restore_boundary_statuses(),
+        local_only_note: "Session restore is local-only and non-production.".to_string(),
+        read_back_note: "Read-back validation checks package structure; it is not restore authority.".to_string(),
+        preview_boundary_note: "Restore preview does not repair replay or promote recovery.".to_string(),
+        restored_projection_note: "Restored session projection does not imply readiness, release, deployment, or public use.".to_string(),
+        remote_background_note: "No remote sync or background restore is active.".to_string(),
+    }
+}
+
+fn local_session_restore_boundary_statuses() -> Vec<LocalSessionRestoreBoundaryStatus> {
+    vec![
+        LocalSessionRestoreBoundaryStatus::LocalRestoreProjectionOnly,
+        LocalSessionRestoreBoundaryStatus::NoRecoveryPromotion,
+        LocalSessionRestoreBoundaryStatus::NoReplayRepair,
+        LocalSessionRestoreBoundaryStatus::NoProductionPersistenceClaim,
+        LocalSessionRestoreBoundaryStatus::NoReadinessEffect,
+        LocalSessionRestoreBoundaryStatus::NoReleaseEffect,
+        LocalSessionRestoreBoundaryStatus::NoDeploymentEffect,
+        LocalSessionRestoreBoundaryStatus::NoPublicUseEffect,
+    ]
+}
+
+pub fn project_local_session_history(
+    packages: &[LocalSessionPackage],
+) -> LocalSessionHistoryProjection {
+    let entries = packages
+        .iter()
+        .map(|package| {
+            let projection = project_local_session_package_status(
+                Some(package),
+                Some(LocalSessionPackageValidationStatus::Valid),
+            );
+            LocalSessionHistoryEntry {
+                package_id: package.metadata.package_id.clone(),
+                package_version: projection.package_version,
+                package_classification: projection.package_classification,
+                production_classification: projection.production_classification,
+                package_status: projection.status,
+                validation_status: projection.validation_status,
+                read_back_validation_status: projection.read_back_validation_status,
+                included_section_summary: projection.included_section_summary,
+                absence_marker_summary: projection.absence_marker_summary,
+            }
+        })
+        .collect::<Vec<_>>();
+    LocalSessionHistoryProjection {
+        status: if entries.is_empty() {
+            LocalSessionHistoryStatus::NoSessionHistory
+        } else {
+            LocalSessionHistoryStatus::SessionHistoryProjected
+        },
+        selected_package_id: entries.first().map(|entry| entry.package_id.clone()),
+        entries,
+        boundary_note: "Session history is derived only from explicit local package entries; No automatic filesystem scanning.".to_string(),
+    }
+}
+
+fn package_content_has_required_restore_sections(content: &str) -> bool {
+    let required = [
+        "ajentic_local_session_package",
+        "package_id",
+        "package_version",
+        "package_classification",
+        "production_classification",
+        "package_status",
+        "validation_status",
+        "content_digest",
+        "provider_configuration_projection",
+        "provider_execution_result_projection",
+        "provider_output_validation_projection",
+        "provider_output_review_projection",
+        "staged_candidate_conversion_proposal_projection",
+        "staged_candidate_conversion_validation_projection",
+        "candidate_review_surface_projection",
+        "operator_candidate_decision_projection",
+        "local_decision_ledger_projection",
+        "replay_status_projection",
+        "local_session_evidence_export_projection",
+        "phase_150_handoff_context_projection",
+        "no_release_marker",
+        "no_deployment_marker",
+        "no_readiness_marker",
+        "absence_markers",
+    ];
+    let keys = content
+        .lines()
+        .filter_map(|line| line.split_once('=').map(|(key, _)| key))
+        .collect::<std::collections::BTreeSet<_>>();
+    required.iter().all(|key| keys.contains(key))
+}
+
+fn local_session_restore_claim_errors(text: &str) -> Vec<LocalSessionRestoreError> {
+    let text = text.to_ascii_lowercase();
+    let mut errors = Vec::new();
+    if ["claim:readiness_approved", "claim:production_ready"]
+        .iter()
+        .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::ReadinessClaimDetected);
+    }
+    if [
+        "claim:release_candidate_approved",
+        "claim:production candidate status approved",
+        "claim:github_release_created",
+        "claim:release_tag_created",
+        "claim:signing_enabled",
+        "claim:publishing_enabled",
+        "claim:installer_created",
+        "claim:update_channel_enabled",
+        "claim:public_download",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::ReleaseClaimDetected);
+    }
+    if ["claim:deployment_enabled"]
+        .iter()
+        .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::DeploymentClaimDetected);
+    }
+    if ["claim:public_use_approved"]
+        .iter()
+        .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::PublicUseClaimDetected);
+    }
+    if [
+        "claim:provider_trusted",
+        "claim:trusted_provider_output",
+        "claim:provider trust granted",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::ProviderTrustClaimDetected);
+    }
+    if [
+        "claim:candidate_approved",
+        "claim:candidate approval granted",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::CandidateApprovalClaimDetected);
+    }
+    if [
+        "claim:action_executed",
+        "claim:execute action",
+        "claim:action execution enabled",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::ActionExecutionClaimDetected);
+    }
+    if ["claim:replay_repaired", "claim:repair replay"]
+        .iter()
+        .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::ReplayRepairClaimDetected);
+    }
+    if ["claim:recovery_promoted", "claim:promote recovery"]
+        .iter()
+        .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionRestoreError::RecoveryPromotionClaimDetected);
+    }
+    errors
+}
+
+fn local_session_restore_errors(package: &LocalSessionPackage) -> Vec<LocalSessionRestoreError> {
+    let mut errors = Vec::new();
+    if package.metadata.package_id.is_empty() {
+        errors.push(LocalSessionRestoreError::PackageValidationFailed);
+    }
+    if package.metadata.package_version.is_empty() {
+        errors.push(LocalSessionRestoreError::PackageValidationFailed);
+    }
+    if package.metadata.package_classification
+        != LocalSessionPackageClassification::LocalSessionPackageOnly.code()
+    {
+        errors.push(LocalSessionRestoreError::InvalidPackageClassification);
+    }
+    if package.metadata.production_classification
+        != LocalSessionPackageProductionClassification::NonProduction.code()
+    {
+        errors.push(LocalSessionRestoreError::InvalidProductionClassification);
+    }
+    if validate_local_session_package(package).is_err() {
+        errors.push(LocalSessionRestoreError::PackageValidationFailed);
+    }
+    if local_session_package_validation_errors(package)
+        .contains(&LocalSessionPackageValidationError::MissingAbsenceMarker)
+    {
+        errors.push(LocalSessionRestoreError::MissingAbsenceMarker);
+    }
+    errors.extend(local_session_restore_claim_errors(&format!(
+        "{:?}",
+        package
+    )));
+    errors.sort_by_key(|error| error.code());
+    errors.dedup();
+    errors
+}
+
+pub fn reject_local_session_restore_request(
+    error: LocalSessionRestoreError,
+) -> LocalSessionRestoreProjection {
+    let mut projection = initial_local_session_restore_projection();
+    projection.status = LocalSessionRestoreStatus::RestoreRejected;
+    projection.validation_status = LocalSessionRestoreValidationStatus::Invalid;
+    projection.read_back_status = LocalSessionRestoreReadBackStatus::ReadBackRejected;
+    projection.errors = vec![error];
+    projection
+}
+
+pub fn create_local_session_restore_candidate(
+    request: LocalSessionRestoreRequest,
+) -> LocalSessionRestoreCandidate {
+    let LocalSessionRestoreRequest::ExplicitPackagePayload(content) = request;
+    if content.is_empty() {
+        return LocalSessionRestoreCandidate {
+            package_id: None,
+            package_version: None,
+            package_classification: None,
+            production_classification: None,
+            read_back_status: LocalSessionRestoreReadBackStatus::ReadBackRejected,
+            validation_status: LocalSessionRestoreValidationStatus::Invalid,
+            errors: vec![LocalSessionRestoreError::NoPackageSelected],
+        };
+    }
+    if !package_content_has_required_restore_sections(&content) {
+        return LocalSessionRestoreCandidate {
+            package_id: None,
+            package_version: None,
+            package_classification: None,
+            production_classification: None,
+            read_back_status: LocalSessionRestoreReadBackStatus::ReadBackRejected,
+            validation_status: LocalSessionRestoreValidationStatus::Invalid,
+            errors: vec![LocalSessionRestoreError::MissingRequiredPackageSection],
+        };
+    }
+    match parse_local_session_package(&content) {
+        Ok(package) => {
+            let errors = local_session_restore_errors(&package);
+            LocalSessionRestoreCandidate {
+                package_id: Some(package.metadata.package_id),
+                package_version: Some(package.metadata.package_version),
+                package_classification: Some(package.metadata.package_classification),
+                production_classification: Some(package.metadata.production_classification),
+                read_back_status: if errors.is_empty() {
+                    LocalSessionRestoreReadBackStatus::PackageReadBackValidated
+                } else {
+                    LocalSessionRestoreReadBackStatus::ReadBackRejected
+                },
+                validation_status: if errors.is_empty() {
+                    LocalSessionRestoreValidationStatus::Valid
+                } else {
+                    LocalSessionRestoreValidationStatus::Invalid
+                },
+                errors,
+            }
+        }
+        Err(_) => LocalSessionRestoreCandidate {
+            package_id: None,
+            package_version: None,
+            package_classification: None,
+            production_classification: None,
+            read_back_status: LocalSessionRestoreReadBackStatus::ReadBackRejected,
+            validation_status: LocalSessionRestoreValidationStatus::Invalid,
+            errors: vec![LocalSessionRestoreError::PackageParseFailed],
+        },
+    }
+}
+
+pub fn validate_local_session_restore_candidate(
+    candidate: &LocalSessionRestoreCandidate,
+) -> Result<(), Vec<LocalSessionRestoreError>> {
+    if candidate.errors.is_empty()
+        && candidate.validation_status == LocalSessionRestoreValidationStatus::Valid
+    {
+        Ok(())
+    } else {
+        Err(candidate.errors.clone())
+    }
+}
+
+pub fn derive_local_session_restore_preview(
+    package: &LocalSessionPackage,
+) -> Result<LocalSessionRestoreProjection, Vec<LocalSessionRestoreError>> {
+    let errors = local_session_restore_errors(package);
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+    Ok(LocalSessionRestoreProjection {
+        status: LocalSessionRestoreStatus::RestorePreviewProjected,
+        package_id: Some(package.metadata.package_id.clone()),
+        package_version: Some(package.metadata.package_version.clone()),
+        package_classification: Some(package.metadata.package_classification.clone()),
+        production_classification: Some(package.metadata.production_classification.clone()),
+        validation_status: LocalSessionRestoreValidationStatus::Valid,
+        read_back_status: LocalSessionRestoreReadBackStatus::PackageReadBackValidated,
+        errors: Vec::new(),
+        included_section_summary: local_session_package_included_sections(),
+        absence_marker_summary: package.absence_markers.marker_summary.clone(),
+        boundary_status: local_session_restore_boundary_statuses(),
+        local_only_note: "Session restore is local-only and non-production.".to_string(),
+        read_back_note: "Read-back validation checks package structure; it is not restore authority.".to_string(),
+        preview_boundary_note: "Restore preview does not repair replay or promote recovery.".to_string(),
+        restored_projection_note: "Restored session projection does not imply readiness, release, deployment, or public use.".to_string(),
+        remote_background_note: "No remote sync or background restore is active.".to_string(),
+    })
+}
+
+pub fn derive_local_session_restore_projection(
+    package: &LocalSessionPackage,
+) -> Result<LocalSessionRestoreProjection, Vec<LocalSessionRestoreError>> {
+    let mut projection = derive_local_session_restore_preview(package)?;
+    projection.status = LocalSessionRestoreStatus::RestoreProjected;
+    Ok(projection)
+}
+
+pub fn project_local_session_restore_from_payload(content: &str) -> LocalSessionRestoreProjection {
+    if !package_content_has_required_restore_sections(content) {
+        let mut projection = reject_local_session_restore_request(
+            LocalSessionRestoreError::MissingRequiredPackageSection,
+        );
+        projection.status = LocalSessionRestoreStatus::InvalidRestoreInput;
+        return projection;
+    }
+    match parse_local_session_package(content) {
+        Ok(package) => match derive_local_session_restore_preview(&package) {
+            Ok(projection) => projection,
+            Err(errors) => {
+                let mut projection = initial_local_session_restore_projection();
+                projection.status = LocalSessionRestoreStatus::RestoreRejected;
+                projection.validation_status = LocalSessionRestoreValidationStatus::Invalid;
+                projection.read_back_status = LocalSessionRestoreReadBackStatus::ReadBackRejected;
+                projection.errors = errors;
+                projection
+            }
+        },
+        Err(_) => {
+            reject_local_session_restore_request(LocalSessionRestoreError::PackageParseFailed)
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalOperatorShellState {
     pub harness_status: String,
@@ -4388,6 +4964,8 @@ pub struct LocalOperatorShellState {
     pub operator_candidate_decision: OperatorCandidateDecisionProjection,
     pub phase_150_code_production_handoff: Phase150CodeProductionHandoff,
     pub local_session_package_projection: LocalSessionPackageProjection,
+    pub local_session_history_projection: LocalSessionHistoryProjection,
+    pub local_session_restore_projection: LocalSessionRestoreProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -4607,6 +5185,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         operator_candidate_decision: initial_operator_candidate_decision_projection(),
         phase_150_code_production_handoff: initial_phase_150_code_production_handoff(),
         local_session_package_projection: initial_local_session_package_projection(),
+        local_session_history_projection: initial_local_session_history_projection(),
+        local_session_restore_projection: initial_local_session_restore_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state
@@ -5168,6 +5748,212 @@ mod tests {
             let mut claimed = package.clone();
             claimed.payload.provider_configuration_projection.push_str(claim);
             assert!(validate_local_session_package(&claimed).unwrap_err().contains(&expected));
+        }
+    }
+
+    #[test]
+    fn phase_152_initial_history_and_restore_projection_are_local_only() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.local_session_history_projection.status,
+            LocalSessionHistoryStatus::NoSessionHistory
+        );
+        assert!(state.local_session_history_projection.entries.is_empty());
+        assert_eq!(
+            state.local_session_restore_projection.status,
+            LocalSessionRestoreStatus::RestoreNotRequested
+        );
+        assert!(state
+            .local_session_restore_projection
+            .boundary_status
+            .contains(&LocalSessionRestoreBoundaryStatus::LocalRestoreProjectionOnly));
+        assert!(state
+            .local_session_restore_projection
+            .boundary_status
+            .contains(&LocalSessionRestoreBoundaryStatus::NoRecoveryPromotion));
+        assert!(state
+            .local_session_restore_projection
+            .boundary_status
+            .contains(&LocalSessionRestoreBoundaryStatus::NoReplayRepair));
+        assert!(state
+            .local_session_restore_projection
+            .local_only_note
+            .contains("local-only and non-production"));
+    }
+
+    #[test]
+    fn phase_152_history_projection_is_deterministic_from_explicit_packages() {
+        let package = derive_local_session_package(&initial_local_operator_shell_state());
+        let first = project_local_session_history(std::slice::from_ref(&package));
+        let second = project_local_session_history(std::slice::from_ref(&package));
+
+        assert_eq!(first, second);
+        assert_eq!(
+            first.status,
+            LocalSessionHistoryStatus::SessionHistoryProjected
+        );
+        assert_eq!(first.entries.len(), 1);
+        assert_eq!(first.entries[0].package_id, package.metadata.package_id);
+        assert_eq!(
+            first.entries[0].package_classification,
+            "local_session_package_only"
+        );
+        assert_eq!(first.entries[0].production_classification, "non_production");
+    }
+
+    #[test]
+    fn phase_152_valid_package_produces_deterministic_restore_preview_and_projection() {
+        let state = initial_local_operator_shell_state();
+        let before = state.clone();
+        let package = derive_local_session_package(&state);
+        let serialized = serialize_local_session_package(&package).unwrap();
+        let candidate = create_local_session_restore_candidate(
+            LocalSessionRestoreRequest::ExplicitPackagePayload(serialized.clone()),
+        );
+        validate_local_session_restore_candidate(&candidate).unwrap();
+        assert_eq!(
+            candidate.read_back_status,
+            LocalSessionRestoreReadBackStatus::PackageReadBackValidated
+        );
+
+        let first = project_local_session_restore_from_payload(&serialized);
+        let second = project_local_session_restore_from_payload(&serialized);
+        assert_eq!(first, second);
+        assert_eq!(
+            first.status,
+            LocalSessionRestoreStatus::RestorePreviewProjected
+        );
+        assert_eq!(first.package_id, Some(package.metadata.package_id.clone()));
+        assert_eq!(
+            first.package_classification,
+            Some("local_session_package_only".to_string())
+        );
+        assert_eq!(
+            first.production_classification,
+            Some("non_production".to_string())
+        );
+        assert!(first
+            .boundary_status
+            .contains(&LocalSessionRestoreBoundaryStatus::NoRecoveryPromotion));
+        assert!(first
+            .boundary_status
+            .contains(&LocalSessionRestoreBoundaryStatus::NoReplayRepair));
+        let projection = derive_local_session_restore_projection(&package).unwrap();
+        assert_eq!(
+            projection.status,
+            LocalSessionRestoreStatus::RestoreProjected
+        );
+        assert_eq!(state, before);
+    }
+
+    #[test]
+    fn phase_152_restore_rejects_malformed_and_missing_required_sections() {
+        let malformed = project_local_session_restore_from_payload("not a local session package");
+        assert_eq!(
+            malformed.status,
+            LocalSessionRestoreStatus::InvalidRestoreInput
+        );
+        assert!(malformed
+            .errors
+            .contains(&LocalSessionRestoreError::MissingRequiredPackageSection));
+
+        let package = derive_local_session_package(&initial_local_operator_shell_state());
+        let serialized = serialize_local_session_package(&package).unwrap();
+        let missing_section = serialized
+            .lines()
+            .filter(|line| !line.starts_with("absence_markers="))
+            .collect::<Vec<_>>()
+            .join(
+                "
+",
+            );
+        let rejected = project_local_session_restore_from_payload(&missing_section);
+        assert_eq!(
+            rejected.status,
+            LocalSessionRestoreStatus::InvalidRestoreInput
+        );
+        assert!(rejected
+            .errors
+            .contains(&LocalSessionRestoreError::MissingRequiredPackageSection));
+    }
+
+    #[test]
+    fn phase_152_restore_rejects_invalid_classification_and_authority_claims() {
+        let package = derive_local_session_package(&initial_local_operator_shell_state());
+        let mut missing_id = package.clone();
+        missing_id.metadata.package_id.clear();
+        assert!(derive_local_session_restore_preview(&missing_id)
+            .unwrap_err()
+            .contains(&LocalSessionRestoreError::PackageValidationFailed));
+        let mut missing_version = package.clone();
+        missing_version.metadata.package_version.clear();
+        assert!(derive_local_session_restore_preview(&missing_version)
+            .unwrap_err()
+            .contains(&LocalSessionRestoreError::PackageValidationFailed));
+        let mut invalid_classification = package.clone();
+        invalid_classification.metadata.package_classification = "release_artifact".to_string();
+        assert!(
+            derive_local_session_restore_preview(&invalid_classification)
+                .unwrap_err()
+                .contains(&LocalSessionRestoreError::InvalidPackageClassification)
+        );
+        let mut invalid_production = package.clone();
+        invalid_production.metadata.production_classification = "production".to_string();
+        assert!(derive_local_session_restore_preview(&invalid_production)
+            .unwrap_err()
+            .contains(&LocalSessionRestoreError::InvalidProductionClassification));
+        let mut missing_marker = package.clone();
+        missing_marker.absence_markers.remote_sync_absent = false;
+        assert!(derive_local_session_restore_preview(&missing_marker)
+            .unwrap_err()
+            .contains(&LocalSessionRestoreError::MissingAbsenceMarker));
+
+        for (claim, expected) in [
+            (
+                " claim:readiness_approved ",
+                LocalSessionRestoreError::ReadinessClaimDetected,
+            ),
+            (
+                " claim:release_candidate_approved ",
+                LocalSessionRestoreError::ReleaseClaimDetected,
+            ),
+            (
+                " claim:deployment_enabled ",
+                LocalSessionRestoreError::DeploymentClaimDetected,
+            ),
+            (
+                " claim:public_use_approved ",
+                LocalSessionRestoreError::PublicUseClaimDetected,
+            ),
+            (
+                " claim:provider_trusted ",
+                LocalSessionRestoreError::ProviderTrustClaimDetected,
+            ),
+            (
+                " claim:candidate_approved ",
+                LocalSessionRestoreError::CandidateApprovalClaimDetected,
+            ),
+            (
+                " claim:action_executed ",
+                LocalSessionRestoreError::ActionExecutionClaimDetected,
+            ),
+            (
+                " claim:replay_repaired ",
+                LocalSessionRestoreError::ReplayRepairClaimDetected,
+            ),
+            (
+                " claim:recovery_promoted ",
+                LocalSessionRestoreError::RecoveryPromotionClaimDetected,
+            ),
+        ] {
+            let mut claimed = package.clone();
+            claimed
+                .payload
+                .provider_configuration_projection
+                .push_str(claim);
+            assert!(derive_local_session_restore_preview(&claimed)
+                .unwrap_err()
+                .contains(&expected));
         }
     }
 

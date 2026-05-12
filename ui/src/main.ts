@@ -198,6 +198,54 @@ function renderLocalSessionPackage(state: LocalOperatorShellState): string {
     <p class="muted">${projection.restoreBoundaryNote}</p>`;
 }
 
+
+function renderSessionHistory(state: LocalOperatorShellState): string {
+  const history = state.localSessionHistoryProjection;
+  const entries = history.entries.length === 0
+    ? `<p class="muted">No explicit local session package entries are available.</p>`
+    : `<ul>${history.entries.map((entry) => `
+        <li>
+          <strong>${entry.packageId}</strong>
+          <dl>
+            <div><dt>Package version</dt><dd>${entry.packageVersion}</dd></div>
+            <div><dt>Package classification</dt><dd>${entry.packageClassification}</dd></div>
+            <div><dt>Production classification</dt><dd>${entry.productionClassification}</dd></div>
+            <div><dt>Read-back validation status</dt><dd>${entry.readBackValidationStatus ?? "none"}</dd></div>
+          </dl>
+        </li>`).join("")}</ul>`;
+  return `
+    <dl>
+      <div><dt>History status</dt><dd>${history.status}</dd></div>
+      <div><dt>Selected package status</dt><dd>${history.selectedPackageId ? "package_selected" : "no_package_selected"}</dd></div>
+      <div><dt>Selected package ID</dt><dd>${history.selectedPackageId ?? "none"}</dd></div>
+    </dl>
+    ${entries}
+    <p class="muted">${history.boundaryNote}</p>`;
+}
+
+function renderLocalSessionRestore(state: LocalOperatorShellState): string {
+  const restore = state.localSessionRestoreProjection;
+  return `
+    <dl>
+      <div><dt>Selected package status</dt><dd>${restore.packageId ? "package_selected" : "no_package_selected"}</dd></div>
+      <div><dt>Package ID</dt><dd>${restore.packageId ?? "none"}</dd></div>
+      <div><dt>Package version</dt><dd>${restore.packageVersion ?? "none"}</dd></div>
+      <div><dt>Package classification</dt><dd>${restore.packageClassification ?? "none"}</dd></div>
+      <div><dt>Production classification</dt><dd>${restore.productionClassification ?? "none"}</dd></div>
+      <div><dt>Read-back validation status</dt><dd>${restore.readBackStatus}</dd></div>
+      <div><dt>Restore status</dt><dd>${restore.status}</dd></div>
+      <div><dt>Restore rejection reason</dt><dd>${restore.errors.join(", ") || "none"}</dd></div>
+      <div><dt>Included sections</dt><dd>${restore.includedSectionSummary.join(", ") || "none until package is selected"}</dd></div>
+      <div><dt>Absence markers</dt><dd>${restore.absenceMarkerSummary.join(", ")}</dd></div>
+      <div><dt>Boundary status</dt><dd>${restore.boundaryStatus.join(", ")}</dd></div>
+    </dl>
+    <p class="muted">${restore.localOnlyNote}</p>
+    <p class="muted">${restore.readBackNote}</p>
+    <p class="muted">${restore.previewBoundaryNote}</p>
+    <p class="muted">${restore.restoredProjectionNote}</p>
+    <p class="muted">${restore.remoteBackgroundNote}</p>`;
+}
+
 function renderReplayProjection(state: LocalOperatorShellState): string {
   const replay = state.run.decisionReplay;
   return `
@@ -306,6 +354,21 @@ function render(): void {
       <section class="panel" aria-label="Local session package">
         <h2>Local session package</h2>
         ${renderLocalSessionPackage(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Session history">
+        <h2>Session history</h2>
+        ${renderSessionHistory(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Local session restore">
+        <h2>Local session restore</h2>
+        ${renderLocalSessionRestore(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Restore preview">
+        <h2>Restore preview</h2>
+        ${renderLocalSessionRestore(shellState)}
       </section>
 
       <section class="panel replay-panel">

@@ -28,6 +28,41 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.152 - 2026-05-12
+**Status:** Phase 152 - Session History and Restore UI
+
+### Added
+- Add Rust-owned local session history and restore projections for local session packages.
+- Add restore candidate/read-back validation and restore preview projection for explicit local packages.
+- Add UI rendering for session history, selected package details, restore status, read-back validation, and restore preview.
+- Add Rust and TypeScript tests for restore projection, malformed package rejection, deterministic rendering, and local-only/non-production boundaries.
+
+### Changed
+- Extend the local operator shell projection with session history and restore status.
+- Update the local UI shell to display local session restore and read-back validation state.
+- Update checklists/current-phase.md to Phase 152 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local session restore UI only.
+- Restore is local-only and non-production.
+- Read-back validation is not restore authority.
+- Restore preview does not repair replay.
+- Restore preview does not promote recovery.
+- Restore projection does not imply readiness, release, deployment, or public use.
+- No automatic filesystem scanning.
+- No remote sync.
+- No background restore.
+- No provider execution.
+- No command execution.
+- No network sockets.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+
 ## v0.0.151 - 2026-05-12
 **Status:** Phase 151 - Persistent Local Session Package
 

@@ -1,6 +1,6 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff, initialLocalSessionRestoreProjection, projectLocalSessionHistoryFromPackages, projectLocalSessionRestoreFromPackageProjection } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
 import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
@@ -1202,6 +1202,77 @@ function assertLocalSessionPackageProjectionIsStableAcrossRenderingState(): void
   assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic initial local session package projection");
 }
 
+
+function validPackageProjectionForPhase152() {
+  return {
+    ...initialLocalOperatorShellState().localSessionPackageProjection,
+    status: "package_read_back_validated" as const,
+    packageId: "local-session-package-phase-152",
+    validationStatus: "valid" as const,
+    readBackValidationStatus: "valid" as const,
+    restoreStatus: "read_back_validated_structure_only" as const,
+    includedSectionSummary: ["provider configuration", "local decision ledger", "replay/status projection"],
+    validationErrors: []
+  };
+}
+
+function assertLocalSessionHistoryAndRestoreInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  assertEqual(state.localSessionHistoryProjection.status, "no_session_history", "history status");
+  assertEqual(state.localSessionHistoryProjection.entries.length, 0, "history entries");
+  assertContains(state.localSessionHistoryProjection.boundaryNote, "No automatic filesystem scanning", "history boundary");
+  assertEqual(state.localSessionRestoreProjection.status, "restore_not_requested", "restore status");
+  assertEqual(state.localSessionRestoreProjection.readBackStatus, "not_read", "read-back status");
+  assertContains(state.localSessionRestoreProjection.localOnlyNote, "local-only and non-production", "local restore note");
+  assertContains(state.localSessionRestoreProjection.readBackNote, "not restore authority", "read-back authority note");
+  assertContains(state.localSessionRestoreProjection.previewBoundaryNote, "does not repair replay", "preview no replay repair");
+  assertContains(state.localSessionRestoreProjection.previewBoundaryNote, "promote recovery", "preview no recovery promotion");
+  assertContains(state.localSessionRestoreProjection.restoredProjectionNote, "does not imply readiness, release, deployment, or public use", "approval boundary");
+  assertContains(state.localSessionRestoreProjection.remoteBackgroundNote, "No remote sync or background restore is active", "remote/background note");
+}
+
+function assertLocalSessionHistoryRendersExplicitPackageDetails(): void {
+  const history = projectLocalSessionHistoryFromPackages([validPackageProjectionForPhase152()]);
+  assertEqual(history.status, "session_history_projected", "projected history status");
+  assertEqual(history.selectedPackageId, "local-session-package-phase-152", "selected package id");
+  assertEqual(history.entries[0]?.packageVersion, "local-session-package-v1", "package version");
+  assertEqual(history.entries[0]?.packageClassification, "local_session_package_only", "classification");
+  assertEqual(history.entries[0]?.productionClassification, "non_production", "production classification");
+  assertEqual(history.entries[0]?.readBackValidationStatus, "valid", "read-back status");
+}
+
+function assertLocalSessionRestorePreviewAndRejectionRendering(): void {
+  const restore = projectLocalSessionRestoreFromPackageProjection(validPackageProjectionForPhase152());
+  assertEqual(restore.status, "restore_preview_projected", "restore preview status");
+  assertEqual(restore.packageId, "local-session-package-phase-152", "restore package id");
+  assertEqual(restore.readBackStatus, "package_read_back_validated", "restore read-back");
+  assertEqual(restore.errors.length, 0, "restore errors");
+  assertEqual(restore.boundaryStatus.includes("local_restore_projection_only"), true, "local projection boundary");
+  assertEqual(restore.boundaryStatus.includes("no_recovery_promotion"), true, "no recovery promotion");
+  assertEqual(restore.boundaryStatus.includes("no_replay_repair"), true, "no replay repair");
+  assertContains(restore.localOnlyNote, "local-only and non-production", "restore local-only wording");
+  assertContains(restore.readBackNote, "not restore authority", "restore authority wording");
+  assertContains(restore.previewBoundaryNote, "does not repair replay or promote recovery", "restore no repair wording");
+  assertContains(restore.restoredProjectionNote, "does not imply readiness, release, deployment, or public use", "restore no approval wording");
+
+  const rejected = projectLocalSessionRestoreFromPackageProjection({
+    ...validPackageProjectionForPhase152(),
+    validationStatus: "invalid",
+    validationErrors: ["invalid_package_classification"]
+  });
+  assertEqual(rejected.status, "restore_rejected", "rejected restore status");
+  assertEqual(rejected.errors.includes("invalid_package_classification"), true, "rejection reason");
+}
+
+function assertLocalSessionRestoreRenderingIsDeterministic(): void {
+  const first = initialLocalSessionRestoreProjection();
+  const second = initialLocalSessionRestoreProjection();
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "initial restore projection deterministic");
+  const firstPreview = projectLocalSessionRestoreFromPackageProjection(validPackageProjectionForPhase152());
+  const secondPreview = projectLocalSessionRestoreFromPackageProjection(validPackageProjectionForPhase152());
+  assertEqual(JSON.stringify(firstPreview), JSON.stringify(secondPreview), "restore preview deterministic");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
 
   {
@@ -1588,6 +1659,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_session_package_projection_is_stable",
     run: assertLocalSessionPackageProjectionIsStableAcrossRenderingState
+  },
+  {
+    name: "local_session_history_and_restore_initial_state",
+    run: assertLocalSessionHistoryAndRestoreInitialState
+  },
+  {
+    name: "local_session_history_renders_explicit_package_details",
+    run: assertLocalSessionHistoryRendersExplicitPackageDetails
+  },
+  {
+    name: "local_session_restore_preview_and_rejection_rendering",
+    run: assertLocalSessionRestorePreviewAndRejectionRendering
+  },
+  {
+    name: "local_session_restore_rendering_is_deterministic",
+    run: assertLocalSessionRestoreRenderingIsDeterministic
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",
