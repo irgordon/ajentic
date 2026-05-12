@@ -807,6 +807,200 @@ export function validateLocalProviderOutputValidationProjection(projection: Loca
   return errors;
 }
 
+
+export type StagedCandidateConversionProposalStatus =
+  | "no_proposal"
+  | "staged_proposal_created"
+  | "source_not_reviewable_untrusted"
+  | "rejected_source_not_eligible"
+  | "invalid_proposal_request";
+export type StagedCandidateConversionBoundaryStatus =
+  | "staging_only_not_candidate_material"
+  | "candidate_conversion_not_performed"
+  | "validation_required_in_future_phase"
+  | "approval_not_available_in_phase_146";
+export type StagedCandidateConversionTrustStatus = "untrusted_source" | "not_trusted" | "not_approved";
+export type StagedCandidateConversionEffectStatus =
+  | "no_decision_ledger_effect"
+  | "no_replay_effect"
+  | "no_export_effect"
+  | "no_provider_configuration_effect"
+  | "no_provider_execution_effect"
+  | "no_action_effect"
+  | "no_persistence_effect"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "not_executable"
+  | "not_persistent";
+export type StagedCandidateConversionSourceEligibilityStatus =
+  | "eligible_reviewable_untrusted"
+  | "missing_provider_execution_result"
+  | "source_not_reviewable_untrusted"
+  | "rejected_source_not_eligible"
+  | "validation_not_applicable_source_not_eligible"
+  | "invalid_validation_input_source_not_eligible"
+  | "missing_or_inconsistent_validation_projection";
+export type StagedCandidateConversionProposalError =
+  | "missing_provider_execution_result"
+  | "source_not_reviewable_untrusted"
+  | "rejected_source_not_eligible"
+  | "validation_not_applicable_source_not_eligible"
+  | "invalid_validation_input_source_not_eligible"
+  | "missing_or_inconsistent_validation_projection"
+  | "invalid_proposal_request"
+  | "invalid_proposal_boundary";
+
+export type StagedCandidateConversionProposalRequest = Readonly<{
+  operatorNote: string;
+  claims?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+export type StagedCandidateConversionProposal = Readonly<{
+  proposalId: string;
+  sourceProviderKind: string;
+  sourceExecutionResultId: string;
+  sourceValidationStatus: LocalProviderOutputValidationStatus;
+  sourceReviewabilityStatus: LocalProviderOutputReviewabilityStatus;
+  sourceCandidateBoundaryStatus: LocalProviderOutputCandidateBoundaryStatus;
+  sourceBoundary: "provider_output_validation_phase_143";
+  proposalBoundary: "staged_candidate_conversion_phase_146";
+  boundaryStatuses: readonly StagedCandidateConversionBoundaryStatus[];
+  trustStatuses: readonly StagedCandidateConversionTrustStatus[];
+  effectStatuses: readonly StagedCandidateConversionEffectStatus[];
+  sourceEligibilityStatus: StagedCandidateConversionSourceEligibilityStatus;
+  note: string;
+}>;
+
+export type StagedCandidateConversionProposalProjection = Readonly<{
+  status: StagedCandidateConversionProposalStatus;
+  proposal: StagedCandidateConversionProposal | null;
+  sourceEligibilityStatus: StagedCandidateConversionSourceEligibilityStatus;
+  error: StagedCandidateConversionProposalError | null;
+  note: string;
+}>;
+
+export function stagedCandidateConversionNoEffects(): readonly StagedCandidateConversionEffectStatus[] {
+  return [
+    "no_decision_ledger_effect",
+    "no_replay_effect",
+    "no_export_effect",
+    "no_provider_configuration_effect",
+    "no_provider_execution_effect",
+    "no_action_effect",
+    "no_persistence_effect",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "not_executable",
+    "not_persistent"
+  ];
+}
+
+function stagedCandidateConversionBoundaryStatuses(): readonly StagedCandidateConversionBoundaryStatus[] {
+  return [
+    "staging_only_not_candidate_material",
+    "candidate_conversion_not_performed",
+    "validation_required_in_future_phase",
+    "approval_not_available_in_phase_146"
+  ];
+}
+
+function stagedCandidateConversionTrustStatuses(): readonly StagedCandidateConversionTrustStatus[] {
+  return ["untrusted_source", "not_trusted", "not_approved"];
+}
+
+export function initialStagedCandidateConversionProposalProjection(): StagedCandidateConversionProposalProjection {
+  return {
+    status: "no_proposal",
+    proposal: null,
+    sourceEligibilityStatus: "missing_provider_execution_result",
+    error: null,
+    note: "No staged candidate-conversion proposal exists; Phase 146 staging is proposal only and not candidate material."
+  };
+}
+
+function deterministicStagedCandidateConversionProposalId(executionResultId: string, validation: LocalProviderOutputValidationProjection): string {
+  const input = `${validation.providerKind}|${executionResultId}|${validation.status}|${validation.reviewabilityStatus}|${validation.candidateBoundaryStatus}|phase_146`;
+  let accumulator = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    accumulator ^= input.charCodeAt(index);
+    accumulator = Math.imul(accumulator, 16777619) >>> 0;
+  }
+  return `staged-candidate-conversion-proposal-${accumulator.toString(16).padStart(8, "0")}`;
+}
+
+function proposalRequestContainsForbiddenClaim(request: StagedCandidateConversionProposalRequest): boolean {
+  const claims = request.claims ?? [];
+  return claims.some(({ key, value }) => {
+    const text = `${key} ${value}`.toLowerCase();
+    return ["trust", "approval", "approved", "safe", "readiness", "ready", "release", "deployment", "public-use", "public_use", "execute", "execution", "persistence", "persistent", "action", "candidate_creation", "candidate_output", "candidate_material", "conversion_performed"].some((needle) => text.includes(needle));
+  });
+}
+
+export function validateStagedCandidateConversionSource(state: LocalOperatorShellState): StagedCandidateConversionSourceEligibilityStatus {
+  if (!state.providerExecution.result) return "missing_provider_execution_result";
+  if (validateLocalProviderOutputValidationProjection(state.providerOutputValidation).length > 0) return "missing_or_inconsistent_validation_projection";
+  const projected = projectLocalProviderOutputValidation(state);
+  if (JSON.stringify(projected) !== JSON.stringify(state.providerOutputValidation)) return "missing_or_inconsistent_validation_projection";
+  if (state.providerOutputValidation.status === "rejected") return "rejected_source_not_eligible";
+  if (state.providerOutputValidation.status === "validation_not_applicable") return "validation_not_applicable_source_not_eligible";
+  if (state.providerOutputValidation.status === "invalid_validation_input") return "invalid_validation_input_source_not_eligible";
+  if (state.providerOutputValidation.status !== "reviewable_untrusted") return "source_not_reviewable_untrusted";
+  if (state.providerOutputValidation.reviewabilityStatus !== "reviewable_untrusted" || state.providerOutputValidation.candidateBoundaryStatus !== "not_candidate_material" || !state.providerOutputValidation.candidateBoundaryStatuses.includes("candidate_conversion_not_performed") || !state.providerOutputValidation.candidateBoundaryStatuses.includes("candidate_conversion_requires_future_phase")) return "source_not_reviewable_untrusted";
+  return "eligible_reviewable_untrusted";
+}
+
+function sourceEligibilityError(status: StagedCandidateConversionSourceEligibilityStatus): StagedCandidateConversionProposalError | null {
+  if (status === "eligible_reviewable_untrusted") return null;
+  return status === "source_not_reviewable_untrusted" ? "source_not_reviewable_untrusted" : status;
+}
+
+export function validateStagedCandidateConversionProposal(projection: StagedCandidateConversionProposalProjection): StagedCandidateConversionProposalError | null {
+  if (projection.status === "no_proposal") return null;
+  const proposal = projection.proposal;
+  if (!proposal) return "invalid_proposal_boundary";
+  if (!stagedCandidateConversionBoundaryStatuses().every((status) => proposal.boundaryStatuses.includes(status))) return "invalid_proposal_boundary";
+  if (!stagedCandidateConversionTrustStatuses().every((status) => proposal.trustStatuses.includes(status))) return "invalid_proposal_boundary";
+  if (!stagedCandidateConversionNoEffects().every((status) => proposal.effectStatuses.includes(status))) return "invalid_proposal_boundary";
+  if (proposal.sourceValidationStatus !== "reviewable_untrusted" || proposal.sourceReviewabilityStatus !== "reviewable_untrusted" || proposal.sourceCandidateBoundaryStatus !== "not_candidate_material" || proposal.sourceBoundary !== "provider_output_validation_phase_143" || proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" || proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted") return "invalid_proposal_boundary";
+  return null;
+}
+
+export function createStagedCandidateConversionProposal(state: LocalOperatorShellState, request: StagedCandidateConversionProposalRequest): LocalOperatorIntentResult {
+  if (proposalRequestContainsForbiddenClaim(request)) return { status: "rejected", reason: "invalid_proposal_request", state };
+  const eligibility = validateStagedCandidateConversionSource(state);
+  const eligibilityError = sourceEligibilityError(eligibility);
+  if (eligibilityError) return { status: "rejected", reason: eligibilityError, state };
+  const executionResultId = state.providerOutputValidation.providerExecutionResultId;
+  if (!executionResultId) return { status: "rejected", reason: "missing_provider_execution_result", state };
+  const proposal: StagedCandidateConversionProposal = {
+    proposalId: deterministicStagedCandidateConversionProposalId(executionResultId, state.providerOutputValidation),
+    sourceProviderKind: state.providerOutputValidation.providerKind,
+    sourceExecutionResultId: executionResultId,
+    sourceValidationStatus: state.providerOutputValidation.status,
+    sourceReviewabilityStatus: state.providerOutputValidation.reviewabilityStatus,
+    sourceCandidateBoundaryStatus: state.providerOutputValidation.candidateBoundaryStatus,
+    sourceBoundary: "provider_output_validation_phase_143",
+    proposalBoundary: "staged_candidate_conversion_phase_146",
+    boundaryStatuses: stagedCandidateConversionBoundaryStatuses(),
+    trustStatuses: stagedCandidateConversionTrustStatuses(),
+    effectStatuses: stagedCandidateConversionNoEffects(),
+    sourceEligibilityStatus: "eligible_reviewable_untrusted",
+    note: `${request.operatorNote} This proposal is not persistent, not executable, not approved, and not candidate material.`
+  };
+  const projection: StagedCandidateConversionProposalProjection = {
+    status: "staged_proposal_created",
+    proposal,
+    sourceEligibilityStatus: "eligible_reviewable_untrusted",
+    error: null,
+    note: "This is a staged conversion proposal only. It is not candidate output."
+  };
+  const error = validateStagedCandidateConversionProposal(projection);
+  if (error) return { status: "rejected", reason: error, state };
+  return { status: "accepted", reason: "staged_candidate_conversion_proposal_created", state: { ...state, stagedCandidateConversionProposal: projection } };
+}
+
 export function localProviderExecutionResultAbsenceMarkers(): LocalProviderExecutionResultAbsenceMarkers {
   return {
     noProcessSpawned: true,
@@ -1077,6 +1271,7 @@ export type LocalOperatorShellState = Readonly<{
   providerConfiguration: LocalProviderConfiguration;
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
+  stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
 }>;
 
 
@@ -1193,7 +1388,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     decisionLedger,
     providerConfiguration: initialLocalProviderConfiguration(),
     providerExecution: initialLocalProviderExecutionProjection(),
-    providerOutputValidation: initialLocalProviderOutputValidationProjection()
+    providerOutputValidation: initialLocalProviderOutputValidationProjection(),
+    stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection()
   });
 }
 

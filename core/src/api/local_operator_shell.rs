@@ -1644,6 +1644,481 @@ pub fn validate_local_provider_output_validation_projection(
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionProposalStatus {
+    NoProposal,
+    StagedProposalCreated,
+    SourceNotReviewableUntrusted,
+    RejectedSourceNotEligible,
+    InvalidProposalRequest,
+}
+
+impl StagedCandidateConversionProposalStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoProposal => "no_proposal",
+            Self::StagedProposalCreated => "staged_proposal_created",
+            Self::SourceNotReviewableUntrusted => "source_not_reviewable_untrusted",
+            Self::RejectedSourceNotEligible => "rejected_source_not_eligible",
+            Self::InvalidProposalRequest => "invalid_proposal_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionBoundaryStatus {
+    StagingOnlyNotCandidateMaterial,
+    CandidateConversionNotPerformed,
+    ValidationRequiredInFuturePhase,
+    ApprovalNotAvailableInPhase146,
+}
+
+impl StagedCandidateConversionBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::StagingOnlyNotCandidateMaterial => "staging_only_not_candidate_material",
+            Self::CandidateConversionNotPerformed => "candidate_conversion_not_performed",
+            Self::ValidationRequiredInFuturePhase => "validation_required_in_future_phase",
+            Self::ApprovalNotAvailableInPhase146 => "approval_not_available_in_phase_146",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionTrustStatus {
+    UntrustedSource,
+    NotTrusted,
+    NotApproved,
+}
+
+impl StagedCandidateConversionTrustStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::UntrustedSource => "untrusted_source",
+            Self::NotTrusted => "not_trusted",
+            Self::NotApproved => "not_approved",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionEffectStatus {
+    NoDecisionLedgerEffect,
+    NoReplayEffect,
+    NoExportEffect,
+    NoProviderConfigurationEffect,
+    NoProviderExecutionEffect,
+    NoActionEffect,
+    NoPersistenceEffect,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NotExecutable,
+    NotPersistent,
+}
+
+impl StagedCandidateConversionEffectStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoDecisionLedgerEffect => "no_decision_ledger_effect",
+            Self::NoReplayEffect => "no_replay_effect",
+            Self::NoExportEffect => "no_export_effect",
+            Self::NoProviderConfigurationEffect => "no_provider_configuration_effect",
+            Self::NoProviderExecutionEffect => "no_provider_execution_effect",
+            Self::NoActionEffect => "no_action_effect",
+            Self::NoPersistenceEffect => "no_persistence_effect",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NotExecutable => "not_executable",
+            Self::NotPersistent => "not_persistent",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionSourceEligibilityStatus {
+    EligibleReviewableUntrusted,
+    MissingProviderExecutionResult,
+    SourceNotReviewableUntrusted,
+    RejectedSourceNotEligible,
+    ValidationNotApplicableSourceNotEligible,
+    InvalidValidationInputSourceNotEligible,
+    MissingOrInconsistentValidationProjection,
+}
+
+impl StagedCandidateConversionSourceEligibilityStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::EligibleReviewableUntrusted => "eligible_reviewable_untrusted",
+            Self::MissingProviderExecutionResult => "missing_provider_execution_result",
+            Self::SourceNotReviewableUntrusted => "source_not_reviewable_untrusted",
+            Self::RejectedSourceNotEligible => "rejected_source_not_eligible",
+            Self::ValidationNotApplicableSourceNotEligible => {
+                "validation_not_applicable_source_not_eligible"
+            }
+            Self::InvalidValidationInputSourceNotEligible => {
+                "invalid_validation_input_source_not_eligible"
+            }
+            Self::MissingOrInconsistentValidationProjection => {
+                "missing_or_inconsistent_validation_projection"
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagedCandidateConversionProposalError {
+    MissingProviderExecutionResult,
+    SourceNotReviewableUntrusted,
+    RejectedSourceNotEligible,
+    ValidationNotApplicableSourceNotEligible,
+    InvalidValidationInputSourceNotEligible,
+    MissingOrInconsistentValidationProjection,
+    InvalidProposalRequest,
+    InvalidProposalBoundary,
+}
+
+impl StagedCandidateConversionProposalError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingProviderExecutionResult => "missing_provider_execution_result",
+            Self::SourceNotReviewableUntrusted => "source_not_reviewable_untrusted",
+            Self::RejectedSourceNotEligible => "rejected_source_not_eligible",
+            Self::ValidationNotApplicableSourceNotEligible => {
+                "validation_not_applicable_source_not_eligible"
+            }
+            Self::InvalidValidationInputSourceNotEligible => {
+                "invalid_validation_input_source_not_eligible"
+            }
+            Self::MissingOrInconsistentValidationProjection => {
+                "missing_or_inconsistent_validation_projection"
+            }
+            Self::InvalidProposalRequest => "invalid_proposal_request",
+            Self::InvalidProposalBoundary => "invalid_proposal_boundary",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedCandidateConversionProposalRequest {
+    pub operator_note: String,
+    pub claims: Vec<(String, String)>,
+}
+
+impl StagedCandidateConversionProposalRequest {
+    pub fn staging_only(operator_note: impl Into<String>) -> Self {
+        Self {
+            operator_note: operator_note.into(),
+            claims: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedCandidateConversionProposal {
+    pub proposal_id: String,
+    pub source_provider_kind: String,
+    pub source_execution_result_id: String,
+    pub source_validation_status: LocalProviderOutputValidationStatus,
+    pub source_reviewability_status: LocalProviderOutputReviewabilityStatus,
+    pub source_candidate_boundary_status: LocalProviderOutputCandidateBoundaryStatus,
+    pub source_boundary: String,
+    pub proposal_boundary: String,
+    pub boundary_statuses: Vec<StagedCandidateConversionBoundaryStatus>,
+    pub trust_statuses: Vec<StagedCandidateConversionTrustStatus>,
+    pub effect_statuses: Vec<StagedCandidateConversionEffectStatus>,
+    pub source_eligibility_status: StagedCandidateConversionSourceEligibilityStatus,
+    pub note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedCandidateConversionProposalProjection {
+    pub status: StagedCandidateConversionProposalStatus,
+    pub proposal: Option<StagedCandidateConversionProposal>,
+    pub source_eligibility_status: StagedCandidateConversionSourceEligibilityStatus,
+    pub error: Option<StagedCandidateConversionProposalError>,
+    pub note: String,
+}
+
+pub fn staged_candidate_conversion_no_effects() -> Vec<StagedCandidateConversionEffectStatus> {
+    vec![
+        StagedCandidateConversionEffectStatus::NoDecisionLedgerEffect,
+        StagedCandidateConversionEffectStatus::NoReplayEffect,
+        StagedCandidateConversionEffectStatus::NoExportEffect,
+        StagedCandidateConversionEffectStatus::NoProviderConfigurationEffect,
+        StagedCandidateConversionEffectStatus::NoProviderExecutionEffect,
+        StagedCandidateConversionEffectStatus::NoActionEffect,
+        StagedCandidateConversionEffectStatus::NoPersistenceEffect,
+        StagedCandidateConversionEffectStatus::NoReadinessEffect,
+        StagedCandidateConversionEffectStatus::NoReleaseEffect,
+        StagedCandidateConversionEffectStatus::NoDeploymentEffect,
+        StagedCandidateConversionEffectStatus::NotExecutable,
+        StagedCandidateConversionEffectStatus::NotPersistent,
+    ]
+}
+
+fn staged_candidate_conversion_boundary_statuses() -> Vec<StagedCandidateConversionBoundaryStatus> {
+    vec![
+        StagedCandidateConversionBoundaryStatus::StagingOnlyNotCandidateMaterial,
+        StagedCandidateConversionBoundaryStatus::CandidateConversionNotPerformed,
+        StagedCandidateConversionBoundaryStatus::ValidationRequiredInFuturePhase,
+        StagedCandidateConversionBoundaryStatus::ApprovalNotAvailableInPhase146,
+    ]
+}
+
+fn staged_candidate_conversion_trust_statuses() -> Vec<StagedCandidateConversionTrustStatus> {
+    vec![
+        StagedCandidateConversionTrustStatus::UntrustedSource,
+        StagedCandidateConversionTrustStatus::NotTrusted,
+        StagedCandidateConversionTrustStatus::NotApproved,
+    ]
+}
+
+pub fn initial_staged_candidate_conversion_proposal_projection(
+) -> StagedCandidateConversionProposalProjection {
+    StagedCandidateConversionProposalProjection {
+        status: StagedCandidateConversionProposalStatus::NoProposal,
+        proposal: None,
+        source_eligibility_status: StagedCandidateConversionSourceEligibilityStatus::MissingProviderExecutionResult,
+        error: None,
+        note: "No staged candidate-conversion proposal exists; Phase 146 staging is proposal only and not candidate material.".to_string(),
+    }
+}
+
+fn deterministic_staged_candidate_conversion_proposal_id(
+    execution_result_id: &str,
+    validation: &LocalProviderOutputValidationProjection,
+) -> String {
+    let input = format!(
+        "{}|{}|{}|{}|{}|phase_146",
+        validation.provider_kind,
+        execution_result_id,
+        validation.status.code(),
+        validation.reviewability_status.code(),
+        validation.candidate_boundary_status.code()
+    );
+    let mut accumulator: u32 = 2_166_136_261;
+    for byte in input.as_bytes() {
+        accumulator ^= u32::from(*byte);
+        accumulator = accumulator.wrapping_mul(16_777_619);
+    }
+    format!("staged-candidate-conversion-proposal-{accumulator:08x}")
+}
+
+fn proposal_request_contains_forbidden_claim(
+    request: &StagedCandidateConversionProposalRequest,
+) -> bool {
+    request.claims.iter().any(|(key, value)| {
+        let text = format!("{} {}", key, value).to_ascii_lowercase();
+        [
+            "trust",
+            "approval",
+            "approved",
+            "safe",
+            "readiness",
+            "ready",
+            "release",
+            "deployment",
+            "public-use",
+            "public_use",
+            "execute",
+            "execution",
+            "persistence",
+            "persistent",
+            "action",
+            "candidate_creation",
+            "candidate_output",
+            "candidate_material",
+            "conversion_performed",
+        ]
+        .iter()
+        .any(|needle| text.contains(needle))
+    })
+}
+
+pub fn validate_staged_candidate_conversion_source(
+    state: &LocalOperatorShellState,
+) -> StagedCandidateConversionSourceEligibilityStatus {
+    if state.provider_execution.result.is_none() {
+        return StagedCandidateConversionSourceEligibilityStatus::MissingProviderExecutionResult;
+    }
+    if validate_local_provider_output_validation_projection(&state.provider_output_validation)
+        .is_err()
+    {
+        return StagedCandidateConversionSourceEligibilityStatus::MissingOrInconsistentValidationProjection;
+    }
+    let projected = project_local_provider_output_validation(state);
+    if projected != state.provider_output_validation {
+        return StagedCandidateConversionSourceEligibilityStatus::MissingOrInconsistentValidationProjection;
+    }
+    match state.provider_output_validation.status {
+        LocalProviderOutputValidationStatus::Rejected => {
+            return StagedCandidateConversionSourceEligibilityStatus::RejectedSourceNotEligible;
+        }
+        LocalProviderOutputValidationStatus::NotValidated => {
+            return StagedCandidateConversionSourceEligibilityStatus::SourceNotReviewableUntrusted;
+        }
+        LocalProviderOutputValidationStatus::ValidationNotApplicable => {
+            return StagedCandidateConversionSourceEligibilityStatus::ValidationNotApplicableSourceNotEligible;
+        }
+        LocalProviderOutputValidationStatus::InvalidValidationInput => {
+            return StagedCandidateConversionSourceEligibilityStatus::InvalidValidationInputSourceNotEligible;
+        }
+        LocalProviderOutputValidationStatus::ReviewableUntrusted => {}
+    }
+    if state.provider_output_validation.reviewability_status
+        != LocalProviderOutputReviewabilityStatus::ReviewableUntrusted
+        || state.provider_output_validation.candidate_boundary_status
+            != LocalProviderOutputCandidateBoundaryStatus::NotCandidateMaterial
+        || !state
+            .provider_output_validation
+            .candidate_boundary_statuses
+            .contains(&LocalProviderOutputCandidateBoundaryStatus::CandidateConversionNotPerformed)
+        || !state
+            .provider_output_validation
+            .candidate_boundary_statuses
+            .contains(
+                &LocalProviderOutputCandidateBoundaryStatus::CandidateConversionRequiresFuturePhase,
+            )
+    {
+        return StagedCandidateConversionSourceEligibilityStatus::SourceNotReviewableUntrusted;
+    }
+    StagedCandidateConversionSourceEligibilityStatus::EligibleReviewableUntrusted
+}
+
+fn source_eligibility_error(
+    status: StagedCandidateConversionSourceEligibilityStatus,
+) -> Option<StagedCandidateConversionProposalError> {
+    match status {
+        StagedCandidateConversionSourceEligibilityStatus::EligibleReviewableUntrusted => None,
+        StagedCandidateConversionSourceEligibilityStatus::MissingProviderExecutionResult => {
+            Some(StagedCandidateConversionProposalError::MissingProviderExecutionResult)
+        }
+        StagedCandidateConversionSourceEligibilityStatus::SourceNotReviewableUntrusted => {
+            Some(StagedCandidateConversionProposalError::SourceNotReviewableUntrusted)
+        }
+        StagedCandidateConversionSourceEligibilityStatus::RejectedSourceNotEligible => {
+            Some(StagedCandidateConversionProposalError::RejectedSourceNotEligible)
+        }
+        StagedCandidateConversionSourceEligibilityStatus::ValidationNotApplicableSourceNotEligible => {
+            Some(StagedCandidateConversionProposalError::ValidationNotApplicableSourceNotEligible)
+        }
+        StagedCandidateConversionSourceEligibilityStatus::InvalidValidationInputSourceNotEligible => {
+            Some(StagedCandidateConversionProposalError::InvalidValidationInputSourceNotEligible)
+        }
+        StagedCandidateConversionSourceEligibilityStatus::MissingOrInconsistentValidationProjection => {
+            Some(StagedCandidateConversionProposalError::MissingOrInconsistentValidationProjection)
+        }
+    }
+}
+
+pub fn validate_staged_candidate_conversion_proposal(
+    projection: &StagedCandidateConversionProposalProjection,
+) -> Result<(), StagedCandidateConversionProposalError> {
+    if projection.status == StagedCandidateConversionProposalStatus::NoProposal {
+        return Ok(());
+    }
+    let Some(proposal) = projection.proposal.as_ref() else {
+        return Err(StagedCandidateConversionProposalError::InvalidProposalBoundary);
+    };
+    for required in staged_candidate_conversion_boundary_statuses() {
+        if !proposal.boundary_statuses.contains(&required) {
+            return Err(StagedCandidateConversionProposalError::InvalidProposalBoundary);
+        }
+    }
+    for required in staged_candidate_conversion_trust_statuses() {
+        if !proposal.trust_statuses.contains(&required) {
+            return Err(StagedCandidateConversionProposalError::InvalidProposalBoundary);
+        }
+    }
+    for required in staged_candidate_conversion_no_effects() {
+        if !proposal.effect_statuses.contains(&required) {
+            return Err(StagedCandidateConversionProposalError::InvalidProposalBoundary);
+        }
+    }
+    if proposal.source_validation_status != LocalProviderOutputValidationStatus::ReviewableUntrusted
+        || proposal.source_reviewability_status
+            != LocalProviderOutputReviewabilityStatus::ReviewableUntrusted
+        || proposal.source_candidate_boundary_status
+            != LocalProviderOutputCandidateBoundaryStatus::NotCandidateMaterial
+        || proposal.source_boundary != "provider_output_validation_phase_143"
+        || proposal.proposal_boundary != "staged_candidate_conversion_phase_146"
+        || proposal.source_eligibility_status
+            != StagedCandidateConversionSourceEligibilityStatus::EligibleReviewableUntrusted
+    {
+        return Err(StagedCandidateConversionProposalError::InvalidProposalBoundary);
+    }
+    Ok(())
+}
+
+pub fn project_staged_candidate_conversion_proposal(
+    proposal: StagedCandidateConversionProposal,
+) -> StagedCandidateConversionProposalProjection {
+    let projection = StagedCandidateConversionProposalProjection {
+        status: StagedCandidateConversionProposalStatus::StagedProposalCreated,
+        proposal: Some(proposal),
+        source_eligibility_status:
+            StagedCandidateConversionSourceEligibilityStatus::EligibleReviewableUntrusted,
+        error: None,
+        note: "This is a staged conversion proposal only. It is not candidate output.".to_string(),
+    };
+    match validate_staged_candidate_conversion_proposal(&projection) {
+        Ok(()) => projection,
+        Err(error) => StagedCandidateConversionProposalProjection {
+            status: StagedCandidateConversionProposalStatus::InvalidProposalRequest,
+            proposal: None,
+            source_eligibility_status: StagedCandidateConversionSourceEligibilityStatus::MissingOrInconsistentValidationProjection,
+            error: Some(error),
+            note: "Staged candidate-conversion proposal rejected fail-closed; no candidate conversion was performed.".to_string(),
+        },
+    }
+}
+
+pub fn create_staged_candidate_conversion_proposal(
+    state: &LocalOperatorShellState,
+    request: StagedCandidateConversionProposalRequest,
+) -> Result<LocalOperatorShellState, StagedCandidateConversionProposalError> {
+    if proposal_request_contains_forbidden_claim(&request) {
+        return Err(StagedCandidateConversionProposalError::InvalidProposalRequest);
+    }
+    let eligibility = validate_staged_candidate_conversion_source(state);
+    if let Some(error) = source_eligibility_error(eligibility) {
+        return Err(error);
+    }
+    let validation = &state.provider_output_validation;
+    let execution_result_id = validation
+        .provider_execution_result_id
+        .clone()
+        .ok_or(StagedCandidateConversionProposalError::MissingProviderExecutionResult)?;
+    let proposal = StagedCandidateConversionProposal {
+        proposal_id: deterministic_staged_candidate_conversion_proposal_id(
+            &execution_result_id,
+            validation,
+        ),
+        source_provider_kind: validation.provider_kind.clone(),
+        source_execution_result_id: execution_result_id,
+        source_validation_status: validation.status,
+        source_reviewability_status: validation.reviewability_status,
+        source_candidate_boundary_status: validation.candidate_boundary_status,
+        source_boundary: "provider_output_validation_phase_143".to_string(),
+        proposal_boundary: "staged_candidate_conversion_phase_146".to_string(),
+        boundary_statuses: staged_candidate_conversion_boundary_statuses(),
+        trust_statuses: staged_candidate_conversion_trust_statuses(),
+        effect_statuses: staged_candidate_conversion_no_effects(),
+        source_eligibility_status: StagedCandidateConversionSourceEligibilityStatus::EligibleReviewableUntrusted,
+        note: format!(
+            "{} This proposal is not persistent, not executable, not approved, and not candidate material.",
+            request.operator_note
+        ),
+    };
+    let projection = project_staged_candidate_conversion_proposal(proposal);
+    validate_staged_candidate_conversion_proposal(&projection)?;
+    let mut next = state.clone();
+    next.staged_candidate_conversion_proposal = projection;
+    Ok(next)
+}
+
 pub fn local_provider_execution_result_absence_markers(
 ) -> LocalProviderExecutionResultAbsenceMarkers {
     LocalProviderExecutionResultAbsenceMarkers {
@@ -2107,6 +2582,7 @@ pub struct LocalOperatorShellState {
     pub provider_configuration: LocalProviderConfiguration,
     pub provider_execution: LocalProviderExecutionProjection,
     pub provider_output_validation: LocalProviderOutputValidationProjection,
+    pub staged_candidate_conversion_proposal: StagedCandidateConversionProposalProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -2319,6 +2795,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         provider_configuration: initial_local_provider_configuration(),
         provider_execution: initial_local_provider_execution_projection(),
         provider_output_validation: initial_local_provider_output_validation_projection(),
+        staged_candidate_conversion_proposal:
+            initial_staged_candidate_conversion_proposal_projection(),
     }
 }
 
@@ -2458,6 +2936,7 @@ pub enum LocalOperatorShellRequest {
     SubmitOperatorIntent(LocalOperatorIntent),
     SubmitProviderConfiguration(LocalProviderConfigurationCandidate),
     ExecuteProvider(LocalProviderExecutionRequest),
+    CreateStagedCandidateConversionProposal(StagedCandidateConversionProposalRequest),
     Forbidden(LocalOperatorShellForbiddenRequest),
 }
 
@@ -2569,6 +3048,13 @@ pub fn execute_local_provider(
     transport.step(LocalOperatorShellRequest::ExecuteProvider(request))
 }
 
+pub fn create_local_staged_candidate_conversion_proposal(
+    transport: &mut LocalOperatorShellTransport,
+    request: StagedCandidateConversionProposalRequest,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::CreateStagedCandidateConversionProposal(request))
+}
+
 pub fn local_operator_shell_transport_step(
     state: &LocalOperatorShellState,
     request: LocalOperatorShellRequest,
@@ -2601,6 +3087,12 @@ pub fn local_operator_shell_transport_step(
             match apply_local_provider_execution(state, request) {
                 Ok(next) => accepted("local_provider_execution_accepted", next),
                 Err(validation) => rejected(validation.reason, state.clone()),
+            }
+        }
+        LocalOperatorShellRequest::CreateStagedCandidateConversionProposal(request) => {
+            match create_staged_candidate_conversion_proposal(state, request) {
+                Ok(next) => accepted("staged_candidate_conversion_proposal_created", next),
+                Err(error) => rejected(error.code(), state.clone()),
             }
         }
         LocalOperatorShellRequest::Forbidden(forbidden) => {
@@ -4260,5 +4752,274 @@ mod tests {
                 Err(LocalProviderOutputValidationError::InvalidNoEffectBoundary)
             );
         }
+    }
+
+    #[test]
+    fn phase_146_initial_state_exposes_no_staged_candidate_conversion_proposal() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.staged_candidate_conversion_proposal.status,
+            StagedCandidateConversionProposalStatus::NoProposal
+        );
+        assert!(state
+            .staged_candidate_conversion_proposal
+            .proposal
+            .is_none());
+        assert_eq!(state.decision_ledger.records.len(), 0);
+    }
+
+    #[test]
+    fn phase_146_creates_staged_proposal_from_reviewable_untrusted_output_only() {
+        let state = phase_143_reviewable_provider_output_state();
+        let before_candidate = state.run.candidate.clone();
+        let before_ledger = state.decision_ledger.clone();
+        let before_replay = state.run.decision_replay.clone();
+        let before_export = state.local_session_evidence_export.clone();
+        let before_configuration = state.provider_configuration.clone();
+        let before_execution = state.provider_execution.clone();
+
+        let next = create_staged_candidate_conversion_proposal(
+            &state,
+            StagedCandidateConversionProposalRequest::staging_only("phase 146 local staging"),
+        )
+        .expect("reviewable_untrusted source can create staged proposal");
+        let projection = &next.staged_candidate_conversion_proposal;
+        let proposal = projection.proposal.as_ref().unwrap();
+
+        assert_eq!(
+            projection.status,
+            StagedCandidateConversionProposalStatus::StagedProposalCreated
+        );
+        assert_eq!(
+            proposal.source_validation_status,
+            LocalProviderOutputValidationStatus::ReviewableUntrusted
+        );
+        assert_eq!(
+            proposal.source_reviewability_status,
+            LocalProviderOutputReviewabilityStatus::ReviewableUntrusted
+        );
+        assert_eq!(
+            proposal.source_candidate_boundary_status,
+            LocalProviderOutputCandidateBoundaryStatus::NotCandidateMaterial
+        );
+        assert_eq!(
+            proposal.source_boundary,
+            "provider_output_validation_phase_143"
+        );
+        assert_eq!(
+            proposal.proposal_boundary,
+            "staged_candidate_conversion_phase_146"
+        );
+        assert!(proposal
+            .boundary_statuses
+            .contains(&StagedCandidateConversionBoundaryStatus::StagingOnlyNotCandidateMaterial));
+        assert!(proposal
+            .boundary_statuses
+            .contains(&StagedCandidateConversionBoundaryStatus::CandidateConversionNotPerformed));
+        assert!(proposal
+            .boundary_statuses
+            .contains(&StagedCandidateConversionBoundaryStatus::ValidationRequiredInFuturePhase));
+        assert!(proposal
+            .boundary_statuses
+            .contains(&StagedCandidateConversionBoundaryStatus::ApprovalNotAvailableInPhase146));
+        assert!(proposal
+            .trust_statuses
+            .contains(&StagedCandidateConversionTrustStatus::UntrustedSource));
+        assert!(proposal
+            .trust_statuses
+            .contains(&StagedCandidateConversionTrustStatus::NotTrusted));
+        assert!(proposal
+            .trust_statuses
+            .contains(&StagedCandidateConversionTrustStatus::NotApproved));
+        for effect in staged_candidate_conversion_no_effects() {
+            assert!(proposal.effect_statuses.contains(&effect));
+        }
+        assert!(validate_staged_candidate_conversion_proposal(projection).is_ok());
+        assert_eq!(next.run.candidate, before_candidate);
+        assert_eq!(next.decision_ledger, before_ledger);
+        assert_eq!(next.run.decision_replay, before_replay);
+        assert_eq!(next.local_session_evidence_export, before_export);
+        assert_eq!(next.provider_configuration, before_configuration);
+        assert_eq!(next.provider_execution, before_execution);
+    }
+
+    #[test]
+    fn phase_146_proposal_identity_and_linkage_are_deterministic() {
+        let state = phase_143_reviewable_provider_output_state();
+        let first = create_staged_candidate_conversion_proposal(
+            &state,
+            StagedCandidateConversionProposalRequest::staging_only("same source"),
+        )
+        .unwrap();
+        let second = create_staged_candidate_conversion_proposal(
+            &state,
+            StagedCandidateConversionProposalRequest::staging_only("same source"),
+        )
+        .unwrap();
+        let first_proposal = first.staged_candidate_conversion_proposal.proposal.unwrap();
+        let second_proposal = second
+            .staged_candidate_conversion_proposal
+            .proposal
+            .unwrap();
+        assert_eq!(first_proposal.proposal_id, second_proposal.proposal_id);
+        assert_eq!(
+            first_proposal.source_execution_result_id,
+            second_proposal.source_execution_result_id
+        );
+        assert_eq!(first_proposal.source_provider_kind, "deterministic_stub");
+    }
+
+    #[test]
+    fn phase_146_rejects_ineligible_sources_and_preserves_transport_state() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let missing = create_local_staged_candidate_conversion_proposal(
+            &mut transport,
+            StagedCandidateConversionProposalRequest::staging_only("missing source"),
+        );
+        assert_eq!(missing.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(missing.reason, "missing_provider_execution_result");
+        assert_eq!(
+            missing.state.staged_candidate_conversion_proposal.status,
+            StagedCandidateConversionProposalStatus::NoProposal
+        );
+
+        submit_local_provider_configuration(
+            &mut transport,
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        );
+        let accepted = execute_local_provider(
+            &mut transport,
+            LocalProviderExecutionRequest::deterministic_stub("phase 146 rejected source"),
+        );
+        let mut rejected_state = accepted.state.clone();
+        rejected_state
+            .provider_execution
+            .result
+            .as_mut()
+            .unwrap()
+            .output_summary = "deterministic_stub descriptive output authorize action".to_string();
+        rejected_state.provider_output_validation =
+            validate_local_provider_output(&rejected_state.provider_execution);
+        assert_eq!(
+            rejected_state.provider_output_validation.status,
+            LocalProviderOutputValidationStatus::Rejected
+        );
+        assert_eq!(
+            create_staged_candidate_conversion_proposal(
+                &rejected_state,
+                StagedCandidateConversionProposalRequest::staging_only("rejected source"),
+            ),
+            Err(StagedCandidateConversionProposalError::RejectedSourceNotEligible)
+        );
+    }
+
+    #[test]
+    fn phase_146_rejects_not_applicable_invalid_and_inconsistent_validation() {
+        let mut state = phase_143_reviewable_provider_output_state();
+        state.provider_output_validation.status = LocalProviderOutputValidationStatus::NotValidated;
+        assert_eq!(
+            create_staged_candidate_conversion_proposal(
+                &state,
+                StagedCandidateConversionProposalRequest::staging_only("not validated"),
+            ),
+            Err(StagedCandidateConversionProposalError::MissingOrInconsistentValidationProjection)
+        );
+
+        state = phase_143_reviewable_provider_output_state();
+        state.provider_output_validation.status =
+            LocalProviderOutputValidationStatus::ValidationNotApplicable;
+        state.provider_output_validation.reviewability_status =
+            LocalProviderOutputReviewabilityStatus::NotReviewable;
+        assert_eq!(
+            create_staged_candidate_conversion_proposal(
+                &state,
+                StagedCandidateConversionProposalRequest::staging_only("not applicable"),
+            ),
+            Err(StagedCandidateConversionProposalError::MissingOrInconsistentValidationProjection)
+        );
+
+        state = phase_143_reviewable_provider_output_state();
+        state.provider_output_validation.status =
+            LocalProviderOutputValidationStatus::InvalidValidationInput;
+        assert_eq!(
+            create_staged_candidate_conversion_proposal(
+                &state,
+                StagedCandidateConversionProposalRequest::staging_only("invalid input"),
+            ),
+            Err(StagedCandidateConversionProposalError::MissingOrInconsistentValidationProjection)
+        );
+
+        state = phase_143_reviewable_provider_output_state();
+        state.provider_output_validation.reasons.clear();
+        assert_eq!(
+            create_staged_candidate_conversion_proposal(
+                &state,
+                StagedCandidateConversionProposalRequest::staging_only("inconsistent"),
+            ),
+            Err(StagedCandidateConversionProposalError::MissingOrInconsistentValidationProjection)
+        );
+    }
+
+    #[test]
+    fn phase_146_request_claims_fail_closed() {
+        let state = phase_143_reviewable_provider_output_state();
+        for (key, value) in [
+            ("trust", "true"),
+            ("approval", "true"),
+            ("safe", "true"),
+            ("readiness", "true"),
+            ("release", "true"),
+            ("deployment", "true"),
+            ("public_use", "true"),
+            ("action", "run"),
+            ("execution", "run"),
+            ("persistence", "true"),
+            ("candidate_creation", "true"),
+        ] {
+            let request = StagedCandidateConversionProposalRequest {
+                operator_note: "forbidden shortcut".to_string(),
+                claims: vec![(key.to_string(), value.to_string())],
+            };
+            assert_eq!(
+                create_staged_candidate_conversion_proposal(&state, request),
+                Err(StagedCandidateConversionProposalError::InvalidProposalRequest),
+                "{key} should fail closed"
+            );
+        }
+    }
+
+    #[test]
+    fn phase_146_projection_validation_rejects_boundary_drift() {
+        let state = phase_143_reviewable_provider_output_state();
+        let next = create_staged_candidate_conversion_proposal(
+            &state,
+            StagedCandidateConversionProposalRequest::staging_only("valid"),
+        )
+        .unwrap();
+        let mut projection = next.staged_candidate_conversion_proposal.clone();
+        assert!(validate_staged_candidate_conversion_proposal(&projection).is_ok());
+
+        projection.proposal.as_mut().unwrap().boundary_statuses =
+            vec![StagedCandidateConversionBoundaryStatus::StagingOnlyNotCandidateMaterial];
+        assert_eq!(
+            validate_staged_candidate_conversion_proposal(&projection),
+            Err(StagedCandidateConversionProposalError::InvalidProposalBoundary)
+        );
+
+        projection = next.staged_candidate_conversion_proposal.clone();
+        projection.proposal.as_mut().unwrap().trust_statuses =
+            vec![StagedCandidateConversionTrustStatus::UntrustedSource];
+        assert_eq!(
+            validate_staged_candidate_conversion_proposal(&projection),
+            Err(StagedCandidateConversionProposalError::InvalidProposalBoundary)
+        );
+
+        projection = next.staged_candidate_conversion_proposal.clone();
+        projection.proposal.as_mut().unwrap().effect_statuses =
+            vec![StagedCandidateConversionEffectStatus::NoDecisionLedgerEffect];
+        assert_eq!(
+            validate_staged_candidate_conversion_proposal(&projection),
+            Err(StagedCandidateConversionProposalError::InvalidProposalBoundary)
+        );
     }
 }

@@ -1,8 +1,8 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -579,6 +579,113 @@ function assertProviderOutputReviewUiRendersRejectedAndEdgeStates(): void {
   assertContains(invalidInputRendered, "Validation input is invalid: malformed_output.", "invalid_validation_input reason visible");
 }
 
+
+function assertStagedCandidateConversionProposalRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Staged candidate-conversion proposal", "staged proposal panel visible");
+  assertContains(rendered, "Proposal status: no_proposal", "initial no proposal status visible");
+  assertContains(rendered, "This is a staged conversion proposal only. It is not candidate output.", "proposal only note visible");
+  assertContains(rendered, "Approval is not available in Phase 146.", "phase 146 approval boundary visible");
+}
+
+function assertStagedCandidateConversionProposalCreationAndUiBoundaries(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const executed = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 146 staged proposal"));
+  const before = executed.state;
+  const response = createLocalStagedCandidateConversionProposal(transport, { operatorNote: "local UI proposal" });
+  assertEqual(response.status, "accepted", "staged proposal accepted");
+  assertEqual(response.reason, "staged_candidate_conversion_proposal_created", "staged proposal reason");
+  const proposal = response.state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected staged proposal");
+  assertEqual(response.state.stagedCandidateConversionProposal.status, "staged_proposal_created", "staged proposal status");
+  assertEqual(proposal.sourceValidationStatus, "reviewable_untrusted", "source validation linkage");
+  assertEqual(proposal.sourceReviewabilityStatus, "reviewable_untrusted", "source reviewability linkage");
+  assertEqual(proposal.sourceCandidateBoundaryStatus, "not_candidate_material", "source candidate boundary linkage");
+  assertContains(proposal.boundaryStatuses.join(","), "staging_only_not_candidate_material", "staged only boundary");
+  assertContains(proposal.boundaryStatuses.join(","), "candidate_conversion_not_performed", "conversion not performed");
+  assertContains(proposal.boundaryStatuses.join(","), "validation_required_in_future_phase", "future validation required");
+  assertContains(proposal.boundaryStatuses.join(","), "approval_not_available_in_phase_146", "approval unavailable");
+  assertContains(proposal.trustStatuses.join(","), "untrusted_source", "untrusted source label");
+  assertContains(proposal.trustStatuses.join(","), "not_approved", "not approved label");
+  assertContains(proposal.effectStatuses.join(","), "not_executable", "not executable label");
+  assertContains(proposal.effectStatuses.join(","), "not_persistent", "not persistent label");
+  assertEqual(validateStagedCandidateConversionProposal(response.state.stagedCandidateConversionProposal), null, "projection validates");
+  assertEqual(response.state.run.candidate, before.run.candidate, "proposal does not alter existing candidate field");
+  assertEqual(response.state.decisionLedger.records.length, before.decisionLedger.records.length, "proposal does not append decision records");
+  assertEqual(response.state.run.decisionReplay.replayStatus, before.run.decisionReplay.replayStatus, "proposal does not alter replay");
+  assertEqual(response.state.localSessionEvidenceExport.exportId, before.localSessionEvidenceExport.exportId, "proposal does not alter export");
+  assertEqual(response.state.providerConfiguration.configuredProviderKind, before.providerConfiguration.configuredProviderKind, "proposal does not mutate provider configuration");
+  assertEqual(JSON.stringify(response.state.providerExecution), JSON.stringify(before.providerExecution), "proposal does not trigger provider execution");
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Create staged conversion proposal", "visible proposal control");
+  assertContains(rendered, "Proposal status: staged_proposal_created", "created proposal visible");
+  assertContains(rendered, "This is a staged conversion proposal only. It is not candidate output.", "not candidate output wording");
+  assertContains(rendered, "Provider output remains untrusted and not approved.", "provider output untrusted wording");
+  assertContains(rendered, "Candidate conversion was not performed in Phase 146.", "conversion not performed wording");
+  assertContains(rendered, "Validation is required in a future phase before any candidate review.", "future validation wording");
+  assertContains(rendered, "Approval is not available in Phase 146.", "approval unavailable wording");
+  assertDoesNotContain(rendered, "Approve staged proposal", "no staged proposal approve control");
+  assertDoesNotContain(rendered, "Reject staged proposal", "no staged proposal reject control");
+  assertDoesNotContain(rendered, "Create candidate", "no candidate materialization control");
+}
+
+function assertStagedCandidateConversionProposalRejectsSourcesAndShortcuts(): void {
+  const transport = createLocalOperatorShellTransport();
+  const missing = createLocalStagedCandidateConversionProposal(transport, { operatorNote: "missing" });
+  assertEqual(missing.status, "rejected", "missing source rejected");
+  assertEqual(missing.reason, "missing_provider_execution_result", "missing source reason");
+
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  const accepted = executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 146 rejected source"));
+  const result = accepted.state.providerExecution.result;
+  if (!result) throw new Error("expected provider result");
+  const rejectedSourceState = {
+    ...accepted.state,
+    providerExecution: {
+      ...accepted.state.providerExecution,
+      result: { ...result, outputSummary: "deterministic_stub descriptive output authorize action" }
+    },
+    providerOutputValidation: validateLocalProviderOutput({
+      ...accepted.state.providerExecution,
+      result: { ...result, outputSummary: "deterministic_stub descriptive output authorize action" }
+    })
+  };
+  const rejectedSource = createStagedCandidateConversionProposal(rejectedSourceState, { operatorNote: "rejected source" });
+  assertEqual(rejectedSource.status, "rejected", "rejected source rejected");
+  assertEqual(rejectedSource.reason, "rejected_source_not_eligible", "rejected source reason");
+
+  for (const status of ["not_validated", "validation_not_applicable", "invalid_validation_input"] as const) {
+    const edgeState = {
+      ...accepted.state,
+      providerOutputValidation: {
+        ...accepted.state.providerOutputValidation,
+        status,
+        reviewabilityStatus: "not_reviewable" as const
+      }
+    };
+    const response = createStagedCandidateConversionProposal(edgeState, { operatorNote: status });
+    assertEqual(response.status, "rejected", `${status} rejected`);
+  }
+
+  for (const [key, value] of [["trust", "true"], ["approval", "true"], ["ready", "true"], ["release", "true"], ["deployment", "true"], ["public_use", "true"], ["action", "run"], ["execution", "run"], ["persistence", "true"], ["candidate_creation", "true"]]) {
+    const response = createStagedCandidateConversionProposal(accepted.state, { operatorNote: "shortcut", claims: [{ key, value }] });
+    assertEqual(response.status, "rejected", `${key} shortcut rejected`);
+    assertEqual(response.reason, "invalid_proposal_request", `${key} shortcut reason`);
+  }
+}
+
+function assertStagedCandidateConversionProposalDeterministicRendering(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 146 deterministic"));
+  const first = createLocalStagedCandidateConversionProposal(transport, { operatorNote: "deterministic" }).state;
+  const second = createStagedCandidateConversionProposal(first, { operatorNote: "deterministic" }).state;
+  assertEqual(first.stagedCandidateConversionProposal.proposal?.proposalId, second.stagedCandidateConversionProposal.proposal?.proposalId, "deterministic proposal id");
+  assertEqual(renderLocalOperatorShellSnapshot(first), renderLocalOperatorShellSnapshot(first), "deterministic staged proposal rendering");
+}
+
 function assertProviderOutputReviewUiIsDeterministicAndDisplayOnly(): void {
   const transport = createLocalOperatorShellTransport();
   submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
@@ -1061,6 +1168,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_provider_output_validation_projection_fails_closed",
     run: assertLocalProviderOutputValidationProjectionFailsClosed
+  },
+  {
+    name: "staged_candidate_conversion_proposal_renders_initial_state",
+    run: assertStagedCandidateConversionProposalRendersInitialState
+  },
+  {
+    name: "staged_candidate_conversion_proposal_creation_and_ui_boundaries",
+    run: assertStagedCandidateConversionProposalCreationAndUiBoundaries
+  },
+  {
+    name: "staged_candidate_conversion_proposal_rejects_sources_and_shortcuts",
+    run: assertStagedCandidateConversionProposalRejectsSourcesAndShortcuts
+  },
+  {
+    name: "staged_candidate_conversion_proposal_deterministic_rendering",
+    run: assertStagedCandidateConversionProposalDeterministicRendering
   },
   {
     name: "provider_output_review_ui_renders_initial_state",
