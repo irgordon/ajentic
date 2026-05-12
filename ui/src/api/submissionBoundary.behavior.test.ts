@@ -1,8 +1,8 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147 } from "./localOperatorShell";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -686,6 +686,105 @@ function assertStagedCandidateConversionProposalDeterministicRendering(): void {
   assertEqual(renderLocalOperatorShellSnapshot(first), renderLocalOperatorShellSnapshot(first), "deterministic staged proposal rendering");
 }
 
+
+function phase147StagedProposalState() {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 147 validation"));
+  return createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 147 validation" }).state;
+}
+
+function assertStagedCandidateConversionValidationVisibleResults(): void {
+  const transport = createLocalOperatorShellTransport();
+  const initial = getInitialLocalOperatorShellState(transport).state;
+  assertEqual(initial.stagedCandidateConversionValidation.status, "not_validated", "initial validation state");
+  assertContains(renderLocalOperatorShellSnapshot(initial), "Staged proposal validation", "validation panel visible");
+  assertContains(renderLocalOperatorShellSnapshot(initial), "Validation status: not_validated", "initial validation rendered");
+
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 147 visible"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 147 visible" });
+  const validation = validateLocalStagedCandidateConversionProposal(transport);
+  assertEqual(validation.status, "accepted", "valid staged proposal validation accepted");
+  assertEqual(validation.state.stagedCandidateConversionValidation.status, "staged_proposal_shape_valid", "shape/linkage validation status");
+  const rendered = renderLocalOperatorShellSnapshot(validation.state);
+  assertContains(rendered, "Validation checks staged proposal shape and source linkage only.", "shape/linkage copy");
+  assertContains(rendered, "Validated staged proposal is not candidate output.", "not candidate output copy");
+  assertContains(rendered, "Candidate materialization was not performed in Phase 147.", "materialization not performed copy");
+  assertContains(rendered, "Future review boundary is required before any operator decision.", "future review boundary copy");
+  assertContains(rendered, "Operator decision is not available in Phase 147.", "operator decision unavailable copy");
+  assertContains(rendered, "Provider output remains untrusted and not approved.", "untrusted not approved copy");
+  assertContains(rendered, "source_linkage_validated", "linkage reason visible");
+  assertContains(rendered, "materialization_not_available_in_phase_147", "materialization unavailable visible");
+  assertContains(rendered, "materialization_requires_future_phase", "future phase materialization visible");
+  assertDoesNotContain(rendered, "Approve staged proposal", "no staged approve control");
+  assertDoesNotContain(rendered, "Reject staged proposal", "no staged reject control");
+  assertDoesNotContain(rendered, "Create candidate", "no candidate creation control");
+}
+
+function assertStagedCandidateConversionValidationRejectsDriftAndClaims(): void {
+  const state = phase147StagedProposalState();
+  const valid = projectStagedCandidateConversionValidation(state);
+  assertEqual(valid.status, "staged_proposal_shape_valid", "valid projection status");
+  assertContains(valid.reasons.join(","), "source_linkage_validated", "valid linkage reason");
+
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected proposal");
+  const drifted = {
+    ...state,
+    stagedCandidateConversionProposal: {
+      ...state.stagedCandidateConversionProposal,
+      proposal: { ...proposal, proposalId: "wrong-proposal-id" }
+    }
+  };
+  const rejected = projectStagedCandidateConversionValidation(drifted);
+  assertEqual(rejected.status, "rejected_staged_proposal", "drift rejected");
+  assertContains(rejected.reasons.join(","), "deterministic_proposal_id_mismatch", "deterministic mismatch reason");
+
+  const missingEffect = {
+    ...state,
+    stagedCandidateConversionProposal: {
+      ...state.stagedCandidateConversionProposal,
+      proposal: { ...proposal, effectStatuses: proposal.effectStatuses.slice(0, -1) }
+    }
+  };
+  const noEffectRejected = projectStagedCandidateConversionValidation(missingEffect);
+  assertContains(noEffectRejected.reasons.join(","), "no_effect_field_missing", "missing no-effect reason");
+
+  const claimBearing = {
+    ...state,
+    stagedCandidateConversionProposal: {
+      ...state.stagedCandidateConversionProposal,
+      proposal: { ...proposal, note: "candidate materialization" }
+    }
+  };
+  const claimRejected = validateStagedCandidateConversionProposalForPhase147(claimBearing);
+  assertEqual(claimRejected.status, "rejected", "claim-bearing proposal rejected");
+  assertContains(claimRejected.state.stagedCandidateConversionValidation.reasons.join(","), "contains_candidate_materialization_claim", "claim reason");
+}
+
+function assertStagedCandidateConversionValidationNoAuthorityLeakage(): void {
+  const state = phase147StagedProposalState();
+  const beforeCandidate = state.run.candidate;
+  const beforeLedger = state.decisionLedger.records.length;
+  const beforeReplay = state.run.decisionReplay.replayStatus;
+  const beforeExport = state.localSessionEvidenceExport.exportId;
+  const beforeConfiguration = JSON.stringify(state.providerConfiguration);
+  const beforeExecution = JSON.stringify(state.providerExecution);
+  const result = validateStagedCandidateConversionProposalForPhase147(state);
+  assertEqual(result.state.run.candidate, beforeCandidate, "validation does not create candidate output");
+  assertEqual(result.state.decisionLedger.records.length, beforeLedger, "validation does not append decisions");
+  assertEqual(result.state.run.decisionReplay.replayStatus, beforeReplay, "validation does not alter replay");
+  assertEqual(result.state.localSessionEvidenceExport.exportId, beforeExport, "validation does not promote export");
+  assertEqual(JSON.stringify(result.state.providerConfiguration), beforeConfiguration, "validation does not mutate provider configuration");
+  assertEqual(JSON.stringify(result.state.providerExecution), beforeExecution, "validation does not mutate provider execution");
+
+  const rendered = renderLocalOperatorShellSnapshot(result.state).toLowerCase();
+  for (const forbidden of ["safe output", "review ready", "validation ready", "candidate ready", "eligible for approval", "eligible for candidate", "validated proposal ready"]) {
+    assertDoesNotContain(rendered, forbidden, `${forbidden} absent`);
+  }
+}
+
 function assertProviderOutputReviewUiIsDeterministicAndDisplayOnly(): void {
   const transport = createLocalOperatorShellTransport();
   submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
@@ -1184,6 +1283,18 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "staged_candidate_conversion_proposal_deterministic_rendering",
     run: assertStagedCandidateConversionProposalDeterministicRendering
+  },
+  {
+    name: "staged_candidate_conversion_validation_visible_results",
+    run: assertStagedCandidateConversionValidationVisibleResults
+  },
+  {
+    name: "staged_candidate_conversion_validation_rejects_drift_and_claims",
+    run: assertStagedCandidateConversionValidationRejectsDriftAndClaims
+  },
+  {
+    name: "staged_candidate_conversion_validation_no_authority_leakage",
+    run: assertStagedCandidateConversionValidationNoAuthorityLeakage
   },
   {
     name: "provider_output_review_ui_renders_initial_state",

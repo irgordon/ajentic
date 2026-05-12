@@ -5,6 +5,8 @@ import {
   getInitialLocalOperatorShellState,
   requestDeterministicStubRun,
   executeLocalProvider,
+  createLocalStagedCandidateConversionProposal,
+  validateLocalStagedCandidateConversionProposal,
   submitLocalOperatorIntent,
   submitLocalProviderConfiguration,
   type LocalOperatorShellResponse
@@ -55,6 +57,14 @@ function runForbiddenProviderExecution(): void {
     inputSummary: "unsafe local browser execution input",
     fields: [{ key: "command", value: "run model" }]
   }));
+}
+
+function createStagedProposal(): void {
+  applyTransportResponse(createLocalStagedCandidateConversionProposal(transport, { operatorNote: "local browser staged proposal" }));
+}
+
+function validateStagedProposal(): void {
+  applyTransportResponse(validateLocalStagedCandidateConversionProposal(transport));
 }
 
 function renderList(items: readonly string[], emptyText: string): string {
@@ -126,6 +136,42 @@ function renderProviderExecution(state: LocalOperatorShellState): string {
     <div class="button-row">
       <button id="run-provider" type="button" ${state.providerConfiguration.status === "accepted" ? "" : "disabled"}>Run deterministic provider</button>
       <button id="reject-provider-execution" type="button">Submit forbidden command execution</button>
+    </div>`;
+}
+
+
+function renderStagedProposalValidation(state: LocalOperatorShellState): string {
+  const proposalProjection = state.stagedCandidateConversionProposal;
+  const proposal = proposalProjection.proposal;
+  const validation = state.stagedCandidateConversionValidation;
+  return `
+    <p>Validation checks staged proposal shape and source linkage only.</p>
+    <p>Validated staged proposal is not candidate output.</p>
+    <p>Candidate materialization was not performed in Phase 147.</p>
+    <p>Future review boundary is required before any operator decision.</p>
+    <p>Operator decision is not available in Phase 147.</p>
+    <p>Provider output remains untrusted and not approved.</p>
+    <dl>
+      <div><dt>Proposal status</dt><dd>${proposalProjection.status}</dd></div>
+      <div><dt>Validation status</dt><dd>${validation.status}</dd></div>
+      <div><dt>Validation reasons</dt><dd>${validation.reasons.join(", ") || "none"}</dd></div>
+      <div><dt>Proposal ID</dt><dd>${proposal?.proposalId ?? validation.proposalId ?? "none"}</dd></div>
+      <div><dt>Source provider kind</dt><dd>${proposal?.sourceProviderKind ?? validation.sourceProviderKind}</dd></div>
+      <div><dt>Source execution result ID</dt><dd>${proposal?.sourceExecutionResultId ?? validation.sourceExecutionResultId ?? "none"}</dd></div>
+      <div><dt>Source validation status</dt><dd>${proposal?.sourceValidationStatus ?? validation.sourceValidationStatus}</dd></div>
+      <div><dt>Source reviewability status</dt><dd>${proposal?.sourceReviewabilityStatus ?? validation.sourceReviewabilityStatus}</dd></div>
+      <div><dt>Source candidate-boundary status</dt><dd>${proposal?.sourceCandidateBoundaryStatus ?? validation.sourceCandidateBoundaryStatus}</dd></div>
+      <div><dt>Deterministic linkage status</dt><dd>${validation.deterministicLinkageStatus}</dd></div>
+      <div><dt>Materialization status</dt><dd>${validation.materializationStatuses.join(", ")}</dd></div>
+      <div><dt>Future review boundary status</dt><dd>${validation.futureReviewBoundaryStatus}</dd></div>
+      <div><dt>Operator decision availability</dt><dd>${validation.operatorDecisionStatus}</dd></div>
+      <div><dt>Trust status</dt><dd>${validation.trustStatuses.join(", ")}</dd></div>
+      <div><dt>Approval status</dt><dd>not_approved</dd></div>
+      <div><dt>No-effect summary</dt><dd>${validation.noEffectSummary.join(", ")}</dd></div>
+    </dl>
+    <div class="button-row">
+      <button id="create-staged-proposal" type="button">Create staged conversion proposal</button>
+      <button id="validate-staged-proposal" type="button">Validate staged proposal shape/linkage</button>
     </div>`;
 }
 
@@ -228,6 +274,11 @@ function render(): void {
         ${renderProviderOutputReviewHtml(shellState)}
       </section>
 
+      <section class="panel" aria-label="Staged proposal validation">
+        <h2>Staged proposal validation</h2>
+        ${renderStagedProposalValidation(shellState)}
+      </section>
+
       <section class="panel replay-panel">
         <h2>Replay / status projection</h2>
         ${renderReplayProjection(shellState)}
@@ -242,6 +293,8 @@ function render(): void {
   document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#run-provider")?.addEventListener("click", runDeterministicProvider);
   document.querySelector<HTMLButtonElement>("#reject-provider-execution")?.addEventListener("click", runForbiddenProviderExecution);
+  document.querySelector<HTMLButtonElement>("#create-staged-proposal")?.addEventListener("click", createStagedProposal);
+  document.querySelector<HTMLButtonElement>("#validate-staged-proposal")?.addEventListener("click", validateStagedProposal);
 }
 
 render();
