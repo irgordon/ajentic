@@ -1,9 +1,9 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147 } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -695,6 +695,11 @@ function phase147StagedProposalState() {
   return createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 147 validation" }).state;
 }
 
+
+function phase149ValidatedDecisionState() {
+  return validateStagedCandidateConversionProposalForPhase147(phase147StagedProposalState()).state;
+}
+
 function assertStagedCandidateConversionValidationVisibleResults(): void {
   const transport = createLocalOperatorShellTransport();
   const initial = getInitialLocalOperatorShellState(transport).state;
@@ -786,6 +791,99 @@ function assertStagedCandidateConversionValidationNoAuthorityLeakage(): void {
   }
 }
 
+
+
+
+function assertOperatorCandidateDecisionControlsAndResults(): void {
+  const transport = createLocalOperatorShellTransport();
+  const initial = getInitialLocalOperatorShellState(transport).state;
+  let rendered = renderLocalOperatorShellSnapshot(initial);
+  assertContains(rendered, "Operator candidate decision", "decision panel visible");
+  assertContains(rendered, "Decision status: no_operator_decision", "initial no decision visible");
+  assertContains(rendered, "Approve/reject controls hidden until staged proposal validation is staged_proposal_shape_valid", "controls hidden initially");
+
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 149 decision controls"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 149 decision controls" });
+  const validated = validateLocalStagedCandidateConversionProposal(transport);
+  const proposal = validated.state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected proposal");
+  rendered = renderLocalOperatorShellSnapshot(validated.state);
+  assertContains(rendered, "Approve validated staged proposal | Reject validated staged proposal", "controls visible only after validation");
+
+  const approved = submitLocalOperatorCandidateDecision(transport, {
+    kind: "approve_validated_staged_proposal",
+    stagedProposalId: proposal.proposalId,
+    providerExecutionResultId: proposal.sourceExecutionResultId,
+    stagedProposalValidationStatus: "staged_proposal_shape_valid"
+  });
+  assertEqual(approved.status, "accepted", "approved decision accepted");
+  assertEqual(approved.state.operatorCandidateDecision.status, "approved_validated_staged_proposal", "approved decision status");
+  rendered = renderLocalOperatorShellSnapshot(approved.state);
+  assertContains(rendered, "This decision applies only to the validated staged proposal.", "scope copy");
+  assertContains(rendered, "No candidate output is created in Phase 149.", "no candidate output copy");
+  assertContains(rendered, "Provider output remains untrusted and not approved.", "no provider trust copy");
+  assertContains(rendered, "Candidate materialization remains a later bounded step.", "later materialization copy");
+  assertContains(rendered, "This decision does not approve readiness, release, deployment, or public use.", "no readiness copy");
+  assertContains(rendered, "candidate_materialization_not_performed", "materialization status visible");
+  assertContains(rendered, "provider_output_remains_untrusted", "trust status visible");
+  assertDoesNotContain(rendered, "Create candidate", "no candidate creation control");
+}
+
+function assertOperatorCandidateDecisionRejectsStatesAndClaims(): void {
+  const missing = submitOperatorCandidateDecision(initialLocalOperatorShellState(), {
+    kind: "approve_validated_staged_proposal",
+    stagedProposalId: "missing",
+    providerExecutionResultId: "missing",
+    stagedProposalValidationStatus: "staged_proposal_shape_valid"
+  });
+  assertEqual(missing.status, "rejected", "missing proposal rejected");
+  assertEqual(missing.state.operatorCandidateDecision.status, "rejected_operator_decision_request", "rejected projection visible");
+
+  const state = phase149ValidatedDecisionState();
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected proposal");
+  for (const request of [
+    { claimsTrust: true, reason: "trust_claim_rejected" },
+    { claimsProviderOutputApproval: true, reason: "provider_output_approval_claim_rejected" },
+    { claimsReadiness: true, reason: "readiness_claim_rejected" },
+    { claimsRelease: true, reason: "release_claim_rejected" },
+    { claimsDeployment: true, reason: "deployment_claim_rejected" },
+    { claimsPublicUse: true, reason: "public_use_claim_rejected" },
+    { claimsAction: true, reason: "action_claim_rejected" },
+    { claimsExecution: true, reason: "execution_claim_rejected" },
+    { claimsPersistence: true, reason: "persistence_claim_rejected" },
+    { claimsCandidateCreation: true, reason: "candidate_creation_claim_rejected" },
+    { claimsCandidateMaterialization: true, reason: "candidate_materialization_claim_rejected" }
+  ] as const) {
+    const result = submitOperatorCandidateDecision(state, {
+      kind: "reject_validated_staged_proposal",
+      stagedProposalId: proposal.proposalId,
+      providerExecutionResultId: proposal.sourceExecutionResultId,
+      stagedProposalValidationStatus: "staged_proposal_shape_valid",
+      ...request
+    });
+    assertEqual(result.status, "rejected", `claim rejected ${request.reason}`);
+    assertEqual(result.reason, request.reason, `reason ${request.reason}`);
+    assertEqual(state.decisionLedger.records.length, 0, "claim rejection does not append ledger");
+  }
+}
+
+function assertPhase150HandoffRendersAndIsDeterministic(): void {
+  const state = phase149ValidatedDecisionState();
+  const first = derivePhase150CodeProductionHandoff(state);
+  const second = derivePhase150CodeProductionHandoff(state);
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic handoff");
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Phase 150 code-production handoff", "handoff panel");
+  assertContains(rendered, "implemented capability evidence", "implemented evidence label");
+  assertContains(rendered, "remaining production-grade gaps", "remaining gaps label");
+  for (const gap of ["local session persistence", "session restore", "real adapter contract", "real provider invocation", "candidate materialization", "complete local operator workflow", "run history", "export package", "controlled trial readiness", "deployment/package path"]) {
+    assertContains(rendered, gap, `gap ${gap}`);
+  }
+  assertContains(rendered, "Phase 150 must remap toward larger product capability blocks using executable evidence from this handoff.", "remap copy");
+  assertContains(rendered, "Phase 149 does not edit roadmap files.", "roadmap note");
+}
 
 function assertCandidateReviewSurfaceInitialAndMissingStates(): void {
   const transport = createLocalOperatorShellTransport();
@@ -1414,6 +1512,18 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
     run: assertStagedCandidateConversionValidationNoAuthorityLeakage
   },
 
+  {
+    name: "operator_candidate_decision_controls_and_results",
+    run: assertOperatorCandidateDecisionControlsAndResults
+  },
+  {
+    name: "operator_candidate_decision_rejects_states_and_claims",
+    run: assertOperatorCandidateDecisionRejectsStatesAndClaims
+  },
+  {
+    name: "phase_150_handoff_renders_and_is_deterministic",
+    run: assertPhase150HandoffRendersAndIsDeterministic
+  },
   {
     name: "candidate_review_surface_initial_and_missing_states",
     run: assertCandidateReviewSurfaceInitialAndMissingStates

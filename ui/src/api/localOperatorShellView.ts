@@ -151,6 +151,51 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     ? `Validation/policy result: ${state.run.validation.policyStatus} / ${state.run.validation.validationStatus}`
     : "Validation/policy result: waiting for deterministic stub run";
 
+  const operatorDecision = state.operatorCandidateDecision;
+  const decisionRecord = operatorDecision.record;
+  const decisionControls = stagedValidation.status === "staged_proposal_shape_valid"
+    ? "Approve validated staged proposal | Reject validated staged proposal"
+    : "Approve/reject controls hidden until staged proposal validation is staged_proposal_shape_valid";
+  const operatorDecisionLines = [
+    `Decision status: ${operatorDecision.status}`,
+    `Decision kind: ${decisionRecord?.decisionKind ?? "none"}`,
+    `Decision ID: ${decisionRecord?.decisionId ?? "none"}`,
+    `Decision scope: ${decisionRecord?.decisionScope ?? "decision_scope_validated_staged_proposal_only"}`,
+    `Staged proposal ID: ${decisionRecord?.stagedProposalId ?? stagedValidation.proposalId ?? "none"}`,
+    `Provider execution result ID: ${decisionRecord?.providerExecutionResultId ?? stagedValidation.sourceExecutionResultId ?? "none"}`,
+    `Staged proposal validation status: ${decisionRecord?.stagedProposalValidationStatus ?? stagedValidation.status}`,
+    `Candidate materialization status: ${decisionRecord?.materializationStatus ?? "candidate_materialization_not_performed"}`,
+    `Provider-output trust effect: ${decisionRecord?.trustStatus ?? "provider_output_remains_untrusted"}`,
+    `Readiness effect: ${decisionRecord?.readinessStatus ?? "no_readiness_effect"}`,
+    `Release effect: ${decisionRecord?.releaseStatus ?? "no_release_effect"}`,
+    `Deployment effect: ${decisionRecord?.deploymentStatus ?? "no_deployment_effect"}`,
+    `Public-use effect: ${decisionRecord?.publicUseStatus ?? "no_public_use_effect"}`,
+    `Action effect: ${decisionRecord?.actionStatus ?? "no_action_effect"}`,
+    `Persistence effect: ${decisionRecord?.persistenceStatus ?? "no_persistence_effect"}`,
+    `Replay effect: ${decisionRecord?.replayRepairStatus ?? "no_replay_repair_effect"}`,
+    `Recovery effect: ${decisionRecord?.recoveryPromotionStatus ?? "no_recovery_promotion_effect"}`,
+    decisionControls,
+    "This decision applies only to the validated staged proposal.",
+    "No candidate output is created in Phase 149.",
+    "Provider output remains untrusted and not approved.",
+    "Candidate materialization remains a later bounded step.",
+    "This decision does not approve readiness, release, deployment, or public use.",
+    operatorDecision.note
+  ].join("\n");
+
+  const handoff = state.phase150CodeProductionHandoff;
+  const handoffLines = [
+    `Handoff ID: ${handoff.handoffId}`,
+    `Handoff status: ${handoff.status}`,
+    "implemented capability evidence",
+    handoff.implementedCapabilityEvidence.join("\n"),
+    "remaining production-grade gaps",
+    handoff.remainingProductionGradeGaps.join("\n"),
+    handoff.remapRecommendations.join("\n"),
+    "Phase 150 must remap toward larger product capability blocks using executable evidence from this handoff.",
+    "Phase 149 does not edit roadmap files."
+  ].join("\n");
+
   return [
     "AJENTIC local operator shell - non-production",
     `Harness status: ${state.harnessStatus}`,
@@ -185,6 +230,11 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Validate staged proposal shape/linkage",
     stagedValidationLines,
     renderCandidateReviewSurface(state),
+    "Operator candidate decision",
+    "Validated staged proposal decision",
+    operatorDecisionLines,
+    "Phase 150 code-production handoff",
+    handoffLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",
