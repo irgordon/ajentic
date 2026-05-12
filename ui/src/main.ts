@@ -1,4 +1,15 @@
-import { deterministicFakeAdapterDeclarationCandidate, deterministicFakeAdapterDryRunRequest, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import {
+  allowlistedLocalProviderInvocationRequest,
+  deterministicFakeAdapterDeclarationCandidate,
+  deterministicFakeAdapterDryRunRequest,
+  deterministicStubProviderConfigurationCandidate,
+  deterministicStubProviderExecutionRequest,
+  projectLocalProviderAdapterRegistry,
+  projectLocalProviderConfiguration,
+  projectLocalProviderExecution,
+  type LocalOperatorIntentKind,
+  type LocalOperatorShellState,
+} from "./api/localOperatorShell.js";
 import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
 import {
   createLocalOperatorShellTransport,
@@ -11,12 +22,14 @@ import {
   submitLocalProviderConfiguration,
   submitLocalProviderAdapterDeclaration,
   runLocalProviderAdapterDryRun,
-  type LocalOperatorShellResponse
+  invokeConstrainedLocalProvider,
+  type LocalOperatorShellResponse,
 } from "./api/localOperatorShellTransport.js";
 
 const transport = createLocalOperatorShellTransport();
 let shellState = getInitialLocalOperatorShellState(transport).state;
-let lastTransportMessage = "initial shell state loaded through local transport boundary";
+let lastTransportMessage =
+  "initial shell state loaded through local transport boundary";
 
 function applyTransportResponse(response: LocalOperatorShellResponse): void {
   shellState = response.state;
@@ -29,67 +42,124 @@ function startRun(): void {
 }
 
 function recordIntent(kind: LocalOperatorIntentKind): void {
-  applyTransportResponse(submitLocalOperatorIntent(transport, {
-    kind,
-    operatorId: "local-operator",
-    targetRunId: shellState.run.runId,
-    targetCandidateId: shellState.run.candidate?.candidateId,
-    reason: `${kind} selected in local non-production browser shell`
-  }));
+  applyTransportResponse(
+    submitLocalOperatorIntent(transport, {
+      kind,
+      operatorId: "local-operator",
+      targetRunId: shellState.run.runId,
+      targetCandidateId: shellState.run.candidate?.candidateId,
+      reason: `${kind} selected in local non-production browser shell`,
+    }),
+  );
 }
 
 function submitAdapterDeclaration(): void {
-  applyTransportResponse(submitLocalProviderAdapterDeclaration(transport, deterministicFakeAdapterDeclarationCandidate()));
+  applyTransportResponse(
+    submitLocalProviderAdapterDeclaration(
+      transport,
+      deterministicFakeAdapterDeclarationCandidate(),
+    ),
+  );
 }
 
 function submitUnsafeAdapterDeclaration(): void {
-  applyTransportResponse(submitLocalProviderAdapterDeclaration(transport, {
-    adapterKind: "unsupported_network_adapter",
-    declarationId: "unsafe-network-adapter-declaration",
-    fields: []
-  }));
+  applyTransportResponse(
+    submitLocalProviderAdapterDeclaration(transport, {
+      adapterKind: "unsupported_network_adapter",
+      declarationId: "unsafe-network-adapter-declaration",
+      fields: [],
+    }),
+  );
 }
 
 function runAdapterDryRun(): void {
-  applyTransportResponse(runLocalProviderAdapterDryRun(transport, deterministicFakeAdapterDryRunRequest()));
+  applyTransportResponse(
+    runLocalProviderAdapterDryRun(
+      transport,
+      deterministicFakeAdapterDryRunRequest(),
+    ),
+  );
 }
 
 function runRejectedAdapterDryRun(): void {
-  applyTransportResponse(runLocalProviderAdapterDryRun(transport, {
-    inputSummary: "phase 154 browser dry run",
-    fields: [{ key: "endpoint", value: "https://example.invalid" }]
-  }));
+  applyTransportResponse(
+    runLocalProviderAdapterDryRun(transport, {
+      inputSummary: "phase 154 browser dry run",
+      fields: [{ key: "endpoint", value: "https://example.invalid" }],
+    }),
+  );
+}
+
+function invokeAllowlistedLocalProvider(): void {
+  applyTransportResponse(
+    invokeConstrainedLocalProvider(
+      transport,
+      allowlistedLocalProviderInvocationRequest(),
+    ),
+  );
+}
+
+function invokeRejectedLocalProvider(): void {
+  applyTransportResponse(
+    invokeConstrainedLocalProvider(transport, {
+      providerKind: "unsupported_network_provider",
+      inputSummary: "phase 156 browser rejected invocation",
+      fields: [{ key: "endpoint", value: "https://example.invalid" }],
+    }),
+  );
 }
 
 function submitProviderConfiguration(): void {
-  applyTransportResponse(submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate()));
+  applyTransportResponse(
+    submitLocalProviderConfiguration(
+      transport,
+      deterministicStubProviderConfigurationCandidate(),
+    ),
+  );
 }
 
 function submitUnsafeProviderConfiguration(): void {
-  applyTransportResponse(submitLocalProviderConfiguration(transport, {
-    providerKind: "deterministic_stub",
-    fields: [{ key: "endpoint", value: "http://localhost:11434" }]
-  }));
+  applyTransportResponse(
+    submitLocalProviderConfiguration(transport, {
+      providerKind: "deterministic_stub",
+      fields: [{ key: "endpoint", value: "http://localhost:11434" }],
+    }),
+  );
 }
 
 function runDeterministicProvider(): void {
-  applyTransportResponse(executeLocalProvider(transport, deterministicStubProviderExecutionRequest("local deterministic browser execution input")));
+  applyTransportResponse(
+    executeLocalProvider(
+      transport,
+      deterministicStubProviderExecutionRequest(
+        "local deterministic browser execution input",
+      ),
+    ),
+  );
 }
 
 function runForbiddenProviderExecution(): void {
-  applyTransportResponse(executeLocalProvider(transport, {
-    providerKind: "deterministic_stub",
-    inputSummary: "unsafe local browser execution input",
-    fields: [{ key: "command", value: "run model" }]
-  }));
+  applyTransportResponse(
+    executeLocalProvider(transport, {
+      providerKind: "deterministic_stub",
+      inputSummary: "unsafe local browser execution input",
+      fields: [{ key: "command", value: "run model" }],
+    }),
+  );
 }
 
 function createStagedProposal(): void {
-  applyTransportResponse(createLocalStagedCandidateConversionProposal(transport, { operatorNote: "local browser staged proposal" }));
+  applyTransportResponse(
+    createLocalStagedCandidateConversionProposal(transport, {
+      operatorNote: "local browser staged proposal",
+    }),
+  );
 }
 
 function validateStagedProposal(): void {
-  applyTransportResponse(validateLocalStagedCandidateConversionProposal(transport));
+  applyTransportResponse(
+    validateLocalStagedCandidateConversionProposal(transport),
+  );
 }
 
 function renderList(items: readonly string[], emptyText: string): string {
@@ -98,7 +168,8 @@ function renderList(items: readonly string[], emptyText: string): string {
 }
 
 function renderCandidate(state: LocalOperatorShellState): string {
-  if (!state.run.candidate) return `<p class="muted">Start a deterministic stub run to display candidate output.</p>`;
+  if (!state.run.candidate)
+    return `<p class="muted">Start a deterministic stub run to display candidate output.</p>`;
   const candidate = state.run.candidate;
   return `
     <h3>${candidate.title}</h3>
@@ -111,13 +182,14 @@ function renderCandidate(state: LocalOperatorShellState): string {
     </dl>`;
 }
 
-
-
 function renderAdapterRegistry(state: LocalOperatorShellState): string {
-  const registry = projectLocalProviderAdapterRegistry(state.localProviderAdapterRegistry);
-  const declarations = registry.declarations.length === 0
-    ? `<p class="muted">No accepted adapter declarations yet.</p>`
-    : `<ul>${registry.declarations.map((declaration) => `<li>${declaration.declarationId}: ${declaration.adapterKind} / ${declaration.status} / ${declaration.contract.executionStatus} / ${declaration.contract.trustStatus}</li>`).join("")}</ul>`;
+  const registry = projectLocalProviderAdapterRegistry(
+    state.localProviderAdapterRegistry,
+  );
+  const declarations =
+    registry.declarations.length === 0
+      ? `<p class="muted">No accepted adapter declarations yet.</p>`
+      : `<ul>${registry.declarations.map((declaration) => `<li>${declaration.declarationId}: ${declaration.adapterKind} / ${declaration.status} / ${declaration.contract.executionStatus} / ${declaration.contract.trustStatus}</li>`).join("")}</ul>`;
   return `
     <p><strong>Adapter contract only; no model execution is available in Phase 153.</strong></p>
     <p>Accepted adapter declarations are non-executing.</p>
@@ -143,11 +215,15 @@ function renderAdapterRegistry(state: LocalOperatorShellState): string {
     </div>`;
 }
 
-
 function renderAdapterDryRun(state: LocalOperatorShellState): string {
   const dryRun = state.localProviderAdapterDryRun;
-  const activeDeclaration = state.localProviderAdapterRegistry.declarations[state.localProviderAdapterRegistry.declarations.length - 1];
-  const canRun = activeDeclaration?.adapterKind === "deterministic_fake_adapter" && activeDeclaration.status === "adapter_declared_non_executing";
+  const activeDeclaration =
+    state.localProviderAdapterRegistry.declarations[
+      state.localProviderAdapterRegistry.declarations.length - 1
+    ];
+  const canRun =
+    activeDeclaration?.adapterKind === "deterministic_fake_adapter" &&
+    activeDeclaration.status === "adapter_declared_non_executing";
   return `
     <p><strong>Controlled adapter dry run only.</strong></p>
     <p>Only deterministic_fake_adapter can execute in Phase 154.</p>
@@ -174,9 +250,49 @@ function renderAdapterDryRun(state: LocalOperatorShellState): string {
     </div>`;
 }
 
+function renderConstrainedLocalProviderInvocation(
+  state: LocalOperatorShellState,
+): string {
+  const invocation = state.constrainedLocalProviderInvocation;
+  const activeDeclaration =
+    state.localProviderAdapterRegistry.declarations[
+      state.localProviderAdapterRegistry.declarations.length - 1
+    ];
+  const canInvoke =
+    activeDeclaration?.adapterKind === "deterministic_fake_adapter" &&
+    activeDeclaration.status === "adapter_declared_non_executing";
+  return `
+    <p><strong>Constrained local provider invocation only.</strong></p>
+    <p>Only one allowlisted local provider path is enabled in Phase 156.</p>
+    <p>No arbitrary command execution is available.</p>
+    <p>No shell, network, cloud, or secret capability is enabled.</p>
+    <p>Provider output remains untrusted and descriptive.</p>
+    <p>Invocation does not create candidate output or materialize candidates.</p>
+    <p>Invocation does not approve readiness, release, deployment, or public use.</p>
+    <dl>
+      <div><dt>Invocation status</dt><dd>${invocation.status}</dd></div>
+      <div><dt>Allowlisted provider kind</dt><dd>${invocation.capabilitySurface.allowlistedProviderKind}</dd></div>
+      <div><dt>Adapter kind</dt><dd>${activeDeclaration?.adapterKind ?? invocation.adapterKind ?? "none"}</dd></div>
+      <div><dt>Adapter declaration status</dt><dd>${activeDeclaration?.status ?? "none"}</dd></div>
+      <div><dt>Result ID</dt><dd>${invocation.result?.resultId ?? "none"}</dd></div>
+      <div><dt>Output summary</dt><dd>${invocation.result?.outputSummary ?? "none"}</dd></div>
+      <div><dt>Output trust status</dt><dd>${invocation.outputTrustStatus}</dd></div>
+      <div><dt>Capability surface</dt><dd>${invocation.capabilitySurface.summary}</dd></div>
+      <div><dt>Boundary markers</dt><dd>${invocation.boundaryStatuses.join(", ")}</dd></div>
+      <div><dt>No-arbitrary-command/no-shell/no-network/no-cloud/no-secret markers</dt><dd>no_arbitrary_command, no_shell, no_network, no_cloud, no_secrets</dd></div>
+      <div><dt>No-candidate/no-action/no-readiness/no-release/no-deployment/public-use markers</dt><dd>${invocation.effectStatuses.join(", ")}</dd></div>
+      <div><dt>Rejection reason</dt><dd>${invocation.errorCodes.join(", ") || "none"}</dd></div>
+    </dl>
+    <div class="button-row">
+      <button id="invoke-constrained-local-provider" type="button" ${canInvoke ? "" : "disabled"}>Invoke allowlisted local provider</button>
+      <button id="reject-constrained-local-provider" type="button">Submit rejected local invocation request</button>
+    </div>`;
+}
 
 function renderProviderConfiguration(state: LocalOperatorShellState): string {
-  const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
+  const providerConfiguration = projectLocalProviderConfiguration(
+    state.providerConfiguration,
+  );
   return `
     <dl>
       <div><dt>Configured provider kind</dt><dd>${providerConfiguration.configuredProviderKind}</dd></div>
@@ -193,7 +309,6 @@ function renderProviderConfiguration(state: LocalOperatorShellState): string {
       <button id="reject-provider-config" type="button">Submit forbidden endpoint candidate</button>
     </div>`;
 }
-
 
 function renderProviderExecution(state: LocalOperatorShellState): string {
   const providerExecution = projectLocalProviderExecution(state);
@@ -226,8 +341,9 @@ function renderProviderExecution(state: LocalOperatorShellState): string {
     </div>`;
 }
 
-
-function renderStagedProposalValidation(state: LocalOperatorShellState): string {
+function renderStagedProposalValidation(
+  state: LocalOperatorShellState,
+): string {
   const proposalProjection = state.stagedCandidateConversionProposal;
   const proposal = proposalProjection.proposal;
   const validation = state.stagedCandidateConversionValidation;
@@ -262,7 +378,6 @@ function renderStagedProposalValidation(state: LocalOperatorShellState): string 
     </div>`;
 }
 
-
 function renderLocalSessionPackage(state: LocalOperatorShellState): string {
   const projection = state.localSessionPackageProjection;
   return `
@@ -285,12 +400,14 @@ function renderLocalSessionPackage(state: LocalOperatorShellState): string {
     <p class="muted">${projection.restoreBoundaryNote}</p>`;
 }
 
-
 function renderSessionHistory(state: LocalOperatorShellState): string {
   const history = state.localSessionHistoryProjection;
-  const entries = history.entries.length === 0
-    ? `<p class="muted">No explicit local session package entries are available.</p>`
-    : `<ul>${history.entries.map((entry) => `
+  const entries =
+    history.entries.length === 0
+      ? `<p class="muted">No explicit local session package entries are available.</p>`
+      : `<ul>${history.entries
+          .map(
+            (entry) => `
         <li>
           <strong>${entry.packageId}</strong>
           <dl>
@@ -299,7 +416,9 @@ function renderSessionHistory(state: LocalOperatorShellState): string {
             <div><dt>Production classification</dt><dd>${entry.productionClassification}</dd></div>
             <div><dt>Read-back validation status</dt><dd>${entry.readBackValidationStatus ?? "none"}</dd></div>
           </dl>
-        </li>`).join("")}</ul>`;
+        </li>`,
+          )
+          .join("")}</ul>`;
   return `
     <dl>
       <div><dt>History status</dt><dd>${history.status}</dd></div>
@@ -350,7 +469,8 @@ function renderReplayProjection(state: LocalOperatorShellState): string {
 }
 
 function renderValidation(state: LocalOperatorShellState): string {
-  if (!state.run.validation) return `<p class="muted">Validation and policy projection appears after the stub run.</p>`;
+  if (!state.run.validation)
+    return `<p class="muted">Validation and policy projection appears after the stub run.</p>`;
   const validation = state.run.validation;
   return `
     <dl>
@@ -430,6 +550,11 @@ function render(): void {
         ${renderAdapterDryRun(shellState)}
       </section>
 
+      <section class="panel" aria-label="Constrained local provider invocation">
+        <h2>Constrained local provider invocation</h2>
+        ${renderConstrainedLocalProviderInvocation(shellState)}
+      </section>
+
       <section class="panel" aria-label="Local provider configuration">
         <h2>Local provider configuration</h2>
         ${renderProviderConfiguration(shellState)}
@@ -477,19 +602,51 @@ function render(): void {
       </section>
     </main>`;
 
-  document.querySelector<HTMLButtonElement>("#start-run")?.addEventListener("click", startRun);
-  document.querySelector<HTMLButtonElement>("#approve-run")?.addEventListener("click", () => recordIntent("approve"));
-  document.querySelector<HTMLButtonElement>("#reject-run")?.addEventListener("click", () => recordIntent("reject"));
-  document.querySelector<HTMLButtonElement>("#submit-adapter-declaration")?.addEventListener("click", submitAdapterDeclaration);
-  document.querySelector<HTMLButtonElement>("#reject-adapter-declaration")?.addEventListener("click", submitUnsafeAdapterDeclaration);
-  document.querySelector<HTMLButtonElement>("#run-adapter-dry-run")?.addEventListener("click", runAdapterDryRun);
-  document.querySelector<HTMLButtonElement>("#reject-adapter-dry-run")?.addEventListener("click", runRejectedAdapterDryRun);
-  document.querySelector<HTMLButtonElement>("#submit-provider-config")?.addEventListener("click", submitProviderConfiguration);
-  document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
-  document.querySelector<HTMLButtonElement>("#run-provider")?.addEventListener("click", runDeterministicProvider);
-  document.querySelector<HTMLButtonElement>("#reject-provider-execution")?.addEventListener("click", runForbiddenProviderExecution);
-  document.querySelector<HTMLButtonElement>("#create-staged-proposal")?.addEventListener("click", createStagedProposal);
-  document.querySelector<HTMLButtonElement>("#validate-staged-proposal")?.addEventListener("click", validateStagedProposal);
+  document
+    .querySelector<HTMLButtonElement>("#start-run")
+    ?.addEventListener("click", startRun);
+  document
+    .querySelector<HTMLButtonElement>("#approve-run")
+    ?.addEventListener("click", () => recordIntent("approve"));
+  document
+    .querySelector<HTMLButtonElement>("#reject-run")
+    ?.addEventListener("click", () => recordIntent("reject"));
+  document
+    .querySelector<HTMLButtonElement>("#submit-adapter-declaration")
+    ?.addEventListener("click", submitAdapterDeclaration);
+  document
+    .querySelector<HTMLButtonElement>("#reject-adapter-declaration")
+    ?.addEventListener("click", submitUnsafeAdapterDeclaration);
+  document
+    .querySelector<HTMLButtonElement>("#run-adapter-dry-run")
+    ?.addEventListener("click", runAdapterDryRun);
+  document
+    .querySelector<HTMLButtonElement>("#reject-adapter-dry-run")
+    ?.addEventListener("click", runRejectedAdapterDryRun);
+  document
+    .querySelector<HTMLButtonElement>("#invoke-constrained-local-provider")
+    ?.addEventListener("click", invokeAllowlistedLocalProvider);
+  document
+    .querySelector<HTMLButtonElement>("#reject-constrained-local-provider")
+    ?.addEventListener("click", invokeRejectedLocalProvider);
+  document
+    .querySelector<HTMLButtonElement>("#submit-provider-config")
+    ?.addEventListener("click", submitProviderConfiguration);
+  document
+    .querySelector<HTMLButtonElement>("#reject-provider-config")
+    ?.addEventListener("click", submitUnsafeProviderConfiguration);
+  document
+    .querySelector<HTMLButtonElement>("#run-provider")
+    ?.addEventListener("click", runDeterministicProvider);
+  document
+    .querySelector<HTMLButtonElement>("#reject-provider-execution")
+    ?.addEventListener("click", runForbiddenProviderExecution);
+  document
+    .querySelector<HTMLButtonElement>("#create-staged-proposal")
+    ?.addEventListener("click", createStagedProposal);
+  document
+    .querySelector<HTMLButtonElement>("#validate-staged-proposal")
+    ?.addEventListener("click", validateStagedProposal);
 }
 
 render();
