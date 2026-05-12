@@ -289,6 +289,45 @@ function renderConstrainedLocalProviderInvocation(
     </div>`;
 }
 
+
+function renderProviderOutputPipeline(state: LocalOperatorShellState): string {
+  const pipeline = state.localProviderOutputPipeline;
+  const stages = pipeline.stages
+    .map(
+      (stage) =>
+        `<li><code>${stage.stage}</code>: <strong>${stage.status}</strong>${
+          stage.reason ? ` — ${stage.reason}` : ""
+        }</li>`,
+    )
+    .join("");
+  return `
+    <p><strong>Provider output pipeline integration</strong></p>
+    <p>Invocation output remains untrusted and descriptive.</p>
+    <p>Pipeline integration does not create candidate output.</p>
+    <p>Validation, review, staging, staged validation, candidate review, and operator decision boundaries cannot be skipped.</p>
+    <p>Candidate materialization remains a later bounded step.</p>
+    <p>Provider trust, readiness, release, deployment, and public-use approval are not granted.</p>
+    <dl>
+      <div><dt>Pipeline source kind</dt><dd>${pipeline.sourceKind ?? "none"}</dd></div>
+      <div><dt>Source invocation result ID</dt><dd>${pipeline.sourceInvocationResultId ?? "none"}</dd></div>
+      <div><dt>Provider execution result ID</dt><dd>${pipeline.providerExecutionResultId ?? "none"}</dd></div>
+      <div><dt>Pipeline status</dt><dd>${pipeline.status}</dd></div>
+      <div><dt>Current stage</dt><dd>${pipeline.currentStage ?? "none"}</dd></div>
+      <div><dt>Next required stage</dt><dd>${pipeline.nextRequiredStage ?? "none"}</dd></div>
+      <div><dt>Provider output validation status</dt><dd>${pipeline.providerOutputValidationStatus}</dd></div>
+      <div><dt>Provider output review status</dt><dd>${pipeline.providerOutputReviewStatus}</dd></div>
+      <div><dt>Staged proposal status</dt><dd>${pipeline.stagedProposalStatus}</dd></div>
+      <div><dt>Staged proposal validation status</dt><dd>${pipeline.stagedProposalValidationStatus}</dd></div>
+      <div><dt>Candidate review status</dt><dd>${pipeline.candidateReviewStatus}</dd></div>
+      <div><dt>Operator decision status</dt><dd>${pipeline.operatorDecisionStatus}</dd></div>
+      <div><dt>Blocked/rejected reasons</dt><dd>${pipeline.errors.join(", ") || "none"}</dd></div>
+      <div><dt>Boundary markers</dt><dd>${pipeline.boundaryStatuses.join(", ")}</dd></div>
+      <div><dt>No-effect markers</dt><dd>${pipeline.effectStatuses.join(", ")}</dd></div>
+    </dl>
+    <ol>${stages}</ol>
+    <p class="muted">${pipeline.note}</p>`;
+}
+
 function renderProviderConfiguration(state: LocalOperatorShellState): string {
   const providerConfiguration = projectLocalProviderConfiguration(
     state.providerConfiguration,
@@ -563,6 +602,11 @@ function render(): void {
       <section class="panel" aria-label="Sandboxed provider execution">
         <h2>Sandboxed provider execution</h2>
         ${renderProviderExecution(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Provider output pipeline integration">
+        <h2>Provider output pipeline</h2>
+        ${renderProviderOutputPipeline(shellState)}
       </section>
 
       <section class="panel" aria-label="Provider output review">
