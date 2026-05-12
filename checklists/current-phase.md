@@ -1,120 +1,118 @@
 ---
 truth_dimension: procedural
+phase: 152
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 151
+# Current Phase Checklist - Phase 152
 
 ## Phase name
-- [x] Phase 151 - Persistent Local Session Package.
+- [x] Phase 152 - Session History and Restore UI.
 
 ## Phase goal
-- [x] Produce a deterministic local session package artifact from current local operator shell state.
-- [x] Support explicit caller-provided path write/read helpers.
-- [x] Project package and read-back status through the local shell/UI surface.
+- [x] Make Phase 151 local session packages visible through local session history and restore preview UI.
+- [x] Keep restore as local-only projection and continuity support.
 
 ## Working-tree hygiene gate
-- [x] Start from the current branch.
-- [x] Limit changes to Phase 151 code-production surfaces.
-- [x] Do not modify roadmap files.
-- [x] Remove generated UI build output after validation.
-- [x] Confirm staged files match allowed Phase 151 surfaces before commit.
+- [x] Review allowed Phase 152 surfaces before editing.
+- [x] Do not modify roadmap, governance, architecture, release, installer, update-channel, or publishing surfaces.
 
 ## Allowed surfaces
-- [x] `core/src/**`.
-- [x] `ui/src/**`.
-- [x] `CHANGELOG.md`.
-- [x] `checklists/current-phase.md`.
+- [x] `core/src/**`
+- [x] `ui/src/**`
+- [x] `CHANGELOG.md`
+- [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Add executable Rust local session package derivation.
-- [x] Add deterministic serialization and package identity.
-- [x] Add explicit local write/read helpers.
-- [x] Add read-back validation projection.
-- [x] Add UI-visible package status panel.
+- [x] Add Rust-owned session history projection types.
+- [x] Add Rust-owned restore candidate, read-back, status, validation, and boundary types.
+- [x] Expose local shell state history and restore projections.
+- [x] Add visible UI capability for history, selected package details, restore validation, and restore preview.
 
-## Local session package checklist
-- [x] Include provider configuration projection when available.
-- [x] Include provider execution result projection when available.
-- [x] Include provider output validation and review projections.
-- [x] Include staged proposal and staged validation projections.
-- [x] Include candidate review and operator decision projections.
-- [x] Include local decision ledger, replay/status projection, local session evidence export, and Phase 150 handoff context.
-- [x] Include absence markers for unavailable or prohibited sections.
+## Session history checklist
+- [x] Initial state exposes empty history.
+- [x] History projection is derived from explicit package entries only.
+- [x] History projection is deterministic for identical explicit metadata.
+- [x] No automatic filesystem scanning is added.
 
-## Package validation checklist
-- [x] Require package ID and package version.
-- [x] Require `local_session_package_only` classification.
-- [x] Require `non_production` production classification.
-- [x] Validate deterministic ID/content consistency.
-- [x] Reject missing absence markers.
-- [x] Reject explicit release, deployment, readiness, signing, publishing, installer, update-channel, provider trust, candidate approval, action execution, or persistence-authority claims.
-
-## Explicit write/read helper checklist
-- [x] Write helper requires a caller-provided path.
-- [x] Write helper validates the package before writing.
-- [x] Read helper requires a caller-provided path.
-- [x] Helpers do not create release, deployment, installer, update-channel, signing, publishing, or public artifacts.
+## Restore projection checklist
+- [x] Restore request uses explicit package payload or caller-provided package path helper.
+- [x] Valid package produces deterministic restore preview/projection.
+- [x] Restore preview includes package ID, version, classifications, sections, absence markers, and boundaries.
+- [x] Restore preview does not mutate current shell state.
 
 ## Read-back validation checklist
-- [x] Parse package content from the caller-provided path.
-- [x] Validate parsed content fail-closed.
-- [x] Project read-back validation status.
-- [x] Do not repair replay or promote recovery.
+- [x] Read-back validation checks package structure only.
+- [x] Read-back validation is not restore authority; read-back validation is not restore authority.
+- [x] Malformed package content rejects fail-closed.
+- [x] Missing required package sections or absence markers reject fail-closed.
 
-## UI package projection checklist
-- [x] TypeScript shell state carries Rust-shaped local session package projection.
-- [x] UI renders package status, ID/version, classification, validation, read-back status, included sections, and absence markers.
-- [x] UI states local-only/non-production package boundaries.
-- [x] UI does not label the package as release, deployment, or readiness evidence.
+## UI restore panel checklist
+- [x] Render `Session history` panel.
+- [x] Render `Local session restore` panel.
+- [x] Render `Restore preview` panel.
+- [x] Render selected package details, status, read-back validation, restore status, errors, sections, and absence markers.
+- [x] Render required local-only and non-production wording.
 
 ## Local-only/non-production boundary checklist
-- [x] No default filesystem persistence.
-- [x] No automatic save.
-- [x] No background persistence or services.
-- [x] No production persistence claim.
-- [x] No remote sync or provider calls.
-- [x] No action execution.
+- [x] Restore remains local-only and non-production.
+- [x] No production persistence claim is introduced.
+- [x] No readiness, release, deployment, or public-use approval is introduced.
+- [x] No remote sync or background restore is active; no remote sync and no background restore are active.
+
+## No-recovery/no-replay-repair checklist
+- [x] Restore preview does not repair replay.
+- [x] Restore preview does not promote recovery.
+- [x] Replay repair and recovery promotion claims reject fail-closed.
 
 ## Rust test checklist
-- [x] Cover initial no-package projection.
-- [x] Cover deterministic derivation, package ID, and serialization.
-- [x] Cover included shell sections and absence markers.
-- [x] Cover malformed, missing, invalid, drifted, and claim-bearing rejection.
-- [x] Cover explicit temp-path write/read and read-back validation.
+- [x] Initial empty history and restore state.
+- [x] Valid explicit package appears in deterministic history.
+- [x] Valid package produces deterministic restore preview/projection.
+- [x] Malformed or incomplete package rejects.
+- [x] Invalid classification, invalid production classification, missing marker, and authority claims reject.
+- [x] Unreadable caller-provided path rejects.
 
 ## TypeScript test checklist
-- [x] Cover initial UI package projection.
-- [x] Cover deterministic repeated package projection.
-- [x] Cover local-only/non-production boundary wording.
+- [x] Initial session history and restore projections render expected state.
+- [x] Explicit package details project into history.
+- [x] Restore preview and rejection state render.
+- [x] Local-only, non-production, no-recovery, no-replay-repair, and no-approval wording is present.
+- [x] Repeated rendering/projection is deterministic.
 
-## Phase 152 handoff checklist
-- [x] Phase 152 remains the next code-production phase for session history and restore UI.
-- [x] Phase 151 restore/read-back validates structure only.
-- [x] Durable history and richer restore UI remain deferred.
+## Phase 153 handoff checklist
+- [x] Phase 153 remains next code-production phase for real local provider adapter contract.
+- [x] No Phase 153 implementation is started in Phase 152.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-151-target ./scripts/check.sh` after commit-clean state; dirty-tree preflight was observed before commit.
-- [x] Run `git diff --check`.
-- [x] Run `git status --short`.
-- [x] Run direct UI commands.
-- [x] Run direct Rust tests.
-- [x] Run local UI smoke test.
-- [x] Run package/filesystem/boundary scans.
-- [x] Run changed-file and no-roadmap-drift guards.
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target ./scripts/check.sh`
+- [x] `git diff --check`
+- [x] `git status --short`
+- [x] `cd ui && npm run typecheck`
+- [x] `cd ui && npm run lint`
+- [x] `cd ui && npm run build && rm -rf dist`
+- [x] `cd ui && npm run test:api`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `cd ui && timeout 5 npm run dev`
+- [x] Restore scans and boundary scans complete.
 
 ## Deferred items
-- [x] Session history and restore UI depth deferred to Phase 152.
-- [x] Real local provider adapter contract deferred to Phase 153.
-- [x] Candidate materialization deferred to Phase 158.
-- [x] Complete local operator workflow deferred to Phase 159.
+- [x] Production persistence remains deferred.
+- [x] Recovery promotion remains deferred.
+- [x] Replay repair remains deferred.
+- [x] Remote sync and background restore remain deferred.
+- [x] Release/deployment/signing/publishing behavior remains deferred.
 
 ## Validation log
-- [x] Final validation completed; check.sh requires a clean worktree and is rerun after commit.
+- Full Rust tests passed with `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target cargo test --manifest-path core/Cargo.toml --all-targets`.
+- TypeScript typecheck, lint, build, and API behavior tests passed.
+- Local dev smoke test printed `http://127.0.0.1:5173`; timeout stopped the long-running server.
+- `git diff --check`, restore scans, filesystem scan, unsafe execution scan, readiness/release scan, changed-file guard, and no-roadmap-drift guard completed.
+- `./scripts/check.sh` requires a clean worktree, so the final pass is run after committing Phase 152 changes.
 
 ## Zero-drift checklist
-- [x] CHANGELOG entry matches Phase 151 implementation.
-- [x] Checklist reflects procedural truth for Phase 151.
-- [x] Roadmap files remain unchanged.
-- [x] Local session package remains local-only and non-production.
+- [x] CHANGELOG entry matches Phase 152 changes.
+- [x] Roadmap files are not modified.
+- [x] Forbidden restore/readiness labels are not introduced as approvals.
+- [x] Generated UI artifacts are not kept.

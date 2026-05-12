@@ -32,6 +32,15 @@ pub fn read_local_session_package(
     })
 }
 
+pub fn read_local_session_restore_projection(
+    caller_provided_path: &std::path::Path,
+) -> LocalSessionRestoreProjection {
+    match std::fs::read_to_string(caller_provided_path) {
+        Ok(content) => project_local_session_restore_from_payload(&content),
+        Err(_) => reject_local_session_restore_request(LocalSessionRestoreError::PackageReadFailed),
+    }
+}
+
 #[cfg(test)]
 mod phase_151_local_session_package_persistence_tests {
     use super::*;
@@ -84,6 +93,14 @@ mod phase_151_local_session_package_persistence_tests {
             .unwrap_err()
             .contains(&LocalSessionPackageValidationError::MalformedPackageInput));
         std::fs::remove_file(&malformed_path).unwrap();
+
+        let missing_path = std::env::temp_dir().join("ajentic-phase-152-missing.session");
+        let _ = std::fs::remove_file(&missing_path);
+        let restore = read_local_session_restore_projection(&missing_path);
+        assert_eq!(restore.status, LocalSessionRestoreStatus::RestoreRejected);
+        assert!(restore
+            .errors
+            .contains(&LocalSessionRestoreError::PackageReadFailed));
     }
 }
 
