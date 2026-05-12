@@ -2424,6 +2424,494 @@ pub fn validate_staged_candidate_conversion_proposal_for_phase_147(
     next
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorCandidateDecisionKind {
+    ApproveValidatedStagedProposal,
+    RejectValidatedStagedProposal,
+}
+
+impl OperatorCandidateDecisionKind {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ApproveValidatedStagedProposal => "approve_validated_staged_proposal",
+            Self::RejectValidatedStagedProposal => "reject_validated_staged_proposal",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorCandidateDecisionStatus {
+    NoOperatorDecision,
+    ApprovedValidatedStagedProposal,
+    RejectedValidatedStagedProposal,
+    RejectedOperatorDecisionRequest,
+    InvalidOperatorDecisionInput,
+}
+
+impl OperatorCandidateDecisionStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoOperatorDecision => "no_operator_decision",
+            Self::ApprovedValidatedStagedProposal => "approved_validated_staged_proposal",
+            Self::RejectedValidatedStagedProposal => "rejected_validated_staged_proposal",
+            Self::RejectedOperatorDecisionRequest => "rejected_operator_decision_request",
+            Self::InvalidOperatorDecisionInput => "invalid_operator_decision_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OperatorCandidateDecisionError {
+    NoStagedProposal,
+    StagedProposalNotValidated,
+    StagedProposalValidationRejected,
+    InvalidValidationInput,
+    SourceLinkageInconsistent,
+    TrustClaimRejected,
+    ProviderOutputApprovalClaimRejected,
+    ReadinessClaimRejected,
+    ReleaseClaimRejected,
+    DeploymentClaimRejected,
+    PublicUseClaimRejected,
+    ActionClaimRejected,
+    ExecutionClaimRejected,
+    PersistenceClaimRejected,
+    CandidateCreationClaimRejected,
+    CandidateMaterializationClaimRejected,
+}
+
+impl OperatorCandidateDecisionError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoStagedProposal => "no_staged_proposal",
+            Self::StagedProposalNotValidated => "staged_proposal_not_validated",
+            Self::StagedProposalValidationRejected => "staged_proposal_validation_rejected",
+            Self::InvalidValidationInput => "invalid_validation_input",
+            Self::SourceLinkageInconsistent => "source_linkage_inconsistent",
+            Self::TrustClaimRejected => "trust_claim_rejected",
+            Self::ProviderOutputApprovalClaimRejected => "provider_output_approval_claim_rejected",
+            Self::ReadinessClaimRejected => "readiness_claim_rejected",
+            Self::ReleaseClaimRejected => "release_claim_rejected",
+            Self::DeploymentClaimRejected => "deployment_claim_rejected",
+            Self::PublicUseClaimRejected => "public_use_claim_rejected",
+            Self::ActionClaimRejected => "action_claim_rejected",
+            Self::ExecutionClaimRejected => "execution_claim_rejected",
+            Self::PersistenceClaimRejected => "persistence_claim_rejected",
+            Self::CandidateCreationClaimRejected => "candidate_creation_claim_rejected",
+            Self::CandidateMaterializationClaimRejected => {
+                "candidate_materialization_claim_rejected"
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorCandidateDecisionRequest {
+    pub kind: OperatorCandidateDecisionKind,
+    pub staged_proposal_id: String,
+    pub provider_execution_result_id: String,
+    pub staged_proposal_validation_status: StagedCandidateConversionValidationStatus,
+    pub claims_trust: bool,
+    pub claims_provider_output_approval: bool,
+    pub claims_readiness: bool,
+    pub claims_release: bool,
+    pub claims_deployment: bool,
+    pub claims_public_use: bool,
+    pub claims_action: bool,
+    pub claims_execution: bool,
+    pub claims_persistence: bool,
+    pub claims_candidate_creation: bool,
+    pub claims_candidate_materialization: bool,
+}
+
+impl OperatorCandidateDecisionRequest {
+    pub fn approve(
+        staged_proposal_id: impl Into<String>,
+        provider_execution_result_id: impl Into<String>,
+    ) -> Self {
+        Self::new(
+            OperatorCandidateDecisionKind::ApproveValidatedStagedProposal,
+            staged_proposal_id,
+            provider_execution_result_id,
+        )
+    }
+
+    pub fn reject(
+        staged_proposal_id: impl Into<String>,
+        provider_execution_result_id: impl Into<String>,
+    ) -> Self {
+        Self::new(
+            OperatorCandidateDecisionKind::RejectValidatedStagedProposal,
+            staged_proposal_id,
+            provider_execution_result_id,
+        )
+    }
+
+    fn new(
+        kind: OperatorCandidateDecisionKind,
+        staged_proposal_id: impl Into<String>,
+        provider_execution_result_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            kind,
+            staged_proposal_id: staged_proposal_id.into(),
+            provider_execution_result_id: provider_execution_result_id.into(),
+            staged_proposal_validation_status:
+                StagedCandidateConversionValidationStatus::StagedProposalShapeValid,
+            claims_trust: false,
+            claims_provider_output_approval: false,
+            claims_readiness: false,
+            claims_release: false,
+            claims_deployment: false,
+            claims_public_use: false,
+            claims_action: false,
+            claims_execution: false,
+            claims_persistence: false,
+            claims_candidate_creation: false,
+            claims_candidate_materialization: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorCandidateDecisionRecord {
+    pub decision_id: String,
+    pub decision_kind: OperatorCandidateDecisionKind,
+    pub staged_proposal_id: String,
+    pub provider_execution_result_id: String,
+    pub staged_proposal_validation_status: StagedCandidateConversionValidationStatus,
+    pub decision_scope: String,
+    pub materialization_status: String,
+    pub trust_status: String,
+    pub readiness_status: String,
+    pub release_status: String,
+    pub deployment_status: String,
+    pub public_use_status: String,
+    pub action_status: String,
+    pub persistence_status: String,
+    pub replay_repair_status: String,
+    pub recovery_promotion_status: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperatorCandidateDecisionProjection {
+    pub status: OperatorCandidateDecisionStatus,
+    pub record: Option<OperatorCandidateDecisionRecord>,
+    pub error: Option<OperatorCandidateDecisionError>,
+    pub note: String,
+}
+
+pub fn initial_operator_candidate_decision_projection() -> OperatorCandidateDecisionProjection {
+    OperatorCandidateDecisionProjection {
+        status: OperatorCandidateDecisionStatus::NoOperatorDecision,
+        record: None,
+        error: None,
+        note: "No operator candidate decision has been recorded. Decision applies only to validated staged proposal when present; no candidate output is created in Phase 149.".to_string(),
+    }
+}
+
+fn deterministic_operator_candidate_decision_id(
+    kind: OperatorCandidateDecisionKind,
+    staged_proposal_id: &str,
+    provider_execution_result_id: &str,
+    validation_status: StagedCandidateConversionValidationStatus,
+) -> String {
+    let input = format!(
+        "{}|{}|{}|{}|phase_149",
+        kind.code(),
+        staged_proposal_id,
+        provider_execution_result_id,
+        validation_status.code()
+    );
+    let mut accumulator: u32 = 2_166_136_261;
+    for byte in input.as_bytes() {
+        accumulator ^= u32::from(*byte);
+        accumulator = accumulator.wrapping_mul(16_777_619);
+    }
+    format!("operator-candidate-decision-{accumulator:08x}")
+}
+
+pub fn validate_operator_candidate_decision_request(
+    state: &LocalOperatorShellState,
+    request: &OperatorCandidateDecisionRequest,
+) -> Result<(), OperatorCandidateDecisionError> {
+    if request.claims_trust {
+        return Err(OperatorCandidateDecisionError::TrustClaimRejected);
+    }
+    if request.claims_provider_output_approval {
+        return Err(OperatorCandidateDecisionError::ProviderOutputApprovalClaimRejected);
+    }
+    if request.claims_readiness {
+        return Err(OperatorCandidateDecisionError::ReadinessClaimRejected);
+    }
+    if request.claims_release {
+        return Err(OperatorCandidateDecisionError::ReleaseClaimRejected);
+    }
+    if request.claims_deployment {
+        return Err(OperatorCandidateDecisionError::DeploymentClaimRejected);
+    }
+    if request.claims_public_use {
+        return Err(OperatorCandidateDecisionError::PublicUseClaimRejected);
+    }
+    if request.claims_action {
+        return Err(OperatorCandidateDecisionError::ActionClaimRejected);
+    }
+    if request.claims_execution {
+        return Err(OperatorCandidateDecisionError::ExecutionClaimRejected);
+    }
+    if request.claims_persistence {
+        return Err(OperatorCandidateDecisionError::PersistenceClaimRejected);
+    }
+    if request.claims_candidate_creation {
+        return Err(OperatorCandidateDecisionError::CandidateCreationClaimRejected);
+    }
+    if request.claims_candidate_materialization {
+        return Err(OperatorCandidateDecisionError::CandidateMaterializationClaimRejected);
+    }
+    let Some(proposal) = state.staged_candidate_conversion_proposal.proposal.as_ref() else {
+        return Err(OperatorCandidateDecisionError::NoStagedProposal);
+    };
+    match state.staged_candidate_conversion_validation.status {
+        StagedCandidateConversionValidationStatus::NotValidated => {
+            return Err(OperatorCandidateDecisionError::StagedProposalNotValidated)
+        }
+        StagedCandidateConversionValidationStatus::RejectedStagedProposal => {
+            return Err(OperatorCandidateDecisionError::StagedProposalValidationRejected)
+        }
+        StagedCandidateConversionValidationStatus::InvalidValidationInput => {
+            return Err(OperatorCandidateDecisionError::InvalidValidationInput)
+        }
+        StagedCandidateConversionValidationStatus::StagedProposalShapeValid => {}
+    }
+    if request.staged_proposal_validation_status
+        != StagedCandidateConversionValidationStatus::StagedProposalShapeValid
+        || request.staged_proposal_id != proposal.proposal_id
+        || Some(&request.staged_proposal_id)
+            != state
+                .staged_candidate_conversion_validation
+                .proposal_id
+                .as_ref()
+        || request.provider_execution_result_id != proposal.source_execution_result_id
+        || Some(&request.provider_execution_result_id)
+            != state
+                .staged_candidate_conversion_validation
+                .source_execution_result_id
+                .as_ref()
+        || state
+            .staged_candidate_conversion_validation
+            .deterministic_linkage_status
+            != "source_linkage_validated"
+    {
+        return Err(OperatorCandidateDecisionError::SourceLinkageInconsistent);
+    }
+    let reprojected = project_staged_candidate_conversion_validation(
+        state,
+        &StagedCandidateConversionValidationRequest {
+            proposal_id: Some(proposal.proposal_id.clone()),
+        },
+    );
+    if reprojected != state.staged_candidate_conversion_validation {
+        return Err(OperatorCandidateDecisionError::SourceLinkageInconsistent);
+    }
+    Ok(())
+}
+
+pub fn project_operator_candidate_decision(
+    request: &OperatorCandidateDecisionRequest,
+) -> OperatorCandidateDecisionProjection {
+    let status = match request.kind {
+        OperatorCandidateDecisionKind::ApproveValidatedStagedProposal => {
+            OperatorCandidateDecisionStatus::ApprovedValidatedStagedProposal
+        }
+        OperatorCandidateDecisionKind::RejectValidatedStagedProposal => {
+            OperatorCandidateDecisionStatus::RejectedValidatedStagedProposal
+        }
+    };
+    let record = OperatorCandidateDecisionRecord {
+        decision_id: deterministic_operator_candidate_decision_id(
+            request.kind,
+            &request.staged_proposal_id,
+            &request.provider_execution_result_id,
+            request.staged_proposal_validation_status,
+        ),
+        decision_kind: request.kind,
+        staged_proposal_id: request.staged_proposal_id.clone(),
+        provider_execution_result_id: request.provider_execution_result_id.clone(),
+        staged_proposal_validation_status: request.staged_proposal_validation_status,
+        decision_scope: "decision_scope_validated_staged_proposal_only".to_string(),
+        materialization_status: "candidate_materialization_not_performed".to_string(),
+        trust_status: "provider_output_remains_untrusted".to_string(),
+        readiness_status: "no_readiness_effect".to_string(),
+        release_status: "no_release_effect".to_string(),
+        deployment_status: "no_deployment_effect".to_string(),
+        public_use_status: "no_public_use_effect".to_string(),
+        action_status: "no_action_effect".to_string(),
+        persistence_status: "no_persistence_effect".to_string(),
+        replay_repair_status: "no_replay_repair_effect".to_string(),
+        recovery_promotion_status: "no_recovery_promotion_effect".to_string(),
+    };
+    OperatorCandidateDecisionProjection {
+        status,
+        record: Some(record),
+        error: None,
+        note: "This decision applies only to the validated staged proposal. No candidate output is created in Phase 149. Provider output remains untrusted and not approved. This decision does not approve readiness, release, deployment, or public use.".to_string(),
+    }
+}
+
+pub fn rejected_operator_candidate_decision_projection(
+    error: OperatorCandidateDecisionError,
+) -> OperatorCandidateDecisionProjection {
+    OperatorCandidateDecisionProjection {
+        status: OperatorCandidateDecisionStatus::RejectedOperatorDecisionRequest,
+        record: None,
+        error: Some(error),
+        note: "Operator candidate decision request rejected; authoritative shell state is preserved and no candidate materialization is performed.".to_string(),
+    }
+}
+
+pub fn submit_operator_candidate_decision(
+    state: &LocalOperatorShellState,
+    request: OperatorCandidateDecisionRequest,
+) -> Result<LocalOperatorShellState, OperatorCandidateDecisionError> {
+    validate_operator_candidate_decision_request(state, &request)?;
+    let mut next = state.clone();
+    next.operator_candidate_decision = project_operator_candidate_decision(&request);
+    next.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&next);
+    Ok(next)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Phase150CodeProductionHandoff {
+    pub handoff_id: String,
+    pub status: String,
+    pub implemented_capability_evidence: Vec<String>,
+    pub remaining_production_grade_gaps: Vec<String>,
+    pub remap_recommendations: Vec<String>,
+    pub phase_149_roadmap_edit_status: String,
+}
+
+pub fn phase_150_implemented_capabilities(state: &LocalOperatorShellState) -> Vec<String> {
+    vec![
+        format!(
+            "provider configuration: {}",
+            state.provider_configuration.status.code()
+        ),
+        format!(
+            "deterministic provider execution: {}",
+            state.provider_execution.projection_status.code()
+        ),
+        format!(
+            "provider execution result projection: {}",
+            state
+                .provider_execution
+                .result
+                .as_ref()
+                .map(|r| r.result_id.as_str())
+                .unwrap_or("none")
+        ),
+        format!(
+            "provider output validation: {}",
+            state.provider_output_validation.status.code()
+        ),
+        format!(
+            "provider output review: {}",
+            state.provider_output_validation.reviewability_status.code()
+        ),
+        format!(
+            "staged candidate-conversion proposal: {}",
+            state.staged_candidate_conversion_proposal.status.code()
+        ),
+        format!(
+            "staged proposal validation: {}",
+            state.staged_candidate_conversion_validation.status.code()
+        ),
+        format!(
+            "candidate review surface: {}",
+            if state.staged_candidate_conversion_validation.status
+                == StagedCandidateConversionValidationStatus::StagedProposalShapeValid
+            {
+                "validated_staged_proposal_review"
+            } else {
+                "not_available"
+            }
+        ),
+        format!(
+            "operator decision boundary: {}",
+            state.operator_candidate_decision.status.code()
+        ),
+    ]
+}
+
+pub fn phase_150_remaining_production_gaps() -> Vec<String> {
+    vec![
+        "local session persistence".to_string(),
+        "session restore".to_string(),
+        "real adapter contract".to_string(),
+        "real provider invocation".to_string(),
+        "candidate materialization".to_string(),
+        "complete local operator workflow".to_string(),
+        "run history".to_string(),
+        "export package".to_string(),
+        "controlled trial readiness".to_string(),
+        "deployment/package path".to_string(),
+    ]
+}
+
+pub fn derive_phase_150_code_production_handoff(
+    state: &LocalOperatorShellState,
+) -> Phase150CodeProductionHandoff {
+    let implemented = phase_150_implemented_capabilities(state);
+    let gaps = phase_150_remaining_production_gaps();
+    Phase150CodeProductionHandoff {
+        handoff_id: format!(
+            "phase-150-code-production-handoff-{}-{}-{}",
+            state.provider_configuration.status.code(),
+            state.staged_candidate_conversion_validation.status.code(),
+            state.operator_candidate_decision.status.code()
+        ),
+        status: "phase_150_code_production_handoff".to_string(),
+        implemented_capability_evidence: implemented,
+        remaining_production_grade_gaps: gaps,
+        remap_recommendations: vec![
+            "Phase 150 should perform an aggressive production-path remap.".to_string(),
+            "Phase 150 should group larger product capability phases.".to_string(),
+            "Safety checks remain embedded in implementation phases.".to_string(),
+            "Phase 150 is the roadmap/changelog alignment phase.".to_string(),
+            "Phase 149 does not edit roadmap files.".to_string(),
+        ],
+        phase_149_roadmap_edit_status: "phase_149_does_not_edit_roadmap_files".to_string(),
+    }
+}
+
+pub fn initial_phase_150_code_production_handoff() -> Phase150CodeProductionHandoff {
+    Phase150CodeProductionHandoff {
+        handoff_id:
+            "phase-150-code-production-handoff-not_configured-not_validated-no_operator_decision"
+                .to_string(),
+        status: "phase_150_code_production_handoff".to_string(),
+        implemented_capability_evidence: vec![
+            "provider configuration: not_configured".to_string(),
+            "deterministic provider execution: disabled_not_executed".to_string(),
+            "provider execution result projection: none".to_string(),
+            "provider output validation: not_validated".to_string(),
+            "provider output review: not_reviewable".to_string(),
+            "staged candidate-conversion proposal: no_proposal".to_string(),
+            "staged proposal validation: not_validated".to_string(),
+            "candidate review surface: not_available".to_string(),
+            "operator decision boundary: no_operator_decision".to_string(),
+        ],
+        remaining_production_grade_gaps: phase_150_remaining_production_gaps(),
+        remap_recommendations: vec![
+            "Phase 150 should perform an aggressive production-path remap.".to_string(),
+            "Phase 150 should group larger product capability phases.".to_string(),
+            "Safety checks remain embedded in implementation phases.".to_string(),
+            "Phase 150 is the roadmap/changelog alignment phase.".to_string(),
+            "Phase 149 does not edit roadmap files.".to_string(),
+        ],
+        phase_149_roadmap_edit_status: "phase_149_does_not_edit_roadmap_files".to_string(),
+    }
+}
+
 fn deterministic_staged_candidate_conversion_proposal_id(
     execution_result_id: &str,
     validation: &LocalProviderOutputValidationProjection,
@@ -3122,6 +3610,8 @@ pub struct LocalOperatorShellState {
     pub provider_output_validation: LocalProviderOutputValidationProjection,
     pub staged_candidate_conversion_proposal: StagedCandidateConversionProposalProjection,
     pub staged_candidate_conversion_validation: StagedCandidateConversionValidationProjection,
+    pub operator_candidate_decision: OperatorCandidateDecisionProjection,
+    pub phase_150_code_production_handoff: Phase150CodeProductionHandoff,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -3325,7 +3815,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         decision_replay: replay,
     };
     let export = derive_local_session_evidence_export("idle_local_harness", true, &run, &ledger);
-    LocalOperatorShellState {
+    let mut state = LocalOperatorShellState {
         harness_status: "idle_local_harness".to_string(),
         non_production: true,
         run,
@@ -3338,7 +3828,11 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
             initial_staged_candidate_conversion_proposal_projection(),
         staged_candidate_conversion_validation:
             initial_staged_candidate_conversion_validation_projection(),
-    }
+        operator_candidate_decision: initial_operator_candidate_decision_projection(),
+        phase_150_code_production_handoff: initial_phase_150_code_production_handoff(),
+    };
+    state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
+    state
 }
 
 pub fn start_deterministic_stub_run(state: &LocalOperatorShellState) -> LocalOperatorShellState {
@@ -3479,6 +3973,7 @@ pub enum LocalOperatorShellRequest {
     ExecuteProvider(LocalProviderExecutionRequest),
     CreateStagedCandidateConversionProposal(StagedCandidateConversionProposalRequest),
     ValidateStagedCandidateConversionProposal(StagedCandidateConversionValidationRequest),
+    SubmitOperatorCandidateDecision(OperatorCandidateDecisionRequest),
     Forbidden(LocalOperatorShellForbiddenRequest),
 }
 
@@ -3604,6 +4099,15 @@ pub fn validate_local_staged_candidate_conversion_proposal(
     transport.step(LocalOperatorShellRequest::ValidateStagedCandidateConversionProposal(request))
 }
 
+pub fn submit_local_operator_candidate_decision(
+    transport: &mut LocalOperatorShellTransport,
+    request: OperatorCandidateDecisionRequest,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::SubmitOperatorCandidateDecision(
+        request,
+    ))
+}
+
 pub fn local_operator_shell_transport_step(
     state: &LocalOperatorShellState,
     request: LocalOperatorShellRequest,
@@ -3645,13 +4149,29 @@ pub fn local_operator_shell_transport_step(
             }
         }
         LocalOperatorShellRequest::ValidateStagedCandidateConversionProposal(request) => {
-            let next = validate_staged_candidate_conversion_proposal_for_phase_147(state, request);
+            let mut next =
+                validate_staged_candidate_conversion_proposal_for_phase_147(state, request);
+            next.phase_150_code_production_handoff =
+                derive_phase_150_code_production_handoff(&next);
             if next.staged_candidate_conversion_validation.status
                 == StagedCandidateConversionValidationStatus::StagedProposalShapeValid
             {
                 accepted("staged_candidate_conversion_validation_completed", next)
             } else {
                 rejected("staged_candidate_conversion_validation_rejected", next)
+            }
+        }
+        LocalOperatorShellRequest::SubmitOperatorCandidateDecision(request) => {
+            match submit_operator_candidate_decision(state, request) {
+                Ok(next) => accepted("operator_candidate_decision_recorded", next),
+                Err(error) => {
+                    let mut response_state = state.clone();
+                    response_state.operator_candidate_decision =
+                        rejected_operator_candidate_decision_projection(error);
+                    response_state.phase_150_code_production_handoff =
+                        derive_phase_150_code_production_handoff(&response_state);
+                    rejected(error.code(), response_state)
+                }
             }
         }
         LocalOperatorShellRequest::Forbidden(forbidden) => {
@@ -5591,6 +6111,14 @@ mod tests {
         .unwrap()
     }
 
+    fn phase_149_validated_decision_state() -> LocalOperatorShellState {
+        let state = phase_147_validated_state();
+        validate_staged_candidate_conversion_proposal_for_phase_147(
+            &state,
+            StagedCandidateConversionValidationRequest::existing_staged_proposal(),
+        )
+    }
+
     #[test]
     fn phase_147_initial_validation_projection_is_not_validated() {
         let state = initial_local_operator_shell_state();
@@ -5933,5 +6461,253 @@ mod tests {
             );
             assert!(projection.reasons.contains(&reason), "missing {reason:?}");
         }
+    }
+
+    #[test]
+    fn phase_149_initial_decision_and_handoff_are_projected() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.operator_candidate_decision.status,
+            OperatorCandidateDecisionStatus::NoOperatorDecision
+        );
+        assert!(state
+            .phase_150_code_production_handoff
+            .implemented_capability_evidence
+            .iter()
+            .any(|item| item.contains("operator decision boundary: no_operator_decision")));
+        assert!(state
+            .phase_150_code_production_handoff
+            .remaining_production_grade_gaps
+            .contains(&"local session persistence".to_string()));
+    }
+
+    #[test]
+    fn phase_149_accepts_approve_and_reject_for_validated_staged_proposal() {
+        let state = phase_149_validated_decision_state();
+        let proposal = state
+            .staged_candidate_conversion_proposal
+            .proposal
+            .as_ref()
+            .unwrap();
+        for (request, expected) in [
+            (
+                OperatorCandidateDecisionRequest::approve(
+                    &proposal.proposal_id,
+                    &proposal.source_execution_result_id,
+                ),
+                OperatorCandidateDecisionStatus::ApprovedValidatedStagedProposal,
+            ),
+            (
+                OperatorCandidateDecisionRequest::reject(
+                    &proposal.proposal_id,
+                    &proposal.source_execution_result_id,
+                ),
+                OperatorCandidateDecisionStatus::RejectedValidatedStagedProposal,
+            ),
+        ] {
+            let next = submit_operator_candidate_decision(&state, request).unwrap();
+            let record = next.operator_candidate_decision.record.as_ref().unwrap();
+            assert_eq!(next.operator_candidate_decision.status, expected);
+            assert_eq!(
+                record.decision_scope,
+                "decision_scope_validated_staged_proposal_only"
+            );
+            assert_eq!(
+                record.materialization_status,
+                "candidate_materialization_not_performed"
+            );
+            assert_eq!(record.trust_status, "provider_output_remains_untrusted");
+            assert_eq!(record.readiness_status, "no_readiness_effect");
+            assert_eq!(record.release_status, "no_release_effect");
+            assert_eq!(record.deployment_status, "no_deployment_effect");
+            assert_eq!(record.public_use_status, "no_public_use_effect");
+            assert_eq!(record.action_status, "no_action_effect");
+            assert_eq!(record.persistence_status, "no_persistence_effect");
+            assert_eq!(record.replay_repair_status, "no_replay_repair_effect");
+            assert_eq!(
+                record.recovery_promotion_status,
+                "no_recovery_promotion_effect"
+            );
+            assert_eq!(next.run.candidate, state.run.candidate);
+            assert_eq!(next.provider_configuration, state.provider_configuration);
+            assert_eq!(next.provider_execution, state.provider_execution);
+            assert_eq!(
+                next.provider_output_validation,
+                state.provider_output_validation
+            );
+            assert_eq!(
+                next.staged_candidate_conversion_proposal,
+                state.staged_candidate_conversion_proposal
+            );
+            assert_eq!(
+                next.staged_candidate_conversion_validation,
+                state.staged_candidate_conversion_validation
+            );
+            assert_eq!(
+                next.decision_ledger.records.len(),
+                state.decision_ledger.records.len()
+            );
+        }
+    }
+
+    #[test]
+    fn phase_149_rejects_invalid_decision_preconditions_and_claims() {
+        let state = phase_149_validated_decision_state();
+        let proposal = state
+            .staged_candidate_conversion_proposal
+            .proposal
+            .as_ref()
+            .unwrap();
+        assert_eq!(
+            validate_operator_candidate_decision_request(
+                &initial_local_operator_shell_state(),
+                &OperatorCandidateDecisionRequest::approve("missing", "missing")
+            ),
+            Err(OperatorCandidateDecisionError::NoStagedProposal)
+        );
+        let mut not_validated = state.clone();
+        not_validated.staged_candidate_conversion_validation =
+            initial_staged_candidate_conversion_validation_projection();
+        assert_eq!(
+            validate_operator_candidate_decision_request(
+                &not_validated,
+                &OperatorCandidateDecisionRequest::approve(
+                    &proposal.proposal_id,
+                    &proposal.source_execution_result_id
+                )
+            ),
+            Err(OperatorCandidateDecisionError::StagedProposalNotValidated)
+        );
+        let mut rejected = state.clone();
+        rejected.staged_candidate_conversion_validation.status =
+            StagedCandidateConversionValidationStatus::RejectedStagedProposal;
+        assert_eq!(
+            validate_operator_candidate_decision_request(
+                &rejected,
+                &OperatorCandidateDecisionRequest::approve(
+                    &proposal.proposal_id,
+                    &proposal.source_execution_result_id
+                )
+            ),
+            Err(OperatorCandidateDecisionError::StagedProposalValidationRejected)
+        );
+        let mut invalid = state.clone();
+        invalid.staged_candidate_conversion_validation.status =
+            StagedCandidateConversionValidationStatus::InvalidValidationInput;
+        assert_eq!(
+            validate_operator_candidate_decision_request(
+                &invalid,
+                &OperatorCandidateDecisionRequest::approve(
+                    &proposal.proposal_id,
+                    &proposal.source_execution_result_id
+                )
+            ),
+            Err(OperatorCandidateDecisionError::InvalidValidationInput)
+        );
+        assert_eq!(
+            validate_operator_candidate_decision_request(
+                &state,
+                &OperatorCandidateDecisionRequest::approve(
+                    "drift",
+                    &proposal.source_execution_result_id
+                )
+            ),
+            Err(OperatorCandidateDecisionError::SourceLinkageInconsistent)
+        );
+        let claim_cases = [
+            ("trust", OperatorCandidateDecisionError::TrustClaimRejected),
+            (
+                "provider",
+                OperatorCandidateDecisionError::ProviderOutputApprovalClaimRejected,
+            ),
+            (
+                "readiness",
+                OperatorCandidateDecisionError::ReadinessClaimRejected,
+            ),
+            (
+                "release",
+                OperatorCandidateDecisionError::ReleaseClaimRejected,
+            ),
+            (
+                "deployment",
+                OperatorCandidateDecisionError::DeploymentClaimRejected,
+            ),
+            (
+                "public",
+                OperatorCandidateDecisionError::PublicUseClaimRejected,
+            ),
+            (
+                "action",
+                OperatorCandidateDecisionError::ActionClaimRejected,
+            ),
+            (
+                "execution",
+                OperatorCandidateDecisionError::ExecutionClaimRejected,
+            ),
+            (
+                "persistence",
+                OperatorCandidateDecisionError::PersistenceClaimRejected,
+            ),
+            (
+                "creation",
+                OperatorCandidateDecisionError::CandidateCreationClaimRejected,
+            ),
+            (
+                "materialization",
+                OperatorCandidateDecisionError::CandidateMaterializationClaimRejected,
+            ),
+        ];
+        for (claim, expected) in claim_cases {
+            let mut request = OperatorCandidateDecisionRequest::approve(
+                &proposal.proposal_id,
+                &proposal.source_execution_result_id,
+            );
+            match claim {
+                "trust" => request.claims_trust = true,
+                "provider" => request.claims_provider_output_approval = true,
+                "readiness" => request.claims_readiness = true,
+                "release" => request.claims_release = true,
+                "deployment" => request.claims_deployment = true,
+                "public" => request.claims_public_use = true,
+                "action" => request.claims_action = true,
+                "execution" => request.claims_execution = true,
+                "persistence" => request.claims_persistence = true,
+                "creation" => request.claims_candidate_creation = true,
+                "materialization" => request.claims_candidate_materialization = true,
+                _ => unreachable!(),
+            }
+            assert_eq!(
+                validate_operator_candidate_decision_request(&state, &request),
+                Err(expected)
+            );
+        }
+    }
+
+    #[test]
+    fn phase_149_decision_and_handoff_are_deterministic_and_non_mutating() {
+        let state = phase_149_validated_decision_state();
+        let proposal = state
+            .staged_candidate_conversion_proposal
+            .proposal
+            .as_ref()
+            .unwrap();
+        let request = OperatorCandidateDecisionRequest::approve(
+            &proposal.proposal_id,
+            &proposal.source_execution_result_id,
+        );
+        let first = project_operator_candidate_decision(&request);
+        let second = project_operator_candidate_decision(&request);
+        assert_eq!(first, second);
+        let handoff_first = derive_phase_150_code_production_handoff(&state);
+        let handoff_second = derive_phase_150_code_production_handoff(&state);
+        assert_eq!(handoff_first, handoff_second);
+        assert_eq!(state, phase_149_validated_decision_state());
+        assert!(handoff_first
+            .implemented_capability_evidence
+            .iter()
+            .any(|item| item.contains("operator decision boundary")));
+        assert!(handoff_first
+            .remaining_production_grade_gaps
+            .contains(&"candidate materialization".to_string()));
     }
 }

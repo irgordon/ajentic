@@ -1124,6 +1124,198 @@ export function validateStagedCandidateConversionProposalForPhase147(
   };
 }
 
+export type OperatorCandidateDecisionKind = "approve_validated_staged_proposal" | "reject_validated_staged_proposal";
+export type OperatorCandidateDecisionStatus = "no_operator_decision" | "approved_validated_staged_proposal" | "rejected_validated_staged_proposal" | "rejected_operator_decision_request" | "invalid_operator_decision_input";
+export type OperatorCandidateDecisionError =
+  | "no_staged_proposal"
+  | "staged_proposal_not_validated"
+  | "staged_proposal_validation_rejected"
+  | "invalid_validation_input"
+  | "source_linkage_inconsistent"
+  | "trust_claim_rejected"
+  | "provider_output_approval_claim_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "action_claim_rejected"
+  | "execution_claim_rejected"
+  | "persistence_claim_rejected"
+  | "candidate_creation_claim_rejected"
+  | "candidate_materialization_claim_rejected";
+
+export type OperatorCandidateDecisionRequest = Readonly<{
+  kind: OperatorCandidateDecisionKind;
+  stagedProposalId: string;
+  providerExecutionResultId: string;
+  stagedProposalValidationStatus: StagedCandidateConversionValidationStatus;
+  claimsTrust?: boolean;
+  claimsProviderOutputApproval?: boolean;
+  claimsReadiness?: boolean;
+  claimsRelease?: boolean;
+  claimsDeployment?: boolean;
+  claimsPublicUse?: boolean;
+  claimsAction?: boolean;
+  claimsExecution?: boolean;
+  claimsPersistence?: boolean;
+  claimsCandidateCreation?: boolean;
+  claimsCandidateMaterialization?: boolean;
+}>;
+
+export type OperatorCandidateDecisionRecord = Readonly<{
+  decisionId: string;
+  decisionKind: OperatorCandidateDecisionKind;
+  stagedProposalId: string;
+  providerExecutionResultId: string;
+  stagedProposalValidationStatus: StagedCandidateConversionValidationStatus;
+  decisionScope: "decision_scope_validated_staged_proposal_only";
+  materializationStatus: "candidate_materialization_not_performed";
+  trustStatus: "provider_output_remains_untrusted";
+  readinessStatus: "no_readiness_effect";
+  releaseStatus: "no_release_effect";
+  deploymentStatus: "no_deployment_effect";
+  publicUseStatus: "no_public_use_effect";
+  actionStatus: "no_action_effect";
+  persistenceStatus: "no_persistence_effect";
+  replayRepairStatus: "no_replay_repair_effect";
+  recoveryPromotionStatus: "no_recovery_promotion_effect";
+}>;
+
+export type OperatorCandidateDecisionProjection = Readonly<{
+  status: OperatorCandidateDecisionStatus;
+  record: OperatorCandidateDecisionRecord | null;
+  error: OperatorCandidateDecisionError | null;
+  note: string;
+}>;
+
+export type Phase150CodeProductionHandoff = Readonly<{
+  handoffId: string;
+  status: "phase_150_code_production_handoff";
+  implementedCapabilityEvidence: readonly string[];
+  remainingProductionGradeGaps: readonly string[];
+  remapRecommendations: readonly string[];
+  phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files";
+}>;
+
+export function initialOperatorCandidateDecisionProjection(): OperatorCandidateDecisionProjection {
+  return {
+    status: "no_operator_decision",
+    record: null,
+    error: null,
+    note: "No operator candidate decision has been recorded. Decision applies only to validated staged proposal when present; no candidate output is created in Phase 149."
+  };
+}
+
+function deterministicOperatorCandidateDecisionId(request: OperatorCandidateDecisionRequest): string {
+  const input = `${request.kind}|${request.stagedProposalId}|${request.providerExecutionResultId}|${request.stagedProposalValidationStatus}|phase_149`;
+  let accumulator = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    accumulator ^= input.charCodeAt(index);
+    accumulator = Math.imul(accumulator, 16777619) >>> 0;
+  }
+  return `operator-candidate-decision-${accumulator.toString(16).padStart(8, "0")}`;
+}
+
+export function validateOperatorCandidateDecisionRequest(state: LocalOperatorShellState, request: OperatorCandidateDecisionRequest): OperatorCandidateDecisionError | null {
+  if (request.claimsTrust) return "trust_claim_rejected";
+  if (request.claimsProviderOutputApproval) return "provider_output_approval_claim_rejected";
+  if (request.claimsReadiness) return "readiness_claim_rejected";
+  if (request.claimsRelease) return "release_claim_rejected";
+  if (request.claimsDeployment) return "deployment_claim_rejected";
+  if (request.claimsPublicUse) return "public_use_claim_rejected";
+  if (request.claimsAction) return "action_claim_rejected";
+  if (request.claimsExecution) return "execution_claim_rejected";
+  if (request.claimsPersistence) return "persistence_claim_rejected";
+  if (request.claimsCandidateCreation) return "candidate_creation_claim_rejected";
+  if (request.claimsCandidateMaterialization) return "candidate_materialization_claim_rejected";
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) return "no_staged_proposal";
+  if (state.stagedCandidateConversionValidation.status === "not_validated") return "staged_proposal_not_validated";
+  if (state.stagedCandidateConversionValidation.status === "rejected_staged_proposal") return "staged_proposal_validation_rejected";
+  if (state.stagedCandidateConversionValidation.status === "invalid_validation_input") return "invalid_validation_input";
+  if (request.stagedProposalValidationStatus !== "staged_proposal_shape_valid") return "source_linkage_inconsistent";
+  if (request.stagedProposalId !== proposal.proposalId || request.providerExecutionResultId !== proposal.sourceExecutionResultId) return "source_linkage_inconsistent";
+  if (state.stagedCandidateConversionValidation.proposalId !== request.stagedProposalId || state.stagedCandidateConversionValidation.sourceExecutionResultId !== request.providerExecutionResultId) return "source_linkage_inconsistent";
+  if (state.stagedCandidateConversionValidation.deterministicLinkageStatus !== "source_linkage_validated") return "source_linkage_inconsistent";
+  const reprojected = projectStagedCandidateConversionValidation(state, { proposalId: proposal.proposalId });
+  if (JSON.stringify(reprojected) !== JSON.stringify(state.stagedCandidateConversionValidation)) return "source_linkage_inconsistent";
+  return null;
+}
+
+export function projectOperatorCandidateDecision(request: OperatorCandidateDecisionRequest): OperatorCandidateDecisionProjection {
+  const status: OperatorCandidateDecisionStatus = request.kind === "approve_validated_staged_proposal" ? "approved_validated_staged_proposal" : "rejected_validated_staged_proposal";
+  return {
+    status,
+    error: null,
+    record: {
+      decisionId: deterministicOperatorCandidateDecisionId(request),
+      decisionKind: request.kind,
+      stagedProposalId: request.stagedProposalId,
+      providerExecutionResultId: request.providerExecutionResultId,
+      stagedProposalValidationStatus: request.stagedProposalValidationStatus,
+      decisionScope: "decision_scope_validated_staged_proposal_only",
+      materializationStatus: "candidate_materialization_not_performed",
+      trustStatus: "provider_output_remains_untrusted",
+      readinessStatus: "no_readiness_effect",
+      releaseStatus: "no_release_effect",
+      deploymentStatus: "no_deployment_effect",
+      publicUseStatus: "no_public_use_effect",
+      actionStatus: "no_action_effect",
+      persistenceStatus: "no_persistence_effect",
+      replayRepairStatus: "no_replay_repair_effect",
+      recoveryPromotionStatus: "no_recovery_promotion_effect"
+    },
+    note: "This decision applies only to the validated staged proposal. No candidate output is created in Phase 149. Provider output remains untrusted and not approved. This decision does not approve readiness, release, deployment, or public use."
+  };
+}
+
+export function rejectedOperatorCandidateDecisionProjection(error: OperatorCandidateDecisionError): OperatorCandidateDecisionProjection {
+  return {
+    status: "rejected_operator_decision_request",
+    record: null,
+    error,
+    note: "Operator candidate decision request rejected; authoritative shell state is preserved and no candidate materialization is performed."
+  };
+}
+
+export function submitOperatorCandidateDecision(state: LocalOperatorShellState, request: OperatorCandidateDecisionRequest): LocalOperatorIntentResult {
+  const error = validateOperatorCandidateDecisionRequest(state, request);
+  if (error) return { status: "rejected", reason: error, state: { ...state, operatorCandidateDecision: rejectedOperatorCandidateDecisionProjection(error), phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff({ ...state, operatorCandidateDecision: rejectedOperatorCandidateDecisionProjection(error) }) } };
+  const next = { ...state, operatorCandidateDecision: projectOperatorCandidateDecision(request) };
+  return { status: "accepted", reason: "operator_candidate_decision_recorded", state: { ...next, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(next) } };
+}
+
+export function phase150RemainingProductionGaps(): readonly string[] {
+  return ["local session persistence", "session restore", "real adapter contract", "real provider invocation", "candidate materialization", "complete local operator workflow", "run history", "export package", "controlled trial readiness", "deployment/package path"];
+}
+
+export function derivePhase150CodeProductionHandoff(state: LocalOperatorShellState): Phase150CodeProductionHandoff {
+  return {
+    handoffId: `phase-150-code-production-handoff-${state.providerConfiguration.status}-${state.stagedCandidateConversionValidation.status}-${state.operatorCandidateDecision.status}`,
+    status: "phase_150_code_production_handoff",
+    implementedCapabilityEvidence: [
+      `provider configuration: ${state.providerConfiguration.status}`,
+      `deterministic provider execution: ${state.providerExecution.projectionStatus}`,
+      `provider execution result projection: ${state.providerExecution.result?.resultId ?? "none"}`,
+      `provider output validation: ${state.providerOutputValidation.status}`,
+      `provider output review: ${state.providerOutputValidation.reviewabilityStatus}`,
+      `staged candidate-conversion proposal: ${state.stagedCandidateConversionProposal.status}`,
+      `staged proposal validation: ${state.stagedCandidateConversionValidation.status}`,
+      `candidate review surface: ${state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "validated_staged_proposal_review" : "not_available"}`,
+      `operator decision boundary: ${state.operatorCandidateDecision.status}`
+    ],
+    remainingProductionGradeGaps: phase150RemainingProductionGaps(),
+    remapRecommendations: [
+      "Phase 150 should perform an aggressive production-path remap.",
+      "Phase 150 should group larger product capability phases.",
+      "Safety checks remain embedded in implementation phases.",
+      "Phase 150 is the roadmap/changelog alignment phase.",
+      "Phase 149 does not edit roadmap files."
+    ],
+    phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
+  };
+}
+
 function deterministicStagedCandidateConversionProposalId(executionResultId: string, validation: LocalProviderOutputValidationProjection): string {
   const input = `${validation.providerKind}|${executionResultId}|${validation.status}|${validation.reviewabilityStatus}|${validation.candidateBoundaryStatus}|phase_146`;
   let accumulator = 2166136261;
@@ -1477,6 +1669,8 @@ export type LocalOperatorShellState = Readonly<{
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
   stagedCandidateConversionValidation: StagedCandidateConversionValidationProjection;
+  operatorCandidateDecision: OperatorCandidateDecisionProjection;
+  phase150CodeProductionHandoff: Phase150CodeProductionHandoff;
 }>;
 
 
@@ -1575,7 +1769,7 @@ export type LocalOperatorUiForbiddenAction =
 export function initialLocalOperatorShellState(): LocalOperatorShellState {
   const decisionLedger = initialLocalDecisionLedger();
   const decisionReplay = initialLocalDecisionReplayProjection();
-  return attachLocalSessionEvidenceExport({
+  const state = attachLocalSessionEvidenceExport({
     harnessStatus: "idle_local_harness",
     nonProduction: true,
     run: {
@@ -1595,8 +1789,18 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
     stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection(),
-    stagedCandidateConversionValidation: initialStagedCandidateConversionValidationProjection()
+    stagedCandidateConversionValidation: initialStagedCandidateConversionValidationProjection(),
+    operatorCandidateDecision: initialOperatorCandidateDecisionProjection(),
+    phase150CodeProductionHandoff: {
+      handoffId: "phase-150-code-production-handoff-not_configured-not_validated-no_operator_decision",
+      status: "phase_150_code_production_handoff",
+      implementedCapabilityEvidence: [],
+      remainingProductionGradeGaps: phase150RemainingProductionGaps(),
+      remapRecommendations: [],
+      phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
+    }
   });
+  return { ...state, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(state) };
 }
 
 export function startDeterministicStubRun(state: LocalOperatorShellState): LocalOperatorShellState {

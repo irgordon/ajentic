@@ -28,6 +28,50 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.149 - 2026-05-12
+**Status:** Phase 149 - Operator Candidate Decision Boundary and Phase 150 Handoff Projection
+
+### Added
+- Add Rust-owned operator decision boundary for validated staged candidate-conversion proposals.
+- Add approve/reject decision records scoped only to validated staged proposals.
+- Add deterministic operator decision projection with explicit no candidate materialization, no provider-output trust, and no readiness/release/deployment effects.
+- Add Phase150CodeProductionHandoff projection generated from executable local shell state.
+- Add UI rendering for validated staged proposal decisions and Phase 150 code-production handoff.
+- Add Rust and TypeScript tests for operator decision recording, rejected preconditions, no-effect boundaries, and handoff projection.
+
+### Changed
+- Extend the local operator shell transport projection with operator candidate decision and Phase 150 handoff data.
+- Update the local UI shell to allow approve/reject decisions only for validated staged proposals without creating candidate output.
+- Update checklists/current-phase.md to Phase 149 procedural truth.
+
+### Notes
+- Code-production phase.
+- Operator decision applies only to validated staged proposals.
+- No candidate output is created.
+- Candidate materialization is not performed.
+- Provider output remains untrusted.
+- Provider output is not approved.
+- Operator decision does not imply readiness, release, deployment, or public-use approval.
+- Phase 150 handoff is generated from executable state.
+- Phase 149 does not edit roadmap files.
+- No provider-output trust approval.
+- No candidate materialization.
+- No durable decision storage.
+- No durable ledger writes.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.148 - 2026-05-12
 **Status:** Phase 148 - Candidate Review Surface
 
