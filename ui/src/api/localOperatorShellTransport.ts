@@ -2,6 +2,7 @@ import {
   applyLocalOperatorIntent,
   applyLocalProviderConfigurationCandidate,
   applyLocalProviderAdapterDeclaration,
+  applyLocalProviderAdapterDryRun,
   applyLocalProviderExecution,
   createStagedCandidateConversionProposal,
   initialLocalOperatorShellState,
@@ -12,6 +13,7 @@ import {
   type LocalProviderConfigurationCandidate,
   type LocalProviderAdapterConfigurationCandidate,
   type LocalProviderExecutionRequest,
+  type LocalProviderAdapterDryRunRequest,
   type StagedCandidateConversionProposalRequest,
   type StagedCandidateConversionValidationRequest,
   type OperatorCandidateDecisionRequest,
@@ -39,6 +41,7 @@ export type LocalOperatorShellRequest =
   | Readonly<{ kind: "submit_provider_configuration"; candidate: LocalProviderConfigurationCandidate }>
   | Readonly<{ kind: "submit_provider_adapter_declaration"; candidate: LocalProviderAdapterConfigurationCandidate }>
   | Readonly<{ kind: "execute_provider"; request: LocalProviderExecutionRequest }>
+  | Readonly<{ kind: "run_provider_adapter_dry_run"; request: LocalProviderAdapterDryRunRequest }>
   | Readonly<{ kind: "create_staged_candidate_conversion_proposal"; request: StagedCandidateConversionProposalRequest }>
   | Readonly<{ kind: "validate_staged_candidate_conversion_proposal"; request: StagedCandidateConversionValidationRequest }>
   | Readonly<{ kind: "submit_operator_candidate_decision"; request: OperatorCandidateDecisionRequest }>
@@ -74,6 +77,7 @@ export type LocalOperatorShellTransport = Readonly<{
   submitProviderConfiguration: (candidate: LocalProviderConfigurationCandidate) => LocalOperatorShellResponse;
   submitProviderAdapterDeclaration: (candidate: LocalProviderAdapterConfigurationCandidate) => LocalOperatorShellResponse;
   executeProvider: (request: LocalProviderExecutionRequest) => LocalOperatorShellResponse;
+  runProviderAdapterDryRun: (request: LocalProviderAdapterDryRunRequest) => LocalOperatorShellResponse;
   createStagedCandidateConversionProposal: (request: StagedCandidateConversionProposalRequest) => LocalOperatorShellResponse;
   validateStagedCandidateConversionProposal: (request?: StagedCandidateConversionValidationRequest) => LocalOperatorShellResponse;
   submitOperatorCandidateDecision: (request: OperatorCandidateDecisionRequest) => LocalOperatorShellResponse;
@@ -145,6 +149,12 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
         if (result.status === "accepted") return accepted(result.reason, result.state);
         return rejected(result.reason);
       }
+      case "run_provider_adapter_dry_run": {
+        const result = applyLocalProviderAdapterDryRun(state, request.request);
+        if (result.status === "accepted") return accepted(result.reason, result.state);
+        if (state.localProviderAdapterDryRun.status === "dry_run_executed") return rejected(result.reason, state);
+        return rejected(result.reason, result.state);
+      }
       case "create_staged_candidate_conversion_proposal": {
         const result = createStagedCandidateConversionProposal(state, request.request);
         if (result.status === "accepted") return accepted(result.reason, result.state);
@@ -173,6 +183,7 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
     submitProviderConfiguration: (candidate) => step({ kind: "submit_provider_configuration", candidate }),
     submitProviderAdapterDeclaration: (candidate) => step({ kind: "submit_provider_adapter_declaration", candidate }),
     executeProvider: (request) => step({ kind: "execute_provider", request }),
+    runProviderAdapterDryRun: (request) => step({ kind: "run_provider_adapter_dry_run", request }),
     createStagedCandidateConversionProposal: (request) => step({ kind: "create_staged_candidate_conversion_proposal", request }),
     validateStagedCandidateConversionProposal: (request = {}) => step({ kind: "validate_staged_candidate_conversion_proposal", request }),
     submitOperatorCandidateDecision: (request) => step({ kind: "submit_operator_candidate_decision", request }),
@@ -246,4 +257,11 @@ export function submitLocalOperatorCandidateDecision(
   request: OperatorCandidateDecisionRequest
 ): LocalOperatorShellResponse {
   return transport.submitOperatorCandidateDecision(request);
+}
+
+export function runLocalProviderAdapterDryRun(
+  transport: LocalOperatorShellTransport,
+  request: LocalProviderAdapterDryRunRequest
+): LocalOperatorShellResponse {
+  return transport.runProviderAdapterDryRun(request);
 }

@@ -1,4 +1,4 @@
-import { deterministicFakeAdapterDeclarationCandidate, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import { deterministicFakeAdapterDeclarationCandidate, deterministicFakeAdapterDryRunRequest, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
 import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
 import {
   createLocalOperatorShellTransport,
@@ -10,6 +10,7 @@ import {
   submitLocalOperatorIntent,
   submitLocalProviderConfiguration,
   submitLocalProviderAdapterDeclaration,
+  runLocalProviderAdapterDryRun,
   type LocalOperatorShellResponse
 } from "./api/localOperatorShellTransport.js";
 
@@ -46,6 +47,17 @@ function submitUnsafeAdapterDeclaration(): void {
     adapterKind: "unsupported_network_adapter",
     declarationId: "unsafe-network-adapter-declaration",
     fields: []
+  }));
+}
+
+function runAdapterDryRun(): void {
+  applyTransportResponse(runLocalProviderAdapterDryRun(transport, deterministicFakeAdapterDryRunRequest()));
+}
+
+function runRejectedAdapterDryRun(): void {
+  applyTransportResponse(runLocalProviderAdapterDryRun(transport, {
+    inputSummary: "phase 154 browser dry run",
+    fields: [{ key: "endpoint", value: "https://example.invalid" }]
   }));
 }
 
@@ -128,6 +140,37 @@ function renderAdapterRegistry(state: LocalOperatorShellState): string {
     <div class="button-row">
       <button id="submit-adapter-declaration" type="button">Declare deterministic fake adapter contract</button>
       <button id="reject-adapter-declaration" type="button">Submit rejected network adapter declaration</button>
+    </div>`;
+}
+
+
+function renderAdapterDryRun(state: LocalOperatorShellState): string {
+  const dryRun = state.localProviderAdapterDryRun;
+  const activeDeclaration = state.localProviderAdapterRegistry.declarations[state.localProviderAdapterRegistry.declarations.length - 1];
+  const canRun = activeDeclaration?.adapterKind === "deterministic_fake_adapter" && activeDeclaration.status === "adapter_declared_non_executing";
+  return `
+    <p><strong>Controlled adapter dry run only.</strong></p>
+    <p>Only deterministic_fake_adapter can execute in Phase 154.</p>
+    <p>No real model execution occurs in Phase 154.</p>
+    <p>Dry-run output remains untrusted and descriptive.</p>
+    <p>Dry run does not create candidate output or materialize candidates.</p>
+    <p>Dry run does not approve readiness, release, deployment, or public use.</p>
+    <dl>
+      <div><dt>Dry-run status</dt><dd>${dryRun.status}</dd></div>
+      <div><dt>Adapter kind</dt><dd>${activeDeclaration?.adapterKind ?? dryRun.adapterKind ?? "none"}</dd></div>
+      <div><dt>Adapter declaration status</dt><dd>${activeDeclaration?.status ?? "none"}</dd></div>
+      <div><dt>Result ID</dt><dd>${dryRun.result?.resultId ?? "none"}</dd></div>
+      <div><dt>Output summary</dt><dd>${dryRun.result?.outputSummary ?? "none"}</dd></div>
+      <div><dt>Output trust status</dt><dd>${dryRun.outputTrustStatus}</dd></div>
+      <div><dt>Dry-run boundary status</dt><dd>${dryRun.boundaryStatuses.join(", ")}</dd></div>
+      <div><dt>Capability surface</dt><dd>${dryRun.capabilitySurface.summary}</dd></div>
+      <div><dt>No-real-model/no-process/no-network/no-shell/no-secret markers</dt><dd>no_real_model_execution, no_process_spawn, no_network, no_shell, no_secrets</dd></div>
+      <div><dt>No-candidate/no-action/no-readiness/no-release/no-deployment/public-use markers</dt><dd>${dryRun.effectStatuses.join(", ")}</dd></div>
+      <div><dt>Rejected reason</dt><dd>${dryRun.errorCodes.join(", ") || "none"}</dd></div>
+    </dl>
+    <div class="button-row">
+      <button id="run-adapter-dry-run" type="button" ${canRun ? "" : "disabled"}>Run controlled adapter dry run</button>
+      <button id="reject-adapter-dry-run" type="button">Submit rejected adapter dry-run request</button>
     </div>`;
 }
 
@@ -382,6 +425,11 @@ function render(): void {
         ${renderAdapterRegistry(shellState)}
       </section>
 
+      <section class="panel" aria-label="Controlled adapter dry run">
+        <h2>Controlled adapter dry run</h2>
+        ${renderAdapterDryRun(shellState)}
+      </section>
+
       <section class="panel" aria-label="Local provider configuration">
         <h2>Local provider configuration</h2>
         ${renderProviderConfiguration(shellState)}
@@ -434,6 +482,8 @@ function render(): void {
   document.querySelector<HTMLButtonElement>("#reject-run")?.addEventListener("click", () => recordIntent("reject"));
   document.querySelector<HTMLButtonElement>("#submit-adapter-declaration")?.addEventListener("click", submitAdapterDeclaration);
   document.querySelector<HTMLButtonElement>("#reject-adapter-declaration")?.addEventListener("click", submitUnsafeAdapterDeclaration);
+  document.querySelector<HTMLButtonElement>("#run-adapter-dry-run")?.addEventListener("click", runAdapterDryRun);
+  document.querySelector<HTMLButtonElement>("#reject-adapter-dry-run")?.addEventListener("click", runRejectedAdapterDryRun);
   document.querySelector<HTMLButtonElement>("#submit-provider-config")?.addEventListener("click", submitProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#run-provider")?.addEventListener("click", runDeterministicProvider);

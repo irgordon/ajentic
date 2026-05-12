@@ -28,6 +28,47 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.154 - 2026-05-12
+**Status:** Phase 154 - Controlled Adapter Dry-Run Harness
+
+### Added
+- Add Rust-owned controlled adapter dry-run request, result, projection, capability surface, and validation.
+- Add deterministic fake adapter dry-run execution through the Phase 153 adapter contract.
+- Add fail-closed rejection for missing, rejected, unsupported, local-model, cloud, network, shell, filesystem, executable-path, secret-bearing, execution-bearing, trust-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, action-bearing, or persistence-bearing adapter dry-run requests.
+- Add UI rendering for controlled adapter dry-run status, result, linkage, and boundary markers.
+- Add Rust and TypeScript tests for deterministic dry-run execution, rejected dry-run preconditions, no-effect boundaries, and visible dry-run behavior.
+
+### Changed
+- Extend the local operator shell projection with controlled adapter dry-run status.
+- Update the local UI shell to expose controlled adapter dry-run behavior for deterministic_fake_adapter only.
+- Update checklists/current-phase.md to Phase 154 procedural truth.
+
+### Notes
+- Code-production phase.
+- Controlled adapter dry run only.
+- deterministic_fake_adapter is the only executable adapter in Phase 154.
+- No real model execution.
+- No provider execution expansion beyond deterministic fake adapter dry run.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No process spawning.
+- No network sockets.
+- No filesystem persistence.
+- No environment variable reads.
+- No secret reads.
+- No provider trust approval.
+- No candidate materialization.
+- No candidate approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 155 remains the next code-production alignment checkpoint.
+
 ## v0.0.153 - 2026-05-12
 **Status:** Phase 153 - Real Local Provider Adapter Contract
 
