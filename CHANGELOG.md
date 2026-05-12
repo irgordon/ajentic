@@ -28,6 +28,56 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.146 - 2026-05-11
+**Status:** Phase 146 - Candidate Conversion Staging Boundary
+
+### Added
+- Add Rust-owned staged candidate-conversion proposal types and projection.
+- Add staged proposal creation from reviewable_untrusted provider output only.
+- Add fail-closed rejection for rejected, not_validated, validation_not_applicable, invalid, missing, inconsistent, trust-bearing, approval-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, action-bearing, execution-bearing, persistence-bearing, or candidate-creation-bearing proposal requests.
+- Add UI rendering for staged candidate-conversion proposals.
+- Add Rust and TypeScript tests for staged proposal creation, source rejection, deterministic proposal identity, non-candidate boundaries, and no-effect guarantees.
+
+### Changed
+- Extend the local operator shell transport projection with staged candidate-conversion proposal data.
+- Update the local UI shell to allow creating and inspecting staged candidate-conversion proposals without creating candidate output.
+- Update checklists/current-phase.md to Phase 146 procedural truth.
+
+### Notes
+- Code-production phase.
+- Staged proposal creation only.
+- Staged proposal is not candidate output.
+- Staged proposal is not approved output.
+- Staged proposal is not trusted output.
+- Provider output remains untrusted.
+- Candidate conversion is not performed.
+- Candidate approval is not available in Phase 146.
+- Validation of staged proposals remains deferred to Phase 147.
+- No candidate materialization.
+- No candidate replacement.
+- No operator candidate decision.
+- No decision ledger mutation.
+- No replay mutation.
+- No export promotion.
+- No provider configuration mutation.
+- No provider execution trigger.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable proposal storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.145 - 2026-05-11
 **Status:** Phase 145 - Code-Production Alignment Checkpoint
 

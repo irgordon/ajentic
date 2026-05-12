@@ -88,6 +88,30 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     providerOutputValidation.note
   ].join("\n");
 
+  const stagedProjection = state.stagedCandidateConversionProposal;
+  const stagedProposal = stagedProjection.proposal;
+  const stagedProposalLines = [
+    `Proposal status: ${stagedProjection.status}`,
+    `Proposal ID: ${stagedProposal?.proposalId ?? "none"}`,
+    `Source provider kind: ${stagedProposal?.sourceProviderKind ?? providerOutputValidation.providerKind}`,
+    `Source execution result ID: ${stagedProposal?.sourceExecutionResultId ?? providerOutputValidation.providerExecutionResultId ?? "none"}`,
+    `Source validation status: ${stagedProposal?.sourceValidationStatus ?? providerOutputValidation.status}`,
+    `Source reviewability status: ${stagedProposal?.sourceReviewabilityStatus ?? providerOutputValidation.reviewabilityStatus}`,
+    `Source candidate-boundary status: ${stagedProposal?.sourceCandidateBoundaryStatus ?? providerOutputValidation.candidateBoundaryStatus}`,
+    `Staged-only boundary status: ${stagedProposal?.boundaryStatuses.join(", ") ?? "staging_only_not_candidate_material"}`,
+    `Trust status: ${stagedProposal?.trustStatuses.join(", ") ?? "untrusted_source, not_trusted, not_approved"}`,
+    `Approval status: not_approved`,
+    `Candidate conversion status: candidate_conversion_not_performed`,
+    `Future validation requirement: validation_required_in_future_phase`,
+    `No-effect summary: ${stagedProposal?.effectStatuses.join(", ") ?? "no_decision_ledger_effect, no_replay_effect, no_export_effect, no_provider_configuration_effect, no_provider_execution_effect, no_action_effect, no_persistence_effect, no_readiness_effect, no_release_effect, no_deployment_effect, not_executable, not_persistent"}`,
+    "This is a staged conversion proposal only. It is not candidate output.",
+    "Provider output remains untrusted and not approved.",
+    "Candidate conversion was not performed in Phase 146.",
+    "Validation is required in a future phase before any candidate review.",
+    "Approval is not available in Phase 146.",
+    stagedProjection.note
+  ].join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -126,6 +150,10 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Provider output reviewability",
     providerOutputValidationLines,
     renderProviderOutputReviewText(state),
+    "Candidate conversion staging",
+    "Staged candidate-conversion proposal",
+    "Create staged conversion proposal",
+    stagedProposalLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",

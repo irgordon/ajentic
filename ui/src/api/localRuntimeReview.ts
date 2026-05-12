@@ -1,4 +1,7 @@
 import { getUiReadModel } from "./readModel";
+import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest } from "./localOperatorShell";
+import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 
 export function renderLocalRuntimeReviewSurface(): string {
   const runtimeReview = getUiReadModel().localRuntimeReview;
@@ -21,6 +24,12 @@ export function renderLocalRuntimeReviewSurface(): string {
     ].join("\n"))
     .join("\n");
 
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 146 local UI staged proposal"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "local UI display request" });
+  const stagedProposalSnapshot = renderLocalOperatorShellSnapshot(transport.getCurrentState().state);
+
   return [
     runtimeReview.title,
     `Launch: ${runtimeReview.launchInstruction}`,
@@ -37,6 +46,8 @@ export function renderLocalRuntimeReviewSurface(): string {
     "Disabled capabilities",
     disabledCapabilities,
     "Bounded local operator review interactions",
-    localInteractions
+    localInteractions,
+    "Local staged conversion proposal shell",
+    stagedProposalSnapshot
   ].join("\n");
 }

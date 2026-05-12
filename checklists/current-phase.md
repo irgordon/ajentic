@@ -4,130 +4,138 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 145 Code-Production Alignment Checkpoint
+# Current Phase Checklist - Phase 146 Candidate Conversion Staging Boundary
+
+## Phase name
+- [x] Phase 146 - Candidate Conversion Staging Boundary.
 
 ## Phase goal
-- [x] Reconcile Phases 141-144 after the provider-output code-production block.
-- [x] Decide whether Phase 146 may proceed only as staged candidate-conversion proposal work.
-- [x] Remap Phases 146-150 without implementing Phase 146.
+- [x] Add local Rust-owned staged candidate-conversion proposal creation from `reviewable_untrusted` provider output only.
+- [x] Keep staged proposals proposal-only, untrusted, not approved, not candidate material, not executable, not persistent, and not promoted.
 
 ## Working-tree hygiene gate
-- [x] Limit edits to allowed Phase 145 roadmap, changelog, and checklist surfaces.
-- [x] Do not modify Rust source, TypeScript source, tests, schemas, UI behavior, package files, workflows, README.md, AGENTS.md, archived changelog files, or runtime behavior.
+- [x] Start from the current Phase 145-aligned tree.
+- [x] Keep changes limited to Phase 146 allowed code, UI, tests, checklist, and changelog surfaces.
 
 ## Allowed surfaces
-- [x] `docs/roadmap/phase-map.md`
-- [x] `docs/roadmap/phases.md`
-- [x] `docs/roadmap/sequencing.md`
-- [x] `CHANGELOG.md`
-- [x] `checklists/current-phase.md`
+- [x] `core/src/**` for Rust local shell types, creation, projection, transport, and tests.
+- [x] `ui/src/**` for Rust-shaped TypeScript types, transport adapter, UI rendering, and tests.
+- [x] `CHANGELOG.md` and `checklists/current-phase.md` for active historical/procedural truth.
 
-## Phase 141 carry-forward checklist
-- [x] Rust-owned sandboxed deterministic provider execution for `deterministic_stub` only is carried forward as completed code-production work.
-- [x] No arbitrary local model execution, cloud calls, shell command execution, network sockets, provider trust approval, or readiness approval is inferred from Phase 141.
+## Code-production deliverable checklist
+- [x] Produce usable, testable code.
+- [x] Expose staged proposal creation through the local shell transport.
+- [x] Render staged proposal creation and inspection in the local UI shell.
 
-## Phase 142 carry-forward checklist
-- [x] Provider execution result projection is carried forward as completed code-production work.
-- [x] Projection remains descriptive and does not create provider-output approval, trust, persistence, or candidate conversion.
+## Rust staged proposal checklist
+- [x] Add `StagedCandidateConversionProposal` Rust-owned type.
+- [x] Add staged proposal status, boundary, trust, effect, source eligibility, request, error, and projection types.
+- [x] Add deterministic staged proposal ID generation.
+- [x] Add deterministic linkage to provider execution result and validation projection.
 
-## Phase 143 carry-forward checklist
-- [x] Provider output validation and rejection flow is carried forward as completed code-production work.
-- [x] `reviewable_untrusted` remains inspection-only and is not candidate material.
+## Source eligibility checklist
+- [x] Allow staged proposal creation only from `reviewable_untrusted` provider output.
+- [x] Reject rejected provider output.
+- [x] Reject `not_validated` provider output.
+- [x] Reject `validation_not_applicable` provider output.
+- [x] Reject `invalid_validation_input` provider output.
+- [x] Reject missing provider execution result.
+- [x] Reject missing or inconsistent validation projection.
 
-## Phase 144 carry-forward checklist
-- [x] Provider output review UI is carried forward as completed code-production work.
-- [x] The UI remains non-authoritative and does not approve, trust, promote, or convert provider output.
+## Trust and approval creep checklist
+- [x] Reject request claims carrying trust, approval, safety, readiness, release, deployment, public-use, action, execution, persistence, or candidate-creation authority.
+- [x] Preserve `untrusted_source`, `not_trusted`, and `not_approved` staged proposal labels.
 
-## Current provider-output pipeline checklist
-- [x] Browser UI shell remains part of the current local product loop.
-- [x] Rust-shaped local transport remains part of the current local product loop.
-- [x] Deterministic stub run remains part of the current local product loop.
-- [x] Candidate and validation projection for the original local stub flow remains part of the current local product loop.
-- [x] Approve/reject operator intent for the existing local candidate flow remains part of the current local product loop.
-- [x] In-memory decision ledger remains part of the current local product loop.
-- [x] Replay/status projection remains part of the current local product loop.
-- [x] Local session evidence export preview remains part of the current local product loop.
-- [x] Provider configuration validation panel remains part of the current local product loop.
-- [x] Sandboxed deterministic provider execution remains part of the current local product loop.
-- [x] Provider execution result projection remains part of the current local product loop.
-- [x] Provider output validation/rejection remains part of the current local product loop.
-- [x] Provider output review UI remains part of the current local product loop.
+## Scope-of-staging checklist
+- [x] Record `staging_only_not_candidate_material`.
+- [x] Record `candidate_conversion_not_performed`.
+- [x] Record `validation_required_in_future_phase`.
+- [x] Record `approval_not_available_in_phase_146`.
 
-## Authority and ladder preservation checklist
-- [x] Phase 145 avoids implying candidate conversion.
-- [x] Phase 145 avoids implying trust elevation.
-- [x] Phase 145 avoids implying readiness or approval.
-- [x] Phase 145 avoids implying Release Candidate or Production Candidate status.
-- [x] Phase 145 does not approve public/general use.
+## Data-shape and boundary encoding checklist
+- [x] Encode `source_boundary: provider_output_validation_phase_143`.
+- [x] Encode `proposal_boundary: staged_candidate_conversion_phase_146`.
+- [x] Encode source provider kind, execution result ID, validation status, reviewability status, and candidate-boundary status.
 
-## Roadmap integrity checklist
-- [x] Phase 145 avoids reclassifying Phases 141-144 as anything other than completed implementation/code-production phases.
-- [x] Phase 145 avoids implying provider output is candidate material.
-- [x] Phase 145 avoids skipping the staged-conversion requirement.
-- [x] Phase 145 preserves the rule: `reviewable_untrusted` is not candidate material.
-
-## Alignment-only confirmation checklist
-- [x] Phase 145 only reconciles Phases 141-144.
-- [x] Phase 145 only remaps the next implementation block.
-- [x] Phase 145 avoids adding new implementation tasks.
-- [x] Phase 145 avoids implying any code changes are required in this phase.
-- [x] Phase 145 is an alignment checkpoint only.
-- [x] Phase 145 does not implement Phase 146.
-
-## Code-production rule checklist
-- [x] Every non-0/5 phase must produce usable, testable code or a concrete executable artifact.
-- [x] Phases 146-149 are implementation phases with usable/testable code expectations.
-- [x] Phase 150 remains a 0/5 alignment checkpoint.
-
-## Candidate-conversion blocker checklist
-- [x] Direct candidate conversion remains blocked until staged proposal creation exists.
-- [x] Candidate approval remains blocked until validated staged candidate proposals exist.
-- [x] Provider-output approval remains deferred.
-- [x] Provider-output trust remains deferred.
-- [x] Provider-output promotion remains deferred.
-- [x] Provider output remains barred from direct decision evidence, replay evidence, export promotion, and action authorization.
-- [x] Absence markers are not safety.
-- [x] Absence markers are not readiness.
-
-## Phase 146 gate decision checklist
-- [x] Decision outcome: `proceed_with_caveats`.
-- [x] Phase 146 may proceed only to staged candidate-conversion proposal creation.
-- [x] Phase 146 must not create candidate output directly.
-- [x] Phase 146 must not approve provider output.
-- [x] Phase 146 must not trust provider output.
-- [x] Phase 146 must not record an operator candidate decision.
-- [x] Phase 146 must not mutate the existing candidate output path as if provider output were accepted.
-
-## Phase 146-150 remap checklist
-- [x] Phase 146: Candidate Conversion Staging Boundary.
-- [x] Phase 147: Candidate Conversion Validation.
-- [x] Phase 148: Candidate Review Surface.
-- [x] Phase 149: Operator Candidate Decision Boundary.
-- [x] Phase 150: Code-Production Alignment Checkpoint.
-
-## 0/5 checkpoint rule checklist
-- [x] Phase 145 is a 0/5 alignment checkpoint only.
+## Pipeline integrity checklist
+- [x] Provider output remains untrusted/descriptive.
+- [x] `reviewable_untrusted` remains inspection-only and not candidate material.
+- [x] Phase 147 remains staged proposal validation.
+- [x] Phase 148 remains candidate review surface.
+- [x] Phase 149 remains operator candidate decision boundary.
 - [x] Phase 150 remains the next 0/5 alignment checkpoint.
-- [x] 0/5 phases reconcile and remap; they do not add runtime behavior.
+
+## UI/API semantics checklist
+- [x] TypeScript transport can request staged proposal creation.
+- [x] UI does not create candidate output.
+- [x] UI does not expose staged proposal approve/reject controls.
+- [x] UI does not mark staged proposals trusted, safe, ready, approved, or candidate material.
+
+## No-effect boundary checklist
+- [x] No decision ledger effect.
+- [x] No replay effect.
+- [x] No export effect.
+- [x] No provider configuration effect.
+- [x] No provider execution effect.
+- [x] No action effect.
+- [x] No persistence effect.
+- [x] No readiness, release, or deployment effect.
+
+## TypeScript transport projection checklist
+- [x] Add Rust-shaped staged proposal projection types.
+- [x] Include staged proposal projection in shell state.
+- [x] Return staged proposal projection in transport responses.
+
+## UI staged proposal checklist
+- [x] Render initial no-proposal state.
+- [x] Render `Create staged conversion proposal`.
+- [x] Render proposal ID and source linkage when present.
+- [x] Render required Phase 146 wording.
+- [x] Keep repeated rendering deterministic.
+
+## Rust test checklist
+- [x] Cover initial no-proposal state.
+- [x] Cover valid proposal creation.
+- [x] Cover rejected and missing sources.
+- [x] Cover deterministic proposal identity and linkage.
+- [x] Cover no-effect boundaries and projection drift rejection.
+
+## TypeScript test checklist
+- [x] Cover visible staged proposal behavior.
+- [x] Cover forbidden shortcut rejection.
+- [x] Cover source rejection edge states.
+- [x] Cover deterministic rendering.
+
+## Local-only/non-production boundary checklist
+- [x] No provider kind expansion.
+- [x] No arbitrary local model execution.
+- [x] No cloud model execution.
+- [x] No network sockets.
+- [x] No filesystem persistence or durable proposal storage.
+- [x] No release, installer, signing, publishing, deployment, public-use, or readiness approval behavior.
+
+## Phase 147 handoff checklist
+- [x] Staged proposal validation remains deferred to Phase 147.
+- [x] Candidate review remains deferred to Phase 148.
+- [x] Operator candidate decision remains deferred to Phase 149.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-145-target ./scripts/check.sh`.
+- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-146-target ./scripts/check.sh`.
 - [x] Run `git diff --check`.
 - [x] Run `git status --short`.
-- [x] Run roadmap/code-production scan.
-- [x] Run authority/ladder scan.
-- [x] Run alignment-only scan.
-- [x] Run no-source-drift guard.
-- [x] Run readiness/release/provider/candidate scan.
+- [x] Run UI direct commands when needed.
+- [x] Run Rust tests directly when needed.
+- [x] Run local dev smoke test.
+- [x] Run required boundary scans.
 
 ## Deferred items
-- [x] Candidate conversion remains deferred.
-- [x] Candidate approval remains deferred.
-- [x] Provider-output approval remains deferred.
-- [x] Provider-output trust remains deferred.
-- [x] Release/deployment/readiness approval remains deferred.
-- [x] Release Candidate and Production Candidate approval remain deferred.
-- [x] Local model execution and cloud model execution remain deferred.
+- [x] Candidate materialization.
+- [x] Candidate replacement.
+- [x] Staged proposal validation.
+- [x] Staged proposal approval.
+- [x] Operator candidate decision.
+- [x] Provider output trust or approval.
+- [x] Durable persistence and release/deployment behaviors.
 
 ## Validation log
 - [x] Full validation completed after final edits.
@@ -135,10 +143,7 @@ mutation_path: checklist_revision
 - [x] Generated artifacts cleaned.
 
 ## Zero-drift checklist
-- [x] CHANGELOG entry matches the actual Phase 145 diff.
-- [x] Staged files are limited to allowed Phase 145 surfaces.
-- [x] Roadmap reflects Phases 141-144 as completed code-production work.
-- [x] Current provider-output pipeline is described accurately.
-- [x] Phase 146 gate decision is explicit and limited to staged candidate-conversion proposal creation.
-- [x] No Rust/TypeScript/test/schema drift is introduced.
+- [x] CHANGELOG entry matches intended Phase 146 diff.
+- [x] Staged files remain within allowed surfaces.
+- [x] Forbidden labels appear only as historical/prohibition/test strings where already present or explicitly scanned.
 - [x] No readiness, release, deployment, provider-output trust, provider-output approval, candidate conversion, candidate approval, local model execution, cloud model execution, signing, publishing, or public-use approval is introduced.

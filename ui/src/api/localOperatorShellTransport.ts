@@ -2,11 +2,13 @@ import {
   applyLocalOperatorIntent,
   applyLocalProviderConfigurationCandidate,
   applyLocalProviderExecution,
+  createStagedCandidateConversionProposal,
   initialLocalOperatorShellState,
   startDeterministicStubRun,
   type LocalOperatorIntent,
   type LocalProviderConfigurationCandidate,
   type LocalProviderExecutionRequest,
+  type StagedCandidateConversionProposalRequest,
   type LocalOperatorShellState,
   type LocalSessionEvidenceExport
 } from "./localOperatorShell";
@@ -30,6 +32,7 @@ export type LocalOperatorShellRequest =
   | Readonly<{ kind: "submit_operator_intent"; intent: LocalOperatorIntent }>
   | Readonly<{ kind: "submit_provider_configuration"; candidate: LocalProviderConfigurationCandidate }>
   | Readonly<{ kind: "execute_provider"; request: LocalProviderExecutionRequest }>
+  | Readonly<{ kind: "create_staged_candidate_conversion_proposal"; request: StagedCandidateConversionProposalRequest }>
   | Readonly<{ kind: "forbidden"; request: LocalOperatorShellForbiddenRequest }>;
 
 export type LocalOperatorShellCapabilities = Readonly<{
@@ -61,6 +64,7 @@ export type LocalOperatorShellTransport = Readonly<{
   submitOperatorIntent: (intent: LocalOperatorIntent) => LocalOperatorShellResponse;
   submitProviderConfiguration: (candidate: LocalProviderConfigurationCandidate) => LocalOperatorShellResponse;
   executeProvider: (request: LocalProviderExecutionRequest) => LocalOperatorShellResponse;
+  createStagedCandidateConversionProposal: (request: StagedCandidateConversionProposalRequest) => LocalOperatorShellResponse;
   rejectForbiddenUiAction: (request: LocalOperatorShellForbiddenRequest) => LocalOperatorShellResponse;
 }>;
 
@@ -124,6 +128,11 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
         if (result.status === "accepted") return accepted(result.reason, result.state);
         return rejected(result.reason);
       }
+      case "create_staged_candidate_conversion_proposal": {
+        const result = createStagedCandidateConversionProposal(state, request.request);
+        if (result.status === "accepted") return accepted(result.reason, result.state);
+        return rejected(result.reason);
+      }
       case "forbidden":
         return rejected(forbiddenReasons[request.request]);
     }
@@ -136,6 +145,7 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
     submitOperatorIntent: (intent) => step({ kind: "submit_operator_intent", intent }),
     submitProviderConfiguration: (candidate) => step({ kind: "submit_provider_configuration", candidate }),
     executeProvider: (request) => step({ kind: "execute_provider", request }),
+    createStagedCandidateConversionProposal: (request) => step({ kind: "create_staged_candidate_conversion_proposal", request }),
     rejectForbiddenUiAction: (request) => step({ kind: "forbidden", request })
   };
 }
@@ -178,4 +188,11 @@ export function executeLocalProvider(
   request: LocalProviderExecutionRequest
 ): LocalOperatorShellResponse {
   return transport.executeProvider(request);
+}
+
+export function createLocalStagedCandidateConversionProposal(
+  transport: LocalOperatorShellTransport,
+  request: StagedCandidateConversionProposalRequest
+): LocalOperatorShellResponse {
+  return transport.createStagedCandidateConversionProposal(request);
 }
