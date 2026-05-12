@@ -42,17 +42,18 @@ export function initialLocalDecisionLedger(): LocalDecisionLedger {
   return { records: [] };
 }
 
-export function projectLocalDecisionTimeline(ledger: LocalDecisionLedger): LocalDecisionTimelineProjection {
+export function projectLocalDecisionTimeline(
+  ledger: LocalDecisionLedger,
+): LocalDecisionTimelineProjection {
   return {
     records: ledger.records,
-    emptyMessage: "No recorded local operator decisions"
+    emptyMessage: "No recorded local operator decisions",
   };
 }
 
 function nextLocalDecisionSequence(ledger: LocalDecisionLedger): number {
   return ledger.records.length + 1;
 }
-
 
 export type LocalDecisionReplayEntry = Readonly<{
   replaySequence: string;
@@ -94,15 +95,19 @@ export function initialLocalDecisionReplayProjection(): LocalDecisionReplayProje
     integrityStatus: "consistent",
     error: null,
     entries: [],
-    summary: "No local operator decision has been recorded for replay projection."
+    summary:
+      "No local operator decision has been recorded for replay projection.",
   };
 }
 
 function inconsistentLocalDecisionReplayProjection(
   ledger: LocalDecisionLedger,
-  error: LocalDecisionReplayError
+  error: LocalDecisionReplayError,
 ): LocalDecisionReplayProjection {
-  const latest = ledger.records.length === 0 ? null : ledger.records[ledger.records.length - 1];
+  const latest =
+    ledger.records.length === 0
+      ? null
+      : ledger.records[ledger.records.length - 1];
   return {
     replayStatus: "inconsistent_decision_ledger",
     replaySequence: `local-replay-sequence-${String(ledger.records.length).padStart(4, "0")}`,
@@ -116,28 +121,43 @@ function inconsistentLocalDecisionReplayProjection(
     integrityStatus: "inconsistent",
     error,
     entries: [],
-    summary: `Local decision ledger is inconsistent: ${error}.`
+    summary: `Local decision ledger is inconsistent: ${error}.`,
   };
 }
 
 export function validateLocalDecisionReplayInput(
   run: LocalRunProjection,
-  ledger: LocalDecisionLedger
+  ledger: LocalDecisionLedger,
 ): LocalDecisionReplayError | null {
   for (const [index, record] of ledger.records.entries()) {
     const expectedSequence = index + 1;
-    if (record.decisionId.length === 0 || record.runId.length === 0 || record.candidateId.length === 0 || record.operatorId.length === 0) {
+    if (
+      record.decisionId.length === 0 ||
+      record.runId.length === 0 ||
+      record.candidateId.length === 0 ||
+      record.operatorId.length === 0
+    ) {
       return "empty_record_field";
     }
-    if (record.recordedSequence !== expectedSequence) return "sequence_mismatch";
-    if (record.decisionId !== `local-decision-${String(expectedSequence).padStart(4, "0")}`) return "decision_id_mismatch";
-    if (record.decisionStatus !== "recorded") return "unsupported_decision_status";
+    if (record.recordedSequence !== expectedSequence)
+      return "sequence_mismatch";
+    if (
+      record.decisionId !==
+      `local-decision-${String(expectedSequence).padStart(4, "0")}`
+    )
+      return "decision_id_mismatch";
+    if (record.decisionStatus !== "recorded")
+      return "unsupported_decision_status";
   }
 
-  const latest = ledger.records.length === 0 ? undefined : ledger.records[ledger.records.length - 1];
+  const latest =
+    ledger.records.length === 0
+      ? undefined
+      : ledger.records[ledger.records.length - 1];
   if (latest) {
     if (latest.runId !== run.runId) return "run_mismatch";
-    if (run.candidate && latest.candidateId !== run.candidate.candidateId) return "candidate_mismatch";
+    if (run.candidate && latest.candidateId !== run.candidate.candidateId)
+      return "candidate_mismatch";
   }
 
   return null;
@@ -145,26 +165,30 @@ export function validateLocalDecisionReplayInput(
 
 export function deriveLocalDecisionReplayProjection(
   run: LocalRunProjection,
-  ledger: LocalDecisionLedger
+  ledger: LocalDecisionLedger,
 ): LocalDecisionReplayProjection {
-  if (ledger.records.length === 0) return initialLocalDecisionReplayProjection();
+  if (ledger.records.length === 0)
+    return initialLocalDecisionReplayProjection();
 
   const error = validateLocalDecisionReplayInput(run, ledger);
   if (error) return inconsistentLocalDecisionReplayProjection(ledger, error);
 
-  const entries = ledger.records.map((record): LocalDecisionReplayEntry => ({
-    replaySequence: `local-replay-entry-${String(record.recordedSequence).padStart(4, "0")}`,
-    decisionId: record.decisionId,
-    runId: record.runId,
-    candidateId: record.candidateId,
-    operatorId: record.operatorId,
-    decisionKind: record.intentKind,
-    decisionStatus: record.decisionStatus
-  }));
+  const entries = ledger.records.map(
+    (record): LocalDecisionReplayEntry => ({
+      replaySequence: `local-replay-entry-${String(record.recordedSequence).padStart(4, "0")}`,
+      decisionId: record.decisionId,
+      runId: record.runId,
+      candidateId: record.candidateId,
+      operatorId: record.operatorId,
+      decisionKind: record.intentKind,
+      decisionStatus: record.decisionStatus,
+    }),
+  );
   const latest = ledger.records[ledger.records.length - 1];
-  const replayStatus: LocalDecisionReplayStatus = latest.intentKind === "approve"
-    ? "approved_decision_replayed"
-    : "rejected_decision_replayed";
+  const replayStatus: LocalDecisionReplayStatus =
+    latest.intentKind === "approve"
+      ? "approved_decision_replayed"
+      : "rejected_decision_replayed";
 
   return {
     replayStatus,
@@ -179,16 +203,17 @@ export function deriveLocalDecisionReplayProjection(
     integrityStatus: "consistent",
     error: null,
     entries,
-    summary: `Local decision replay projection derived ${ledger.records.length} recorded decision(s); latest decision ${latest.decisionId} is ${replayStatus}.`
+    summary: `Local decision replay projection derived ${ledger.records.length} recorded decision(s); latest decision ${latest.decisionId} is ${replayStatus}.`,
   };
 }
-
 
 export type LocalSessionEvidenceExportStatus =
   | "no_completed_run_evidence"
   | "run_evidence_projected"
   | "decision_evidence_projected";
-export type LocalSessionEvidenceExportValidationStatus = "complete" | "incomplete";
+export type LocalSessionEvidenceExportValidationStatus =
+  | "complete"
+  | "incomplete";
 
 export type LocalSessionEvidenceExportAbsenceMarkers = Readonly<{
   providerExecutionAbsent: true;
@@ -248,11 +273,10 @@ export function localSessionEvidenceExportAbsenceMarkers(): LocalSessionEvidence
       "installer absent",
       "update-channel absent",
       "public-use absent",
-      "readiness absent"
-    ]
+      "readiness absent",
+    ],
   };
 }
-
 
 export type LocalProviderKind =
   | "deterministic_stub"
@@ -262,7 +286,11 @@ export type LocalProviderKind =
   | "shell_command"
   | "filesystem_provider"
   | "unknown";
-export type LocalProviderConfigurationStatus = "not_configured" | "accepted" | "rejected" | "unsupported";
+export type LocalProviderConfigurationStatus =
+  | "not_configured"
+  | "accepted"
+  | "rejected"
+  | "unsupported";
 export type LocalProviderConfigurationError =
   | "missing_provider_kind"
   | "malformed_provider_kind"
@@ -332,7 +360,7 @@ const supportedLocalProviderKinds: readonly LocalProviderKind[] = [
   "external_http",
   "shell_command",
   "filesystem_provider",
-  "unknown"
+  "unknown",
 ];
 
 export function deterministicStubProviderConfigurationCandidate(): LocalProviderConfigurationCandidate {
@@ -352,7 +380,8 @@ export function localProviderConfigurationCapabilitySurface(): LocalProviderConf
     readinessApproved: false,
     releaseApproved: false,
     deploymentEnabled: false,
-    summary: "deterministic_stub configuration-only surface; no execution, cloud, network, shell, filesystem, secrets, trust, readiness, release, or deployment capability"
+    summary:
+      "deterministic_stub configuration-only surface; no execution, cloud, network, shell, filesystem, secrets, trust, readiness, release, or deployment capability",
   };
 }
 
@@ -364,12 +393,15 @@ export function initialLocalProviderConfiguration(): LocalProviderConfiguration 
       status: "not_configured",
       providerKind: null,
       errorCodes: [],
-      reason: "no executable provider configured; deterministic_stub is available for configuration-only validation"
-    }
+      reason:
+        "no executable provider configured; deterministic_stub is available for configuration-only validation",
+    },
   };
 }
 
-export function projectLocalProviderConfiguration(configuration: LocalProviderConfiguration): LocalProviderConfigurationProjection {
+export function projectLocalProviderConfiguration(
+  configuration: LocalProviderConfiguration,
+): LocalProviderConfigurationProjection {
   return {
     configuredProviderKind: configuration.configuredProviderKind ?? "none",
     status: configuration.status,
@@ -378,30 +410,59 @@ export function projectLocalProviderConfiguration(configuration: LocalProviderCo
     validationErrorCodes: configuration.lastValidation.errorCodes,
     executionStatus: "disabled_not_executed",
     capabilitySurface: localProviderConfigurationCapabilitySurface(),
-    note: "Phase 139 deterministic_stub is configuration-only; validation does not execute providers or approve trust/readiness/release/deployment."
+    note: "Phase 139 deterministic_stub is configuration-only; validation does not execute providers or approve trust/readiness/release/deployment.",
   };
 }
 
-function forbiddenProviderConfigurationField(key: string, value: string): LocalProviderConfigurationError | null {
+function forbiddenProviderConfigurationField(
+  key: string,
+  value: string,
+): LocalProviderConfigurationError | null {
   const loweredKey = key.toLowerCase();
   const combined = `${loweredKey}=${value.toLowerCase()}`;
   if (loweredKey === "label" || loweredKey === "description") return null;
-  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "forbidden_endpoint_field";
-  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "forbidden_command_field";
-  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "forbidden_path_field";
-  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "forbidden_secret_field";
-  if (loweredKey === "provider_execution_enabled" && value === "true") return "provider_execution_rejected";
-  if (loweredKey === "trust_granted" && value === "true") return "trust_grant_rejected";
-  if (loweredKey === "readiness_approved" && value === "true") return "readiness_claim_rejected";
-  if (loweredKey === "release_candidate_approved" && value === "true") return "release_claim_rejected";
-  if (loweredKey === "deployment_enabled" && value === "true") return "deployment_claim_rejected";
-  if (loweredKey === "public_use_approved" && value === "true") return "public_use_claim_rejected";
-  if (loweredKey === "signing_enabled" && value === "true") return "signing_claim_rejected";
-  if (loweredKey === "publishing_enabled" && value === "true") return "publishing_claim_rejected";
+  if (
+    ["endpoint", "url", "host", "port", "http", "network"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_endpoint_field";
+  if (
+    ["command", "args", "shell", "process"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_command_field";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle)))
+    return "forbidden_path_field";
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_secret_field";
+  if (loweredKey === "provider_execution_enabled" && value === "true")
+    return "provider_execution_rejected";
+  if (loweredKey === "trust_granted" && value === "true")
+    return "trust_grant_rejected";
+  if (loweredKey === "readiness_approved" && value === "true")
+    return "readiness_claim_rejected";
+  if (loweredKey === "release_candidate_approved" && value === "true")
+    return "release_claim_rejected";
+  if (loweredKey === "deployment_enabled" && value === "true")
+    return "deployment_claim_rejected";
+  if (loweredKey === "public_use_approved" && value === "true")
+    return "public_use_claim_rejected";
+  if (loweredKey === "signing_enabled" && value === "true")
+    return "signing_claim_rejected";
+  if (loweredKey === "publishing_enabled" && value === "true")
+    return "publishing_claim_rejected";
   return "unknown_field_rejected";
 }
 
-export function validateLocalProviderConfiguration(candidate: LocalProviderConfigurationCandidate): LocalProviderConfigurationValidation {
+export function validateLocalProviderConfiguration(
+  candidate: LocalProviderConfigurationCandidate,
+): LocalProviderConfigurationValidation {
   const errors = new Set<LocalProviderConfigurationError>();
   let providerKind: LocalProviderKind | null = null;
   const rawKind = candidate.providerKind;
@@ -409,9 +470,12 @@ export function validateLocalProviderConfiguration(candidate: LocalProviderConfi
     errors.add("missing_provider_kind");
   } else if (rawKind.trim() !== rawKind) {
     errors.add("malformed_provider_kind");
-  } else if (supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)) {
+  } else if (
+    supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)
+  ) {
     providerKind = rawKind as LocalProviderKind;
-    if (providerKind !== "deterministic_stub") errors.add("unsupported_provider_kind");
+    if (providerKind !== "deterministic_stub")
+      errors.add("unsupported_provider_kind");
   } else {
     errors.add("unsupported_provider_kind");
   }
@@ -427,23 +491,28 @@ export function validateLocalProviderConfiguration(candidate: LocalProviderConfi
       status: "accepted",
       providerKind,
       errorCodes: [],
-      reason: "deterministic_stub configuration accepted as local-session configuration-only state; provider execution remains disabled"
+      reason:
+        "deterministic_stub configuration accepted as local-session configuration-only state; provider execution remains disabled",
     };
   }
   return {
-    status: errors.has("unsupported_provider_kind") ? "unsupported" : "rejected",
+    status: errors.has("unsupported_provider_kind")
+      ? "unsupported"
+      : "rejected",
     providerKind,
     errorCodes,
-    reason: "provider configuration rejected fail-closed; prior configuration remains unchanged and no provider execution occurs"
+    reason:
+      "provider configuration rejected fail-closed; prior configuration remains unchanged and no provider execution occurs",
   };
 }
 
 export function applyLocalProviderConfigurationCandidate(
   state: LocalOperatorShellState,
-  candidate: LocalProviderConfigurationCandidate
+  candidate: LocalProviderConfigurationCandidate,
 ): LocalOperatorIntentResult {
   const validation = validateLocalProviderConfiguration(candidate);
-  if (validation.status !== "accepted") return { status: "rejected", reason: validation.reason, state };
+  if (validation.status !== "accepted")
+    return { status: "rejected", reason: validation.reason, state };
   return {
     status: "accepted",
     reason: "local_provider_configuration_accepted",
@@ -452,12 +521,11 @@ export function applyLocalProviderConfigurationCandidate(
       providerConfiguration: {
         configuredProviderKind: validation.providerKind,
         status: "accepted",
-        lastValidation: validation
-      }
-    })
+        lastValidation: validation,
+      },
+    }),
   };
 }
-
 
 export type LocalProviderAdapterKind =
   | "deterministic_fake_adapter"
@@ -495,7 +563,8 @@ export type LocalProviderAdapterValidationError =
   | "signing_claim_rejected"
   | "publishing_claim_rejected"
   | "unknown_field_rejected";
-export type LocalProviderAdapterExecutionStatus = "execution_not_available_in_phase_153";
+export type LocalProviderAdapterExecutionStatus =
+  "execution_not_available_in_phase_153";
 export type LocalProviderAdapterTrustStatus = "no_provider_trust";
 export type LocalProviderAdapterBoundaryStatus =
   | "contract_only"
@@ -572,23 +641,32 @@ export type LocalProviderAdapterRegistryProjection = Readonly<{
   note: string;
 }>;
 
-const supportedLocalProviderAdapterKinds: readonly LocalProviderAdapterKind[] = [
-  "deterministic_fake_adapter",
-  "local_model_adapter_contract",
-  "unsupported_local_model",
-  "unsupported_cloud_model",
-  "unsupported_network_adapter",
-  "unsupported_shell_adapter",
-  "unsupported_filesystem_adapter",
-  "unknown"
-];
+const supportedLocalProviderAdapterKinds: readonly LocalProviderAdapterKind[] =
+  [
+    "deterministic_fake_adapter",
+    "local_model_adapter_contract",
+    "unsupported_local_model",
+    "unsupported_cloud_model",
+    "unsupported_network_adapter",
+    "unsupported_shell_adapter",
+    "unsupported_filesystem_adapter",
+    "unknown",
+  ];
 
 export function deterministicFakeAdapterDeclarationCandidate(): LocalProviderAdapterConfigurationCandidate {
-  return { adapterKind: "deterministic_fake_adapter", declarationId: "local-adapter-declaration-deterministic-fake", fields: [] };
+  return {
+    adapterKind: "deterministic_fake_adapter",
+    declarationId: "local-adapter-declaration-deterministic-fake",
+    fields: [],
+  };
 }
 
 export function localModelAdapterContractDeclarationCandidate(): LocalProviderAdapterConfigurationCandidate {
-  return { adapterKind: "local_model_adapter_contract", declarationId: "local-adapter-declaration-local-model-contract", fields: [] };
+  return {
+    adapterKind: "local_model_adapter_contract",
+    declarationId: "local-adapter-declaration-local-model-contract",
+    fields: [],
+  };
 }
 
 export function localProviderAdapterCapabilitySurface(): LocalProviderAdapterCapabilitySurface {
@@ -604,11 +682,14 @@ export function localProviderAdapterCapabilitySurface(): LocalProviderAdapterCap
     noReleaseEffect: true,
     noDeploymentEffect: true,
     noPublicUseEffect: true,
-    summary: "Adapter contract only; no model execution is available in Phase 153. No network, shell, secret, or production persistence capability is enabled."
+    summary:
+      "Adapter contract only; no model execution is available in Phase 153. No network, shell, secret, or production persistence capability is enabled.",
   };
 }
 
-export function localProviderAdapterContract(adapterKind: LocalProviderAdapterKind): LocalProviderAdapterContract {
+export function localProviderAdapterContract(
+  adapterKind: LocalProviderAdapterKind,
+): LocalProviderAdapterContract {
   return {
     adapterKind,
     capabilitySurface: localProviderAdapterCapabilitySurface(),
@@ -625,8 +706,8 @@ export function localProviderAdapterContract(adapterKind: LocalProviderAdapterKi
       "no_readiness_effect",
       "no_release_effect",
       "no_deployment_effect",
-      "no_public_use_effect"
-    ]
+      "no_public_use_effect",
+    ],
   };
 }
 
@@ -638,47 +719,97 @@ export function initialLocalProviderAdapterRegistry(): LocalProviderAdapterRegis
       adapterKind: null,
       declarationId: null,
       errorCodes: [],
-      reason: "initial local provider adapter registry projected; no adapter declarations execute in Phase 153"
-    }
+      reason:
+        "initial local provider adapter registry projected; no adapter declarations execute in Phase 153",
+    },
   };
 }
 
-export function projectLocalProviderAdapterRegistry(registry: LocalProviderAdapterRegistry): LocalProviderAdapterRegistryProjection {
+export function projectLocalProviderAdapterRegistry(
+  registry: LocalProviderAdapterRegistry,
+): LocalProviderAdapterRegistryProjection {
   return {
     registryStatus: "registry_projected",
-    supportedAdapterKinds: ["deterministic_fake_adapter", "local_model_adapter_contract"],
-    rejectedAdapterKinds: ["unsupported_local_model", "unsupported_cloud_model", "unsupported_network_adapter", "unsupported_shell_adapter", "unsupported_filesystem_adapter", "unknown"],
+    supportedAdapterKinds: [
+      "deterministic_fake_adapter",
+      "local_model_adapter_contract",
+    ],
+    rejectedAdapterKinds: [
+      "unsupported_local_model",
+      "unsupported_cloud_model",
+      "unsupported_network_adapter",
+      "unsupported_shell_adapter",
+      "unsupported_filesystem_adapter",
+      "unknown",
+    ],
     declarations: registry.declarations,
     lastValidation: registry.lastValidation,
     capabilitySurface: localProviderAdapterCapabilitySurface(),
     executionStatus: "execution_not_available_in_phase_153",
     trustStatus: "no_provider_trust",
-    boundaryStatuses: localProviderAdapterContract("deterministic_fake_adapter").boundaryStatuses,
-    note: "Adapter contract only; no model execution is available in Phase 153. Accepted adapter declarations are non-executing. Adapter declaration does not grant provider trust. No network, shell, secret, or production persistence capability is enabled."
+    boundaryStatuses: localProviderAdapterContract("deterministic_fake_adapter")
+      .boundaryStatuses,
+    note: "Adapter contract only; no model execution is available in Phase 153. Accepted adapter declarations are non-executing. Adapter declaration does not grant provider trust. No network, shell, secret, or production persistence capability is enabled.",
   };
 }
 
-function forbiddenProviderAdapterDeclarationField(key: string, value: string): LocalProviderAdapterValidationError | null {
+function forbiddenProviderAdapterDeclarationField(
+  key: string,
+  value: string,
+): LocalProviderAdapterValidationError | null {
   const loweredKey = key.toLowerCase();
   const combined = `${loweredKey}=${value.toLowerCase()}`;
   if (loweredKey === "label" || loweredKey === "description") return null;
-  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "endpoint_field_rejected";
-  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "command_field_rejected";
-  if (["executable", "binary"].some((needle) => combined.includes(needle))) return "executable_path_rejected";
-  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "path_field_rejected";
-  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "secret_field_rejected";
-  if (["provider_execution", "execution_requested", "execution_flag"].some((needle) => combined.includes(needle))) return "execution_flag_rejected";
-  if (["trust_granted", "provider_trust", "trust_claimed"].some((needle) => combined.includes(needle))) return "provider_trust_flag_rejected";
-  if (["readiness", "ready"].some((needle) => combined.includes(needle))) return "readiness_claim_rejected";
+  if (
+    ["endpoint", "url", "host", "port", "http", "network"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "endpoint_field_rejected";
+  if (
+    ["command", "args", "shell", "process"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "command_field_rejected";
+  if (["executable", "binary"].some((needle) => combined.includes(needle)))
+    return "executable_path_rejected";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle)))
+    return "path_field_rejected";
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "secret_field_rejected";
+  if (
+    ["provider_execution", "execution_requested", "execution_flag"].some(
+      (needle) => combined.includes(needle),
+    )
+  )
+    return "execution_flag_rejected";
+  if (
+    ["trust_granted", "provider_trust", "trust_claimed"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "provider_trust_flag_rejected";
+  if (["readiness", "ready"].some((needle) => combined.includes(needle)))
+    return "readiness_claim_rejected";
   if (combined.includes("release")) return "release_claim_rejected";
-  if (["deployment", "deploy"].some((needle) => combined.includes(needle))) return "deployment_claim_rejected";
-  if (["public_use", "public-use"].some((needle) => combined.includes(needle))) return "public_use_claim_rejected";
+  if (["deployment", "deploy"].some((needle) => combined.includes(needle)))
+    return "deployment_claim_rejected";
+  if (["public_use", "public-use"].some((needle) => combined.includes(needle)))
+    return "public_use_claim_rejected";
   if (combined.includes("signing")) return "signing_claim_rejected";
-  if (["publishing", "publish"].some((needle) => combined.includes(needle))) return "publishing_claim_rejected";
+  if (["publishing", "publish"].some((needle) => combined.includes(needle)))
+    return "publishing_claim_rejected";
   return "unknown_field_rejected";
 }
 
-export function validateLocalProviderAdapterDeclaration(candidate: LocalProviderAdapterConfigurationCandidate): LocalProviderAdapterValidation {
+export function validateLocalProviderAdapterDeclaration(
+  candidate: LocalProviderAdapterConfigurationCandidate,
+): LocalProviderAdapterValidation {
   const errors = new Set<LocalProviderAdapterValidationError>();
   let adapterKind: LocalProviderAdapterKind | null = null;
   const rawKind = candidate.adapterKind;
@@ -686,51 +817,82 @@ export function validateLocalProviderAdapterDeclaration(candidate: LocalProvider
     errors.add("missing_adapter_kind");
   } else if (rawKind.trim() !== rawKind) {
     errors.add("malformed_adapter_kind");
-  } else if (supportedLocalProviderAdapterKinds.includes(rawKind as LocalProviderAdapterKind)) {
+  } else if (
+    supportedLocalProviderAdapterKinds.includes(
+      rawKind as LocalProviderAdapterKind,
+    )
+  ) {
     adapterKind = rawKind as LocalProviderAdapterKind;
-    if (adapterKind === "unsupported_cloud_model" || adapterKind === "unsupported_network_adapter") errors.add("cloud_or_network_adapter_rejected");
-    else if (adapterKind === "unsupported_shell_adapter") errors.add("shell_adapter_rejected");
-    else if (adapterKind === "unsupported_filesystem_adapter") errors.add("filesystem_adapter_rejected");
-    else if (adapterKind !== "deterministic_fake_adapter" && adapterKind !== "local_model_adapter_contract") errors.add("unsupported_adapter");
+    if (
+      adapterKind === "unsupported_cloud_model" ||
+      adapterKind === "unsupported_network_adapter"
+    )
+      errors.add("cloud_or_network_adapter_rejected");
+    else if (adapterKind === "unsupported_shell_adapter")
+      errors.add("shell_adapter_rejected");
+    else if (adapterKind === "unsupported_filesystem_adapter")
+      errors.add("filesystem_adapter_rejected");
+    else if (
+      adapterKind !== "deterministic_fake_adapter" &&
+      adapterKind !== "local_model_adapter_contract"
+    )
+      errors.add("unsupported_adapter");
   } else {
     errors.add("unsupported_adapter");
   }
 
   for (const field of candidate.fields ?? []) {
-    const error = forbiddenProviderAdapterDeclarationField(field.key, field.value);
+    const error = forbiddenProviderAdapterDeclarationField(
+      field.key,
+      field.value,
+    );
     if (error) errors.add(error);
   }
 
   const errorCodes = [...errors].sort();
-  if (errorCodes.length === 0 && (adapterKind === "deterministic_fake_adapter" || adapterKind === "local_model_adapter_contract")) {
+  if (
+    errorCodes.length === 0 &&
+    (adapterKind === "deterministic_fake_adapter" ||
+      adapterKind === "local_model_adapter_contract")
+  ) {
     return {
       status: "adapter_declared_non_executing",
       adapterKind,
       declarationId: candidate.declarationId ?? null,
       errorCodes: [],
-      reason: "adapter declaration accepted as contract-only local projection; no provider execution, trust, network, shell, secrets, or production persistence is enabled"
+      reason:
+        "adapter declaration accepted as contract-only local projection; no provider execution, trust, network, shell, secrets, or production persistence is enabled",
     };
   }
   return {
-    status: errors.has("unsupported_adapter") ? "unsupported_adapter" : "invalid_adapter_declaration",
+    status: errors.has("unsupported_adapter")
+      ? "unsupported_adapter"
+      : "invalid_adapter_declaration",
     adapterKind,
     declarationId: candidate.declarationId ?? null,
     errorCodes,
-    reason: "adapter declaration rejected fail-closed; prior registry projection remains unchanged and no provider execution occurs"
+    reason:
+      "adapter declaration rejected fail-closed; prior registry projection remains unchanged and no provider execution occurs",
   };
 }
 
 export function applyLocalProviderAdapterDeclaration(
   state: LocalOperatorShellState,
-  candidate: LocalProviderAdapterConfigurationCandidate
+  candidate: LocalProviderAdapterConfigurationCandidate,
 ): LocalOperatorIntentResult {
   const validation = validateLocalProviderAdapterDeclaration(candidate);
-  if (validation.status !== "adapter_declared_non_executing" || !validation.adapterKind) return { status: "rejected", reason: validation.reason, state };
+  if (
+    validation.status !== "adapter_declared_non_executing" ||
+    !validation.adapterKind
+  )
+    return { status: "rejected", reason: validation.reason, state };
   const declaration: LocalProviderAdapterDeclaration = {
     adapterKind: validation.adapterKind,
-    declarationId: validation.declarationId ?? `local-adapter-declaration-${validation.adapterKind}`,
+    declarationId:
+      validation.declarationId ??
+      `local-adapter-declaration-${validation.adapterKind}`,
     status: validation.status,
-    contract: localProviderAdapterContract(validation.adapterKind)
+    contract: localProviderAdapterContract(validation.adapterKind),
   };
   return {
     status: "accepted",
@@ -739,9 +901,9 @@ export function applyLocalProviderAdapterDeclaration(
       ...state,
       localProviderAdapterRegistry: {
         declarations: [declaration],
-        lastValidation: validation
-      }
-    })
+        lastValidation: validation,
+      },
+    }),
   };
 }
 
@@ -851,7 +1013,10 @@ export type LocalProviderAdapterDryRunProjection = Readonly<{
 }>;
 
 export function deterministicFakeAdapterDryRunRequest(): LocalProviderAdapterDryRunRequest {
-  return { inputSummary: "phase 154 deterministic fake adapter dry-run input", fields: [] };
+  return {
+    inputSummary: "phase 154 deterministic fake adapter dry-run input",
+    fields: [],
+  };
 }
 
 export function localProviderAdapterDryRunBoundaryStatuses(): readonly LocalProviderAdapterDryRunBoundaryStatus[] {
@@ -870,12 +1035,20 @@ export function localProviderAdapterDryRunBoundaryStatuses(): readonly LocalProv
     "no_readiness_effect",
     "no_release_effect",
     "no_deployment_effect",
-    "no_public_use_effect"
+    "no_public_use_effect",
   ];
 }
 
 export function localProviderAdapterDryRunEffectStatuses(): readonly LocalProviderAdapterDryRunEffectStatus[] {
-  return ["no_provider_trust", "no_candidate_materialization", "no_action_execution", "no_readiness_effect", "no_release_effect", "no_deployment_effect", "no_public_use_effect"];
+  return [
+    "no_provider_trust",
+    "no_candidate_materialization",
+    "no_action_execution",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "no_public_use_effect",
+  ];
 }
 
 export function localProviderAdapterDryRunCapabilitySurface(): LocalProviderAdapterDryRunCapabilitySurface {
@@ -895,7 +1068,8 @@ export function localProviderAdapterDryRunCapabilitySurface(): LocalProviderAdap
     noReleaseEffect: true,
     noDeploymentEffect: true,
     noPublicUseEffect: true,
-    summary: "Controlled adapter dry run only; only deterministic_fake_adapter can execute in Phase 154. No real model execution, process, network, shell, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled."
+    summary:
+      "Controlled adapter dry run only; only deterministic_fake_adapter can execute in Phase 154. No real model execution, process, network, shell, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled.",
   };
 }
 
@@ -911,7 +1085,8 @@ export function initialLocalProviderAdapterDryRunProjection(): LocalProviderAdap
     effectStatuses: localProviderAdapterDryRunEffectStatuses(),
     capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
     registryDeclarationCount: 0,
-    reason: "adapter dry-run not_run; deterministic_fake_adapter declaration is required before Phase 154 dry run"
+    reason:
+      "adapter dry-run not_run; deterministic_fake_adapter declaration is required before Phase 154 dry run",
   };
 }
 
@@ -920,7 +1095,7 @@ function rejectLocalProviderAdapterDryRun(
   adapterKind: LocalProviderAdapterKind | null,
   adapterDeclarationId: string | null,
   registryDeclarationCount: number,
-  errorCodes: readonly LocalProviderAdapterDryRunError[]
+  errorCodes: readonly LocalProviderAdapterDryRunError[],
 ): LocalProviderAdapterDryRunProjection {
   return {
     status,
@@ -933,29 +1108,93 @@ function rejectLocalProviderAdapterDryRun(
     effectStatuses: localProviderAdapterDryRunEffectStatuses(),
     capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
     registryDeclarationCount,
-    reason: "adapter dry-run rejected fail-closed; prior accepted shell state is preserved and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs"
+    reason:
+      "adapter dry-run rejected fail-closed; prior accepted shell state is preserved and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs",
   };
 }
 
-function forbiddenProviderAdapterDryRunField(key: string, value: string): LocalProviderAdapterDryRunError | null {
+function forbiddenProviderAdapterDryRunField(
+  key: string,
+  value: string,
+): LocalProviderAdapterDryRunError | null {
   const loweredKey = key.toLowerCase();
   const combined = `${loweredKey}=${value.toLowerCase()}`;
-  const safeInput = loweredKey === "inputsummary" || loweredKey === "input_summary" || loweredKey === "label" || loweredKey === "description";
-  const hasForbidden = ["endpoint", "url", "host", "port", "http", "network", "command", "args", "process", "shell", "executable", "binary", "path", "file", "directory", "secret", "token", "api_key", "apikey", "credential", "execution", "trust", "readiness", "ready", "release", "deployment", "deploy", "public_use", "public-use", "signing", "publishing", "publish", "action", "persistence"].some((needle) => combined.includes(needle));
+  const safeInput =
+    loweredKey === "inputsummary" ||
+    loweredKey === "input_summary" ||
+    loweredKey === "label" ||
+    loweredKey === "description";
+  const hasForbidden = [
+    "endpoint",
+    "url",
+    "host",
+    "port",
+    "http",
+    "network",
+    "command",
+    "args",
+    "process",
+    "shell",
+    "executable",
+    "binary",
+    "path",
+    "file",
+    "directory",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "credential",
+    "execution",
+    "trust",
+    "readiness",
+    "ready",
+    "release",
+    "deployment",
+    "deploy",
+    "public_use",
+    "public-use",
+    "signing",
+    "publishing",
+    "publish",
+    "action",
+    "persistence",
+  ].some((needle) => combined.includes(needle));
   if (safeInput && !hasForbidden) return null;
-  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "endpoint_field_rejected";
-  if (["command", "args", "process", "shell"].some((needle) => combined.includes(needle))) return "command_field_rejected";
-  if (["executable", "binary"].some((needle) => combined.includes(needle))) return "executable_path_rejected";
-  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "path_field_rejected";
-  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "secret_field_rejected";
+  if (
+    ["endpoint", "url", "host", "port", "http", "network"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "endpoint_field_rejected";
+  if (
+    ["command", "args", "process", "shell"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "command_field_rejected";
+  if (["executable", "binary"].some((needle) => combined.includes(needle)))
+    return "executable_path_rejected";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle)))
+    return "path_field_rejected";
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "secret_field_rejected";
   if (combined.includes("execution")) return "execution_claim_rejected";
   if (combined.includes("trust")) return "trust_claim_rejected";
-  if (["readiness", "ready"].some((needle) => combined.includes(needle))) return "readiness_claim_rejected";
+  if (["readiness", "ready"].some((needle) => combined.includes(needle)))
+    return "readiness_claim_rejected";
   if (combined.includes("release")) return "release_claim_rejected";
-  if (["deployment", "deploy"].some((needle) => combined.includes(needle))) return "deployment_claim_rejected";
-  if (["public_use", "public-use"].some((needle) => combined.includes(needle))) return "public_use_claim_rejected";
+  if (["deployment", "deploy"].some((needle) => combined.includes(needle)))
+    return "deployment_claim_rejected";
+  if (["public_use", "public-use"].some((needle) => combined.includes(needle)))
+    return "public_use_claim_rejected";
   if (combined.includes("signing")) return "signing_claim_rejected";
-  if (["publishing", "publish"].some((needle) => combined.includes(needle))) return "publishing_claim_rejected";
+  if (["publishing", "publish"].some((needle) => combined.includes(needle)))
+    return "publishing_claim_rejected";
   if (combined.includes("action")) return "action_claim_rejected";
   if (combined.includes("persistence")) return "persistence_claim_rejected";
   return null;
@@ -963,47 +1202,76 @@ function forbiddenProviderAdapterDryRunField(key: string, value: string): LocalP
 
 export function validateLocalProviderAdapterDryRunRequest(
   registry: LocalProviderAdapterRegistry,
-  request: LocalProviderAdapterDryRunRequest
+  request: LocalProviderAdapterDryRunRequest,
 ): LocalProviderAdapterDeclaration | LocalProviderAdapterDryRunProjection {
   const declaration = registry.declarations[registry.declarations.length - 1];
-  if (!declaration) return rejectLocalProviderAdapterDryRun("adapter_required", null, null, registry.declarations.length, ["no_adapter_declared"]);
+  if (!declaration)
+    return rejectLocalProviderAdapterDryRun(
+      "adapter_required",
+      null,
+      null,
+      registry.declarations.length,
+      ["no_adapter_declared"],
+    );
   const errors = new Set<LocalProviderAdapterDryRunError>();
-  if (declaration.status !== "adapter_declared_non_executing") errors.add("adapter_not_accepted");
-  if (declaration.adapterKind === "local_model_adapter_contract") errors.add("local_model_adapter_not_executable_in_phase_154");
-  else if (declaration.adapterKind === "unsupported_cloud_model") errors.add("cloud_adapter_rejected");
-  else if (declaration.adapterKind === "unsupported_network_adapter") errors.add("network_adapter_rejected");
-  else if (declaration.adapterKind === "unsupported_shell_adapter") errors.add("shell_adapter_rejected");
-  else if (declaration.adapterKind === "unsupported_filesystem_adapter") errors.add("filesystem_adapter_rejected");
-  else if (declaration.adapterKind !== "deterministic_fake_adapter") errors.add("unsupported_adapter_kind");
+  if (declaration.status !== "adapter_declared_non_executing")
+    errors.add("adapter_not_accepted");
+  if (declaration.adapterKind === "local_model_adapter_contract")
+    errors.add("local_model_adapter_not_executable_in_phase_154");
+  else if (declaration.adapterKind === "unsupported_cloud_model")
+    errors.add("cloud_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_network_adapter")
+    errors.add("network_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_shell_adapter")
+    errors.add("shell_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_filesystem_adapter")
+    errors.add("filesystem_adapter_rejected");
+  else if (declaration.adapterKind !== "deterministic_fake_adapter")
+    errors.add("unsupported_adapter_kind");
   for (const field of request.fields ?? []) {
     const error = forbiddenProviderAdapterDryRunField(field.key, field.value);
     if (error) errors.add(error);
   }
-  const inputError = forbiddenProviderAdapterDryRunField("input_summary", request.inputSummary);
+  const inputError = forbiddenProviderAdapterDryRunField(
+    "input_summary",
+    request.inputSummary,
+  );
   if (inputError) errors.add(inputError);
   const errorCodes = [...errors].sort();
   if (errorCodes.length === 0) return declaration;
-  const unsupportedErrors: readonly LocalProviderAdapterDryRunError[] = ["local_model_adapter_not_executable_in_phase_154", "cloud_adapter_rejected", "network_adapter_rejected", "shell_adapter_rejected", "filesystem_adapter_rejected", "unsupported_adapter_kind"];
+  const unsupportedErrors: readonly LocalProviderAdapterDryRunError[] = [
+    "local_model_adapter_not_executable_in_phase_154",
+    "cloud_adapter_rejected",
+    "network_adapter_rejected",
+    "shell_adapter_rejected",
+    "filesystem_adapter_rejected",
+    "unsupported_adapter_kind",
+  ];
   return rejectLocalProviderAdapterDryRun(
-    errorCodes.some((error) => unsupportedErrors.includes(error)) ? "unsupported_adapter" : "invalid_dry_run_request",
+    errorCodes.some((error) => unsupportedErrors.includes(error))
+      ? "unsupported_adapter"
+      : "invalid_dry_run_request",
     declaration.adapterKind,
     declaration.declarationId,
     registry.declarations.length,
-    errorCodes
+    errorCodes,
   );
 }
 
 function deterministicAdapterDryRunChecksum(input: string): bigint {
   let checksum = 154n;
-  for (const char of input) checksum = BigInt.asUintN(64, checksum * 31n + BigInt(char.charCodeAt(0)));
+  for (const char of input)
+    checksum = BigInt.asUintN(64, checksum * 31n + BigInt(char.charCodeAt(0)));
   return checksum;
 }
 
 export function executeDeterministicFakeAdapterDryRun(
   declaration: LocalProviderAdapterDeclaration,
-  request: LocalProviderAdapterDryRunRequest
+  request: LocalProviderAdapterDryRunRequest,
 ): LocalProviderAdapterDryRunResult {
-  const checksum = deterministicAdapterDryRunChecksum(`${declaration.declarationId}|${declaration.adapterKind}|${request.inputSummary}`);
+  const checksum = deterministicAdapterDryRunChecksum(
+    `${declaration.declarationId}|${declaration.adapterKind}|${request.inputSummary}`,
+  );
   const checksumText = checksum.toString(16).padStart(16, "0");
   return {
     resultId: `local-provider-adapter-dry-run-${checksumText}`,
@@ -1012,16 +1280,24 @@ export function executeDeterministicFakeAdapterDryRun(
     outputSummary: `deterministic_fake_adapter dry-run descriptive output for input_bytes=${new TextEncoder().encode(request.inputSummary).length} checksum=${checksumText}`,
     outputTrustStatus: "untrusted_descriptive",
     boundaryStatuses: localProviderAdapterDryRunBoundaryStatuses(),
-    effectStatuses: localProviderAdapterDryRunEffectStatuses()
+    effectStatuses: localProviderAdapterDryRunEffectStatuses(),
   };
 }
 
 export function applyLocalProviderAdapterDryRun(
   state: LocalOperatorShellState,
-  request: LocalProviderAdapterDryRunRequest
+  request: LocalProviderAdapterDryRunRequest,
 ): LocalOperatorIntentResult {
-  const validation = validateLocalProviderAdapterDryRunRequest(state.localProviderAdapterRegistry, request);
-  if ("result" in validation) return { status: "rejected", reason: "local_provider_adapter_dry_run_rejected", state: { ...state, localProviderAdapterDryRun: validation } };
+  const validation = validateLocalProviderAdapterDryRunRequest(
+    state.localProviderAdapterRegistry,
+    request,
+  );
+  if ("result" in validation)
+    return {
+      status: "rejected",
+      reason: "local_provider_adapter_dry_run_rejected",
+      state: { ...state, localProviderAdapterDryRun: validation },
+    };
   const result = executeDeterministicFakeAdapterDryRun(validation, request);
   return {
     status: "accepted",
@@ -1038,13 +1314,465 @@ export function applyLocalProviderAdapterDryRun(
         outputTrustStatus: "untrusted_descriptive",
         effectStatuses: localProviderAdapterDryRunEffectStatuses(),
         capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
-        registryDeclarationCount: state.localProviderAdapterRegistry.declarations.length,
-        reason: "controlled adapter dry run executed through deterministic_fake_adapter only; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs"
-      }
-    })
+        registryDeclarationCount:
+          state.localProviderAdapterRegistry.declarations.length,
+        reason:
+          "controlled adapter dry run executed through deterministic_fake_adapter only; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs",
+      },
+    }),
   };
 }
 
+export type AllowlistedLocalProviderKind =
+  | "allowlisted_local_deterministic_provider"
+  | "unsupported_local_provider"
+  | "unsupported_cloud_provider"
+  | "unsupported_network_provider"
+  | "unsupported_shell_provider";
+export type ConstrainedLocalProviderInvocationStatus =
+  | "not_invoked"
+  | "invocation_executed"
+  | "invocation_rejected"
+  | "allowlisted_provider_required"
+  | "unsupported_provider"
+  | "invalid_invocation_request";
+export type ConstrainedLocalProviderInvocationError =
+  | "no_adapter_declared"
+  | "adapter_not_accepted"
+  | "provider_not_allowlisted"
+  | "arbitrary_command_rejected"
+  | "shell_field_rejected"
+  | "process_field_rejected"
+  | "args_field_rejected"
+  | "endpoint_field_rejected"
+  | "network_field_rejected"
+  | "secret_field_rejected"
+  | "path_field_rejected"
+  | "trust_claim_rejected"
+  | "provider_output_approval_claim_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "candidate_materialization_claim_rejected"
+  | "action_claim_rejected"
+  | "persistence_claim_rejected";
+export type ConstrainedLocalProviderInvocationBoundaryStatus =
+  | "constrained_local_invocation_only"
+  | "allowlisted_provider_only"
+  | "no_arbitrary_command"
+  | "no_shell"
+  | "no_network"
+  | "no_cloud"
+  | "no_secrets"
+  | "no_provider_trust"
+  | "no_candidate_materialization"
+  | "no_action_execution"
+  | "no_production_persistence"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+export type ConstrainedLocalProviderInvocationTrustStatus =
+  "untrusted_descriptive";
+export type ConstrainedLocalProviderInvocationEffectStatus =
+  | "no_provider_trust"
+  | "no_candidate_materialization"
+  | "no_action_execution"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+
+export type ConstrainedLocalProviderInvocationCapabilitySurface = Readonly<{
+  constrainedLocalInvocationOnly: true;
+  allowlistedProviderOnly: true;
+  allowlistedProviderKind: "allowlisted_local_deterministic_provider";
+  noArbitraryCommand: true;
+  noShell: true;
+  noNetwork: true;
+  noCloud: true;
+  noSecrets: true;
+  noProviderTrust: true;
+  noCandidateMaterialization: true;
+  noActionExecution: true;
+  noProductionPersistence: true;
+  noReadinessEffect: true;
+  noReleaseEffect: true;
+  noDeploymentEffect: true;
+  noPublicUseEffect: true;
+  summary: string;
+}>;
+
+export type ConstrainedLocalProviderInvocationRequest = Readonly<{
+  providerKind: AllowlistedLocalProviderKind;
+  inputSummary: string;
+  fields?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+export type ConstrainedLocalProviderInvocationResult = Readonly<{
+  resultId: string;
+  providerKind: AllowlistedLocalProviderKind;
+  adapterKind: LocalProviderAdapterKind;
+  adapterDeclarationId: string;
+  outputSummary: string;
+  outputTrustStatus: ConstrainedLocalProviderInvocationTrustStatus;
+  boundaryStatuses: readonly ConstrainedLocalProviderInvocationBoundaryStatus[];
+  effectStatuses: readonly ConstrainedLocalProviderInvocationEffectStatus[];
+}>;
+
+export type ConstrainedLocalProviderInvocationProjection = Readonly<{
+  status: ConstrainedLocalProviderInvocationStatus;
+  providerKind: AllowlistedLocalProviderKind | null;
+  adapterKind: LocalProviderAdapterKind | null;
+  adapterDeclarationId: string | null;
+  result: ConstrainedLocalProviderInvocationResult | null;
+  errorCodes: readonly ConstrainedLocalProviderInvocationError[];
+  boundaryStatuses: readonly ConstrainedLocalProviderInvocationBoundaryStatus[];
+  outputTrustStatus: ConstrainedLocalProviderInvocationTrustStatus;
+  effectStatuses: readonly ConstrainedLocalProviderInvocationEffectStatus[];
+  capabilitySurface: ConstrainedLocalProviderInvocationCapabilitySurface;
+  registryDeclarationCount: number;
+  reason: string;
+}>;
+
+export function allowlistedLocalProviderInvocationRequest(): ConstrainedLocalProviderInvocationRequest {
+  return {
+    providerKind: "allowlisted_local_deterministic_provider",
+    inputSummary: "phase 156 constrained local provider invocation input",
+    fields: [],
+  };
+}
+
+export function constrainedLocalProviderInvocationBoundaryStatuses(): readonly ConstrainedLocalProviderInvocationBoundaryStatus[] {
+  return [
+    "constrained_local_invocation_only",
+    "allowlisted_provider_only",
+    "no_arbitrary_command",
+    "no_shell",
+    "no_network",
+    "no_cloud",
+    "no_secrets",
+    "no_provider_trust",
+    "no_candidate_materialization",
+    "no_action_execution",
+    "no_production_persistence",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "no_public_use_effect",
+  ];
+}
+
+export function constrainedLocalProviderInvocationEffectStatuses(): readonly ConstrainedLocalProviderInvocationEffectStatus[] {
+  return [
+    "no_provider_trust",
+    "no_candidate_materialization",
+    "no_action_execution",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "no_public_use_effect",
+  ];
+}
+
+export function constrainedLocalProviderInvocationCapabilitySurface(): ConstrainedLocalProviderInvocationCapabilitySurface {
+  return {
+    constrainedLocalInvocationOnly: true,
+    allowlistedProviderOnly: true,
+    allowlistedProviderKind: "allowlisted_local_deterministic_provider",
+    noArbitraryCommand: true,
+    noShell: true,
+    noNetwork: true,
+    noCloud: true,
+    noSecrets: true,
+    noProviderTrust: true,
+    noCandidateMaterialization: true,
+    noActionExecution: true,
+    noProductionPersistence: true,
+    noReadinessEffect: true,
+    noReleaseEffect: true,
+    noDeploymentEffect: true,
+    noPublicUseEffect: true,
+    summary:
+      "Constrained local provider invocation only; only allowlisted_local_deterministic_provider is enabled in Phase 156. No arbitrary command, shell, network, cloud, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled.",
+  };
+}
+
+export function initialConstrainedLocalProviderInvocationProjection(): ConstrainedLocalProviderInvocationProjection {
+  return {
+    status: "not_invoked",
+    providerKind: null,
+    adapterKind: null,
+    adapterDeclarationId: null,
+    result: null,
+    errorCodes: [],
+    boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+    outputTrustStatus: "untrusted_descriptive",
+    effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+    capabilitySurface: constrainedLocalProviderInvocationCapabilitySurface(),
+    registryDeclarationCount: 0,
+    reason:
+      "constrained local provider invocation not_invoked; accepted deterministic_fake_adapter declaration and allowlisted_local_deterministic_provider are required for Phase 156 invocation",
+  };
+}
+
+function rejectConstrainedLocalProviderInvocation(
+  status: ConstrainedLocalProviderInvocationStatus,
+  providerKind: AllowlistedLocalProviderKind | null,
+  adapterKind: LocalProviderAdapterKind | null,
+  adapterDeclarationId: string | null,
+  registryDeclarationCount: number,
+  errorCodes: readonly ConstrainedLocalProviderInvocationError[],
+): ConstrainedLocalProviderInvocationProjection {
+  return {
+    status,
+    providerKind,
+    adapterKind,
+    adapterDeclarationId,
+    result: null,
+    errorCodes,
+    boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+    outputTrustStatus: "untrusted_descriptive",
+    effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+    capabilitySurface: constrainedLocalProviderInvocationCapabilitySurface(),
+    registryDeclarationCount,
+    reason:
+      "constrained local provider invocation rejected fail-closed; prior accepted invocation projection is preserved when present and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
+  };
+}
+
+function forbiddenConstrainedLocalProviderInvocationField(
+  key: string,
+  value: string,
+): ConstrainedLocalProviderInvocationError | null {
+  const loweredKey = key.toLowerCase();
+  const combined = `${loweredKey}=${value.toLowerCase()}`;
+  const safeInput =
+    loweredKey === "inputsummary" ||
+    loweredKey === "input_summary" ||
+    loweredKey === "label" ||
+    loweredKey === "description";
+  const forbidden = [
+    "endpoint",
+    "url",
+    "host",
+    "port",
+    "http",
+    "network",
+    "cloud",
+    "command",
+    "shell",
+    "process",
+    "args",
+    "path",
+    "file",
+    "directory",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "credential",
+    "trust",
+    "approved_output",
+    "provider_output_approval",
+    "readiness",
+    "ready",
+    "release",
+    "deployment",
+    "deploy",
+    "public_use",
+    "public-use",
+    "candidate",
+    "materialization",
+    "action",
+    "persistence",
+  ].some((needle) => combined.includes(needle));
+  if (safeInput && !forbidden) return null;
+  if (combined.includes("command")) return "arbitrary_command_rejected";
+  if (combined.includes("shell")) return "shell_field_rejected";
+  if (combined.includes("process")) return "process_field_rejected";
+  if (combined.includes("args")) return "args_field_rejected";
+  if (
+    ["endpoint", "url", "host", "port", "http"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "endpoint_field_rejected";
+  if (["network", "cloud"].some((needle) => combined.includes(needle)))
+    return "network_field_rejected";
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "secret_field_rejected";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle)))
+    return "path_field_rejected";
+  if (
+    combined.includes("approved_output") ||
+    combined.includes("provider_output_approval")
+  )
+    return "provider_output_approval_claim_rejected";
+  if (combined.includes("trust")) return "trust_claim_rejected";
+  if (["readiness", "ready"].some((needle) => combined.includes(needle)))
+    return "readiness_claim_rejected";
+  if (combined.includes("release")) return "release_claim_rejected";
+  if (["deployment", "deploy"].some((needle) => combined.includes(needle)))
+    return "deployment_claim_rejected";
+  if (["public_use", "public-use"].some((needle) => combined.includes(needle)))
+    return "public_use_claim_rejected";
+  if (
+    ["candidate", "materialization"].some((needle) => combined.includes(needle))
+  )
+    return "candidate_materialization_claim_rejected";
+  if (combined.includes("action")) return "action_claim_rejected";
+  if (combined.includes("persistence")) return "persistence_claim_rejected";
+  return null;
+}
+
+export function validateConstrainedLocalProviderInvocationRequest(
+  registry: LocalProviderAdapterRegistry,
+  request: ConstrainedLocalProviderInvocationRequest,
+):
+  | LocalProviderAdapterDeclaration
+  | ConstrainedLocalProviderInvocationProjection {
+  const errors = new Set<ConstrainedLocalProviderInvocationError>();
+  if (
+    request.providerKind === "unsupported_cloud_provider" ||
+    request.providerKind === "unsupported_network_provider"
+  ) {
+    errors.add("provider_not_allowlisted");
+    errors.add("network_field_rejected");
+  } else if (request.providerKind === "unsupported_shell_provider") {
+    errors.add("provider_not_allowlisted");
+    errors.add("shell_field_rejected");
+  } else if (
+    request.providerKind !== "allowlisted_local_deterministic_provider"
+  ) {
+    errors.add("provider_not_allowlisted");
+  }
+  const declaration = registry.declarations[registry.declarations.length - 1];
+  if (!declaration) {
+    errors.add("no_adapter_declared");
+    return rejectConstrainedLocalProviderInvocation(
+      "allowlisted_provider_required",
+      request.providerKind,
+      null,
+      null,
+      registry.declarations.length,
+      [...errors].sort(),
+    );
+  }
+  if (
+    declaration.status !== "adapter_declared_non_executing" ||
+    declaration.adapterKind !== "deterministic_fake_adapter"
+  )
+    errors.add("adapter_not_accepted");
+  for (const field of request.fields ?? []) {
+    const error = forbiddenConstrainedLocalProviderInvocationField(
+      field.key,
+      field.value,
+    );
+    if (error) errors.add(error);
+  }
+  const inputError = forbiddenConstrainedLocalProviderInvocationField(
+    "input_summary",
+    request.inputSummary,
+  );
+  if (inputError) errors.add(inputError);
+  const errorCodes = [...errors].sort();
+  if (errorCodes.length === 0) return declaration;
+  const unsupported = errorCodes.some((error) =>
+    [
+      "provider_not_allowlisted",
+      "network_field_rejected",
+      "shell_field_rejected",
+      "adapter_not_accepted",
+    ].includes(error),
+  );
+  return rejectConstrainedLocalProviderInvocation(
+    unsupported ? "unsupported_provider" : "invalid_invocation_request",
+    request.providerKind,
+    declaration.adapterKind,
+    declaration.declarationId,
+    registry.declarations.length,
+    errorCodes,
+  );
+}
+
+function deterministicConstrainedLocalProviderInvocationChecksum(
+  input: string,
+): bigint {
+  let checksum = 156n;
+  for (const char of input)
+    checksum = BigInt.asUintN(64, checksum * 33n + BigInt(char.charCodeAt(0)));
+  return checksum;
+}
+
+export function executeAllowlistedLocalDeterministicProviderInvocation(
+  declaration: LocalProviderAdapterDeclaration,
+  request: ConstrainedLocalProviderInvocationRequest,
+): ConstrainedLocalProviderInvocationResult {
+  const checksum = deterministicConstrainedLocalProviderInvocationChecksum(
+    `${declaration.declarationId}|${declaration.adapterKind}|${request.providerKind}|${request.inputSummary}`,
+  );
+  const checksumText = checksum.toString(16).padStart(16, "0");
+  return {
+    resultId: `constrained-local-provider-invocation-${checksumText}`,
+    providerKind: request.providerKind,
+    adapterKind: declaration.adapterKind,
+    adapterDeclarationId: declaration.declarationId,
+    outputSummary: `allowlisted_local_deterministic_provider descriptive output for input_bytes=${new TextEncoder().encode(request.inputSummary).length} checksum=${checksumText}`,
+    outputTrustStatus: "untrusted_descriptive",
+    boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+    effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+  };
+}
+
+export function applyConstrainedLocalProviderInvocation(
+  state: LocalOperatorShellState,
+  request: ConstrainedLocalProviderInvocationRequest,
+): LocalOperatorIntentResult {
+  const validation = validateConstrainedLocalProviderInvocationRequest(
+    state.localProviderAdapterRegistry,
+    request,
+  );
+  if ("result" in validation)
+    return {
+      status: "rejected",
+      reason: "constrained_local_provider_invocation_rejected",
+      state: { ...state, constrainedLocalProviderInvocation: validation },
+    };
+  const result = executeAllowlistedLocalDeterministicProviderInvocation(
+    validation,
+    request,
+  );
+  return {
+    status: "accepted",
+    reason: "constrained_local_provider_invocation_executed",
+    state: attachLocalSessionEvidenceExport({
+      ...state,
+      constrainedLocalProviderInvocation: {
+        status: "invocation_executed",
+        providerKind: result.providerKind,
+        adapterKind: result.adapterKind,
+        adapterDeclarationId: result.adapterDeclarationId,
+        result,
+        errorCodes: [],
+        boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+        outputTrustStatus: "untrusted_descriptive",
+        effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+        capabilitySurface:
+          constrainedLocalProviderInvocationCapabilitySurface(),
+        registryDeclarationCount:
+          state.localProviderAdapterRegistry.declarations.length,
+        reason:
+          "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
+      },
+    }),
+  };
+}
 
 export type LocalProviderExecutionStatus =
   | "not_executed"
@@ -1088,13 +1816,16 @@ export type LocalProviderOutputMaterializationStatus =
   | "projected_as_untrusted_output"
   | "not_candidate_material"
   | "candidate_material";
-export type LocalProviderOutputTrustStatus = "untrusted_descriptive" | "trusted_output";
-export type LocalProviderExecutionResultOutputTrustStatus = "untrusted/descriptive" | "trusted_output";
+export type LocalProviderOutputTrustStatus =
+  | "untrusted_descriptive"
+  | "trusted_output";
+export type LocalProviderExecutionResultOutputTrustStatus =
+  | "untrusted/descriptive"
+  | "trusted_output";
 export type LocalProviderOutputPromotionStatus =
   | "not_promoted"
   | "promotion_not_available_in_phase_142"
   | "promoted";
-
 
 export type LocalProviderOutputValidationStatus =
   | "not_validated"
@@ -1259,7 +1990,9 @@ export type LocalProviderExecutionProjection = Readonly<{
   note: string;
 }>;
 
-export function deterministicStubProviderExecutionRequest(inputSummary = "local deterministic provider input"): LocalProviderExecutionRequest {
+export function deterministicStubProviderExecutionRequest(
+  inputSummary = "local deterministic provider input",
+): LocalProviderExecutionRequest {
   return { providerKind: "deterministic_stub", inputSummary, fields: [] };
 }
 
@@ -1279,17 +2012,21 @@ export function localProviderExecutionCapabilitySurface(): LocalProviderExecutio
     signingEnabled: false,
     publishingEnabled: false,
     publicUseEnabled: false,
-    summary: "sandboxed deterministic provider execution supports deterministic_stub only; no cloud, network, shell, filesystem, secrets, trust, readiness, release, deployment, signing, publishing, or public-use capability"
+    summary:
+      "sandboxed deterministic provider execution supports deterministic_stub only; no cloud, network, shell, filesystem, secrets, trust, readiness, release, deployment, signing, publishing, or public-use capability",
   };
 }
-
 
 export function localProviderOutputValidationNoEffects(): LocalProviderOutputValidationEffect {
   return "none";
 }
 
 function localProviderOutputCandidateBoundaryStatuses(): readonly LocalProviderOutputCandidateBoundaryStatus[] {
-  return ["not_candidate_material", "candidate_conversion_not_performed", "candidate_conversion_requires_future_phase"];
+  return [
+    "not_candidate_material",
+    "candidate_conversion_not_performed",
+    "candidate_conversion_requires_future_phase",
+  ];
 }
 
 export function initialLocalProviderOutputValidationProjection(): LocalProviderOutputValidationProjection {
@@ -1298,7 +2035,11 @@ export function initialLocalProviderOutputValidationProjection(): LocalProviderO
     reviewabilityStatus: "not_reviewable",
     candidateBoundaryStatus: "not_candidate_material",
     candidateBoundaryStatuses: localProviderOutputCandidateBoundaryStatuses(),
-    reasons: ["no_provider_execution_result", "missing_execution_result", "candidate_conversion_not_available_in_phase_143"],
+    reasons: [
+      "no_provider_execution_result",
+      "missing_execution_result",
+      "candidate_conversion_not_available_in_phase_143",
+    ],
     providerExecutionResultId: null,
     providerKind: "none",
     outputTrustStatus: "untrusted_descriptive",
@@ -1312,13 +2053,16 @@ export function initialLocalProviderOutputValidationProjection(): LocalProviderO
     readinessEffect: localProviderOutputValidationNoEffects(),
     releaseEffect: localProviderOutputValidationNoEffects(),
     deploymentEffect: localProviderOutputValidationNoEffects(),
-    note: "Provider output validation has not run; provider output is not candidate material and cannot be approved in Phase 143."
+    note: "Provider output validation has not run; provider output is not candidate material and cannot be approved in Phase 143.",
   };
 }
 
-export function localProviderOutputValidationReasons(execution: LocalProviderExecutionProjection): readonly LocalProviderOutputValidationReason[] {
+export function localProviderOutputValidationReasons(
+  execution: LocalProviderExecutionProjection,
+): readonly LocalProviderOutputValidationReason[] {
   const reasons = new Set<LocalProviderOutputValidationReason>();
-  if (execution.projectionStatus !== "execution_projected") reasons.add("provider_execution_not_projected");
+  if (execution.projectionStatus !== "execution_projected")
+    reasons.add("provider_execution_not_projected");
   const result = execution.result;
   if (!result) {
     reasons.add("no_provider_execution_result");
@@ -1326,28 +2070,101 @@ export function localProviderOutputValidationReasons(execution: LocalProviderExe
     reasons.add("candidate_conversion_not_available_in_phase_143");
     return [...reasons].sort();
   }
-  if (result.providerKind !== "deterministic_stub") reasons.add("unsupported_provider_kind");
+  if (result.providerKind !== "deterministic_stub")
+    reasons.add("unsupported_provider_kind");
   const output = result.outputSummary.trim();
   if (output.length === 0) reasons.add("empty_output");
   if (result.outputSummary.length > 1024) reasons.add("output_too_large");
-  if (!result.outputSummary.startsWith("deterministic_stub descriptive output for input_bytes=") || !result.outputSummary.includes(" checksum=") || result.sandboxStatus !== "sandboxed_deterministic_no_external_effects" || result.outputTrustStatus !== "untrusted/descriptive" || result.outputMaterializationStatus !== "projected_as_untrusted_output" || result.outputPromotionStatus !== "not_promoted" || result.promotionAvailabilityStatus !== "promotion_not_available_in_phase_142" || !result.descriptiveOnly || result.providerOutputTrusted || result.candidateOutputPromoted || result.decisionAppended || result.replayRepaired || result.releaseOrDeploymentEvidenceCreated) reasons.add("malformed_output");
+  if (
+    !result.outputSummary.startsWith(
+      "deterministic_stub descriptive output for input_bytes=",
+    ) ||
+    !result.outputSummary.includes(" checksum=") ||
+    result.sandboxStatus !== "sandboxed_deterministic_no_external_effects" ||
+    result.outputTrustStatus !== "untrusted/descriptive" ||
+    result.outputMaterializationStatus !== "projected_as_untrusted_output" ||
+    result.outputPromotionStatus !== "not_promoted" ||
+    result.promotionAvailabilityStatus !==
+      "promotion_not_available_in_phase_142" ||
+    !result.descriptiveOnly ||
+    result.providerOutputTrusted ||
+    result.candidateOutputPromoted ||
+    result.decisionAppended ||
+    result.replayRepaired ||
+    result.releaseOrDeploymentEvidenceCreated
+  )
+    reasons.add("malformed_output");
   const lower = result.outputSummary.toLowerCase();
-  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => lower.includes(needle))) reasons.add("contains_forbidden_secret_marker");
-  if (["command", "shell", "process", "execute ", "run "].some((needle) => lower.includes(needle))) reasons.add("contains_execution_instruction");
-  if (["http://", "https://", "network", "socket", "fetch("].some((needle) => lower.includes(needle))) reasons.add("contains_network_instruction");
-  if (["filesystem", "file ", "write ", "path", "directory", "fs::write"].some((needle) => lower.includes(needle))) reasons.add("contains_filesystem_instruction");
-  if (["readiness", "release", "deployment", "public-use", "public use", "production ready"].some((needle) => lower.includes(needle))) reasons.add("contains_readiness_or_release_claim");
-  if (["trusted_output", "trusted output", "approved_output", "approved output", "approval granted", "trust_granted"].some((needle) => lower.includes(needle))) reasons.add("contains_trust_or_approval_claim");
-  if (["action_executed", "authorize action", "action authorization", "perform action"].some((needle) => lower.includes(needle))) reasons.add("contains_action_instruction");
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.add("contains_forbidden_secret_marker");
+  if (
+    ["command", "shell", "process", "execute ", "run "].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.add("contains_execution_instruction");
+  if (
+    ["http://", "https://", "network", "socket", "fetch("].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.add("contains_network_instruction");
+  if (
+    ["filesystem", "file ", "write ", "path", "directory", "fs::write"].some(
+      (needle) => lower.includes(needle),
+    )
+  )
+    reasons.add("contains_filesystem_instruction");
+  if (
+    [
+      "readiness",
+      "release",
+      "deployment",
+      "public-use",
+      "public use",
+      "production ready",
+    ].some((needle) => lower.includes(needle))
+  )
+    reasons.add("contains_readiness_or_release_claim");
+  if (
+    [
+      "trusted_output",
+      "trusted output",
+      "approved_output",
+      "approved output",
+      "approval granted",
+      "trust_granted",
+    ].some((needle) => lower.includes(needle))
+  )
+    reasons.add("contains_trust_or_approval_claim");
+  if (
+    [
+      "action_executed",
+      "authorize action",
+      "action authorization",
+      "perform action",
+    ].some((needle) => lower.includes(needle))
+  )
+    reasons.add("contains_action_instruction");
   if (reasons.size === 0) reasons.add("deterministic_stub_output_shape_valid");
   reasons.add("candidate_conversion_not_available_in_phase_143");
   return [...reasons].sort();
 }
 
-export function validateLocalProviderOutput(execution: LocalProviderExecutionProjection): LocalProviderOutputValidationProjection {
+export function validateLocalProviderOutput(
+  execution: LocalProviderExecutionProjection,
+): LocalProviderOutputValidationProjection {
   const reasons = localProviderOutputValidationReasons(execution);
   const result = execution.result;
-  const validReasons = reasons.every((reason) => reason === "deterministic_stub_output_shape_valid" || reason === "candidate_conversion_not_available_in_phase_143");
+  const validReasons = reasons.every(
+    (reason) =>
+      reason === "deterministic_stub_output_shape_valid" ||
+      reason === "candidate_conversion_not_available_in_phase_143",
+  );
   const status: LocalProviderOutputValidationStatus = !result
     ? "not_validated"
     : execution.projectionStatus !== "execution_projected"
@@ -1355,7 +2172,12 @@ export function validateLocalProviderOutput(execution: LocalProviderExecutionPro
       : validReasons
         ? "reviewable_untrusted"
         : "rejected";
-  const reviewabilityStatus: LocalProviderOutputReviewabilityStatus = status === "reviewable_untrusted" ? "reviewable_untrusted" : status === "rejected" ? "rejected_before_review" : "not_reviewable";
+  const reviewabilityStatus: LocalProviderOutputReviewabilityStatus =
+    status === "reviewable_untrusted"
+      ? "reviewable_untrusted"
+      : status === "rejected"
+        ? "rejected_before_review"
+        : "not_reviewable";
   return {
     status,
     reviewabilityStatus,
@@ -1375,25 +2197,54 @@ export function validateLocalProviderOutput(execution: LocalProviderExecutionPro
     readinessEffect: "none",
     releaseEffect: "none",
     deploymentEffect: "none",
-    note: "reviewable_untrusted is not candidate material and cannot be approved in Phase 143; provider output is not promoted."
+    note: "reviewable_untrusted is not candidate material and cannot be approved in Phase 143; provider output is not promoted.",
   };
 }
 
-export function projectLocalProviderOutputValidation(state: LocalOperatorShellState): LocalProviderOutputValidationProjection {
+export function projectLocalProviderOutputValidation(
+  state: LocalOperatorShellState,
+): LocalProviderOutputValidationProjection {
   return validateLocalProviderOutput(projectLocalProviderExecution(state));
 }
 
-export function validateLocalProviderOutputValidationProjection(projection: LocalProviderOutputValidationProjection): readonly LocalProviderOutputValidationError[] {
+export function validateLocalProviderOutputValidationProjection(
+  projection: LocalProviderOutputValidationProjection,
+): readonly LocalProviderOutputValidationError[] {
   const errors: LocalProviderOutputValidationError[] = [];
   if (projection.reasons.length === 0) errors.push("missing_validation_reason");
-  if (projection.status === "reviewable_untrusted" && projection.outputTrustStatus !== "untrusted_descriptive") errors.push("invalid_reviewable_trust_status");
-  if (projection.candidateBoundaryStatus !== "not_candidate_material" || !projection.candidateBoundaryStatuses.includes("not_candidate_material") || !projection.candidateBoundaryStatuses.includes("candidate_conversion_not_performed") || !projection.candidateBoundaryStatuses.includes("candidate_conversion_requires_future_phase")) errors.push("invalid_candidate_boundary_status");
-  if (projection.outputPromotionStatus !== "not_promoted") errors.push("invalid_promotion_status");
-  const effects = [projection.trustEffect, projection.candidateEffect, projection.decisionLedgerEffect, projection.replayEffect, projection.exportEffect, projection.actionEffect, projection.readinessEffect, projection.releaseEffect, projection.deploymentEffect];
-  if (effects.some((effect) => effect !== "none")) errors.push("invalid_no_effect_boundary");
+  if (
+    projection.status === "reviewable_untrusted" &&
+    projection.outputTrustStatus !== "untrusted_descriptive"
+  )
+    errors.push("invalid_reviewable_trust_status");
+  if (
+    projection.candidateBoundaryStatus !== "not_candidate_material" ||
+    !projection.candidateBoundaryStatuses.includes("not_candidate_material") ||
+    !projection.candidateBoundaryStatuses.includes(
+      "candidate_conversion_not_performed",
+    ) ||
+    !projection.candidateBoundaryStatuses.includes(
+      "candidate_conversion_requires_future_phase",
+    )
+  )
+    errors.push("invalid_candidate_boundary_status");
+  if (projection.outputPromotionStatus !== "not_promoted")
+    errors.push("invalid_promotion_status");
+  const effects = [
+    projection.trustEffect,
+    projection.candidateEffect,
+    projection.decisionLedgerEffect,
+    projection.replayEffect,
+    projection.exportEffect,
+    projection.actionEffect,
+    projection.readinessEffect,
+    projection.releaseEffect,
+    projection.deploymentEffect,
+  ];
+  if (effects.some((effect) => effect !== "none"))
+    errors.push("invalid_no_effect_boundary");
   return errors;
 }
-
 
 export type StagedCandidateConversionProposalStatus =
   | "no_proposal"
@@ -1406,7 +2257,10 @@ export type StagedCandidateConversionBoundaryStatus =
   | "candidate_conversion_not_performed"
   | "validation_required_in_future_phase"
   | "approval_not_available_in_phase_146";
-export type StagedCandidateConversionTrustStatus = "untrusted_source" | "not_trusted" | "not_approved";
+export type StagedCandidateConversionTrustStatus =
+  | "untrusted_source"
+  | "not_trusted"
+  | "not_approved";
 export type StagedCandidateConversionEffectStatus =
   | "no_decision_ledger_effect"
   | "no_replay_effect"
@@ -1480,7 +2334,7 @@ export function stagedCandidateConversionNoEffects(): readonly StagedCandidateCo
     "no_release_effect",
     "no_deployment_effect",
     "not_executable",
-    "not_persistent"
+    "not_persistent",
   ];
 }
 
@@ -1489,7 +2343,7 @@ function stagedCandidateConversionBoundaryStatuses(): readonly StagedCandidateCo
     "staging_only_not_candidate_material",
     "candidate_conversion_not_performed",
     "validation_required_in_future_phase",
-    "approval_not_available_in_phase_146"
+    "approval_not_available_in_phase_146",
   ];
 }
 
@@ -1503,7 +2357,7 @@ export function initialStagedCandidateConversionProposalProjection(): StagedCand
     proposal: null,
     sourceEligibilityStatus: "missing_provider_execution_result",
     error: null,
-    note: "No staged candidate-conversion proposal exists; Phase 146 staging is proposal only and not candidate material."
+    note: "No staged candidate-conversion proposal exists; Phase 146 staging is proposal only and not candidate material.",
   };
 }
 
@@ -1550,7 +2404,8 @@ export type StagedCandidateConversionMaterializationStatus =
   | "not_materialized"
   | "materialization_not_available_in_phase_147"
   | "materialization_requires_future_phase";
-export type StagedCandidateConversionOperatorDecisionStatus = "not_available_in_phase_147";
+export type StagedCandidateConversionOperatorDecisionStatus =
+  "not_available_in_phase_147";
 export type StagedCandidateConversionValidationBoundaryStatus =
   | "validation_shape_only"
   | "candidate_materialization_not_performed"
@@ -1583,7 +2438,7 @@ function stagedCandidateConversionValidationBoundaryStatuses(): readonly StagedC
     "validation_shape_only",
     "candidate_materialization_not_performed",
     "future_review_boundary_required",
-    "operator_decision_not_available_in_phase_147"
+    "operator_decision_not_available_in_phase_147",
   ];
 }
 
@@ -1598,83 +2453,232 @@ export function initialStagedCandidateConversionValidationProjection(): StagedCa
     sourceReviewabilityStatus: "not_reviewable",
     sourceCandidateBoundaryStatus: "not_candidate_material",
     deterministicLinkageStatus: "not_validated",
-    materializationStatuses: ["not_materialized", "materialization_not_available_in_phase_147", "materialization_requires_future_phase"],
+    materializationStatuses: [
+      "not_materialized",
+      "materialization_not_available_in_phase_147",
+      "materialization_requires_future_phase",
+    ],
     futureReviewBoundaryStatus: "future_review_boundary_required",
     operatorDecisionStatus: "not_available_in_phase_147",
     trustStatuses: stagedCandidateConversionTrustStatuses(),
     boundaryStatuses: stagedCandidateConversionValidationBoundaryStatuses(),
     noEffectSummary: stagedCandidateConversionNoEffects(),
-    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved."
+    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved.",
   };
 }
 
-function proposalNoteClaimReasons(proposal: StagedCandidateConversionProposal): StagedCandidateConversionValidationReason[] {
+function proposalNoteClaimReasons(
+  proposal: StagedCandidateConversionProposal,
+): StagedCandidateConversionValidationReason[] {
   const lower = proposal.note.toLowerCase();
   const reasons: StagedCandidateConversionValidationReason[] = [];
-  if (["trust granted", "is trusted", "mark trusted"].some((needle) => lower.includes(needle))) reasons.push("contains_trust_claim");
-  if (["approval granted", "is approved", "mark approved"].some((needle) => lower.includes(needle))) reasons.push("contains_approval_claim");
-  if (["is safe", "safe output", "safe for"].some((needle) => lower.includes(needle))) reasons.push("contains_safety_claim");
-  if (["readiness", "ready for"].some((needle) => lower.includes(needle))) reasons.push("contains_readiness_claim");
-  if (["release claim", "release evidence"].some((needle) => lower.includes(needle))) reasons.push("contains_release_claim");
-  if (["deployment claim", "deployment evidence"].some((needle) => lower.includes(needle))) reasons.push("contains_deployment_claim");
-  if (["public use", "public-use"].some((needle) => lower.includes(needle))) reasons.push("contains_public_use_claim");
-  if (["action claim", "action effect"].some((needle) => lower.includes(needle))) reasons.push("contains_action_claim");
-  if (["persistence claim", "persisted"].some((needle) => lower.includes(needle))) reasons.push("contains_persistence_claim");
-  if (["execution claim", "executed proposal"].some((needle) => lower.includes(needle))) reasons.push("contains_execution_claim");
-  if (["candidate creation", "candidate output created"].some((needle) => lower.includes(needle))) reasons.push("contains_candidate_creation_claim");
-  if (["candidate materialization", "materialized candidate"].some((needle) => lower.includes(needle))) reasons.push("contains_candidate_materialization_claim");
+  if (
+    ["trust granted", "is trusted", "mark trusted"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_trust_claim");
+  if (
+    ["approval granted", "is approved", "mark approved"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_approval_claim");
+  if (
+    ["is safe", "safe output", "safe for"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_safety_claim");
+  if (["readiness", "ready for"].some((needle) => lower.includes(needle)))
+    reasons.push("contains_readiness_claim");
+  if (
+    ["release claim", "release evidence"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_release_claim");
+  if (
+    ["deployment claim", "deployment evidence"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_deployment_claim");
+  if (["public use", "public-use"].some((needle) => lower.includes(needle)))
+    reasons.push("contains_public_use_claim");
+  if (
+    ["action claim", "action effect"].some((needle) => lower.includes(needle))
+  )
+    reasons.push("contains_action_claim");
+  if (
+    ["persistence claim", "persisted"].some((needle) => lower.includes(needle))
+  )
+    reasons.push("contains_persistence_claim");
+  if (
+    ["execution claim", "executed proposal"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_execution_claim");
+  if (
+    ["candidate creation", "candidate output created"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_candidate_creation_claim");
+  if (
+    ["candidate materialization", "materialized candidate"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
+    reasons.push("contains_candidate_materialization_claim");
   return reasons;
 }
 
 function sameSet<T>(left: readonly T[], right: readonly T[]): boolean {
-  return left.length === right.length && right.every((item) => left.includes(item));
+  return (
+    left.length === right.length && right.every((item) => left.includes(item))
+  );
 }
 
 export function stagedCandidateConversionValidationReasons(
   state: LocalOperatorShellState,
-  request: StagedCandidateConversionValidationRequest = {}
+  request: StagedCandidateConversionValidationRequest = {},
 ): readonly StagedCandidateConversionValidationReason[] {
   const reasons = new Set<StagedCandidateConversionValidationReason>();
   const proposal = state.stagedCandidateConversionProposal.proposal;
   if (!proposal) return ["no_staged_proposal"];
-  if (request.proposalId && request.proposalId !== proposal.proposalId) reasons.add("deterministic_proposal_id_mismatch");
+  if (request.proposalId && request.proposalId !== proposal.proposalId)
+    reasons.add("deterministic_proposal_id_mismatch");
   const result = state.providerExecution.result;
   if (!result) return ["provider_execution_result_missing"];
-  if (state.providerExecution.projectionValidation.status !== "valid" || state.providerExecution.projectionStatus !== "execution_projected") reasons.add("provider_execution_result_malformed");
-  if (state.providerOutputValidation.reasons.length === 0 || !state.providerOutputValidation.providerExecutionResultId) {
+  if (
+    state.providerExecution.projectionValidation.status !== "valid" ||
+    state.providerExecution.projectionStatus !== "execution_projected"
+  )
+    reasons.add("provider_execution_result_malformed");
+  if (
+    state.providerOutputValidation.reasons.length === 0 ||
+    !state.providerOutputValidation.providerExecutionResultId
+  ) {
     reasons.add("provider_output_validation_missing");
-  } else if (validateLocalProviderOutputValidationProjection(state.providerOutputValidation).length > 0 || JSON.stringify(projectLocalProviderOutputValidation(state)) !== JSON.stringify(state.providerOutputValidation)) {
+  } else if (
+    validateLocalProviderOutputValidationProjection(
+      state.providerOutputValidation,
+    ).length > 0 ||
+    JSON.stringify(projectLocalProviderOutputValidation(state)) !==
+      JSON.stringify(state.providerOutputValidation)
+  ) {
     reasons.add("provider_output_validation_inconsistent");
   }
-  if (state.providerOutputValidation.status !== "reviewable_untrusted") reasons.add("source_not_reviewable_untrusted");
-  const validationExecutionId = state.providerOutputValidation.providerExecutionResultId;
-  if (!validationExecutionId) return [...reasons, "provider_output_validation_missing"];
-  if (result.resultId !== validationExecutionId || proposal.sourceExecutionResultId !== validationExecutionId) reasons.add("execution_result_id_mismatch");
-  if (proposal.proposalId !== deterministicStagedCandidateConversionProposalId(validationExecutionId, state.providerOutputValidation)) reasons.add("deterministic_proposal_id_mismatch");
-  if (proposal.sourceValidationStatus !== state.providerOutputValidation.status || proposal.sourceValidationStatus !== "reviewable_untrusted") reasons.add("source_validation_status_mismatch");
-  if (proposal.sourceReviewabilityStatus !== state.providerOutputValidation.reviewabilityStatus || proposal.sourceReviewabilityStatus !== "reviewable_untrusted") reasons.add("source_reviewability_status_mismatch");
-  if (proposal.sourceCandidateBoundaryStatus !== state.providerOutputValidation.candidateBoundaryStatus || proposal.sourceCandidateBoundaryStatus !== "not_candidate_material") reasons.add("source_candidate_boundary_status_mismatch");
-  if (!stagedCandidateConversionBoundaryStatuses().every((status) => proposal.boundaryStatuses.includes(status))) reasons.add("boundary_flag_missing");
-  if (!sameSet(proposal.boundaryStatuses, stagedCandidateConversionBoundaryStatuses())) reasons.add("boundary_flag_drift");
-  if (!proposal.boundaryStatuses.includes("validation_required_in_future_phase") || !proposal.boundaryStatuses.includes("approval_not_available_in_phase_146")) reasons.add("future_phase_marker_missing");
-  if (!stagedCandidateConversionTrustStatuses().every((status) => proposal.trustStatuses.includes(status))) reasons.add("boundary_flag_missing");
-  if (!sameSet(proposal.trustStatuses, stagedCandidateConversionTrustStatuses())) reasons.add("boundary_flag_drift");
-  if (!stagedCandidateConversionNoEffects().every((status) => proposal.effectStatuses.includes(status))) reasons.add("no_effect_field_missing");
-  if (!sameSet(proposal.effectStatuses, stagedCandidateConversionNoEffects())) reasons.add("no_effect_field_drift");
-  if (proposal.sourceBoundary !== "provider_output_validation_phase_143" || proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" || proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted") reasons.add("boundary_flag_drift");
+  if (state.providerOutputValidation.status !== "reviewable_untrusted")
+    reasons.add("source_not_reviewable_untrusted");
+  const validationExecutionId =
+    state.providerOutputValidation.providerExecutionResultId;
+  if (!validationExecutionId)
+    return [...reasons, "provider_output_validation_missing"];
+  if (
+    result.resultId !== validationExecutionId ||
+    proposal.sourceExecutionResultId !== validationExecutionId
+  )
+    reasons.add("execution_result_id_mismatch");
+  if (
+    proposal.proposalId !==
+    deterministicStagedCandidateConversionProposalId(
+      validationExecutionId,
+      state.providerOutputValidation,
+    )
+  )
+    reasons.add("deterministic_proposal_id_mismatch");
+  if (
+    proposal.sourceValidationStatus !== state.providerOutputValidation.status ||
+    proposal.sourceValidationStatus !== "reviewable_untrusted"
+  )
+    reasons.add("source_validation_status_mismatch");
+  if (
+    proposal.sourceReviewabilityStatus !==
+      state.providerOutputValidation.reviewabilityStatus ||
+    proposal.sourceReviewabilityStatus !== "reviewable_untrusted"
+  )
+    reasons.add("source_reviewability_status_mismatch");
+  if (
+    proposal.sourceCandidateBoundaryStatus !==
+      state.providerOutputValidation.candidateBoundaryStatus ||
+    proposal.sourceCandidateBoundaryStatus !== "not_candidate_material"
+  )
+    reasons.add("source_candidate_boundary_status_mismatch");
+  if (
+    !stagedCandidateConversionBoundaryStatuses().every((status) =>
+      proposal.boundaryStatuses.includes(status),
+    )
+  )
+    reasons.add("boundary_flag_missing");
+  if (
+    !sameSet(
+      proposal.boundaryStatuses,
+      stagedCandidateConversionBoundaryStatuses(),
+    )
+  )
+    reasons.add("boundary_flag_drift");
+  if (
+    !proposal.boundaryStatuses.includes(
+      "validation_required_in_future_phase",
+    ) ||
+    !proposal.boundaryStatuses.includes("approval_not_available_in_phase_146")
+  )
+    reasons.add("future_phase_marker_missing");
+  if (
+    !stagedCandidateConversionTrustStatuses().every((status) =>
+      proposal.trustStatuses.includes(status),
+    )
+  )
+    reasons.add("boundary_flag_missing");
+  if (
+    !sameSet(proposal.trustStatuses, stagedCandidateConversionTrustStatuses())
+  )
+    reasons.add("boundary_flag_drift");
+  if (
+    !stagedCandidateConversionNoEffects().every((status) =>
+      proposal.effectStatuses.includes(status),
+    )
+  )
+    reasons.add("no_effect_field_missing");
+  if (!sameSet(proposal.effectStatuses, stagedCandidateConversionNoEffects()))
+    reasons.add("no_effect_field_drift");
+  if (
+    proposal.sourceBoundary !== "provider_output_validation_phase_143" ||
+    proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" ||
+    proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted"
+  )
+    reasons.add("boundary_flag_drift");
   for (const reason of proposalNoteClaimReasons(proposal)) reasons.add(reason);
-  if (reasons.size === 0) return ["candidate_materialization_not_performed", "future_review_boundary_required", "operator_decision_not_available_in_phase_147", "source_linkage_validated", "staged_proposal_shape_valid"].sort() as StagedCandidateConversionValidationReason[];
+  if (reasons.size === 0)
+    return [
+      "candidate_materialization_not_performed",
+      "future_review_boundary_required",
+      "operator_decision_not_available_in_phase_147",
+      "source_linkage_validated",
+      "staged_proposal_shape_valid",
+    ].sort() as StagedCandidateConversionValidationReason[];
   return [...reasons].sort();
 }
 
 export function projectStagedCandidateConversionValidation(
   state: LocalOperatorShellState,
-  request: StagedCandidateConversionValidationRequest = {}
+  request: StagedCandidateConversionValidationRequest = {},
 ): StagedCandidateConversionValidationProjection {
   const reasons = stagedCandidateConversionValidationReasons(state, request);
   const proposal = state.stagedCandidateConversionProposal.proposal;
-  const validReasons: readonly StagedCandidateConversionValidationReason[] = ["candidate_materialization_not_performed", "future_review_boundary_required", "operator_decision_not_available_in_phase_147", "source_linkage_validated", "staged_proposal_shape_valid"];
-  const status: StagedCandidateConversionValidationStatus = reasons.includes("no_staged_proposal")
+  const validReasons: readonly StagedCandidateConversionValidationReason[] = [
+    "candidate_materialization_not_performed",
+    "future_review_boundary_required",
+    "operator_decision_not_available_in_phase_147",
+    "source_linkage_validated",
+    "staged_proposal_shape_valid",
+  ];
+  const status: StagedCandidateConversionValidationStatus = reasons.includes(
+    "no_staged_proposal",
+  )
     ? "invalid_validation_input"
     : reasons.every((reason) => validReasons.includes(reason))
       ? "staged_proposal_shape_valid"
@@ -1685,34 +2689,65 @@ export function projectStagedCandidateConversionValidation(
     proposalId: proposal?.proposalId ?? null,
     sourceProviderKind: proposal?.sourceProviderKind ?? "none",
     sourceExecutionResultId: proposal?.sourceExecutionResultId ?? null,
-    sourceValidationStatus: proposal?.sourceValidationStatus ?? state.providerOutputValidation.status,
-    sourceReviewabilityStatus: proposal?.sourceReviewabilityStatus ?? state.providerOutputValidation.reviewabilityStatus,
-    sourceCandidateBoundaryStatus: proposal?.sourceCandidateBoundaryStatus ?? state.providerOutputValidation.candidateBoundaryStatus,
-    deterministicLinkageStatus: status === "staged_proposal_shape_valid" ? "source_linkage_validated" : "not_validated",
-    materializationStatuses: ["not_materialized", "materialization_not_available_in_phase_147", "materialization_requires_future_phase"],
+    sourceValidationStatus:
+      proposal?.sourceValidationStatus ?? state.providerOutputValidation.status,
+    sourceReviewabilityStatus:
+      proposal?.sourceReviewabilityStatus ??
+      state.providerOutputValidation.reviewabilityStatus,
+    sourceCandidateBoundaryStatus:
+      proposal?.sourceCandidateBoundaryStatus ??
+      state.providerOutputValidation.candidateBoundaryStatus,
+    deterministicLinkageStatus:
+      status === "staged_proposal_shape_valid"
+        ? "source_linkage_validated"
+        : "not_validated",
+    materializationStatuses: [
+      "not_materialized",
+      "materialization_not_available_in_phase_147",
+      "materialization_requires_future_phase",
+    ],
     futureReviewBoundaryStatus: "future_review_boundary_required",
     operatorDecisionStatus: "not_available_in_phase_147",
     trustStatuses: stagedCandidateConversionTrustStatuses(),
     boundaryStatuses: stagedCandidateConversionValidationBoundaryStatuses(),
     noEffectSummary: stagedCandidateConversionNoEffects(),
-    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved."
+    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved.",
   };
 }
 
 export function validateStagedCandidateConversionProposalForPhase147(
   state: LocalOperatorShellState,
-  request: StagedCandidateConversionValidationRequest = {}
+  request: StagedCandidateConversionValidationRequest = {},
 ): LocalOperatorIntentResult {
-  const next = { ...state, stagedCandidateConversionValidation: projectStagedCandidateConversionValidation(state, request) };
+  const next = {
+    ...state,
+    stagedCandidateConversionValidation:
+      projectStagedCandidateConversionValidation(state, request),
+  };
   return {
-    status: next.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "accepted" : "rejected",
-    reason: next.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "staged_candidate_conversion_validation_completed" : "staged_candidate_conversion_validation_rejected",
-    state: next
+    status:
+      next.stagedCandidateConversionValidation.status ===
+      "staged_proposal_shape_valid"
+        ? "accepted"
+        : "rejected",
+    reason:
+      next.stagedCandidateConversionValidation.status ===
+      "staged_proposal_shape_valid"
+        ? "staged_candidate_conversion_validation_completed"
+        : "staged_candidate_conversion_validation_rejected",
+    state: next,
   };
 }
 
-export type OperatorCandidateDecisionKind = "approve_validated_staged_proposal" | "reject_validated_staged_proposal";
-export type OperatorCandidateDecisionStatus = "no_operator_decision" | "approved_validated_staged_proposal" | "rejected_validated_staged_proposal" | "rejected_operator_decision_request" | "invalid_operator_decision_input";
+export type OperatorCandidateDecisionKind =
+  | "approve_validated_staged_proposal"
+  | "reject_validated_staged_proposal";
+export type OperatorCandidateDecisionStatus =
+  | "no_operator_decision"
+  | "approved_validated_staged_proposal"
+  | "rejected_validated_staged_proposal"
+  | "rejected_operator_decision_request"
+  | "invalid_operator_decision_input";
 export type OperatorCandidateDecisionError =
   | "no_staged_proposal"
   | "staged_proposal_not_validated"
@@ -1789,11 +2824,13 @@ export function initialOperatorCandidateDecisionProjection(): OperatorCandidateD
     status: "no_operator_decision",
     record: null,
     error: null,
-    note: "No operator candidate decision has been recorded. Decision applies only to validated staged proposal when present; no candidate output is created in Phase 149."
+    note: "No operator candidate decision has been recorded. Decision applies only to validated staged proposal when present; no candidate output is created in Phase 149.",
   };
 }
 
-function deterministicOperatorCandidateDecisionId(request: OperatorCandidateDecisionRequest): string {
+function deterministicOperatorCandidateDecisionId(
+  request: OperatorCandidateDecisionRequest,
+): string {
   const input = `${request.kind}|${request.stagedProposalId}|${request.providerExecutionResultId}|${request.stagedProposalValidationStatus}|phase_149`;
   let accumulator = 2166136261;
   for (let index = 0; index < input.length; index += 1) {
@@ -1803,9 +2840,13 @@ function deterministicOperatorCandidateDecisionId(request: OperatorCandidateDeci
   return `operator-candidate-decision-${accumulator.toString(16).padStart(8, "0")}`;
 }
 
-export function validateOperatorCandidateDecisionRequest(state: LocalOperatorShellState, request: OperatorCandidateDecisionRequest): OperatorCandidateDecisionError | null {
+export function validateOperatorCandidateDecisionRequest(
+  state: LocalOperatorShellState,
+  request: OperatorCandidateDecisionRequest,
+): OperatorCandidateDecisionError | null {
   if (request.claimsTrust) return "trust_claim_rejected";
-  if (request.claimsProviderOutputApproval) return "provider_output_approval_claim_rejected";
+  if (request.claimsProviderOutputApproval)
+    return "provider_output_approval_claim_rejected";
   if (request.claimsReadiness) return "readiness_claim_rejected";
   if (request.claimsRelease) return "release_claim_rejected";
   if (request.claimsDeployment) return "deployment_claim_rejected";
@@ -1813,24 +2854,61 @@ export function validateOperatorCandidateDecisionRequest(state: LocalOperatorShe
   if (request.claimsAction) return "action_claim_rejected";
   if (request.claimsExecution) return "execution_claim_rejected";
   if (request.claimsPersistence) return "persistence_claim_rejected";
-  if (request.claimsCandidateCreation) return "candidate_creation_claim_rejected";
-  if (request.claimsCandidateMaterialization) return "candidate_materialization_claim_rejected";
+  if (request.claimsCandidateCreation)
+    return "candidate_creation_claim_rejected";
+  if (request.claimsCandidateMaterialization)
+    return "candidate_materialization_claim_rejected";
   const proposal = state.stagedCandidateConversionProposal.proposal;
   if (!proposal) return "no_staged_proposal";
-  if (state.stagedCandidateConversionValidation.status === "not_validated") return "staged_proposal_not_validated";
-  if (state.stagedCandidateConversionValidation.status === "rejected_staged_proposal") return "staged_proposal_validation_rejected";
-  if (state.stagedCandidateConversionValidation.status === "invalid_validation_input") return "invalid_validation_input";
-  if (request.stagedProposalValidationStatus !== "staged_proposal_shape_valid") return "source_linkage_inconsistent";
-  if (request.stagedProposalId !== proposal.proposalId || request.providerExecutionResultId !== proposal.sourceExecutionResultId) return "source_linkage_inconsistent";
-  if (state.stagedCandidateConversionValidation.proposalId !== request.stagedProposalId || state.stagedCandidateConversionValidation.sourceExecutionResultId !== request.providerExecutionResultId) return "source_linkage_inconsistent";
-  if (state.stagedCandidateConversionValidation.deterministicLinkageStatus !== "source_linkage_validated") return "source_linkage_inconsistent";
-  const reprojected = projectStagedCandidateConversionValidation(state, { proposalId: proposal.proposalId });
-  if (JSON.stringify(reprojected) !== JSON.stringify(state.stagedCandidateConversionValidation)) return "source_linkage_inconsistent";
+  if (state.stagedCandidateConversionValidation.status === "not_validated")
+    return "staged_proposal_not_validated";
+  if (
+    state.stagedCandidateConversionValidation.status ===
+    "rejected_staged_proposal"
+  )
+    return "staged_proposal_validation_rejected";
+  if (
+    state.stagedCandidateConversionValidation.status ===
+    "invalid_validation_input"
+  )
+    return "invalid_validation_input";
+  if (request.stagedProposalValidationStatus !== "staged_proposal_shape_valid")
+    return "source_linkage_inconsistent";
+  if (
+    request.stagedProposalId !== proposal.proposalId ||
+    request.providerExecutionResultId !== proposal.sourceExecutionResultId
+  )
+    return "source_linkage_inconsistent";
+  if (
+    state.stagedCandidateConversionValidation.proposalId !==
+      request.stagedProposalId ||
+    state.stagedCandidateConversionValidation.sourceExecutionResultId !==
+      request.providerExecutionResultId
+  )
+    return "source_linkage_inconsistent";
+  if (
+    state.stagedCandidateConversionValidation.deterministicLinkageStatus !==
+    "source_linkage_validated"
+  )
+    return "source_linkage_inconsistent";
+  const reprojected = projectStagedCandidateConversionValidation(state, {
+    proposalId: proposal.proposalId,
+  });
+  if (
+    JSON.stringify(reprojected) !==
+    JSON.stringify(state.stagedCandidateConversionValidation)
+  )
+    return "source_linkage_inconsistent";
   return null;
 }
 
-export function projectOperatorCandidateDecision(request: OperatorCandidateDecisionRequest): OperatorCandidateDecisionProjection {
-  const status: OperatorCandidateDecisionStatus = request.kind === "approve_validated_staged_proposal" ? "approved_validated_staged_proposal" : "rejected_validated_staged_proposal";
+export function projectOperatorCandidateDecision(
+  request: OperatorCandidateDecisionRequest,
+): OperatorCandidateDecisionProjection {
+  const status: OperatorCandidateDecisionStatus =
+    request.kind === "approve_validated_staged_proposal"
+      ? "approved_validated_staged_proposal"
+      : "rejected_validated_staged_proposal";
   return {
     status,
     error: null,
@@ -1850,33 +2928,75 @@ export function projectOperatorCandidateDecision(request: OperatorCandidateDecis
       actionStatus: "no_action_effect",
       persistenceStatus: "no_persistence_effect",
       replayRepairStatus: "no_replay_repair_effect",
-      recoveryPromotionStatus: "no_recovery_promotion_effect"
+      recoveryPromotionStatus: "no_recovery_promotion_effect",
     },
-    note: "This decision applies only to the validated staged proposal. No candidate output is created in Phase 149. Provider output remains untrusted and not approved. This decision does not approve readiness, release, deployment, or public use."
+    note: "This decision applies only to the validated staged proposal. No candidate output is created in Phase 149. Provider output remains untrusted and not approved. This decision does not approve readiness, release, deployment, or public use.",
   };
 }
 
-export function rejectedOperatorCandidateDecisionProjection(error: OperatorCandidateDecisionError): OperatorCandidateDecisionProjection {
+export function rejectedOperatorCandidateDecisionProjection(
+  error: OperatorCandidateDecisionError,
+): OperatorCandidateDecisionProjection {
   return {
     status: "rejected_operator_decision_request",
     record: null,
     error,
-    note: "Operator candidate decision request rejected; authoritative shell state is preserved and no candidate materialization is performed."
+    note: "Operator candidate decision request rejected; authoritative shell state is preserved and no candidate materialization is performed.",
   };
 }
 
-export function submitOperatorCandidateDecision(state: LocalOperatorShellState, request: OperatorCandidateDecisionRequest): LocalOperatorIntentResult {
+export function submitOperatorCandidateDecision(
+  state: LocalOperatorShellState,
+  request: OperatorCandidateDecisionRequest,
+): LocalOperatorIntentResult {
   const error = validateOperatorCandidateDecisionRequest(state, request);
-  if (error) return { status: "rejected", reason: error, state: { ...state, operatorCandidateDecision: rejectedOperatorCandidateDecisionProjection(error), phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff({ ...state, operatorCandidateDecision: rejectedOperatorCandidateDecisionProjection(error) }) } };
-  const next = { ...state, operatorCandidateDecision: projectOperatorCandidateDecision(request) };
-  return { status: "accepted", reason: "operator_candidate_decision_recorded", state: { ...next, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(next) } };
+  if (error)
+    return {
+      status: "rejected",
+      reason: error,
+      state: {
+        ...state,
+        operatorCandidateDecision:
+          rejectedOperatorCandidateDecisionProjection(error),
+        phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff({
+          ...state,
+          operatorCandidateDecision:
+            rejectedOperatorCandidateDecisionProjection(error),
+        }),
+      },
+    };
+  const next = {
+    ...state,
+    operatorCandidateDecision: projectOperatorCandidateDecision(request),
+  };
+  return {
+    status: "accepted",
+    reason: "operator_candidate_decision_recorded",
+    state: {
+      ...next,
+      phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(next),
+    },
+  };
 }
 
 export function phase150RemainingProductionGaps(): readonly string[] {
-  return ["local session persistence", "session restore", "real adapter contract", "real provider invocation", "candidate materialization", "complete local operator workflow", "run history", "export package", "controlled trial readiness", "deployment/package path"];
+  return [
+    "local session persistence",
+    "session restore",
+    "real adapter contract",
+    "real provider invocation",
+    "candidate materialization",
+    "complete local operator workflow",
+    "run history",
+    "export package",
+    "controlled trial readiness",
+    "deployment/package path",
+  ];
 }
 
-export function derivePhase150CodeProductionHandoff(state: LocalOperatorShellState): Phase150CodeProductionHandoff {
+export function derivePhase150CodeProductionHandoff(
+  state: LocalOperatorShellState,
+): Phase150CodeProductionHandoff {
   return {
     handoffId: `phase-150-code-production-handoff-${state.providerConfiguration.status}-${state.stagedCandidateConversionValidation.status}-${state.operatorCandidateDecision.status}`,
     status: "phase_150_code_production_handoff",
@@ -1889,7 +3009,7 @@ export function derivePhase150CodeProductionHandoff(state: LocalOperatorShellSta
       `staged candidate-conversion proposal: ${state.stagedCandidateConversionProposal.status}`,
       `staged proposal validation: ${state.stagedCandidateConversionValidation.status}`,
       `candidate review surface: ${state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "validated_staged_proposal_review" : "not_available"}`,
-      `operator decision boundary: ${state.operatorCandidateDecision.status}`
+      `operator decision boundary: ${state.operatorCandidateDecision.status}`,
     ],
     remainingProductionGradeGaps: phase150RemainingProductionGaps(),
     remapRecommendations: [
@@ -1897,13 +3017,16 @@ export function derivePhase150CodeProductionHandoff(state: LocalOperatorShellSta
       "Phase 150 should group larger product capability phases.",
       "Safety checks remain embedded in implementation phases.",
       "Phase 150 is the roadmap/changelog alignment phase.",
-      "Phase 149 does not edit roadmap files."
+      "Phase 149 does not edit roadmap files.",
     ],
-    phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
+    phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files",
   };
 }
 
-function deterministicStagedCandidateConversionProposalId(executionResultId: string, validation: LocalProviderOutputValidationProjection): string {
+function deterministicStagedCandidateConversionProposalId(
+  executionResultId: string,
+  validation: LocalProviderOutputValidationProjection,
+): string {
   const input = `${validation.providerKind}|${executionResultId}|${validation.status}|${validation.reviewabilityStatus}|${validation.candidateBoundaryStatus}|phase_146`;
   let accumulator = 2166136261;
   for (let index = 0; index < input.length; index += 1) {
@@ -1913,75 +3036,173 @@ function deterministicStagedCandidateConversionProposalId(executionResultId: str
   return `staged-candidate-conversion-proposal-${accumulator.toString(16).padStart(8, "0")}`;
 }
 
-function proposalRequestContainsForbiddenClaim(request: StagedCandidateConversionProposalRequest): boolean {
+function proposalRequestContainsForbiddenClaim(
+  request: StagedCandidateConversionProposalRequest,
+): boolean {
   const claims = request.claims ?? [];
   return claims.some(({ key, value }) => {
     const text = `${key} ${value}`.toLowerCase();
-    return ["trust", "approval", "approved", "safe", "readiness", "ready", "release", "deployment", "public-use", "public_use", "execute", "execution", "persistence", "persistent", "action", "candidate_creation", "candidate_output", "candidate_material", "conversion_performed"].some((needle) => text.includes(needle));
+    return [
+      "trust",
+      "approval",
+      "approved",
+      "safe",
+      "readiness",
+      "ready",
+      "release",
+      "deployment",
+      "public-use",
+      "public_use",
+      "execute",
+      "execution",
+      "persistence",
+      "persistent",
+      "action",
+      "candidate_creation",
+      "candidate_output",
+      "candidate_material",
+      "conversion_performed",
+    ].some((needle) => text.includes(needle));
   });
 }
 
-export function validateStagedCandidateConversionSource(state: LocalOperatorShellState): StagedCandidateConversionSourceEligibilityStatus {
-  if (!state.providerExecution.result) return "missing_provider_execution_result";
-  if (validateLocalProviderOutputValidationProjection(state.providerOutputValidation).length > 0) return "missing_or_inconsistent_validation_projection";
+export function validateStagedCandidateConversionSource(
+  state: LocalOperatorShellState,
+): StagedCandidateConversionSourceEligibilityStatus {
+  if (!state.providerExecution.result)
+    return "missing_provider_execution_result";
+  if (
+    validateLocalProviderOutputValidationProjection(
+      state.providerOutputValidation,
+    ).length > 0
+  )
+    return "missing_or_inconsistent_validation_projection";
   const projected = projectLocalProviderOutputValidation(state);
-  if (JSON.stringify(projected) !== JSON.stringify(state.providerOutputValidation)) return "missing_or_inconsistent_validation_projection";
-  if (state.providerOutputValidation.status === "rejected") return "rejected_source_not_eligible";
-  if (state.providerOutputValidation.status === "validation_not_applicable") return "validation_not_applicable_source_not_eligible";
-  if (state.providerOutputValidation.status === "invalid_validation_input") return "invalid_validation_input_source_not_eligible";
-  if (state.providerOutputValidation.status !== "reviewable_untrusted") return "source_not_reviewable_untrusted";
-  if (state.providerOutputValidation.reviewabilityStatus !== "reviewable_untrusted" || state.providerOutputValidation.candidateBoundaryStatus !== "not_candidate_material" || !state.providerOutputValidation.candidateBoundaryStatuses.includes("candidate_conversion_not_performed") || !state.providerOutputValidation.candidateBoundaryStatuses.includes("candidate_conversion_requires_future_phase")) return "source_not_reviewable_untrusted";
+  if (
+    JSON.stringify(projected) !== JSON.stringify(state.providerOutputValidation)
+  )
+    return "missing_or_inconsistent_validation_projection";
+  if (state.providerOutputValidation.status === "rejected")
+    return "rejected_source_not_eligible";
+  if (state.providerOutputValidation.status === "validation_not_applicable")
+    return "validation_not_applicable_source_not_eligible";
+  if (state.providerOutputValidation.status === "invalid_validation_input")
+    return "invalid_validation_input_source_not_eligible";
+  if (state.providerOutputValidation.status !== "reviewable_untrusted")
+    return "source_not_reviewable_untrusted";
+  if (
+    state.providerOutputValidation.reviewabilityStatus !==
+      "reviewable_untrusted" ||
+    state.providerOutputValidation.candidateBoundaryStatus !==
+      "not_candidate_material" ||
+    !state.providerOutputValidation.candidateBoundaryStatuses.includes(
+      "candidate_conversion_not_performed",
+    ) ||
+    !state.providerOutputValidation.candidateBoundaryStatuses.includes(
+      "candidate_conversion_requires_future_phase",
+    )
+  )
+    return "source_not_reviewable_untrusted";
   return "eligible_reviewable_untrusted";
 }
 
-function sourceEligibilityError(status: StagedCandidateConversionSourceEligibilityStatus): StagedCandidateConversionProposalError | null {
+function sourceEligibilityError(
+  status: StagedCandidateConversionSourceEligibilityStatus,
+): StagedCandidateConversionProposalError | null {
   if (status === "eligible_reviewable_untrusted") return null;
-  return status === "source_not_reviewable_untrusted" ? "source_not_reviewable_untrusted" : status;
+  return status === "source_not_reviewable_untrusted"
+    ? "source_not_reviewable_untrusted"
+    : status;
 }
 
-export function validateStagedCandidateConversionProposal(projection: StagedCandidateConversionProposalProjection): StagedCandidateConversionProposalError | null {
+export function validateStagedCandidateConversionProposal(
+  projection: StagedCandidateConversionProposalProjection,
+): StagedCandidateConversionProposalError | null {
   if (projection.status === "no_proposal") return null;
   const proposal = projection.proposal;
   if (!proposal) return "invalid_proposal_boundary";
-  if (!stagedCandidateConversionBoundaryStatuses().every((status) => proposal.boundaryStatuses.includes(status))) return "invalid_proposal_boundary";
-  if (!stagedCandidateConversionTrustStatuses().every((status) => proposal.trustStatuses.includes(status))) return "invalid_proposal_boundary";
-  if (!stagedCandidateConversionNoEffects().every((status) => proposal.effectStatuses.includes(status))) return "invalid_proposal_boundary";
-  if (proposal.sourceValidationStatus !== "reviewable_untrusted" || proposal.sourceReviewabilityStatus !== "reviewable_untrusted" || proposal.sourceCandidateBoundaryStatus !== "not_candidate_material" || proposal.sourceBoundary !== "provider_output_validation_phase_143" || proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" || proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted") return "invalid_proposal_boundary";
+  if (
+    !stagedCandidateConversionBoundaryStatuses().every((status) =>
+      proposal.boundaryStatuses.includes(status),
+    )
+  )
+    return "invalid_proposal_boundary";
+  if (
+    !stagedCandidateConversionTrustStatuses().every((status) =>
+      proposal.trustStatuses.includes(status),
+    )
+  )
+    return "invalid_proposal_boundary";
+  if (
+    !stagedCandidateConversionNoEffects().every((status) =>
+      proposal.effectStatuses.includes(status),
+    )
+  )
+    return "invalid_proposal_boundary";
+  if (
+    proposal.sourceValidationStatus !== "reviewable_untrusted" ||
+    proposal.sourceReviewabilityStatus !== "reviewable_untrusted" ||
+    proposal.sourceCandidateBoundaryStatus !== "not_candidate_material" ||
+    proposal.sourceBoundary !== "provider_output_validation_phase_143" ||
+    proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" ||
+    proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted"
+  )
+    return "invalid_proposal_boundary";
   return null;
 }
 
-export function createStagedCandidateConversionProposal(state: LocalOperatorShellState, request: StagedCandidateConversionProposalRequest): LocalOperatorIntentResult {
-  if (proposalRequestContainsForbiddenClaim(request)) return { status: "rejected", reason: "invalid_proposal_request", state };
+export function createStagedCandidateConversionProposal(
+  state: LocalOperatorShellState,
+  request: StagedCandidateConversionProposalRequest,
+): LocalOperatorIntentResult {
+  if (proposalRequestContainsForbiddenClaim(request))
+    return { status: "rejected", reason: "invalid_proposal_request", state };
   const eligibility = validateStagedCandidateConversionSource(state);
   const eligibilityError = sourceEligibilityError(eligibility);
-  if (eligibilityError) return { status: "rejected", reason: eligibilityError, state };
-  const executionResultId = state.providerOutputValidation.providerExecutionResultId;
-  if (!executionResultId) return { status: "rejected", reason: "missing_provider_execution_result", state };
+  if (eligibilityError)
+    return { status: "rejected", reason: eligibilityError, state };
+  const executionResultId =
+    state.providerOutputValidation.providerExecutionResultId;
+  if (!executionResultId)
+    return {
+      status: "rejected",
+      reason: "missing_provider_execution_result",
+      state,
+    };
   const proposal: StagedCandidateConversionProposal = {
-    proposalId: deterministicStagedCandidateConversionProposalId(executionResultId, state.providerOutputValidation),
+    proposalId: deterministicStagedCandidateConversionProposalId(
+      executionResultId,
+      state.providerOutputValidation,
+    ),
     sourceProviderKind: state.providerOutputValidation.providerKind,
     sourceExecutionResultId: executionResultId,
     sourceValidationStatus: state.providerOutputValidation.status,
-    sourceReviewabilityStatus: state.providerOutputValidation.reviewabilityStatus,
-    sourceCandidateBoundaryStatus: state.providerOutputValidation.candidateBoundaryStatus,
+    sourceReviewabilityStatus:
+      state.providerOutputValidation.reviewabilityStatus,
+    sourceCandidateBoundaryStatus:
+      state.providerOutputValidation.candidateBoundaryStatus,
     sourceBoundary: "provider_output_validation_phase_143",
     proposalBoundary: "staged_candidate_conversion_phase_146",
     boundaryStatuses: stagedCandidateConversionBoundaryStatuses(),
     trustStatuses: stagedCandidateConversionTrustStatuses(),
     effectStatuses: stagedCandidateConversionNoEffects(),
     sourceEligibilityStatus: "eligible_reviewable_untrusted",
-    note: `${request.operatorNote} This proposal is not persistent, not executable, not approved, and not candidate material.`
+    note: `${request.operatorNote} This proposal is not persistent, not executable, not approved, and not candidate material.`,
   };
   const projection: StagedCandidateConversionProposalProjection = {
     status: "staged_proposal_created",
     proposal,
     sourceEligibilityStatus: "eligible_reviewable_untrusted",
     error: null,
-    note: "This is a staged conversion proposal only. It is not candidate output."
+    note: "This is a staged conversion proposal only. It is not candidate output.",
   };
   const error = validateStagedCandidateConversionProposal(projection);
   if (error) return { status: "rejected", reason: error, state };
-  return { status: "accepted", reason: "staged_candidate_conversion_proposal_created", state: { ...state, stagedCandidateConversionProposal: projection } };
+  return {
+    status: "accepted",
+    reason: "staged_candidate_conversion_proposal_created",
+    state: { ...state, stagedCandidateConversionProposal: projection },
+  };
 }
 
 export function localProviderExecutionResultAbsenceMarkers(): LocalProviderExecutionResultAbsenceMarkers {
@@ -2007,8 +3228,8 @@ export function localProviderExecutionResultAbsenceMarkers(): LocalProviderExecu
       "no secrets",
       "no release/deployment/signing/publishing/public-use/readiness",
       "no replay repair/recovery promotion/action execution",
-      "provider output is not candidate material"
-    ]
+      "provider output is not candidate material",
+    ],
   };
 }
 
@@ -2020,37 +3241,90 @@ function initialLocalProviderExecutionLinkage(): LocalProviderExecutionResultLin
     providerConfigurationStatus: "not_configured",
     executionResultId: "none",
     candidateId: "not_candidate_material",
-    sourceBoundary: "sandboxed_deterministic_provider_execution"
+    sourceBoundary: "sandboxed_deterministic_provider_execution",
   };
 }
 
-function localProviderExecutionLinkage(state: LocalOperatorShellState, executionResultId: string): LocalProviderExecutionResultLinkage {
+function localProviderExecutionLinkage(
+  state: LocalOperatorShellState,
+  executionResultId: string,
+): LocalProviderExecutionResultLinkage {
   return {
     shellStateLabel: state.harnessStatus,
     runId: state.run.runId,
-    providerConfigurationKind: state.providerConfiguration.configuredProviderKind ?? "none",
+    providerConfigurationKind:
+      state.providerConfiguration.configuredProviderKind ?? "none",
     providerConfigurationStatus: state.providerConfiguration.status,
     executionResultId,
     candidateId: state.run.candidate?.candidateId ?? "not_candidate_material",
-    sourceBoundary: "sandboxed_deterministic_provider_execution"
+    sourceBoundary: "sandboxed_deterministic_provider_execution",
   };
 }
 
-export function validateLocalProviderExecutionResultProjection(projection: LocalProviderExecutionProjection): LocalProviderExecutionResultProjectionValidation {
+export function validateLocalProviderExecutionResultProjection(
+  projection: LocalProviderExecutionProjection,
+): LocalProviderExecutionResultProjectionValidation {
   const errors: string[] = [];
-  if (projection.outputTrustStatus !== "untrusted_descriptive") errors.push("invalid_trust_status");
-  if (projection.outputMaterializationStatus === "candidate_material") errors.push("invalid_materialization_status");
-  if (projection.outputPromotionStatus !== "not_promoted" || projection.promotionAvailabilityStatus !== "promotion_not_available_in_phase_142") errors.push("invalid_promotion_status");
+  if (projection.outputTrustStatus !== "untrusted_descriptive")
+    errors.push("invalid_trust_status");
+  if (projection.outputMaterializationStatus === "candidate_material")
+    errors.push("invalid_materialization_status");
+  if (
+    projection.outputPromotionStatus !== "not_promoted" ||
+    projection.promotionAvailabilityStatus !==
+      "promotion_not_available_in_phase_142"
+  )
+    errors.push("invalid_promotion_status");
   const markers = projection.absenceMarkers;
-  if (!markers.noProcessSpawned || !markers.noNetworkSocketOpened || !markers.noFilesystemPersistence || !markers.noSecretsRead || !markers.noReleaseCreated || !markers.noDeploymentCreated || !markers.noSigningPerformed || !markers.noPublishingPerformed || !markers.noPublicUseApproved || !markers.noReadinessApproved || !markers.noReplayRepair || !markers.noRecoveryPromotion || !markers.noActionExecution || !markers.providerOutputNotCandidateMaterial || markers.markerSummary.length === 0) errors.push("missing_absence_marker");
-  if (projection.linkage.runId.length === 0 || projection.linkage.providerConfigurationKind.length === 0 || projection.linkage.providerConfigurationStatus.length === 0 || projection.linkage.executionResultId.length === 0 || projection.linkage.sourceBoundary !== "sandboxed_deterministic_provider_execution") errors.push("missing_linkage");
+  if (
+    !markers.noProcessSpawned ||
+    !markers.noNetworkSocketOpened ||
+    !markers.noFilesystemPersistence ||
+    !markers.noSecretsRead ||
+    !markers.noReleaseCreated ||
+    !markers.noDeploymentCreated ||
+    !markers.noSigningPerformed ||
+    !markers.noPublishingPerformed ||
+    !markers.noPublicUseApproved ||
+    !markers.noReadinessApproved ||
+    !markers.noReplayRepair ||
+    !markers.noRecoveryPromotion ||
+    !markers.noActionExecution ||
+    !markers.providerOutputNotCandidateMaterial ||
+    markers.markerSummary.length === 0
+  )
+    errors.push("missing_absence_marker");
+  if (
+    projection.linkage.runId.length === 0 ||
+    projection.linkage.providerConfigurationKind.length === 0 ||
+    projection.linkage.providerConfigurationStatus.length === 0 ||
+    projection.linkage.executionResultId.length === 0 ||
+    projection.linkage.sourceBoundary !==
+      "sandboxed_deterministic_provider_execution"
+  )
+    errors.push("missing_linkage");
   return errors.length === 0
-    ? { status: "valid", errorCodes: [], reason: "provider execution result projection is valid; output remains untrusted_descriptive, not_candidate_material, and not_promoted" }
-    : { status: "invalid", errorCodes: errors, reason: "provider execution result projection rejected fail-closed" };
+    ? {
+        status: "valid",
+        errorCodes: [],
+        reason:
+          "provider execution result projection is valid; output remains untrusted_descriptive, not_candidate_material, and not_promoted",
+      }
+    : {
+        status: "invalid",
+        errorCodes: errors,
+        reason: "provider execution result projection rejected fail-closed",
+      };
 }
 
-function withProviderExecutionProjectionValidation(projection: LocalProviderExecutionProjection): LocalProviderExecutionProjection {
-  return { ...projection, projectionValidation: validateLocalProviderExecutionResultProjection(projection) };
+function withProviderExecutionProjectionValidation(
+  projection: LocalProviderExecutionProjection,
+): LocalProviderExecutionProjection {
+  return {
+    ...projection,
+    projectionValidation:
+      validateLocalProviderExecutionResultProjection(projection),
+  };
 }
 
 export function initialLocalProviderExecutionProjection(): LocalProviderExecutionProjection {
@@ -2066,34 +3340,65 @@ export function initialLocalProviderExecutionProjection(): LocalProviderExecutio
     promotionAvailabilityStatus: "promotion_not_available_in_phase_142",
     linkage: initialLocalProviderExecutionLinkage(),
     absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
-    projectionValidation: { status: "invalid", errorCodes: [], reason: "projection validation pending" },
+    projectionValidation: {
+      status: "invalid",
+      errorCodes: [],
+      reason: "projection validation pending",
+    },
     validationStatus: "not_executed",
     validationErrorCodes: [],
     validationReason: "deterministic_stub execution has not been requested",
     capabilitySurface: localProviderExecutionCapabilitySurface(),
-    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, and not eligible for approve/reject in Phase 142."
+    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, and not eligible for approve/reject in Phase 142.",
   });
 }
 
-export function projectLocalProviderExecution(state: LocalOperatorShellState): LocalProviderExecutionProjection {
+export function projectLocalProviderExecution(
+  state: LocalOperatorShellState,
+): LocalProviderExecutionProjection {
   return withProviderExecutionProjectionValidation({
     ...state.providerExecution,
-    configuredProviderKind: state.providerConfiguration.configuredProviderKind ?? "none",
-    linkage: localProviderExecutionLinkage(state, state.providerExecution.result?.resultId ?? "none")
+    configuredProviderKind:
+      state.providerConfiguration.configuredProviderKind ?? "none",
+    linkage: localProviderExecutionLinkage(
+      state,
+      state.providerExecution.result?.resultId ?? "none",
+    ),
   });
 }
 
-function forbiddenProviderExecutionField(key: string, value: string): LocalProviderExecutionError {
+function forbiddenProviderExecutionField(
+  key: string,
+  value: string,
+): LocalProviderExecutionError {
   const loweredKey = key.toLowerCase();
   const combined = `${loweredKey}=${value.toLowerCase()}`;
-  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "forbidden_endpoint_field";
-  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "forbidden_command_field";
-  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "forbidden_path_field";
-  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "forbidden_secret_field";
-  if (loweredKey === "provider_execution_enabled") return "provider_execution_flag_rejected";
+  if (
+    ["endpoint", "url", "host", "port", "http", "network"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_endpoint_field";
+  if (
+    ["command", "args", "shell", "process"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_command_field";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle)))
+    return "forbidden_path_field";
+  if (
+    ["secret", "token", "api_key", "apikey", "credential"].some((needle) =>
+      combined.includes(needle),
+    )
+  )
+    return "forbidden_secret_field";
+  if (loweredKey === "provider_execution_enabled")
+    return "provider_execution_flag_rejected";
   if (loweredKey === "trust_granted") return "trust_grant_rejected";
   if (loweredKey === "readiness_approved") return "readiness_claim_rejected";
-  if (loweredKey === "release_candidate_approved") return "release_claim_rejected";
+  if (loweredKey === "release_candidate_approved")
+    return "release_claim_rejected";
   if (loweredKey === "deployment_enabled") return "deployment_claim_rejected";
   if (loweredKey === "public_use_approved") return "public_use_claim_rejected";
   if (loweredKey === "signing_enabled") return "signing_claim_rejected";
@@ -2103,11 +3408,18 @@ function forbiddenProviderExecutionField(key: string, value: string): LocalProvi
 
 export function validateLocalProviderExecutionRequest(
   configuration: LocalProviderConfiguration,
-  request: LocalProviderExecutionRequest
+  request: LocalProviderExecutionRequest,
 ): LocalProviderExecutionValidation {
   const errors = new Set<LocalProviderExecutionError>();
-  if (configuration.status !== "accepted" || configuration.configuredProviderKind !== "deterministic_stub") {
-    errors.add(configuration.status === "not_configured" ? "missing_provider_configuration" : "rejected_provider_configuration");
+  if (
+    configuration.status !== "accepted" ||
+    configuration.configuredProviderKind !== "deterministic_stub"
+  ) {
+    errors.add(
+      configuration.status === "not_configured"
+        ? "missing_provider_configuration"
+        : "rejected_provider_configuration",
+    );
   }
 
   let providerKind: LocalProviderKind | null = null;
@@ -2116,15 +3428,23 @@ export function validateLocalProviderExecutionRequest(
     errors.add("missing_provider_kind");
   } else if (rawKind.trim() !== rawKind) {
     errors.add("malformed_provider_kind");
-  } else if (supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)) {
+  } else if (
+    supportedLocalProviderKinds.includes(rawKind as LocalProviderKind)
+  ) {
     providerKind = rawKind as LocalProviderKind;
-    if (providerKind !== "deterministic_stub") errors.add("unsupported_provider_kind");
+    if (providerKind !== "deterministic_stub")
+      errors.add("unsupported_provider_kind");
   } else {
     errors.add("unsupported_provider_kind");
   }
 
-  if (request.inputSummary.trim().length === 0 || request.inputSummary.length > 4096) errors.add("malformed_provider_kind");
-  for (const field of request.fields ?? []) errors.add(forbiddenProviderExecutionField(field.key, field.value));
+  if (
+    request.inputSummary.trim().length === 0 ||
+    request.inputSummary.length > 4096
+  )
+    errors.add("malformed_provider_kind");
+  for (const field of request.fields ?? [])
+    errors.add(forbiddenProviderExecutionField(field.key, field.value));
 
   const errorCodes = [...errors].sort();
   if (errorCodes.length === 0 && providerKind === "deterministic_stub") {
@@ -2132,19 +3452,24 @@ export function validateLocalProviderExecutionRequest(
       status: "executed",
       providerKind,
       errorCodes: [],
-      reason: "deterministic_stub execution accepted inside Rust-owned sandboxed deterministic boundary"
+      reason:
+        "deterministic_stub execution accepted inside Rust-owned sandboxed deterministic boundary",
     };
   }
-  const status: LocalProviderExecutionStatus = errors.has("unsupported_provider_kind")
+  const status: LocalProviderExecutionStatus = errors.has(
+    "unsupported_provider_kind",
+  )
     ? "unsupported_provider"
-    : errors.has("missing_provider_configuration") || errors.has("rejected_provider_configuration")
+    : errors.has("missing_provider_configuration") ||
+        errors.has("rejected_provider_configuration")
       ? "configuration_required"
       : "invalid_request";
   return {
     status,
     providerKind,
     errorCodes,
-    reason: "provider execution rejected fail-closed; previous shell state is preserved"
+    reason:
+      "provider execution rejected fail-closed; previous shell state is preserved",
   };
 }
 
@@ -2157,7 +3482,9 @@ function deterministicProviderInputChecksum(input: string): number {
   return accumulator;
 }
 
-export function executeSandboxedDeterministicProvider(request: LocalProviderExecutionRequest): LocalProviderExecutionResult {
+export function executeSandboxedDeterministicProvider(
+  request: LocalProviderExecutionRequest,
+): LocalProviderExecutionResult {
   const checksum = deterministicProviderInputChecksum(request.inputSummary);
   const hex = checksum.toString(16).padStart(8, "0");
   return {
@@ -2174,35 +3501,43 @@ export function executeSandboxedDeterministicProvider(request: LocalProviderExec
     candidateOutputPromoted: false,
     decisionAppended: false,
     replayRepaired: false,
-    releaseOrDeploymentEvidenceCreated: false
+    releaseOrDeploymentEvidenceCreated: false,
   };
 }
 
 export function applyLocalProviderExecution(
   state: LocalOperatorShellState,
-  request: LocalProviderExecutionRequest
+  request: LocalProviderExecutionRequest,
 ): LocalOperatorIntentResult {
-  const validation = validateLocalProviderExecutionRequest(state.providerConfiguration, request);
-  if (validation.status !== "executed") return { status: "rejected", reason: validation.reason, state };
+  const validation = validateLocalProviderExecutionRequest(
+    state.providerConfiguration,
+    request,
+  );
+  if (validation.status !== "executed")
+    return { status: "rejected", reason: validation.reason, state };
   const result = executeSandboxedDeterministicProvider(request);
   const providerExecution = withProviderExecutionProjectionValidation({
     status: "executed",
-        projectionStatus: "execution_projected",
-        configuredProviderKind: "deterministic_stub",
-        sandboxStatus: "sandboxed_deterministic_no_external_effects",
-        result,
-        outputTrustStatus: "untrusted_descriptive",
-        outputMaterializationStatus: "not_candidate_material",
-        outputPromotionStatus: result.outputPromotionStatus,
-        promotionAvailabilityStatus: result.promotionAvailabilityStatus,
-        linkage: localProviderExecutionLinkage(state, result.resultId),
-        absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
-        projectionValidation: { status: "invalid", errorCodes: [], reason: "projection validation pending" },
-        validationStatus: validation.status,
-        validationErrorCodes: [],
-        validationReason: validation.reason,
-        capabilitySurface: localProviderExecutionCapabilitySurface(),
-    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142."
+    projectionStatus: "execution_projected",
+    configuredProviderKind: "deterministic_stub",
+    sandboxStatus: "sandboxed_deterministic_no_external_effects",
+    result,
+    outputTrustStatus: "untrusted_descriptive",
+    outputMaterializationStatus: "not_candidate_material",
+    outputPromotionStatus: result.outputPromotionStatus,
+    promotionAvailabilityStatus: result.promotionAvailabilityStatus,
+    linkage: localProviderExecutionLinkage(state, result.resultId),
+    absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
+    projectionValidation: {
+      status: "invalid",
+      errorCodes: [],
+      reason: "projection validation pending",
+    },
+    validationStatus: validation.status,
+    validationErrorCodes: [],
+    validationReason: validation.reason,
+    capabilitySurface: localProviderExecutionCapabilitySurface(),
+    note: "Provider execution result projection is projection_only evidence; provider output is untrusted_descriptive, not_candidate_material, not_promoted, promotion_not_available_in_phase_142, and not eligible for approve/reject in Phase 142.",
   });
   return {
     status: "accepted",
@@ -2210,11 +3545,10 @@ export function applyLocalProviderExecution(
     state: {
       ...state,
       providerExecution,
-      providerOutputValidation: validateLocalProviderOutput(providerExecution)
-    }
+      providerOutputValidation: validateLocalProviderOutput(providerExecution),
+    },
   };
 }
-
 
 export type LocalSessionPackageStatus =
   | "not_packaged"
@@ -2224,8 +3558,14 @@ export type LocalSessionPackageStatus =
   | "package_rejected"
   | "invalid_package_input";
 
-export type LocalSessionPackageValidationStatus = "not_validated" | "valid" | "invalid";
-export type LocalSessionPackageRestoreStatus = "not_restored" | "read_back_validated_structure_only" | "restore_projection_rejected";
+export type LocalSessionPackageValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+export type LocalSessionPackageRestoreStatus =
+  | "not_restored"
+  | "read_back_validated_structure_only"
+  | "restore_projection_rejected";
 
 export type LocalSessionPackageProjection = Readonly<{
   status: LocalSessionPackageStatus;
@@ -2272,17 +3612,20 @@ export function initialLocalSessionPackageProjection(): LocalSessionPackageProje
       "action execution absent",
       "automatic persistence absent",
       "background service absent",
-      "remote sync absent"
+      "remote sync absent",
     ],
     localOnlyNote: "Local session package is local-only and non-production.",
     releaseBoundaryNote: "This package is not a release artifact.",
-    deploymentReadinessBoundaryNote: "This package is not deployment or readiness evidence.",
-    restoreBoundaryNote: "Package restore/read-back validates structure only and does not promote recovery."
+    deploymentReadinessBoundaryNote:
+      "This package is not deployment or readiness evidence.",
+    restoreBoundaryNote:
+      "Package restore/read-back validates structure only and does not promote recovery.",
   };
 }
 
-
-export type LocalSessionHistoryStatus = "no_session_history" | "session_history_projected";
+export type LocalSessionHistoryStatus =
+  | "no_session_history"
+  | "session_history_projected";
 
 export type LocalSessionHistoryEntry = Readonly<{
   packageId: string;
@@ -2312,8 +3655,14 @@ export type LocalSessionRestoreStatus =
   | "restore_rejected"
   | "invalid_restore_input";
 
-export type LocalSessionRestoreValidationStatus = "not_validated" | "valid" | "invalid";
-export type LocalSessionRestoreReadBackStatus = "not_read" | "package_read_back_validated" | "read_back_rejected";
+export type LocalSessionRestoreValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+export type LocalSessionRestoreReadBackStatus =
+  | "not_read"
+  | "package_read_back_validated"
+  | "read_back_rejected";
 export type LocalSessionRestoreBoundaryStatus =
   | "local_restore_projection_only"
   | "no_recovery_promotion"
@@ -2368,7 +3717,8 @@ export function initialLocalSessionHistoryProjection(): LocalSessionHistoryProje
     status: "no_session_history",
     entries: [],
     selectedPackageId: null,
-    boundaryNote: "Session history is derived only from explicit local package entries; No automatic filesystem scanning."
+    boundaryNote:
+      "Session history is derived only from explicit local package entries; No automatic filesystem scanning.",
   };
 }
 
@@ -2383,7 +3733,8 @@ export function initialLocalSessionRestoreProjection(): LocalSessionRestoreProje
     readBackStatus: "not_read",
     errors: [],
     includedSectionSummary: [],
-    absenceMarkerSummary: initialLocalSessionPackageProjection().absenceMarkerSummary,
+    absenceMarkerSummary:
+      initialLocalSessionPackageProjection().absenceMarkerSummary,
     boundaryStatus: [
       "local_restore_projection_only",
       "no_recovery_promotion",
@@ -2392,21 +3743,29 @@ export function initialLocalSessionRestoreProjection(): LocalSessionRestoreProje
       "no_readiness_effect",
       "no_release_effect",
       "no_deployment_effect",
-      "no_public_use_effect"
+      "no_public_use_effect",
     ],
     localOnlyNote: "Session restore is local-only and non-production.",
-    readBackNote: "Read-back validation checks package structure; it is not restore authority.",
-    previewBoundaryNote: "Restore preview does not repair replay or promote recovery.",
-    restoredProjectionNote: "Restored session projection does not imply readiness, release, deployment, or public use.",
-    remoteBackgroundNote: "No remote sync or background restore is active."
+    readBackNote:
+      "Read-back validation checks package structure; it is not restore authority.",
+    previewBoundaryNote:
+      "Restore preview does not repair replay or promote recovery.",
+    restoredProjectionNote:
+      "Restored session projection does not imply readiness, release, deployment, or public use.",
+    remoteBackgroundNote: "No remote sync or background restore is active.",
   };
 }
 
 export function projectLocalSessionHistoryFromPackages(
-  packages: readonly LocalSessionPackageProjection[]
+  packages: readonly LocalSessionPackageProjection[],
 ): LocalSessionHistoryProjection {
   const entries = packages
-    .filter((projection): projection is LocalSessionPackageProjection & { packageId: string } => projection.packageId !== null)
+    .filter(
+      (
+        projection,
+      ): projection is LocalSessionPackageProjection & { packageId: string } =>
+        projection.packageId !== null,
+    )
     .map((projection) => ({
       packageId: projection.packageId,
       packageVersion: projection.packageVersion,
@@ -2416,18 +3775,20 @@ export function projectLocalSessionHistoryFromPackages(
       validationStatus: projection.validationStatus,
       readBackValidationStatus: projection.readBackValidationStatus,
       includedSectionSummary: projection.includedSectionSummary,
-      absenceMarkerSummary: projection.absenceMarkerSummary
+      absenceMarkerSummary: projection.absenceMarkerSummary,
     }));
   return {
-    status: entries.length === 0 ? "no_session_history" : "session_history_projected",
+    status:
+      entries.length === 0 ? "no_session_history" : "session_history_projected",
     entries,
     selectedPackageId: entries[0]?.packageId ?? null,
-    boundaryNote: "Session history is derived only from explicit local package entries; No automatic filesystem scanning."
+    boundaryNote:
+      "Session history is derived only from explicit local package entries; No automatic filesystem scanning.",
   };
 }
 
 export function projectLocalSessionRestoreFromPackageProjection(
-  projection: LocalSessionPackageProjection
+  projection: LocalSessionPackageProjection,
 ): LocalSessionRestoreProjection {
   if (projection.packageId === null) {
     return {
@@ -2435,7 +3796,7 @@ export function projectLocalSessionRestoreFromPackageProjection(
       status: "restore_rejected",
       validationStatus: "invalid",
       readBackStatus: "read_back_rejected",
-      errors: ["no_package_selected"]
+      errors: ["no_package_selected"],
     };
   }
   if (projection.validationStatus !== "valid") {
@@ -2448,9 +3809,11 @@ export function projectLocalSessionRestoreFromPackageProjection(
       productionClassification: projection.productionClassification,
       validationStatus: "invalid",
       readBackStatus: "read_back_rejected",
-      errors: projection.validationErrors.includes("invalid_package_classification")
+      errors: projection.validationErrors.includes(
+        "invalid_package_classification",
+      )
         ? ["invalid_package_classification"]
-        : ["package_validation_failed"]
+        : ["package_validation_failed"],
     };
   }
   return {
@@ -2466,10 +3829,13 @@ export function projectLocalSessionRestoreFromPackageProjection(
     absenceMarkerSummary: projection.absenceMarkerSummary,
     boundaryStatus: initialLocalSessionRestoreProjection().boundaryStatus,
     localOnlyNote: "Session restore is local-only and non-production.",
-    readBackNote: "Read-back validation checks package structure; it is not restore authority.",
-    previewBoundaryNote: "Restore preview does not repair replay or promote recovery.",
-    restoredProjectionNote: "Restored session projection does not imply readiness, release, deployment, or public use.",
-    remoteBackgroundNote: "No remote sync or background restore is active."
+    readBackNote:
+      "Read-back validation checks package structure; it is not restore authority.",
+    previewBoundaryNote:
+      "Restore preview does not repair replay or promote recovery.",
+    restoredProjectionNote:
+      "Restored session projection does not imply readiness, release, deployment, or public use.",
+    remoteBackgroundNote: "No remote sync or background restore is active.",
   };
 }
 
@@ -2512,6 +3878,7 @@ export type LocalOperatorShellState = Readonly<{
   providerConfiguration: LocalProviderConfiguration;
   localProviderAdapterRegistry: LocalProviderAdapterRegistry;
   localProviderAdapterDryRun: LocalProviderAdapterDryRunProjection;
+  constrainedLocalProviderInvocation: ConstrainedLocalProviderInvocationProjection;
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
@@ -2523,26 +3890,32 @@ export type LocalOperatorShellState = Readonly<{
   localSessionRestoreProjection: LocalSessionRestoreProjection;
 }>;
 
-
 export function deriveLocalSessionEvidenceExport(
   harnessStatus: string,
   nonProduction: boolean,
   run: LocalRunProjection,
-  ledger: LocalDecisionLedger
+  ledger: LocalDecisionLedger,
 ): LocalSessionEvidenceExport {
   const replay = deriveLocalDecisionReplayProjection(run, ledger);
-  const exportStatus: LocalSessionEvidenceExportStatus = run.status === "idle"
-    ? "no_completed_run_evidence"
-    : ledger.records.length === 0
-      ? "run_evidence_projected"
-      : "decision_evidence_projected";
-  const candidateId = run.candidate?.candidateId ?? "not_applicable_until_stub_run";
+  const exportStatus: LocalSessionEvidenceExportStatus =
+    run.status === "idle"
+      ? "no_completed_run_evidence"
+      : ledger.records.length === 0
+        ? "run_evidence_projected"
+        : "decision_evidence_projected";
+  const candidateId =
+    run.candidate?.candidateId ?? "not_applicable_until_stub_run";
   const candidateOutputSummary = run.candidate
     ? `${run.candidate.title}: ${run.candidate.body}`
     : "no completed deterministic stub run candidate evidence";
-  const validationStatus = run.validation?.validationStatus ?? "not_applicable_until_stub_run";
-  const policyStatus = run.validation?.policyStatus ?? "not_applicable_until_stub_run";
-  const exportPayload: Omit<LocalSessionEvidenceExport, "exportValidationStatus"> = {
+  const validationStatus =
+    run.validation?.validationStatus ?? "not_applicable_until_stub_run";
+  const policyStatus =
+    run.validation?.policyStatus ?? "not_applicable_until_stub_run";
+  const exportPayload: Omit<
+    LocalSessionEvidenceExport,
+    "exportValidationStatus"
+  > = {
     exportId: `local-session-evidence-export-${run.runId}-decisions-${String(ledger.records.length).padStart(4, "0")}`,
     exportStatus,
     exportClassification: "local_session_evidence_only",
@@ -2560,37 +3933,81 @@ export function deriveLocalSessionEvidenceExport(
     replayStatus: replay.replayStatus,
     replayIntegrityStatus: replay.integrityStatus,
     absenceMarkers: localSessionEvidenceExportAbsenceMarkers(),
-    summary: `Local session evidence export preview for run ${run.runId} is ${exportStatus}; local only, non-production, and non-mutating.`
+    summary: `Local session evidence export preview for run ${run.runId} is ${exportStatus}; local only, non-production, and non-mutating.`,
   };
   return {
     ...exportPayload,
-    exportValidationStatus: validateLocalSessionEvidenceExport(exportPayload, nonProduction) ? "complete" : "incomplete"
+    exportValidationStatus: validateLocalSessionEvidenceExport(
+      exportPayload,
+      nonProduction,
+    )
+      ? "complete"
+      : "incomplete",
   };
 }
 
 export function validateLocalSessionEvidenceExport(
-  exportPayload: Omit<LocalSessionEvidenceExport, "exportValidationStatus"> | LocalSessionEvidenceExport,
-  nonProduction: boolean
+  exportPayload:
+    | Omit<LocalSessionEvidenceExport, "exportValidationStatus">
+    | LocalSessionEvidenceExport,
+  nonProduction: boolean,
 ): boolean {
-  if (exportPayload.exportId.length === 0 || exportPayload.shellStatus.length === 0 || exportPayload.runId.length === 0) return false;
-  if (exportPayload.exportClassification !== "local_session_evidence_only") return false;
-  if (!nonProduction || exportPayload.productionClassification !== "non-production") return false;
+  if (
+    exportPayload.exportId.length === 0 ||
+    exportPayload.shellStatus.length === 0 ||
+    exportPayload.runId.length === 0
+  )
+    return false;
+  if (exportPayload.exportClassification !== "local_session_evidence_only")
+    return false;
+  if (
+    !nonProduction ||
+    exportPayload.productionClassification !== "non-production"
+  )
+    return false;
   const markers = exportPayload.absenceMarkers;
-  if (!markers.providerExecutionAbsent || !markers.persistenceAbsent || !markers.releaseAbsent || !markers.deploymentAbsent || !markers.signingAbsent || !markers.publishingAbsent || !markers.installerAbsent || !markers.updateChannelAbsent || !markers.publicUseAbsent || !markers.readinessApprovalAbsent) return false;
-  if (exportPayload.exportStatus !== "no_completed_run_evidence" && (exportPayload.boundedContextSummary.length === 0 || exportPayload.candidateId === "not_applicable_until_stub_run" || exportPayload.validationStatus === "not_applicable_until_stub_run" || exportPayload.policyStatus === "not_applicable_until_stub_run")) return false;
-  if (exportPayload.exportStatus === "decision_evidence_projected" && (exportPayload.decisionCount === 0 || exportPayload.decisionRecords.length === 0 || exportPayload.replayStatus === "no_decision_recorded")) return false;
+  if (
+    !markers.providerExecutionAbsent ||
+    !markers.persistenceAbsent ||
+    !markers.releaseAbsent ||
+    !markers.deploymentAbsent ||
+    !markers.signingAbsent ||
+    !markers.publishingAbsent ||
+    !markers.installerAbsent ||
+    !markers.updateChannelAbsent ||
+    !markers.publicUseAbsent ||
+    !markers.readinessApprovalAbsent
+  )
+    return false;
+  if (
+    exportPayload.exportStatus !== "no_completed_run_evidence" &&
+    (exportPayload.boundedContextSummary.length === 0 ||
+      exportPayload.candidateId === "not_applicable_until_stub_run" ||
+      exportPayload.validationStatus === "not_applicable_until_stub_run" ||
+      exportPayload.policyStatus === "not_applicable_until_stub_run")
+  )
+    return false;
+  if (
+    exportPayload.exportStatus === "decision_evidence_projected" &&
+    (exportPayload.decisionCount === 0 ||
+      exportPayload.decisionRecords.length === 0 ||
+      exportPayload.replayStatus === "no_decision_recorded")
+  )
+    return false;
   return true;
 }
 
-function attachLocalSessionEvidenceExport(state: Omit<LocalOperatorShellState, "localSessionEvidenceExport">): LocalOperatorShellState {
+function attachLocalSessionEvidenceExport(
+  state: Omit<LocalOperatorShellState, "localSessionEvidenceExport">,
+): LocalOperatorShellState {
   return {
     ...state,
     localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
       state.harnessStatus,
       state.nonProduction,
       state.run,
-      state.decisionLedger
-    )
+      state.decisionLedger,
+    ),
   };
 }
 
@@ -2632,33 +4049,43 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       timeline: ["idle local harness initialized"],
       replayStatus: decisionReplay.replayStatus,
       decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
-      decisionReplay
+      decisionReplay,
     },
     decisionLedger,
     providerConfiguration: initialLocalProviderConfiguration(),
     localProviderAdapterRegistry: initialLocalProviderAdapterRegistry(),
     localProviderAdapterDryRun: initialLocalProviderAdapterDryRunProjection(),
+    constrainedLocalProviderInvocation:
+      initialConstrainedLocalProviderInvocationProjection(),
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
-    stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection(),
-    stagedCandidateConversionValidation: initialStagedCandidateConversionValidationProjection(),
+    stagedCandidateConversionProposal:
+      initialStagedCandidateConversionProposalProjection(),
+    stagedCandidateConversionValidation:
+      initialStagedCandidateConversionValidationProjection(),
     operatorCandidateDecision: initialOperatorCandidateDecisionProjection(),
     phase150CodeProductionHandoff: {
-      handoffId: "phase-150-code-production-handoff-not_configured-not_validated-no_operator_decision",
+      handoffId:
+        "phase-150-code-production-handoff-not_configured-not_validated-no_operator_decision",
       status: "phase_150_code_production_handoff",
       implementedCapabilityEvidence: [],
       remainingProductionGradeGaps: phase150RemainingProductionGaps(),
       remapRecommendations: [],
-      phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
+      phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files",
     },
     localSessionPackageProjection: initialLocalSessionPackageProjection(),
     localSessionHistoryProjection: initialLocalSessionHistoryProjection(),
-    localSessionRestoreProjection: initialLocalSessionRestoreProjection()
+    localSessionRestoreProjection: initialLocalSessionRestoreProjection(),
   });
-  return { ...state, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(state) };
+  return {
+    ...state,
+    phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(state),
+  };
 }
 
-export function startDeterministicStubRun(state: LocalOperatorShellState): LocalOperatorShellState {
+export function startDeterministicStubRun(
+  state: LocalOperatorShellState,
+): LocalOperatorShellState {
   return attachLocalSessionEvidenceExport({
     ...state,
     harnessStatus: "deterministic_stub_completed",
@@ -2669,7 +4096,7 @@ export function startDeterministicStubRun(state: LocalOperatorShellState): Local
         "phase=133",
         "scope=local operator UI shell",
         "provider=deterministic stub only",
-        "network=disabled"
+        "network=disabled",
       ],
       candidate: {
         candidateId: "candidate-local-stub-133",
@@ -2677,47 +4104,72 @@ export function startDeterministicStubRun(state: LocalOperatorShellState): Local
         body: "AJENTIC local shell rendered a deterministic candidate from a Rust-owned projection fixture.",
         providerKind: "deterministic_stub",
         providerOutputTrusted: false,
-        providerExecutionEnabled: false
+        providerExecutionEnabled: false,
       },
       validation: {
         validationId: "validation-local-stub-133",
         policyStatus: "pass_for_local_stub_review",
         validationStatus: "pass_for_local_stub_review",
-        reason: "deterministic fixture satisfies local shell display checks only",
-        authority: "rust"
+        reason:
+          "deterministic fixture satisfies local shell display checks only",
+        authority: "rust",
       },
       selectedIntent: null,
       timeline: [
         "idle local harness initialized",
         "deterministic stub run started",
         "candidate output projected",
-        "validation and policy projection completed"
+        "validation and policy projection completed",
       ],
       decisionTimeline: projectLocalDecisionTimeline(state.decisionLedger),
-      decisionReplay: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger),
-      replayStatus: deriveLocalDecisionReplayProjection(state.run, state.decisionLedger).replayStatus
-    }
+      decisionReplay: deriveLocalDecisionReplayProjection(
+        state.run,
+        state.decisionLedger,
+      ),
+      replayStatus: deriveLocalDecisionReplayProjection(
+        state.run,
+        state.decisionLedger,
+      ).replayStatus,
+    },
   });
 }
 
 export function applyLocalOperatorIntent(
   state: LocalOperatorShellState,
-  intent: LocalOperatorIntent
+  intent: LocalOperatorIntent,
 ): LocalOperatorIntentResult {
-  const rejection = (reason: string): LocalOperatorIntentResult => ({ status: "rejected", reason, state });
+  const rejection = (reason: string): LocalOperatorIntentResult => ({
+    status: "rejected",
+    reason,
+    state,
+  });
   if (state.run.status === "idle") return rejection("run_not_started");
-  if (intent.kind !== "approve" && intent.kind !== "reject") return rejection("unknown_intent_kind");
+  if (intent.kind !== "approve" && intent.kind !== "reject")
+    return rejection("unknown_intent_kind");
   if (intent.operatorId.length === 0) return rejection("empty_operator_id");
   if (intent.reason.length === 0) return rejection("empty_reason");
-  if (intent.targetRunId !== state.run.runId) return rejection("target_mismatch");
+  if (intent.targetRunId !== state.run.runId)
+    return rejection("target_mismatch");
   if (!state.run.candidate) return rejection("run_not_started");
   const candidate = state.run.candidate;
-  if ((intent.targetCandidateId ?? "candidate-local-stub-133") !== candidate.candidateId) return rejection("candidate_target_mismatch");
-  if (intent.requestsAuthorityGrant) return rejection("authority_grant_rejected");
-  if (intent.requestsProviderExecution) return rejection("provider_execution_rejected");
+  if (
+    (intent.targetCandidateId ?? "candidate-local-stub-133") !==
+    candidate.candidateId
+  )
+    return rejection("candidate_target_mismatch");
+  if (intent.requestsAuthorityGrant)
+    return rejection("authority_grant_rejected");
+  if (intent.requestsProviderExecution)
+    return rejection("provider_execution_rejected");
   if (intent.claimsReadiness) return rejection("readiness_claim_rejected");
 
-  if (state.decisionLedger.records.some((record) => record.runId === intent.targetRunId && record.candidateId === candidate.candidateId)) {
+  if (
+    state.decisionLedger.records.some(
+      (record) =>
+        record.runId === intent.targetRunId &&
+        record.candidateId === candidate.candidateId,
+    )
+  ) {
     return rejection("duplicate_decision_rejected");
   }
 
@@ -2732,18 +4184,26 @@ export function applyLocalOperatorIntent(
     validationStatus: "accepted_by_rust_local_validation",
     recordedSequence,
     recordedAtLabel: `local-sequence-${String(recordedSequence).padStart(4, "0")}`,
-    reason: intent.reason
+    reason: intent.reason,
   };
-  const decisionLedger: LocalDecisionLedger = { records: [...state.decisionLedger.records, decisionRecord] };
+  const decisionLedger: LocalDecisionLedger = {
+    records: [...state.decisionLedger.records, decisionRecord],
+  };
 
   const nextRun: LocalRunProjection = {
     ...state.run,
     status: "intent_recorded",
     selectedIntent: intent.kind,
     decisionTimeline: projectLocalDecisionTimeline(decisionLedger),
-    timeline: [...state.run.timeline, `operator intent recorded: ${intent.kind} by ${intent.operatorId} as decision ${decisionRecord.decisionId}`]
+    timeline: [
+      ...state.run.timeline,
+      `operator intent recorded: ${intent.kind} by ${intent.operatorId} as decision ${decisionRecord.decisionId}`,
+    ],
   };
-  const decisionReplay = deriveLocalDecisionReplayProjection(nextRun, decisionLedger);
+  const decisionReplay = deriveLocalDecisionReplayProjection(
+    nextRun,
+    decisionLedger,
+  );
 
   return {
     status: "accepted",
@@ -2754,20 +4214,20 @@ export function applyLocalOperatorIntent(
       run: {
         ...nextRun,
         decisionReplay,
-        replayStatus: decisionReplay.replayStatus
-      }
-    })
+        replayStatus: decisionReplay.replayStatus,
+      },
+    }),
   };
 }
 
 export function applyForbiddenUiAction(
   state: LocalOperatorShellState,
-  action: LocalOperatorUiForbiddenAction
+  action: LocalOperatorUiForbiddenAction,
 ): LocalOperatorIntentResult {
   const reasons: Record<LocalOperatorUiForbiddenAction, string> = {
     mark_production_readiness: "ui_cannot_mark_readiness",
     approve_release_candidate_status: "ui_cannot_approve_candidate_status",
-    invoke_provider_execution: "ui_cannot_invoke_provider_execution"
+    invoke_provider_execution: "ui_cannot_invoke_provider_execution",
   };
   return { status: "rejected", reason: reasons[action], state };
 }

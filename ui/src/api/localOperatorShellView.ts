@@ -1,13 +1,25 @@
-import { projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
+import {
+  projectLocalProviderAdapterRegistry,
+  projectLocalProviderConfiguration,
+  projectLocalProviderExecution,
+  projectLocalProviderOutputValidation,
+  type LocalOperatorShellState,
+} from "./localOperatorShell";
 import { renderProviderOutputReviewText } from "./providerOutputReview";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 
-export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
-  const decisionHistory = state.run.decisionTimeline.records.length === 0
-    ? state.run.decisionTimeline.emptyMessage
-    : state.run.decisionTimeline.records
-        .map((record) => `#${record.recordedSequence} ${record.intentKind} ${record.decisionStatus} run=${record.runId} candidate=${record.candidateId} operator=${record.operatorId}`)
-        .join("\n");
+export function renderLocalOperatorShellSnapshot(
+  state: LocalOperatorShellState,
+): string {
+  const decisionHistory =
+    state.run.decisionTimeline.records.length === 0
+      ? state.run.decisionTimeline.emptyMessage
+      : state.run.decisionTimeline.records
+          .map(
+            (record) =>
+              `#${record.recordedSequence} ${record.intentKind} ${record.decisionStatus} run=${record.runId} candidate=${record.candidateId} operator=${record.operatorId}`,
+          )
+          .join("\n");
 
   const replay = state.run.decisionReplay;
   const replayLines = [
@@ -19,7 +31,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Latest operator ID: ${replay.latestOperatorId ?? "none"}`,
     `Latest decision kind: ${replay.latestDecisionKind ?? "none"}`,
     `Integrity: ${replay.integrityStatus}`,
-    `Summary: ${replay.summary}`
+    `Summary: ${replay.summary}`,
   ].join("\n");
 
   const exportPreview = state.localSessionEvidenceExport;
@@ -34,14 +46,39 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Decision count: ${exportPreview.decisionCount}`,
     `Replay status: ${exportPreview.replayStatus}`,
     `Replay integrity: ${exportPreview.replayIntegrityStatus}`,
-    `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`
+    `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`,
   ].join("\n");
 
-  const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
-  const adapterRegistry = projectLocalProviderAdapterRegistry(state.localProviderAdapterRegistry);
+  const providerConfiguration = projectLocalProviderConfiguration(
+    state.providerConfiguration,
+  );
+  const adapterRegistry = projectLocalProviderAdapterRegistry(
+    state.localProviderAdapterRegistry,
+  );
   const providerExecution = projectLocalProviderExecution(state);
   const providerOutputValidation = projectLocalProviderOutputValidation(state);
   const adapterDryRun = state.localProviderAdapterDryRun;
+  const constrainedInvocation = state.constrainedLocalProviderInvocation;
+  const constrainedInvocationLines = [
+    `Invocation status: ${constrainedInvocation.status}`,
+    `Allowlisted provider kind: ${constrainedInvocation.capabilitySurface.allowlistedProviderKind}`,
+    `Adapter kind: ${constrainedInvocation.adapterKind ?? "none"}`,
+    `Adapter declaration ID: ${constrainedInvocation.adapterDeclarationId ?? "none"}`,
+    `Result ID: ${constrainedInvocation.result?.resultId ?? "none"}`,
+    `Output summary: ${constrainedInvocation.result?.outputSummary ?? "none"}`,
+    `Output trust status: ${constrainedInvocation.outputTrustStatus}`,
+    `Boundary status: ${constrainedInvocation.boundaryStatuses.join(", ")}`,
+    `Effect status: ${constrainedInvocation.effectStatuses.join(", ")}`,
+    `Capability surface: ${constrainedInvocation.capabilitySurface.summary}`,
+    `Rejected reason: ${constrainedInvocation.errorCodes.join(", ") || "none"}`,
+    "Constrained local provider invocation only.",
+    "Only one allowlisted local provider path is enabled in Phase 156.",
+    "No arbitrary command execution is available.",
+    "No shell, network, cloud, or secret capability is enabled.",
+    "Provider output remains untrusted and descriptive.",
+    "Invocation does not create candidate output or materialize candidates.",
+    "Invocation does not approve readiness, release, deployment, or public use.",
+  ].join("\n");
   const adapterDryRunLines = [
     `Dry-run status: ${adapterDryRun.status}`,
     `Adapter kind: ${adapterDryRun.adapterKind ?? "none"}`,
@@ -58,20 +95,23 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "No real model execution occurs in Phase 154.",
     "Dry-run output remains untrusted and descriptive.",
     "Dry run does not create candidate output or materialize candidates.",
-    "Dry run does not approve readiness, release, deployment, or public use."
+    "Dry run does not approve readiness, release, deployment, or public use.",
   ].join("\n");
-  const adapterDeclarations = adapterRegistry.declarations.length === 0
-    ? "Adapter declarations: none"
-    : adapterRegistry.declarations
-        .map((declaration) => [
-          `Adapter declaration: ${declaration.declarationId}`,
-          `Adapter kind: ${declaration.adapterKind}`,
-          `Declaration/configuration status: ${declaration.status}`,
-          `Execution status: ${declaration.contract.executionStatus}`,
-          `Trust status: ${declaration.contract.trustStatus}`,
-          `Boundary status: ${declaration.contract.boundaryStatuses.join(", ")}`
-        ].join("\n"))
-        .join("\n");
+  const adapterDeclarations =
+    adapterRegistry.declarations.length === 0
+      ? "Adapter declarations: none"
+      : adapterRegistry.declarations
+          .map((declaration) =>
+            [
+              `Adapter declaration: ${declaration.declarationId}`,
+              `Adapter kind: ${declaration.adapterKind}`,
+              `Declaration/configuration status: ${declaration.status}`,
+              `Execution status: ${declaration.contract.executionStatus}`,
+              `Trust status: ${declaration.contract.trustStatus}`,
+              `Boundary status: ${declaration.contract.boundaryStatuses.join(", ")}`,
+            ].join("\n"),
+          )
+          .join("\n");
   const adapterRegistryLines = [
     `Registry status: ${adapterRegistry.registryStatus}`,
     `Supported adapter declarations: ${adapterRegistry.supportedAdapterKinds.join(", ")}`,
@@ -84,7 +124,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Trust status: ${adapterRegistry.trustStatus}`,
     `Boundary status: ${adapterRegistry.boundaryStatuses.join(", ")}`,
     adapterDeclarations,
-    adapterRegistry.note
+    adapterRegistry.note,
   ].join("\n");
 
   const providerConfigurationLines = [
@@ -95,7 +135,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Provider validation error code: ${providerConfiguration.validationErrorCodes.join(", ") || "none"}`,
     `Execution status: ${providerConfiguration.executionStatus}`,
     `Capability surface: ${providerConfiguration.capabilitySurface.summary}`,
-    providerConfiguration.note
+    providerConfiguration.note,
   ].join("\n");
 
   const providerExecutionLines = [
@@ -117,9 +157,8 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Validation/error reason: ${providerExecution.validationReason}`,
     `Validation/error code: ${providerExecution.validationErrorCodes.join(", ") || "none"}`,
     `Capability surface: ${providerExecution.capabilitySurface.summary}`,
-    providerExecution.note
+    providerExecution.note,
   ].join("\n");
-
 
   const providerOutputValidationLines = [
     `Validation status: ${providerOutputValidation.status}`,
@@ -133,7 +172,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Promotion status: ${providerOutputValidation.outputPromotionStatus}`,
     `No-effect summary: trust_effect=${providerOutputValidation.trustEffect}, candidate_effect=${providerOutputValidation.candidateEffect}, decision_ledger_effect=${providerOutputValidation.decisionLedgerEffect}, replay_effect=${providerOutputValidation.replayEffect}, export_effect=${providerOutputValidation.exportEffect}, action_effect=${providerOutputValidation.actionEffect}, readiness_effect=${providerOutputValidation.readinessEffect}, release_effect=${providerOutputValidation.releaseEffect}, deployment_effect=${providerOutputValidation.deploymentEffect}`,
     "Explicit Phase 144 note: reviewable_untrusted is not candidate material and cannot be approved in Phase 144; provider output is not promoted",
-    providerOutputValidation.note
+    providerOutputValidation.note,
   ].join("\n");
 
   const stagedProjection = state.stagedCandidateConversionProposal;
@@ -157,7 +196,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Candidate conversion was not performed in Phase 146.",
     "Validation is required in a future phase before any candidate review.",
     "Approval is not available in Phase 146.",
-    stagedProjection.note
+    stagedProjection.note,
   ].join("\n");
 
   const stagedValidation = state.stagedCandidateConversionValidation;
@@ -183,14 +222,14 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Future review boundary is required before any operator decision.",
     "Operator decision is not available in Phase 147.",
     "Provider output remains untrusted and not approved.",
-    stagedValidation.note
+    stagedValidation.note,
   ].join("\n");
 
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
         `Candidate body: ${state.run.candidate.body}`,
-        `Provider execution enabled: ${state.run.candidate.providerExecutionEnabled}`
+        `Provider execution enabled: ${state.run.candidate.providerExecutionEnabled}`,
       ].join("\n")
     : "Candidate output: waiting for deterministic stub run";
 
@@ -200,9 +239,10 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
 
   const operatorDecision = state.operatorCandidateDecision;
   const decisionRecord = operatorDecision.record;
-  const decisionControls = stagedValidation.status === "staged_proposal_shape_valid"
-    ? "Approve validated staged proposal | Reject validated staged proposal"
-    : "Approve/reject controls hidden until staged proposal validation is staged_proposal_shape_valid";
+  const decisionControls =
+    stagedValidation.status === "staged_proposal_shape_valid"
+      ? "Approve validated staged proposal | Reject validated staged proposal"
+      : "Approve/reject controls hidden until staged proposal validation is staged_proposal_shape_valid";
   const operatorDecisionLines = [
     `Decision status: ${operatorDecision.status}`,
     `Decision kind: ${decisionRecord?.decisionKind ?? "none"}`,
@@ -227,7 +267,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Provider output remains untrusted and not approved.",
     "Candidate materialization remains a later bounded step.",
     "This decision does not approve readiness, release, deployment, or public use.",
-    operatorDecision.note
+    operatorDecision.note,
   ].join("\n");
 
   const handoff = state.phase150CodeProductionHandoff;
@@ -240,7 +280,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     handoff.remainingProductionGradeGaps.join("\n"),
     handoff.remapRecommendations.join("\n"),
     "Phase 150 must remap toward larger product capability blocks using executable evidence from this handoff.",
-    "Phase 149 does not edit roadmap files."
+    "Phase 149 does not edit roadmap files.",
   ].join("\n");
 
   return [
@@ -265,6 +305,9 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     adapterRegistryLines,
     "Controlled adapter dry run",
     adapterDryRunLines,
+    "Constrained local provider invocation",
+    constrainedInvocationLines,
+    "Local provider invocation",
     "Local provider configuration",
     providerConfigurationLines,
     "Sandboxed provider execution",
@@ -291,6 +334,6 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",
-    exportLines
+    exportLines,
   ].join("\n");
 }

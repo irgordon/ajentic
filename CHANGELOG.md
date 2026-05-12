@@ -28,6 +28,42 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.156 - 2026-05-12
+**Status:** Phase 156 - Constrained Real Local Provider Invocation
+
+### Added
+- Add Rust-owned constrained local provider invocation request, result, projection, capability surface, and validation.
+- Add exactly one allowlisted local provider invocation path.
+- Add fail-closed rejection for non-allowlisted, cloud, network, shell, command, endpoint, secret-bearing, trust-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, candidate-materialization-bearing, action-bearing, or persistence-bearing invocation requests.
+- Add UI rendering for constrained local provider invocation status, result, capability surface, and boundary markers.
+- Add Rust and TypeScript tests for accepted allowlisted invocation, rejected unsafe invocation, deterministic projection, and no-effect boundaries.
+
+### Changed
+- Extend the local operator shell projection with constrained local provider invocation status.
+- Update the local UI shell to expose one constrained local provider invocation path without arbitrary command execution.
+- Update checklists/current-phase.md to Phase 156 procedural truth.
+
+### Notes
+- Code-production phase.
+- Exactly one allowlisted local provider invocation path.
+- No arbitrary provider execution.
+- No arbitrary command string field.
+- No shell command execution.
+- No shell expansion.
+- No cloud model calls.
+- No network sockets.
+- No secret handling.
+- No provider trust approval.
+- No candidate materialization.
+- No candidate approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 157 remains the next code-production phase for real provider output pipeline integration.
+
 ## v0.0.154 - 2026-05-12
 **Status:** Phase 154 - Controlled Adapter Dry-Run Harness
 

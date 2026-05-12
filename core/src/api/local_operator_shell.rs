@@ -1980,6 +1980,617 @@ pub fn apply_local_provider_adapter_dry_run(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AllowlistedLocalProviderKind {
+    AllowlistedLocalDeterministicProvider,
+    UnsupportedLocalProvider,
+    UnsupportedCloudProvider,
+    UnsupportedNetworkProvider,
+    UnsupportedShellProvider,
+}
+
+impl AllowlistedLocalProviderKind {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::AllowlistedLocalDeterministicProvider => {
+                "allowlisted_local_deterministic_provider"
+            }
+            Self::UnsupportedLocalProvider => "unsupported_local_provider",
+            Self::UnsupportedCloudProvider => "unsupported_cloud_provider",
+            Self::UnsupportedNetworkProvider => "unsupported_network_provider",
+            Self::UnsupportedShellProvider => "unsupported_shell_provider",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConstrainedLocalProviderInvocationStatus {
+    NotInvoked,
+    InvocationExecuted,
+    InvocationRejected,
+    AllowlistedProviderRequired,
+    UnsupportedProvider,
+    InvalidInvocationRequest,
+}
+
+impl ConstrainedLocalProviderInvocationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotInvoked => "not_invoked",
+            Self::InvocationExecuted => "invocation_executed",
+            Self::InvocationRejected => "invocation_rejected",
+            Self::AllowlistedProviderRequired => "allowlisted_provider_required",
+            Self::UnsupportedProvider => "unsupported_provider",
+            Self::InvalidInvocationRequest => "invalid_invocation_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ConstrainedLocalProviderInvocationError {
+    NoAdapterDeclared,
+    AdapterNotAccepted,
+    ProviderNotAllowlisted,
+    ArbitraryCommandRejected,
+    ShellFieldRejected,
+    ProcessFieldRejected,
+    ArgsFieldRejected,
+    EndpointFieldRejected,
+    NetworkFieldRejected,
+    SecretFieldRejected,
+    PathFieldRejected,
+    TrustClaimRejected,
+    ProviderOutputApprovalClaimRejected,
+    ReadinessClaimRejected,
+    ReleaseClaimRejected,
+    DeploymentClaimRejected,
+    PublicUseClaimRejected,
+    CandidateMaterializationClaimRejected,
+    ActionClaimRejected,
+    PersistenceClaimRejected,
+}
+
+impl ConstrainedLocalProviderInvocationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoAdapterDeclared => "no_adapter_declared",
+            Self::AdapterNotAccepted => "adapter_not_accepted",
+            Self::ProviderNotAllowlisted => "provider_not_allowlisted",
+            Self::ArbitraryCommandRejected => "arbitrary_command_rejected",
+            Self::ShellFieldRejected => "shell_field_rejected",
+            Self::ProcessFieldRejected => "process_field_rejected",
+            Self::ArgsFieldRejected => "args_field_rejected",
+            Self::EndpointFieldRejected => "endpoint_field_rejected",
+            Self::NetworkFieldRejected => "network_field_rejected",
+            Self::SecretFieldRejected => "secret_field_rejected",
+            Self::PathFieldRejected => "path_field_rejected",
+            Self::TrustClaimRejected => "trust_claim_rejected",
+            Self::ProviderOutputApprovalClaimRejected => "provider_output_approval_claim_rejected",
+            Self::ReadinessClaimRejected => "readiness_claim_rejected",
+            Self::ReleaseClaimRejected => "release_claim_rejected",
+            Self::DeploymentClaimRejected => "deployment_claim_rejected",
+            Self::PublicUseClaimRejected => "public_use_claim_rejected",
+            Self::CandidateMaterializationClaimRejected => {
+                "candidate_materialization_claim_rejected"
+            }
+            Self::ActionClaimRejected => "action_claim_rejected",
+            Self::PersistenceClaimRejected => "persistence_claim_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConstrainedLocalProviderInvocationBoundaryStatus {
+    ConstrainedLocalInvocationOnly,
+    AllowlistedProviderOnly,
+    NoArbitraryCommand,
+    NoShell,
+    NoNetwork,
+    NoCloud,
+    NoSecrets,
+    NoProviderTrust,
+    NoCandidateMaterialization,
+    NoActionExecution,
+    NoProductionPersistence,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl ConstrainedLocalProviderInvocationBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ConstrainedLocalInvocationOnly => "constrained_local_invocation_only",
+            Self::AllowlistedProviderOnly => "allowlisted_provider_only",
+            Self::NoArbitraryCommand => "no_arbitrary_command",
+            Self::NoShell => "no_shell",
+            Self::NoNetwork => "no_network",
+            Self::NoCloud => "no_cloud",
+            Self::NoSecrets => "no_secrets",
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoCandidateMaterialization => "no_candidate_materialization",
+            Self::NoActionExecution => "no_action_execution",
+            Self::NoProductionPersistence => "no_production_persistence",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConstrainedLocalProviderInvocationTrustStatus {
+    UntrustedDescriptive,
+}
+
+impl ConstrainedLocalProviderInvocationTrustStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::UntrustedDescriptive => "untrusted_descriptive",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConstrainedLocalProviderInvocationEffectStatus {
+    NoProviderTrust,
+    NoCandidateMaterialization,
+    NoActionExecution,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl ConstrainedLocalProviderInvocationEffectStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoCandidateMaterialization => "no_candidate_materialization",
+            Self::NoActionExecution => "no_action_execution",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConstrainedLocalProviderInvocationCapabilitySurface {
+    pub constrained_local_invocation_only: bool,
+    pub allowlisted_provider_only: bool,
+    pub allowlisted_provider_kind: AllowlistedLocalProviderKind,
+    pub no_arbitrary_command: bool,
+    pub no_shell: bool,
+    pub no_network: bool,
+    pub no_cloud: bool,
+    pub no_secrets: bool,
+    pub no_provider_trust: bool,
+    pub no_candidate_materialization: bool,
+    pub no_action_execution: bool,
+    pub no_production_persistence: bool,
+    pub no_readiness_effect: bool,
+    pub no_release_effect: bool,
+    pub no_deployment_effect: bool,
+    pub no_public_use_effect: bool,
+    pub summary: String,
+}
+
+pub fn constrained_local_provider_invocation_capability_surface(
+) -> ConstrainedLocalProviderInvocationCapabilitySurface {
+    ConstrainedLocalProviderInvocationCapabilitySurface {
+        constrained_local_invocation_only: true,
+        allowlisted_provider_only: true,
+        allowlisted_provider_kind: AllowlistedLocalProviderKind::AllowlistedLocalDeterministicProvider,
+        no_arbitrary_command: true,
+        no_shell: true,
+        no_network: true,
+        no_cloud: true,
+        no_secrets: true,
+        no_provider_trust: true,
+        no_candidate_materialization: true,
+        no_action_execution: true,
+        no_production_persistence: true,
+        no_readiness_effect: true,
+        no_release_effect: true,
+        no_deployment_effect: true,
+        no_public_use_effect: true,
+        summary: "Constrained local provider invocation only; only allowlisted_local_deterministic_provider is enabled in Phase 156. No arbitrary command, shell, network, cloud, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled.".to_string(),
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConstrainedLocalProviderInvocationRequest {
+    pub provider_kind: AllowlistedLocalProviderKind,
+    pub input_summary: String,
+    pub fields: Vec<(String, String)>,
+}
+
+impl ConstrainedLocalProviderInvocationRequest {
+    pub fn allowlisted_default() -> Self {
+        Self {
+            provider_kind: AllowlistedLocalProviderKind::AllowlistedLocalDeterministicProvider,
+            input_summary: "phase 156 constrained local provider invocation input".to_string(),
+            fields: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConstrainedLocalProviderInvocationResult {
+    pub result_id: String,
+    pub provider_kind: AllowlistedLocalProviderKind,
+    pub adapter_kind: LocalProviderAdapterKind,
+    pub adapter_declaration_id: String,
+    pub output_summary: String,
+    pub output_trust_status: ConstrainedLocalProviderInvocationTrustStatus,
+    pub boundary_statuses: Vec<ConstrainedLocalProviderInvocationBoundaryStatus>,
+    pub effect_statuses: Vec<ConstrainedLocalProviderInvocationEffectStatus>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConstrainedLocalProviderInvocationProjection {
+    pub status: ConstrainedLocalProviderInvocationStatus,
+    pub provider_kind: Option<AllowlistedLocalProviderKind>,
+    pub adapter_kind: Option<LocalProviderAdapterKind>,
+    pub adapter_declaration_id: Option<String>,
+    pub result: Option<ConstrainedLocalProviderInvocationResult>,
+    pub error_codes: Vec<ConstrainedLocalProviderInvocationError>,
+    pub boundary_statuses: Vec<ConstrainedLocalProviderInvocationBoundaryStatus>,
+    pub output_trust_status: ConstrainedLocalProviderInvocationTrustStatus,
+    pub effect_statuses: Vec<ConstrainedLocalProviderInvocationEffectStatus>,
+    pub capability_surface: ConstrainedLocalProviderInvocationCapabilitySurface,
+    pub registry_declaration_count: usize,
+    pub reason: String,
+}
+
+pub fn constrained_local_provider_invocation_boundary_statuses(
+) -> Vec<ConstrainedLocalProviderInvocationBoundaryStatus> {
+    vec![
+        ConstrainedLocalProviderInvocationBoundaryStatus::ConstrainedLocalInvocationOnly,
+        ConstrainedLocalProviderInvocationBoundaryStatus::AllowlistedProviderOnly,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoArbitraryCommand,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoShell,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoNetwork,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoCloud,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoSecrets,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoProviderTrust,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoCandidateMaterialization,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoActionExecution,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoProductionPersistence,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoReadinessEffect,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoReleaseEffect,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoDeploymentEffect,
+        ConstrainedLocalProviderInvocationBoundaryStatus::NoPublicUseEffect,
+    ]
+}
+
+pub fn constrained_local_provider_invocation_effect_statuses(
+) -> Vec<ConstrainedLocalProviderInvocationEffectStatus> {
+    vec![
+        ConstrainedLocalProviderInvocationEffectStatus::NoProviderTrust,
+        ConstrainedLocalProviderInvocationEffectStatus::NoCandidateMaterialization,
+        ConstrainedLocalProviderInvocationEffectStatus::NoActionExecution,
+        ConstrainedLocalProviderInvocationEffectStatus::NoReadinessEffect,
+        ConstrainedLocalProviderInvocationEffectStatus::NoReleaseEffect,
+        ConstrainedLocalProviderInvocationEffectStatus::NoDeploymentEffect,
+        ConstrainedLocalProviderInvocationEffectStatus::NoPublicUseEffect,
+    ]
+}
+
+pub fn initial_constrained_local_provider_invocation_projection(
+) -> ConstrainedLocalProviderInvocationProjection {
+    ConstrainedLocalProviderInvocationProjection {
+        status: ConstrainedLocalProviderInvocationStatus::NotInvoked,
+        provider_kind: None,
+        adapter_kind: None,
+        adapter_declaration_id: None,
+        result: None,
+        error_codes: Vec::new(),
+        boundary_statuses: constrained_local_provider_invocation_boundary_statuses(),
+        output_trust_status: ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive,
+        effect_statuses: constrained_local_provider_invocation_effect_statuses(),
+        capability_surface: constrained_local_provider_invocation_capability_surface(),
+        registry_declaration_count: 0,
+        reason: "constrained local provider invocation not_invoked; accepted deterministic_fake_adapter declaration and allowlisted_local_deterministic_provider are required for Phase 156 invocation".to_string(),
+    }
+}
+
+fn reject_constrained_local_provider_invocation(
+    status: ConstrainedLocalProviderInvocationStatus,
+    provider_kind: Option<AllowlistedLocalProviderKind>,
+    adapter_kind: Option<LocalProviderAdapterKind>,
+    adapter_declaration_id: Option<String>,
+    registry_declaration_count: usize,
+    errors: Vec<ConstrainedLocalProviderInvocationError>,
+) -> ConstrainedLocalProviderInvocationProjection {
+    ConstrainedLocalProviderInvocationProjection {
+        status,
+        provider_kind,
+        adapter_kind,
+        adapter_declaration_id,
+        result: None,
+        error_codes: errors,
+        boundary_statuses: constrained_local_provider_invocation_boundary_statuses(),
+        output_trust_status: ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive,
+        effect_statuses: constrained_local_provider_invocation_effect_statuses(),
+        capability_surface: constrained_local_provider_invocation_capability_surface(),
+        registry_declaration_count,
+        reason: "constrained local provider invocation rejected fail-closed; prior accepted invocation projection is preserved when present and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs".to_string(),
+    }
+}
+
+pub fn validate_constrained_local_provider_invocation_request(
+    registry: &LocalProviderAdapterRegistry,
+    request: &ConstrainedLocalProviderInvocationRequest,
+) -> Result<LocalProviderAdapterDeclaration, Box<ConstrainedLocalProviderInvocationProjection>> {
+    let mut errors = std::collections::BTreeSet::new();
+    match request.provider_kind {
+        AllowlistedLocalProviderKind::AllowlistedLocalDeterministicProvider => {}
+        AllowlistedLocalProviderKind::UnsupportedCloudProvider => {
+            errors.insert(ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted);
+            errors.insert(ConstrainedLocalProviderInvocationError::NetworkFieldRejected);
+        }
+        AllowlistedLocalProviderKind::UnsupportedNetworkProvider => {
+            errors.insert(ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted);
+            errors.insert(ConstrainedLocalProviderInvocationError::NetworkFieldRejected);
+        }
+        AllowlistedLocalProviderKind::UnsupportedShellProvider => {
+            errors.insert(ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted);
+            errors.insert(ConstrainedLocalProviderInvocationError::ShellFieldRejected);
+        }
+        AllowlistedLocalProviderKind::UnsupportedLocalProvider => {
+            errors.insert(ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted);
+        }
+    }
+
+    let declaration = match registry.declarations.last() {
+        Some(declaration) => declaration,
+        None => {
+            errors.insert(ConstrainedLocalProviderInvocationError::NoAdapterDeclared);
+            let error_codes: Vec<_> = errors.into_iter().collect();
+            return Err(Box::new(reject_constrained_local_provider_invocation(
+                ConstrainedLocalProviderInvocationStatus::AllowlistedProviderRequired,
+                Some(request.provider_kind),
+                None,
+                None,
+                registry.declarations.len(),
+                error_codes,
+            )));
+        }
+    };
+
+    if declaration.status != LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting {
+        errors.insert(ConstrainedLocalProviderInvocationError::AdapterNotAccepted);
+    }
+    if declaration.adapter_kind != LocalProviderAdapterKind::DeterministicFakeAdapter {
+        errors.insert(ConstrainedLocalProviderInvocationError::AdapterNotAccepted);
+    }
+
+    for (key, value) in &request.fields {
+        reject_forbidden_constrained_local_provider_invocation_field(key, value, &mut errors);
+    }
+    if !request.input_summary.trim().is_empty() {
+        reject_forbidden_constrained_local_provider_invocation_field(
+            "input_summary",
+            &request.input_summary,
+            &mut errors,
+        );
+    }
+
+    let error_codes: Vec<_> = errors.into_iter().collect();
+    if error_codes.is_empty() {
+        Ok(declaration.clone())
+    } else {
+        let status = if error_codes.iter().any(|error| {
+            matches!(
+                error,
+                ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted
+                    | ConstrainedLocalProviderInvocationError::NetworkFieldRejected
+                    | ConstrainedLocalProviderInvocationError::ShellFieldRejected
+                    | ConstrainedLocalProviderInvocationError::AdapterNotAccepted
+            )
+        }) {
+            ConstrainedLocalProviderInvocationStatus::UnsupportedProvider
+        } else {
+            ConstrainedLocalProviderInvocationStatus::InvalidInvocationRequest
+        };
+        Err(Box::new(reject_constrained_local_provider_invocation(
+            status,
+            Some(request.provider_kind),
+            Some(declaration.adapter_kind),
+            Some(declaration.declaration_id.clone()),
+            registry.declarations.len(),
+            error_codes,
+        )))
+    }
+}
+
+pub fn reject_forbidden_constrained_local_provider_invocation_field(
+    key: &str,
+    value: &str,
+    errors: &mut std::collections::BTreeSet<ConstrainedLocalProviderInvocationError>,
+) {
+    let lowered_key = key.to_ascii_lowercase();
+    let combined = format!("{}={}", lowered_key, value.to_ascii_lowercase());
+    let safe_input =
+        lowered_key == "label" || lowered_key == "description" || lowered_key == "input_summary";
+    let forbidden = [
+        "endpoint",
+        "url",
+        "host",
+        "port",
+        "http",
+        "network",
+        "cloud",
+        "command",
+        "shell",
+        "process",
+        "args",
+        "path",
+        "file",
+        "directory",
+        "secret",
+        "token",
+        "api_key",
+        "apikey",
+        "credential",
+        "trust",
+        "approved_output",
+        "provider_output_approval",
+        "readiness",
+        "ready",
+        "release",
+        "deployment",
+        "deploy",
+        "public_use",
+        "public-use",
+        "candidate",
+        "materialization",
+        "action",
+        "persistence",
+    ]
+    .iter()
+    .any(|needle| combined.contains(needle));
+    if safe_input && !forbidden {
+        return;
+    }
+    if combined.contains("command") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ArbitraryCommandRejected);
+    } else if combined.contains("shell") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ShellFieldRejected);
+    } else if combined.contains("process") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ProcessFieldRejected);
+    } else if combined.contains("args") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ArgsFieldRejected);
+    } else if ["endpoint", "url", "host", "port", "http"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::EndpointFieldRejected);
+    } else if ["network", "cloud"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::NetworkFieldRejected);
+    } else if ["secret", "token", "api_key", "apikey", "credential"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::SecretFieldRejected);
+    } else if ["path", "file", "directory"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::PathFieldRejected);
+    } else if combined.contains("approved_output") || combined.contains("provider_output_approval")
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::ProviderOutputApprovalClaimRejected);
+    } else if combined.contains("trust") {
+        errors.insert(ConstrainedLocalProviderInvocationError::TrustClaimRejected);
+    } else if ["readiness", "ready"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::ReadinessClaimRejected);
+    } else if combined.contains("release") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ReleaseClaimRejected);
+    } else if ["deployment", "deploy"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::DeploymentClaimRejected);
+    } else if ["public_use", "public-use"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(ConstrainedLocalProviderInvocationError::PublicUseClaimRejected);
+    } else if ["candidate", "materialization"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors
+            .insert(ConstrainedLocalProviderInvocationError::CandidateMaterializationClaimRejected);
+    } else if combined.contains("action") {
+        errors.insert(ConstrainedLocalProviderInvocationError::ActionClaimRejected);
+    } else if combined.contains("persistence") {
+        errors.insert(ConstrainedLocalProviderInvocationError::PersistenceClaimRejected);
+    }
+}
+
+fn deterministic_constrained_local_provider_invocation_checksum(input: &str) -> u64 {
+    input.bytes().fold(156_u64, |acc, byte| {
+        acc.wrapping_mul(33).wrapping_add(byte as u64)
+    })
+}
+
+pub fn execute_allowlisted_local_deterministic_provider_invocation(
+    declaration: &LocalProviderAdapterDeclaration,
+    request: &ConstrainedLocalProviderInvocationRequest,
+) -> ConstrainedLocalProviderInvocationResult {
+    let checksum = deterministic_constrained_local_provider_invocation_checksum(&format!(
+        "{}|{}|{}|{}",
+        declaration.declaration_id,
+        declaration.adapter_kind.code(),
+        request.provider_kind.code(),
+        request.input_summary
+    ));
+    ConstrainedLocalProviderInvocationResult {
+        result_id: format!("constrained-local-provider-invocation-{checksum:016x}"),
+        provider_kind: request.provider_kind,
+        adapter_kind: declaration.adapter_kind,
+        adapter_declaration_id: declaration.declaration_id.clone(),
+        output_summary: format!(
+            "allowlisted_local_deterministic_provider descriptive output for input_bytes={} checksum={checksum:016x}",
+            request.input_summary.len()
+        ),
+        output_trust_status: ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive,
+        boundary_statuses: constrained_local_provider_invocation_boundary_statuses(),
+        effect_statuses: constrained_local_provider_invocation_effect_statuses(),
+    }
+}
+
+pub fn project_constrained_local_provider_invocation(
+    registry: &LocalProviderAdapterRegistry,
+    result: ConstrainedLocalProviderInvocationResult,
+) -> ConstrainedLocalProviderInvocationProjection {
+    ConstrainedLocalProviderInvocationProjection {
+        status: ConstrainedLocalProviderInvocationStatus::InvocationExecuted,
+        provider_kind: Some(result.provider_kind),
+        adapter_kind: Some(result.adapter_kind),
+        adapter_declaration_id: Some(result.adapter_declaration_id.clone()),
+        result: Some(result),
+        error_codes: Vec::new(),
+        boundary_statuses: constrained_local_provider_invocation_boundary_statuses(),
+        output_trust_status: ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive,
+        effect_statuses: constrained_local_provider_invocation_effect_statuses(),
+        capability_surface: constrained_local_provider_invocation_capability_surface(),
+        registry_declaration_count: registry.declarations.len(),
+        reason: "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs".to_string(),
+    }
+}
+
+pub fn execute_constrained_local_provider_invocation(
+    state: &LocalOperatorShellState,
+    request: ConstrainedLocalProviderInvocationRequest,
+) -> Result<LocalOperatorShellState, Box<ConstrainedLocalProviderInvocationProjection>> {
+    let declaration = validate_constrained_local_provider_invocation_request(
+        &state.local_provider_adapter_registry,
+        &request,
+    )?;
+    let result =
+        execute_allowlisted_local_deterministic_provider_invocation(&declaration, &request);
+    let mut next = state.clone();
+    next.constrained_local_provider_invocation = project_constrained_local_provider_invocation(
+        &state.local_provider_adapter_registry,
+        result,
+    );
+    Ok(attach_local_session_evidence_export(next))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalProviderExecutionStatus {
     NotExecuted,
     Executed,
@@ -6061,6 +6672,7 @@ pub struct LocalOperatorShellState {
     pub provider_configuration: LocalProviderConfiguration,
     pub local_provider_adapter_registry: LocalProviderAdapterRegistry,
     pub local_provider_adapter_dry_run: LocalProviderAdapterDryRunProjection,
+    pub constrained_local_provider_invocation: ConstrainedLocalProviderInvocationProjection,
     pub provider_execution: LocalProviderExecutionProjection,
     pub provider_output_validation: LocalProviderOutputValidationProjection,
     pub staged_candidate_conversion_proposal: StagedCandidateConversionProposalProjection,
@@ -6282,6 +6894,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         provider_configuration: initial_local_provider_configuration(),
         local_provider_adapter_registry: initial_local_provider_adapter_registry(),
         local_provider_adapter_dry_run: initial_local_provider_adapter_dry_run_projection(),
+        constrained_local_provider_invocation:
+            initial_constrained_local_provider_invocation_projection(),
         provider_execution: initial_local_provider_execution_projection(),
         provider_output_validation: initial_local_provider_output_validation_projection(),
         staged_candidate_conversion_proposal:
@@ -6436,6 +7050,7 @@ pub enum LocalOperatorShellRequest {
     SubmitProviderAdapterDeclaration(LocalProviderAdapterConfigurationCandidate),
     ExecuteProvider(LocalProviderExecutionRequest),
     RunProviderAdapterDryRun(LocalProviderAdapterDryRunRequest),
+    InvokeConstrainedLocalProvider(ConstrainedLocalProviderInvocationRequest),
     CreateStagedCandidateConversionProposal(StagedCandidateConversionProposalRequest),
     ValidateStagedCandidateConversionProposal(StagedCandidateConversionValidationRequest),
     SubmitOperatorCandidateDecision(OperatorCandidateDecisionRequest),
@@ -6566,6 +7181,15 @@ pub fn run_local_provider_adapter_dry_run(
     transport.step(LocalOperatorShellRequest::RunProviderAdapterDryRun(request))
 }
 
+pub fn invoke_constrained_local_provider(
+    transport: &mut LocalOperatorShellTransport,
+    request: ConstrainedLocalProviderInvocationRequest,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::InvokeConstrainedLocalProvider(
+        request,
+    ))
+}
+
 pub fn create_local_staged_candidate_conversion_proposal(
     transport: &mut LocalOperatorShellTransport,
     request: StagedCandidateConversionProposalRequest,
@@ -6643,6 +7267,26 @@ pub fn local_operator_shell_transport_step(
                         rejected_state
                     };
                     rejected("local_provider_adapter_dry_run_rejected", response_state)
+                }
+            }
+        }
+        LocalOperatorShellRequest::InvokeConstrainedLocalProvider(request) => {
+            match execute_constrained_local_provider_invocation(state, request) {
+                Ok(next) => accepted("constrained_local_provider_invocation_executed", next),
+                Err(projection) => {
+                    let response_state = if state.constrained_local_provider_invocation.status
+                        == ConstrainedLocalProviderInvocationStatus::InvocationExecuted
+                    {
+                        state.clone()
+                    } else {
+                        let mut rejected_state = state.clone();
+                        rejected_state.constrained_local_provider_invocation = *projection;
+                        rejected_state
+                    };
+                    rejected(
+                        "constrained_local_provider_invocation_rejected",
+                        response_state,
+                    )
                 }
             }
         }
@@ -10160,6 +10804,282 @@ mod tests {
         assert_eq!(
             after.local_session_restore_projection,
             state.local_session_restore_projection
+        );
+    }
+
+    #[test]
+    fn phase_156_initial_projection_and_allowlisted_invocation_are_deterministic() {
+        let initial = initial_local_operator_shell_state();
+        assert_eq!(
+            initial.constrained_local_provider_invocation.status,
+            ConstrainedLocalProviderInvocationStatus::NotInvoked
+        );
+        assert!(initial
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(
+                &ConstrainedLocalProviderInvocationBoundaryStatus::ConstrainedLocalInvocationOnly
+            ));
+        assert!(initial
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::AllowlistedProviderOnly));
+        assert!(initial
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::NoArbitraryCommand));
+
+        let state = apply_local_provider_adapter_declaration(
+            &initial,
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let request = ConstrainedLocalProviderInvocationRequest::allowlisted_default();
+        let first = execute_constrained_local_provider_invocation(&state, request.clone()).unwrap();
+        let second = execute_constrained_local_provider_invocation(&state, request).unwrap();
+        let first_result = first
+            .constrained_local_provider_invocation
+            .result
+            .as_ref()
+            .unwrap();
+        let second_result = second
+            .constrained_local_provider_invocation
+            .result
+            .as_ref()
+            .unwrap();
+
+        assert_eq!(
+            first.constrained_local_provider_invocation.status,
+            ConstrainedLocalProviderInvocationStatus::InvocationExecuted
+        );
+        assert_eq!(first_result.result_id, second_result.result_id);
+        assert_eq!(first_result.output_summary, second_result.output_summary);
+        assert!(first_result
+            .result_id
+            .starts_with("constrained-local-provider-invocation-"));
+        assert!(first_result
+            .output_summary
+            .starts_with("allowlisted_local_deterministic_provider descriptive output"));
+        assert_eq!(
+            first
+                .constrained_local_provider_invocation
+                .output_trust_status,
+            ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive
+        );
+        assert!(first
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::NoShell));
+        assert!(first
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::NoNetwork));
+        assert!(first
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::NoCloud));
+        assert!(first
+            .constrained_local_provider_invocation
+            .boundary_statuses
+            .contains(&ConstrainedLocalProviderInvocationBoundaryStatus::NoSecrets));
+    }
+
+    #[test]
+    fn phase_156_invocation_rejects_preconditions_and_forbidden_fields() {
+        let initial = initial_local_operator_shell_state();
+        let missing = execute_constrained_local_provider_invocation(
+            &initial,
+            ConstrainedLocalProviderInvocationRequest::allowlisted_default(),
+        )
+        .unwrap_err();
+        assert_eq!(
+            missing.status,
+            ConstrainedLocalProviderInvocationStatus::AllowlistedProviderRequired
+        );
+        assert!(missing
+            .error_codes
+            .contains(&ConstrainedLocalProviderInvocationError::NoAdapterDeclared));
+
+        let rejected_adapter = apply_local_provider_adapter_declaration(
+            &initial,
+            LocalProviderAdapterConfigurationCandidate::local_model_adapter_contract(),
+        )
+        .unwrap();
+        let adapter_rejected = execute_constrained_local_provider_invocation(
+            &rejected_adapter,
+            ConstrainedLocalProviderInvocationRequest::allowlisted_default(),
+        )
+        .unwrap_err();
+        assert!(adapter_rejected
+            .error_codes
+            .contains(&ConstrainedLocalProviderInvocationError::AdapterNotAccepted));
+
+        let accepted = apply_local_provider_adapter_declaration(
+            &initial,
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let unsupported = execute_constrained_local_provider_invocation(
+            &accepted,
+            ConstrainedLocalProviderInvocationRequest {
+                provider_kind: AllowlistedLocalProviderKind::UnsupportedCloudProvider,
+                input_summary: "cloud provider rejected".to_string(),
+                fields: Vec::new(),
+            },
+        )
+        .unwrap_err();
+        assert!(unsupported
+            .error_codes
+            .contains(&ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted));
+        assert!(unsupported
+            .error_codes
+            .contains(&ConstrainedLocalProviderInvocationError::NetworkFieldRejected));
+
+        let cases = [
+            (
+                ("command", "run"),
+                ConstrainedLocalProviderInvocationError::ArbitraryCommandRejected,
+            ),
+            (
+                ("shell", "true"),
+                ConstrainedLocalProviderInvocationError::ShellFieldRejected,
+            ),
+            (
+                ("process", "spawn"),
+                ConstrainedLocalProviderInvocationError::ProcessFieldRejected,
+            ),
+            (
+                ("args", "--flag"),
+                ConstrainedLocalProviderInvocationError::ArgsFieldRejected,
+            ),
+            (
+                ("endpoint", "https://example.invalid"),
+                ConstrainedLocalProviderInvocationError::EndpointFieldRejected,
+            ),
+            (
+                ("network", "true"),
+                ConstrainedLocalProviderInvocationError::NetworkFieldRejected,
+            ),
+            (
+                ("api_key", "secret"),
+                ConstrainedLocalProviderInvocationError::SecretFieldRejected,
+            ),
+            (
+                ("model_path", "/tmp/model"),
+                ConstrainedLocalProviderInvocationError::PathFieldRejected,
+            ),
+            (
+                ("trust", "true"),
+                ConstrainedLocalProviderInvocationError::TrustClaimRejected,
+            ),
+            (
+                ("approved_output", "true"),
+                ConstrainedLocalProviderInvocationError::ProviderOutputApprovalClaimRejected,
+            ),
+            (
+                ("readiness", "true"),
+                ConstrainedLocalProviderInvocationError::ReadinessClaimRejected,
+            ),
+            (
+                ("release", "true"),
+                ConstrainedLocalProviderInvocationError::ReleaseClaimRejected,
+            ),
+            (
+                ("deployment", "true"),
+                ConstrainedLocalProviderInvocationError::DeploymentClaimRejected,
+            ),
+            (
+                ("public_use", "true"),
+                ConstrainedLocalProviderInvocationError::PublicUseClaimRejected,
+            ),
+            (
+                ("candidate", "create"),
+                ConstrainedLocalProviderInvocationError::CandidateMaterializationClaimRejected,
+            ),
+            (
+                ("action", "true"),
+                ConstrainedLocalProviderInvocationError::ActionClaimRejected,
+            ),
+            (
+                ("persistence", "true"),
+                ConstrainedLocalProviderInvocationError::PersistenceClaimRejected,
+            ),
+        ];
+        for ((key, value), expected) in cases {
+            let projection = execute_constrained_local_provider_invocation(
+                &accepted,
+                ConstrainedLocalProviderInvocationRequest {
+                    provider_kind:
+                        AllowlistedLocalProviderKind::AllowlistedLocalDeterministicProvider,
+                    input_summary: "phase 156 constrained local invocation".to_string(),
+                    fields: vec![(key.to_string(), value.to_string())],
+                },
+            )
+            .unwrap_err();
+            assert!(
+                projection.error_codes.contains(&expected),
+                "missing {expected:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn phase_156_invocation_has_no_decision_replay_candidate_or_restore_effects() {
+        let state = apply_local_provider_adapter_declaration(
+            &initial_local_operator_shell_state(),
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let before_ledger = state.decision_ledger.clone();
+        let before_replay = state.run.decision_replay.clone();
+        let before_run_candidate = state.run.candidate.clone();
+        let before_export_status = state.local_session_evidence_export.export_status;
+        let after = execute_constrained_local_provider_invocation(
+            &state,
+            ConstrainedLocalProviderInvocationRequest::allowlisted_default(),
+        )
+        .unwrap();
+        assert_eq!(after.decision_ledger, before_ledger);
+        assert_eq!(after.run.decision_replay, before_replay);
+        assert_eq!(after.run.candidate, before_run_candidate);
+        assert_eq!(
+            after.local_session_evidence_export.export_status,
+            before_export_status
+        );
+        assert_eq!(
+            after.local_session_package_projection,
+            state.local_session_package_projection
+        );
+        assert_eq!(
+            after.local_session_restore_projection,
+            state.local_session_restore_projection
+        );
+    }
+
+    #[test]
+    fn phase_156_rejected_invocation_preserves_prior_accepted_projection_in_transport() {
+        let mut transport = LocalOperatorShellTransport::new();
+        submit_local_provider_adapter_declaration(
+            &mut transport,
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        );
+        let accepted = invoke_constrained_local_provider(
+            &mut transport,
+            ConstrainedLocalProviderInvocationRequest::allowlisted_default(),
+        );
+        let accepted_projection = accepted.state.constrained_local_provider_invocation.clone();
+        let rejected = invoke_constrained_local_provider(
+            &mut transport,
+            ConstrainedLocalProviderInvocationRequest {
+                provider_kind: AllowlistedLocalProviderKind::AllowlistedLocalDeterministicProvider,
+                input_summary: "phase 156 rejected command".to_string(),
+                fields: vec![("command".to_string(), "run".to_string())],
+            },
+        );
+        assert_eq!(rejected.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(
+            rejected.state.constrained_local_provider_invocation,
+            accepted_projection
         );
     }
 }
