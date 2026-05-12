@@ -295,6 +295,42 @@ export function renderLocalOperatorShellSnapshot(
     operatorDecision.note,
   ].join("\n");
 
+  const localCandidate = state.localCandidateOutput;
+  const localCandidateLinkage = localCandidate.sourceLinkage;
+  const materializationControl =
+    state.localProviderOutputPipeline.status === "valid" &&
+    state.providerOutputValidation.status === "reviewable_untrusted" &&
+    state.providerOutputValidation.reviewabilityStatus === "reviewable_untrusted" &&
+    state.stagedCandidateConversionProposal.status === "staged_proposal_created" &&
+    state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" &&
+    state.localProviderOutputPipeline.candidateReviewStatus === "display_only" &&
+    state.operatorCandidateDecision.status === "approved_validated_staged_proposal"
+      ? "Materialize local candidate output"
+      : "Materialization control disabled until provider validation, review, staged proposal, staged validation, candidate review, and approved operator decision preconditions pass";
+  const localCandidateLines = [
+    `Materialization status: ${localCandidate.status}`,
+    `Candidate ID: ${localCandidate.candidateId ?? "none"}`,
+    `Candidate output summary: ${localCandidate.contentSummary ?? "none"}`,
+    `Local candidate classification: ${localCandidate.outputClassification}`,
+    `Production classification: ${localCandidate.productionClassification}`,
+    `Source invocation result ID: ${localCandidateLinkage?.sourceInvocationResultId ?? pipeline.sourceInvocationResultId ?? "none"}`,
+    `Source provider execution result ID: ${localCandidateLinkage?.providerExecutionResultId ?? pipeline.providerExecutionResultId ?? "none"}`,
+    `Source staged proposal ID: ${localCandidateLinkage?.stagedProposalId ?? stagedValidation.proposalId ?? "none"}`,
+    `Source operator decision ID: ${localCandidateLinkage?.operatorDecisionId ?? decisionRecord?.decisionId ?? "none"}`,
+    `Provider output trust carry-forward: ${localCandidate.providerOutputTrustCarryForward}`,
+    `Materialization boundary markers: ${localCandidate.boundaryStatuses.join(", ")}`,
+    `No-effect markers: ${localCandidate.effectStatuses.join(", ")}`,
+    `Rejection reason: ${localCandidate.error ?? "none"}`,
+    materializationControl,
+    "Local candidate output only.",
+    "This candidate output is non-production.",
+    "Provider output remains untrusted.",
+    "Candidate materialization does not approve readiness, release, deployment, or public use.",
+    "Candidate materialization does not authorize actions.",
+    "Production approval remains unavailable.",
+    localCandidate.note,
+  ].join("\n");
+
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
     `Handoff ID: ${handoff.handoffId}`,
@@ -357,6 +393,9 @@ export function renderLocalOperatorShellSnapshot(
     "Operator candidate decision",
     "Validated staged proposal decision",
     operatorDecisionLines,
+    "Local candidate materialization",
+    "Local candidate output",
+    localCandidateLines,
     "Phase 150 code-production handoff",
     handoffLines,
     "Bottom panel: Replay/status projection",

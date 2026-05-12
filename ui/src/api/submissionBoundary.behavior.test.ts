@@ -35,6 +35,8 @@ import {
   validateLocalProviderAdapterDeclaration,
   projectLocalProviderAdapterRegistry,
   validateProviderOutputPipelineStageOrder,
+  localCandidateMaterializationRequestFromState,
+  materializeLocalCandidateOutput,
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
@@ -52,6 +54,7 @@ import {
   submitLocalProviderAdapterDeclaration,
   invokeConstrainedLocalProvider,
   runLocalProviderAdapterDryRun,
+  requestLocalCandidateMaterialization,
 } from "./localOperatorShellTransport";
 import {
   encodeLocalUiRustTransportRequest,
@@ -3933,6 +3936,186 @@ function phase157AcceptedInvocationState() {
   ).state;
 }
 
+
+function phase158ApprovedMaterializationState() {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderAdapterDeclaration(
+    transport,
+    deterministicFakeAdapterDeclarationCandidate(),
+  );
+  invokeConstrainedLocalProvider(
+    transport,
+    allowlistedLocalProviderInvocationRequest(),
+  );
+  createLocalStagedCandidateConversionProposal(transport, {
+    operatorNote: "phase 158 local candidate output",
+    claims: [],
+  });
+  validateLocalStagedCandidateConversionProposal(transport, {});
+  const staged = transport.getCurrentState().state.stagedCandidateConversionProposal.proposal;
+  if (!staged) throw new Error("expected staged proposal");
+  submitLocalOperatorCandidateDecision(transport, {
+    kind: "approve_validated_staged_proposal",
+    stagedProposalId: staged.proposalId,
+    providerExecutionResultId: staged.sourceExecutionResultId,
+    stagedProposalValidationStatus: "staged_proposal_shape_valid",
+  });
+  const request = localCandidateMaterializationRequestFromState(
+    transport.getCurrentState().state,
+  );
+  if (!request) throw new Error("expected materialization request");
+  return { transport, request };
+}
+
+function assertLocalCandidateMaterializationUiAndProjection(): void {
+  const { transport, request } = phase158ApprovedMaterializationState();
+  const response = requestLocalCandidateMaterialization(transport, request);
+  assertEqual(response.status, "accepted", "materialization accepted");
+  const projection = response.state.localCandidateOutput;
+  assertEqual(
+    projection.status,
+    "local_candidate_materialized",
+    "materialization status",
+  );
+  assertContains(
+    projection.candidateId ?? "",
+    "local-candidate-output-",
+    "candidate output id",
+  );
+  assertEqual(
+    projection.outputClassification,
+    "local_candidate_output_only",
+    "local classification",
+  );
+  assertEqual(
+    projection.productionClassification,
+    "non_production_candidate",
+    "production classification",
+  );
+  assertEqual(
+    projection.providerOutputTrustCarryForward,
+    "provider_output_remains_untrusted",
+    "trust carry-forward",
+  );
+  assertEqual(
+    projection.sourceLinkage?.stagedProposalId,
+    request.stagedProposalId,
+    "staged proposal linkage",
+  );
+  assertEqual(
+    projection.sourceLinkage?.operatorDecisionId,
+    request.operatorDecisionId,
+    "operator decision linkage",
+  );
+  const repeat = materializeLocalCandidateOutput(response.state, request).state
+    .localCandidateOutput;
+  assertEqual(repeat.candidateId, projection.candidateId, "deterministic id");
+  assertEqual(
+    repeat.contentSummary,
+    projection.contentSummary,
+    "deterministic content",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Local candidate materialization", "panel title");
+  assertContains(rendered, "Local candidate output only.", "local only wording");
+  assertContains(
+    rendered,
+    "This candidate output is non-production.",
+    "non-production wording",
+  );
+  assertContains(
+    rendered,
+    "Provider output remains untrusted.",
+    "untrusted wording",
+  );
+  assertContains(
+    rendered,
+    "Candidate materialization does not approve readiness, release, deployment, or public use.",
+    "no readiness release deployment public-use wording",
+  );
+  assertContains(
+    rendered,
+    "Candidate materialization does not authorize actions.",
+    "no action wording",
+  );
+  assertContains(
+    rendered,
+    "Production approval remains unavailable.",
+    "no production approval wording",
+  );
+}
+
+function assertLocalCandidateMaterializationRejectedStatesAndForbiddenLabels(): void {
+  const initial = initialLocalOperatorShellState();
+  assertEqual(
+    initial.localCandidateOutput.status,
+    "not_materialized",
+    "initial status",
+  );
+  const rejectedMissing = materializeLocalCandidateOutput(initial, {
+    stagedProposalId: "missing",
+    operatorDecisionId: "missing",
+    providerExecutionResultId: "missing",
+    sourceInvocationResultId: "missing",
+  });
+  assertEqual(rejectedMissing.status, "rejected", "missing precondition rejected");
+  assertEqual(
+    rejectedMissing.state.localCandidateOutput.status,
+    "materialization_precondition_missing",
+    "missing precondition status",
+  );
+  assertEqual(
+    rejectedMissing.state.localCandidateOutput.error,
+    "provider_pipeline_incomplete",
+    "missing reason",
+  );
+
+  const { transport, request } = phase158ApprovedMaterializationState();
+  const accepted = requestLocalCandidateMaterialization(transport, request);
+  const claimRejected = requestLocalCandidateMaterialization(transport, {
+    ...request,
+    claimsTrust: true,
+  });
+  assertEqual(claimRejected.status, "rejected", "trust claim rejected");
+  assertEqual(
+    claimRejected.state.localCandidateOutput.candidateId,
+    accepted.state.localCandidateOutput.candidateId,
+    "rejected request preserves prior accepted candidate output",
+  );
+  assertEqual(
+    claimRejected.state.localCandidateOutput.error,
+    "trust_claim_rejected",
+    "trust claim reason",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(claimRejected.state);
+  assertContains(rendered, "Rejection reason: trust_claim_rejected", "rejection rendered");
+  for (const forbidden of [
+    "trusted_candidate",
+    "approved_candidate",
+    "safe_candidate",
+    "production_candidate_approved",
+    "release_candidate_approved",
+    "candidate_ready",
+    "production_ready",
+    "release_ready",
+    "deployment_ready",
+    "public_use_ready",
+    "action_authorized",
+    "provider_output_trusted",
+    "provider_output_approved",
+    "candidate_finalized",
+    "publish_candidate",
+    "deploy_candidate",
+  ]) {
+    assertDoesNotContain(rendered, forbidden, `${forbidden} absent from materialization UI`);
+  }
+  assertEqual(
+    rendered,
+    renderLocalOperatorShellSnapshot(claimRejected.state),
+    "materialization rendering deterministic",
+  );
+}
+
 function assertProviderOutputPipelineRendersAcceptedState(): void {
   const state = phase157AcceptedInvocationState();
   const pipeline = state.localProviderOutputPipeline;
@@ -4740,6 +4923,14 @@ payload_summary=authority before replay`),
   {
     name: "operator_candidate_decision_rejects_states_and_claims",
     run: assertOperatorCandidateDecisionRejectsStatesAndClaims,
+  },
+  {
+    name: "local_candidate_materialization_ui_and_projection",
+    run: assertLocalCandidateMaterializationUiAndProjection,
+  },
+  {
+    name: "local_candidate_materialization_rejected_states_and_forbidden_labels",
+    run: assertLocalCandidateMaterializationRejectedStatesAndForbiddenLabels,
   },
   {
     name: "phase_150_handoff_renders_and_is_deterministic",

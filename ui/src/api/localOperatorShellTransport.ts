@@ -9,6 +9,7 @@ import {
   initialLocalOperatorShellState,
   validateStagedCandidateConversionProposalForPhase147,
   submitOperatorCandidateDecision,
+  materializeLocalCandidateOutput,
   startDeterministicStubRun,
   type LocalOperatorIntent,
   type LocalProviderConfigurationCandidate,
@@ -19,6 +20,7 @@ import {
   type StagedCandidateConversionProposalRequest,
   type StagedCandidateConversionValidationRequest,
   type OperatorCandidateDecisionRequest,
+  type LocalCandidateMaterializationRequest,
   type LocalOperatorShellState,
   type LocalSessionEvidenceExport,
 } from "./localOperatorShell";
@@ -71,6 +73,10 @@ export type LocalOperatorShellRequest =
   | Readonly<{
       kind: "submit_operator_candidate_decision";
       request: OperatorCandidateDecisionRequest;
+    }>
+  | Readonly<{
+      kind: "materialize_local_candidate_output";
+      request: LocalCandidateMaterializationRequest;
     }>
   | Readonly<{
       kind: "forbidden";
@@ -129,6 +135,9 @@ export type LocalOperatorShellTransport = Readonly<{
   ) => LocalOperatorShellResponse;
   submitOperatorCandidateDecision: (
     request: OperatorCandidateDecisionRequest,
+  ) => LocalOperatorShellResponse;
+  materializeLocalCandidateOutput: (
+    request: LocalCandidateMaterializationRequest,
   ) => LocalOperatorShellResponse;
   rejectForbiddenUiAction: (
     request: LocalOperatorShellForbiddenRequest,
@@ -282,6 +291,12 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
           return accepted(result.reason, result.state);
         return rejected(result.reason, result.state);
       }
+      case "materialize_local_candidate_output": {
+        const result = materializeLocalCandidateOutput(state, request.request);
+        if (result.status === "accepted")
+          return accepted(result.reason, result.state);
+        return rejected(result.reason, result.state);
+      }
       case "forbidden":
         return rejected(forbiddenReasons[request.request]);
     }
@@ -309,6 +324,8 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
       step({ kind: "validate_staged_candidate_conversion_proposal", request }),
     submitOperatorCandidateDecision: (request) =>
       step({ kind: "submit_operator_candidate_decision", request }),
+    materializeLocalCandidateOutput: (request) =>
+      step({ kind: "materialize_local_candidate_output", request }),
     rejectForbiddenUiAction: (request) => step({ kind: "forbidden", request }),
   };
 }
@@ -393,4 +410,11 @@ export function runLocalProviderAdapterDryRun(
   request: LocalProviderAdapterDryRunRequest,
 ): LocalOperatorShellResponse {
   return transport.runProviderAdapterDryRun(request);
+}
+
+export function requestLocalCandidateMaterialization(
+  transport: LocalOperatorShellTransport,
+  request: LocalCandidateMaterializationRequest,
+): LocalOperatorShellResponse {
+  return transport.materializeLocalCandidateOutput(request);
 }

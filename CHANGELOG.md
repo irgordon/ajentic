@@ -28,6 +28,37 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.158 - 2026-05-12
+**Status:** Phase 158 - Local Candidate Materialization
+
+### Added
+- Add Rust-owned local candidate materialization request, validation, output projection, capability surface, and boundary markers.
+- Add deterministic local candidate output materialization from validated staged proposals with explicit operator decision precondition.
+- Add fail-closed rejection for missing, rejected, drifted, trust-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, action-bearing, execution-bearing, persistence-bearing, signing-bearing, or publishing-bearing materialization requests.
+- Add UI rendering for local candidate materialization status, candidate output projection, source linkage, and boundary markers.
+- Add Rust and TypeScript tests for valid materialization, rejected preconditions, deterministic candidate identity/content, no-effect boundaries, and visible materialization behavior.
+
+### Changed
+- Extend the local operator shell projection with local candidate output/materialization state.
+- Update the local UI shell to expose local candidate materialization only after required validation, review, staging, staged validation, candidate review, and operator decision preconditions.
+- Update checklists/current-phase.md to Phase 158 procedural truth.
+
+### Notes
+- Code-production phase.
+- Local candidate output only.
+- Candidate output is non-production.
+- Provider output remains untrusted.
+- Candidate materialization does not approve readiness, release, deployment, public use, or production use.
+- Candidate materialization does not authorize actions.
+- No provider trust approval.
+- No action execution.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 159 remains the next code-production phase for complete local operator workflow.
+
 ## v0.0.157.1 - 2026-05-12
 **Status:** Phase 157.1 - Out-of-Band Rustfmt Maintenance Fix
 

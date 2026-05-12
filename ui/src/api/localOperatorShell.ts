@@ -3248,7 +3248,7 @@ export function validateStagedCandidateConversionProposalForPhase147(
       "staged_proposal_shape_valid"
         ? "staged_candidate_conversion_validation_completed"
         : "staged_candidate_conversion_validation_rejected",
-    state: next,
+    state: attachLocalSessionEvidenceExport(next),
   };
 }
 
@@ -3322,6 +3322,413 @@ export type OperatorCandidateDecisionProjection = Readonly<{
   error: OperatorCandidateDecisionError | null;
   note: string;
 }>;
+
+
+export type LocalCandidateMaterializationStatus =
+  | "not_materialized"
+  | "local_candidate_materialized"
+  | "materialization_rejected"
+  | "materialization_precondition_missing"
+  | "invalid_materialization_request";
+
+export type LocalCandidateMaterializationError =
+  | "provider_output_validation_missing"
+  | "provider_output_validation_not_reviewable_untrusted"
+  | "provider_output_review_missing"
+  | "staged_proposal_missing"
+  | "staged_proposal_validation_missing"
+  | "staged_proposal_validation_not_valid"
+  | "candidate_review_missing"
+  | "operator_decision_missing"
+  | "operator_decision_rejected"
+  | "operator_decision_not_approved"
+  | "provider_pipeline_incomplete"
+  | "provider_pipeline_rejected"
+  | "source_linkage_mismatch"
+  | "invocation_result_id_mismatch"
+  | "provider_execution_result_id_mismatch"
+  | "staged_proposal_id_mismatch"
+  | "operator_decision_id_mismatch"
+  | "trust_claim_rejected"
+  | "safety_claim_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "provider_output_approval_claim_rejected"
+  | "action_claim_rejected"
+  | "persistence_claim_rejected"
+  | "execution_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected";
+
+export type LocalCandidateMaterializationBoundaryStatus =
+  | "local_candidate_output_only"
+  | "non_production_candidate"
+  | "provider_output_remains_untrusted"
+  | "no_provider_trust"
+  | "no_production_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_action_execution"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type LocalCandidateMaterializationEffectStatus =
+  | LocalCandidateMaterializationBoundaryStatus
+  | "no_file_write"
+  | "no_network_socket"
+  | "no_process_spawn"
+  | "no_secret_read"
+  | "no_provider_execution"
+  | "no_provider_configuration_mutation"
+  | "no_provider_execution_mutation"
+  | "no_provider_output_validation_mutation"
+  | "no_staged_proposal_mutation"
+  | "no_operator_decision_mutation"
+  | "no_export_promotion";
+
+export type LocalCandidateMaterializationRequest = Readonly<{
+  stagedProposalId: string;
+  operatorDecisionId: string;
+  providerExecutionResultId: string;
+  sourceInvocationResultId: string;
+  claimsTrust?: boolean;
+  claimsSafety?: boolean;
+  claimsReadiness?: boolean;
+  claimsRelease?: boolean;
+  claimsDeployment?: boolean;
+  claimsPublicUse?: boolean;
+  claimsProviderOutputApproval?: boolean;
+  claimsAction?: boolean;
+  claimsPersistence?: boolean;
+  claimsExecution?: boolean;
+  claimsSigning?: boolean;
+  claimsPublishing?: boolean;
+}>;
+
+export type LocalCandidateOutputSourceLinkage = Readonly<{
+  sourceInvocationResultId: string;
+  providerExecutionResultId: string;
+  providerOutputValidationStatus: LocalProviderOutputValidationStatus;
+  providerOutputReviewStatus: LocalProviderOutputReviewabilityStatus;
+  stagedProposalId: string;
+  stagedProposalValidationStatus: StagedCandidateConversionValidationStatus;
+  operatorDecisionId: string;
+  operatorDecisionStatus: OperatorCandidateDecisionStatus;
+}>;
+
+export type LocalCandidateMaterializationCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonProduction: true;
+  materializesCandidateOutput: true;
+  providerTrustEnabled: false;
+  actionExecutionEnabled: false;
+  productionApprovalEnabled: false;
+  releaseApprovalEnabled: false;
+  deploymentApprovalEnabled: false;
+  publicUseApprovalEnabled: false;
+  summary: string;
+}>;
+
+export type LocalCandidateOutputProjection = Readonly<{
+  status: LocalCandidateMaterializationStatus;
+  candidateId: string | null;
+  contentSummary: string | null;
+  outputClassification: "local_candidate_output_only";
+  productionClassification: "non_production_candidate";
+  sourceLinkage: LocalCandidateOutputSourceLinkage | null;
+  providerOutputTrustCarryForward: "provider_output_remains_untrusted";
+  boundaryStatuses: readonly LocalCandidateMaterializationBoundaryStatus[];
+  effectStatuses: readonly LocalCandidateMaterializationEffectStatus[];
+  error: LocalCandidateMaterializationError | null;
+  capabilitySurface: LocalCandidateMaterializationCapabilitySurface;
+  note: string;
+}>;
+
+export function localCandidateMaterializationBoundaryStatuses(): readonly LocalCandidateMaterializationBoundaryStatus[] {
+  return [
+    "local_candidate_output_only",
+    "non_production_candidate",
+    "provider_output_remains_untrusted",
+    "no_provider_trust",
+    "no_production_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_action_execution",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+
+export function localCandidateMaterializationEffectStatuses(): readonly LocalCandidateMaterializationEffectStatus[] {
+  return [
+    ...localCandidateMaterializationBoundaryStatuses(),
+    "no_file_write",
+    "no_network_socket",
+    "no_process_spawn",
+    "no_secret_read",
+    "no_provider_execution",
+    "no_provider_configuration_mutation",
+    "no_provider_execution_mutation",
+    "no_provider_output_validation_mutation",
+    "no_staged_proposal_mutation",
+    "no_operator_decision_mutation",
+    "no_export_promotion",
+  ];
+}
+
+export function localCandidateMaterializationCapabilitySurface(): LocalCandidateMaterializationCapabilitySurface {
+  return {
+    localOnly: true,
+    nonProduction: true,
+    materializesCandidateOutput: true,
+    providerTrustEnabled: false,
+    actionExecutionEnabled: false,
+    productionApprovalEnabled: false,
+    releaseApprovalEnabled: false,
+    deploymentApprovalEnabled: false,
+    publicUseApprovalEnabled: false,
+    summary:
+      "Local candidate output materialization only; non-production; provider output remains untrusted; no provider trust, action, production, readiness, release, deployment, or public-use approval.",
+  };
+}
+
+export function initialLocalCandidateOutputProjection(): LocalCandidateOutputProjection {
+  return {
+    status: "not_materialized",
+    candidateId: null,
+    contentSummary: null,
+    outputClassification: "local_candidate_output_only",
+    productionClassification: "non_production_candidate",
+    sourceLinkage: null,
+    providerOutputTrustCarryForward: "provider_output_remains_untrusted",
+    boundaryStatuses: localCandidateMaterializationBoundaryStatuses(),
+    effectStatuses: localCandidateMaterializationEffectStatuses(),
+    error: null,
+    capabilitySurface: localCandidateMaterializationCapabilitySurface(),
+    note:
+      "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
+  };
+}
+
+export function localCandidateMaterializationRequestFromState(
+  state: LocalOperatorShellState,
+): LocalCandidateMaterializationRequest | null {
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  const decision = state.operatorCandidateDecision.record;
+  if (!proposal || !decision) return null;
+  return {
+    stagedProposalId: proposal.proposalId,
+    operatorDecisionId: decision.decisionId,
+    providerExecutionResultId: proposal.sourceExecutionResultId,
+    sourceInvocationResultId:
+      state.localProviderOutputPipeline.sourceInvocationResultId ?? "",
+  };
+}
+
+function stableLocalCandidateDigest(input: string): string {
+  let hash = 0xcbf29ce484222325n;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= BigInt(input.charCodeAt(index));
+    hash = BigInt.asUintN(64, hash * 0x100000001b3n);
+  }
+  return hash.toString(16).padStart(16, "0");
+}
+
+export function deriveLocalCandidateOutputContent(
+  state: LocalOperatorShellState,
+  linkage: LocalCandidateOutputSourceLinkage,
+): string {
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  const outputSummary = state.providerExecution.result?.outputSummary ?? "none";
+  return `Local candidate output only. staged_proposal=${linkage.stagedProposalId} operator_decision=${linkage.operatorDecisionId} provider_execution=${linkage.providerExecutionResultId} invocation=${linkage.sourceInvocationResultId} validation=${linkage.providerOutputValidationStatus} review=${linkage.providerOutputReviewStatus} source_summary=${outputSummary} proposal_boundary=${proposal?.proposalBoundary ?? "none"}`;
+}
+
+export function validateLocalCandidateMaterializationRequest(
+  state: LocalOperatorShellState,
+  request: LocalCandidateMaterializationRequest,
+): LocalCandidateOutputSourceLinkage | LocalCandidateMaterializationError {
+  if (request.claimsTrust) return "trust_claim_rejected";
+  if (request.claimsSafety) return "safety_claim_rejected";
+  if (request.claimsReadiness) return "readiness_claim_rejected";
+  if (request.claimsRelease) return "release_claim_rejected";
+  if (request.claimsDeployment) return "deployment_claim_rejected";
+  if (request.claimsPublicUse) return "public_use_claim_rejected";
+  if (request.claimsProviderOutputApproval)
+    return "provider_output_approval_claim_rejected";
+  if (request.claimsAction) return "action_claim_rejected";
+  if (request.claimsPersistence) return "persistence_claim_rejected";
+  if (request.claimsExecution) return "execution_claim_rejected";
+  if (request.claimsSigning) return "signing_claim_rejected";
+  if (request.claimsPublishing) return "publishing_claim_rejected";
+  if (state.localProviderOutputPipeline.status === "rejected")
+    return "provider_pipeline_rejected";
+  if (state.localProviderOutputPipeline.status !== "valid")
+    return "provider_pipeline_incomplete";
+  if (validateProviderOutputPipelineStageOrder(state.localProviderOutputPipeline))
+    return "provider_pipeline_incomplete";
+  if (state.providerOutputValidation.status === "not_validated")
+    return "provider_output_validation_missing";
+  if (state.providerOutputValidation.status !== "reviewable_untrusted")
+    return "provider_output_validation_not_reviewable_untrusted";
+  if (state.providerOutputValidation.reviewabilityStatus !== "reviewable_untrusted")
+    return "provider_output_review_missing";
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal || state.stagedCandidateConversionProposal.status !== "staged_proposal_created")
+    return "staged_proposal_missing";
+  if (state.stagedCandidateConversionValidation.status === "not_validated")
+    return "staged_proposal_validation_missing";
+  if (state.stagedCandidateConversionValidation.status !== "staged_proposal_shape_valid")
+    return "staged_proposal_validation_not_valid";
+  if (state.localProviderOutputPipeline.candidateReviewStatus !== "display_only")
+    return "candidate_review_missing";
+  if (state.operatorCandidateDecision.status === "no_operator_decision")
+    return "operator_decision_missing";
+  if (state.operatorCandidateDecision.status === "rejected_validated_staged_proposal")
+    return "operator_decision_rejected";
+  if (state.operatorCandidateDecision.status !== "approved_validated_staged_proposal")
+    return "operator_decision_not_approved";
+  const decision = state.operatorCandidateDecision.record;
+  if (!decision) return "operator_decision_missing";
+  if (
+    request.stagedProposalId !== proposal.proposalId ||
+    request.stagedProposalId !== decision.stagedProposalId ||
+    request.stagedProposalId !== state.stagedCandidateConversionValidation.proposalId
+  )
+    return "staged_proposal_id_mismatch";
+  if (request.operatorDecisionId !== decision.decisionId)
+    return "operator_decision_id_mismatch";
+  const providerResultId = state.providerExecution.result?.resultId;
+  if (
+    !providerResultId ||
+    request.providerExecutionResultId !== providerResultId ||
+    request.providerExecutionResultId !== proposal.sourceExecutionResultId ||
+    request.providerExecutionResultId !== decision.providerExecutionResultId ||
+    request.providerExecutionResultId !== state.providerOutputValidation.providerExecutionResultId ||
+    request.providerExecutionResultId !== state.stagedCandidateConversionValidation.sourceExecutionResultId ||
+    request.providerExecutionResultId !== state.localProviderOutputPipeline.providerExecutionResultId
+  )
+    return "provider_execution_result_id_mismatch";
+  const invocationResultId = state.constrainedLocalProviderInvocation.result?.resultId;
+  if (
+    !invocationResultId ||
+    request.sourceInvocationResultId !== invocationResultId ||
+    request.sourceInvocationResultId !== state.localProviderOutputPipeline.sourceInvocationResultId
+  )
+    return "invocation_result_id_mismatch";
+  const reprojected = projectStagedCandidateConversionValidation(state, {
+    proposalId: proposal.proposalId,
+  });
+  if (JSON.stringify(reprojected) !== JSON.stringify(state.stagedCandidateConversionValidation))
+    return "source_linkage_mismatch";
+  return {
+    sourceInvocationResultId: request.sourceInvocationResultId,
+    providerExecutionResultId: request.providerExecutionResultId,
+    providerOutputValidationStatus: state.providerOutputValidation.status,
+    providerOutputReviewStatus: state.providerOutputValidation.reviewabilityStatus,
+    stagedProposalId: request.stagedProposalId,
+    stagedProposalValidationStatus: state.stagedCandidateConversionValidation.status,
+    operatorDecisionId: request.operatorDecisionId,
+    operatorDecisionStatus: state.operatorCandidateDecision.status,
+  };
+}
+
+export function rejectLocalCandidateMaterialization(
+  previous: LocalCandidateOutputProjection,
+  error: LocalCandidateMaterializationError,
+): LocalCandidateOutputProjection {
+  const invalidErrors: readonly LocalCandidateMaterializationError[] = [
+    "trust_claim_rejected",
+    "safety_claim_rejected",
+    "readiness_claim_rejected",
+    "release_claim_rejected",
+    "deployment_claim_rejected",
+    "public_use_claim_rejected",
+    "provider_output_approval_claim_rejected",
+    "action_claim_rejected",
+    "persistence_claim_rejected",
+    "execution_claim_rejected",
+    "signing_claim_rejected",
+    "publishing_claim_rejected",
+  ];
+  const missingErrors: readonly LocalCandidateMaterializationError[] = [
+    "operator_decision_missing",
+    "provider_output_validation_missing",
+    "provider_output_review_missing",
+    "staged_proposal_missing",
+    "staged_proposal_validation_missing",
+    "candidate_review_missing",
+    "provider_pipeline_incomplete",
+  ];
+  return {
+    ...previous,
+    status: invalidErrors.includes(error)
+      ? "invalid_materialization_request"
+      : missingErrors.includes(error)
+        ? "materialization_precondition_missing"
+        : "materialization_rejected",
+    error,
+    note: `Local candidate materialization rejected: ${error}. Local candidate output only; provider output remains untrusted; no production, release, deployment, public-use, or action authorization effect occurred.`,
+  };
+}
+
+export function projectLocalCandidateOutput(
+  state: LocalOperatorShellState,
+  request: LocalCandidateMaterializationRequest,
+): LocalCandidateOutputProjection | LocalCandidateMaterializationError {
+  const linkage = validateLocalCandidateMaterializationRequest(state, request);
+  if (typeof linkage === "string") return linkage;
+  const contentSummary = deriveLocalCandidateOutputContent(state, linkage);
+  const digest = stableLocalCandidateDigest(
+    `phase_158|${linkage.sourceInvocationResultId}|${linkage.providerExecutionResultId}|${linkage.stagedProposalId}|${linkage.operatorDecisionId}|${contentSummary}`,
+  );
+  return {
+    status: "local_candidate_materialized",
+    candidateId: `local-candidate-output-${digest}`,
+    contentSummary,
+    outputClassification: "local_candidate_output_only",
+    productionClassification: "non_production_candidate",
+    sourceLinkage: linkage,
+    providerOutputTrustCarryForward: "provider_output_remains_untrusted",
+    boundaryStatuses: localCandidateMaterializationBoundaryStatuses(),
+    effectStatuses: localCandidateMaterializationEffectStatuses(),
+    error: null,
+    capabilitySurface: localCandidateMaterializationCapabilitySurface(),
+    note:
+      "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
+  };
+}
+
+export function materializeLocalCandidateOutput(
+  state: LocalOperatorShellState,
+  request: LocalCandidateMaterializationRequest,
+): LocalOperatorIntentResult {
+  const projection = projectLocalCandidateOutput(state, request);
+  if (typeof projection === "string") {
+    return {
+      status: "rejected",
+      reason: projection,
+      state: {
+        ...state,
+        localCandidateOutput: rejectLocalCandidateMaterialization(
+          state.localCandidateOutput,
+          projection,
+        ),
+      },
+    };
+  }
+  return {
+    status: "accepted",
+    reason: "local_candidate_materialized",
+    state: {
+      ...state,
+      localCandidateOutput: projection,
+    },
+  };
+}
 
 export type Phase150CodeProductionHandoff = Readonly<{
   handoffId: string;
@@ -3485,10 +3892,10 @@ export function submitOperatorCandidateDecision(
   return {
     status: "accepted",
     reason: "operator_candidate_decision_recorded",
-    state: {
+    state: attachLocalSessionEvidenceExport({
       ...next,
       phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(next),
-    },
+    }),
   };
 }
 
@@ -3714,7 +4121,10 @@ export function createStagedCandidateConversionProposal(
   return {
     status: "accepted",
     reason: "staged_candidate_conversion_proposal_created",
-    state: { ...state, stagedCandidateConversionProposal: projection },
+    state: attachLocalSessionEvidenceExport({
+      ...state,
+      stagedCandidateConversionProposal: projection,
+    }),
   };
 }
 
@@ -4400,6 +4810,7 @@ export type LocalOperatorShellState = Readonly<{
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
   stagedCandidateConversionValidation: StagedCandidateConversionValidationProjection;
   operatorCandidateDecision: OperatorCandidateDecisionProjection;
+  localCandidateOutput: LocalCandidateOutputProjection;
   phase150CodeProductionHandoff: Phase150CodeProductionHandoff;
   localSessionPackageProjection: LocalSessionPackageProjection;
   localSessionHistoryProjection: LocalSessionHistoryProjection;
@@ -4587,6 +4998,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     stagedCandidateConversionValidation:
       initialStagedCandidateConversionValidationProjection(),
     operatorCandidateDecision: initialOperatorCandidateDecisionProjection(),
+    localCandidateOutput: initialLocalCandidateOutputProjection(),
     phase150CodeProductionHandoff: {
       handoffId:
         "phase-150-code-production-handoff-not_configured-not_validated-no_operator_decision",
