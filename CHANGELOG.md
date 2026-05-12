@@ -28,6 +28,29 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.157.1 - 2026-05-12
+**Status:** Phase 157.1 - Out-of-Band Rustfmt Maintenance Fix
+
+### Changed
+- Apply rustfmt to the Phase 157 local provider output pipeline implementation in `core/src/api/local_operator_shell.rs`.
+- Update checklists/current-phase.md to Phase 157.1 procedural truth.
+
+### Notes
+- Out-of-band maintenance fix.
+- Formatting-only Rust source update.
+- No runtime behavior changes.
+- No runtime Rust logic changes.
+- No TypeScript changes.
+- Inline Rust test assertion style update only to satisfy `cargo clippy -- -D warnings`.
+- No schema changes.
+- No roadmap changes.
+- No provider execution expansion.
+- No candidate materialization.
+- No persistence expansion.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 158 remains the next planned code-production phase.
+
 ## v0.0.157 - 2026-05-12
 **Status:** Phase 157 - Real Provider Output Pipeline Integration
 

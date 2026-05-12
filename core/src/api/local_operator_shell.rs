@@ -2246,7 +2246,6 @@ pub struct ConstrainedLocalProviderInvocationProjection {
     pub reason: String,
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalProviderOutputPipelineSourceKind {
     DeterministicStubProviderExecution,
@@ -2395,7 +2394,9 @@ impl LocalProviderOutputPipelineError {
         match self {
             Self::NoInvocationOutput => "no_invocation_output",
             Self::InvocationOutputRejected => "invocation_output_rejected",
-            Self::InvocationOutputNotUntrustedDescriptive => "invocation_output_not_untrusted_descriptive",
+            Self::InvocationOutputNotUntrustedDescriptive => {
+                "invocation_output_not_untrusted_descriptive"
+            }
             Self::InvocationResultIdMismatch => "invocation_result_id_mismatch",
             Self::InvocationOutputSummaryMismatch => "invocation_output_summary_mismatch",
             Self::ProviderOutputValidationMissing => "provider_output_validation_missing",
@@ -2414,7 +2415,9 @@ impl LocalProviderOutputPipelineError {
             Self::DeploymentClaimRejected => "deployment_claim_rejected",
             Self::PublicUseClaimRejected => "public_use_claim_rejected",
             Self::CandidateCreationClaimRejected => "candidate_creation_claim_rejected",
-            Self::CandidateMaterializationClaimRejected => "candidate_materialization_claim_rejected",
+            Self::CandidateMaterializationClaimRejected => {
+                "candidate_materialization_claim_rejected"
+            }
             Self::ActionClaimRejected => "action_claim_rejected",
             Self::PersistenceClaimRejected => "persistence_claim_rejected",
         }
@@ -2540,7 +2543,6 @@ pub struct LocalProviderOutputPipelineProjection {
     pub note: String,
 }
 
-
 pub fn local_provider_output_pipeline_boundary_statuses(
 ) -> Vec<LocalProviderOutputPipelineBoundaryStatus> {
     vec![
@@ -2580,7 +2582,8 @@ pub fn local_provider_output_pipeline_effect_statuses(
     ]
 }
 
-pub fn initial_local_provider_output_pipeline_projection() -> LocalProviderOutputPipelineProjection {
+pub fn initial_local_provider_output_pipeline_projection() -> LocalProviderOutputPipelineProjection
+{
     LocalProviderOutputPipelineProjection {
         status: LocalProviderOutputPipelineValidationStatus::NotStarted,
         source_kind: None,
@@ -2613,35 +2616,59 @@ pub fn initial_local_provider_output_pipeline_projection() -> LocalProviderOutpu
 fn invocation_output_pipeline_claim_errors(text: &str) -> Vec<LocalProviderOutputPipelineError> {
     let lower = text.to_ascii_lowercase();
     let mut errors = std::collections::BTreeSet::new();
-    if ["trust", "trusted", "provider_output_approval", "approved output", "approval granted"]
-        .iter()
-        .any(|needle| lower.contains(needle))
+    if [
+        "trust",
+        "trusted",
+        "provider_output_approval",
+        "approved output",
+        "approval granted",
+    ]
+    .iter()
+    .any(|needle| lower.contains(needle))
     {
         errors.insert(LocalProviderOutputPipelineError::TrustClaimRejected);
         errors.insert(LocalProviderOutputPipelineError::ApprovalClaimRejected);
     }
-    if ["readiness", "ready for"].iter().any(|needle| lower.contains(needle)) {
+    if ["readiness", "ready for"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::ReadinessClaimRejected);
     }
     if lower.contains("release") {
         errors.insert(LocalProviderOutputPipelineError::ReleaseClaimRejected);
     }
-    if ["deployment", "deploy"].iter().any(|needle| lower.contains(needle)) {
+    if ["deployment", "deploy"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::DeploymentClaimRejected);
     }
-    if ["public_use", "public-use", "public use"].iter().any(|needle| lower.contains(needle)) {
+    if ["public_use", "public-use", "public use"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::PublicUseClaimRejected);
     }
-    if ["candidate creation", "candidate_output"].iter().any(|needle| lower.contains(needle)) {
+    if ["candidate creation", "candidate_output"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::CandidateCreationClaimRejected);
     }
-    if ["candidate", "materialization"].iter().any(|needle| lower.contains(needle)) {
+    if ["candidate", "materialization"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::CandidateMaterializationClaimRejected);
     }
     if lower.contains("action") {
         errors.insert(LocalProviderOutputPipelineError::ActionClaimRejected);
     }
-    if ["persist", "persistence"].iter().any(|needle| lower.contains(needle)) {
+    if ["persist", "persistence"]
+        .iter()
+        .any(|needle| lower.contains(needle))
+    {
         errors.insert(LocalProviderOutputPipelineError::PersistenceClaimRejected);
     }
     errors.into_iter().collect()
@@ -2655,18 +2682,24 @@ pub fn project_invocation_output_into_provider_pipeline(
         return Err(vec![LocalProviderOutputPipelineError::NoInvocationOutput]);
     }
     if invocation.status != ConstrainedLocalProviderInvocationStatus::InvocationExecuted {
-        return Err(vec![LocalProviderOutputPipelineError::InvocationOutputRejected]);
+        return Err(vec![
+            LocalProviderOutputPipelineError::InvocationOutputRejected,
+        ]);
     }
     let Some(result) = invocation.result.as_ref() else {
         return Err(vec![LocalProviderOutputPipelineError::NoInvocationOutput]);
     };
     let mut errors = std::collections::BTreeSet::new();
-    if result.output_trust_status != ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive
-        || invocation.output_trust_status != ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive
+    if result.output_trust_status
+        != ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive
+        || invocation.output_trust_status
+            != ConstrainedLocalProviderInvocationTrustStatus::UntrustedDescriptive
     {
         errors.insert(LocalProviderOutputPipelineError::InvocationOutputNotUntrustedDescriptive);
     }
-    if !result.result_id.starts_with("constrained-local-provider-invocation-")
+    if !result
+        .result_id
+        .starts_with("constrained-local-provider-invocation-")
         || result.result_id.len() <= "constrained-local-provider-invocation-".len()
     {
         errors.insert(LocalProviderOutputPipelineError::InvocationResultIdMismatch);
@@ -2675,7 +2708,9 @@ pub fn project_invocation_output_into_provider_pipeline(
         .result_id
         .strip_prefix("constrained-local-provider-invocation-")
         .unwrap_or("");
-    if !result.output_summary.starts_with("allowlisted_local_deterministic_provider descriptive output for input_bytes=")
+    if !result
+        .output_summary
+        .starts_with("allowlisted_local_deterministic_provider descriptive output for input_bytes=")
         || !result.output_summary.contains(" checksum=")
         || !result.output_summary.ends_with(checksum)
     {
@@ -2685,12 +2720,17 @@ pub fn project_invocation_output_into_provider_pipeline(
         errors.insert(error);
     }
     for required in constrained_local_provider_invocation_boundary_statuses() {
-        if !result.boundary_statuses.contains(&required) || !invocation.boundary_statuses.contains(&required) {
-            errors.insert(LocalProviderOutputPipelineError::InvocationOutputNotUntrustedDescriptive);
+        if !result.boundary_statuses.contains(&required)
+            || !invocation.boundary_statuses.contains(&required)
+        {
+            errors
+                .insert(LocalProviderOutputPipelineError::InvocationOutputNotUntrustedDescriptive);
         }
     }
     for required in constrained_local_provider_invocation_effect_statuses() {
-        if !result.effect_statuses.contains(&required) || !invocation.effect_statuses.contains(&required) {
+        if !result.effect_statuses.contains(&required)
+            || !invocation.effect_statuses.contains(&required)
+        {
             errors.insert(LocalProviderOutputPipelineError::CandidateMaterializationClaimRejected);
         }
     }
@@ -2703,7 +2743,8 @@ pub fn project_invocation_output_into_provider_pipeline(
         provider_execution_result_id: result.result_id.clone(),
         output_summary: result.output_summary.clone(),
         output_trust_status: LocalProviderOutputTrustStatus::UntrustedDescriptive,
-        output_materialization_status: LocalProviderOutputMaterializationStatus::ProjectedAsUntrustedOutput,
+        output_materialization_status:
+            LocalProviderOutputMaterializationStatus::ProjectedAsUntrustedOutput,
         output_promotion_status: LocalProviderOutputPromotionStatus::NotPromoted,
         descriptive_only: true,
         not_candidate_material: true,
@@ -2764,18 +2805,27 @@ fn pipeline_stage(
     status: LocalProviderOutputPipelineStageStatus,
     reason: Option<LocalProviderOutputPipelineError>,
 ) -> LocalProviderOutputPipelineStageProjection {
-    LocalProviderOutputPipelineStageProjection { stage, status, reason }
+    LocalProviderOutputPipelineStageProjection {
+        stage,
+        status,
+        reason,
+    }
 }
 
 pub fn derive_local_provider_output_pipeline_projection(
     state: &LocalOperatorShellState,
 ) -> LocalProviderOutputPipelineProjection {
     let bridge_result = project_invocation_output_into_provider_pipeline(state);
-    if state.constrained_local_provider_invocation.status == ConstrainedLocalProviderInvocationStatus::NotInvoked {
+    if state.constrained_local_provider_invocation.status
+        == ConstrainedLocalProviderInvocationStatus::NotInvoked
+    {
         return initial_local_provider_output_pipeline_projection();
     }
     if let Err(errors) = bridge_result.clone() {
-        let reason = errors.first().copied().unwrap_or(LocalProviderOutputPipelineError::NoInvocationOutput);
+        let reason = errors
+            .first()
+            .copied()
+            .unwrap_or(LocalProviderOutputPipelineError::NoInvocationOutput);
         return LocalProviderOutputPipelineProjection {
             status: LocalProviderOutputPipelineValidationStatus::Rejected,
             source_kind: Some(LocalProviderOutputPipelineSourceKind::ConstrainedLocalProviderInvocation),
@@ -2809,16 +2859,20 @@ pub fn derive_local_provider_output_pipeline_projection(
     }
     let bridge = bridge_result.unwrap();
     let mut errors = Vec::new();
-    let validation_completed = state.provider_output_validation.status == LocalProviderOutputValidationStatus::ReviewableUntrusted;
+    let validation_completed = state.provider_output_validation.status
+        == LocalProviderOutputValidationStatus::ReviewableUntrusted;
     let validation_rejected = matches!(
         state.provider_output_validation.status,
         LocalProviderOutputValidationStatus::Rejected
             | LocalProviderOutputValidationStatus::ValidationNotApplicable
             | LocalProviderOutputValidationStatus::InvalidValidationInput
     );
-    let review_completed = state.provider_output_validation.reviewability_status == LocalProviderOutputReviewabilityStatus::ReviewableUntrusted;
-    let proposal_completed = state.staged_candidate_conversion_proposal.status == StagedCandidateConversionProposalStatus::StagedProposalCreated;
-    let staged_validation_completed = state.staged_candidate_conversion_validation.status == StagedCandidateConversionValidationStatus::StagedProposalShapeValid;
+    let review_completed = state.provider_output_validation.reviewability_status
+        == LocalProviderOutputReviewabilityStatus::ReviewableUntrusted;
+    let proposal_completed = state.staged_candidate_conversion_proposal.status
+        == StagedCandidateConversionProposalStatus::StagedProposalCreated;
+    let staged_validation_completed = state.staged_candidate_conversion_validation.status
+        == StagedCandidateConversionValidationStatus::StagedProposalShapeValid;
     let staged_validation_rejected = matches!(
         state.staged_candidate_conversion_validation.status,
         StagedCandidateConversionValidationStatus::RejectedStagedProposal
@@ -2833,76 +2887,215 @@ pub fn derive_local_provider_output_pipeline_projection(
 
     let mut next_required_stage = None;
     let mut stages = Vec::new();
-    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::InvocationOutputProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderExecutionResultProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputValidationRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+    stages.push(pipeline_stage(
+        LocalProviderOutputPipelineStage::InvocationOutputProjected,
+        LocalProviderOutputPipelineStageStatus::Completed,
+        None,
+    ));
+    stages.push(pipeline_stage(
+        LocalProviderOutputPipelineStage::ProviderExecutionResultProjected,
+        LocalProviderOutputPipelineStageStatus::Completed,
+        None,
+    ));
+    stages.push(pipeline_stage(
+        LocalProviderOutputPipelineStage::ProviderOutputValidationRequired,
+        LocalProviderOutputPipelineStageStatus::Completed,
+        None,
+    ));
     if validation_rejected {
         errors.push(LocalProviderOutputPipelineError::ProviderOutputValidationRejected);
-        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected, LocalProviderOutputPipelineStageStatus::Rejected, Some(LocalProviderOutputPipelineError::ProviderOutputValidationRejected)));
-        for stage in local_provider_output_pipeline_stage_order().into_iter().skip(4) {
-            stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::ProviderOutputValidationRejected)));
+        stages.push(pipeline_stage(
+            LocalProviderOutputPipelineStage::ProviderOutputValidationProjected,
+            LocalProviderOutputPipelineStageStatus::Rejected,
+            Some(LocalProviderOutputPipelineError::ProviderOutputValidationRejected),
+        ));
+        for stage in local_provider_output_pipeline_stage_order()
+            .into_iter()
+            .skip(4)
+        {
+            stages.push(pipeline_stage(
+                stage,
+                LocalProviderOutputPipelineStageStatus::Blocked,
+                Some(LocalProviderOutputPipelineError::ProviderOutputValidationRejected),
+            ));
         }
-        next_required_stage = Some(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected);
+        next_required_stage =
+            Some(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected);
     } else if !validation_completed {
         errors.push(LocalProviderOutputPipelineError::ProviderOutputValidationMissing);
-        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::ProviderOutputValidationMissing)));
-        for stage in local_provider_output_pipeline_stage_order().into_iter().skip(4) {
-            stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::ProviderOutputValidationMissing)));
+        stages.push(pipeline_stage(
+            LocalProviderOutputPipelineStage::ProviderOutputValidationProjected,
+            LocalProviderOutputPipelineStageStatus::Available,
+            Some(LocalProviderOutputPipelineError::ProviderOutputValidationMissing),
+        ));
+        for stage in local_provider_output_pipeline_stage_order()
+            .into_iter()
+            .skip(4)
+        {
+            stages.push(pipeline_stage(
+                stage,
+                LocalProviderOutputPipelineStageStatus::Blocked,
+                Some(LocalProviderOutputPipelineError::ProviderOutputValidationMissing),
+            ));
         }
-        next_required_stage = Some(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected);
+        next_required_stage =
+            Some(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected);
     } else {
-        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputValidationProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputReviewRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+        stages.push(pipeline_stage(
+            LocalProviderOutputPipelineStage::ProviderOutputValidationProjected,
+            LocalProviderOutputPipelineStageStatus::Completed,
+            None,
+        ));
+        stages.push(pipeline_stage(
+            LocalProviderOutputPipelineStage::ProviderOutputReviewRequired,
+            LocalProviderOutputPipelineStageStatus::Completed,
+            None,
+        ));
         if !review_completed {
             errors.push(LocalProviderOutputPipelineError::ProviderOutputReviewMissing);
-            stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputReviewProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::ProviderOutputReviewMissing)));
-            for stage in local_provider_output_pipeline_stage_order().into_iter().skip(6) {
-                stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::ProviderOutputReviewMissing)));
+            stages.push(pipeline_stage(
+                LocalProviderOutputPipelineStage::ProviderOutputReviewProjected,
+                LocalProviderOutputPipelineStageStatus::Available,
+                Some(LocalProviderOutputPipelineError::ProviderOutputReviewMissing),
+            ));
+            for stage in local_provider_output_pipeline_stage_order()
+                .into_iter()
+                .skip(6)
+            {
+                stages.push(pipeline_stage(
+                    stage,
+                    LocalProviderOutputPipelineStageStatus::Blocked,
+                    Some(LocalProviderOutputPipelineError::ProviderOutputReviewMissing),
+                ));
             }
-            next_required_stage = Some(LocalProviderOutputPipelineStage::ProviderOutputReviewProjected);
+            next_required_stage =
+                Some(LocalProviderOutputPipelineStage::ProviderOutputReviewProjected);
         } else {
-            stages.push(pipeline_stage(LocalProviderOutputPipelineStage::ProviderOutputReviewProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-            stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+            stages.push(pipeline_stage(
+                LocalProviderOutputPipelineStage::ProviderOutputReviewProjected,
+                LocalProviderOutputPipelineStageStatus::Completed,
+                None,
+            ));
+            stages.push(pipeline_stage(
+                LocalProviderOutputPipelineStage::StagedProposalRequired,
+                LocalProviderOutputPipelineStageStatus::Completed,
+                None,
+            ));
             if !proposal_completed {
                 errors.push(LocalProviderOutputPipelineError::StagedProposalMissing);
-                stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::StagedProposalMissing)));
-                for stage in local_provider_output_pipeline_stage_order().into_iter().skip(8) {
-                    stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::StagedProposalMissing)));
+                stages.push(pipeline_stage(
+                    LocalProviderOutputPipelineStage::StagedProposalProjected,
+                    LocalProviderOutputPipelineStageStatus::Available,
+                    Some(LocalProviderOutputPipelineError::StagedProposalMissing),
+                ));
+                for stage in local_provider_output_pipeline_stage_order()
+                    .into_iter()
+                    .skip(8)
+                {
+                    stages.push(pipeline_stage(
+                        stage,
+                        LocalProviderOutputPipelineStageStatus::Blocked,
+                        Some(LocalProviderOutputPipelineError::StagedProposalMissing),
+                    ));
                 }
-                next_required_stage = Some(LocalProviderOutputPipelineStage::StagedProposalProjected);
+                next_required_stage =
+                    Some(LocalProviderOutputPipelineStage::StagedProposalProjected);
             } else {
-                stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-                stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalValidationRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+                stages.push(pipeline_stage(
+                    LocalProviderOutputPipelineStage::StagedProposalProjected,
+                    LocalProviderOutputPipelineStageStatus::Completed,
+                    None,
+                ));
+                stages.push(pipeline_stage(
+                    LocalProviderOutputPipelineStage::StagedProposalValidationRequired,
+                    LocalProviderOutputPipelineStageStatus::Completed,
+                    None,
+                ));
                 if staged_validation_rejected {
                     errors.push(LocalProviderOutputPipelineError::StagedProposalValidationRejected);
-                    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalValidationProjected, LocalProviderOutputPipelineStageStatus::Rejected, Some(LocalProviderOutputPipelineError::StagedProposalValidationRejected)));
-                    for stage in local_provider_output_pipeline_stage_order().into_iter().skip(10) {
-                        stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::StagedProposalValidationRejected)));
+                    stages.push(pipeline_stage(
+                        LocalProviderOutputPipelineStage::StagedProposalValidationProjected,
+                        LocalProviderOutputPipelineStageStatus::Rejected,
+                        Some(LocalProviderOutputPipelineError::StagedProposalValidationRejected),
+                    ));
+                    for stage in local_provider_output_pipeline_stage_order()
+                        .into_iter()
+                        .skip(10)
+                    {
+                        stages.push(pipeline_stage(
+                            stage,
+                            LocalProviderOutputPipelineStageStatus::Blocked,
+                            Some(
+                                LocalProviderOutputPipelineError::StagedProposalValidationRejected,
+                            ),
+                        ));
                     }
-                    next_required_stage = Some(LocalProviderOutputPipelineStage::StagedProposalValidationProjected);
+                    next_required_stage =
+                        Some(LocalProviderOutputPipelineStage::StagedProposalValidationProjected);
                 } else if !staged_validation_completed {
                     errors.push(LocalProviderOutputPipelineError::StagedProposalValidationMissing);
-                    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalValidationProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::StagedProposalValidationMissing)));
-                    for stage in local_provider_output_pipeline_stage_order().into_iter().skip(10) {
-                        stages.push(pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(LocalProviderOutputPipelineError::StagedProposalValidationMissing)));
+                    stages.push(pipeline_stage(
+                        LocalProviderOutputPipelineStage::StagedProposalValidationProjected,
+                        LocalProviderOutputPipelineStageStatus::Available,
+                        Some(LocalProviderOutputPipelineError::StagedProposalValidationMissing),
+                    ));
+                    for stage in local_provider_output_pipeline_stage_order()
+                        .into_iter()
+                        .skip(10)
+                    {
+                        stages.push(pipeline_stage(
+                            stage,
+                            LocalProviderOutputPipelineStageStatus::Blocked,
+                            Some(LocalProviderOutputPipelineError::StagedProposalValidationMissing),
+                        ));
                     }
-                    next_required_stage = Some(LocalProviderOutputPipelineStage::StagedProposalValidationProjected);
+                    next_required_stage =
+                        Some(LocalProviderOutputPipelineStage::StagedProposalValidationProjected);
                 } else {
-                    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::StagedProposalValidationProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
-                    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::CandidateReviewRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+                    stages.push(pipeline_stage(
+                        LocalProviderOutputPipelineStage::StagedProposalValidationProjected,
+                        LocalProviderOutputPipelineStageStatus::Completed,
+                        None,
+                    ));
+                    stages.push(pipeline_stage(
+                        LocalProviderOutputPipelineStage::CandidateReviewRequired,
+                        LocalProviderOutputPipelineStageStatus::Completed,
+                        None,
+                    ));
                     if !candidate_review_completed {
                         errors.push(LocalProviderOutputPipelineError::CandidateReviewMissing);
-                        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::CandidateReviewProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::CandidateReviewMissing)));
+                        stages.push(pipeline_stage(
+                            LocalProviderOutputPipelineStage::CandidateReviewProjected,
+                            LocalProviderOutputPipelineStageStatus::Available,
+                            Some(LocalProviderOutputPipelineError::CandidateReviewMissing),
+                        ));
                     } else {
-                        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::CandidateReviewProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
+                        stages.push(pipeline_stage(
+                            LocalProviderOutputPipelineStage::CandidateReviewProjected,
+                            LocalProviderOutputPipelineStageStatus::Completed,
+                            None,
+                        ));
                     }
-                    stages.push(pipeline_stage(LocalProviderOutputPipelineStage::OperatorDecisionRequired, LocalProviderOutputPipelineStageStatus::Completed, None));
+                    stages.push(pipeline_stage(
+                        LocalProviderOutputPipelineStage::OperatorDecisionRequired,
+                        LocalProviderOutputPipelineStageStatus::Completed,
+                        None,
+                    ));
                     if !operator_decision_completed {
                         errors.push(LocalProviderOutputPipelineError::OperatorDecisionMissing);
-                        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::OperatorDecisionProjected, LocalProviderOutputPipelineStageStatus::Available, Some(LocalProviderOutputPipelineError::OperatorDecisionMissing)));
-                        next_required_stage = Some(LocalProviderOutputPipelineStage::OperatorDecisionProjected);
+                        stages.push(pipeline_stage(
+                            LocalProviderOutputPipelineStage::OperatorDecisionProjected,
+                            LocalProviderOutputPipelineStageStatus::Available,
+                            Some(LocalProviderOutputPipelineError::OperatorDecisionMissing),
+                        ));
+                        next_required_stage =
+                            Some(LocalProviderOutputPipelineStage::OperatorDecisionProjected);
                     } else {
-                        stages.push(pipeline_stage(LocalProviderOutputPipelineStage::OperatorDecisionProjected, LocalProviderOutputPipelineStageStatus::Completed, None));
+                        stages.push(pipeline_stage(
+                            LocalProviderOutputPipelineStage::OperatorDecisionProjected,
+                            LocalProviderOutputPipelineStageStatus::Completed,
+                            None,
+                        ));
                     }
                 }
             }
@@ -2917,10 +3110,23 @@ pub fn derive_local_provider_output_pipeline_projection(
     if next_required_stage.is_none() {
         next_required_stage = stages
             .iter()
-            .find(|stage| matches!(stage.status, LocalProviderOutputPipelineStageStatus::Available | LocalProviderOutputPipelineStageStatus::Rejected | LocalProviderOutputPipelineStageStatus::Blocked))
+            .find(|stage| {
+                matches!(
+                    stage.status,
+                    LocalProviderOutputPipelineStageStatus::Available
+                        | LocalProviderOutputPipelineStageStatus::Rejected
+                        | LocalProviderOutputPipelineStageStatus::Blocked
+                )
+            })
             .map(|stage| stage.stage);
     }
-    let status = if errors.iter().any(|error| matches!(error, LocalProviderOutputPipelineError::ProviderOutputValidationRejected | LocalProviderOutputPipelineError::StagedProposalValidationRejected)) {
+    let status = if errors.iter().any(|error| {
+        matches!(
+            error,
+            LocalProviderOutputPipelineError::ProviderOutputValidationRejected
+                | LocalProviderOutputPipelineError::StagedProposalValidationRejected
+        )
+    }) {
         LocalProviderOutputPipelineValidationStatus::Rejected
     } else if errors.is_empty() {
         LocalProviderOutputPipelineValidationStatus::Valid
@@ -2978,7 +3184,13 @@ pub fn reject_provider_output_pipeline_integration(
     projection.errors = vec![error];
     projection.stages = local_provider_output_pipeline_stage_order()
         .into_iter()
-        .map(|stage| pipeline_stage(stage, LocalProviderOutputPipelineStageStatus::Blocked, Some(error)))
+        .map(|stage| {
+            pipeline_stage(
+                stage,
+                LocalProviderOutputPipelineStageStatus::Blocked,
+                Some(error),
+            )
+        })
         .collect();
     projection.note = "Provider output pipeline integration rejected fail-closed.".to_string();
     projection
@@ -3325,18 +3537,23 @@ pub fn execute_constrained_local_provider_invocation(
         &state.local_provider_adapter_registry,
         result,
     );
-    let bridge = project_invocation_output_into_provider_pipeline(&next)
-        .map_err(|errors| Box::new(reject_constrained_local_provider_invocation(
+    let bridge = project_invocation_output_into_provider_pipeline(&next).map_err(|errors| {
+        Box::new(reject_constrained_local_provider_invocation(
             ConstrainedLocalProviderInvocationStatus::InvocationRejected,
             next.constrained_local_provider_invocation.provider_kind,
             next.constrained_local_provider_invocation.adapter_kind,
-            next.constrained_local_provider_invocation.adapter_declaration_id.clone(),
+            next.constrained_local_provider_invocation
+                .adapter_declaration_id
+                .clone(),
             next.local_provider_adapter_registry.declarations.len(),
             errors
                 .into_iter()
-                .map(|_| ConstrainedLocalProviderInvocationError::ProviderOutputApprovalClaimRejected)
+                .map(|_| {
+                    ConstrainedLocalProviderInvocationError::ProviderOutputApprovalClaimRejected
+                })
                 .collect(),
-        )))?;
+        ))
+    })?;
     next.provider_execution = provider_execution_projection_from_invocation_bridge(&next, &bridge);
     next.provider_output_validation = validate_local_provider_output(&next.provider_execution);
     next.local_provider_output_pipeline = derive_local_provider_output_pipeline_projection(&next);
@@ -3894,9 +4111,9 @@ pub fn local_provider_output_validation_reasons(
     let valid_output_prefix = result
         .output_summary
         .starts_with("deterministic_stub descriptive output for input_bytes=")
-        || result
-            .output_summary
-            .starts_with("allowlisted_local_deterministic_provider descriptive output for input_bytes=");
+        || result.output_summary.starts_with(
+            "allowlisted_local_deterministic_provider descriptive output for input_bytes=",
+        );
     if !valid_output_prefix
         || !result.output_summary.contains(" checksum=")
         || result.sandbox_status
@@ -5741,7 +5958,8 @@ pub fn validate_local_provider_execution_result_projection(
         || projection.linkage.provider_configuration_status.is_empty()
         || projection.linkage.execution_result_id.is_empty()
         || !(projection.linkage.source_boundary == "sandboxed_deterministic_provider_execution"
-            || projection.linkage.source_boundary == "constrained_local_provider_invocation_pipeline_bridge")
+            || projection.linkage.source_boundary
+                == "constrained_local_provider_invocation_pipeline_bridge")
     {
         errors.push(
             LocalProviderExecutionResultProjectionError::MissingLinkage
@@ -11573,7 +11791,6 @@ mod tests {
         );
     }
 
-
     fn phase_157_invoked_state() -> LocalOperatorShellState {
         let configured = apply_local_provider_adapter_declaration(
             &initial_local_operator_shell_state(),
@@ -11634,13 +11851,21 @@ mod tests {
         assert!(pipeline
             .effect_statuses
             .contains(&LocalProviderOutputPipelineEffectStatus::NoProviderExecution));
-        assert_eq!(
-            invoked.provider_execution.result.as_ref().unwrap().provider_output_trusted,
-            false
+        assert!(
+            !invoked
+                .provider_execution
+                .result
+                .as_ref()
+                .unwrap()
+                .provider_output_trusted
         );
-        assert_eq!(
-            invoked.provider_execution.result.as_ref().unwrap().candidate_output_promoted,
-            false
+        assert!(
+            !invoked
+                .provider_execution
+                .result
+                .as_ref()
+                .unwrap()
+                .candidate_output_promoted
         );
         validate_provider_output_pipeline_stage_order(pipeline).unwrap();
     }
@@ -11654,16 +11879,20 @@ mod tests {
         );
 
         let mut rejected = initial_local_operator_shell_state();
-        rejected.constrained_local_provider_invocation = reject_constrained_local_provider_invocation(
-            ConstrainedLocalProviderInvocationStatus::InvocationRejected,
-            None,
-            None,
-            None,
-            0,
-            vec![ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted],
-        );
+        rejected.constrained_local_provider_invocation =
+            reject_constrained_local_provider_invocation(
+                ConstrainedLocalProviderInvocationStatus::InvocationRejected,
+                None,
+                None,
+                None,
+                0,
+                vec![ConstrainedLocalProviderInvocationError::ProviderNotAllowlisted],
+            );
         let projection = derive_local_provider_output_pipeline_projection(&rejected);
-        assert_eq!(projection.status, LocalProviderOutputPipelineValidationStatus::Rejected);
+        assert_eq!(
+            projection.status,
+            LocalProviderOutputPipelineValidationStatus::Rejected
+        );
         assert!(projection
             .errors
             .contains(&LocalProviderOutputPipelineError::InvocationOutputRejected));
@@ -11674,7 +11903,8 @@ mod tests {
             .result
             .as_mut()
             .unwrap()
-            .output_summary = "allowlisted_local_deterministic_provider descriptive output drift".to_string();
+            .output_summary =
+            "allowlisted_local_deterministic_provider descriptive output drift".to_string();
         assert!(project_invocation_output_into_provider_pipeline(&drifted)
             .unwrap_err()
             .contains(&LocalProviderOutputPipelineError::InvocationOutputSummaryMismatch));
@@ -11686,7 +11916,9 @@ mod tests {
             .as_mut()
             .unwrap()
             .output_summary
-            .push_str(" trust release deployment public-use candidate materialization action persistence");
+            .push_str(
+                " trust release deployment public-use candidate materialization action persistence",
+            );
         let errors = project_invocation_output_into_provider_pipeline(&claim).unwrap_err();
         for expected in [
             LocalProviderOutputPipelineError::TrustClaimRejected,
@@ -11741,7 +11973,8 @@ mod tests {
             &proposed,
             StagedCandidateConversionValidationRequest::existing_staged_proposal(),
         );
-        validated.local_provider_output_pipeline = derive_local_provider_output_pipeline_projection(&validated);
+        validated.local_provider_output_pipeline =
+            derive_local_provider_output_pipeline_projection(&validated);
         let pipeline = validated.local_provider_output_pipeline.clone();
         assert_eq!(
             validated.staged_candidate_conversion_validation.status,
