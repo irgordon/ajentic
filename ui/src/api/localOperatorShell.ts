@@ -1436,6 +1436,499 @@ export type ConstrainedLocalProviderInvocationProjection = Readonly<{
   reason: string;
 }>;
 
+
+export type LocalProviderOutputPipelineSourceKind =
+  | "deterministic_stub_provider_execution"
+  | "constrained_local_provider_invocation";
+export type LocalProviderOutputPipelineStage =
+  | "invocation_output_projected"
+  | "provider_execution_result_projected"
+  | "provider_output_validation_required"
+  | "provider_output_validation_projected"
+  | "provider_output_review_required"
+  | "provider_output_review_projected"
+  | "staged_conversion_required"
+  | "staged_proposal_projected"
+  | "staged_validation_required"
+  | "staged_proposal_validation_projected"
+  | "candidate_review_required"
+  | "candidate_review_projected"
+  | "operator_decision_required"
+  | "operator_decision_projected";
+export type LocalProviderOutputPipelineStageStatus =
+  | "not_started"
+  | "available"
+  | "blocked"
+  | "completed"
+  | "rejected"
+  | "not_applicable";
+export type LocalProviderOutputPipelineValidationStatus =
+  | "not_started"
+  | "valid"
+  | "blocked"
+  | "rejected";
+export type LocalProviderOutputPipelineError =
+  | "no_invocation_output"
+  | "invocation_output_rejected"
+  | "invocation_output_not_untrusted_descriptive"
+  | "invocation_result_id_mismatch"
+  | "invocation_output_summary_mismatch"
+  | "provider_output_validation_missing"
+  | "provider_output_validation_rejected"
+  | "provider_output_review_missing"
+  | "staged_proposal_missing"
+  | "staged_proposal_validation_missing"
+  | "staged_proposal_validation_rejected"
+  | "candidate_review_missing"
+  | "operator_decision_missing"
+  | "pipeline_skip_attempt_rejected"
+  | "trust_claim_rejected"
+  | "approval_claim_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "candidate_creation_claim_rejected"
+  | "candidate_materialization_claim_rejected"
+  | "action_claim_rejected"
+  | "persistence_claim_rejected";
+export type LocalProviderOutputPipelineBoundaryStatus =
+  | "pipeline_integration_only"
+  | "untrusted_descriptive_source"
+  | "validation_required"
+  | "review_required"
+  | "staged_conversion_required"
+  | "staged_validation_required"
+  | "candidate_review_required"
+  | "operator_decision_required"
+  | "no_candidate_materialization"
+  | "no_provider_trust"
+  | "no_action_execution"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+export type LocalProviderOutputPipelineEffectStatus =
+  | "no_provider_execution"
+  | "no_candidate_creation"
+  | "no_candidate_materialization"
+  | "no_decision_ledger_append"
+  | "no_replay_mutation"
+  | "no_export_promotion"
+  | "no_provider_trust"
+  | "no_file_write"
+  | "no_network_socket"
+  | "no_process_spawn"
+  | "no_secret_read"
+  | "no_action_execution";
+export type LocalProviderOutputPipelineStageProjection = Readonly<{
+  stage: LocalProviderOutputPipelineStage;
+  status: LocalProviderOutputPipelineStageStatus;
+  reason: LocalProviderOutputPipelineError | null;
+}>;
+export type InvocationProviderOutputBridgeProjection = Readonly<{
+  sourceKind: LocalProviderOutputPipelineSourceKind;
+  invocationResultId: string;
+  providerExecutionResultId: string;
+  outputSummary: string;
+  outputTrustStatus: LocalProviderOutputTrustStatus;
+  outputMaterializationStatus: LocalProviderOutputMaterializationStatus;
+  outputPromotionStatus: LocalProviderOutputPromotionStatus;
+  descriptiveOnly: boolean;
+  notCandidateMaterial: boolean;
+  notPromoted: boolean;
+}>;
+export type LocalProviderOutputPipelineProjection = Readonly<{
+  status: LocalProviderOutputPipelineValidationStatus;
+  sourceKind: LocalProviderOutputPipelineSourceKind | null;
+  sourceInvocationResultId: string | null;
+  providerExecutionResultId: string | null;
+  currentStage: LocalProviderOutputPipelineStage | null;
+  nextRequiredStage: LocalProviderOutputPipelineStage | null;
+  stages: readonly LocalProviderOutputPipelineStageProjection[];
+  providerOutputValidationStatus: LocalProviderOutputValidationStatus;
+  providerOutputReviewStatus: LocalProviderOutputReviewabilityStatus;
+  stagedProposalStatus: StagedCandidateConversionProposalStatus;
+  stagedProposalValidationStatus: StagedCandidateConversionValidationStatus;
+  candidateReviewStatus: string;
+  operatorDecisionStatus: OperatorCandidateDecisionStatus;
+  boundaryStatuses: readonly LocalProviderOutputPipelineBoundaryStatus[];
+  effectStatuses: readonly LocalProviderOutputPipelineEffectStatus[];
+  errors: readonly LocalProviderOutputPipelineError[];
+  bridge: InvocationProviderOutputBridgeProjection | null;
+  note: string;
+}>;
+
+export function localProviderOutputPipelineStageOrder(): readonly LocalProviderOutputPipelineStage[] {
+  return [
+    "invocation_output_projected",
+    "provider_execution_result_projected",
+    "provider_output_validation_required",
+    "provider_output_validation_projected",
+    "provider_output_review_required",
+    "provider_output_review_projected",
+    "staged_conversion_required",
+    "staged_proposal_projected",
+    "staged_validation_required",
+    "staged_proposal_validation_projected",
+    "candidate_review_required",
+    "candidate_review_projected",
+    "operator_decision_required",
+    "operator_decision_projected",
+  ];
+}
+
+export function localProviderOutputPipelineBoundaryStatuses(): readonly LocalProviderOutputPipelineBoundaryStatus[] {
+  return [
+    "pipeline_integration_only",
+    "untrusted_descriptive_source",
+    "validation_required",
+    "review_required",
+    "staged_conversion_required",
+    "staged_validation_required",
+    "candidate_review_required",
+    "operator_decision_required",
+    "no_candidate_materialization",
+    "no_provider_trust",
+    "no_action_execution",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "no_public_use_effect",
+  ];
+}
+
+export function localProviderOutputPipelineEffectStatuses(): readonly LocalProviderOutputPipelineEffectStatus[] {
+  return [
+    "no_provider_execution",
+    "no_candidate_creation",
+    "no_candidate_materialization",
+    "no_decision_ledger_append",
+    "no_replay_mutation",
+    "no_export_promotion",
+    "no_provider_trust",
+    "no_file_write",
+    "no_network_socket",
+    "no_process_spawn",
+    "no_secret_read",
+    "no_action_execution",
+  ];
+}
+
+function pipelineStage(
+  stage: LocalProviderOutputPipelineStage,
+  status: LocalProviderOutputPipelineStageStatus,
+  reason: LocalProviderOutputPipelineError | null,
+): LocalProviderOutputPipelineStageProjection {
+  return { stage, status, reason };
+}
+
+export function initialLocalProviderOutputPipelineProjection(): LocalProviderOutputPipelineProjection {
+  return {
+    status: "not_started",
+    sourceKind: null,
+    sourceInvocationResultId: null,
+    providerExecutionResultId: null,
+    currentStage: null,
+    nextRequiredStage: "invocation_output_projected",
+    stages: localProviderOutputPipelineStageOrder().map((stage) =>
+      pipelineStage(stage, "not_started", null),
+    ),
+    providerOutputValidationStatus: "not_validated",
+    providerOutputReviewStatus: "not_reviewable",
+    stagedProposalStatus: "no_proposal",
+    stagedProposalValidationStatus: "not_validated",
+    candidateReviewStatus: "not_available",
+    operatorDecisionStatus: "no_operator_decision",
+    boundaryStatuses: localProviderOutputPipelineBoundaryStatuses(),
+    effectStatuses: localProviderOutputPipelineEffectStatuses(),
+    errors: [],
+    bridge: null,
+    note: "Provider output pipeline integration has not started; invocation output remains untrusted and descriptive.",
+  };
+}
+
+export function projectInvocationOutputIntoProviderPipeline(
+  state: LocalOperatorShellState,
+): InvocationProviderOutputBridgeProjection | readonly LocalProviderOutputPipelineError[] {
+  const invocation = state.constrainedLocalProviderInvocation;
+  if (invocation.status === "not_invoked") return ["no_invocation_output"];
+  if (invocation.status !== "invocation_executed")
+    return ["invocation_output_rejected"];
+  const result = invocation.result;
+  if (!result) return ["no_invocation_output"];
+  const errors = new Set<LocalProviderOutputPipelineError>();
+  if (
+    result.outputTrustStatus !== "untrusted_descriptive" ||
+    invocation.outputTrustStatus !== "untrusted_descriptive"
+  )
+    errors.add("invocation_output_not_untrusted_descriptive");
+  const prefix = "constrained-local-provider-invocation-";
+  const checksum = result.resultId.startsWith(prefix)
+    ? result.resultId.slice(prefix.length)
+    : "";
+  if (checksum.length === 0) errors.add("invocation_result_id_mismatch");
+  if (
+    !result.outputSummary.startsWith(
+      "allowlisted_local_deterministic_provider descriptive output for input_bytes=",
+    ) ||
+    !result.outputSummary.includes(" checksum=") ||
+    !result.outputSummary.endsWith(checksum)
+  )
+    errors.add("invocation_output_summary_mismatch");
+  const lower = result.outputSummary.toLowerCase();
+  if (["trust", "trusted", "provider_output_approval", "approved output", "approval granted"].some((needle) => lower.includes(needle))) {
+    errors.add("trust_claim_rejected");
+    errors.add("approval_claim_rejected");
+  }
+  if (["readiness", "ready for"].some((needle) => lower.includes(needle)))
+    errors.add("readiness_claim_rejected");
+  if (lower.includes("release")) errors.add("release_claim_rejected");
+  if (["deployment", "deploy"].some((needle) => lower.includes(needle)))
+    errors.add("deployment_claim_rejected");
+  if (["public_use", "public-use", "public use"].some((needle) => lower.includes(needle)))
+    errors.add("public_use_claim_rejected");
+  if (["candidate creation", "candidate_output"].some((needle) => lower.includes(needle)))
+    errors.add("candidate_creation_claim_rejected");
+  if (["candidate", "materialization"].some((needle) => lower.includes(needle)))
+    errors.add("candidate_materialization_claim_rejected");
+  if (lower.includes("action")) errors.add("action_claim_rejected");
+  if (["persist", "persistence"].some((needle) => lower.includes(needle)))
+    errors.add("persistence_claim_rejected");
+  if (errors.size > 0) return [...errors].sort();
+  return {
+    sourceKind: "constrained_local_provider_invocation",
+    invocationResultId: result.resultId,
+    providerExecutionResultId: result.resultId,
+    outputSummary: result.outputSummary,
+    outputTrustStatus: "untrusted_descriptive",
+    outputMaterializationStatus: "projected_as_untrusted_output",
+    outputPromotionStatus: "not_promoted",
+    descriptiveOnly: true,
+    notCandidateMaterial: true,
+    notPromoted: true,
+  };
+}
+
+function isPipelineBridge(
+  value: InvocationProviderOutputBridgeProjection | readonly LocalProviderOutputPipelineError[],
+): value is InvocationProviderOutputBridgeProjection {
+  return !Array.isArray(value);
+}
+
+export function providerExecutionProjectionFromInvocationBridge(
+  state: LocalOperatorShellState,
+  bridge: InvocationProviderOutputBridgeProjection,
+): LocalProviderExecutionProjection {
+  return withProviderExecutionProjectionValidation({
+    status: "executed",
+    projectionStatus: "execution_projected",
+    configuredProviderKind: "allowlisted_local_deterministic_provider",
+    sandboxStatus: "sandboxed_deterministic_no_external_effects",
+    result: {
+      resultId: bridge.providerExecutionResultId,
+      providerKind: "deterministic_stub",
+      sandboxStatus: "sandboxed_deterministic_no_external_effects",
+      outputSummary: bridge.outputSummary,
+      outputTrustStatus: "untrusted/descriptive",
+      outputMaterializationStatus: "projected_as_untrusted_output",
+      outputPromotionStatus: "not_promoted",
+      promotionAvailabilityStatus: "promotion_not_available_in_phase_142",
+      descriptiveOnly: true,
+      providerOutputTrusted: false,
+      candidateOutputPromoted: false,
+      decisionAppended: false,
+      replayRepaired: false,
+      releaseOrDeploymentEvidenceCreated: false,
+    },
+    outputTrustStatus: "untrusted_descriptive",
+    outputMaterializationStatus: "not_candidate_material",
+    outputPromotionStatus: "not_promoted",
+    promotionAvailabilityStatus: "promotion_not_available_in_phase_142",
+    linkage: {
+      ...localProviderExecutionLinkage(state, bridge.providerExecutionResultId),
+      executionResultId: bridge.providerExecutionResultId,
+      sourceBoundary: "constrained_local_provider_invocation_pipeline_bridge",
+    },
+    absenceMarkers: localProviderExecutionResultAbsenceMarkers(),
+    projectionValidation: {
+      status: "invalid",
+      errorCodes: [],
+      reason: "projection validation pending",
+    },
+    validationStatus: "executed",
+    validationErrorCodes: [],
+    validationReason:
+      "constrained invocation output projected into provider execution/result surface without changing trust boundary",
+    capabilitySurface: localProviderExecutionCapabilitySurface(),
+    note: "Constrained invocation output is projected as untrusted_descriptive provider output only; it is not candidate material, not promoted, and not approved.",
+  });
+}
+
+export function deriveLocalProviderOutputPipelineProjection(
+  state: LocalOperatorShellState,
+): LocalProviderOutputPipelineProjection {
+  if (state.constrainedLocalProviderInvocation.status === "not_invoked")
+    return initialLocalProviderOutputPipelineProjection();
+  const bridgeResult = projectInvocationOutputIntoProviderPipeline(state);
+  if (!isPipelineBridge(bridgeResult)) {
+    const reason = bridgeResult[0] ?? "no_invocation_output";
+    return {
+      ...initialLocalProviderOutputPipelineProjection(),
+      status: "rejected",
+      sourceKind: "constrained_local_provider_invocation",
+      sourceInvocationResultId:
+        state.constrainedLocalProviderInvocation.result?.resultId ?? null,
+      currentStage: "invocation_output_projected",
+      nextRequiredStage: "invocation_output_projected",
+      stages: localProviderOutputPipelineStageOrder().map((stage) =>
+        pipelineStage(
+          stage,
+          stage === "invocation_output_projected" ? "rejected" : "blocked",
+          reason,
+        ),
+      ),
+      errors: bridgeResult,
+      note: "Provider output pipeline integration rejected fail-closed; no candidate output is created.",
+    };
+  }
+  const stages: LocalProviderOutputPipelineStageProjection[] = [
+    pipelineStage("invocation_output_projected", "completed", null),
+    pipelineStage("provider_execution_result_projected", "completed", null),
+    pipelineStage("provider_output_validation_required", "completed", null),
+  ];
+  const errors: LocalProviderOutputPipelineError[] = [];
+  let nextRequiredStage: LocalProviderOutputPipelineStage | null = null;
+  const blockRest = (startIndex: number, reason: LocalProviderOutputPipelineError) => {
+    for (const stage of localProviderOutputPipelineStageOrder().slice(startIndex))
+      stages.push(pipelineStage(stage, "blocked", reason));
+  };
+  const validationRejected = [
+    "rejected",
+    "validation_not_applicable",
+    "invalid_validation_input",
+  ].includes(state.providerOutputValidation.status);
+  if (validationRejected) {
+    errors.push("provider_output_validation_rejected");
+    stages.push(
+      pipelineStage(
+        "provider_output_validation_projected",
+        "rejected",
+        "provider_output_validation_rejected",
+      ),
+    );
+    blockRest(4, "provider_output_validation_rejected");
+    nextRequiredStage = "provider_output_validation_projected";
+  } else if (state.providerOutputValidation.status !== "reviewable_untrusted") {
+    errors.push("provider_output_validation_missing");
+    stages.push(
+      pipelineStage(
+        "provider_output_validation_projected",
+        "available",
+        "provider_output_validation_missing",
+      ),
+    );
+    blockRest(4, "provider_output_validation_missing");
+    nextRequiredStage = "provider_output_validation_projected";
+  } else {
+    stages.push(pipelineStage("provider_output_validation_projected", "completed", null));
+    stages.push(pipelineStage("provider_output_review_required", "completed", null));
+    stages.push(pipelineStage("provider_output_review_projected", "completed", null));
+    stages.push(pipelineStage("staged_conversion_required", "completed", null));
+    if (state.stagedCandidateConversionProposal.status !== "staged_proposal_created") {
+      errors.push("staged_proposal_missing");
+      stages.push(
+        pipelineStage("staged_proposal_projected", "available", "staged_proposal_missing"),
+      );
+      blockRest(8, "staged_proposal_missing");
+      nextRequiredStage = "staged_proposal_projected";
+    } else {
+      stages.push(pipelineStage("staged_proposal_projected", "completed", null));
+      stages.push(pipelineStage("staged_validation_required", "completed", null));
+      if (state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid") {
+        stages.push(pipelineStage("staged_proposal_validation_projected", "completed", null));
+        stages.push(pipelineStage("candidate_review_required", "completed", null));
+        stages.push(pipelineStage("candidate_review_projected", "completed", null));
+        stages.push(pipelineStage("operator_decision_required", "completed", null));
+        const decisionDone = [
+          "approved_validated_staged_proposal",
+          "rejected_validated_staged_proposal",
+        ].includes(state.operatorCandidateDecision.status);
+        if (decisionDone) {
+          stages.push(pipelineStage("operator_decision_projected", "completed", null));
+        } else {
+          errors.push("operator_decision_missing");
+          stages.push(
+            pipelineStage("operator_decision_projected", "available", "operator_decision_missing"),
+          );
+          nextRequiredStage = "operator_decision_projected";
+        }
+      } else {
+        const reason =
+          state.stagedCandidateConversionValidation.status === "rejected_staged_proposal" ||
+          state.stagedCandidateConversionValidation.status === "invalid_validation_input"
+            ? "staged_proposal_validation_rejected"
+            : "staged_proposal_validation_missing";
+        errors.push(reason);
+        stages.push(
+          pipelineStage(
+            "staged_proposal_validation_projected",
+            reason === "staged_proposal_validation_rejected" ? "rejected" : "available",
+            reason,
+          ),
+        );
+        blockRest(10, reason);
+        nextRequiredStage = "staged_proposal_validation_projected";
+      }
+    }
+  }
+  const currentStage = [...stages]
+    .reverse()
+    .find((stage) => stage.status === "completed")?.stage ?? null;
+  return {
+    status: errors.some((error) => error.endsWith("rejected"))
+      ? "rejected"
+      : errors.length > 0
+        ? "blocked"
+        : "valid",
+    sourceKind: "constrained_local_provider_invocation",
+    sourceInvocationResultId: bridgeResult.invocationResultId,
+    providerExecutionResultId: bridgeResult.providerExecutionResultId,
+    currentStage,
+    nextRequiredStage,
+    stages,
+    providerOutputValidationStatus: state.providerOutputValidation.status,
+    providerOutputReviewStatus: state.providerOutputValidation.reviewabilityStatus,
+    stagedProposalStatus: state.stagedCandidateConversionProposal.status,
+    stagedProposalValidationStatus: state.stagedCandidateConversionValidation.status,
+    candidateReviewStatus:
+      state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid"
+        ? "display_only"
+        : "required",
+    operatorDecisionStatus: state.operatorCandidateDecision.status,
+    boundaryStatuses: localProviderOutputPipelineBoundaryStatuses(),
+    effectStatuses: localProviderOutputPipelineEffectStatuses(),
+    errors,
+    bridge: bridgeResult,
+    note: "Invocation output remains untrusted and descriptive. Pipeline integration does not create candidate output. Validation, review, staging, staged validation, candidate review, and operator decision boundaries cannot be skipped. Candidate materialization remains a later bounded step. Provider trust, readiness, release, deployment, and public-use approval are not granted.",
+  };
+}
+
+export function validateProviderOutputPipelineStageOrder(
+  projection: LocalProviderOutputPipelineProjection,
+): LocalProviderOutputPipelineError | null {
+  const actual = projection.stages.map((stage) => stage.stage);
+  if (actual.join("|") !== localProviderOutputPipelineStageOrder().join("|"))
+    return "pipeline_skip_attempt_rejected";
+  let seenIncomplete = false;
+  for (const stage of projection.stages) {
+    if (seenIncomplete && stage.status === "completed")
+      return "pipeline_skip_attempt_rejected";
+    if (stage.status !== "completed") seenIncomplete = true;
+  }
+  return null;
+}
+
 export function allowlistedLocalProviderInvocationRequest(): ConstrainedLocalProviderInvocationRequest {
   return {
     providerKind: "allowlisted_local_deterministic_provider",
@@ -1742,35 +2235,50 @@ export function applyConstrainedLocalProviderInvocation(
     return {
       status: "rejected",
       reason: "constrained_local_provider_invocation_rejected",
-      state: { ...state, constrainedLocalProviderInvocation: validation },
+      state: {
+        ...state,
+        constrainedLocalProviderInvocation: validation,
+        localProviderOutputPipeline: deriveLocalProviderOutputPipelineProjection({
+          ...state,
+          constrainedLocalProviderInvocation: validation,
+        }),
+      },
     };
   const result = executeAllowlistedLocalDeterministicProviderInvocation(
     validation,
     request,
   );
+  const constrainedLocalProviderInvocation: ConstrainedLocalProviderInvocationProjection = {
+    status: "invocation_executed",
+    providerKind: result.providerKind,
+    adapterKind: result.adapterKind,
+    adapterDeclarationId: result.adapterDeclarationId,
+    result,
+    errorCodes: [],
+    boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+    outputTrustStatus: "untrusted_descriptive",
+    effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+    capabilitySurface: constrainedLocalProviderInvocationCapabilitySurface(),
+    registryDeclarationCount: state.localProviderAdapterRegistry.declarations.length,
+    reason:
+      "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
+  };
+  const bridgeState = { ...state, constrainedLocalProviderInvocation };
+  const bridge = projectInvocationOutputIntoProviderPipeline(bridgeState);
+  const providerExecution = isPipelineBridge(bridge)
+    ? providerExecutionProjectionFromInvocationBridge(bridgeState, bridge)
+    : state.providerExecution;
+  const providerOutputValidation = validateLocalProviderOutput(providerExecution);
+  const next = {
+    ...state,
+    constrainedLocalProviderInvocation,
+    providerExecution,
+    providerOutputValidation,
+  };
   return {
     status: "accepted",
     reason: "constrained_local_provider_invocation_executed",
-    state: attachLocalSessionEvidenceExport({
-      ...state,
-      constrainedLocalProviderInvocation: {
-        status: "invocation_executed",
-        providerKind: result.providerKind,
-        adapterKind: result.adapterKind,
-        adapterDeclarationId: result.adapterDeclarationId,
-        result,
-        errorCodes: [],
-        boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
-        outputTrustStatus: "untrusted_descriptive",
-        effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
-        capabilitySurface:
-          constrainedLocalProviderInvocationCapabilitySurface(),
-        registryDeclarationCount:
-          state.localProviderAdapterRegistry.declarations.length,
-        reason:
-          "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
-      },
-    }),
+    state: attachLocalSessionEvidenceExport(next),
   };
 }
 
@@ -1895,7 +2403,7 @@ export type LocalProviderExecutionResultLinkage = Readonly<{
   providerConfigurationStatus: string;
   executionResultId: string;
   candidateId: string;
-  sourceBoundary: "sandboxed_deterministic_provider_execution";
+  sourceBoundary: string;
 }>;
 
 export type LocalProviderExecutionResultAbsenceMarkers = Readonly<{
@@ -2076,8 +2584,13 @@ export function localProviderOutputValidationReasons(
   if (output.length === 0) reasons.add("empty_output");
   if (result.outputSummary.length > 1024) reasons.add("output_too_large");
   if (
-    !result.outputSummary.startsWith(
-      "deterministic_stub descriptive output for input_bytes=",
+    !(
+      result.outputSummary.startsWith(
+        "deterministic_stub descriptive output for input_bytes=",
+      ) ||
+      result.outputSummary.startsWith(
+        "allowlisted_local_deterministic_provider descriptive output for input_bytes=",
+      )
     ) ||
     !result.outputSummary.includes(" checksum=") ||
     result.sandboxStatus !== "sandboxed_deterministic_no_external_effects" ||
@@ -3299,8 +3812,10 @@ export function validateLocalProviderExecutionResultProjection(
     projection.linkage.providerConfigurationKind.length === 0 ||
     projection.linkage.providerConfigurationStatus.length === 0 ||
     projection.linkage.executionResultId.length === 0 ||
-    projection.linkage.sourceBoundary !==
-      "sandboxed_deterministic_provider_execution"
+    ![
+      "sandboxed_deterministic_provider_execution",
+      "constrained_local_provider_invocation_pipeline_bridge",
+    ].includes(projection.linkage.sourceBoundary)
   )
     errors.push("missing_linkage");
   return errors.length === 0
@@ -3879,6 +4394,7 @@ export type LocalOperatorShellState = Readonly<{
   localProviderAdapterRegistry: LocalProviderAdapterRegistry;
   localProviderAdapterDryRun: LocalProviderAdapterDryRunProjection;
   constrainedLocalProviderInvocation: ConstrainedLocalProviderInvocationProjection;
+  localProviderOutputPipeline: LocalProviderOutputPipelineProjection;
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
@@ -4000,13 +4516,19 @@ export function validateLocalSessionEvidenceExport(
 function attachLocalSessionEvidenceExport(
   state: Omit<LocalOperatorShellState, "localSessionEvidenceExport">,
 ): LocalOperatorShellState {
-  return {
+  const next = {
     ...state,
+    localProviderOutputPipeline: deriveLocalProviderOutputPipelineProjection(
+      state as LocalOperatorShellState,
+    ),
+  };
+  return {
+    ...next,
     localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
-      state.harnessStatus,
-      state.nonProduction,
-      state.run,
-      state.decisionLedger,
+      next.harnessStatus,
+      next.nonProduction,
+      next.run,
+      next.decisionLedger,
     ),
   };
 }
@@ -4057,6 +4579,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     localProviderAdapterDryRun: initialLocalProviderAdapterDryRunProjection(),
     constrainedLocalProviderInvocation:
       initialConstrainedLocalProviderInvocationProjection(),
+    localProviderOutputPipeline: initialLocalProviderOutputPipelineProjection(),
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
     stagedCandidateConversionProposal:

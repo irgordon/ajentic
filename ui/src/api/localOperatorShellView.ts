@@ -160,6 +160,31 @@ export function renderLocalOperatorShellSnapshot(
     providerExecution.note,
   ].join("\n");
 
+  const pipeline = state.localProviderOutputPipeline;
+  const providerOutputPipelineLines = [
+    `Pipeline source kind: ${pipeline.sourceKind ?? "none"}`,
+    `Source invocation result ID: ${pipeline.sourceInvocationResultId ?? "none"}`,
+    `Provider execution result ID: ${pipeline.providerExecutionResultId ?? "none"}`,
+    `Pipeline status: ${pipeline.status}`,
+    `Current stage: ${pipeline.currentStage ?? "none"}`,
+    `Next required stage: ${pipeline.nextRequiredStage ?? "none"}`,
+    `Stage list: ${pipeline.stages.map((stage) => `${stage.stage}:${stage.status}${stage.reason ? `:${stage.reason}` : ""}`).join(", ")}`,
+    `Provider output validation status: ${pipeline.providerOutputValidationStatus}`,
+    `Provider output review status: ${pipeline.providerOutputReviewStatus}`,
+    `Staged proposal status: ${pipeline.stagedProposalStatus}`,
+    `Staged proposal validation status: ${pipeline.stagedProposalValidationStatus}`,
+    `Candidate review status: ${pipeline.candidateReviewStatus}`,
+    `Operator decision status: ${pipeline.operatorDecisionStatus}`,
+    `Blocked/rejected reasons: ${pipeline.errors.join(", ") || "none"}`,
+    `Boundary markers: ${pipeline.boundaryStatuses.join(", ")}`,
+    "Invocation output remains untrusted and descriptive.",
+    "Pipeline integration does not create candidate output.",
+    "Validation, review, staging, staged validation, candidate review, and operator decision boundaries cannot be skipped.",
+    "Candidate materialization remains a later bounded step.",
+    "Provider trust, readiness, release, deployment, and public-use approval are not granted.",
+    pipeline.note,
+  ].join("\n");
+
   const providerOutputValidationLines = [
     `Validation status: ${providerOutputValidation.status}`,
     `Reviewability status: ${providerOutputValidation.reviewabilityStatus}`,
@@ -314,6 +339,9 @@ export function renderLocalOperatorShellSnapshot(
     "Provider execution result projection",
     "Run deterministic provider",
     providerExecutionLines,
+    "Provider output pipeline integration",
+    "Provider output pipeline",
+    providerOutputPipelineLines,
     "Provider output validation",
     "Provider output reviewability",
     providerOutputValidationLines,

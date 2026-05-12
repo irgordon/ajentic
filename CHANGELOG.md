@@ -28,6 +28,44 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.157 - 2026-05-12
+**Status:** Phase 157 - Real Provider Output Pipeline Integration
+
+### Added
+- Add Rust-owned provider output pipeline integration projection for constrained local invocation output.
+- Add invocation-to-provider-output projection linkage while preserving untrusted/descriptive, non-candidate, and non-promoted output boundaries.
+- Add stage-by-stage pipeline status for provider output validation, provider output review, staged proposal creation, staged proposal validation, candidate review, and operator decision.
+- Add fail-closed rejection for missing/rejected/drifted invocation output and boundary skip attempts.
+- Add UI rendering for provider output pipeline integration status, next required stage, stage list, and blocked/rejected reasons.
+- Add Rust and TypeScript tests for valid integration, blocked/rejected stages, stage ordering, no-skip boundaries, and no-effect behavior.
+
+### Changed
+- Extend the local operator shell projection with provider output pipeline integration state.
+- Update the local UI shell to display constrained invocation output entering the existing provider-output pipeline.
+- Update checklists/current-phase.md to Phase 157 procedural truth.
+
+### Notes
+- Code-production phase.
+- Integrates constrained invocation output into the existing provider-output pipeline.
+- Invocation output remains untrusted/descriptive.
+- Pipeline integration does not create candidate output.
+- Pipeline integration does not materialize candidates.
+- Validation, review, staging, staged validation, candidate review, and operator decision boundaries cannot be skipped.
+- No additional provider execution capability.
+- No arbitrary command execution.
+- No shell command execution.
+- No network sockets.
+- No secret handling.
+- No provider trust approval.
+- No candidate materialization.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 158 remains the next code-production phase for local candidate materialization.
+
 ## v0.0.156 - 2026-05-12
 **Status:** Phase 156 - Constrained Real Local Provider Invocation
 

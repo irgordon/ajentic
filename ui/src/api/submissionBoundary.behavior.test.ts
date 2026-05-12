@@ -34,6 +34,7 @@ import {
   projectLocalSessionRestoreFromPackageProjection,
   validateLocalProviderAdapterDeclaration,
   projectLocalProviderAdapterRegistry,
+  validateProviderOutputPipelineStageOrder,
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
@@ -3919,6 +3920,151 @@ function assertConstrainedLocalProviderInvocationInitialAndAcceptedRendering(): 
   assertContains(rendered, "untrusted_descriptive", "trust marker");
 }
 
+
+function phase157AcceptedInvocationState() {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderAdapterDeclaration(
+    transport,
+    deterministicFakeAdapterDeclarationCandidate(),
+  );
+  return invokeConstrainedLocalProvider(
+    transport,
+    allowlistedLocalProviderInvocationRequest(),
+  ).state;
+}
+
+function assertProviderOutputPipelineRendersAcceptedState(): void {
+  const state = phase157AcceptedInvocationState();
+  const pipeline = state.localProviderOutputPipeline;
+  assertEqual(
+    pipeline.sourceKind,
+    "constrained_local_provider_invocation",
+    "pipeline source kind",
+  );
+  assertContains(
+    pipeline.sourceInvocationResultId ?? "",
+    "constrained-local-provider-invocation-",
+    "pipeline invocation id",
+  );
+  assertEqual(
+    pipeline.providerOutputValidationStatus,
+    "reviewable_untrusted",
+    "pipeline validation status",
+  );
+  assertEqual(
+    pipeline.providerOutputReviewStatus,
+    "reviewable_untrusted",
+    "pipeline review status",
+  );
+  assertEqual(
+    pipeline.nextRequiredStage,
+    "staged_proposal_projected",
+    "pipeline next required stage",
+  );
+  assertEqual(
+    validateProviderOutputPipelineStageOrder(pipeline),
+    null,
+    "pipeline stage ordering",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Provider output pipeline", "pipeline panel title");
+  assertContains(
+    rendered,
+    "Pipeline source kind: constrained_local_provider_invocation",
+    "pipeline source rendered",
+  );
+  assertContains(
+    rendered,
+    "Invocation output remains untrusted and descriptive.",
+    "pipeline untrusted wording",
+  );
+  assertContains(
+    rendered,
+    "Pipeline integration does not create candidate output.",
+    "pipeline no candidate wording",
+  );
+  assertContains(
+    rendered,
+    "Validation, review, staging, staged validation, candidate review, and operator decision boundaries cannot be skipped.",
+    "pipeline no shortcut wording",
+  );
+  assertContains(
+    rendered,
+    "Candidate materialization remains a later bounded step.",
+    "pipeline materialization wording",
+  );
+  assertContains(
+    rendered,
+    "Provider trust, readiness, release, deployment, and public-use approval are not granted.",
+    "pipeline no trust wording",
+  );
+}
+
+function assertProviderOutputPipelineRendersBlockedAndRejectedStates(): void {
+  const missing = initialLocalOperatorShellState();
+  assertEqual(
+    missing.localProviderOutputPipeline.status,
+    "not_started",
+    "initial pipeline status",
+  );
+  assertEqual(
+    missing.localProviderOutputPipeline.nextRequiredStage,
+    "invocation_output_projected",
+    "initial next stage",
+  );
+
+  const rejected = applyConstrainedLocalProviderInvocation(
+    initialLocalOperatorShellState(),
+    allowlistedLocalProviderInvocationRequest(),
+  ).state;
+  assertEqual(
+    rejected.localProviderOutputPipeline.status,
+    "rejected",
+    "rejected invocation pipeline status",
+  );
+  assertContains(
+    rejected.localProviderOutputPipeline.errors.join(","),
+    "invocation_output_rejected",
+    "rejected invocation pipeline reason",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(rejected);
+  assertContains(
+    rendered,
+    "Blocked/rejected reasons: invocation_output_rejected",
+    "blocked reason rendered",
+  );
+}
+
+function assertProviderOutputPipelineHasNoShortcutControls(): void {
+  const rendered = renderLocalOperatorShellSnapshot(phase157AcceptedInvocationState());
+  for (const forbidden of [
+    "trusted_provider_output",
+    "approved_provider_output",
+    "safe_provider_output",
+    "candidate_ready",
+    "candidate_created",
+    "materialized_candidate",
+    "candidate_materialization_performed",
+    "provider_output_approved",
+    "provider_output_trusted",
+    "skip_validation",
+    "skip_review",
+    "auto_stage",
+    "auto_approve",
+    "production_ready",
+    "release_ready",
+    "deployment_ready",
+    "public_use_ready",
+  ]) {
+    assertDoesNotContain(rendered, forbidden, `${forbidden} absent from pipeline`);
+  }
+  assertEqual(
+    rendered,
+    renderLocalOperatorShellSnapshot(phase157AcceptedInvocationState()),
+    "pipeline rendering deterministic",
+  );
+}
+
 function assertConstrainedLocalProviderInvocationRejectsAndPreservesNoAuthority(): void {
   const missing = applyConstrainedLocalProviderInvocation(
     initialLocalOperatorShellState(),
@@ -4667,6 +4813,18 @@ payload_summary=authority before replay`),
   {
     name: "constrained_local_provider_invocation_initial_and_accepted_rendering",
     run: assertConstrainedLocalProviderInvocationInitialAndAcceptedRendering,
+  },
+  {
+    name: "provider_output_pipeline_renders_accepted_state",
+    run: assertProviderOutputPipelineRendersAcceptedState,
+  },
+  {
+    name: "provider_output_pipeline_renders_blocked_and_rejected_states",
+    run: assertProviderOutputPipelineRendersBlockedAndRejectedStates,
+  },
+  {
+    name: "provider_output_pipeline_has_no_shortcut_controls",
+    run: assertProviderOutputPipelineHasNoShortcutControls,
   },
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",
