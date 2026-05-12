@@ -175,6 +175,29 @@ function renderStagedProposalValidation(state: LocalOperatorShellState): string 
     </div>`;
 }
 
+
+function renderLocalSessionPackage(state: LocalOperatorShellState): string {
+  const projection = state.localSessionPackageProjection;
+  return `
+    <dl>
+      <div><dt>Package status</dt><dd>${projection.status}</dd></div>
+      <div><dt>Package ID</dt><dd>${projection.packageId ?? "none"}</dd></div>
+      <div><dt>Package version</dt><dd>${projection.packageVersion}</dd></div>
+      <div><dt>Package classification</dt><dd>${projection.packageClassification}</dd></div>
+      <div><dt>Production classification</dt><dd>${projection.productionClassification}</dd></div>
+      <div><dt>Validation status</dt><dd>${projection.validationStatus}</dd></div>
+      <div><dt>Read-back validation status</dt><dd>${projection.readBackValidationStatus ?? "none"}</dd></div>
+      <div><dt>Restore status</dt><dd>${projection.restoreStatus}</dd></div>
+      <div><dt>Included sections</dt><dd>${projection.includedSectionSummary.join(", ") || "none until package is derived"}</dd></div>
+      <div><dt>Absence markers</dt><dd>${projection.absenceMarkerSummary.join(", ")}</dd></div>
+      <div><dt>Validation errors</dt><dd>${projection.validationErrors.join(", ") || "none"}</dd></div>
+    </dl>
+    <p class="muted">${projection.localOnlyNote}</p>
+    <p class="muted">${projection.releaseBoundaryNote}</p>
+    <p class="muted">${projection.deploymentReadinessBoundaryNote}</p>
+    <p class="muted">${projection.restoreBoundaryNote}</p>`;
+}
+
 function renderReplayProjection(state: LocalOperatorShellState): string {
   const replay = state.run.decisionReplay;
   return `
@@ -277,6 +300,12 @@ function render(): void {
       <section class="panel" aria-label="Staged proposal validation">
         <h2>Staged proposal validation</h2>
         ${renderStagedProposalValidation(shellState)}
+      </section>
+
+
+      <section class="panel" aria-label="Local session package">
+        <h2>Local session package</h2>
+        ${renderLocalSessionPackage(shellState)}
       </section>
 
       <section class="panel replay-panel">

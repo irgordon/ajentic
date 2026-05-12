@@ -1,5 +1,92 @@
 use super::*;
 
+pub fn write_local_session_package(
+    package: &LocalSessionPackage,
+    caller_provided_path: &std::path::Path,
+) -> Result<LocalSessionPackageWriteResult, Vec<LocalSessionPackageValidationError>> {
+    let serialized = serialize_local_session_package(package)?;
+    std::fs::write(caller_provided_path, serialized.as_bytes())
+        .map_err(|_| vec![LocalSessionPackageValidationError::MalformedPackageInput])?;
+    let mut written_package = package.clone();
+    written_package.metadata.package_status = LocalSessionPackageStatus::PackageWritten;
+    Ok(LocalSessionPackageWriteResult {
+        status: LocalSessionPackageStatus::PackageWritten,
+        path: caller_provided_path.display().to_string(),
+        bytes_written: serialized.len(),
+        projection: project_local_session_package_status(Some(&written_package), None),
+    })
+}
+
+pub fn read_local_session_package(
+    caller_provided_path: &std::path::Path,
+) -> Result<LocalSessionPackageReadResult, Vec<LocalSessionPackageValidationError>> {
+    let content = std::fs::read_to_string(caller_provided_path)
+        .map_err(|_| vec![LocalSessionPackageValidationError::MalformedPackageInput])?;
+    let package = parse_local_session_package(&content)?;
+    let projection = validate_local_session_package_read_back(&package);
+    Ok(LocalSessionPackageReadResult {
+        status: LocalSessionPackageStatus::PackageReadBackValidated,
+        path: caller_provided_path.display().to_string(),
+        package: Some(package),
+        projection,
+    })
+}
+
+#[cfg(test)]
+mod phase_151_local_session_package_persistence_tests {
+    use super::*;
+
+    fn phase_151_package_with_available_sections() -> LocalSessionPackage {
+        let configured = apply_local_provider_configuration_candidate(
+            &initial_local_operator_shell_state(),
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        )
+        .unwrap();
+        let executed = apply_local_provider_execution(
+            &configured,
+            LocalProviderExecutionRequest::deterministic_stub(
+                "phase 151 package persistence input",
+            ),
+        )
+        .unwrap();
+        derive_local_session_package(&executed)
+    }
+
+    #[test]
+    fn phase_151_explicit_write_read_and_malformed_read_back_behavior() {
+        let package = phase_151_package_with_available_sections();
+        let path = std::env::temp_dir().join(format!(
+            "ajentic-phase-151-{}.session",
+            package.metadata.content_digest
+        ));
+        let _ = std::fs::remove_file(&path);
+        let write = write_local_session_package(&package, &path).unwrap();
+        assert_eq!(write.status, LocalSessionPackageStatus::PackageWritten);
+        assert!(write.bytes_written > 0);
+        let read = read_local_session_package(&path).unwrap();
+        assert_eq!(
+            read.status,
+            LocalSessionPackageStatus::PackageReadBackValidated
+        );
+        assert_eq!(
+            read.projection.read_back_validation_status,
+            Some(LocalSessionPackageValidationStatus::Valid)
+        );
+        assert_eq!(
+            read.projection.restore_status,
+            LocalSessionPackageRestoreStatus::ReadBackValidated
+        );
+        std::fs::remove_file(&path).unwrap();
+
+        let malformed_path = std::env::temp_dir().join("ajentic-phase-151-malformed.session");
+        std::fs::write(&malformed_path, "not a local session package").unwrap();
+        assert!(read_local_session_package(&malformed_path)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::MalformedPackageInput));
+        std::fs::remove_file(&malformed_path).unwrap();
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalPersistencePayloadKind {
     LedgerSnapshot,
