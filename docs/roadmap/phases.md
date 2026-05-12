@@ -405,13 +405,61 @@ Goal: Allow approve/reject only for validated staged candidate proposals and rec
 
 Boundary: Code-production phase with usable, testable decision-boundary code. Candidate approval must not appear before a validated staged candidate proposal exists; provider output must not jump directly to approved candidate output.
 
-### Phase 150 - Code-Production Alignment Checkpoint
-Goal: Reconcile Phases 146-149 and decide whether later phases may introduce persistence, local model adapter work, or additional hardening.
+### Phase 150 - Aggressive Code-Production Roadmap Remap
+Goal: Rewrite Phases 151-160 into larger product-capability phases that move AJENTIC toward a usable local beta.
 
-Boundary: Alignment checkpoint only; no implementation, readiness approval, release approval, Production Candidate status, or public/general use.
+Boundary: Alignment checkpoint only; no implementation, runtime behavior, readiness approval, release approval, Production Candidate status, or public/general use. The authoritative remap is `docs/roadmap/phase-150-code-production-remap.md`.
 
-## Post-140 dependency note
+### Phase 151 - Persistent Local Session Package
+Goal: Persist and reload a complete local session package as a real local artifact.
 
-Do not map Production Candidate or public/general-use as automatically following Phase 145. Phase 145 reconciles the Phase 141-144 code-production block and permits only the narrow Phase 146 staged candidate-conversion proposal boundary with caveats.
+Boundary: Code-production phase for local session persistence only; no production persistence claim, public release artifact, installer/update behavior, signing, or publishing.
 
-Public/general use remains a later final rung. Phase 146-149 are the next implementation block for staged candidate-conversion proposal work, and Phase 150 is the next alignment checkpoint.
+### Phase 152 - Session History and Restore UI
+Goal: Add usable UI for local session history, restore status, restored run state, replay, decisions, validation state, and export state.
+
+Boundary: Code-production phase; no recovery promotion, production persistence claim, background daemon, or automatic remote sync.
+
+### Phase 153 - Real Local Provider Adapter Contract
+Goal: Add a real provider adapter contract and UI configuration surface for local providers.
+
+Boundary: Code-production phase; no real model execution, arbitrary shell command field, network/cloud, secret execution path, or provider trust approval.
+
+### Phase 154 - Controlled Adapter Dry-Run Harness
+Goal: Execute a deterministic fake adapter through the real adapter contract and route output through the existing provider execution/result/validation/review/staging pipeline.
+
+Boundary: Code-production phase; no arbitrary local model execution, no process spawning unless explicitly justified and safely bounded, no network/cloud, and no production claims.
+
+### Phase 155 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 151-154 and decide whether constrained real local provider invocation may proceed.
+
+Boundary: Alignment checkpoint only; no implementation, runtime behavior, readiness, release, or deployment approval.
+
+### Phase 156 - Constrained Real Local Provider Invocation
+Goal: Enable exactly one allowlisted local provider invocation path.
+
+Boundary: Code-production phase; no shell-general execution, cloud/network, public release, production readiness, or provider trust approval.
+
+### Phase 157 - Real Provider Output Pipeline Integration
+Goal: Route real local provider output through the existing projection, validation, review, staging, staged validation, and decision path.
+
+Boundary: Code-production phase; no direct candidate materialization, provider-output trust, action execution, or production claims.
+
+### Phase 158 - Local Candidate Materialization
+Goal: Materialize validated staged proposals into local candidate output.
+
+Boundary: Code-production phase for local candidate output only; not production approval, release approval, or public-use approval.
+
+### Phase 159 - Complete Local Operator Workflow
+Goal: Make the configure-to-export local operator workflow usable end to end.
+
+Boundary: Code-production phase for local beta workflow only; no production readiness, public release, installer, or deployment claim.
+
+### Phase 160 - Production-Path Alignment Checkpoint
+Goal: Decide whether controlled internal trial packaging may proceed and remap the next block.
+
+Boundary: Alignment checkpoint only; no implementation, public release approval, production approval, or automatic Release Candidate approval.
+
+## Phase 150 remap note
+
+`docs/roadmap/phase-150-code-production-remap.md` is the single authoritative remap for Phases 151-160. It uses Phase 149 executable handoff evidence, preserves existing safety boundaries, embeds safety checks in implementation phases, and requires non-0/5 phases to produce larger product capabilities toward a usable local beta.

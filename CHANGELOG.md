@@ -28,6 +28,32 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.150 - 2026-05-12
+**Status:** Phase 150 - Aggressive Code-Production Roadmap Remap
+
+### Added
+- Add the Phase 150 code-production remap document for Phases 151-160.
+
+### Changed
+- Remap Phases 151-160 into larger product-capability phases toward a usable local beta.
+- Collapse overly granular safety-only sequencing into implementation phases with embedded safety checks.
+- Update roadmap sequencing to prioritize visible UI capability, executable Rust capability, persisted local artifacts, restore/replay/export capability, real adapter integration, and end-to-end operator workflow improvements.
+- Update checklists/current-phase.md to Phase 150 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No candidate materialization implementation.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 151 is expected to resume code production.
+
 ## v0.0.149 - 2026-05-12
 **Status:** Phase 149 - Operator Candidate Decision Boundary and Phase 150 Handoff Projection
 

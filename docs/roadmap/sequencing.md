@@ -297,12 +297,52 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 149 must allow approve/reject only for validated staged candidate proposals and record decisions through Rust-owned state.
    - Boundary: code-production phase; provider output must not jump directly to approved candidate output.
 
-50. **Phase 150 remains the next code-production alignment checkpoint**
-   - Phase 150 reconciles Phases 146-149 and decides whether later phases may introduce persistence, local model adapter work, or additional hardening.
-   - Boundary: alignment only; no implementation, readiness approval, release approval, Production Candidate status, or public/general-use approval.
+50. **Phase 150 aggressively remaps the next local-beta code-production block**
+   - Phase 150 uses Phase 149 executable handoff evidence to remap Phases 151-160 into larger product capability phases documented in `docs/roadmap/phase-150-code-production-remap.md`.
+   - Boundary: alignment only; no implementation, runtime behavior, readiness approval, release approval, Production Candidate status, or public/general-use approval.
+
+51. **Phase 151 persists a local session package**
+   - Phase 151 must produce a Rust-owned local session package with explicit caller-path write/read helpers, validation before write and after read, feasible UI save/restore status, and deterministic package tests.
+   - Boundary: local session persistence only; no production persistence claim, public release artifact, installer/update behavior, signing, or publishing.
+
+52. **Phase 152 makes restore and history visible**
+   - Phase 152 must produce UI-visible restored-session state, session history/list projection, restore integrity/error display, and tests for restored UI state and failure display.
+   - Boundary: no recovery promotion, production persistence claim, background daemon, or automatic remote sync.
+
+53. **Phase 153 defines the real local adapter contract without execution**
+   - Phase 153 must produce a Rust adapter contract, adapter capability surface, non-executing adapter registry, UI provider adapter configuration panel, and allowed/unsupported declaration tests.
+   - Boundary: no real model execution, arbitrary shell command field, network/cloud, secret execution path, or provider trust approval.
+
+54. **Phase 154 dry-runs a deterministic fake adapter through the real contract**
+   - Phase 154 must execute a deterministic fake adapter through the adapter contract and route output through existing provider execution, result, validation, review, and staging flow.
+   - Boundary: no arbitrary local model execution, network/cloud, or production claims.
+
+55. **Phase 155 reconciles the first remapped product block**
+   - Phase 155 must reconcile Phases 151-154 and decide whether constrained real local provider invocation may proceed in Phase 156.
+   - Boundary: alignment only; no implementation, runtime behavior, readiness, release, or deployment approval.
+
+56. **Phase 156 enables exactly one constrained real local provider invocation path**
+   - Phase 156 must add one allowlisted invocation path with Rust validation, UI-visible invocation result, and tests rejecting arbitrary commands, unsafe paths, network/cloud, secrets, and unsupported providers.
+   - Boundary: no shell-general execution, cloud/network, public release, production readiness, or provider trust approval.
+
+57. **Phase 157 integrates real provider output into the existing pipeline**
+   - Phase 157 must route real local provider output through the existing projection, validation, review, staging, staged validation, and decision path.
+   - Boundary: no direct candidate materialization, provider-output trust, action execution, or production claims.
+
+58. **Phase 158 materializes local candidate output under Rust-owned boundaries**
+   - Phase 158 must materialize validated staged proposals into local candidate output with UI projection and tests for required staged validation and decision preconditions.
+   - Boundary: local candidate output only; not production approval, release approval, or public-use approval.
+
+59. **Phase 159 completes the local operator workflow**
+   - Phase 159 must make the configure-to-export operator flow usable end to end, with UI workflow improvements, error drilldowns, run history/status summary, and end-to-end tests.
+   - Boundary: local beta workflow only; no production readiness, public release, installer, or deployment claim.
+
+60. **Phase 160 is the production-path alignment checkpoint**
+   - Phase 160 must decide whether controlled internal trial packaging may proceed and remap the next block.
+   - Boundary: alignment only; no implementation, public release approval, production approval, or automatic Release Candidate approval.
 
 ## Ladder-Preservation sequencing invariants
 
 The sequencing model preserves the Ladder-Preservation Invariant Set: Local operator testing, Controlled human trial, Early human-use candidate, Release candidate, Production candidate, and Public/general use are distinct rungs; No implicit promotion is allowed; Absence of blockers is not approval; Evidence assembly is not readiness; Dry runs are not release; Deployment is not release; Phase 120 is not production; Public/general use is always the final rung; No trust inference may be drawn from provider output or human feedback; No cross-category inference may combine sandbox, persistence, recovery, deployment, usability, observability, operator workflow, security, governance, transport, provider, release, or public-use evidence; and Roadmap continuation is required when mapped phases end before the ladder.
 
-Phase 141-145 are reconciled as a completed provider-output code-production block. Phase 146-150 are the next detailed block, not a final production/public-use roadmap. Phases 146-149 must produce usable, testable code or concrete executable artifacts, and Phase 150 remains an alignment checkpoint only. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 145 or Phase 150.
+Phase 141-145 are reconciled as a completed provider-output code-production block. Phase 146-149 completed staged proposal and operator decision work, and Phase 150 remaps Phases 151-160 as larger product capability phases toward a usable local beta. Every non-0/5 phase in the remapped block must produce visible UI capability, executable Rust capability, persisted local artifact, restore/replay/export capability, real adapter integration step, or end-to-end operator workflow improvement. Safety checks remain embedded in implementation phases. Public/general use remains a later final rung. Do not map Production Candidate or public/general-use as automatically following Phase 145 or Phase 150.
