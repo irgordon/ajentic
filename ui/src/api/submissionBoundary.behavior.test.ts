@@ -1,6 +1,7 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
 import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147 } from "./localOperatorShell";
+import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
 import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
@@ -785,6 +786,122 @@ function assertStagedCandidateConversionValidationNoAuthorityLeakage(): void {
   }
 }
 
+
+function assertCandidateReviewSurfaceInitialAndMissingStates(): void {
+  const transport = createLocalOperatorShellTransport();
+  const initial = getInitialLocalOperatorShellState(transport).state;
+  const initialReview = renderCandidateReviewSurface(initial);
+  assertContains(initialReview, "Candidate review surface", "candidate review panel visible initially");
+  assertContains(initialReview, "Candidate review surface is display-only in Phase 148.", "display-only phase copy");
+  assertContains(initialReview, "Review surface status: no_validated_staged_proposal", "initial no-review status");
+  assertContains(initialReview, "No validated staged proposal exists; candidate review surface is visible but unavailable", "initial unavailable message");
+  assertContains(initialReview, "Proposal ID: none", "missing proposal id visible");
+  assertContains(initialReview, "Source execution result ID: none", "missing source execution id visible");
+  assertContains(initialReview, "Validated staged proposal is not candidate output.", "not candidate output copy");
+  assertContains(initialReview, "Candidate materialization was not performed in Phase 148.", "phase 148 materialization boundary");
+  assertContains(initialReview, "Operator decision is not available in Phase 148.", "phase 148 operator boundary");
+  assertContains(initialReview, "Provider output remains untrusted and not approved.", "untrusted not approved boundary");
+
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 148 proposal no validation"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 148 proposal no validation" });
+  const proposalWithoutValidation = renderCandidateReviewSurface(transport.getCurrentState().state);
+  assertContains(proposalWithoutValidation, "Review surface status: no_validated_staged_proposal", "proposal without validation remains unavailable");
+  assertContains(proposalWithoutValidation, "Staged proposal validation status: not_validated", "not validated state visible");
+  assertContains(proposalWithoutValidation, "Proposal present: yes", "proposal presence visible without validation");
+}
+
+function assertCandidateReviewSurfaceValidatedState(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 148 validated review"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 148 validated review" });
+  const response = validateLocalStagedCandidateConversionProposal(transport);
+  const review = renderCandidateReviewSurface(response.state);
+  const proposal = response.state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected staged proposal");
+
+  assertContains(review, "Review surface status: validated_staged_proposal_review", "validated review status");
+  assertContains(review, `Proposal ID: ${proposal.proposalId}`, "proposal id visible");
+  assertContains(review, `Source provider kind: ${proposal.sourceProviderKind}`, "source provider kind visible");
+  assertContains(review, `Source execution result ID: ${proposal.sourceExecutionResultId}`, "source execution id visible");
+  assertContains(review, "Source validation status: reviewable_untrusted", "source validation visible");
+  assertContains(review, "Source reviewability status: reviewable_untrusted", "source reviewability visible");
+  assertContains(review, "Source candidate-boundary status: not_candidate_material", "source boundary visible");
+  assertContains(review, "Staged proposal validation status: staged_proposal_shape_valid", "validation status visible");
+  assertContains(review, "source_linkage_validated", "validation reason visible");
+  assertContains(review, "Deterministic linkage status: source_linkage_validated", "deterministic linkage visible");
+  assertContains(review, "Materialization status: candidate_materialization_not_performed, materialization_not_available_in_phase_148", "materialization boundary visible");
+  assertContains(review, "Future operator-decision boundary: future_operator_decision_required", "future operator boundary visible");
+  assertContains(review, "Trust status: untrusted_source, not_trusted, not_approved", "trust status visible");
+  assertContains(review, "Approval status: not_approved", "approval boundary visible");
+  assertContains(review, "No-effect summary: no_decision_ledger_effect", "no-effect summary visible");
+  assertContains(review, "Approval controls are reserved for a later bounded phase.", "approval controls boundary copy");
+  assertDoesNotContain(review, "Approve staged proposal", "no staged approve control");
+  assertDoesNotContain(review, "Reject staged proposal", "no staged reject control");
+  assertDoesNotContain(review, "Create candidate", "no candidate creation control");
+  assertDoesNotContain(review, "Candidate output:", "staged proposal not rendered as candidate output");
+}
+
+function assertCandidateReviewSurfaceRejectedAndInvalidStates(): void {
+  const state = phase147StagedProposalState();
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) throw new Error("expected staged proposal");
+  const drifted = {
+    ...state,
+    stagedCandidateConversionProposal: {
+      ...state.stagedCandidateConversionProposal,
+      proposal: { ...proposal, sourceExecutionResultId: "mismatched-source-execution-result" }
+    }
+  };
+  const rejected = validateStagedCandidateConversionProposalForPhase147(drifted).state;
+  const rejectedReview = renderCandidateReviewSurface(rejected);
+  assertContains(rejectedReview, "Review surface status: validated_staged_proposal_review_unavailable", "rejected review unavailable status");
+  assertContains(rejectedReview, "staged proposal validation was rejected", "rejection message visible");
+  assertContains(rejectedReview, "execution_result_id_mismatch", "mismatched linkage reason visible");
+  assertContains(rejectedReview, "Source execution result ID: mismatched-source-execution-result", "mismatched execution id visible");
+
+  const invalid = validateLocalStagedCandidateConversionProposal(createLocalOperatorShellTransport()).state;
+  const invalidReview = renderCandidateReviewSurface(invalid);
+  assertContains(invalidReview, "Review surface status: validated_staged_proposal_review_unavailable", "invalid input unavailable status");
+  assertContains(invalidReview, "validation input was invalid or missing", "invalid input message visible");
+  assertContains(invalidReview, "no_staged_proposal", "missing proposal reason visible");
+}
+
+function assertCandidateReviewSurfaceDisplayOnlyNonMutation(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
+  executeLocalProvider(transport, deterministicStubProviderExecutionRequest("phase 148 display-only"));
+  createLocalStagedCandidateConversionProposal(transport, { operatorNote: "phase 148 display-only" });
+  validateLocalStagedCandidateConversionProposal(transport);
+  const before = transport.getCurrentState().state;
+  const beforeLedger = before.decisionLedger.records.length;
+  const beforeReplay = JSON.stringify(before.run.decisionReplay);
+  const beforeExport = JSON.stringify(before.localSessionEvidenceExport);
+  const beforeConfiguration = JSON.stringify(before.providerConfiguration);
+  const beforeExecution = JSON.stringify(before.providerExecution);
+  const beforeValidation = JSON.stringify(before.stagedCandidateConversionValidation);
+  const beforeCandidate = before.run.candidate;
+  const first = renderCandidateReviewSurface(before);
+  const second = renderCandidateReviewSurface(before);
+  const after = transport.getCurrentState().state;
+
+  assertEqual(first, second, "candidate review rendering deterministic");
+  assertContains(first, "Display-only review does not mutate decision ledger, replay state, export state, provider configuration, provider execution state, staged proposal validation, or candidate output.", "display-only non-mutation copy");
+  assertEqual(after.decisionLedger.records.length, beforeLedger, "display-only review does not append decision ledger records");
+  assertEqual(JSON.stringify(after.run.decisionReplay), beforeReplay, "display-only review does not mutate replay state");
+  assertEqual(JSON.stringify(after.localSessionEvidenceExport), beforeExport, "display-only review does not mutate export state");
+  assertEqual(JSON.stringify(after.providerConfiguration), beforeConfiguration, "display-only review does not mutate provider configuration");
+  assertEqual(JSON.stringify(after.providerExecution), beforeExecution, "display-only review does not mutate provider execution state");
+  assertEqual(JSON.stringify(after.stagedCandidateConversionValidation), beforeValidation, "display-only review does not mutate staged validation state");
+  assertEqual(after.run.candidate, beforeCandidate, "display-only review does not create candidate output");
+
+  const lowered = first.toLowerCase();
+  for (const forbidden of ["safe output", "review ready", "validation ready", "candidate ready", "eligible for approval", "eligible for candidate", "validated proposal ready"]) {
+    assertDoesNotContain(lowered, forbidden, `${forbidden} absent from candidate review surface`);
+  }
+}
+
 function assertProviderOutputReviewUiIsDeterministicAndDisplayOnly(): void {
   const transport = createLocalOperatorShellTransport();
   submitLocalProviderConfiguration(transport, deterministicStubProviderConfigurationCandidate());
@@ -1295,6 +1412,23 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "staged_candidate_conversion_validation_no_authority_leakage",
     run: assertStagedCandidateConversionValidationNoAuthorityLeakage
+  },
+
+  {
+    name: "candidate_review_surface_initial_and_missing_states",
+    run: assertCandidateReviewSurfaceInitialAndMissingStates
+  },
+  {
+    name: "candidate_review_surface_validated_state",
+    run: assertCandidateReviewSurfaceValidatedState
+  },
+  {
+    name: "candidate_review_surface_rejected_and_invalid_states",
+    run: assertCandidateReviewSurfaceRejectedAndInvalidStates
+  },
+  {
+    name: "candidate_review_surface_display_only_non_mutation",
+    run: assertCandidateReviewSurfaceDisplayOnlyNonMutation
   },
   {
     name: "provider_output_review_ui_renders_initial_state",
