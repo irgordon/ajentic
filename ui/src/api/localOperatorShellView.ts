@@ -1,5 +1,6 @@
 import { projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
 import { renderProviderOutputReviewText } from "./providerOutputReview";
+import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 
 export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState): string {
   const decisionHistory = state.run.decisionTimeline.records.length === 0
@@ -183,6 +184,7 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Staged proposal validation",
     "Validate staged proposal shape/linkage",
     stagedValidationLines,
+    renderCandidateReviewSurface(state),
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",

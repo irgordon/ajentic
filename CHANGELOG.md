@@ -28,6 +28,57 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.148 - 2026-05-12
+**Status:** Phase 148 - Candidate Review Surface
+
+### Added
+- Add a visible candidate review surface for validated staged candidate-conversion proposals.
+- Add UI rendering for proposal linkage, staged validation status, validation reasons, materialization boundary, operator-decision boundary, trust/approval status, and no-effect summary.
+- Add explicit UI boundary text that validated staged proposals are not candidate output, candidate materialization was not performed, and operator decision is unavailable in Phase 148.
+- Add TypeScript behavior tests for candidate review rendering, unavailable/rejected states, no-authority UI copy, and display-only non-mutation boundaries.
+
+### Changed
+- Refine the local UI shell to make validated staged proposals easier to inspect without adding candidate materialization or approval controls.
+- Update checklists/current-phase.md to Phase 148 procedural truth.
+
+### Notes
+- Code-production phase.
+- Candidate review surface is display-only.
+- Validated staged proposal is not candidate output.
+- Candidate materialization is not performed.
+- Operator decision is not available in Phase 148.
+- Provider output remains untrusted.
+- Staged proposal remains not approved.
+- No candidate conversion.
+- No candidate replacement.
+- No candidate materialization.
+- No candidate approval.
+- No operator candidate decision.
+- No decision ledger mutation.
+- No replay mutation.
+- No export promotion.
+- No provider configuration mutation.
+- No provider execution trigger.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable proposal storage.
+- No durable validation storage.
+- No durable review storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 149 remains the next code-production phase for operator candidate decision boundary and Phase 150 handoff evidence.
+
 ## v0.0.147 - 2026-05-12
 **Status:** Phase 147 - Candidate Conversion Validation
 
