@@ -28,6 +28,40 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.153 - 2026-05-12
+**Status:** Phase 153 - Real Local Provider Adapter Contract
+
+### Added
+- Add Rust-owned local provider adapter contract, registry projection, capability surface, and validation.
+- Add non-executing adapter declaration support for deterministic fake/local adapter contract surfaces.
+- Add fail-closed rejection for unsupported, cloud, network, shell, filesystem, executable-path, secret-bearing, execution-bearing, trust-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, signing-bearing, or publishing-bearing adapter declarations.
+- Add UI rendering for adapter registry/configuration, validation status, and capability surface.
+- Add Rust and TypeScript tests for adapter declaration validation, rejected unsafe declarations, deterministic registry projection, and no-execution boundaries.
+
+### Changed
+- Extend the local operator shell projection with local provider adapter registry/configuration state.
+- Update the local UI shell to display adapter contract and registry state.
+- Update checklists/current-phase.md to Phase 153 procedural truth.
+
+### Notes
+- Code-production phase.
+- Adapter contract only.
+- No model execution.
+- No provider execution expansion.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No cloud calls.
+- No secret handling.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 154 remains the next code-production phase for controlled adapter dry-run harness.
+
 ## v0.0.152 - 2026-05-12
 **Status:** Phase 152 - Session History and Restore UI
 

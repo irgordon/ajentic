@@ -878,6 +878,545 @@ pub fn apply_local_provider_configuration_candidate(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterKind {
+    DeterministicFakeAdapter,
+    LocalModelAdapterContract,
+    UnsupportedLocalModel,
+    UnsupportedCloudModel,
+    UnsupportedNetworkAdapter,
+    UnsupportedShellAdapter,
+    UnsupportedFilesystemAdapter,
+    Unknown,
+}
+
+impl LocalProviderAdapterKind {
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "deterministic_fake_adapter" => Some(Self::DeterministicFakeAdapter),
+            "local_model_adapter_contract" => Some(Self::LocalModelAdapterContract),
+            "unsupported_local_model" => Some(Self::UnsupportedLocalModel),
+            "unsupported_cloud_model" => Some(Self::UnsupportedCloudModel),
+            "unsupported_network_adapter" => Some(Self::UnsupportedNetworkAdapter),
+            "unsupported_shell_adapter" => Some(Self::UnsupportedShellAdapter),
+            "unsupported_filesystem_adapter" => Some(Self::UnsupportedFilesystemAdapter),
+            "unknown" => Some(Self::Unknown),
+            _ => None,
+        }
+    }
+
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::DeterministicFakeAdapter => "deterministic_fake_adapter",
+            Self::LocalModelAdapterContract => "local_model_adapter_contract",
+            Self::UnsupportedLocalModel => "unsupported_local_model",
+            Self::UnsupportedCloudModel => "unsupported_cloud_model",
+            Self::UnsupportedNetworkAdapter => "unsupported_network_adapter",
+            Self::UnsupportedShellAdapter => "unsupported_shell_adapter",
+            Self::UnsupportedFilesystemAdapter => "unsupported_filesystem_adapter",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterValidationStatus {
+    RegistryProjected,
+    AdapterDeclaredNonExecuting,
+    AdapterRejected,
+    UnsupportedAdapter,
+    InvalidAdapterDeclaration,
+}
+
+impl LocalProviderAdapterValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::RegistryProjected => "registry_projected",
+            Self::AdapterDeclaredNonExecuting => "adapter_declared_non_executing",
+            Self::AdapterRejected => "adapter_rejected",
+            Self::UnsupportedAdapter => "unsupported_adapter",
+            Self::InvalidAdapterDeclaration => "invalid_adapter_declaration",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LocalProviderAdapterValidationError {
+    MissingAdapterKind,
+    MalformedAdapterKind,
+    UnsupportedAdapter,
+    CloudOrNetworkAdapterRejected,
+    ShellAdapterRejected,
+    FilesystemAdapterRejected,
+    ExecutablePathRejected,
+    EndpointFieldRejected,
+    CommandFieldRejected,
+    PathFieldRejected,
+    SecretFieldRejected,
+    ExecutionFlagRejected,
+    ProviderTrustFlagRejected,
+    ReadinessClaimRejected,
+    ReleaseClaimRejected,
+    DeploymentClaimRejected,
+    PublicUseClaimRejected,
+    SigningClaimRejected,
+    PublishingClaimRejected,
+    UnknownFieldRejected,
+}
+
+impl LocalProviderAdapterValidationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingAdapterKind => "missing_adapter_kind",
+            Self::MalformedAdapterKind => "malformed_adapter_kind",
+            Self::UnsupportedAdapter => "unsupported_adapter",
+            Self::CloudOrNetworkAdapterRejected => "cloud_or_network_adapter_rejected",
+            Self::ShellAdapterRejected => "shell_adapter_rejected",
+            Self::FilesystemAdapterRejected => "filesystem_adapter_rejected",
+            Self::ExecutablePathRejected => "executable_path_rejected",
+            Self::EndpointFieldRejected => "endpoint_field_rejected",
+            Self::CommandFieldRejected => "command_field_rejected",
+            Self::PathFieldRejected => "path_field_rejected",
+            Self::SecretFieldRejected => "secret_field_rejected",
+            Self::ExecutionFlagRejected => "execution_flag_rejected",
+            Self::ProviderTrustFlagRejected => "provider_trust_flag_rejected",
+            Self::ReadinessClaimRejected => "readiness_claim_rejected",
+            Self::ReleaseClaimRejected => "release_claim_rejected",
+            Self::DeploymentClaimRejected => "deployment_claim_rejected",
+            Self::PublicUseClaimRejected => "public_use_claim_rejected",
+            Self::SigningClaimRejected => "signing_claim_rejected",
+            Self::PublishingClaimRejected => "publishing_claim_rejected",
+            Self::UnknownFieldRejected => "unknown_field_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterExecutionStatus {
+    ExecutionNotAvailableInPhase153,
+}
+
+impl LocalProviderAdapterExecutionStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ExecutionNotAvailableInPhase153 => "execution_not_available_in_phase_153",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterTrustStatus {
+    NoProviderTrust,
+}
+
+impl LocalProviderAdapterTrustStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoProviderTrust => "no_provider_trust",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterBoundaryStatus {
+    ContractOnly,
+    NoExecution,
+    NoProviderTrust,
+    NoNetwork,
+    NoShell,
+    NoSecrets,
+    NoProductionPersistence,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl LocalProviderAdapterBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ContractOnly => "contract_only",
+            Self::NoExecution => "no_execution",
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoNetwork => "no_network",
+            Self::NoShell => "no_shell",
+            Self::NoSecrets => "no_secrets",
+            Self::NoProductionPersistence => "no_production_persistence",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterCapabilitySurface {
+    pub contract_only: bool,
+    pub no_execution: bool,
+    pub no_provider_trust: bool,
+    pub no_network: bool,
+    pub no_shell: bool,
+    pub no_secrets: bool,
+    pub no_production_persistence: bool,
+    pub no_readiness_effect: bool,
+    pub no_release_effect: bool,
+    pub no_deployment_effect: bool,
+    pub no_public_use_effect: bool,
+    pub summary: String,
+}
+
+pub fn local_provider_adapter_capability_surface() -> LocalProviderAdapterCapabilitySurface {
+    LocalProviderAdapterCapabilitySurface {
+        contract_only: true,
+        no_execution: true,
+        no_provider_trust: true,
+        no_network: true,
+        no_shell: true,
+        no_secrets: true,
+        no_production_persistence: true,
+        no_readiness_effect: true,
+        no_release_effect: true,
+        no_deployment_effect: true,
+        no_public_use_effect: true,
+        summary: "Adapter contract only; no model execution is available in Phase 153. No network, shell, secret, or production persistence capability is enabled.".to_string(),
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterContract {
+    pub adapter_kind: LocalProviderAdapterKind,
+    pub capability_surface: LocalProviderAdapterCapabilitySurface,
+    pub execution_status: LocalProviderAdapterExecutionStatus,
+    pub trust_status: LocalProviderAdapterTrustStatus,
+    pub boundary_statuses: Vec<LocalProviderAdapterBoundaryStatus>,
+}
+
+pub fn local_provider_adapter_contract(
+    adapter_kind: LocalProviderAdapterKind,
+) -> LocalProviderAdapterContract {
+    LocalProviderAdapterContract {
+        adapter_kind,
+        capability_surface: local_provider_adapter_capability_surface(),
+        execution_status: LocalProviderAdapterExecutionStatus::ExecutionNotAvailableInPhase153,
+        trust_status: LocalProviderAdapterTrustStatus::NoProviderTrust,
+        boundary_statuses: vec![
+            LocalProviderAdapterBoundaryStatus::ContractOnly,
+            LocalProviderAdapterBoundaryStatus::NoExecution,
+            LocalProviderAdapterBoundaryStatus::NoProviderTrust,
+            LocalProviderAdapterBoundaryStatus::NoNetwork,
+            LocalProviderAdapterBoundaryStatus::NoShell,
+            LocalProviderAdapterBoundaryStatus::NoSecrets,
+            LocalProviderAdapterBoundaryStatus::NoProductionPersistence,
+            LocalProviderAdapterBoundaryStatus::NoReadinessEffect,
+            LocalProviderAdapterBoundaryStatus::NoReleaseEffect,
+            LocalProviderAdapterBoundaryStatus::NoDeploymentEffect,
+            LocalProviderAdapterBoundaryStatus::NoPublicUseEffect,
+        ],
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterDeclaration {
+    pub adapter_kind: LocalProviderAdapterKind,
+    pub declaration_id: String,
+    pub status: LocalProviderAdapterValidationStatus,
+    pub contract: LocalProviderAdapterContract,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterConfigurationCandidate {
+    pub adapter_kind: Option<String>,
+    pub declaration_id: Option<String>,
+    pub fields: Vec<(String, String)>,
+}
+
+impl LocalProviderAdapterConfigurationCandidate {
+    pub fn deterministic_fake_adapter() -> Self {
+        Self {
+            adapter_kind: Some("deterministic_fake_adapter".to_string()),
+            declaration_id: Some("local-adapter-declaration-deterministic-fake".to_string()),
+            fields: Vec::new(),
+        }
+    }
+
+    pub fn local_model_adapter_contract() -> Self {
+        Self {
+            adapter_kind: Some("local_model_adapter_contract".to_string()),
+            declaration_id: Some("local-adapter-declaration-local-model-contract".to_string()),
+            fields: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterValidation {
+    pub status: LocalProviderAdapterValidationStatus,
+    pub adapter_kind: Option<LocalProviderAdapterKind>,
+    pub declaration_id: Option<String>,
+    pub error_codes: Vec<LocalProviderAdapterValidationError>,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterRegistryProjection {
+    pub registry_status: LocalProviderAdapterValidationStatus,
+    pub supported_adapter_kinds: Vec<String>,
+    pub rejected_adapter_kinds: Vec<String>,
+    pub declarations: Vec<LocalProviderAdapterDeclaration>,
+    pub last_validation: LocalProviderAdapterValidation,
+    pub capability_surface: LocalProviderAdapterCapabilitySurface,
+    pub execution_status: String,
+    pub trust_status: String,
+    pub boundary_statuses: Vec<String>,
+    pub note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterRegistry {
+    pub declarations: Vec<LocalProviderAdapterDeclaration>,
+    pub last_validation: LocalProviderAdapterValidation,
+}
+
+pub fn initial_local_provider_adapter_registry() -> LocalProviderAdapterRegistry {
+    LocalProviderAdapterRegistry {
+        declarations: Vec::new(),
+        last_validation: LocalProviderAdapterValidation {
+            status: LocalProviderAdapterValidationStatus::RegistryProjected,
+            adapter_kind: None,
+            declaration_id: None,
+            error_codes: Vec::new(),
+            reason: "initial local provider adapter registry projected; no adapter declarations execute in Phase 153".to_string(),
+        },
+    }
+}
+
+pub fn project_local_provider_adapter_registry(
+    registry: &LocalProviderAdapterRegistry,
+) -> LocalProviderAdapterRegistryProjection {
+    let boundary_statuses =
+        local_provider_adapter_contract(LocalProviderAdapterKind::DeterministicFakeAdapter)
+            .boundary_statuses
+            .iter()
+            .map(|status| status.code().to_string())
+            .collect();
+    LocalProviderAdapterRegistryProjection {
+        registry_status: LocalProviderAdapterValidationStatus::RegistryProjected,
+        supported_adapter_kinds: vec![
+            "deterministic_fake_adapter".to_string(),
+            "local_model_adapter_contract".to_string(),
+        ],
+        rejected_adapter_kinds: vec![
+            "unsupported_local_model".to_string(),
+            "unsupported_cloud_model".to_string(),
+            "unsupported_network_adapter".to_string(),
+            "unsupported_shell_adapter".to_string(),
+            "unsupported_filesystem_adapter".to_string(),
+            "unknown".to_string(),
+        ],
+        declarations: registry.declarations.clone(),
+        last_validation: registry.last_validation.clone(),
+        capability_surface: local_provider_adapter_capability_surface(),
+        execution_status: LocalProviderAdapterExecutionStatus::ExecutionNotAvailableInPhase153
+            .code()
+            .to_string(),
+        trust_status: LocalProviderAdapterTrustStatus::NoProviderTrust
+            .code()
+            .to_string(),
+        boundary_statuses,
+        note: "Adapter contract only; no model execution is available in Phase 153. Accepted adapter declarations are non-executing. Adapter declaration does not grant provider trust. No network, shell, secret, or production persistence capability is enabled.".to_string(),
+    }
+}
+
+pub fn validate_local_provider_adapter_declaration(
+    candidate: &LocalProviderAdapterConfigurationCandidate,
+) -> LocalProviderAdapterValidation {
+    let mut errors = std::collections::BTreeSet::new();
+    let parsed_kind = match candidate.adapter_kind.as_deref() {
+        None => {
+            errors.insert(LocalProviderAdapterValidationError::MissingAdapterKind);
+            None
+        }
+        Some(kind) if kind.trim().is_empty() => {
+            errors.insert(LocalProviderAdapterValidationError::MissingAdapterKind);
+            None
+        }
+        Some(kind) if kind.trim() != kind => {
+            errors.insert(LocalProviderAdapterValidationError::MalformedAdapterKind);
+            None
+        }
+        Some(kind) => match LocalProviderAdapterKind::parse(kind) {
+            Some(LocalProviderAdapterKind::DeterministicFakeAdapter) => {
+                Some(LocalProviderAdapterKind::DeterministicFakeAdapter)
+            }
+            Some(LocalProviderAdapterKind::LocalModelAdapterContract) => {
+                Some(LocalProviderAdapterKind::LocalModelAdapterContract)
+            }
+            Some(LocalProviderAdapterKind::UnsupportedCloudModel)
+            | Some(LocalProviderAdapterKind::UnsupportedNetworkAdapter) => {
+                errors.insert(LocalProviderAdapterValidationError::CloudOrNetworkAdapterRejected);
+                LocalProviderAdapterKind::parse(kind)
+            }
+            Some(LocalProviderAdapterKind::UnsupportedShellAdapter) => {
+                errors.insert(LocalProviderAdapterValidationError::ShellAdapterRejected);
+                Some(LocalProviderAdapterKind::UnsupportedShellAdapter)
+            }
+            Some(LocalProviderAdapterKind::UnsupportedFilesystemAdapter) => {
+                errors.insert(LocalProviderAdapterValidationError::FilesystemAdapterRejected);
+                Some(LocalProviderAdapterKind::UnsupportedFilesystemAdapter)
+            }
+            Some(other) => {
+                errors.insert(LocalProviderAdapterValidationError::UnsupportedAdapter);
+                Some(other)
+            }
+            None => {
+                errors.insert(LocalProviderAdapterValidationError::UnsupportedAdapter);
+                None
+            }
+        },
+    };
+
+    for (key, value) in &candidate.fields {
+        reject_forbidden_provider_adapter_declaration_field(key, value, &mut errors);
+    }
+
+    let error_codes: Vec<_> = errors.into_iter().collect();
+    if error_codes.is_empty()
+        && matches!(
+            parsed_kind,
+            Some(LocalProviderAdapterKind::DeterministicFakeAdapter)
+                | Some(LocalProviderAdapterKind::LocalModelAdapterContract)
+        )
+    {
+        return LocalProviderAdapterValidation {
+            status: LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting,
+            adapter_kind: parsed_kind,
+            declaration_id: candidate.declaration_id.clone(),
+            error_codes,
+            reason: "adapter declaration accepted as contract-only local projection; no provider execution, trust, network, shell, secrets, or production persistence is enabled".to_string(),
+        };
+    }
+
+    LocalProviderAdapterValidation {
+        status: if error_codes.contains(&LocalProviderAdapterValidationError::UnsupportedAdapter) {
+            LocalProviderAdapterValidationStatus::UnsupportedAdapter
+        } else {
+            LocalProviderAdapterValidationStatus::InvalidAdapterDeclaration
+        },
+        adapter_kind: parsed_kind,
+        declaration_id: candidate.declaration_id.clone(),
+        error_codes,
+        reason: "adapter declaration rejected fail-closed; prior registry projection remains unchanged and no provider execution occurs".to_string(),
+    }
+}
+
+pub fn reject_forbidden_provider_adapter_declaration_field(
+    key: &str,
+    value: &str,
+    errors: &mut std::collections::BTreeSet<LocalProviderAdapterValidationError>,
+) {
+    let lowered_key = key.to_ascii_lowercase();
+    let combined = format!("{}={}", lowered_key, value.to_ascii_lowercase());
+    if lowered_key == "label" || lowered_key == "description" {
+        return;
+    }
+    if ["endpoint", "url", "host", "port", "http", "network"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::EndpointFieldRejected);
+    } else if ["command", "args", "shell", "process"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::CommandFieldRejected);
+    } else if ["executable", "binary"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::ExecutablePathRejected);
+    } else if ["path", "file", "directory"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::PathFieldRejected);
+    } else if ["secret", "token", "api_key", "apikey", "credential"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::SecretFieldRejected);
+    } else if [
+        "provider_execution",
+        "execution_requested",
+        "execution_flag",
+    ]
+    .iter()
+    .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::ExecutionFlagRejected);
+    } else if ["trust_granted", "provider_trust", "trust_claimed"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::ProviderTrustFlagRejected);
+    } else if ["readiness", "ready"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::ReadinessClaimRejected);
+    } else if ["release"].iter().any(|needle| combined.contains(needle)) {
+        errors.insert(LocalProviderAdapterValidationError::ReleaseClaimRejected);
+    } else if ["deployment", "deploy"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::DeploymentClaimRejected);
+    } else if ["public_use", "public-use"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::PublicUseClaimRejected);
+    } else if ["signing"].iter().any(|needle| combined.contains(needle)) {
+        errors.insert(LocalProviderAdapterValidationError::SigningClaimRejected);
+    } else if ["publishing", "publish"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterValidationError::PublishingClaimRejected);
+    } else {
+        errors.insert(LocalProviderAdapterValidationError::UnknownFieldRejected);
+    }
+}
+
+pub fn apply_local_provider_adapter_declaration(
+    state: &LocalOperatorShellState,
+    candidate: LocalProviderAdapterConfigurationCandidate,
+) -> Result<LocalOperatorShellState, LocalProviderAdapterValidation> {
+    let validation = validate_local_provider_adapter_declaration(&candidate);
+    if validation.status != LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting {
+        return Err(validation);
+    }
+    let adapter_kind = validation
+        .adapter_kind
+        .expect("accepted adapter declaration includes adapter kind");
+    let declaration_id = validation
+        .declaration_id
+        .clone()
+        .unwrap_or_else(|| format!("local-adapter-declaration-{}", adapter_kind.code()));
+    let declaration = LocalProviderAdapterDeclaration {
+        adapter_kind,
+        declaration_id,
+        status: validation.status,
+        contract: local_provider_adapter_contract(adapter_kind),
+    };
+    let mut next = state.clone();
+    next.local_provider_adapter_registry = LocalProviderAdapterRegistry {
+        declarations: vec![declaration],
+        last_validation: validation,
+    };
+    Ok(attach_local_session_evidence_export(next))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalProviderExecutionStatus {
     NotExecuted,
     Executed,
@@ -4957,6 +5496,7 @@ pub struct LocalOperatorShellState {
     pub decision_ledger: LocalDecisionLedger,
     pub local_session_evidence_export: LocalSessionEvidenceExport,
     pub provider_configuration: LocalProviderConfiguration,
+    pub local_provider_adapter_registry: LocalProviderAdapterRegistry,
     pub provider_execution: LocalProviderExecutionProjection,
     pub provider_output_validation: LocalProviderOutputValidationProjection,
     pub staged_candidate_conversion_proposal: StagedCandidateConversionProposalProjection,
@@ -5176,6 +5716,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         decision_ledger: ledger,
         local_session_evidence_export: export,
         provider_configuration: initial_local_provider_configuration(),
+        local_provider_adapter_registry: initial_local_provider_adapter_registry(),
         provider_execution: initial_local_provider_execution_projection(),
         provider_output_validation: initial_local_provider_output_validation_projection(),
         staged_candidate_conversion_proposal:
@@ -5327,6 +5868,7 @@ pub enum LocalOperatorShellRequest {
     StartDeterministicStubRun,
     SubmitOperatorIntent(LocalOperatorIntent),
     SubmitProviderConfiguration(LocalProviderConfigurationCandidate),
+    SubmitProviderAdapterDeclaration(LocalProviderAdapterConfigurationCandidate),
     ExecuteProvider(LocalProviderExecutionRequest),
     CreateStagedCandidateConversionProposal(StagedCandidateConversionProposalRequest),
     ValidateStagedCandidateConversionProposal(StagedCandidateConversionValidationRequest),
@@ -5435,6 +5977,15 @@ pub fn submit_local_provider_configuration(
     ))
 }
 
+pub fn submit_local_provider_adapter_declaration(
+    transport: &mut LocalOperatorShellTransport,
+    candidate: LocalProviderAdapterConfigurationCandidate,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::SubmitProviderAdapterDeclaration(
+        candidate,
+    ))
+}
+
 pub fn execute_local_provider(
     transport: &mut LocalOperatorShellTransport,
     request: LocalProviderExecutionRequest,
@@ -5490,6 +6041,12 @@ pub fn local_operator_shell_transport_step(
         LocalOperatorShellRequest::SubmitProviderConfiguration(candidate) => {
             match apply_local_provider_configuration_candidate(state, candidate) {
                 Ok(next) => accepted("local_provider_configuration_accepted", next),
+                Err(validation) => rejected(validation.reason, state.clone()),
+            }
+        }
+        LocalOperatorShellRequest::SubmitProviderAdapterDeclaration(candidate) => {
+            match apply_local_provider_adapter_declaration(state, candidate) {
+                Ok(next) => accepted("local_provider_adapter_declaration_accepted", next),
                 Err(validation) => rejected(validation.reason, state.clone()),
             }
         }
@@ -6858,6 +7415,340 @@ mod tests {
                 "missing {expected_error:?} for {key}"
             );
         }
+    }
+
+    #[test]
+    fn phase_153_initial_adapter_registry_projection_is_deterministic() {
+        let state = initial_local_operator_shell_state();
+        let first = project_local_provider_adapter_registry(&state.local_provider_adapter_registry);
+        let second =
+            project_local_provider_adapter_registry(&state.local_provider_adapter_registry);
+
+        assert_eq!(first, second);
+        assert_eq!(
+            first.registry_status,
+            LocalProviderAdapterValidationStatus::RegistryProjected
+        );
+        assert!(first
+            .supported_adapter_kinds
+            .contains(&"deterministic_fake_adapter".to_string()));
+        assert!(first
+            .supported_adapter_kinds
+            .contains(&"local_model_adapter_contract".to_string()));
+        assert!(first
+            .rejected_adapter_kinds
+            .contains(&"unsupported_cloud_model".to_string()));
+        assert!(first.capability_surface.contract_only);
+        assert!(first.capability_surface.no_execution);
+        assert!(first.capability_surface.no_provider_trust);
+        assert!(first.capability_surface.no_network);
+        assert!(first.capability_surface.no_shell);
+        assert!(first.capability_surface.no_secrets);
+        assert!(first
+            .boundary_statuses
+            .contains(&"contract_only".to_string()));
+        assert!(first
+            .boundary_statuses
+            .contains(&"no_execution".to_string()));
+        assert_eq!(
+            first.execution_status,
+            "execution_not_available_in_phase_153"
+        );
+        assert_eq!(first.trust_status, "no_provider_trust");
+    }
+
+    #[test]
+    fn phase_153_accepts_non_executing_adapter_declarations() {
+        for candidate in [
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+            LocalProviderAdapterConfigurationCandidate::local_model_adapter_contract(),
+        ] {
+            let validation = validate_local_provider_adapter_declaration(&candidate);
+            assert_eq!(
+                validation.status,
+                LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting
+            );
+            let mut transport = LocalOperatorShellTransport::new();
+            let before = transport.current_state();
+            let response = submit_local_provider_adapter_declaration(&mut transport, candidate);
+            assert_eq!(response.status, LocalOperatorShellTransportStatus::Accepted);
+            assert_eq!(
+                response.reason,
+                "local_provider_adapter_declaration_accepted"
+            );
+            let projection = project_local_provider_adapter_registry(
+                &response.state.local_provider_adapter_registry,
+            );
+            assert_eq!(projection.declarations.len(), 1);
+            assert_eq!(
+                projection.declarations[0].status,
+                LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting
+            );
+            assert_eq!(
+                projection.declarations[0].contract.execution_status,
+                LocalProviderAdapterExecutionStatus::ExecutionNotAvailableInPhase153
+            );
+            assert_eq!(
+                projection.declarations[0].contract.trust_status,
+                LocalProviderAdapterTrustStatus::NoProviderTrust
+            );
+            assert!(projection.declarations[0]
+                .contract
+                .boundary_statuses
+                .contains(&LocalProviderAdapterBoundaryStatus::ContractOnly));
+            assert!(projection.declarations[0]
+                .contract
+                .boundary_statuses
+                .contains(&LocalProviderAdapterBoundaryStatus::NoExecution));
+            assert_eq!(response.state.run, before.run);
+            assert_eq!(response.state.provider_execution, before.provider_execution);
+            assert_eq!(
+                response.state.provider_output_validation,
+                before.provider_output_validation
+            );
+            assert_eq!(
+                response.state.staged_candidate_conversion_proposal,
+                before.staged_candidate_conversion_proposal
+            );
+            assert_eq!(
+                response.state.staged_candidate_conversion_validation,
+                before.staged_candidate_conversion_validation
+            );
+            assert_eq!(
+                response.state.operator_candidate_decision,
+                before.operator_candidate_decision
+            );
+            assert_eq!(
+                response.state.local_session_package_projection,
+                before.local_session_package_projection
+            );
+            assert_eq!(
+                response.state.local_session_history_projection,
+                before.local_session_history_projection
+            );
+            assert_eq!(
+                response.state.local_session_restore_projection,
+                before.local_session_restore_projection
+            );
+        }
+    }
+
+    #[test]
+    fn phase_153_unsupported_and_unsafe_adapter_declarations_fail_closed() {
+        let cases = [
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: None,
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::MissingAdapterKind,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("unknown".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::UnsupportedAdapter,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("mystery".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::UnsupportedAdapter,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("unsupported_cloud_model".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::CloudOrNetworkAdapterRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("unsupported_network_adapter".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::CloudOrNetworkAdapterRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("unsupported_shell_adapter".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::ShellAdapterRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("unsupported_filesystem_adapter".to_string()),
+                    declaration_id: None,
+                    fields: Vec::new(),
+                },
+                LocalProviderAdapterValidationError::FilesystemAdapterRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("executable_path".to_string(), "/bin/model".to_string())],
+                },
+                LocalProviderAdapterValidationError::ExecutablePathRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("endpoint".to_string(), "http://localhost".to_string())],
+                },
+                LocalProviderAdapterValidationError::EndpointFieldRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("command".to_string(), "run model".to_string())],
+                },
+                LocalProviderAdapterValidationError::CommandFieldRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("path".to_string(), "/tmp/model".to_string())],
+                },
+                LocalProviderAdapterValidationError::PathFieldRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("api_key".to_string(), "secret".to_string())],
+                },
+                LocalProviderAdapterValidationError::SecretFieldRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("execution_requested".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::ExecutionFlagRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("provider_trust_claimed".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::ProviderTrustFlagRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("readiness_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::ReadinessClaimRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("release_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::ReleaseClaimRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("deployment_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::DeploymentClaimRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("public_use_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::PublicUseClaimRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("signing_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::SigningClaimRejected,
+            ),
+            (
+                LocalProviderAdapterConfigurationCandidate {
+                    adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                    declaration_id: None,
+                    fields: vec![("publishing_claim".to_string(), "true".to_string())],
+                },
+                LocalProviderAdapterValidationError::PublishingClaimRejected,
+            ),
+        ];
+
+        for (candidate, expected_error) in cases {
+            let validation = validate_local_provider_adapter_declaration(&candidate);
+            assert_ne!(
+                validation.status,
+                LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting
+            );
+            assert!(
+                validation.error_codes.contains(&expected_error),
+                "missing {expected_error:?} in {:?}",
+                validation.error_codes
+            );
+        }
+    }
+
+    #[test]
+    fn phase_153_rejected_adapter_declaration_preserves_prior_registry() {
+        let mut transport = LocalOperatorShellTransport::new();
+        let accepted = submit_local_provider_adapter_declaration(
+            &mut transport,
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        );
+        assert_eq!(accepted.status, LocalOperatorShellTransportStatus::Accepted);
+        let rejected = submit_local_provider_adapter_declaration(
+            &mut transport,
+            LocalProviderAdapterConfigurationCandidate {
+                adapter_kind: Some("deterministic_fake_adapter".to_string()),
+                declaration_id: Some("unsafe-adapter".to_string()),
+                fields: vec![("token".to_string(), "secret".to_string())],
+            },
+        );
+        assert_eq!(rejected.status, LocalOperatorShellTransportStatus::Rejected);
+        assert_eq!(
+            rejected.state.local_provider_adapter_registry,
+            accepted.state.local_provider_adapter_registry
+        );
+        assert_eq!(
+            transport.current_state().local_provider_adapter_registry,
+            accepted.state.local_provider_adapter_registry
+        );
+    }
+
+    #[test]
+    fn phase_153_adapter_validation_is_deterministic() {
+        let candidate = LocalProviderAdapterConfigurationCandidate {
+            adapter_kind: Some("deterministic_fake_adapter".to_string()),
+            declaration_id: Some("deterministic".to_string()),
+            fields: vec![("command".to_string(), "run model".to_string())],
+        };
+        let first = validate_local_provider_adapter_declaration(&candidate);
+        let second = validate_local_provider_adapter_declaration(&candidate);
+        assert_eq!(first, second);
     }
 
     #[test]

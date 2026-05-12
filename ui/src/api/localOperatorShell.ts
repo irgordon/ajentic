@@ -459,6 +459,293 @@ export function applyLocalProviderConfigurationCandidate(
 }
 
 
+export type LocalProviderAdapterKind =
+  | "deterministic_fake_adapter"
+  | "local_model_adapter_contract"
+  | "unsupported_local_model"
+  | "unsupported_cloud_model"
+  | "unsupported_network_adapter"
+  | "unsupported_shell_adapter"
+  | "unsupported_filesystem_adapter"
+  | "unknown";
+export type LocalProviderAdapterValidationStatus =
+  | "registry_projected"
+  | "adapter_declared_non_executing"
+  | "adapter_rejected"
+  | "unsupported_adapter"
+  | "invalid_adapter_declaration";
+export type LocalProviderAdapterValidationError =
+  | "missing_adapter_kind"
+  | "malformed_adapter_kind"
+  | "unsupported_adapter"
+  | "cloud_or_network_adapter_rejected"
+  | "shell_adapter_rejected"
+  | "filesystem_adapter_rejected"
+  | "executable_path_rejected"
+  | "endpoint_field_rejected"
+  | "command_field_rejected"
+  | "path_field_rejected"
+  | "secret_field_rejected"
+  | "execution_flag_rejected"
+  | "provider_trust_flag_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected"
+  | "unknown_field_rejected";
+export type LocalProviderAdapterExecutionStatus = "execution_not_available_in_phase_153";
+export type LocalProviderAdapterTrustStatus = "no_provider_trust";
+export type LocalProviderAdapterBoundaryStatus =
+  | "contract_only"
+  | "no_execution"
+  | "no_provider_trust"
+  | "no_network"
+  | "no_shell"
+  | "no_secrets"
+  | "no_production_persistence"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+
+export type LocalProviderAdapterCapabilitySurface = Readonly<{
+  contractOnly: true;
+  noExecution: true;
+  noProviderTrust: true;
+  noNetwork: true;
+  noShell: true;
+  noSecrets: true;
+  noProductionPersistence: true;
+  noReadinessEffect: true;
+  noReleaseEffect: true;
+  noDeploymentEffect: true;
+  noPublicUseEffect: true;
+  summary: string;
+}>;
+
+export type LocalProviderAdapterContract = Readonly<{
+  adapterKind: LocalProviderAdapterKind;
+  capabilitySurface: LocalProviderAdapterCapabilitySurface;
+  executionStatus: LocalProviderAdapterExecutionStatus;
+  trustStatus: LocalProviderAdapterTrustStatus;
+  boundaryStatuses: readonly LocalProviderAdapterBoundaryStatus[];
+}>;
+
+export type LocalProviderAdapterDeclaration = Readonly<{
+  adapterKind: LocalProviderAdapterKind;
+  declarationId: string;
+  status: LocalProviderAdapterValidationStatus;
+  contract: LocalProviderAdapterContract;
+}>;
+
+export type LocalProviderAdapterConfigurationCandidate = Readonly<{
+  adapterKind?: string;
+  declarationId?: string;
+  fields?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+export type LocalProviderAdapterValidation = Readonly<{
+  status: LocalProviderAdapterValidationStatus;
+  adapterKind: LocalProviderAdapterKind | null;
+  declarationId: string | null;
+  errorCodes: readonly LocalProviderAdapterValidationError[];
+  reason: string;
+}>;
+
+export type LocalProviderAdapterRegistry = Readonly<{
+  declarations: readonly LocalProviderAdapterDeclaration[];
+  lastValidation: LocalProviderAdapterValidation;
+}>;
+
+export type LocalProviderAdapterRegistryProjection = Readonly<{
+  registryStatus: LocalProviderAdapterValidationStatus;
+  supportedAdapterKinds: readonly LocalProviderAdapterKind[];
+  rejectedAdapterKinds: readonly LocalProviderAdapterKind[];
+  declarations: readonly LocalProviderAdapterDeclaration[];
+  lastValidation: LocalProviderAdapterValidation;
+  capabilitySurface: LocalProviderAdapterCapabilitySurface;
+  executionStatus: LocalProviderAdapterExecutionStatus;
+  trustStatus: LocalProviderAdapterTrustStatus;
+  boundaryStatuses: readonly LocalProviderAdapterBoundaryStatus[];
+  note: string;
+}>;
+
+const supportedLocalProviderAdapterKinds: readonly LocalProviderAdapterKind[] = [
+  "deterministic_fake_adapter",
+  "local_model_adapter_contract",
+  "unsupported_local_model",
+  "unsupported_cloud_model",
+  "unsupported_network_adapter",
+  "unsupported_shell_adapter",
+  "unsupported_filesystem_adapter",
+  "unknown"
+];
+
+export function deterministicFakeAdapterDeclarationCandidate(): LocalProviderAdapterConfigurationCandidate {
+  return { adapterKind: "deterministic_fake_adapter", declarationId: "local-adapter-declaration-deterministic-fake", fields: [] };
+}
+
+export function localModelAdapterContractDeclarationCandidate(): LocalProviderAdapterConfigurationCandidate {
+  return { adapterKind: "local_model_adapter_contract", declarationId: "local-adapter-declaration-local-model-contract", fields: [] };
+}
+
+export function localProviderAdapterCapabilitySurface(): LocalProviderAdapterCapabilitySurface {
+  return {
+    contractOnly: true,
+    noExecution: true,
+    noProviderTrust: true,
+    noNetwork: true,
+    noShell: true,
+    noSecrets: true,
+    noProductionPersistence: true,
+    noReadinessEffect: true,
+    noReleaseEffect: true,
+    noDeploymentEffect: true,
+    noPublicUseEffect: true,
+    summary: "Adapter contract only; no model execution is available in Phase 153. No network, shell, secret, or production persistence capability is enabled."
+  };
+}
+
+export function localProviderAdapterContract(adapterKind: LocalProviderAdapterKind): LocalProviderAdapterContract {
+  return {
+    adapterKind,
+    capabilitySurface: localProviderAdapterCapabilitySurface(),
+    executionStatus: "execution_not_available_in_phase_153",
+    trustStatus: "no_provider_trust",
+    boundaryStatuses: [
+      "contract_only",
+      "no_execution",
+      "no_provider_trust",
+      "no_network",
+      "no_shell",
+      "no_secrets",
+      "no_production_persistence",
+      "no_readiness_effect",
+      "no_release_effect",
+      "no_deployment_effect",
+      "no_public_use_effect"
+    ]
+  };
+}
+
+export function initialLocalProviderAdapterRegistry(): LocalProviderAdapterRegistry {
+  return {
+    declarations: [],
+    lastValidation: {
+      status: "registry_projected",
+      adapterKind: null,
+      declarationId: null,
+      errorCodes: [],
+      reason: "initial local provider adapter registry projected; no adapter declarations execute in Phase 153"
+    }
+  };
+}
+
+export function projectLocalProviderAdapterRegistry(registry: LocalProviderAdapterRegistry): LocalProviderAdapterRegistryProjection {
+  return {
+    registryStatus: "registry_projected",
+    supportedAdapterKinds: ["deterministic_fake_adapter", "local_model_adapter_contract"],
+    rejectedAdapterKinds: ["unsupported_local_model", "unsupported_cloud_model", "unsupported_network_adapter", "unsupported_shell_adapter", "unsupported_filesystem_adapter", "unknown"],
+    declarations: registry.declarations,
+    lastValidation: registry.lastValidation,
+    capabilitySurface: localProviderAdapterCapabilitySurface(),
+    executionStatus: "execution_not_available_in_phase_153",
+    trustStatus: "no_provider_trust",
+    boundaryStatuses: localProviderAdapterContract("deterministic_fake_adapter").boundaryStatuses,
+    note: "Adapter contract only; no model execution is available in Phase 153. Accepted adapter declarations are non-executing. Adapter declaration does not grant provider trust. No network, shell, secret, or production persistence capability is enabled."
+  };
+}
+
+function forbiddenProviderAdapterDeclarationField(key: string, value: string): LocalProviderAdapterValidationError | null {
+  const loweredKey = key.toLowerCase();
+  const combined = `${loweredKey}=${value.toLowerCase()}`;
+  if (loweredKey === "label" || loweredKey === "description") return null;
+  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "endpoint_field_rejected";
+  if (["command", "args", "shell", "process"].some((needle) => combined.includes(needle))) return "command_field_rejected";
+  if (["executable", "binary"].some((needle) => combined.includes(needle))) return "executable_path_rejected";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "path_field_rejected";
+  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "secret_field_rejected";
+  if (["provider_execution", "execution_requested", "execution_flag"].some((needle) => combined.includes(needle))) return "execution_flag_rejected";
+  if (["trust_granted", "provider_trust", "trust_claimed"].some((needle) => combined.includes(needle))) return "provider_trust_flag_rejected";
+  if (["readiness", "ready"].some((needle) => combined.includes(needle))) return "readiness_claim_rejected";
+  if (combined.includes("release")) return "release_claim_rejected";
+  if (["deployment", "deploy"].some((needle) => combined.includes(needle))) return "deployment_claim_rejected";
+  if (["public_use", "public-use"].some((needle) => combined.includes(needle))) return "public_use_claim_rejected";
+  if (combined.includes("signing")) return "signing_claim_rejected";
+  if (["publishing", "publish"].some((needle) => combined.includes(needle))) return "publishing_claim_rejected";
+  return "unknown_field_rejected";
+}
+
+export function validateLocalProviderAdapterDeclaration(candidate: LocalProviderAdapterConfigurationCandidate): LocalProviderAdapterValidation {
+  const errors = new Set<LocalProviderAdapterValidationError>();
+  let adapterKind: LocalProviderAdapterKind | null = null;
+  const rawKind = candidate.adapterKind;
+  if (rawKind === undefined || rawKind.trim().length === 0) {
+    errors.add("missing_adapter_kind");
+  } else if (rawKind.trim() !== rawKind) {
+    errors.add("malformed_adapter_kind");
+  } else if (supportedLocalProviderAdapterKinds.includes(rawKind as LocalProviderAdapterKind)) {
+    adapterKind = rawKind as LocalProviderAdapterKind;
+    if (adapterKind === "unsupported_cloud_model" || adapterKind === "unsupported_network_adapter") errors.add("cloud_or_network_adapter_rejected");
+    else if (adapterKind === "unsupported_shell_adapter") errors.add("shell_adapter_rejected");
+    else if (adapterKind === "unsupported_filesystem_adapter") errors.add("filesystem_adapter_rejected");
+    else if (adapterKind !== "deterministic_fake_adapter" && adapterKind !== "local_model_adapter_contract") errors.add("unsupported_adapter");
+  } else {
+    errors.add("unsupported_adapter");
+  }
+
+  for (const field of candidate.fields ?? []) {
+    const error = forbiddenProviderAdapterDeclarationField(field.key, field.value);
+    if (error) errors.add(error);
+  }
+
+  const errorCodes = [...errors].sort();
+  if (errorCodes.length === 0 && (adapterKind === "deterministic_fake_adapter" || adapterKind === "local_model_adapter_contract")) {
+    return {
+      status: "adapter_declared_non_executing",
+      adapterKind,
+      declarationId: candidate.declarationId ?? null,
+      errorCodes: [],
+      reason: "adapter declaration accepted as contract-only local projection; no provider execution, trust, network, shell, secrets, or production persistence is enabled"
+    };
+  }
+  return {
+    status: errors.has("unsupported_adapter") ? "unsupported_adapter" : "invalid_adapter_declaration",
+    adapterKind,
+    declarationId: candidate.declarationId ?? null,
+    errorCodes,
+    reason: "adapter declaration rejected fail-closed; prior registry projection remains unchanged and no provider execution occurs"
+  };
+}
+
+export function applyLocalProviderAdapterDeclaration(
+  state: LocalOperatorShellState,
+  candidate: LocalProviderAdapterConfigurationCandidate
+): LocalOperatorIntentResult {
+  const validation = validateLocalProviderAdapterDeclaration(candidate);
+  if (validation.status !== "adapter_declared_non_executing" || !validation.adapterKind) return { status: "rejected", reason: validation.reason, state };
+  const declaration: LocalProviderAdapterDeclaration = {
+    adapterKind: validation.adapterKind,
+    declarationId: validation.declarationId ?? `local-adapter-declaration-${validation.adapterKind}`,
+    status: validation.status,
+    contract: localProviderAdapterContract(validation.adapterKind)
+  };
+  return {
+    status: "accepted",
+    reason: "local_provider_adapter_declaration_accepted",
+    state: attachLocalSessionEvidenceExport({
+      ...state,
+      localProviderAdapterRegistry: {
+        declarations: [declaration],
+        lastValidation: validation
+      }
+    })
+  };
+}
+
+
 export type LocalProviderExecutionStatus =
   | "not_executed"
   | "executed"
@@ -1923,6 +2210,7 @@ export type LocalOperatorShellState = Readonly<{
   decisionLedger: LocalDecisionLedger;
   localSessionEvidenceExport: LocalSessionEvidenceExport;
   providerConfiguration: LocalProviderConfiguration;
+  localProviderAdapterRegistry: LocalProviderAdapterRegistry;
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
@@ -2047,6 +2335,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     },
     decisionLedger,
     providerConfiguration: initialLocalProviderConfiguration(),
+    localProviderAdapterRegistry: initialLocalProviderAdapterRegistry(),
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
     stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection(),

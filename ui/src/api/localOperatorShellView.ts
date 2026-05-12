@@ -1,4 +1,4 @@
-import { projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
+import { projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, projectLocalProviderOutputValidation, type LocalOperatorShellState } from "./localOperatorShell";
 import { renderProviderOutputReviewText } from "./providerOutputReview";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 
@@ -38,8 +38,36 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
   ].join("\n");
 
   const providerConfiguration = projectLocalProviderConfiguration(state.providerConfiguration);
+  const adapterRegistry = projectLocalProviderAdapterRegistry(state.localProviderAdapterRegistry);
   const providerExecution = projectLocalProviderExecution(state);
   const providerOutputValidation = projectLocalProviderOutputValidation(state);
+  const adapterDeclarations = adapterRegistry.declarations.length === 0
+    ? "Adapter declarations: none"
+    : adapterRegistry.declarations
+        .map((declaration) => [
+          `Adapter declaration: ${declaration.declarationId}`,
+          `Adapter kind: ${declaration.adapterKind}`,
+          `Declaration/configuration status: ${declaration.status}`,
+          `Execution status: ${declaration.contract.executionStatus}`,
+          `Trust status: ${declaration.contract.trustStatus}`,
+          `Boundary status: ${declaration.contract.boundaryStatuses.join(", ")}`
+        ].join("\n"))
+        .join("\n");
+  const adapterRegistryLines = [
+    `Registry status: ${adapterRegistry.registryStatus}`,
+    `Supported adapter declarations: ${adapterRegistry.supportedAdapterKinds.join(", ")}`,
+    `Rejected adapter declarations: ${adapterRegistry.rejectedAdapterKinds.join(", ")}`,
+    `Validation status: ${adapterRegistry.lastValidation.status}`,
+    `Validation reason: ${adapterRegistry.lastValidation.reason}`,
+    `Validation error/reason code: ${adapterRegistry.lastValidation.errorCodes.join(", ") || "none"}`,
+    `Capability surface: ${adapterRegistry.capabilitySurface.summary}`,
+    `Execution status: ${adapterRegistry.executionStatus}`,
+    `Trust status: ${adapterRegistry.trustStatus}`,
+    `Boundary status: ${adapterRegistry.boundaryStatuses.join(", ")}`,
+    adapterDeclarations,
+    adapterRegistry.note
+  ].join("\n");
+
   const providerConfigurationLines = [
     `Configured provider kind: ${providerConfiguration.configuredProviderKind}`,
     `Provider configuration status: ${providerConfiguration.status}`,
@@ -212,6 +240,10 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     `Selected operator intent: ${state.run.selectedIntent ?? "none"}`,
     "Local decision ledger",
     decisionHistory,
+    "Local provider adapter contract",
+    "Adapter registry",
+    "Adapter configuration",
+    adapterRegistryLines,
     "Local provider configuration",
     providerConfigurationLines,
     "Sandboxed provider execution",

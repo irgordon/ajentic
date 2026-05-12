@@ -1,9 +1,9 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff, initialLocalSessionRestoreProjection, projectLocalSessionHistoryFromPackages, projectLocalSessionRestoreFromPackageProjection } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicFakeAdapterDeclarationCandidate, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff, initialLocalSessionRestoreProjection, projectLocalSessionHistoryFromPackages, projectLocalSessionRestoreFromPackageProjection, validateLocalProviderAdapterDeclaration, projectLocalProviderAdapterRegistry } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration, submitLocalProviderAdapterDeclaration } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -225,6 +225,90 @@ function assertLocalOperatorShellEvidenceExportIsDeterministic(): void {
   assertContains(first.absenceMarkers.markerSummary.join(", "), "deployment absent", "deployment absence marker");
   assertContains(first.absenceMarkers.markerSummary.join(", "), "readiness absent", "readiness absence marker");
   assertEqual(accepted.state.decisionLedger.records.length, 1, "derive leaves ledger length unchanged");
+}
+
+
+function assertLocalProviderAdapterPanelRendersInitialState(): void {
+  const response = getInitialLocalOperatorShellState(createLocalOperatorShellTransport());
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Local provider adapter contract", "adapter contract panel visible");
+  assertContains(rendered, "Adapter registry", "adapter registry panel visible");
+  assertContains(rendered, "Adapter configuration", "adapter configuration panel visible");
+  assertContains(rendered, "Registry status: registry_projected", "registry status visible");
+  assertContains(rendered, "Supported adapter declarations: deterministic_fake_adapter, local_model_adapter_contract", "supported adapters visible");
+  assertContains(rendered, "Rejected adapter declarations: unsupported_local_model, unsupported_cloud_model, unsupported_network_adapter", "rejected adapters visible");
+  assertContains(rendered, "execution_not_available_in_phase_153", "phase 153 execution boundary visible");
+  assertContains(rendered, "no_provider_trust", "provider trust boundary visible");
+  assertContains(rendered, "no_network", "network absence visible");
+  assertContains(rendered, "no_shell", "shell absence visible");
+  assertContains(rendered, "no_secrets", "secret absence visible");
+  assertContains(rendered, "Adapter contract only; no model execution is available in Phase 153.", "required phase 153 wording");
+  assertContains(rendered, "Accepted adapter declarations are non-executing.", "non-executing wording");
+  assertContains(rendered, "Adapter declaration does not grant provider trust.", "trust wording");
+}
+
+function assertLocalProviderAdapterAcceptsAndRejectsDeclarations(): void {
+  const transport = createLocalOperatorShellTransport();
+  const before = transport.getCurrentState().state;
+  const accepted = submitLocalProviderAdapterDeclaration(transport, deterministicFakeAdapterDeclarationCandidate());
+  assertEqual(accepted.status, "accepted", "adapter declaration accepted");
+  assertEqual(accepted.reason, "local_provider_adapter_declaration_accepted", "adapter declaration reason");
+  assertEqual(accepted.state.localProviderAdapterRegistry.declarations.length, 1, "accepted adapter declaration count");
+  assertEqual(accepted.state.providerExecution, before.providerExecution, "adapter declaration does not mutate provider execution");
+  assertEqual(accepted.state.providerOutputValidation, before.providerOutputValidation, "adapter declaration does not mutate provider validation");
+  assertEqual(accepted.state.stagedCandidateConversionProposal, before.stagedCandidateConversionProposal, "adapter declaration does not mutate staged proposal");
+  assertEqual(accepted.state.stagedCandidateConversionValidation, before.stagedCandidateConversionValidation, "adapter declaration does not mutate staged validation");
+  assertEqual(accepted.state.operatorCandidateDecision, before.operatorCandidateDecision, "adapter declaration does not mutate operator decision");
+  assertEqual(accepted.state.localSessionPackageProjection, before.localSessionPackageProjection, "adapter declaration does not mutate session package");
+  assertEqual(accepted.state.localSessionHistoryProjection, before.localSessionHistoryProjection, "adapter declaration does not mutate session history");
+  assertEqual(accepted.state.localSessionRestoreProjection, before.localSessionRestoreProjection, "adapter declaration does not mutate restore projection");
+  const acceptedRendered = renderLocalOperatorShellSnapshot(accepted.state);
+  assertContains(acceptedRendered, "Adapter kind: deterministic_fake_adapter", "accepted adapter kind visible");
+  assertContains(acceptedRendered, "Declaration/configuration status: adapter_declared_non_executing", "accepted adapter status visible");
+  assertContains(acceptedRendered, "contract_only", "contract-only boundary visible");
+
+  const rejected = submitLocalProviderAdapterDeclaration(transport, { adapterKind: "unsupported_cloud_model", declarationId: "bad-cloud", fields: [] });
+  assertEqual(rejected.status, "rejected", "unsafe adapter declaration rejected");
+  assertEqual(rejected.state.localProviderAdapterRegistry, accepted.state.localProviderAdapterRegistry, "rejected adapter preserves registry");
+  assertContains(renderLocalOperatorShellSnapshot(rejected.state), "Local provider adapter contract", "UI remains usable after adapter rejection");
+}
+
+function assertLocalProviderAdapterValidationRejectsUnsafeDeclarations(): void {
+  const cases = [
+    { adapterKind: undefined, fields: [], expected: "missing_adapter_kind" },
+    { adapterKind: "unknown", fields: [], expected: "unsupported_adapter" },
+    { adapterKind: "unsupported_network_adapter", fields: [], expected: "cloud_or_network_adapter_rejected" },
+    { adapterKind: "unsupported_shell_adapter", fields: [], expected: "shell_adapter_rejected" },
+    { adapterKind: "unsupported_filesystem_adapter", fields: [], expected: "filesystem_adapter_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "executable_path", value: "/bin/model" }], expected: "executable_path_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "url", value: "http://localhost" }], expected: "endpoint_field_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "args", value: "--serve" }], expected: "command_field_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "directory", value: "/models" }], expected: "path_field_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "token", value: "secret" }], expected: "secret_field_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "execution_requested", value: "true" }], expected: "execution_flag_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "provider_trust_claimed", value: "true" }], expected: "provider_trust_flag_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "readiness_claim", value: "true" }], expected: "readiness_claim_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "release_claim", value: "true" }], expected: "release_claim_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "deployment_claim", value: "true" }], expected: "deployment_claim_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "public_use_claim", value: "true" }], expected: "public_use_claim_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "signing_claim", value: "true" }], expected: "signing_claim_rejected" },
+    { adapterKind: "deterministic_fake_adapter", fields: [{ key: "publishing_claim", value: "true" }], expected: "publishing_claim_rejected" }
+  ] as const;
+  for (const testCase of cases) {
+    const validation = validateLocalProviderAdapterDeclaration(testCase);
+    if (validation.status === "adapter_declared_non_executing") throw new Error(`Assertion failed: unsafe adapter rejected ${testCase.expected}`);
+    assertContains(validation.errorCodes.join(","), testCase.expected, `unsafe adapter error ${testCase.expected}`);
+  }
+}
+
+function assertLocalProviderAdapterProjectionIsDeterministic(): void {
+  const registry = initialLocalOperatorShellState().localProviderAdapterRegistry;
+  const first = projectLocalProviderAdapterRegistry(registry);
+  const second = projectLocalProviderAdapterRegistry(registry);
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic adapter registry projection");
+  const validationA = validateLocalProviderAdapterDeclaration({ adapterKind: "deterministic_fake_adapter", fields: [{ key: "command", value: "run" }] });
+  const validationB = validateLocalProviderAdapterDeclaration({ adapterKind: "deterministic_fake_adapter", fields: [{ key: "command", value: "run" }] });
+  assertEqual(JSON.stringify(validationA), JSON.stringify(validationB), "deterministic adapter validation");
 }
 
 function assertLocalProviderConfigurationPanelRendersInitialState(): void {
@@ -1528,6 +1612,22 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_operator_shell_evidence_export_is_deterministic",
     run: assertLocalOperatorShellEvidenceExportIsDeterministic
+  },
+  {
+    name: "local_provider_adapter_panel_renders_initial_state",
+    run: assertLocalProviderAdapterPanelRendersInitialState
+  },
+  {
+    name: "local_provider_adapter_accepts_and_rejects_declarations",
+    run: assertLocalProviderAdapterAcceptsAndRejectsDeclarations
+  },
+  {
+    name: "local_provider_adapter_validation_rejects_unsafe_declarations",
+    run: assertLocalProviderAdapterValidationRejectsUnsafeDeclarations
+  },
+  {
+    name: "local_provider_adapter_projection_is_deterministic",
+    run: assertLocalProviderAdapterProjectionIsDeterministic
   },
   {
     name: "local_provider_configuration_panel_renders_initial_state",

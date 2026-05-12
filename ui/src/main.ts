@@ -1,4 +1,4 @@
-import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
+import { deterministicFakeAdapterDeclarationCandidate, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, projectLocalProviderAdapterRegistry, projectLocalProviderConfiguration, projectLocalProviderExecution, type LocalOperatorIntentKind, type LocalOperatorShellState } from "./api/localOperatorShell.js";
 import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
 import {
   createLocalOperatorShellTransport,
@@ -9,6 +9,7 @@ import {
   validateLocalStagedCandidateConversionProposal,
   submitLocalOperatorIntent,
   submitLocalProviderConfiguration,
+  submitLocalProviderAdapterDeclaration,
   type LocalOperatorShellResponse
 } from "./api/localOperatorShellTransport.js";
 
@@ -33,6 +34,18 @@ function recordIntent(kind: LocalOperatorIntentKind): void {
     targetRunId: shellState.run.runId,
     targetCandidateId: shellState.run.candidate?.candidateId,
     reason: `${kind} selected in local non-production browser shell`
+  }));
+}
+
+function submitAdapterDeclaration(): void {
+  applyTransportResponse(submitLocalProviderAdapterDeclaration(transport, deterministicFakeAdapterDeclarationCandidate()));
+}
+
+function submitUnsafeAdapterDeclaration(): void {
+  applyTransportResponse(submitLocalProviderAdapterDeclaration(transport, {
+    adapterKind: "unsupported_network_adapter",
+    declarationId: "unsafe-network-adapter-declaration",
+    fields: []
   }));
 }
 
@@ -86,6 +99,37 @@ function renderCandidate(state: LocalOperatorShellState): string {
     </dl>`;
 }
 
+
+
+function renderAdapterRegistry(state: LocalOperatorShellState): string {
+  const registry = projectLocalProviderAdapterRegistry(state.localProviderAdapterRegistry);
+  const declarations = registry.declarations.length === 0
+    ? `<p class="muted">No accepted adapter declarations yet.</p>`
+    : `<ul>${registry.declarations.map((declaration) => `<li>${declaration.declarationId}: ${declaration.adapterKind} / ${declaration.status} / ${declaration.contract.executionStatus} / ${declaration.contract.trustStatus}</li>`).join("")}</ul>`;
+  return `
+    <p><strong>Adapter contract only; no model execution is available in Phase 153.</strong></p>
+    <p>Accepted adapter declarations are non-executing.</p>
+    <p>Adapter declaration does not grant provider trust.</p>
+    <p>No network, shell, secret, or production persistence capability is enabled.</p>
+    <dl>
+      <div><dt>Registry status</dt><dd>${registry.registryStatus}</dd></div>
+      <div><dt>Supported adapter declarations</dt><dd>${registry.supportedAdapterKinds.join(", ")}</dd></div>
+      <div><dt>Rejected adapter declarations</dt><dd>${registry.rejectedAdapterKinds.join(", ")}</dd></div>
+      <div><dt>Validation status</dt><dd>${registry.lastValidation.status}</dd></div>
+      <div><dt>Validation reason</dt><dd>${registry.lastValidation.reason}</dd></div>
+      <div><dt>Validation error/reason code</dt><dd>${registry.lastValidation.errorCodes.join(", ") || "none"}</dd></div>
+      <div><dt>Capability surface</dt><dd>${registry.capabilitySurface.summary}</dd></div>
+      <div><dt>Execution status</dt><dd>${registry.executionStatus}</dd></div>
+      <div><dt>Trust status</dt><dd>${registry.trustStatus}</dd></div>
+      <div><dt>Boundary status</dt><dd>${registry.boundaryStatuses.join(", ")}</dd></div>
+    </dl>
+    ${declarations}
+    <p class="muted">${registry.note}</p>
+    <div class="button-row">
+      <button id="submit-adapter-declaration" type="button">Declare deterministic fake adapter contract</button>
+      <button id="reject-adapter-declaration" type="button">Submit rejected network adapter declaration</button>
+    </div>`;
+}
 
 
 function renderProviderConfiguration(state: LocalOperatorShellState): string {
@@ -331,6 +375,13 @@ function render(): void {
         </aside>
       </section>
 
+      <section class="panel" aria-label="Local provider adapter contract">
+        <h2>Local provider adapter contract</h2>
+        <h3>Adapter registry</h3>
+        <h3>Adapter configuration</h3>
+        ${renderAdapterRegistry(shellState)}
+      </section>
+
       <section class="panel" aria-label="Local provider configuration">
         <h2>Local provider configuration</h2>
         ${renderProviderConfiguration(shellState)}
@@ -381,6 +432,8 @@ function render(): void {
   document.querySelector<HTMLButtonElement>("#start-run")?.addEventListener("click", startRun);
   document.querySelector<HTMLButtonElement>("#approve-run")?.addEventListener("click", () => recordIntent("approve"));
   document.querySelector<HTMLButtonElement>("#reject-run")?.addEventListener("click", () => recordIntent("reject"));
+  document.querySelector<HTMLButtonElement>("#submit-adapter-declaration")?.addEventListener("click", submitAdapterDeclaration);
+  document.querySelector<HTMLButtonElement>("#reject-adapter-declaration")?.addEventListener("click", submitUnsafeAdapterDeclaration);
   document.querySelector<HTMLButtonElement>("#submit-provider-config")?.addEventListener("click", submitProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#reject-provider-config")?.addEventListener("click", submitUnsafeProviderConfiguration);
   document.querySelector<HTMLButtonElement>("#run-provider")?.addEventListener("click", runDeterministicProvider);
