@@ -1,9 +1,9 @@
 import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
 import { projectProviderOutputReview, renderProviderOutputReviewProjectionText, renderProviderOutputReviewText } from "./providerOutputReview";
-import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, deterministicFakeAdapterDeclarationCandidate, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff, initialLocalSessionRestoreProjection, projectLocalSessionHistoryFromPackages, projectLocalSessionRestoreFromPackageProjection, validateLocalProviderAdapterDeclaration, projectLocalProviderAdapterRegistry } from "./localOperatorShell";
+import { applyForbiddenUiAction, applyLocalOperatorIntent, createStagedCandidateConversionProposal, deriveLocalDecisionReplayProjection, deriveLocalSessionEvidenceExport, applyLocalProviderAdapterDryRun, deterministicFakeAdapterDeclarationCandidate, deterministicFakeAdapterDryRunRequest, deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest, initialLocalOperatorShellState, startDeterministicStubRun, projectLocalProviderOutputValidation, validateLocalProviderConfiguration, validateLocalProviderExecutionRequest, validateLocalProviderOutput, validateLocalProviderOutputValidationProjection, validateStagedCandidateConversionProposal, projectStagedCandidateConversionValidation, validateStagedCandidateConversionProposalForPhase147, submitOperatorCandidateDecision, derivePhase150CodeProductionHandoff, initialLocalSessionRestoreProjection, projectLocalSessionHistoryFromPackages, projectLocalSessionRestoreFromPackageProjection, validateLocalProviderAdapterDeclaration, projectLocalProviderAdapterRegistry } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration, submitLocalProviderAdapterDeclaration } from "./localOperatorShellTransport";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, validateLocalStagedCandidateConversionProposal, submitLocalOperatorCandidateDecision, getInitialLocalOperatorShellState, rejectForbiddenUiAction, requestDeterministicStubRun, submitLocalOperatorIntent, submitLocalProviderConfiguration, submitLocalProviderAdapterDeclaration, runLocalProviderAdapterDryRun } from "./localOperatorShellTransport";
 import { encodeLocalUiRustTransportRequest, handleLocalUiRustTransportPayload, handleLocalUiRustTransportRequest, startBoundedLocalUiRustTransport } from "./localTransport";
 import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
 import type { LocalUiRustTransportRequest, LocalUiRustTransportResponse } from "./localTransport";
@@ -1357,6 +1357,46 @@ function assertLocalSessionRestoreRenderingIsDeterministic(): void {
   assertEqual(JSON.stringify(firstPreview), JSON.stringify(secondPreview), "restore preview deterministic");
 }
 
+
+function assertControlledAdapterDryRunInitialAndAcceptedRendering(): void {
+  const initial = initialLocalOperatorShellState();
+  assertEqual(initial.localProviderAdapterDryRun.status, "not_run", "initial adapter dry-run status");
+  const initialRendered = renderLocalOperatorShellSnapshot(initial);
+  assertContains(initialRendered, "Controlled adapter dry run", "dry-run snapshot panel");
+  assertContains(initialRendered, "Controlled adapter dry run only.", "dry-run only wording");
+  assertContains(initialRendered, "Only deterministic_fake_adapter can execute in Phase 154.", "phase 154 adapter wording");
+  assertContains(initialRendered, "No real model execution occurs in Phase 154.", "no real model wording");
+
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderAdapterDeclaration(transport, deterministicFakeAdapterDeclarationCandidate());
+  const response = runLocalProviderAdapterDryRun(transport, deterministicFakeAdapterDryRunRequest());
+  assertEqual(response.status, "accepted", "adapter dry-run transport status");
+  assertEqual(response.state.localProviderAdapterDryRun.status, "dry_run_executed", "adapter dry-run executed status");
+  assertContains(response.state.localProviderAdapterDryRun.result?.resultId ?? "", "local-provider-adapter-dry-run-", "dry-run result id");
+  assertContains(response.state.localProviderAdapterDryRun.result?.outputSummary ?? "", "deterministic_fake_adapter dry-run descriptive output", "dry-run output summary");
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Dry-run output remains untrusted and descriptive.", "untrusted wording");
+  assertContains(rendered, "Dry run does not create candidate output or materialize candidates.", "no candidate wording");
+  assertContains(rendered, "Dry run does not approve readiness, release, deployment, or public use.", "no readiness wording");
+  assertContains(rendered, "controlled_dry_run_only", "boundary marker");
+  assertContains(rendered, "untrusted_descriptive", "trust marker");
+}
+
+function assertControlledAdapterDryRunRejectsAndPreservesNoAuthority(): void {
+  const missing = applyLocalProviderAdapterDryRun(initialLocalOperatorShellState(), deterministicFakeAdapterDryRunRequest());
+  assertEqual(missing.status, "rejected", "missing adapter dry-run status");
+  assertEqual(missing.state.localProviderAdapterDryRun.status, "adapter_required", "missing adapter projection");
+  assertContains(missing.state.localProviderAdapterDryRun.errorCodes.join(","), "no_adapter_declared", "missing adapter reason");
+
+  const declared = submitLocalProviderAdapterDeclaration(createLocalOperatorShellTransport(), deterministicFakeAdapterDeclarationCandidate()).state;
+  const rejected = applyLocalProviderAdapterDryRun(declared, { inputSummary: "phase 154 dry run", fields: [{ key: "secret", value: "token" }] });
+  assertEqual(rejected.status, "rejected", "forbidden dry-run status");
+  assertContains(rejected.state.localProviderAdapterDryRun.errorCodes.join(","), "secret_field_rejected", "secret rejection reason");
+  const rendered = renderLocalOperatorShellSnapshot(rejected.state);
+  assertDoesNotContain(rendered, "trusted_adapter_output", "forbidden trusted label absent");
+  assertDoesNotContain(rendered, "materialized_candidate", "forbidden candidate label absent");
+  assertDoesNotContain(rendered, "real_model_execution_enabled", "forbidden model label absent");
+}
 export const behaviorTests: readonly BehaviorTest[] = [
 
   {
@@ -1775,6 +1815,14 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "local_session_restore_rendering_is_deterministic",
     run: assertLocalSessionRestoreRenderingIsDeterministic
+  },
+  {
+    name: "controlled_adapter_dry_run_initial_and_accepted_rendering",
+    run: assertControlledAdapterDryRunInitialAndAcceptedRendering
+  },
+  {
+    name: "controlled_adapter_dry_run_rejects_and_preserves_no_authority",
+    run: assertControlledAdapterDryRunRejectsAndPreservesNoAuthority
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

@@ -1417,6 +1417,569 @@ pub fn apply_local_provider_adapter_declaration(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterDryRunStatus {
+    NotRun,
+    DryRunExecuted,
+    DryRunRejected,
+    AdapterRequired,
+    UnsupportedAdapter,
+    InvalidDryRunRequest,
+}
+
+impl LocalProviderAdapterDryRunStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotRun => "not_run",
+            Self::DryRunExecuted => "dry_run_executed",
+            Self::DryRunRejected => "dry_run_rejected",
+            Self::AdapterRequired => "adapter_required",
+            Self::UnsupportedAdapter => "unsupported_adapter",
+            Self::InvalidDryRunRequest => "invalid_dry_run_request",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LocalProviderAdapterDryRunError {
+    NoAdapterDeclared,
+    AdapterNotAccepted,
+    UnsupportedAdapterKind,
+    LocalModelAdapterNotExecutableInPhase154,
+    CloudAdapterRejected,
+    NetworkAdapterRejected,
+    ShellAdapterRejected,
+    FilesystemAdapterRejected,
+    ExecutablePathRejected,
+    EndpointFieldRejected,
+    CommandFieldRejected,
+    PathFieldRejected,
+    SecretFieldRejected,
+    ExecutionClaimRejected,
+    TrustClaimRejected,
+    ReadinessClaimRejected,
+    ReleaseClaimRejected,
+    DeploymentClaimRejected,
+    PublicUseClaimRejected,
+    SigningClaimRejected,
+    PublishingClaimRejected,
+    ActionClaimRejected,
+    PersistenceClaimRejected,
+}
+
+impl LocalProviderAdapterDryRunError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoAdapterDeclared => "no_adapter_declared",
+            Self::AdapterNotAccepted => "adapter_not_accepted",
+            Self::UnsupportedAdapterKind => "unsupported_adapter_kind",
+            Self::LocalModelAdapterNotExecutableInPhase154 => {
+                "local_model_adapter_not_executable_in_phase_154"
+            }
+            Self::CloudAdapterRejected => "cloud_adapter_rejected",
+            Self::NetworkAdapterRejected => "network_adapter_rejected",
+            Self::ShellAdapterRejected => "shell_adapter_rejected",
+            Self::FilesystemAdapterRejected => "filesystem_adapter_rejected",
+            Self::ExecutablePathRejected => "executable_path_rejected",
+            Self::EndpointFieldRejected => "endpoint_field_rejected",
+            Self::CommandFieldRejected => "command_field_rejected",
+            Self::PathFieldRejected => "path_field_rejected",
+            Self::SecretFieldRejected => "secret_field_rejected",
+            Self::ExecutionClaimRejected => "execution_claim_rejected",
+            Self::TrustClaimRejected => "trust_claim_rejected",
+            Self::ReadinessClaimRejected => "readiness_claim_rejected",
+            Self::ReleaseClaimRejected => "release_claim_rejected",
+            Self::DeploymentClaimRejected => "deployment_claim_rejected",
+            Self::PublicUseClaimRejected => "public_use_claim_rejected",
+            Self::SigningClaimRejected => "signing_claim_rejected",
+            Self::PublishingClaimRejected => "publishing_claim_rejected",
+            Self::ActionClaimRejected => "action_claim_rejected",
+            Self::PersistenceClaimRejected => "persistence_claim_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterDryRunBoundaryStatus {
+    ControlledDryRunOnly,
+    DeterministicFakeAdapterOnly,
+    NoRealModelExecution,
+    NoProcessSpawn,
+    NoNetwork,
+    NoShell,
+    NoSecrets,
+    NoProviderTrust,
+    NoCandidateMaterialization,
+    NoActionExecution,
+    NoProductionPersistence,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl LocalProviderAdapterDryRunBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ControlledDryRunOnly => "controlled_dry_run_only",
+            Self::DeterministicFakeAdapterOnly => "deterministic_fake_adapter_only",
+            Self::NoRealModelExecution => "no_real_model_execution",
+            Self::NoProcessSpawn => "no_process_spawn",
+            Self::NoNetwork => "no_network",
+            Self::NoShell => "no_shell",
+            Self::NoSecrets => "no_secrets",
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoCandidateMaterialization => "no_candidate_materialization",
+            Self::NoActionExecution => "no_action_execution",
+            Self::NoProductionPersistence => "no_production_persistence",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterDryRunTrustStatus {
+    UntrustedDescriptive,
+}
+
+impl LocalProviderAdapterDryRunTrustStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::UntrustedDescriptive => "untrusted_descriptive",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalProviderAdapterDryRunEffectStatus {
+    NoProviderTrust,
+    NoCandidateMaterialization,
+    NoActionExecution,
+    NoReadinessEffect,
+    NoReleaseEffect,
+    NoDeploymentEffect,
+    NoPublicUseEffect,
+}
+
+impl LocalProviderAdapterDryRunEffectStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoCandidateMaterialization => "no_candidate_materialization",
+            Self::NoActionExecution => "no_action_execution",
+            Self::NoReadinessEffect => "no_readiness_effect",
+            Self::NoReleaseEffect => "no_release_effect",
+            Self::NoDeploymentEffect => "no_deployment_effect",
+            Self::NoPublicUseEffect => "no_public_use_effect",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterDryRunCapabilitySurface {
+    pub controlled_dry_run_only: bool,
+    pub deterministic_fake_adapter_only: bool,
+    pub no_real_model_execution: bool,
+    pub no_process_spawn: bool,
+    pub no_network: bool,
+    pub no_shell: bool,
+    pub no_secrets: bool,
+    pub no_provider_trust: bool,
+    pub no_candidate_materialization: bool,
+    pub no_action_execution: bool,
+    pub no_production_persistence: bool,
+    pub no_readiness_effect: bool,
+    pub no_release_effect: bool,
+    pub no_deployment_effect: bool,
+    pub no_public_use_effect: bool,
+    pub summary: String,
+}
+
+pub fn local_provider_adapter_dry_run_capability_surface(
+) -> LocalProviderAdapterDryRunCapabilitySurface {
+    LocalProviderAdapterDryRunCapabilitySurface {
+        controlled_dry_run_only: true,
+        deterministic_fake_adapter_only: true,
+        no_real_model_execution: true,
+        no_process_spawn: true,
+        no_network: true,
+        no_shell: true,
+        no_secrets: true,
+        no_provider_trust: true,
+        no_candidate_materialization: true,
+        no_action_execution: true,
+        no_production_persistence: true,
+        no_readiness_effect: true,
+        no_release_effect: true,
+        no_deployment_effect: true,
+        no_public_use_effect: true,
+        summary: "Controlled adapter dry run only; only deterministic_fake_adapter can execute in Phase 154. No real model execution, process, network, shell, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled.".to_string(),
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterDryRunRequest {
+    pub input_summary: String,
+    pub fields: Vec<(String, String)>,
+}
+
+impl LocalProviderAdapterDryRunRequest {
+    pub fn deterministic_default() -> Self {
+        Self {
+            input_summary: "phase 154 deterministic fake adapter dry-run input".to_string(),
+            fields: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterDryRunResult {
+    pub result_id: String,
+    pub adapter_kind: LocalProviderAdapterKind,
+    pub adapter_declaration_id: String,
+    pub output_summary: String,
+    pub output_trust_status: LocalProviderAdapterDryRunTrustStatus,
+    pub boundary_statuses: Vec<LocalProviderAdapterDryRunBoundaryStatus>,
+    pub effect_statuses: Vec<LocalProviderAdapterDryRunEffectStatus>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalProviderAdapterDryRunProjection {
+    pub status: LocalProviderAdapterDryRunStatus,
+    pub adapter_kind: Option<LocalProviderAdapterKind>,
+    pub adapter_declaration_id: Option<String>,
+    pub result: Option<LocalProviderAdapterDryRunResult>,
+    pub error_codes: Vec<LocalProviderAdapterDryRunError>,
+    pub boundary_statuses: Vec<LocalProviderAdapterDryRunBoundaryStatus>,
+    pub output_trust_status: LocalProviderAdapterDryRunTrustStatus,
+    pub effect_statuses: Vec<LocalProviderAdapterDryRunEffectStatus>,
+    pub capability_surface: LocalProviderAdapterDryRunCapabilitySurface,
+    pub registry_declaration_count: usize,
+    pub reason: String,
+}
+
+pub fn local_provider_adapter_dry_run_boundary_statuses(
+) -> Vec<LocalProviderAdapterDryRunBoundaryStatus> {
+    vec![
+        LocalProviderAdapterDryRunBoundaryStatus::ControlledDryRunOnly,
+        LocalProviderAdapterDryRunBoundaryStatus::DeterministicFakeAdapterOnly,
+        LocalProviderAdapterDryRunBoundaryStatus::NoRealModelExecution,
+        LocalProviderAdapterDryRunBoundaryStatus::NoProcessSpawn,
+        LocalProviderAdapterDryRunBoundaryStatus::NoNetwork,
+        LocalProviderAdapterDryRunBoundaryStatus::NoShell,
+        LocalProviderAdapterDryRunBoundaryStatus::NoSecrets,
+        LocalProviderAdapterDryRunBoundaryStatus::NoProviderTrust,
+        LocalProviderAdapterDryRunBoundaryStatus::NoCandidateMaterialization,
+        LocalProviderAdapterDryRunBoundaryStatus::NoActionExecution,
+        LocalProviderAdapterDryRunBoundaryStatus::NoProductionPersistence,
+        LocalProviderAdapterDryRunBoundaryStatus::NoReadinessEffect,
+        LocalProviderAdapterDryRunBoundaryStatus::NoReleaseEffect,
+        LocalProviderAdapterDryRunBoundaryStatus::NoDeploymentEffect,
+        LocalProviderAdapterDryRunBoundaryStatus::NoPublicUseEffect,
+    ]
+}
+
+pub fn local_provider_adapter_dry_run_effect_statuses(
+) -> Vec<LocalProviderAdapterDryRunEffectStatus> {
+    vec![
+        LocalProviderAdapterDryRunEffectStatus::NoProviderTrust,
+        LocalProviderAdapterDryRunEffectStatus::NoCandidateMaterialization,
+        LocalProviderAdapterDryRunEffectStatus::NoActionExecution,
+        LocalProviderAdapterDryRunEffectStatus::NoReadinessEffect,
+        LocalProviderAdapterDryRunEffectStatus::NoReleaseEffect,
+        LocalProviderAdapterDryRunEffectStatus::NoDeploymentEffect,
+        LocalProviderAdapterDryRunEffectStatus::NoPublicUseEffect,
+    ]
+}
+
+pub fn initial_local_provider_adapter_dry_run_projection() -> LocalProviderAdapterDryRunProjection {
+    LocalProviderAdapterDryRunProjection {
+        status: LocalProviderAdapterDryRunStatus::NotRun,
+        adapter_kind: None,
+        adapter_declaration_id: None,
+        result: None,
+        error_codes: Vec::new(),
+        boundary_statuses: local_provider_adapter_dry_run_boundary_statuses(),
+        output_trust_status: LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive,
+        effect_statuses: local_provider_adapter_dry_run_effect_statuses(),
+        capability_surface: local_provider_adapter_dry_run_capability_surface(),
+        registry_declaration_count: 0,
+        reason: "adapter dry-run not_run; deterministic_fake_adapter declaration is required before Phase 154 dry run".to_string(),
+    }
+}
+
+fn reject_local_provider_adapter_dry_run(
+    status: LocalProviderAdapterDryRunStatus,
+    adapter_kind: Option<LocalProviderAdapterKind>,
+    adapter_declaration_id: Option<String>,
+    registry_declaration_count: usize,
+    errors: Vec<LocalProviderAdapterDryRunError>,
+) -> LocalProviderAdapterDryRunProjection {
+    LocalProviderAdapterDryRunProjection {
+        status,
+        adapter_kind,
+        adapter_declaration_id,
+        result: None,
+        error_codes: errors,
+        boundary_statuses: local_provider_adapter_dry_run_boundary_statuses(),
+        output_trust_status: LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive,
+        effect_statuses: local_provider_adapter_dry_run_effect_statuses(),
+        capability_surface: local_provider_adapter_dry_run_capability_surface(),
+        registry_declaration_count,
+        reason: "adapter dry-run rejected fail-closed; prior accepted shell state is preserved and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs".to_string(),
+    }
+}
+
+pub fn validate_local_provider_adapter_dry_run_request(
+    registry: &LocalProviderAdapterRegistry,
+    request: &LocalProviderAdapterDryRunRequest,
+) -> Result<LocalProviderAdapterDeclaration, Box<LocalProviderAdapterDryRunProjection>> {
+    let mut errors = std::collections::BTreeSet::new();
+    let declaration = match registry.declarations.last() {
+        Some(declaration) => declaration,
+        None => {
+            return Err(Box::new(reject_local_provider_adapter_dry_run(
+                LocalProviderAdapterDryRunStatus::AdapterRequired,
+                None,
+                None,
+                registry.declarations.len(),
+                vec![LocalProviderAdapterDryRunError::NoAdapterDeclared],
+            )));
+        }
+    };
+
+    if declaration.status != LocalProviderAdapterValidationStatus::AdapterDeclaredNonExecuting {
+        errors.insert(LocalProviderAdapterDryRunError::AdapterNotAccepted);
+    }
+    match declaration.adapter_kind {
+        LocalProviderAdapterKind::DeterministicFakeAdapter => {}
+        LocalProviderAdapterKind::LocalModelAdapterContract => {
+            errors
+                .insert(LocalProviderAdapterDryRunError::LocalModelAdapterNotExecutableInPhase154);
+        }
+        LocalProviderAdapterKind::UnsupportedCloudModel => {
+            errors.insert(LocalProviderAdapterDryRunError::CloudAdapterRejected);
+        }
+        LocalProviderAdapterKind::UnsupportedNetworkAdapter => {
+            errors.insert(LocalProviderAdapterDryRunError::NetworkAdapterRejected);
+        }
+        LocalProviderAdapterKind::UnsupportedShellAdapter => {
+            errors.insert(LocalProviderAdapterDryRunError::ShellAdapterRejected);
+        }
+        LocalProviderAdapterKind::UnsupportedFilesystemAdapter => {
+            errors.insert(LocalProviderAdapterDryRunError::FilesystemAdapterRejected);
+        }
+        LocalProviderAdapterKind::UnsupportedLocalModel | LocalProviderAdapterKind::Unknown => {
+            errors.insert(LocalProviderAdapterDryRunError::UnsupportedAdapterKind);
+        }
+    }
+
+    for (key, value) in &request.fields {
+        reject_forbidden_provider_adapter_dry_run_field(key, value, &mut errors);
+    }
+    if !request.input_summary.trim().is_empty() {
+        reject_forbidden_provider_adapter_dry_run_field(
+            "input_summary",
+            &request.input_summary,
+            &mut errors,
+        );
+    }
+
+    let error_codes: Vec<_> = errors.into_iter().collect();
+    if error_codes.is_empty() {
+        Ok(declaration.clone())
+    } else {
+        Err(Box::new(reject_local_provider_adapter_dry_run(
+            if error_codes.iter().any(|error| {
+                matches!(
+                    error,
+                    LocalProviderAdapterDryRunError::LocalModelAdapterNotExecutableInPhase154
+                        | LocalProviderAdapterDryRunError::CloudAdapterRejected
+                        | LocalProviderAdapterDryRunError::NetworkAdapterRejected
+                        | LocalProviderAdapterDryRunError::ShellAdapterRejected
+                        | LocalProviderAdapterDryRunError::FilesystemAdapterRejected
+                        | LocalProviderAdapterDryRunError::UnsupportedAdapterKind
+                )
+            }) {
+                LocalProviderAdapterDryRunStatus::UnsupportedAdapter
+            } else {
+                LocalProviderAdapterDryRunStatus::InvalidDryRunRequest
+            },
+            Some(declaration.adapter_kind),
+            Some(declaration.declaration_id.clone()),
+            registry.declarations.len(),
+            error_codes,
+        )))
+    }
+}
+
+pub fn reject_forbidden_provider_adapter_dry_run_field(
+    key: &str,
+    value: &str,
+    errors: &mut std::collections::BTreeSet<LocalProviderAdapterDryRunError>,
+) {
+    let lowered_key = key.to_ascii_lowercase();
+    let combined = format!("{}={}", lowered_key, value.to_ascii_lowercase());
+    if lowered_key == "label"
+        || lowered_key == "description"
+        || lowered_key == "input_summary"
+            && !combined.contains("endpoint")
+            && !combined.contains("url")
+            && !combined.contains("host")
+            && !combined.contains("port")
+            && !combined.contains("command")
+            && !combined.contains("args")
+            && !combined.contains("process")
+            && !combined.contains("shell")
+            && !combined.contains("path")
+            && !combined.contains("file")
+            && !combined.contains("directory")
+            && !combined.contains("token")
+            && !combined.contains("secret")
+            && !combined.contains("api_key")
+            && !combined.contains("apikey")
+            && !combined.contains("credential")
+            && !combined.contains("execution")
+            && !combined.contains("trust")
+            && !combined.contains("readiness")
+            && !combined.contains("release")
+            && !combined.contains("deployment")
+            && !combined.contains("public-use")
+            && !combined.contains("public_use")
+            && !combined.contains("signing")
+            && !combined.contains("publishing")
+            && !combined.contains("action")
+            && !combined.contains("persistence")
+    {
+        return;
+    }
+    if ["endpoint", "url", "host", "port", "http", "network"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::EndpointFieldRejected);
+    } else if ["command", "args", "process", "shell"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::CommandFieldRejected);
+    } else if ["executable", "binary"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::ExecutablePathRejected);
+    } else if ["path", "file", "directory"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::PathFieldRejected);
+    } else if ["secret", "token", "api_key", "apikey", "credential"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::SecretFieldRejected);
+    } else if ["execution"].iter().any(|needle| combined.contains(needle)) {
+        errors.insert(LocalProviderAdapterDryRunError::ExecutionClaimRejected);
+    } else if ["trust"].iter().any(|needle| combined.contains(needle)) {
+        errors.insert(LocalProviderAdapterDryRunError::TrustClaimRejected);
+    } else if ["readiness", "ready"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::ReadinessClaimRejected);
+    } else if combined.contains("release") {
+        errors.insert(LocalProviderAdapterDryRunError::ReleaseClaimRejected);
+    } else if ["deployment", "deploy"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::DeploymentClaimRejected);
+    } else if ["public_use", "public-use"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::PublicUseClaimRejected);
+    } else if combined.contains("signing") {
+        errors.insert(LocalProviderAdapterDryRunError::SigningClaimRejected);
+    } else if ["publishing", "publish"]
+        .iter()
+        .any(|needle| combined.contains(needle))
+    {
+        errors.insert(LocalProviderAdapterDryRunError::PublishingClaimRejected);
+    } else if combined.contains("action") {
+        errors.insert(LocalProviderAdapterDryRunError::ActionClaimRejected);
+    } else if combined.contains("persistence") {
+        errors.insert(LocalProviderAdapterDryRunError::PersistenceClaimRejected);
+    }
+}
+
+fn deterministic_adapter_dry_run_checksum(input: &str) -> u64 {
+    input.bytes().fold(154_u64, |acc, byte| {
+        acc.wrapping_mul(31).wrapping_add(byte as u64)
+    })
+}
+
+pub fn execute_deterministic_fake_adapter_dry_run(
+    declaration: &LocalProviderAdapterDeclaration,
+    request: &LocalProviderAdapterDryRunRequest,
+) -> LocalProviderAdapterDryRunResult {
+    let checksum = deterministic_adapter_dry_run_checksum(&format!(
+        "{}|{}|{}",
+        declaration.declaration_id,
+        declaration.adapter_kind.code(),
+        request.input_summary
+    ));
+    LocalProviderAdapterDryRunResult {
+        result_id: format!("local-provider-adapter-dry-run-{checksum:016x}"),
+        adapter_kind: declaration.adapter_kind,
+        adapter_declaration_id: declaration.declaration_id.clone(),
+        output_summary: format!(
+            "deterministic_fake_adapter dry-run descriptive output for input_bytes={} checksum={checksum:016x}",
+            request.input_summary.len()
+        ),
+        output_trust_status: LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive,
+        boundary_statuses: local_provider_adapter_dry_run_boundary_statuses(),
+        effect_statuses: local_provider_adapter_dry_run_effect_statuses(),
+    }
+}
+
+pub fn project_local_provider_adapter_dry_run(
+    registry: &LocalProviderAdapterRegistry,
+    result: LocalProviderAdapterDryRunResult,
+) -> LocalProviderAdapterDryRunProjection {
+    LocalProviderAdapterDryRunProjection {
+        status: LocalProviderAdapterDryRunStatus::DryRunExecuted,
+        adapter_kind: Some(result.adapter_kind),
+        adapter_declaration_id: Some(result.adapter_declaration_id.clone()),
+        result: Some(result),
+        error_codes: Vec::new(),
+        boundary_statuses: local_provider_adapter_dry_run_boundary_statuses(),
+        output_trust_status: LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive,
+        effect_statuses: local_provider_adapter_dry_run_effect_statuses(),
+        capability_surface: local_provider_adapter_dry_run_capability_surface(),
+        registry_declaration_count: registry.declarations.len(),
+        reason: "controlled adapter dry run executed through deterministic_fake_adapter only; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs".to_string(),
+    }
+}
+
+pub fn apply_local_provider_adapter_dry_run(
+    state: &LocalOperatorShellState,
+    request: LocalProviderAdapterDryRunRequest,
+) -> Result<LocalOperatorShellState, Box<LocalProviderAdapterDryRunProjection>> {
+    let declaration = validate_local_provider_adapter_dry_run_request(
+        &state.local_provider_adapter_registry,
+        &request,
+    )?;
+    let result = execute_deterministic_fake_adapter_dry_run(&declaration, &request);
+    let mut next = state.clone();
+    next.local_provider_adapter_dry_run =
+        project_local_provider_adapter_dry_run(&state.local_provider_adapter_registry, result);
+    Ok(attach_local_session_evidence_export(next))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalProviderExecutionStatus {
     NotExecuted,
     Executed,
@@ -5497,6 +6060,7 @@ pub struct LocalOperatorShellState {
     pub local_session_evidence_export: LocalSessionEvidenceExport,
     pub provider_configuration: LocalProviderConfiguration,
     pub local_provider_adapter_registry: LocalProviderAdapterRegistry,
+    pub local_provider_adapter_dry_run: LocalProviderAdapterDryRunProjection,
     pub provider_execution: LocalProviderExecutionProjection,
     pub provider_output_validation: LocalProviderOutputValidationProjection,
     pub staged_candidate_conversion_proposal: StagedCandidateConversionProposalProjection,
@@ -5717,6 +6281,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         local_session_evidence_export: export,
         provider_configuration: initial_local_provider_configuration(),
         local_provider_adapter_registry: initial_local_provider_adapter_registry(),
+        local_provider_adapter_dry_run: initial_local_provider_adapter_dry_run_projection(),
         provider_execution: initial_local_provider_execution_projection(),
         provider_output_validation: initial_local_provider_output_validation_projection(),
         staged_candidate_conversion_proposal:
@@ -5870,6 +6435,7 @@ pub enum LocalOperatorShellRequest {
     SubmitProviderConfiguration(LocalProviderConfigurationCandidate),
     SubmitProviderAdapterDeclaration(LocalProviderAdapterConfigurationCandidate),
     ExecuteProvider(LocalProviderExecutionRequest),
+    RunProviderAdapterDryRun(LocalProviderAdapterDryRunRequest),
     CreateStagedCandidateConversionProposal(StagedCandidateConversionProposalRequest),
     ValidateStagedCandidateConversionProposal(StagedCandidateConversionValidationRequest),
     SubmitOperatorCandidateDecision(OperatorCandidateDecisionRequest),
@@ -5993,6 +6559,13 @@ pub fn execute_local_provider(
     transport.step(LocalOperatorShellRequest::ExecuteProvider(request))
 }
 
+pub fn run_local_provider_adapter_dry_run(
+    transport: &mut LocalOperatorShellTransport,
+    request: LocalProviderAdapterDryRunRequest,
+) -> LocalOperatorShellResponse {
+    transport.step(LocalOperatorShellRequest::RunProviderAdapterDryRun(request))
+}
+
 pub fn create_local_staged_candidate_conversion_proposal(
     transport: &mut LocalOperatorShellTransport,
     request: StagedCandidateConversionProposalRequest,
@@ -6054,6 +6627,23 @@ pub fn local_operator_shell_transport_step(
             match apply_local_provider_execution(state, request) {
                 Ok(next) => accepted("local_provider_execution_accepted", next),
                 Err(validation) => rejected(validation.reason, state.clone()),
+            }
+        }
+        LocalOperatorShellRequest::RunProviderAdapterDryRun(request) => {
+            match apply_local_provider_adapter_dry_run(state, request) {
+                Ok(next) => accepted("local_provider_adapter_dry_run_executed", next),
+                Err(projection) => {
+                    let response_state = if state.local_provider_adapter_dry_run.status
+                        == LocalProviderAdapterDryRunStatus::DryRunExecuted
+                    {
+                        state.clone()
+                    } else {
+                        let mut rejected_state = state.clone();
+                        rejected_state.local_provider_adapter_dry_run = *projection;
+                        rejected_state
+                    };
+                    rejected("local_provider_adapter_dry_run_rejected", response_state)
+                }
             }
         }
         LocalOperatorShellRequest::CreateStagedCandidateConversionProposal(request) => {
@@ -9347,5 +9937,229 @@ mod tests {
         assert!(handoff_first
             .remaining_production_grade_gaps
             .contains(&"candidate materialization".to_string()));
+    }
+
+    #[test]
+    fn phase_154_initial_adapter_dry_run_projection_is_not_run() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.local_provider_adapter_dry_run.status,
+            LocalProviderAdapterDryRunStatus::NotRun
+        );
+        assert!(state
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::ControlledDryRunOnly));
+        assert!(state
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::NoRealModelExecution));
+        assert_eq!(
+            state.local_provider_adapter_dry_run.output_trust_status,
+            LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive
+        );
+    }
+
+    #[test]
+    fn phase_154_accepted_deterministic_fake_adapter_dry_run_is_deterministic() {
+        let state = apply_local_provider_adapter_declaration(
+            &initial_local_operator_shell_state(),
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let request = LocalProviderAdapterDryRunRequest::deterministic_default();
+        let first = apply_local_provider_adapter_dry_run(&state, request.clone()).unwrap();
+        let second = apply_local_provider_adapter_dry_run(&state, request).unwrap();
+        let first_result = first
+            .local_provider_adapter_dry_run
+            .result
+            .as_ref()
+            .unwrap();
+        let second_result = second
+            .local_provider_adapter_dry_run
+            .result
+            .as_ref()
+            .unwrap();
+        assert_eq!(
+            first.local_provider_adapter_dry_run.status,
+            LocalProviderAdapterDryRunStatus::DryRunExecuted
+        );
+        assert_eq!(first_result.result_id, second_result.result_id);
+        assert_eq!(first_result.output_summary, second_result.output_summary);
+        assert_eq!(
+            first_result.output_trust_status,
+            LocalProviderAdapterDryRunTrustStatus::UntrustedDescriptive
+        );
+        assert!(first
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::DeterministicFakeAdapterOnly));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::NoProcessSpawn));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::NoNetwork));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::NoShell));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .boundary_statuses
+            .contains(&LocalProviderAdapterDryRunBoundaryStatus::NoSecrets));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .effect_statuses
+            .contains(&LocalProviderAdapterDryRunEffectStatus::NoCandidateMaterialization));
+        assert!(first
+            .local_provider_adapter_dry_run
+            .effect_statuses
+            .contains(&LocalProviderAdapterDryRunEffectStatus::NoActionExecution));
+    }
+
+    #[test]
+    fn phase_154_adapter_dry_run_rejects_preconditions_and_forbidden_fields() {
+        let initial = initial_local_operator_shell_state();
+        let missing = apply_local_provider_adapter_dry_run(
+            &initial,
+            LocalProviderAdapterDryRunRequest::deterministic_default(),
+        )
+        .unwrap_err();
+        assert_eq!(
+            missing.status,
+            LocalProviderAdapterDryRunStatus::AdapterRequired
+        );
+        assert_eq!(
+            missing.error_codes,
+            vec![LocalProviderAdapterDryRunError::NoAdapterDeclared]
+        );
+
+        let local_model = apply_local_provider_adapter_declaration(
+            &initial,
+            LocalProviderAdapterConfigurationCandidate::local_model_adapter_contract(),
+        )
+        .unwrap();
+        let rejected = apply_local_provider_adapter_dry_run(
+            &local_model,
+            LocalProviderAdapterDryRunRequest::deterministic_default(),
+        )
+        .unwrap_err();
+        assert!(rejected
+            .error_codes
+            .contains(&LocalProviderAdapterDryRunError::LocalModelAdapterNotExecutableInPhase154));
+
+        let accepted = apply_local_provider_adapter_declaration(
+            &initial,
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let cases = [
+            (
+                ("endpoint", "https://example.invalid"),
+                LocalProviderAdapterDryRunError::EndpointFieldRejected,
+            ),
+            (
+                ("command", "run process"),
+                LocalProviderAdapterDryRunError::CommandFieldRejected,
+            ),
+            (
+                ("model_path", "/tmp/model"),
+                LocalProviderAdapterDryRunError::PathFieldRejected,
+            ),
+            (
+                ("api_key", "secret-token"),
+                LocalProviderAdapterDryRunError::SecretFieldRejected,
+            ),
+            (
+                ("execution", "true"),
+                LocalProviderAdapterDryRunError::ExecutionClaimRejected,
+            ),
+            (
+                ("trust", "true"),
+                LocalProviderAdapterDryRunError::TrustClaimRejected,
+            ),
+            (
+                ("readiness", "true"),
+                LocalProviderAdapterDryRunError::ReadinessClaimRejected,
+            ),
+            (
+                ("release", "true"),
+                LocalProviderAdapterDryRunError::ReleaseClaimRejected,
+            ),
+            (
+                ("deployment", "true"),
+                LocalProviderAdapterDryRunError::DeploymentClaimRejected,
+            ),
+            (
+                ("public_use", "true"),
+                LocalProviderAdapterDryRunError::PublicUseClaimRejected,
+            ),
+            (
+                ("signing", "true"),
+                LocalProviderAdapterDryRunError::SigningClaimRejected,
+            ),
+            (
+                ("publishing", "true"),
+                LocalProviderAdapterDryRunError::PublishingClaimRejected,
+            ),
+            (
+                ("action", "true"),
+                LocalProviderAdapterDryRunError::ActionClaimRejected,
+            ),
+            (
+                ("persistence", "true"),
+                LocalProviderAdapterDryRunError::PersistenceClaimRejected,
+            ),
+        ];
+        for ((key, value), expected) in cases {
+            let projection = apply_local_provider_adapter_dry_run(
+                &accepted,
+                LocalProviderAdapterDryRunRequest {
+                    input_summary: "deterministic dry run".to_string(),
+                    fields: vec![(key.to_string(), value.to_string())],
+                },
+            )
+            .unwrap_err();
+            assert!(
+                projection.error_codes.contains(&expected),
+                "missing {expected:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn phase_154_adapter_dry_run_has_no_decision_replay_or_candidate_effects() {
+        let state = apply_local_provider_adapter_declaration(
+            &initial_local_operator_shell_state(),
+            LocalProviderAdapterConfigurationCandidate::deterministic_fake_adapter(),
+        )
+        .unwrap();
+        let before_ledger = state.decision_ledger.clone();
+        let before_replay = state.run.decision_replay.clone();
+        let before_run_candidate = state.run.candidate.clone();
+        let before_export_status = state.local_session_evidence_export.export_status;
+        let after = apply_local_provider_adapter_dry_run(
+            &state,
+            LocalProviderAdapterDryRunRequest::deterministic_default(),
+        )
+        .unwrap();
+        assert_eq!(after.decision_ledger, before_ledger);
+        assert_eq!(after.run.decision_replay, before_replay);
+        assert_eq!(after.run.candidate, before_run_candidate);
+        assert_eq!(
+            after.local_session_evidence_export.export_status,
+            before_export_status
+        );
+        assert_eq!(
+            after.local_session_package_projection,
+            state.local_session_package_projection
+        );
+        assert_eq!(
+            after.local_session_restore_projection,
+            state.local_session_restore_projection
+        );
     }
 }

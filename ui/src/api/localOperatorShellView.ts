@@ -41,6 +41,25 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
   const adapterRegistry = projectLocalProviderAdapterRegistry(state.localProviderAdapterRegistry);
   const providerExecution = projectLocalProviderExecution(state);
   const providerOutputValidation = projectLocalProviderOutputValidation(state);
+  const adapterDryRun = state.localProviderAdapterDryRun;
+  const adapterDryRunLines = [
+    `Dry-run status: ${adapterDryRun.status}`,
+    `Adapter kind: ${adapterDryRun.adapterKind ?? "none"}`,
+    `Adapter declaration ID: ${adapterDryRun.adapterDeclarationId ?? "none"}`,
+    `Result ID: ${adapterDryRun.result?.resultId ?? "none"}`,
+    `Output summary: ${adapterDryRun.result?.outputSummary ?? "none"}`,
+    `Output trust status: ${adapterDryRun.outputTrustStatus}`,
+    `Boundary status: ${adapterDryRun.boundaryStatuses.join(", ")}`,
+    `Effect status: ${adapterDryRun.effectStatuses.join(", ")}`,
+    `Capability surface: ${adapterDryRun.capabilitySurface.summary}`,
+    `Rejected reason: ${adapterDryRun.errorCodes.join(", ") || "none"}`,
+    "Controlled adapter dry run only.",
+    "Only deterministic_fake_adapter can execute in Phase 154.",
+    "No real model execution occurs in Phase 154.",
+    "Dry-run output remains untrusted and descriptive.",
+    "Dry run does not create candidate output or materialize candidates.",
+    "Dry run does not approve readiness, release, deployment, or public use."
+  ].join("\n");
   const adapterDeclarations = adapterRegistry.declarations.length === 0
     ? "Adapter declarations: none"
     : adapterRegistry.declarations
@@ -244,6 +263,8 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Adapter registry",
     "Adapter configuration",
     adapterRegistryLines,
+    "Controlled adapter dry run",
+    adapterDryRunLines,
     "Local provider configuration",
     providerConfigurationLines,
     "Sandboxed provider execution",

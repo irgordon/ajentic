@@ -1,22 +1,22 @@
 ---
 truth_dimension: procedural
-phase: 153
+phase: 154
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 153
+# Current Phase Checklist - Phase 154
 
 ## Phase name
-- [x] Phase 153 - Real Local Provider Adapter Contract.
+- [x] Phase 154 - Controlled Adapter Dry-Run Harness.
 
 ## Phase goal
-- [x] Add the Rust-owned real local provider adapter contract surface before any Phase 154 dry-run harness.
-- [x] Make adapter registry/configuration visible in the local UI as contract-only, non-executing state.
+- [x] Prove the Phase 153 adapter contract path with a Rust-owned deterministic fake adapter dry run.
+- [x] Keep dry-run output descriptive, untrusted, local-only, and non-production.
 
 ## Working-tree hygiene gate
-- [x] Review allowed Phase 153 surfaces before editing.
-- [x] Keep roadmap, governance, architecture, release, installer, update-channel, publishing, and production persistence surfaces unchanged.
+- [x] Keep changes on allowed Phase 154 code, UI, changelog, and checklist surfaces.
+- [x] Do not modify roadmap, governance, architecture, release, installer, update-channel, publishing, or production persistence surfaces.
 
 ## Allowed surfaces
 - [x] `core/src/**`
@@ -25,87 +25,102 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Add Rust-owned local provider adapter contract types.
-- [x] Add TypeScript Rust-shaped adapter contract/projection types.
-- [x] Extend local shell state and transport with adapter registry/configuration projection.
-- [x] Add visible local UI adapter registry/configuration panel.
+- [x] Rust-owned adapter dry-run request, result, projection, status, error, boundary, trust, effect, and capability types.
+- [x] Local shell state and transport response include adapter dry-run projection.
+- [x] TypeScript Rust-shaped dry-run types and local shell transport behavior.
+- [x] Visible UI panel/control for controlled adapter dry run.
 
-## Local provider adapter contract checklist
-- [x] Define adapter kind, declaration candidate, declaration, contract, capability, validation, execution, trust, and boundary types.
-- [x] Accept `deterministic_fake_adapter` as contract-only and non-executing.
-- [x] Accept `local_model_adapter_contract` as declaration-only when no unsafe fields are present.
+## Adapter dry-run harness checklist
+- [x] Initial projection is `not_run`.
+- [x] Accepted `deterministic_fake_adapter` declaration is required.
+- [x] Dry-run request is validated before execution.
+- [x] Dry-run result links to adapter declaration and registry projection.
+- [x] Dry-run output trust status is `untrusted_descriptive`.
 
-## Adapter registry projection checklist
-- [x] Initial registry projection is deterministic.
-- [x] Projection lists supported and rejected adapter declarations.
-- [x] Projection includes capability surface, validation result, execution status, trust status, and boundary statuses.
+## Deterministic fake adapter checklist
+- [x] Only `deterministic_fake_adapter` can execute in Phase 154.
+- [x] Dry-run output summary is deterministic for identical input.
+- [x] Dry-run result ID is deterministic for identical input.
+- [x] Execution is in-process and descriptive only.
 
-## Adapter validation checklist
-- [x] Unsupported and unknown adapter kinds reject fail-closed.
-- [x] Cloud, network, shell, filesystem, executable-path, endpoint, command, path, secret, execution, trust, readiness, release, deployment, public-use, signing, and publishing declarations reject fail-closed.
-- [x] Rejected declarations preserve prior accepted registry state.
+## Rejected dry-run precondition checklist
+- [x] Missing adapter declaration rejects.
+- [x] Rejected or unsupported adapter declaration rejects.
+- [x] `local_model_adapter_contract` rejects for Phase 154 execution.
+- [x] Cloud, network, shell, filesystem, executable-path, endpoint, command, path, secret, execution, trust, readiness, release, deployment, public-use, signing, publishing, action, and persistence claims reject.
+- [x] Rejected request preserves prior accepted dry-run state when present.
 
-## UI adapter panel checklist
-- [x] Render `Local provider adapter contract` panel.
-- [x] Render `Adapter registry` and `Adapter configuration` labels.
-- [x] Render supported, accepted, and rejected declaration status.
-- [x] Render validation error/reason, capability surface, execution status, trust status, and boundary markers.
-- [x] Render required Phase 153 no-model-execution wording.
+## No-real-model/no-process/no-network/no-secret checklist
+- [x] Record `no_real_model_execution`.
+- [x] Record `no_process_spawn`.
+- [x] Record `no_network`.
+- [x] Record `no_shell`.
+- [x] Record `no_secrets`.
 
-## No-execution/no-trust checklist
-- [x] Accepted declarations record `contract_only` and `no_execution`.
-- [x] Accepted declarations record `no_provider_trust`.
-- [x] Accepted declarations record `no_network`, `no_shell`, `no_secrets`, and `no_production_persistence`.
-- [x] Accepted declarations record no readiness, release, deployment, or public-use effect.
+## UI dry-run panel checklist
+- [x] Render `Controlled adapter dry run`.
+- [x] Render status, adapter kind, declaration status, result ID, output summary, linkage, boundaries, trust, capabilities, and rejection reasons.
+- [x] Enable run control only for accepted `deterministic_fake_adapter`.
+- [x] Show required no-real-model, untrusted descriptive, no-candidate, no-readiness/release/deployment/public-use wording.
+- [x] Avoid arbitrary command, path, endpoint, and secret inputs.
 
-## Local-only/non-production boundary checklist
-- [x] No provider execution expansion is added.
-- [x] No cloud calls, network sockets, shell commands, executable paths, or secret handling are added.
-- [x] No production persistence, readiness approval, release, deployment, signing, publishing, or public-use approval is added.
+## No-effect boundary checklist
+- [x] No provider trust approval.
+- [x] No decision ledger mutation.
+- [x] No replay decision mutation.
+- [x] No export evidence promotion.
+- [x] No candidate output creation or materialization.
+- [x] No action execution.
+- [x] No production persistence or durable dry-run storage.
+- [x] No readiness, release, deployment, or public-use effect.
 
 ## Rust test checklist
-- [x] Deterministic initial adapter registry projection.
-- [x] Accepted non-executing deterministic fake/local adapter declarations.
-- [x] Unsupported and unsafe declaration rejection.
-- [x] No-execution and no-mutation boundaries.
-- [x] Rejected declaration preserves prior registry.
+- [x] Initial `not_run` projection.
+- [x] Accepted deterministic dry run and deterministic result/output.
+- [x] Rejected preconditions and forbidden fields.
+- [x] No-effect boundaries for ledger, replay, candidate, export, package, and restore projections.
 
 ## TypeScript test checklist
-- [x] Visible adapter registry/configuration panel.
-- [x] Accepted adapter declaration rendering.
-- [x] Rejected unsafe declaration behavior.
-- [x] Deterministic projection/validation and no-authority wording.
+- [x] Visible dry-run panel and accepted result rendering.
+- [x] Rejected dry-run state rendering.
+- [x] No-authority wording and forbidden label avoidance.
+- [x] Deterministic shell projection behavior.
 
-## Phase 154 handoff checklist
-- [x] Phase 154 remains the next code-production phase for controlled adapter dry-run harness.
-- [x] Phase 153 does not implement a dry-run harness.
+## Phase 155 handoff checklist
+- [x] Phase 155 remains the next code-production alignment checkpoint.
+- [x] Real model/provider execution remains deferred.
+- [x] Candidate materialization, replay repair, recovery promotion, release/deployment/signing/publishing, public-use, and readiness approval remain deferred.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-154-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] `cd ui && npm run typecheck`
 - [x] `cd ui && npm run lint`
 - [x] `cd ui && npm run build && rm -rf dist`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-154-target cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `cd ui && timeout 5 npm run dev`
-- [x] Adapter contract and boundary scans complete.
+- [x] Adapter dry-run, boundary, forbidden-label, unsafe-execution, persistence/release, changed-file, and no-roadmap-drift scans.
 
 ## Deferred items
-- [x] Provider execution remains deferred.
-- [x] Controlled adapter dry-run harness remains deferred to Phase 154.
-- [x] Production persistence, replay repair, recovery promotion, release/deployment/signing/publishing, and readiness approval remain deferred.
+- [x] Real local model execution.
+- [x] Cloud provider execution.
+- [x] Shell command execution and local binary invocation.
+- [x] Network sockets and secret handling.
+- [x] Durable adapter dry-run/provider configuration storage.
+- [x] Provider output trust approval, candidate materialization, action execution, production persistence, readiness, release, deployment, public-use, signing, and publishing.
 
 ## Validation log
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target ./scripts/check.sh` passed after commit with a clean worktree.
-- Full Rust tests passed with `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target cargo test --manifest-path core/Cargo.toml --all-targets`.
-- TypeScript typecheck, lint, build, and API behavior tests passed.
+- `git diff --check` passed.
+- UI typecheck, lint, build, and API behavior tests passed.
+- Rust tests passed with `CARGO_TARGET_DIR=/tmp/ajentic-phase-154-target cargo test --manifest-path core/Cargo.toml --all-targets`.
 - Local dev smoke test printed `http://127.0.0.1:5173`; timeout stopped the long-running server.
-- `git diff --check`, `git status --short`, adapter scans, boundary scans, forbidden-label scan, unsafe-execution scan, persistence/release scan, changed-file guard, and no-roadmap-drift guard completed.
+- Adapter dry-run scan, boundary scan, forbidden-label scan, unsafe-execution scan, persistence/release scan, changed-file guard, and no-roadmap-drift guard completed; historical/test prohibition matches remain.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-154-target ./scripts/check.sh` is run after commit because the script requires initial repository cleanliness.
 
 ## Zero-drift checklist
-- [x] CHANGELOG entry matches Phase 153 changes.
+- [x] CHANGELOG entry matches Phase 154 scope.
 - [x] Roadmap files are not modified.
-- [x] Forbidden approval/enablement labels are not introduced for adapter contract state.
+- [x] Forbidden enablement/trust/candidate/readiness labels are not introduced as API or UI authority.
 - [x] Generated UI artifacts are not kept.

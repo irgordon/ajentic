@@ -745,6 +745,306 @@ export function applyLocalProviderAdapterDeclaration(
   };
 }
 
+export type LocalProviderAdapterDryRunStatus =
+  | "not_run"
+  | "dry_run_executed"
+  | "dry_run_rejected"
+  | "adapter_required"
+  | "unsupported_adapter"
+  | "invalid_dry_run_request";
+export type LocalProviderAdapterDryRunError =
+  | "no_adapter_declared"
+  | "adapter_not_accepted"
+  | "unsupported_adapter_kind"
+  | "local_model_adapter_not_executable_in_phase_154"
+  | "cloud_adapter_rejected"
+  | "network_adapter_rejected"
+  | "shell_adapter_rejected"
+  | "filesystem_adapter_rejected"
+  | "executable_path_rejected"
+  | "endpoint_field_rejected"
+  | "command_field_rejected"
+  | "path_field_rejected"
+  | "secret_field_rejected"
+  | "execution_claim_rejected"
+  | "trust_claim_rejected"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected"
+  | "action_claim_rejected"
+  | "persistence_claim_rejected";
+export type LocalProviderAdapterDryRunBoundaryStatus =
+  | "controlled_dry_run_only"
+  | "deterministic_fake_adapter_only"
+  | "no_real_model_execution"
+  | "no_process_spawn"
+  | "no_network"
+  | "no_shell"
+  | "no_secrets"
+  | "no_provider_trust"
+  | "no_candidate_materialization"
+  | "no_action_execution"
+  | "no_production_persistence"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+export type LocalProviderAdapterDryRunTrustStatus = "untrusted_descriptive";
+export type LocalProviderAdapterDryRunEffectStatus =
+  | "no_provider_trust"
+  | "no_candidate_materialization"
+  | "no_action_execution"
+  | "no_readiness_effect"
+  | "no_release_effect"
+  | "no_deployment_effect"
+  | "no_public_use_effect";
+
+export type LocalProviderAdapterDryRunCapabilitySurface = Readonly<{
+  controlledDryRunOnly: true;
+  deterministicFakeAdapterOnly: true;
+  noRealModelExecution: true;
+  noProcessSpawn: true;
+  noNetwork: true;
+  noShell: true;
+  noSecrets: true;
+  noProviderTrust: true;
+  noCandidateMaterialization: true;
+  noActionExecution: true;
+  noProductionPersistence: true;
+  noReadinessEffect: true;
+  noReleaseEffect: true;
+  noDeploymentEffect: true;
+  noPublicUseEffect: true;
+  summary: string;
+}>;
+
+export type LocalProviderAdapterDryRunRequest = Readonly<{
+  inputSummary: string;
+  fields?: readonly Readonly<{ key: string; value: string }>[];
+}>;
+
+export type LocalProviderAdapterDryRunResult = Readonly<{
+  resultId: string;
+  adapterKind: LocalProviderAdapterKind;
+  adapterDeclarationId: string;
+  outputSummary: string;
+  outputTrustStatus: LocalProviderAdapterDryRunTrustStatus;
+  boundaryStatuses: readonly LocalProviderAdapterDryRunBoundaryStatus[];
+  effectStatuses: readonly LocalProviderAdapterDryRunEffectStatus[];
+}>;
+
+export type LocalProviderAdapterDryRunProjection = Readonly<{
+  status: LocalProviderAdapterDryRunStatus;
+  adapterKind: LocalProviderAdapterKind | null;
+  adapterDeclarationId: string | null;
+  result: LocalProviderAdapterDryRunResult | null;
+  errorCodes: readonly LocalProviderAdapterDryRunError[];
+  boundaryStatuses: readonly LocalProviderAdapterDryRunBoundaryStatus[];
+  outputTrustStatus: LocalProviderAdapterDryRunTrustStatus;
+  effectStatuses: readonly LocalProviderAdapterDryRunEffectStatus[];
+  capabilitySurface: LocalProviderAdapterDryRunCapabilitySurface;
+  registryDeclarationCount: number;
+  reason: string;
+}>;
+
+export function deterministicFakeAdapterDryRunRequest(): LocalProviderAdapterDryRunRequest {
+  return { inputSummary: "phase 154 deterministic fake adapter dry-run input", fields: [] };
+}
+
+export function localProviderAdapterDryRunBoundaryStatuses(): readonly LocalProviderAdapterDryRunBoundaryStatus[] {
+  return [
+    "controlled_dry_run_only",
+    "deterministic_fake_adapter_only",
+    "no_real_model_execution",
+    "no_process_spawn",
+    "no_network",
+    "no_shell",
+    "no_secrets",
+    "no_provider_trust",
+    "no_candidate_materialization",
+    "no_action_execution",
+    "no_production_persistence",
+    "no_readiness_effect",
+    "no_release_effect",
+    "no_deployment_effect",
+    "no_public_use_effect"
+  ];
+}
+
+export function localProviderAdapterDryRunEffectStatuses(): readonly LocalProviderAdapterDryRunEffectStatus[] {
+  return ["no_provider_trust", "no_candidate_materialization", "no_action_execution", "no_readiness_effect", "no_release_effect", "no_deployment_effect", "no_public_use_effect"];
+}
+
+export function localProviderAdapterDryRunCapabilitySurface(): LocalProviderAdapterDryRunCapabilitySurface {
+  return {
+    controlledDryRunOnly: true,
+    deterministicFakeAdapterOnly: true,
+    noRealModelExecution: true,
+    noProcessSpawn: true,
+    noNetwork: true,
+    noShell: true,
+    noSecrets: true,
+    noProviderTrust: true,
+    noCandidateMaterialization: true,
+    noActionExecution: true,
+    noProductionPersistence: true,
+    noReadinessEffect: true,
+    noReleaseEffect: true,
+    noDeploymentEffect: true,
+    noPublicUseEffect: true,
+    summary: "Controlled adapter dry run only; only deterministic_fake_adapter can execute in Phase 154. No real model execution, process, network, shell, secrets, provider trust, candidate materialization, action, readiness, release, deployment, public-use, or production persistence effect is enabled."
+  };
+}
+
+export function initialLocalProviderAdapterDryRunProjection(): LocalProviderAdapterDryRunProjection {
+  return {
+    status: "not_run",
+    adapterKind: null,
+    adapterDeclarationId: null,
+    result: null,
+    errorCodes: [],
+    boundaryStatuses: localProviderAdapterDryRunBoundaryStatuses(),
+    outputTrustStatus: "untrusted_descriptive",
+    effectStatuses: localProviderAdapterDryRunEffectStatuses(),
+    capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
+    registryDeclarationCount: 0,
+    reason: "adapter dry-run not_run; deterministic_fake_adapter declaration is required before Phase 154 dry run"
+  };
+}
+
+function rejectLocalProviderAdapterDryRun(
+  status: LocalProviderAdapterDryRunStatus,
+  adapterKind: LocalProviderAdapterKind | null,
+  adapterDeclarationId: string | null,
+  registryDeclarationCount: number,
+  errorCodes: readonly LocalProviderAdapterDryRunError[]
+): LocalProviderAdapterDryRunProjection {
+  return {
+    status,
+    adapterKind,
+    adapterDeclarationId,
+    result: null,
+    errorCodes,
+    boundaryStatuses: localProviderAdapterDryRunBoundaryStatuses(),
+    outputTrustStatus: "untrusted_descriptive",
+    effectStatuses: localProviderAdapterDryRunEffectStatuses(),
+    capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
+    registryDeclarationCount,
+    reason: "adapter dry-run rejected fail-closed; prior accepted shell state is preserved and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs"
+  };
+}
+
+function forbiddenProviderAdapterDryRunField(key: string, value: string): LocalProviderAdapterDryRunError | null {
+  const loweredKey = key.toLowerCase();
+  const combined = `${loweredKey}=${value.toLowerCase()}`;
+  const safeInput = loweredKey === "inputsummary" || loweredKey === "input_summary" || loweredKey === "label" || loweredKey === "description";
+  const hasForbidden = ["endpoint", "url", "host", "port", "http", "network", "command", "args", "process", "shell", "executable", "binary", "path", "file", "directory", "secret", "token", "api_key", "apikey", "credential", "execution", "trust", "readiness", "ready", "release", "deployment", "deploy", "public_use", "public-use", "signing", "publishing", "publish", "action", "persistence"].some((needle) => combined.includes(needle));
+  if (safeInput && !hasForbidden) return null;
+  if (["endpoint", "url", "host", "port", "http", "network"].some((needle) => combined.includes(needle))) return "endpoint_field_rejected";
+  if (["command", "args", "process", "shell"].some((needle) => combined.includes(needle))) return "command_field_rejected";
+  if (["executable", "binary"].some((needle) => combined.includes(needle))) return "executable_path_rejected";
+  if (["path", "file", "directory"].some((needle) => combined.includes(needle))) return "path_field_rejected";
+  if (["secret", "token", "api_key", "apikey", "credential"].some((needle) => combined.includes(needle))) return "secret_field_rejected";
+  if (combined.includes("execution")) return "execution_claim_rejected";
+  if (combined.includes("trust")) return "trust_claim_rejected";
+  if (["readiness", "ready"].some((needle) => combined.includes(needle))) return "readiness_claim_rejected";
+  if (combined.includes("release")) return "release_claim_rejected";
+  if (["deployment", "deploy"].some((needle) => combined.includes(needle))) return "deployment_claim_rejected";
+  if (["public_use", "public-use"].some((needle) => combined.includes(needle))) return "public_use_claim_rejected";
+  if (combined.includes("signing")) return "signing_claim_rejected";
+  if (["publishing", "publish"].some((needle) => combined.includes(needle))) return "publishing_claim_rejected";
+  if (combined.includes("action")) return "action_claim_rejected";
+  if (combined.includes("persistence")) return "persistence_claim_rejected";
+  return null;
+}
+
+export function validateLocalProviderAdapterDryRunRequest(
+  registry: LocalProviderAdapterRegistry,
+  request: LocalProviderAdapterDryRunRequest
+): LocalProviderAdapterDeclaration | LocalProviderAdapterDryRunProjection {
+  const declaration = registry.declarations[registry.declarations.length - 1];
+  if (!declaration) return rejectLocalProviderAdapterDryRun("adapter_required", null, null, registry.declarations.length, ["no_adapter_declared"]);
+  const errors = new Set<LocalProviderAdapterDryRunError>();
+  if (declaration.status !== "adapter_declared_non_executing") errors.add("adapter_not_accepted");
+  if (declaration.adapterKind === "local_model_adapter_contract") errors.add("local_model_adapter_not_executable_in_phase_154");
+  else if (declaration.adapterKind === "unsupported_cloud_model") errors.add("cloud_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_network_adapter") errors.add("network_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_shell_adapter") errors.add("shell_adapter_rejected");
+  else if (declaration.adapterKind === "unsupported_filesystem_adapter") errors.add("filesystem_adapter_rejected");
+  else if (declaration.adapterKind !== "deterministic_fake_adapter") errors.add("unsupported_adapter_kind");
+  for (const field of request.fields ?? []) {
+    const error = forbiddenProviderAdapterDryRunField(field.key, field.value);
+    if (error) errors.add(error);
+  }
+  const inputError = forbiddenProviderAdapterDryRunField("input_summary", request.inputSummary);
+  if (inputError) errors.add(inputError);
+  const errorCodes = [...errors].sort();
+  if (errorCodes.length === 0) return declaration;
+  const unsupportedErrors: readonly LocalProviderAdapterDryRunError[] = ["local_model_adapter_not_executable_in_phase_154", "cloud_adapter_rejected", "network_adapter_rejected", "shell_adapter_rejected", "filesystem_adapter_rejected", "unsupported_adapter_kind"];
+  return rejectLocalProviderAdapterDryRun(
+    errorCodes.some((error) => unsupportedErrors.includes(error)) ? "unsupported_adapter" : "invalid_dry_run_request",
+    declaration.adapterKind,
+    declaration.declarationId,
+    registry.declarations.length,
+    errorCodes
+  );
+}
+
+function deterministicAdapterDryRunChecksum(input: string): bigint {
+  let checksum = 154n;
+  for (const char of input) checksum = BigInt.asUintN(64, checksum * 31n + BigInt(char.charCodeAt(0)));
+  return checksum;
+}
+
+export function executeDeterministicFakeAdapterDryRun(
+  declaration: LocalProviderAdapterDeclaration,
+  request: LocalProviderAdapterDryRunRequest
+): LocalProviderAdapterDryRunResult {
+  const checksum = deterministicAdapterDryRunChecksum(`${declaration.declarationId}|${declaration.adapterKind}|${request.inputSummary}`);
+  const checksumText = checksum.toString(16).padStart(16, "0");
+  return {
+    resultId: `local-provider-adapter-dry-run-${checksumText}`,
+    adapterKind: declaration.adapterKind,
+    adapterDeclarationId: declaration.declarationId,
+    outputSummary: `deterministic_fake_adapter dry-run descriptive output for input_bytes=${new TextEncoder().encode(request.inputSummary).length} checksum=${checksumText}`,
+    outputTrustStatus: "untrusted_descriptive",
+    boundaryStatuses: localProviderAdapterDryRunBoundaryStatuses(),
+    effectStatuses: localProviderAdapterDryRunEffectStatuses()
+  };
+}
+
+export function applyLocalProviderAdapterDryRun(
+  state: LocalOperatorShellState,
+  request: LocalProviderAdapterDryRunRequest
+): LocalOperatorIntentResult {
+  const validation = validateLocalProviderAdapterDryRunRequest(state.localProviderAdapterRegistry, request);
+  if ("result" in validation) return { status: "rejected", reason: "local_provider_adapter_dry_run_rejected", state: { ...state, localProviderAdapterDryRun: validation } };
+  const result = executeDeterministicFakeAdapterDryRun(validation, request);
+  return {
+    status: "accepted",
+    reason: "local_provider_adapter_dry_run_executed",
+    state: attachLocalSessionEvidenceExport({
+      ...state,
+      localProviderAdapterDryRun: {
+        status: "dry_run_executed",
+        adapterKind: result.adapterKind,
+        adapterDeclarationId: result.adapterDeclarationId,
+        result,
+        errorCodes: [],
+        boundaryStatuses: localProviderAdapterDryRunBoundaryStatuses(),
+        outputTrustStatus: "untrusted_descriptive",
+        effectStatuses: localProviderAdapterDryRunEffectStatuses(),
+        capabilitySurface: localProviderAdapterDryRunCapabilitySurface(),
+        registryDeclarationCount: state.localProviderAdapterRegistry.declarations.length,
+        reason: "controlled adapter dry run executed through deterministic_fake_adapter only; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, process, network, shell, secret, environment, or persistence effect occurs"
+      }
+    })
+  };
+}
+
 
 export type LocalProviderExecutionStatus =
   | "not_executed"
@@ -2211,6 +2511,7 @@ export type LocalOperatorShellState = Readonly<{
   localSessionEvidenceExport: LocalSessionEvidenceExport;
   providerConfiguration: LocalProviderConfiguration;
   localProviderAdapterRegistry: LocalProviderAdapterRegistry;
+  localProviderAdapterDryRun: LocalProviderAdapterDryRunProjection;
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
@@ -2336,6 +2637,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     decisionLedger,
     providerConfiguration: initialLocalProviderConfiguration(),
     localProviderAdapterRegistry: initialLocalProviderAdapterRegistry(),
+    localProviderAdapterDryRun: initialLocalProviderAdapterDryRunProjection(),
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
     stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection(),
