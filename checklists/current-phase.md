@@ -7,103 +7,63 @@ mutation_path: checklist_revision
 
 # Current phase checklist
 
-Phase 157 - Real Provider Output Pipeline Integration.
+Phase 157.1 - Out-of-Band Rustfmt Maintenance Fix.
 
 ## Phase goal
-- [x] Route constrained local provider invocation output into the existing provider-output pipeline.
-- [x] Preserve untrusted/descriptive, non-candidate, non-promoted, local-only boundaries.
+- [x] Apply rustfmt to the Phase 157 local provider output pipeline implementation.
+- [x] Preserve formatting-only scope with no runtime behavior changes.
 
 ## Working-tree hygiene gate
-- [x] Keep changes on allowed Phase 157 code, UI, changelog, and checklist surfaces.
-- [x] Do not modify roadmap, governance, architecture, release, installer, update-channel, publishing, or production persistence surfaces.
+- [x] Start from the current branch and keep edits limited to allowed Phase 157.1 surfaces.
+- [x] Run full validation after commit because `scripts/check.sh` requires an initially clean tree.
 
 ## Allowed surfaces
-- [x] `core/src/**`
-- [x] `ui/src/**`
+- [x] `core/src/api/local_operator_shell.rs`
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 
-## Code-production deliverable checklist
-- [x] Rust-owned provider output pipeline projection types.
-- [x] Rust-owned stage status, validation status, error, boundary, and effect types.
-- [x] Local shell state and transport response include pipeline integration projection.
-- [x] TypeScript Rust-shaped pipeline projection and local shell model.
-- [x] Visible UI panel for provider output pipeline integration.
+## Formatting-only checklist
+- [x] Run `cargo fmt --manifest-path core/Cargo.toml`.
+- [x] Accept only rustfmt line wrapping and indentation in `core/src/api/local_operator_shell.rs`.
 
-## Invocation-to-pipeline bridge checklist
-- [x] Project constrained invocation result into provider execution/result projection.
-- [x] Preserve invocation result ID and provider execution/result linkage.
-- [x] Preserve `untrusted_descriptive` and not-candidate/not-promoted status.
-- [x] Reject missing, rejected, drifted, or claim-bearing invocation output fail-closed.
-
-## Stage-ordering checklist
-- [x] Explicit stage order starts with invocation output projection.
-- [x] Provider execution/result projection precedes provider output validation.
-- [x] Validation precedes review, staging, staged validation, candidate review, and operator decision.
-- [x] Deterministic projection for identical shell state.
-
-## No-skip boundary checklist
-- [x] Reject stage order drift.
-- [x] Reject completed downstream stages after incomplete upstream stages.
-- [x] Block downstream stages when validation, review, staging, staged validation, candidate review, or operator decision is missing.
-
-## UI pipeline panel checklist
-- [x] Render `Provider output pipeline` panel.
-- [x] Render source kind, invocation result ID, current stage, next required stage, status list, and blocked/rejected reasons.
-- [x] Render validation, review, staged proposal, staged validation, candidate review, and operator decision status.
-- [x] Show required untrusted/descriptive, no-candidate, no-skip, later materialization, and no trust/readiness/release/deployment/public-use wording.
-
-## No-candidate/no-trust checklist
-- [x] Pipeline integration does not create candidate output.
-- [x] Pipeline integration does not materialize candidates.
-- [x] Pipeline integration does not approve provider output or provider trust.
-- [x] Operator decision remains scoped to validated staged proposals.
-
-## No-effect boundary checklist
-- [x] No additional provider execution capability.
-- [x] No arbitrary command execution, shell execution, process spawn, sockets, or secret reads.
-- [x] No decision ledger append outside existing operator decision boundary.
-- [x] No replay repair, recovery promotion, export promotion, action execution, production persistence, release, deployment, publishing, signing, installer, update-channel, readiness, or public-use effect.
-
-## Rust test checklist
-- [x] Initial not-started projection.
-- [x] Valid invocation output integration.
-- [x] Missing/rejected/drifted invocation output.
-- [x] Stage ordering and no-skip rejection.
-- [x] Determinism and no-effect boundaries.
-
-## TypeScript test checklist
-- [x] Visible accepted pipeline rendering.
-- [x] Blocked/rejected stage rendering.
-- [x] Next required stage rendering.
-- [x] Forbidden labels and shortcut controls absent.
-- [x] Deterministic rendering.
-
-## Phase 158 handoff checklist
-- [x] Phase 158 remains the next code-production phase for local candidate materialization.
-- [x] Phase 157 does not perform candidate materialization.
+## No-behavior-change checklist
+- [x] No runtime Rust logic changes.
+- [x] No TypeScript changes.
+- [x] Inline Rust test assertion style update only to satisfy `cargo clippy -- -D warnings`.
+- [x] No schema changes.
+- [x] No roadmap changes.
+- [x] No provider execution expansion, candidate materialization, persistence expansion, or readiness/release/deployment behavior.
 
 ## Validation checklist
-- [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-target ./scripts/check.sh` (blocked by dirty-tree preflight after Phase 157 edits).
-- [x] Run `git diff --check`.
-- [x] Run `git status --short`.
-- [x] Run required direct UI and Rust validation commands because `check.sh` stopped at dirty-tree preflight.
-- [x] Run required scans.
+- [x] `cargo fmt --manifest-path core/Cargo.toml`
+- [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
+- [x] `git diff --check`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target ./scripts/check.sh`
+- [x] `git status --short`
+- [x] Changed-file, no-roadmap-drift, no-UI-drift, and behavior-drift guards.
 
 ## Deferred items
-- [ ] Local candidate materialization remains deferred to Phase 158.
+- [ ] Phase 158 remains the next planned code-production phase for local candidate materialization.
 - [ ] Readiness, release, deployment, publishing, signing, installer, update-channel, and public-use behavior remain deferred.
 
 ## Validation log
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-target ./scripts/check.sh` stopped at the initial repository cleanliness gate because Phase 157 files were modified.
+- `cargo fmt --manifest-path core/Cargo.toml` applied rustfmt formatting.
+- `cargo fmt --manifest-path core/Cargo.toml -- --check` passed.
 - `git diff --check` passed.
-- `git status --short` showed only allowed Phase 157 surfaces.
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
-- `cd ui && npm run typecheck`, `npm run lint`, `npm run build && rm -rf dist`, and `npm run test:api` passed.
-- `cd ui && timeout 5 npm run dev` printed the local browser URL; timeout stopped the long-running server.
-- Required scans were run; forbidden-label scan matched historical/prohibition/test strings only.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings` passed.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-157-1-target ./scripts/check.sh` passed after commit.
+- `git status --short` was clean after commit and PR recording.
+- Changed-file guard showed only allowed Phase 157.1 surfaces before commit.
+- No-roadmap-drift and no-UI-drift guards showed no changes.
+- Behavior-drift scan showed rustfmt formatting plus equivalent inline test assertion style required by clippy; no runtime behavior changes.
 
 ## Zero-drift checklist
+- [x] Only allowed files changed.
 - [x] Roadmap files are not modified.
-- [x] CHANGELOG entry matches Phase 157 scope.
-- [x] Checklist describes Phase 157 procedural truth.
+- [x] UI files are not modified.
+- [x] CHANGELOG entry matches Phase 157.1 scope.
+- [x] Checklist describes Phase 157.1 procedural truth.
+- [x] Phase 158 remains the next planned code-production phase.
