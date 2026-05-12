@@ -3598,6 +3598,781 @@ pub struct LocalRunProjection {
     pub decision_replay: LocalDecisionReplayProjection,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageClassification {
+    LocalSessionPackageOnly,
+}
+
+impl LocalSessionPackageClassification {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LocalSessionPackageOnly => "local_session_package_only",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageProductionClassification {
+    NonProduction,
+}
+
+impl LocalSessionPackageProductionClassification {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NonProduction => "non_production",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageStatus {
+    NotPackaged,
+    PackageProjected,
+    PackageWritten,
+    PackageReadBackValidated,
+    PackageRejected,
+    InvalidPackageInput,
+}
+
+impl LocalSessionPackageStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotPackaged => "not_packaged",
+            Self::PackageProjected => "package_projected",
+            Self::PackageWritten => "package_written",
+            Self::PackageReadBackValidated => "package_read_back_validated",
+            Self::PackageRejected => "package_rejected",
+            Self::InvalidPackageInput => "invalid_package_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+}
+
+impl LocalSessionPackageValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotValidated => "not_validated",
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageRestoreStatus {
+    NotRestored,
+    ReadBackValidated,
+    Rejected,
+}
+
+impl LocalSessionPackageRestoreStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotRestored => "not_restored",
+            Self::ReadBackValidated => "read_back_validated_structure_only",
+            Self::Rejected => "restore_projection_rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalSessionPackageValidationError {
+    MissingPackageId,
+    MissingPackageVersion,
+    InvalidPackageClassification,
+    InvalidProductionClassification,
+    MissingAbsenceMarker,
+    ForbiddenReleaseReadinessOrDeploymentClaim,
+    ForbiddenSigningPublishingInstallerOrUpdateClaim,
+    ForbiddenProviderTrustClaim,
+    ForbiddenCandidateApprovalClaim,
+    ForbiddenActionExecutionClaim,
+    ForbiddenPersistenceAuthorityClaim,
+    DeterministicContentMismatch,
+    MalformedPackageInput,
+}
+
+impl LocalSessionPackageValidationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingPackageId => "missing_package_id",
+            Self::MissingPackageVersion => "missing_package_version",
+            Self::InvalidPackageClassification => "invalid_package_classification",
+            Self::InvalidProductionClassification => "invalid_production_classification",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::ForbiddenReleaseReadinessOrDeploymentClaim => {
+                "forbidden_release_readiness_or_deployment_claim"
+            }
+            Self::ForbiddenSigningPublishingInstallerOrUpdateClaim => {
+                "forbidden_signing_publishing_installer_or_update_claim"
+            }
+            Self::ForbiddenProviderTrustClaim => "forbidden_provider_trust_claim",
+            Self::ForbiddenCandidateApprovalClaim => "forbidden_candidate_approval_claim",
+            Self::ForbiddenActionExecutionClaim => "forbidden_action_execution_claim",
+            Self::ForbiddenPersistenceAuthorityClaim => "forbidden_persistence_authority_claim",
+            Self::DeterministicContentMismatch => "deterministic_content_mismatch",
+            Self::MalformedPackageInput => "malformed_package_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackageMetadata {
+    pub package_id: String,
+    pub package_version: String,
+    pub package_classification: String,
+    pub production_classification: String,
+    pub package_status: LocalSessionPackageStatus,
+    pub validation_status: LocalSessionPackageValidationStatus,
+    pub content_digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackageAbsenceMarkers {
+    pub release_artifact_absent: bool,
+    pub deployment_artifact_absent: bool,
+    pub readiness_evidence_absent: bool,
+    pub production_persistence_absent: bool,
+    pub installer_absent: bool,
+    pub update_channel_absent: bool,
+    pub signing_absent: bool,
+    pub publishing_absent: bool,
+    pub public_use_absent: bool,
+    pub provider_trust_absent: bool,
+    pub candidate_approval_absent: bool,
+    pub action_execution_absent: bool,
+    pub automatic_persistence_absent: bool,
+    pub background_service_absent: bool,
+    pub remote_sync_absent: bool,
+    pub marker_summary: Vec<String>,
+}
+
+pub fn local_session_package_absence_markers() -> LocalSessionPackageAbsenceMarkers {
+    LocalSessionPackageAbsenceMarkers {
+        release_artifact_absent: true,
+        deployment_artifact_absent: true,
+        readiness_evidence_absent: true,
+        production_persistence_absent: true,
+        installer_absent: true,
+        update_channel_absent: true,
+        signing_absent: true,
+        publishing_absent: true,
+        public_use_absent: true,
+        provider_trust_absent: true,
+        candidate_approval_absent: true,
+        action_execution_absent: true,
+        automatic_persistence_absent: true,
+        background_service_absent: true,
+        remote_sync_absent: true,
+        marker_summary: vec![
+            "release artifact absent".to_string(),
+            "deployment artifact absent".to_string(),
+            "readiness evidence absent".to_string(),
+            "production persistence absent".to_string(),
+            "installer absent".to_string(),
+            "update-channel absent".to_string(),
+            "signing absent".to_string(),
+            "publishing absent".to_string(),
+            "public-use absent".to_string(),
+            "provider trust absent".to_string(),
+            "candidate approval absent".to_string(),
+            "action execution absent".to_string(),
+            "automatic persistence absent".to_string(),
+            "background service absent".to_string(),
+            "remote sync absent".to_string(),
+        ],
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackagePayload {
+    pub provider_configuration_projection: String,
+    pub provider_execution_result_projection: String,
+    pub provider_output_validation_projection: String,
+    pub provider_output_review_projection: String,
+    pub staged_candidate_conversion_proposal_projection: String,
+    pub staged_candidate_conversion_validation_projection: String,
+    pub candidate_review_surface_projection: String,
+    pub operator_candidate_decision_projection: String,
+    pub local_decision_ledger_projection: String,
+    pub replay_status_projection: String,
+    pub local_session_evidence_export_projection: String,
+    pub phase_150_handoff_context_projection: String,
+    pub no_release_marker: String,
+    pub no_deployment_marker: String,
+    pub no_readiness_marker: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackage {
+    pub metadata: LocalSessionPackageMetadata,
+    pub payload: LocalSessionPackagePayload,
+    pub absence_markers: LocalSessionPackageAbsenceMarkers,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackageProjection {
+    pub status: LocalSessionPackageStatus,
+    pub package_id: Option<String>,
+    pub package_version: String,
+    pub package_classification: String,
+    pub production_classification: String,
+    pub validation_status: LocalSessionPackageValidationStatus,
+    pub validation_errors: Vec<String>,
+    pub read_back_validation_status: Option<LocalSessionPackageValidationStatus>,
+    pub restore_status: LocalSessionPackageRestoreStatus,
+    pub included_section_summary: Vec<String>,
+    pub absence_marker_summary: Vec<String>,
+    pub local_only_note: String,
+    pub release_boundary_note: String,
+    pub deployment_readiness_boundary_note: String,
+    pub restore_boundary_note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackageWriteResult {
+    pub status: LocalSessionPackageStatus,
+    pub path: String,
+    pub bytes_written: usize,
+    pub projection: LocalSessionPackageProjection,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSessionPackageReadResult {
+    pub status: LocalSessionPackageStatus,
+    pub path: String,
+    pub package: Option<LocalSessionPackage>,
+    pub projection: LocalSessionPackageProjection,
+}
+
+pub const LOCAL_SESSION_PACKAGE_VERSION: &str = "local-session-package-v1";
+
+pub fn initial_local_session_package_projection() -> LocalSessionPackageProjection {
+    LocalSessionPackageProjection {
+        status: LocalSessionPackageStatus::NotPackaged,
+        package_id: None,
+        package_version: LOCAL_SESSION_PACKAGE_VERSION.to_string(),
+        package_classification: LocalSessionPackageClassification::LocalSessionPackageOnly
+            .code()
+            .to_string(),
+        production_classification: LocalSessionPackageProductionClassification::NonProduction
+            .code()
+            .to_string(),
+        validation_status: LocalSessionPackageValidationStatus::NotValidated,
+        validation_errors: Vec::new(),
+        read_back_validation_status: None,
+        restore_status: LocalSessionPackageRestoreStatus::NotRestored,
+        included_section_summary: Vec::new(),
+        absence_marker_summary: local_session_package_absence_markers().marker_summary,
+        local_only_note: "Local session package is local-only and non-production.".to_string(),
+        release_boundary_note: "This package is not a release artifact.".to_string(),
+        deployment_readiness_boundary_note: "This package is not deployment or readiness evidence."
+            .to_string(),
+        restore_boundary_note:
+            "Package restore/read-back validates structure only and does not promote recovery."
+                .to_string(),
+    }
+}
+
+fn local_session_package_payload_from_state(
+    state: &LocalOperatorShellState,
+) -> LocalSessionPackagePayload {
+    LocalSessionPackagePayload {
+        provider_configuration_projection: format!("{:?}", state.provider_configuration),
+        provider_execution_result_projection: format!("{:?}", state.provider_execution),
+        provider_output_validation_projection: format!("{:?}", state.provider_output_validation),
+        provider_output_review_projection: format!(
+            "{:?}",
+            project_local_provider_output_validation(state)
+        ),
+        staged_candidate_conversion_proposal_projection: format!(
+            "{:?}",
+            state.staged_candidate_conversion_proposal
+        ),
+        staged_candidate_conversion_validation_projection: format!(
+            "{:?}",
+            state.staged_candidate_conversion_validation
+        ),
+        candidate_review_surface_projection: format!("{:?}", state.run.candidate),
+        operator_candidate_decision_projection: format!("{:?}", state.operator_candidate_decision),
+        local_decision_ledger_projection: format!("{:?}", state.decision_ledger),
+        replay_status_projection: format!("{:?}", state.run.decision_replay),
+        local_session_evidence_export_projection: format!(
+            "{:?}",
+            state.local_session_evidence_export
+        ),
+        phase_150_handoff_context_projection: format!(
+            "{:?}",
+            state.phase_150_code_production_handoff
+        ),
+        no_release_marker: "not a release artifact".to_string(),
+        no_deployment_marker: "not deployment evidence".to_string(),
+        no_readiness_marker: "not readiness evidence".to_string(),
+    }
+}
+
+fn local_session_package_content_basis(
+    payload: &LocalSessionPackagePayload,
+    markers: &LocalSessionPackageAbsenceMarkers,
+) -> String {
+    format!(
+        "version={}|classification=local_session_package_only|production=non_production|payload={:?}|absence={:?}",
+        LOCAL_SESSION_PACKAGE_VERSION, payload, markers
+    )
+}
+
+fn stable_local_session_package_digest(input: &str) -> String {
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for byte in input.as_bytes() {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    format!("{hash:016x}")
+}
+
+pub fn derive_local_session_package(state: &LocalOperatorShellState) -> LocalSessionPackage {
+    let payload = local_session_package_payload_from_state(state);
+    let absence_markers = local_session_package_absence_markers();
+    let content_digest = stable_local_session_package_digest(&local_session_package_content_basis(
+        &payload,
+        &absence_markers,
+    ));
+    let package_id = format!("local-session-package-{content_digest}");
+    LocalSessionPackage {
+        metadata: LocalSessionPackageMetadata {
+            package_id,
+            package_version: LOCAL_SESSION_PACKAGE_VERSION.to_string(),
+            package_classification: LocalSessionPackageClassification::LocalSessionPackageOnly
+                .code()
+                .to_string(),
+            production_classification: LocalSessionPackageProductionClassification::NonProduction
+                .code()
+                .to_string(),
+            package_status: LocalSessionPackageStatus::PackageProjected,
+            validation_status: LocalSessionPackageValidationStatus::Valid,
+            content_digest,
+        },
+        payload,
+        absence_markers,
+    }
+}
+
+fn local_session_package_included_sections() -> Vec<String> {
+    vec![
+        "provider configuration".to_string(),
+        "provider execution result".to_string(),
+        "provider output validation".to_string(),
+        "provider output review projection".to_string(),
+        "staged candidate-conversion proposal".to_string(),
+        "staged proposal validation".to_string(),
+        "candidate review surface".to_string(),
+        "operator candidate decision".to_string(),
+        "local decision ledger".to_string(),
+        "replay/status projection".to_string(),
+        "local session evidence export".to_string(),
+        "Phase 150 handoff context".to_string(),
+    ]
+}
+
+fn local_session_package_validation_errors(
+    package: &LocalSessionPackage,
+) -> Vec<LocalSessionPackageValidationError> {
+    let mut errors = Vec::new();
+    if package.metadata.package_id.is_empty() {
+        errors.push(LocalSessionPackageValidationError::MissingPackageId);
+    }
+    if package.metadata.package_version.is_empty() {
+        errors.push(LocalSessionPackageValidationError::MissingPackageVersion);
+    }
+    if package.metadata.package_classification
+        != LocalSessionPackageClassification::LocalSessionPackageOnly.code()
+    {
+        errors.push(LocalSessionPackageValidationError::InvalidPackageClassification);
+    }
+    if package.metadata.production_classification
+        != LocalSessionPackageProductionClassification::NonProduction.code()
+    {
+        errors.push(LocalSessionPackageValidationError::InvalidProductionClassification);
+    }
+    let markers = &package.absence_markers;
+    if !markers.release_artifact_absent
+        || !markers.deployment_artifact_absent
+        || !markers.readiness_evidence_absent
+        || !markers.production_persistence_absent
+        || !markers.installer_absent
+        || !markers.update_channel_absent
+        || !markers.signing_absent
+        || !markers.publishing_absent
+        || !markers.public_use_absent
+        || !markers.provider_trust_absent
+        || !markers.candidate_approval_absent
+        || !markers.action_execution_absent
+        || !markers.automatic_persistence_absent
+        || !markers.background_service_absent
+        || !markers.remote_sync_absent
+    {
+        errors.push(LocalSessionPackageValidationError::MissingAbsenceMarker);
+    }
+    let text = format!("{:?}", package).to_ascii_lowercase();
+    if [
+        "claim:release_candidate_approved",
+        "claim:production candidate status approved",
+        "claim:public_use_approved",
+        "claim:production_ready",
+        "claim:readiness_approved",
+        "claim:deployment_enabled",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionPackageValidationError::ForbiddenReleaseReadinessOrDeploymentClaim);
+    }
+    if [
+        "claim:signing_enabled",
+        "claim:publishing_enabled",
+        "claim:installer_created",
+        "claim:update_channel_enabled",
+        "claim:github_release_created",
+        "claim:release_tag_created",
+        "claim:public_download",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(
+            LocalSessionPackageValidationError::ForbiddenSigningPublishingInstallerOrUpdateClaim,
+        );
+    }
+    if [
+        "claim:provider_trusted",
+        "claim:trusted_provider_output",
+        "claim:provider trust granted",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionPackageValidationError::ForbiddenProviderTrustClaim);
+    }
+    if [
+        "claim:candidate_approved",
+        "claim:candidate approval granted",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionPackageValidationError::ForbiddenCandidateApprovalClaim);
+    }
+    if [
+        "claim:action_executed",
+        "claim:execute action",
+        "claim:action execution enabled",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionPackageValidationError::ForbiddenActionExecutionClaim);
+    }
+    if [
+        "claim:production_persistence_enabled",
+        "claim:durable persistence authority",
+        "claim:automatic persistence enabled",
+        "claim:background persistence enabled",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(LocalSessionPackageValidationError::ForbiddenPersistenceAuthorityClaim);
+    }
+    let expected_digest = stable_local_session_package_digest(
+        &local_session_package_content_basis(&package.payload, &package.absence_markers),
+    );
+    let expected_id = format!("local-session-package-{expected_digest}");
+    if package.metadata.content_digest != expected_digest
+        || (!package.metadata.package_id.is_empty() && package.metadata.package_id != expected_id)
+    {
+        errors.push(LocalSessionPackageValidationError::DeterministicContentMismatch);
+    }
+    errors
+}
+
+pub fn validate_local_session_package(
+    package: &LocalSessionPackage,
+) -> Result<(), Vec<LocalSessionPackageValidationError>> {
+    let errors = local_session_package_validation_errors(package);
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+pub fn project_local_session_package_status(
+    package: Option<&LocalSessionPackage>,
+    read_back_status: Option<LocalSessionPackageValidationStatus>,
+) -> LocalSessionPackageProjection {
+    match package {
+        None => initial_local_session_package_projection(),
+        Some(package) => {
+            let errors = local_session_package_validation_errors(package);
+            let validation_status = if errors.is_empty() {
+                LocalSessionPackageValidationStatus::Valid
+            } else {
+                LocalSessionPackageValidationStatus::Invalid
+            };
+            LocalSessionPackageProjection {
+                status: if errors.is_empty() { package.metadata.package_status } else { LocalSessionPackageStatus::PackageRejected },
+                package_id: Some(package.metadata.package_id.clone()),
+                package_version: package.metadata.package_version.clone(),
+                package_classification: package.metadata.package_classification.clone(),
+                production_classification: package.metadata.production_classification.clone(),
+                validation_status,
+                validation_errors: errors.into_iter().map(|error| error.code().to_string()).collect(),
+                read_back_validation_status: read_back_status,
+                restore_status: if read_back_status == Some(LocalSessionPackageValidationStatus::Valid) { LocalSessionPackageRestoreStatus::ReadBackValidated } else { LocalSessionPackageRestoreStatus::NotRestored },
+                included_section_summary: local_session_package_included_sections(),
+                absence_marker_summary: package.absence_markers.marker_summary.clone(),
+                local_only_note: "Local session package is local-only and non-production.".to_string(),
+                release_boundary_note: "This package is not a release artifact.".to_string(),
+                deployment_readiness_boundary_note: "This package is not deployment or readiness evidence.".to_string(),
+                restore_boundary_note: "Package restore/read-back validates structure only and does not promote recovery.".to_string(),
+            }
+        }
+    }
+}
+
+fn hex_encode(input: &str) -> String {
+    let mut encoded = String::with_capacity(input.len() * 2);
+    for byte in input.as_bytes() {
+        encoded.push_str(&format!("{byte:02x}"));
+    }
+    encoded
+}
+
+fn hex_decode(input: &str) -> Result<String, LocalSessionPackageValidationError> {
+    if !input.len().is_multiple_of(2) {
+        return Err(LocalSessionPackageValidationError::MalformedPackageInput);
+    }
+    let mut bytes = Vec::with_capacity(input.len() / 2);
+    for index in (0..input.len()).step_by(2) {
+        let byte = u8::from_str_radix(&input[index..index + 2], 16)
+            .map_err(|_| LocalSessionPackageValidationError::MalformedPackageInput)?;
+        bytes.push(byte);
+    }
+    String::from_utf8(bytes).map_err(|_| LocalSessionPackageValidationError::MalformedPackageInput)
+}
+
+pub fn serialize_local_session_package(
+    package: &LocalSessionPackage,
+) -> Result<String, Vec<LocalSessionPackageValidationError>> {
+    validate_local_session_package(package)?;
+    let mut lines = vec![
+        "ajentic_local_session_package=v1".to_string(),
+        format!("package_id={}", package.metadata.package_id),
+        format!("package_version={}", package.metadata.package_version),
+        format!(
+            "package_classification={}",
+            package.metadata.package_classification
+        ),
+        format!(
+            "production_classification={}",
+            package.metadata.production_classification
+        ),
+        format!("package_status={}", package.metadata.package_status.code()),
+        format!(
+            "validation_status={}",
+            package.metadata.validation_status.code()
+        ),
+        format!("content_digest={}", package.metadata.content_digest),
+    ];
+    let payload_fields = [
+        (
+            "provider_configuration_projection",
+            &package.payload.provider_configuration_projection,
+        ),
+        (
+            "provider_execution_result_projection",
+            &package.payload.provider_execution_result_projection,
+        ),
+        (
+            "provider_output_validation_projection",
+            &package.payload.provider_output_validation_projection,
+        ),
+        (
+            "provider_output_review_projection",
+            &package.payload.provider_output_review_projection,
+        ),
+        (
+            "staged_candidate_conversion_proposal_projection",
+            &package
+                .payload
+                .staged_candidate_conversion_proposal_projection,
+        ),
+        (
+            "staged_candidate_conversion_validation_projection",
+            &package
+                .payload
+                .staged_candidate_conversion_validation_projection,
+        ),
+        (
+            "candidate_review_surface_projection",
+            &package.payload.candidate_review_surface_projection,
+        ),
+        (
+            "operator_candidate_decision_projection",
+            &package.payload.operator_candidate_decision_projection,
+        ),
+        (
+            "local_decision_ledger_projection",
+            &package.payload.local_decision_ledger_projection,
+        ),
+        (
+            "replay_status_projection",
+            &package.payload.replay_status_projection,
+        ),
+        (
+            "local_session_evidence_export_projection",
+            &package.payload.local_session_evidence_export_projection,
+        ),
+        (
+            "phase_150_handoff_context_projection",
+            &package.payload.phase_150_handoff_context_projection,
+        ),
+        ("no_release_marker", &package.payload.no_release_marker),
+        (
+            "no_deployment_marker",
+            &package.payload.no_deployment_marker,
+        ),
+        ("no_readiness_marker", &package.payload.no_readiness_marker),
+    ];
+    for (key, value) in payload_fields {
+        lines.push(format!("{key}={}", hex_encode(value)));
+    }
+    lines.push(format!(
+        "absence_markers={}",
+        hex_encode(&format!("{:?}", package.absence_markers))
+    ));
+    lines.push(
+        "local_only_note=Local session package is local-only and non-production.".to_string(),
+    );
+    lines.push("release_boundary_note=This package is not a release artifact.".to_string());
+    lines.push(
+        "deployment_readiness_boundary_note=This package is not deployment or readiness evidence."
+            .to_string(),
+    );
+    lines.push("restore_boundary_note=Package restore/read-back validates structure only and does not promote recovery.".to_string());
+    Ok(format!("{}\n", lines.join("\n")))
+}
+
+fn parse_status(
+    code: &str,
+) -> Result<LocalSessionPackageStatus, LocalSessionPackageValidationError> {
+    match code {
+        "package_projected" => Ok(LocalSessionPackageStatus::PackageProjected),
+        "package_written" => Ok(LocalSessionPackageStatus::PackageWritten),
+        "package_read_back_validated" => Ok(LocalSessionPackageStatus::PackageReadBackValidated),
+        "package_rejected" => Ok(LocalSessionPackageStatus::PackageRejected),
+        "invalid_package_input" => Ok(LocalSessionPackageStatus::InvalidPackageInput),
+        "not_packaged" => Ok(LocalSessionPackageStatus::NotPackaged),
+        _ => Err(LocalSessionPackageValidationError::MalformedPackageInput),
+    }
+}
+
+pub fn parse_local_session_package(
+    content: &str,
+) -> Result<LocalSessionPackage, Vec<LocalSessionPackageValidationError>> {
+    let mut values = std::collections::BTreeMap::new();
+    for line in content.lines() {
+        let Some((key, value)) = line.split_once('=') else {
+            return Err(vec![
+                LocalSessionPackageValidationError::MalformedPackageInput,
+            ]);
+        };
+        values.insert(key.to_string(), value.to_string());
+    }
+    if values
+        .get("ajentic_local_session_package")
+        .map(String::as_str)
+        != Some("v1")
+    {
+        return Err(vec![
+            LocalSessionPackageValidationError::MalformedPackageInput,
+        ]);
+    }
+    let get = |key: &str| {
+        values
+            .get(key)
+            .cloned()
+            .ok_or(LocalSessionPackageValidationError::MalformedPackageInput)
+    };
+    let decode = |key: &str| get(key).and_then(|value| hex_decode(&value));
+    let package = LocalSessionPackage {
+        metadata: LocalSessionPackageMetadata {
+            package_id: get("package_id").map_err(|e| vec![e])?,
+            package_version: get("package_version").map_err(|e| vec![e])?,
+            package_classification: get("package_classification").map_err(|e| vec![e])?,
+            production_classification: get("production_classification").map_err(|e| vec![e])?,
+            package_status: parse_status(&get("package_status").map_err(|e| vec![e])?)
+                .map_err(|e| vec![e])?,
+            validation_status: LocalSessionPackageValidationStatus::Valid,
+            content_digest: get("content_digest").map_err(|e| vec![e])?,
+        },
+        payload: LocalSessionPackagePayload {
+            provider_configuration_projection: decode("provider_configuration_projection")
+                .map_err(|e| vec![e])?,
+            provider_execution_result_projection: decode("provider_execution_result_projection")
+                .map_err(|e| vec![e])?,
+            provider_output_validation_projection: decode("provider_output_validation_projection")
+                .map_err(|e| vec![e])?,
+            provider_output_review_projection: decode("provider_output_review_projection")
+                .map_err(|e| vec![e])?,
+            staged_candidate_conversion_proposal_projection: decode(
+                "staged_candidate_conversion_proposal_projection",
+            )
+            .map_err(|e| vec![e])?,
+            staged_candidate_conversion_validation_projection: decode(
+                "staged_candidate_conversion_validation_projection",
+            )
+            .map_err(|e| vec![e])?,
+            candidate_review_surface_projection: decode("candidate_review_surface_projection")
+                .map_err(|e| vec![e])?,
+            operator_candidate_decision_projection: decode(
+                "operator_candidate_decision_projection",
+            )
+            .map_err(|e| vec![e])?,
+            local_decision_ledger_projection: decode("local_decision_ledger_projection")
+                .map_err(|e| vec![e])?,
+            replay_status_projection: decode("replay_status_projection").map_err(|e| vec![e])?,
+            local_session_evidence_export_projection: decode(
+                "local_session_evidence_export_projection",
+            )
+            .map_err(|e| vec![e])?,
+            phase_150_handoff_context_projection: decode("phase_150_handoff_context_projection")
+                .map_err(|e| vec![e])?,
+            no_release_marker: decode("no_release_marker").map_err(|e| vec![e])?,
+            no_deployment_marker: decode("no_deployment_marker").map_err(|e| vec![e])?,
+            no_readiness_marker: decode("no_readiness_marker").map_err(|e| vec![e])?,
+        },
+        absence_markers: local_session_package_absence_markers(),
+    };
+    validate_local_session_package(&package)?;
+    Ok(package)
+}
+
+pub fn validate_local_session_package_read_back(
+    package: &LocalSessionPackage,
+) -> LocalSessionPackageProjection {
+    project_local_session_package_status(
+        Some(package),
+        Some(LocalSessionPackageValidationStatus::Valid),
+    )
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalOperatorShellState {
     pub harness_status: String,
@@ -3612,6 +4387,7 @@ pub struct LocalOperatorShellState {
     pub staged_candidate_conversion_validation: StagedCandidateConversionValidationProjection,
     pub operator_candidate_decision: OperatorCandidateDecisionProjection,
     pub phase_150_code_production_handoff: Phase150CodeProductionHandoff,
+    pub local_session_package_projection: LocalSessionPackageProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -3830,6 +4606,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
             initial_staged_candidate_conversion_validation_projection(),
         operator_candidate_decision: initial_operator_candidate_decision_projection(),
         phase_150_code_production_handoff: initial_phase_150_code_production_handoff(),
+        local_session_package_projection: initial_local_session_package_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state
@@ -4209,6 +4986,190 @@ fn rejected(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn phase_151_package_state_with_available_sections() -> LocalOperatorShellState {
+        let configured = apply_local_provider_configuration_candidate(
+            &initial_local_operator_shell_state(),
+            LocalProviderConfigurationCandidate::deterministic_stub(),
+        )
+        .unwrap();
+        let executed = apply_local_provider_execution(
+            &configured,
+            LocalProviderExecutionRequest::deterministic_stub("phase 151 package input"),
+        )
+        .unwrap();
+        let proposal = create_staged_candidate_conversion_proposal(
+            &executed,
+            StagedCandidateConversionProposalRequest::staging_only("phase 151 package proposal"),
+        )
+        .unwrap();
+        let validated = validate_staged_candidate_conversion_proposal_for_phase_147(
+            &proposal,
+            StagedCandidateConversionValidationRequest::existing_staged_proposal(),
+        );
+        let proposal_id = validated
+            .staged_candidate_conversion_proposal
+            .proposal
+            .as_ref()
+            .unwrap()
+            .proposal_id
+            .clone();
+        let result_id = validated
+            .provider_execution
+            .result
+            .as_ref()
+            .unwrap()
+            .result_id
+            .clone();
+        let decided = submit_operator_candidate_decision(
+            &validated,
+            OperatorCandidateDecisionRequest::approve(proposal_id, result_id),
+        )
+        .unwrap();
+        let mut run = start_deterministic_stub_run(&decided);
+        run.run.decision_replay =
+            derive_local_decision_replay_projection(&run.run, &run.decision_ledger);
+        run.run.replay_status = run.run.decision_replay.replay_status.code().to_string();
+        attach_local_session_evidence_export(run)
+    }
+
+    #[test]
+    fn phase_151_initial_shell_state_exposes_not_packaged_projection() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.local_session_package_projection.status,
+            LocalSessionPackageStatus::NotPackaged
+        );
+        assert_eq!(state.local_session_package_projection.package_id, None);
+        assert_eq!(
+            state
+                .local_session_package_projection
+                .package_classification,
+            "local_session_package_only"
+        );
+        assert_eq!(
+            state
+                .local_session_package_projection
+                .production_classification,
+            "non_production"
+        );
+    }
+
+    #[test]
+    fn phase_151_package_derivation_serialization_and_id_are_deterministic() {
+        let state = phase_151_package_state_with_available_sections();
+        let before = state.clone();
+        let first = derive_local_session_package(&state);
+        let second = derive_local_session_package(&state);
+        assert_eq!(first, second);
+        assert_eq!(first.metadata.package_id, second.metadata.package_id);
+        assert_eq!(
+            serialize_local_session_package(&first).unwrap(),
+            serialize_local_session_package(&second).unwrap()
+        );
+        assert_eq!(state, before);
+        validate_local_session_package(&first).unwrap();
+    }
+
+    #[test]
+    fn phase_151_package_includes_available_sections_and_absence_markers() {
+        let package =
+            derive_local_session_package(&phase_151_package_state_with_available_sections());
+        assert!(package
+            .payload
+            .provider_configuration_projection
+            .contains("DeterministicStub"));
+        assert!(package
+            .payload
+            .provider_execution_result_projection
+            .contains("LocalProviderExecutionResult"));
+        assert!(package
+            .payload
+            .provider_output_validation_projection
+            .contains("ReviewableUntrusted"));
+        assert!(package
+            .payload
+            .staged_candidate_conversion_proposal_projection
+            .contains("proposal"));
+        assert!(package
+            .payload
+            .staged_candidate_conversion_validation_projection
+            .contains("StagedProposalShapeValid"));
+        assert!(package
+            .payload
+            .operator_candidate_decision_projection
+            .contains("ApprovedValidatedStagedProposal"));
+        assert!(package
+            .payload
+            .local_decision_ledger_projection
+            .contains("records"));
+        assert!(package
+            .payload
+            .replay_status_projection
+            .contains("LocalDecisionReplayProjection"));
+        assert!(package
+            .payload
+            .local_session_evidence_export_projection
+            .contains("LocalSessionEvidenceExport"));
+        assert!(package
+            .payload
+            .phase_150_handoff_context_projection
+            .contains("phase_150"));
+        assert!(package.absence_markers.release_artifact_absent);
+        assert!(package.absence_markers.deployment_artifact_absent);
+        assert!(package.absence_markers.readiness_evidence_absent);
+        assert!(package.absence_markers.action_execution_absent);
+    }
+
+    #[test]
+    fn phase_151_validation_rejects_missing_invalid_and_claim_bearing_package_content() {
+        let package = derive_local_session_package(&initial_local_operator_shell_state());
+        let mut missing_id = package.clone();
+        missing_id.metadata.package_id.clear();
+        assert!(validate_local_session_package(&missing_id)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::MissingPackageId));
+        let mut missing_version = package.clone();
+        missing_version.metadata.package_version.clear();
+        assert!(validate_local_session_package(&missing_version)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::MissingPackageVersion));
+        let mut invalid_classification = package.clone();
+        invalid_classification.metadata.package_classification = "release_artifact".to_string();
+        assert!(validate_local_session_package(&invalid_classification)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::InvalidPackageClassification));
+        let mut invalid_production = package.clone();
+        invalid_production.metadata.production_classification = "production".to_string();
+        assert!(validate_local_session_package(&invalid_production)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::InvalidProductionClassification));
+        let mut missing_marker = package.clone();
+        missing_marker.absence_markers.update_channel_absent = false;
+        assert!(validate_local_session_package(&missing_marker)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::MissingAbsenceMarker));
+        let mut drifted = package.clone();
+        drifted
+            .payload
+            .provider_configuration_projection
+            .push_str("drift");
+        assert!(validate_local_session_package(&drifted)
+            .unwrap_err()
+            .contains(&LocalSessionPackageValidationError::DeterministicContentMismatch));
+        for (claim, expected) in [
+            (" claim:production_ready ", LocalSessionPackageValidationError::ForbiddenReleaseReadinessOrDeploymentClaim),
+            (" claim:signing_enabled ", LocalSessionPackageValidationError::ForbiddenSigningPublishingInstallerOrUpdateClaim),
+            (" claim:provider_trusted ", LocalSessionPackageValidationError::ForbiddenProviderTrustClaim),
+            (" claim:candidate_approved ", LocalSessionPackageValidationError::ForbiddenCandidateApprovalClaim),
+            (" claim:action_executed ", LocalSessionPackageValidationError::ForbiddenActionExecutionClaim),
+            (" claim:durable persistence authority ", LocalSessionPackageValidationError::ForbiddenPersistenceAuthorityClaim),
+        ] {
+            let mut claimed = package.clone();
+            claimed.payload.provider_configuration_projection.push_str(claim);
+            assert!(validate_local_session_package(&claimed).unwrap_err().contains(&expected));
+        }
+    }
 
     #[test]
     fn transport_initial_state_returns_idle_non_production_projection() {

@@ -1178,6 +1178,30 @@ function buildSpoofedFlagTest(name: string, flagName: keyof UiSubmissionBoundary
   };
 }
 
+
+function assertLocalSessionPackageProjectionInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const projection = state.localSessionPackageProjection;
+  assertEqual(projection.status, "not_packaged", "initial package status");
+  assertEqual(projection.packageId, null, "initial package id");
+  assertEqual(projection.packageVersion, "local-session-package-v1", "package version");
+  assertEqual(projection.packageClassification, "local_session_package_only", "package classification");
+  assertEqual(projection.productionClassification, "non_production", "production classification");
+  assertEqual(projection.validationStatus, "not_validated", "initial validation status");
+  assertEqual(projection.readBackValidationStatus, null, "initial read-back status");
+  assertContains(projection.localOnlyNote, "local-only and non-production", "local-only note");
+  assertContains(projection.releaseBoundaryNote, "not a release artifact", "release boundary note");
+  assertContains(projection.deploymentReadinessBoundaryNote, "not deployment or readiness evidence", "deployment readiness note");
+  assertContains(projection.restoreBoundaryNote, "does not promote recovery", "restore boundary note");
+  assertEqual(projection.absenceMarkerSummary.includes("action execution absent"), true, "absence marker summary");
+}
+
+function assertLocalSessionPackageProjectionIsStableAcrossRenderingState(): void {
+  const first = initialLocalOperatorShellState().localSessionPackageProjection;
+  const second = initialLocalOperatorShellState().localSessionPackageProjection;
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic initial local session package projection");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
 
   {
@@ -1555,6 +1579,15 @@ payload_summary=authority before replay`), "authority_bearing_request_rejected")
   {
     name: "provider_output_review_ui_is_deterministic_and_display_only",
     run: assertProviderOutputReviewUiIsDeterministicAndDisplayOnly
+  },
+
+  {
+    name: "local_session_package_projection_initial_state",
+    run: assertLocalSessionPackageProjectionInitialState
+  },
+  {
+    name: "local_session_package_projection_is_stable",
+    run: assertLocalSessionPackageProjectionIsStableAcrossRenderingState
   },
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",

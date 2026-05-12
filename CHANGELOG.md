@@ -28,6 +28,40 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.151 - 2026-05-12
+**Status:** Phase 151 - Persistent Local Session Package
+
+### Added
+- Add Rust-owned local session package derivation, validation, serialization, write, read, and read-back validation.
+- Add deterministic local session package metadata, classification, payload, absence markers, and validation errors.
+- Add explicit caller-provided path helpers for local session package write/read.
+- Add local session package projection to the local shell/transport surface.
+- Add UI rendering for local session package status and validation.
+- Add Rust and TypeScript tests for deterministic package content, explicit write/read behavior, read-back validation, malformed package rejection, and local-only/non-production boundaries.
+
+### Changed
+- Extend the local operator shell projection with local session package status.
+- Update checklists/current-phase.md to Phase 151 procedural truth.
+
+### Notes
+- Code-production phase.
+- Produces a real local session package artifact through explicit caller-provided path helpers.
+- Local session package is local-only and non-production.
+- Local session package is not a release artifact.
+- Local session package is not deployment evidence.
+- Local session package is not readiness evidence.
+- No default filesystem persistence.
+- No automatic save.
+- No background persistence.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- No provider trust approval.
+- No candidate approval.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+
 ## v0.0.150 - 2026-05-12
 **Status:** Phase 150 - Aggressive Code-Production Roadmap Remap
 

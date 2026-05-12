@@ -1628,6 +1628,72 @@ export function applyLocalProviderExecution(
   };
 }
 
+
+export type LocalSessionPackageStatus =
+  | "not_packaged"
+  | "package_projected"
+  | "package_written"
+  | "package_read_back_validated"
+  | "package_rejected"
+  | "invalid_package_input";
+
+export type LocalSessionPackageValidationStatus = "not_validated" | "valid" | "invalid";
+export type LocalSessionPackageRestoreStatus = "not_restored" | "read_back_validated_structure_only" | "restore_projection_rejected";
+
+export type LocalSessionPackageProjection = Readonly<{
+  status: LocalSessionPackageStatus;
+  packageId: string | null;
+  packageVersion: string;
+  packageClassification: "local_session_package_only";
+  productionClassification: "non_production";
+  validationStatus: LocalSessionPackageValidationStatus;
+  validationErrors: readonly string[];
+  readBackValidationStatus: LocalSessionPackageValidationStatus | null;
+  restoreStatus: LocalSessionPackageRestoreStatus;
+  includedSectionSummary: readonly string[];
+  absenceMarkerSummary: readonly string[];
+  localOnlyNote: "Local session package is local-only and non-production.";
+  releaseBoundaryNote: "This package is not a release artifact.";
+  deploymentReadinessBoundaryNote: "This package is not deployment or readiness evidence.";
+  restoreBoundaryNote: "Package restore/read-back validates structure only and does not promote recovery.";
+}>;
+
+export function initialLocalSessionPackageProjection(): LocalSessionPackageProjection {
+  return {
+    status: "not_packaged",
+    packageId: null,
+    packageVersion: "local-session-package-v1",
+    packageClassification: "local_session_package_only",
+    productionClassification: "non_production",
+    validationStatus: "not_validated",
+    validationErrors: [],
+    readBackValidationStatus: null,
+    restoreStatus: "not_restored",
+    includedSectionSummary: [],
+    absenceMarkerSummary: [
+      "release artifact absent",
+      "deployment artifact absent",
+      "readiness evidence absent",
+      "production persistence absent",
+      "installer absent",
+      "update-channel absent",
+      "signing absent",
+      "publishing absent",
+      "public-use absent",
+      "provider trust absent",
+      "candidate approval absent",
+      "action execution absent",
+      "automatic persistence absent",
+      "background service absent",
+      "remote sync absent"
+    ],
+    localOnlyNote: "Local session package is local-only and non-production.",
+    releaseBoundaryNote: "This package is not a release artifact.",
+    deploymentReadinessBoundaryNote: "This package is not deployment or readiness evidence.",
+    restoreBoundaryNote: "Package restore/read-back validates structure only and does not promote recovery."
+  };
+}
+
 export type LocalCandidateOutput = Readonly<{
   candidateId: string;
   title: string;
@@ -1671,6 +1737,7 @@ export type LocalOperatorShellState = Readonly<{
   stagedCandidateConversionValidation: StagedCandidateConversionValidationProjection;
   operatorCandidateDecision: OperatorCandidateDecisionProjection;
   phase150CodeProductionHandoff: Phase150CodeProductionHandoff;
+  localSessionPackageProjection: LocalSessionPackageProjection;
 }>;
 
 
@@ -1798,7 +1865,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       remainingProductionGradeGaps: phase150RemainingProductionGaps(),
       remapRecommendations: [],
       phase149RoadmapEditStatus: "phase_149_does_not_edit_roadmap_files"
-    }
+    },
+    localSessionPackageProjection: initialLocalSessionPackageProjection()
   });
   return { ...state, phase150CodeProductionHandoff: derivePhase150CodeProductionHandoff(state) };
 }
