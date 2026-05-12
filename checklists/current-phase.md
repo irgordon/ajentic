@@ -1,22 +1,22 @@
 ---
 truth_dimension: procedural
-phase: 152
+phase: 153
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 152
+# Current Phase Checklist - Phase 153
 
 ## Phase name
-- [x] Phase 152 - Session History and Restore UI.
+- [x] Phase 153 - Real Local Provider Adapter Contract.
 
 ## Phase goal
-- [x] Make Phase 151 local session packages visible through local session history and restore preview UI.
-- [x] Keep restore as local-only projection and continuity support.
+- [x] Add the Rust-owned real local provider adapter contract surface before any Phase 154 dry-run harness.
+- [x] Make adapter registry/configuration visible in the local UI as contract-only, non-executing state.
 
 ## Working-tree hygiene gate
-- [x] Review allowed Phase 152 surfaces before editing.
-- [x] Do not modify roadmap, governance, architecture, release, installer, update-channel, or publishing surfaces.
+- [x] Review allowed Phase 153 surfaces before editing.
+- [x] Keep roadmap, governance, architecture, release, installer, update-channel, publishing, and production persistence surfaces unchanged.
 
 ## Allowed surfaces
 - [x] `core/src/**`
@@ -25,94 +25,87 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Add Rust-owned session history projection types.
-- [x] Add Rust-owned restore candidate, read-back, status, validation, and boundary types.
-- [x] Expose local shell state history and restore projections.
-- [x] Add visible UI capability for history, selected package details, restore validation, and restore preview.
+- [x] Add Rust-owned local provider adapter contract types.
+- [x] Add TypeScript Rust-shaped adapter contract/projection types.
+- [x] Extend local shell state and transport with adapter registry/configuration projection.
+- [x] Add visible local UI adapter registry/configuration panel.
 
-## Session history checklist
-- [x] Initial state exposes empty history.
-- [x] History projection is derived from explicit package entries only.
-- [x] History projection is deterministic for identical explicit metadata.
-- [x] No automatic filesystem scanning is added.
+## Local provider adapter contract checklist
+- [x] Define adapter kind, declaration candidate, declaration, contract, capability, validation, execution, trust, and boundary types.
+- [x] Accept `deterministic_fake_adapter` as contract-only and non-executing.
+- [x] Accept `local_model_adapter_contract` as declaration-only when no unsafe fields are present.
 
-## Restore projection checklist
-- [x] Restore request uses explicit package payload or caller-provided package path helper.
-- [x] Valid package produces deterministic restore preview/projection.
-- [x] Restore preview includes package ID, version, classifications, sections, absence markers, and boundaries.
-- [x] Restore preview does not mutate current shell state.
+## Adapter registry projection checklist
+- [x] Initial registry projection is deterministic.
+- [x] Projection lists supported and rejected adapter declarations.
+- [x] Projection includes capability surface, validation result, execution status, trust status, and boundary statuses.
 
-## Read-back validation checklist
-- [x] Read-back validation checks package structure only.
-- [x] Read-back validation is not restore authority; read-back validation is not restore authority.
-- [x] Malformed package content rejects fail-closed.
-- [x] Missing required package sections or absence markers reject fail-closed.
+## Adapter validation checklist
+- [x] Unsupported and unknown adapter kinds reject fail-closed.
+- [x] Cloud, network, shell, filesystem, executable-path, endpoint, command, path, secret, execution, trust, readiness, release, deployment, public-use, signing, and publishing declarations reject fail-closed.
+- [x] Rejected declarations preserve prior accepted registry state.
 
-## UI restore panel checklist
-- [x] Render `Session history` panel.
-- [x] Render `Local session restore` panel.
-- [x] Render `Restore preview` panel.
-- [x] Render selected package details, status, read-back validation, restore status, errors, sections, and absence markers.
-- [x] Render required local-only and non-production wording.
+## UI adapter panel checklist
+- [x] Render `Local provider adapter contract` panel.
+- [x] Render `Adapter registry` and `Adapter configuration` labels.
+- [x] Render supported, accepted, and rejected declaration status.
+- [x] Render validation error/reason, capability surface, execution status, trust status, and boundary markers.
+- [x] Render required Phase 153 no-model-execution wording.
+
+## No-execution/no-trust checklist
+- [x] Accepted declarations record `contract_only` and `no_execution`.
+- [x] Accepted declarations record `no_provider_trust`.
+- [x] Accepted declarations record `no_network`, `no_shell`, `no_secrets`, and `no_production_persistence`.
+- [x] Accepted declarations record no readiness, release, deployment, or public-use effect.
 
 ## Local-only/non-production boundary checklist
-- [x] Restore remains local-only and non-production.
-- [x] No production persistence claim is introduced.
-- [x] No readiness, release, deployment, or public-use approval is introduced.
-- [x] No remote sync or background restore is active; no remote sync and no background restore are active.
-
-## No-recovery/no-replay-repair checklist
-- [x] Restore preview does not repair replay.
-- [x] Restore preview does not promote recovery.
-- [x] Replay repair and recovery promotion claims reject fail-closed.
+- [x] No provider execution expansion is added.
+- [x] No cloud calls, network sockets, shell commands, executable paths, or secret handling are added.
+- [x] No production persistence, readiness approval, release, deployment, signing, publishing, or public-use approval is added.
 
 ## Rust test checklist
-- [x] Initial empty history and restore state.
-- [x] Valid explicit package appears in deterministic history.
-- [x] Valid package produces deterministic restore preview/projection.
-- [x] Malformed or incomplete package rejects.
-- [x] Invalid classification, invalid production classification, missing marker, and authority claims reject.
-- [x] Unreadable caller-provided path rejects.
+- [x] Deterministic initial adapter registry projection.
+- [x] Accepted non-executing deterministic fake/local adapter declarations.
+- [x] Unsupported and unsafe declaration rejection.
+- [x] No-execution and no-mutation boundaries.
+- [x] Rejected declaration preserves prior registry.
 
 ## TypeScript test checklist
-- [x] Initial session history and restore projections render expected state.
-- [x] Explicit package details project into history.
-- [x] Restore preview and rejection state render.
-- [x] Local-only, non-production, no-recovery, no-replay-repair, and no-approval wording is present.
-- [x] Repeated rendering/projection is deterministic.
+- [x] Visible adapter registry/configuration panel.
+- [x] Accepted adapter declaration rendering.
+- [x] Rejected unsafe declaration behavior.
+- [x] Deterministic projection/validation and no-authority wording.
 
-## Phase 153 handoff checklist
-- [x] Phase 153 remains next code-production phase for real local provider adapter contract.
-- [x] No Phase 153 implementation is started in Phase 152.
+## Phase 154 handoff checklist
+- [x] Phase 154 remains the next code-production phase for controlled adapter dry-run harness.
+- [x] Phase 153 does not implement a dry-run harness.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] `cd ui && npm run typecheck`
 - [x] `cd ui && npm run lint`
 - [x] `cd ui && npm run build && rm -rf dist`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `cd ui && timeout 5 npm run dev`
-- [x] Restore scans and boundary scans complete.
+- [x] Adapter contract and boundary scans complete.
 
 ## Deferred items
-- [x] Production persistence remains deferred.
-- [x] Recovery promotion remains deferred.
-- [x] Replay repair remains deferred.
-- [x] Remote sync and background restore remain deferred.
-- [x] Release/deployment/signing/publishing behavior remains deferred.
+- [x] Provider execution remains deferred.
+- [x] Controlled adapter dry-run harness remains deferred to Phase 154.
+- [x] Production persistence, replay repair, recovery promotion, release/deployment/signing/publishing, and readiness approval remain deferred.
 
 ## Validation log
-- Full Rust tests passed with `CARGO_TARGET_DIR=/tmp/ajentic-phase-152-target cargo test --manifest-path core/Cargo.toml --all-targets`.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target ./scripts/check.sh` passed after commit with a clean worktree.
+- Full Rust tests passed with `CARGO_TARGET_DIR=/tmp/ajentic-phase-153-target cargo test --manifest-path core/Cargo.toml --all-targets`.
 - TypeScript typecheck, lint, build, and API behavior tests passed.
 - Local dev smoke test printed `http://127.0.0.1:5173`; timeout stopped the long-running server.
-- `git diff --check`, restore scans, filesystem scan, unsafe execution scan, readiness/release scan, changed-file guard, and no-roadmap-drift guard completed.
-- `./scripts/check.sh` requires a clean worktree, so the final pass is run after committing Phase 152 changes.
+- `git diff --check`, `git status --short`, adapter scans, boundary scans, forbidden-label scan, unsafe-execution scan, persistence/release scan, changed-file guard, and no-roadmap-drift guard completed.
 
 ## Zero-drift checklist
-- [x] CHANGELOG entry matches Phase 152 changes.
+- [x] CHANGELOG entry matches Phase 153 changes.
 - [x] Roadmap files are not modified.
-- [x] Forbidden restore/readiness labels are not introduced as approvals.
+- [x] Forbidden approval/enablement labels are not introduced for adapter contract state.
 - [x] Generated UI artifacts are not kept.

@@ -1,6 +1,7 @@
 import {
   applyLocalOperatorIntent,
   applyLocalProviderConfigurationCandidate,
+  applyLocalProviderAdapterDeclaration,
   applyLocalProviderExecution,
   createStagedCandidateConversionProposal,
   initialLocalOperatorShellState,
@@ -9,6 +10,7 @@ import {
   startDeterministicStubRun,
   type LocalOperatorIntent,
   type LocalProviderConfigurationCandidate,
+  type LocalProviderAdapterConfigurationCandidate,
   type LocalProviderExecutionRequest,
   type StagedCandidateConversionProposalRequest,
   type StagedCandidateConversionValidationRequest,
@@ -35,6 +37,7 @@ export type LocalOperatorShellRequest =
   | Readonly<{ kind: "start_deterministic_stub_run" }>
   | Readonly<{ kind: "submit_operator_intent"; intent: LocalOperatorIntent }>
   | Readonly<{ kind: "submit_provider_configuration"; candidate: LocalProviderConfigurationCandidate }>
+  | Readonly<{ kind: "submit_provider_adapter_declaration"; candidate: LocalProviderAdapterConfigurationCandidate }>
   | Readonly<{ kind: "execute_provider"; request: LocalProviderExecutionRequest }>
   | Readonly<{ kind: "create_staged_candidate_conversion_proposal"; request: StagedCandidateConversionProposalRequest }>
   | Readonly<{ kind: "validate_staged_candidate_conversion_proposal"; request: StagedCandidateConversionValidationRequest }>
@@ -69,6 +72,7 @@ export type LocalOperatorShellTransport = Readonly<{
   startDeterministicStubRun: () => LocalOperatorShellResponse;
   submitOperatorIntent: (intent: LocalOperatorIntent) => LocalOperatorShellResponse;
   submitProviderConfiguration: (candidate: LocalProviderConfigurationCandidate) => LocalOperatorShellResponse;
+  submitProviderAdapterDeclaration: (candidate: LocalProviderAdapterConfigurationCandidate) => LocalOperatorShellResponse;
   executeProvider: (request: LocalProviderExecutionRequest) => LocalOperatorShellResponse;
   createStagedCandidateConversionProposal: (request: StagedCandidateConversionProposalRequest) => LocalOperatorShellResponse;
   validateStagedCandidateConversionProposal: (request?: StagedCandidateConversionValidationRequest) => LocalOperatorShellResponse;
@@ -131,6 +135,11 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
         if (result.status === "accepted") return accepted(result.reason, result.state);
         return rejected(result.reason);
       }
+      case "submit_provider_adapter_declaration": {
+        const result = applyLocalProviderAdapterDeclaration(state, request.candidate);
+        if (result.status === "accepted") return accepted(result.reason, result.state);
+        return rejected(result.reason);
+      }
       case "execute_provider": {
         const result = applyLocalProviderExecution(state, request.request);
         if (result.status === "accepted") return accepted(result.reason, result.state);
@@ -162,6 +171,7 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
     startDeterministicStubRun: () => step({ kind: "start_deterministic_stub_run" }),
     submitOperatorIntent: (intent) => step({ kind: "submit_operator_intent", intent }),
     submitProviderConfiguration: (candidate) => step({ kind: "submit_provider_configuration", candidate }),
+    submitProviderAdapterDeclaration: (candidate) => step({ kind: "submit_provider_adapter_declaration", candidate }),
     executeProvider: (request) => step({ kind: "execute_provider", request }),
     createStagedCandidateConversionProposal: (request) => step({ kind: "create_staged_candidate_conversion_proposal", request }),
     validateStagedCandidateConversionProposal: (request = {}) => step({ kind: "validate_staged_candidate_conversion_proposal", request }),
@@ -201,6 +211,13 @@ export function submitLocalProviderConfiguration(
   candidate: LocalProviderConfigurationCandidate
 ): LocalOperatorShellResponse {
   return transport.submitProviderConfiguration(candidate);
+}
+
+export function submitLocalProviderAdapterDeclaration(
+  transport: LocalOperatorShellTransport,
+  candidate: LocalProviderAdapterConfigurationCandidate
+): LocalOperatorShellResponse {
+  return transport.submitProviderAdapterDeclaration(candidate);
 }
 
 export function executeLocalProvider(
