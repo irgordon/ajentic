@@ -28,6 +28,57 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.147 - 2026-05-12
+**Status:** Phase 147 - Candidate Conversion Validation
+
+### Added
+- Add Rust-owned staged candidate-conversion validation projection and request handling.
+- Add staged proposal shape, source eligibility, deterministic linkage, no-effect, boundary, and future-phase marker validation.
+- Add fail-closed rejection for missing, inconsistent, drifted, claim-bearing, or malformed staged proposals.
+- Add UI rendering for staged proposal validation status, reasons, linkage, materialization boundary, future review boundary, operator-decision unavailability, and no-effect summary.
+- Add Rust and TypeScript tests for valid staged proposal validation, rejected validation, deterministic linkage, non-candidate boundaries, and no-effect guarantees.
+
+### Changed
+- Extend the local operator shell transport projection with staged proposal validation data.
+- Update the local UI shell to allow validating staged candidate-conversion proposals without creating candidate output.
+- Update checklists/current-phase.md to Phase 147 procedural truth.
+
+### Notes
+- Code-production phase.
+- Validation checks staged proposal shape and source linkage only.
+- Validated staged proposal is not candidate output.
+- Candidate materialization is not performed.
+- Candidate materialization is not available in Phase 147.
+- Operator decision is not available in Phase 147.
+- Provider output remains untrusted.
+- Staged proposal remains not approved.
+- No candidate conversion.
+- No candidate replacement.
+- No candidate approval.
+- No operator candidate decision.
+- No decision ledger mutation.
+- No replay mutation.
+- No export promotion.
+- No provider configuration mutation.
+- No provider execution trigger.
+- No additional provider execution capability.
+- No arbitrary local model execution.
+- No cloud model calls.
+- No shell command execution.
+- No local binary invocation.
+- No network sockets.
+- No filesystem persistence.
+- No durable proposal storage.
+- No durable validation storage.
+- No durable ledger writes.
+- No provider trust approval.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.146 - 2026-05-11
 **Status:** Phase 146 - Candidate Conversion Staging Boundary
 

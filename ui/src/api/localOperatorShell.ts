@@ -920,6 +920,210 @@ export function initialStagedCandidateConversionProposalProjection(): StagedCand
   };
 }
 
+export type StagedCandidateConversionValidationStatus =
+  | "not_validated"
+  | "staged_proposal_shape_valid"
+  | "rejected_staged_proposal"
+  | "invalid_validation_input";
+export type StagedCandidateConversionValidationReason =
+  | "no_staged_proposal"
+  | "source_linkage_validated"
+  | "staged_proposal_shape_valid"
+  | "source_not_reviewable_untrusted"
+  | "provider_output_validation_missing"
+  | "provider_output_validation_inconsistent"
+  | "provider_execution_result_missing"
+  | "provider_execution_result_malformed"
+  | "deterministic_proposal_id_mismatch"
+  | "execution_result_id_mismatch"
+  | "source_validation_status_mismatch"
+  | "source_reviewability_status_mismatch"
+  | "source_candidate_boundary_status_mismatch"
+  | "boundary_flag_missing"
+  | "boundary_flag_drift"
+  | "no_effect_field_missing"
+  | "no_effect_field_drift"
+  | "future_phase_marker_missing"
+  | "contains_trust_claim"
+  | "contains_approval_claim"
+  | "contains_safety_claim"
+  | "contains_readiness_claim"
+  | "contains_release_claim"
+  | "contains_deployment_claim"
+  | "contains_public_use_claim"
+  | "contains_action_claim"
+  | "contains_persistence_claim"
+  | "contains_execution_claim"
+  | "contains_candidate_creation_claim"
+  | "contains_candidate_materialization_claim"
+  | "candidate_materialization_not_performed"
+  | "future_review_boundary_required"
+  | "operator_decision_not_available_in_phase_147";
+export type StagedCandidateConversionMaterializationStatus =
+  | "not_materialized"
+  | "materialization_not_available_in_phase_147"
+  | "materialization_requires_future_phase";
+export type StagedCandidateConversionOperatorDecisionStatus = "not_available_in_phase_147";
+export type StagedCandidateConversionValidationBoundaryStatus =
+  | "validation_shape_only"
+  | "candidate_materialization_not_performed"
+  | "future_review_boundary_required"
+  | "operator_decision_not_available_in_phase_147";
+export type StagedCandidateConversionValidationRequest = Readonly<{
+  proposalId?: string;
+}>;
+export type StagedCandidateConversionValidationProjection = Readonly<{
+  status: StagedCandidateConversionValidationStatus;
+  reasons: readonly StagedCandidateConversionValidationReason[];
+  proposalId: string | null;
+  sourceProviderKind: string;
+  sourceExecutionResultId: string | null;
+  sourceValidationStatus: string;
+  sourceReviewabilityStatus: string;
+  sourceCandidateBoundaryStatus: string;
+  deterministicLinkageStatus: string;
+  materializationStatuses: readonly StagedCandidateConversionMaterializationStatus[];
+  futureReviewBoundaryStatus: StagedCandidateConversionValidationBoundaryStatus;
+  operatorDecisionStatus: StagedCandidateConversionOperatorDecisionStatus;
+  trustStatuses: readonly StagedCandidateConversionTrustStatus[];
+  boundaryStatuses: readonly StagedCandidateConversionValidationBoundaryStatus[];
+  noEffectSummary: readonly StagedCandidateConversionEffectStatus[];
+  note: string;
+}>;
+
+function stagedCandidateConversionValidationBoundaryStatuses(): readonly StagedCandidateConversionValidationBoundaryStatus[] {
+  return [
+    "validation_shape_only",
+    "candidate_materialization_not_performed",
+    "future_review_boundary_required",
+    "operator_decision_not_available_in_phase_147"
+  ];
+}
+
+export function initialStagedCandidateConversionValidationProjection(): StagedCandidateConversionValidationProjection {
+  return {
+    status: "not_validated",
+    reasons: [],
+    proposalId: null,
+    sourceProviderKind: "none",
+    sourceExecutionResultId: null,
+    sourceValidationStatus: "not_validated",
+    sourceReviewabilityStatus: "not_reviewable",
+    sourceCandidateBoundaryStatus: "not_candidate_material",
+    deterministicLinkageStatus: "not_validated",
+    materializationStatuses: ["not_materialized", "materialization_not_available_in_phase_147", "materialization_requires_future_phase"],
+    futureReviewBoundaryStatus: "future_review_boundary_required",
+    operatorDecisionStatus: "not_available_in_phase_147",
+    trustStatuses: stagedCandidateConversionTrustStatuses(),
+    boundaryStatuses: stagedCandidateConversionValidationBoundaryStatuses(),
+    noEffectSummary: stagedCandidateConversionNoEffects(),
+    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved."
+  };
+}
+
+function proposalNoteClaimReasons(proposal: StagedCandidateConversionProposal): StagedCandidateConversionValidationReason[] {
+  const lower = proposal.note.toLowerCase();
+  const reasons: StagedCandidateConversionValidationReason[] = [];
+  if (["trust granted", "is trusted", "mark trusted"].some((needle) => lower.includes(needle))) reasons.push("contains_trust_claim");
+  if (["approval granted", "is approved", "mark approved"].some((needle) => lower.includes(needle))) reasons.push("contains_approval_claim");
+  if (["is safe", "safe output", "safe for"].some((needle) => lower.includes(needle))) reasons.push("contains_safety_claim");
+  if (["readiness", "ready for"].some((needle) => lower.includes(needle))) reasons.push("contains_readiness_claim");
+  if (["release claim", "release evidence"].some((needle) => lower.includes(needle))) reasons.push("contains_release_claim");
+  if (["deployment claim", "deployment evidence"].some((needle) => lower.includes(needle))) reasons.push("contains_deployment_claim");
+  if (["public use", "public-use"].some((needle) => lower.includes(needle))) reasons.push("contains_public_use_claim");
+  if (["action claim", "action effect"].some((needle) => lower.includes(needle))) reasons.push("contains_action_claim");
+  if (["persistence claim", "persisted"].some((needle) => lower.includes(needle))) reasons.push("contains_persistence_claim");
+  if (["execution claim", "executed proposal"].some((needle) => lower.includes(needle))) reasons.push("contains_execution_claim");
+  if (["candidate creation", "candidate output created"].some((needle) => lower.includes(needle))) reasons.push("contains_candidate_creation_claim");
+  if (["candidate materialization", "materialized candidate"].some((needle) => lower.includes(needle))) reasons.push("contains_candidate_materialization_claim");
+  return reasons;
+}
+
+function sameSet<T>(left: readonly T[], right: readonly T[]): boolean {
+  return left.length === right.length && right.every((item) => left.includes(item));
+}
+
+export function stagedCandidateConversionValidationReasons(
+  state: LocalOperatorShellState,
+  request: StagedCandidateConversionValidationRequest = {}
+): readonly StagedCandidateConversionValidationReason[] {
+  const reasons = new Set<StagedCandidateConversionValidationReason>();
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  if (!proposal) return ["no_staged_proposal"];
+  if (request.proposalId && request.proposalId !== proposal.proposalId) reasons.add("deterministic_proposal_id_mismatch");
+  const result = state.providerExecution.result;
+  if (!result) return ["provider_execution_result_missing"];
+  if (state.providerExecution.projectionValidation.status !== "valid" || state.providerExecution.projectionStatus !== "execution_projected") reasons.add("provider_execution_result_malformed");
+  if (state.providerOutputValidation.reasons.length === 0 || !state.providerOutputValidation.providerExecutionResultId) {
+    reasons.add("provider_output_validation_missing");
+  } else if (validateLocalProviderOutputValidationProjection(state.providerOutputValidation).length > 0 || JSON.stringify(projectLocalProviderOutputValidation(state)) !== JSON.stringify(state.providerOutputValidation)) {
+    reasons.add("provider_output_validation_inconsistent");
+  }
+  if (state.providerOutputValidation.status !== "reviewable_untrusted") reasons.add("source_not_reviewable_untrusted");
+  const validationExecutionId = state.providerOutputValidation.providerExecutionResultId;
+  if (!validationExecutionId) return [...reasons, "provider_output_validation_missing"];
+  if (result.resultId !== validationExecutionId || proposal.sourceExecutionResultId !== validationExecutionId) reasons.add("execution_result_id_mismatch");
+  if (proposal.proposalId !== deterministicStagedCandidateConversionProposalId(validationExecutionId, state.providerOutputValidation)) reasons.add("deterministic_proposal_id_mismatch");
+  if (proposal.sourceValidationStatus !== state.providerOutputValidation.status || proposal.sourceValidationStatus !== "reviewable_untrusted") reasons.add("source_validation_status_mismatch");
+  if (proposal.sourceReviewabilityStatus !== state.providerOutputValidation.reviewabilityStatus || proposal.sourceReviewabilityStatus !== "reviewable_untrusted") reasons.add("source_reviewability_status_mismatch");
+  if (proposal.sourceCandidateBoundaryStatus !== state.providerOutputValidation.candidateBoundaryStatus || proposal.sourceCandidateBoundaryStatus !== "not_candidate_material") reasons.add("source_candidate_boundary_status_mismatch");
+  if (!stagedCandidateConversionBoundaryStatuses().every((status) => proposal.boundaryStatuses.includes(status))) reasons.add("boundary_flag_missing");
+  if (!sameSet(proposal.boundaryStatuses, stagedCandidateConversionBoundaryStatuses())) reasons.add("boundary_flag_drift");
+  if (!proposal.boundaryStatuses.includes("validation_required_in_future_phase") || !proposal.boundaryStatuses.includes("approval_not_available_in_phase_146")) reasons.add("future_phase_marker_missing");
+  if (!stagedCandidateConversionTrustStatuses().every((status) => proposal.trustStatuses.includes(status))) reasons.add("boundary_flag_missing");
+  if (!sameSet(proposal.trustStatuses, stagedCandidateConversionTrustStatuses())) reasons.add("boundary_flag_drift");
+  if (!stagedCandidateConversionNoEffects().every((status) => proposal.effectStatuses.includes(status))) reasons.add("no_effect_field_missing");
+  if (!sameSet(proposal.effectStatuses, stagedCandidateConversionNoEffects())) reasons.add("no_effect_field_drift");
+  if (proposal.sourceBoundary !== "provider_output_validation_phase_143" || proposal.proposalBoundary !== "staged_candidate_conversion_phase_146" || proposal.sourceEligibilityStatus !== "eligible_reviewable_untrusted") reasons.add("boundary_flag_drift");
+  for (const reason of proposalNoteClaimReasons(proposal)) reasons.add(reason);
+  if (reasons.size === 0) return ["candidate_materialization_not_performed", "future_review_boundary_required", "operator_decision_not_available_in_phase_147", "source_linkage_validated", "staged_proposal_shape_valid"].sort() as StagedCandidateConversionValidationReason[];
+  return [...reasons].sort();
+}
+
+export function projectStagedCandidateConversionValidation(
+  state: LocalOperatorShellState,
+  request: StagedCandidateConversionValidationRequest = {}
+): StagedCandidateConversionValidationProjection {
+  const reasons = stagedCandidateConversionValidationReasons(state, request);
+  const proposal = state.stagedCandidateConversionProposal.proposal;
+  const validReasons: readonly StagedCandidateConversionValidationReason[] = ["candidate_materialization_not_performed", "future_review_boundary_required", "operator_decision_not_available_in_phase_147", "source_linkage_validated", "staged_proposal_shape_valid"];
+  const status: StagedCandidateConversionValidationStatus = reasons.includes("no_staged_proposal")
+    ? "invalid_validation_input"
+    : reasons.every((reason) => validReasons.includes(reason))
+      ? "staged_proposal_shape_valid"
+      : "rejected_staged_proposal";
+  return {
+    status,
+    reasons,
+    proposalId: proposal?.proposalId ?? null,
+    sourceProviderKind: proposal?.sourceProviderKind ?? "none",
+    sourceExecutionResultId: proposal?.sourceExecutionResultId ?? null,
+    sourceValidationStatus: proposal?.sourceValidationStatus ?? state.providerOutputValidation.status,
+    sourceReviewabilityStatus: proposal?.sourceReviewabilityStatus ?? state.providerOutputValidation.reviewabilityStatus,
+    sourceCandidateBoundaryStatus: proposal?.sourceCandidateBoundaryStatus ?? state.providerOutputValidation.candidateBoundaryStatus,
+    deterministicLinkageStatus: status === "staged_proposal_shape_valid" ? "source_linkage_validated" : "not_validated",
+    materializationStatuses: ["not_materialized", "materialization_not_available_in_phase_147", "materialization_requires_future_phase"],
+    futureReviewBoundaryStatus: "future_review_boundary_required",
+    operatorDecisionStatus: "not_available_in_phase_147",
+    trustStatuses: stagedCandidateConversionTrustStatuses(),
+    boundaryStatuses: stagedCandidateConversionValidationBoundaryStatuses(),
+    noEffectSummary: stagedCandidateConversionNoEffects(),
+    note: "Validation checks staged proposal shape and source linkage only. Validated staged proposal is not candidate output. Candidate materialization was not performed in Phase 147. Future review boundary is required before any operator decision. Operator decision is not available in Phase 147. Provider output remains untrusted and not approved."
+  };
+}
+
+export function validateStagedCandidateConversionProposalForPhase147(
+  state: LocalOperatorShellState,
+  request: StagedCandidateConversionValidationRequest = {}
+): LocalOperatorIntentResult {
+  const next = { ...state, stagedCandidateConversionValidation: projectStagedCandidateConversionValidation(state, request) };
+  return {
+    status: next.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "accepted" : "rejected",
+    reason: next.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "staged_candidate_conversion_validation_completed" : "staged_candidate_conversion_validation_rejected",
+    state: next
+  };
+}
+
 function deterministicStagedCandidateConversionProposalId(executionResultId: string, validation: LocalProviderOutputValidationProjection): string {
   const input = `${validation.providerKind}|${executionResultId}|${validation.status}|${validation.reviewabilityStatus}|${validation.candidateBoundaryStatus}|phase_146`;
   let accumulator = 2166136261;
@@ -1272,6 +1476,7 @@ export type LocalOperatorShellState = Readonly<{
   providerExecution: LocalProviderExecutionProjection;
   providerOutputValidation: LocalProviderOutputValidationProjection;
   stagedCandidateConversionProposal: StagedCandidateConversionProposalProjection;
+  stagedCandidateConversionValidation: StagedCandidateConversionValidationProjection;
 }>;
 
 
@@ -1389,7 +1594,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     providerConfiguration: initialLocalProviderConfiguration(),
     providerExecution: initialLocalProviderExecutionProjection(),
     providerOutputValidation: initialLocalProviderOutputValidationProjection(),
-    stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection()
+    stagedCandidateConversionProposal: initialStagedCandidateConversionProposalProjection(),
+    stagedCandidateConversionValidation: initialStagedCandidateConversionValidationProjection()
   });
 }
 

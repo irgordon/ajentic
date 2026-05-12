@@ -112,6 +112,32 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     stagedProjection.note
   ].join("\n");
 
+  const stagedValidation = state.stagedCandidateConversionValidation;
+  const stagedValidationLines = [
+    `Validation status: ${stagedValidation.status}`,
+    `Validation reasons: ${stagedValidation.reasons.join(", ") || "none"}`,
+    `Proposal ID: ${stagedValidation.proposalId ?? "none"}`,
+    `Source provider kind: ${stagedValidation.sourceProviderKind}`,
+    `Source execution result ID: ${stagedValidation.sourceExecutionResultId ?? "none"}`,
+    `Source validation status: ${stagedValidation.sourceValidationStatus}`,
+    `Source reviewability status: ${stagedValidation.sourceReviewabilityStatus}`,
+    `Source candidate-boundary status: ${stagedValidation.sourceCandidateBoundaryStatus}`,
+    `Deterministic linkage status: ${stagedValidation.deterministicLinkageStatus}`,
+    `Materialization status: ${stagedValidation.materializationStatuses.join(", ")}`,
+    `Future review boundary status: ${stagedValidation.futureReviewBoundaryStatus}`,
+    `Operator decision availability: ${stagedValidation.operatorDecisionStatus}`,
+    `Trust status: ${stagedValidation.trustStatuses.join(", ")}`,
+    `Approval status: not_approved`,
+    `No-effect summary: ${stagedValidation.noEffectSummary.join(", ")}`,
+    "Validation checks staged proposal shape and source linkage only.",
+    "Validated staged proposal is not candidate output.",
+    "Candidate materialization was not performed in Phase 147.",
+    "Future review boundary is required before any operator decision.",
+    "Operator decision is not available in Phase 147.",
+    "Provider output remains untrusted and not approved.",
+    stagedValidation.note
+  ].join("\n");
+
   const candidate = state.run.candidate
     ? [
         `Candidate output: ${state.run.candidate.title}`,
@@ -154,6 +180,9 @@ export function renderLocalOperatorShellSnapshot(state: LocalOperatorShellState)
     "Staged candidate-conversion proposal",
     "Create staged conversion proposal",
     stagedProposalLines,
+    "Staged proposal validation",
+    "Validate staged proposal shape/linkage",
+    stagedValidationLines,
     "Bottom panel: Replay/status projection",
     replayLines,
     "Local session evidence export",
