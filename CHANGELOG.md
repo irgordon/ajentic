@@ -28,6 +28,44 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.163 - 2026-05-13
+**Status:** Phase 163 - Trial Session Evidence Capture
+
+### Added
+- Add Rust-owned trial session evidence record derivation, validation, serialization, write, read, and read-back validation.
+- Add deterministic trial session evidence metadata, evidence ID, classifications, trial package linkage, runbook/failure drill linkage, workflow snapshot, stop-condition snapshot, escalation snapshot, failure category snapshot, absence markers, and validation errors.
+- Add explicit caller-provided path helpers for trial session evidence write/read.
+- Add trial session evidence projection to the local shell/transport surface.
+- Add UI rendering for trial session evidence status, included evidence, stop-condition snapshot, escalation summary, failure summary, and local-only/non-authoritative boundaries if implemented.
+- Add Rust and TypeScript tests for deterministic evidence content, explicit write/read behavior, read-back validation, malformed evidence rejection, missing linkage rejection, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with trial session evidence status.
+- Update checklists/current-phase.md to Phase 163 procedural truth.
+
+### Notes
+- Code-production phase.
+- Produces a real local trial session evidence artifact through explicit caller-provided path helpers.
+- Trial session evidence is local-only, non-public, non-production, and non-authoritative.
+- Trial session evidence is not release evidence.
+- Trial session evidence is not deployment evidence.
+- Trial session evidence is not readiness evidence.
+- Trial session evidence does not start or approve a controlled trial.
+- Trial session evidence does not approve public/general use.
+- Trial session evidence does not approve production use.
+- No default filesystem persistence.
+- No automatic save.
+- No background persistence.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- No provider trust approval.
+- No candidate approval.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- Phase 164 remains the next code-production phase for trial replay and restore verification.
+
 ## v0.0.162 - 2026-05-13
 **Status:** Phase 162 - Trial Operator Runbook and Failure Drill UI
 

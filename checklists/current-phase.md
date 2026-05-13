@@ -1,22 +1,24 @@
 ---
 truth_dimension: procedural
+revision_mode: replace
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 162 Trial Operator Runbook and Failure Drill UI
+# Current Phase Checklist - Phase 163 Trial Session Evidence Capture
 
 ## Phase name
-- [x] Phase 162 - Trial Operator Runbook and Failure Drill UI.
+- [x] Phase 163 - Trial Session Evidence Capture.
 
 ## Phase goal
-- [x] Add Rust-owned local trial operator runbook and failure drill projections.
-- [x] Display controlled-trial preparation guidance, blockers, stop-condition drills, and escalation guidance in the local UI without starting a trial or granting authority.
+- [x] Capture deterministic local trial-preparation/session evidence from current local shell state.
+- [x] Produce a real local trial session evidence artifact only through explicit caller-provided write/read paths.
+- [x] Keep evidence local-only, non-public, non-production, and non-authoritative.
 
 ## Working-tree hygiene gate
-- [x] Confirm starting worktree state.
-- [x] Keep changes limited to Phase 162 code, UI, test, changelog, and checklist surfaces.
-- [x] Do not edit roadmap, governance, architecture, release, deployment, installer, update, signing, publishing, provider execution, action execution, replay repair, or recovery promotion surfaces.
+- [x] Review current branch status before edits.
+- [x] Keep changes limited to allowed Phase 163 surfaces.
+- [x] Do not modify roadmap files.
 
 ## Allowed surfaces
 - [x] `core/src/**`
@@ -25,111 +27,146 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Rust-owned runbook projection.
-- [x] Rust-owned failure drill projection.
-- [x] Visible UI panels for trial operator runbook, trial failure drill, stop-condition drill, and escalation guidance.
-- [x] Behavior tests for Rust projections and TypeScript rendering.
+- [x] Rust-owned trial session evidence record types.
+- [x] Deterministic evidence derivation, validation, serialization, parse, write, read, and read-back validation.
+- [x] Local shell/transport projection for trial session evidence status.
+- [x] Visible UI panels for `Trial session evidence`, `Trial evidence capture`, and `Evidence read-back validation`.
 
-## Trial operator runbook checklist
-- [x] Include runbook status, current step, ordered steps, package status/ID, validation/read-back status, trial scope, named operator, named participant, workflow blocker, candidate materialization, provider pipeline, replay, evidence export, and restore/history summaries.
-- [x] Derive deterministically from local shell state.
+## Trial session evidence record checklist
+- [x] Evidence version.
+- [x] Deterministic evidence ID and content digest.
+- [x] `trial_session_evidence_only` classification.
+- [x] `non_production` production classification.
+- [x] `local_only_non_public` distribution classification.
+- [x] `non_authoritative_evidence` authority classification.
+- [x] Absence markers for unavailable/non-authorized sections.
 
-## Failure drill checklist
-- [x] Classify missing package, package validation/read-back failure, workflow blocked/rejected, provider pipeline, provider validation, staged validation, operator decision, materialization, restore, replay, evidence export, and stop-condition categories.
-- [x] Include severity, manual action guidance, and rejection summary.
+## Evidence linkage checklist
+- [x] Trial package linkage.
+- [x] Runbook linkage.
+- [x] Failure drill linkage.
+- [x] Missing linkage validation fails closed.
 
-## Stop-condition drill checklist
-- [x] Render stop-condition drill markers from the controlled internal trial package projection.
-- [x] State that enforcement is not automated in Phase 162.
+## Evidence snapshot checklist
+- [x] Local workflow status snapshot.
+- [x] Local candidate materialization snapshot.
+- [x] Provider output pipeline snapshot.
+- [x] Operator decision snapshot.
+- [x] Replay/status snapshot.
+- [x] Evidence export snapshot.
+- [x] Session package snapshot.
+- [x] Restore/history snapshot.
+- [x] Current blocker snapshot.
 
-## Escalation guidance checklist
-- [x] Include trial coordinator, security reviewer, release steward, and operator manual review guidance where applicable.
-- [x] State that escalation guidance is descriptive only and does not activate authority.
+## Stop-condition/escalation/failure snapshot checklist
+- [x] Stop-condition snapshot.
+- [x] Escalation guidance snapshot.
+- [x] Failure category snapshot.
+- [x] Validation rejects missing stop-condition or escalation snapshots.
 
-## UI runbook/failure drill checklist
-- [x] Render `Trial operator runbook`.
-- [x] Render `Trial failure drill`.
-- [x] Render `Stop-condition drill`.
-- [x] Render `Escalation guidance`.
-- [x] Render current blocker guidance.
-- [x] Avoid start-trial, publish, deploy, sign, release, and approval controls.
+## Evidence validation checklist
+- [x] Missing evidence ID rejected.
+- [x] Missing evidence version rejected.
+- [x] Invalid classifications rejected.
+- [x] Missing absence markers rejected.
+- [x] Readiness, release, deployment, public-use, and production-use claims rejected.
+- [x] Provider trust, action authorization, replay repair, and recovery promotion claims rejected.
+- [x] Deterministic digest mismatch rejected.
+- [x] Malformed evidence input rejected.
 
-## Local-only/non-public boundary checklist
-- [x] Include `local_trial_guidance_only`.
-- [x] Include `non_public_trial_guidance`.
-- [x] UI states: “Trial operator runbook is local-only and non-public.”
-- [x] UI states: “This runbook does not start a controlled trial.”
+## Explicit write/read helper checklist
+- [x] Write helper requires caller-provided path.
+- [x] Write helper validates before write.
+- [x] Read helper requires caller-provided path.
+- [x] Tests use temporary paths only.
+- [x] No default persistence, automatic save, background persistence, or network sync.
 
-## No-authority checklist
+## Read-back validation checklist
+- [x] Read-back parses written evidence.
+- [x] Read-back validates structure and deterministic digest.
+- [x] Read-back validation is structure-only and not authority.
+- [x] Malformed read-back fails closed.
+
+## UI evidence projection checklist
+- [x] UI renders evidence status, ID, version, and classifications.
+- [x] UI renders trial package linkage and runbook/failure drill linkage.
+- [x] UI renders included evidence, workflow, candidate, replay, export/package/restore, stop-condition, escalation, and failure summaries.
+- [x] UI renders validation/read-back status.
+- [x] UI includes required local-only/non-authoritative wording.
+- [x] UI does not add publish, deploy, sign, release, or start-trial controls.
+
+## Local-only/non-authoritative boundary checklist
+- [x] Include `local_trial_evidence_only`.
+- [x] Include `non_public_evidence`.
+- [x] Include `evidence_not_authority`.
 - [x] Include no trial execution.
-- [x] Include no stop-condition automation.
-- [x] Include no authority activation.
-- [x] Include no readiness, release, deployment, public-use, or production approval.
-- [x] Include no action execution.
-- [x] Include no replay repair or recovery promotion.
+- [x] Include no controlled human-use, readiness, release, deployment, public-use, or production-use approval.
+- [x] Include no provider trust, action authorization, replay repair, or recovery promotion.
 
 ## Rust test checklist
-- [x] Initial runbook and failure drill projection.
-- [x] Determinism.
-- [x] Valid package state.
-- [x] Missing package/scope/operator/participant/stop-condition blockers.
-- [x] Validation/read-back, workflow/provider/restore classifications.
-- [x] Stop-condition, escalation guidance, and no-authority boundaries.
+- [x] Initial not-captured projection.
+- [x] Deterministic evidence derivation, evidence ID, and serialized content.
+- [x] Valid linkage and snapshot coverage.
+- [x] Missing metadata/linkage/snapshot/marker rejection.
+- [x] Non-authority claim rejection.
+- [x] Explicit write/read with temp path.
+- [x] Read-back validation and malformed/digest-drift rejection.
 
 ## TypeScript test checklist
-- [x] Visible runbook panel.
-- [x] Valid and blocked states.
-- [x] Failure drill rendering.
-- [x] Stop-condition drill rendering.
-- [x] Escalation guidance rendering.
-- [x] Forbidden control absence and deterministic rendering.
+- [x] Visible evidence capture status.
+- [x] Included evidence summary.
+- [x] Stop-condition, escalation, and failure summaries.
+- [x] Read-back status.
+- [x] Required no-authority wording.
+- [x] Deterministic repeated rendering.
 
-## Phase 163 handoff checklist
-- [x] Phase 163 remains the next code-production phase for trial session evidence capture.
-- [x] Phase 162 does not start trial execution or approve controlled human use.
+## Phase 164 handoff checklist
+- [x] Phase 164 remains the next code-production phase for trial replay and restore verification.
+- [x] Trial session evidence does not start trials, approve use, repair replay, or promote recovery.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-163-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] `cd ui && npm run typecheck`
 - [x] `cd ui && npm run lint`
 - [x] `cd ui && npm run build && rm -rf dist`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-163-target cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `cd ui && timeout 5 npm run dev`
-- [x] Runbook scan.
-- [x] Boundary scan.
+- [x] Evidence scan.
+- [x] Evidence boundary scan.
+- [x] Filesystem scan.
 - [x] Forbidden label scan.
 - [x] Unsafe execution scan.
-- [x] Release/deployment scan.
+- [x] No-release/deployment/readiness scan.
 - [x] Changed-file source guard.
 - [x] No-roadmap-drift guard.
 
 ## Deferred items
-- [x] Trial execution remains deferred.
-- [x] Automated stop-condition enforcement remains deferred.
-- [x] Trial session evidence capture remains Phase 163.
-- [x] Replay repair, recovery promotion, action execution, release, deployment, signing, publishing, installer, update-channel, public-use, production-use, readiness, and provider trust remain deferred.
+- [x] Controlled trial start remains deferred.
+- [x] Controlled human-use, public-use, and production-use approval remain deferred.
+- [x] Automated stop-condition enforcement and escalation remain deferred.
+- [x] Replay repair, restore promotion, recovery promotion, action execution, release, deployment, signing, publishing, installer, update-channel, network/cloud behavior, and background services remain deferred.
 
 ## Validation log
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target ./scripts/check.sh` was attempted before commit and correctly stopped on dirty-worktree preflight, then passed after committing the Phase 162 patch.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-163-target ./scripts/check.sh` first stopped at the dirty-working-tree preflight before commit, then passed after the Phase 163 commit.
 - `git diff --check` passed.
+- `git status --short` showed only allowed Phase 163 files changed.
 - `cd ui && npm run typecheck` passed.
 - `cd ui && npm run lint` passed.
 - `cd ui && npm run build && rm -rf dist` passed and generated `dist` was removed.
 - `cd ui && npm run test:api` passed.
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
-- `cd ui && timeout 5 npm run dev` printed the local browser URL; timeout stopped the long-running dev server as expected.
-- Runbook, boundary, forbidden-label, unsafe-execution, release/deployment, changed-file, and no-roadmap-drift scans completed; broad scans reported historical/prohibition matches only, with no Phase 162 runtime execution, network, release, deployment, or authority behavior added.
-- `git status --short` showed only allowed Phase 162 files changed before commit.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-163-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
+- `cd ui && timeout 5 npm run dev` printed the local browser URL and exited by timeout while stopping the long-running dev server.
+- Evidence, boundary, filesystem, forbidden-label, unsafe-execution, release/deployment, changed-file, and no-roadmap-drift scans completed; broad scans include historical/prohibition matches, with new filesystem operations limited to explicit trial session evidence helpers and temp-path tests.
 
 ## Zero-drift checklist
-- [x] Rust-owned trial operator runbook projection exists.
-- [x] Rust-owned trial failure drill projection exists.
-- [x] Transport/local shell state carries projections.
-- [x] UI renders required runbook and drill surfaces.
-- [x] Local-only/non-public and no-authority markers are present.
+- [x] Rust owns trial session evidence derivation, validation, serialization, write/read, and read-back validation.
+- [x] TypeScript remains display/non-authoritative.
+- [x] Evidence write/read uses explicit caller-provided paths only.
+- [x] Evidence derivation/write/read does not mutate shell workflow state.
+- [x] No default filesystem persistence is added.
+- [x] No release, deployment, readiness, public-use, production-use, provider trust, candidate approval, replay repair, recovery promotion, or action execution behavior is added.
+- [x] CHANGELOG entry matches the Phase 163 diff.
 - [x] Roadmap files are not modified.
-- [x] CHANGELOG entry matches actual diff.
-- [x] Phase 163 remains the next code-production phase for trial session evidence capture.

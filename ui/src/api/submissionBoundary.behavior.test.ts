@@ -4644,6 +4644,71 @@ function assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic(): void 
   assertContains(first, "Restore/history status:", "restore summary rendered");
 }
 
+
+function assertTrialSessionEvidencePanelRendersInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const projection = state.trialSessionEvidenceProjection;
+  assertEqual(projection.status, "not_captured", "initial evidence status");
+  assertEqual(projection.evidenceClassification, "trial_session_evidence_only", "evidence classification");
+  assertEqual(projection.productionClassification, "non_production", "production classification");
+  assertEqual(projection.distributionClassification, "local_only_non_public", "distribution classification");
+  assertEqual(projection.authorityClassification, "non_authoritative_evidence", "authority classification");
+
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial session evidence", "trial session evidence panel label");
+  assertContains(rendered, "Trial evidence capture", "trial evidence capture panel label");
+  assertContains(rendered, "Evidence read-back validation", "read-back validation panel label");
+  assertContains(rendered, "Evidence status: not_captured", "not captured status");
+  assertContains(rendered, "Evidence classification: trial_session_evidence_only", "classification rendered");
+  assertContains(rendered, "Production classification: non_production", "production rendered");
+  assertContains(rendered, "Distribution classification: local_only_non_public", "distribution rendered");
+  assertContains(rendered, "Authority classification: non_authoritative_evidence", "authority rendered");
+  assertContains(rendered, "Trial session evidence is local-only, non-public, and non-authoritative.", "local-only boundary wording");
+  assertContains(rendered, "Evidence capture records local trial-preparation state only.", "preparation-only wording");
+  assertContains(rendered, "Evidence capture does not start or approve a controlled trial.", "no trial approval wording");
+  assertContains(rendered, "This evidence is not release, deployment, readiness, public-use, or production-use evidence.", "not release/deployment/readiness wording");
+  assertContains(rendered, "Read-back validation checks evidence structure only.", "read-back structure-only wording");
+}
+
+function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
+  const base = initialLocalOperatorShellState();
+  const state: LocalOperatorShellState = {
+    ...base,
+    trialSessionEvidenceProjection: {
+      ...base.trialSessionEvidenceProjection,
+      status: "evidence_read_back_validated",
+      evidenceId: "trial-session-evidence-ui-fixture",
+      validationStatus: "valid",
+      readBackValidationStatus: "valid",
+      trialPackageLinkage: "controlled-internal-trial-package-ui-fixture / package_validated / valid",
+      runbookLinkage: "failure_drill_required / review_trial_package",
+      failureDrillLinkage: "failures_projected / blocked",
+      includedEvidenceSummary: ["provider output pipeline snapshot: not_started", "local evidence export snapshot: no_completed_run_evidence"],
+      workflowSnapshotSummary: "blocked",
+      localCandidateMaterializationSnapshot: "not_materialized",
+      replayStatusSnapshot: "no decision recorded for local-stub-run-133",
+      evidenceExportSessionPackageRestoreSnapshot: "no_completed_run_evidence / not_packaged / restore_not_requested / no_session_history",
+      stopConditionSnapshot: ["stop_on_provider_trust_claim", "stop_on_operator_escalation"],
+      escalationSnapshot: ["trial_coordinator:manual review only"],
+      failureCategorySnapshot: ["no_trial_package=blocked"],
+    },
+  };
+  const first = renderLocalOperatorShellSnapshot(state);
+  const second = renderLocalOperatorShellSnapshot(state);
+  assertEqual(first, second, "trial session evidence rendering deterministic");
+  assertContains(first, "Evidence status: evidence_read_back_validated", "read-back status rendered");
+  assertContains(first, "Evidence ID: trial-session-evidence-ui-fixture", "evidence ID rendered");
+  assertContains(first, "Trial package linkage: controlled-internal-trial-package-ui-fixture / package_validated / valid", "trial package linkage rendered");
+  assertContains(first, "Runbook/failure drill linkage: failure_drill_required / review_trial_package / failures_projected / blocked", "runbook/failure linkage rendered");
+  assertContains(first, "Stop-condition snapshot: stop_on_provider_trust_claim, stop_on_operator_escalation", "stop-condition snapshot rendered");
+  assertContains(first, "Escalation snapshot: trial_coordinator:manual review only", "escalation snapshot rendered");
+  assertContains(first, "Failure category snapshot: no_trial_package=blocked", "failure category snapshot rendered");
+  assertContains(first, "Read-back validation status: valid", "read-back validation rendered");
+  assertDoesNotContain(first, "publish_evidence", "no publish control");
+  assertDoesNotContain(first, "deploy_evidence", "no deploy control");
+  assertDoesNotContain(first, "sign_evidence", "no sign control");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5351,6 +5416,14 @@ payload_summary=authority before replay`),
   {
     name: "trial_runbook_forbidden_labels_absent",
     run: assertTrialRunbookForbiddenLabelsAbsent,
+  },
+  {
+    name: "trial_session_evidence_panel_initial_state",
+    run: assertTrialSessionEvidencePanelRendersInitialState,
+  },
+  {
+    name: "trial_session_evidence_panel_projected_read_back_state",
+    run: assertTrialSessionEvidencePanelRendersProjectedReadBackState,
   },
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",

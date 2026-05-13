@@ -41,6 +41,38 @@ pub fn read_local_session_restore_projection(
     }
 }
 
+pub fn write_trial_session_evidence_record(
+    record: &TrialSessionEvidenceRecord,
+    caller_provided_path: &std::path::Path,
+) -> Result<TrialSessionEvidenceWriteResult, Vec<TrialSessionEvidenceValidationError>> {
+    let content = serialize_trial_session_evidence_record(record)?;
+    std::fs::write(caller_provided_path, content.as_bytes())
+        .map_err(|_| vec![TrialSessionEvidenceValidationError::MalformedEvidenceInput])?;
+    let mut written = record.clone();
+    written.metadata.evidence_status = TrialSessionEvidenceStatus::EvidenceWritten;
+    Ok(TrialSessionEvidenceWriteResult {
+        status: TrialSessionEvidenceStatus::EvidenceWritten,
+        path: caller_provided_path.display().to_string(),
+        bytes_written: content.len(),
+        projection: project_trial_session_evidence_status(Some(&written), None),
+    })
+}
+
+pub fn read_trial_session_evidence_record(
+    caller_provided_path: &std::path::Path,
+) -> Result<TrialSessionEvidenceReadResult, Vec<TrialSessionEvidenceValidationError>> {
+    let content = std::fs::read_to_string(caller_provided_path)
+        .map_err(|_| vec![TrialSessionEvidenceValidationError::MalformedEvidenceInput])?;
+    let record = parse_trial_session_evidence_record(&content)?;
+    let projection = validate_trial_session_evidence_read_back(&record);
+    Ok(TrialSessionEvidenceReadResult {
+        status: TrialSessionEvidenceStatus::EvidenceReadBackValidated,
+        path: caller_provided_path.display().to_string(),
+        record: Some(record),
+        projection,
+    })
+}
+
 #[cfg(test)]
 mod phase_151_local_session_package_persistence_tests {
     use super::*;

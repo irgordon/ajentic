@@ -11154,6 +11154,935 @@ pub fn initial_trial_operator_runbook_projection() -> TrialOperatorRunbookProjec
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceStatus {
+    NotCaptured,
+    EvidenceProjected,
+    EvidenceValidated,
+    EvidenceWritten,
+    EvidenceReadBackValidated,
+    EvidenceRejected,
+    InvalidEvidenceInput,
+}
+
+impl TrialSessionEvidenceStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotCaptured => "not_captured",
+            Self::EvidenceProjected => "evidence_projected",
+            Self::EvidenceValidated => "evidence_validated",
+            Self::EvidenceWritten => "evidence_written",
+            Self::EvidenceReadBackValidated => "evidence_read_back_validated",
+            Self::EvidenceRejected => "evidence_rejected",
+            Self::InvalidEvidenceInput => "invalid_evidence_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+}
+
+impl TrialSessionEvidenceValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotValidated => "not_validated",
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceClassification {
+    TrialSessionEvidenceOnly,
+}
+
+impl TrialSessionEvidenceClassification {
+    pub fn code(&self) -> &'static str {
+        "trial_session_evidence_only"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceProductionClassification {
+    NonProduction,
+}
+
+impl TrialSessionEvidenceProductionClassification {
+    pub fn code(&self) -> &'static str {
+        "non_production"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceDistributionClassification {
+    LocalOnlyNonPublic,
+}
+
+impl TrialSessionEvidenceDistributionClassification {
+    pub fn code(&self) -> &'static str {
+        "local_only_non_public"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceAuthorityClassification {
+    NonAuthoritativeEvidence,
+}
+
+impl TrialSessionEvidenceAuthorityClassification {
+    pub fn code(&self) -> &'static str {
+        "non_authoritative_evidence"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceBoundaryStatus {
+    LocalTrialEvidenceOnly,
+    NonPublicEvidence,
+    EvidenceNotAuthority,
+    NoTrialExecution,
+    NoControlledHumanUseApproval,
+    NoReadinessApproval,
+    NoReleaseApproval,
+    NoDeploymentApproval,
+    NoPublicUseApproval,
+    NoProductionApproval,
+    NoProviderTrust,
+    NoActionAuthorization,
+    NoReplayRepair,
+    NoRecoveryPromotion,
+}
+
+impl TrialSessionEvidenceBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LocalTrialEvidenceOnly => "local_trial_evidence_only",
+            Self::NonPublicEvidence => "non_public_evidence",
+            Self::EvidenceNotAuthority => "evidence_not_authority",
+            Self::NoTrialExecution => "no_trial_execution",
+            Self::NoControlledHumanUseApproval => "no_controlled_human_use_approval",
+            Self::NoReadinessApproval => "no_readiness_approval",
+            Self::NoReleaseApproval => "no_release_approval",
+            Self::NoDeploymentApproval => "no_deployment_approval",
+            Self::NoPublicUseApproval => "no_public_use_approval",
+            Self::NoProductionApproval => "no_production_approval",
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoActionAuthorization => "no_action_authorization",
+            Self::NoReplayRepair => "no_replay_repair",
+            Self::NoRecoveryPromotion => "no_recovery_promotion",
+        }
+    }
+}
+
+pub fn trial_session_evidence_boundary_statuses() -> Vec<TrialSessionEvidenceBoundaryStatus> {
+    vec![
+        TrialSessionEvidenceBoundaryStatus::LocalTrialEvidenceOnly,
+        TrialSessionEvidenceBoundaryStatus::NonPublicEvidence,
+        TrialSessionEvidenceBoundaryStatus::EvidenceNotAuthority,
+        TrialSessionEvidenceBoundaryStatus::NoTrialExecution,
+        TrialSessionEvidenceBoundaryStatus::NoControlledHumanUseApproval,
+        TrialSessionEvidenceBoundaryStatus::NoReadinessApproval,
+        TrialSessionEvidenceBoundaryStatus::NoReleaseApproval,
+        TrialSessionEvidenceBoundaryStatus::NoDeploymentApproval,
+        TrialSessionEvidenceBoundaryStatus::NoPublicUseApproval,
+        TrialSessionEvidenceBoundaryStatus::NoProductionApproval,
+        TrialSessionEvidenceBoundaryStatus::NoProviderTrust,
+        TrialSessionEvidenceBoundaryStatus::NoActionAuthorization,
+        TrialSessionEvidenceBoundaryStatus::NoReplayRepair,
+        TrialSessionEvidenceBoundaryStatus::NoRecoveryPromotion,
+    ]
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialSessionEvidenceValidationError {
+    MissingEvidenceId,
+    MissingEvidenceVersion,
+    InvalidEvidenceClassification,
+    InvalidProductionClassification,
+    InvalidDistributionClassification,
+    InvalidAuthorityClassification,
+    MissingTrialPackageLinkage,
+    MissingRunbookLinkage,
+    MissingFailureDrillLinkage,
+    MissingWorkflowSnapshot,
+    MissingStopConditionSnapshot,
+    MissingEscalationSnapshot,
+    MissingAbsenceMarker,
+    ReadinessClaimDetected,
+    ReleaseClaimDetected,
+    DeploymentClaimDetected,
+    PublicUseClaimDetected,
+    ProductionUseClaimDetected,
+    ProviderTrustClaimDetected,
+    ActionAuthorizationClaimDetected,
+    ReplayRepairClaimDetected,
+    RecoveryPromotionClaimDetected,
+    DeterministicDigestMismatch,
+    MalformedEvidenceInput,
+}
+
+impl TrialSessionEvidenceValidationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingEvidenceId => "missing_evidence_id",
+            Self::MissingEvidenceVersion => "missing_evidence_version",
+            Self::InvalidEvidenceClassification => "invalid_evidence_classification",
+            Self::InvalidProductionClassification => "invalid_production_classification",
+            Self::InvalidDistributionClassification => "invalid_distribution_classification",
+            Self::InvalidAuthorityClassification => "invalid_authority_classification",
+            Self::MissingTrialPackageLinkage => "missing_trial_package_linkage",
+            Self::MissingRunbookLinkage => "missing_runbook_linkage",
+            Self::MissingFailureDrillLinkage => "missing_failure_drill_linkage",
+            Self::MissingWorkflowSnapshot => "missing_workflow_snapshot",
+            Self::MissingStopConditionSnapshot => "missing_stop_condition_snapshot",
+            Self::MissingEscalationSnapshot => "missing_escalation_snapshot",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::ReadinessClaimDetected => "readiness_claim_detected",
+            Self::ReleaseClaimDetected => "release_claim_detected",
+            Self::DeploymentClaimDetected => "deployment_claim_detected",
+            Self::PublicUseClaimDetected => "public_use_claim_detected",
+            Self::ProductionUseClaimDetected => "production_use_claim_detected",
+            Self::ProviderTrustClaimDetected => "provider_trust_claim_detected",
+            Self::ActionAuthorizationClaimDetected => "action_authorization_claim_detected",
+            Self::ReplayRepairClaimDetected => "replay_repair_claim_detected",
+            Self::RecoveryPromotionClaimDetected => "recovery_promotion_claim_detected",
+            Self::DeterministicDigestMismatch => "deterministic_digest_mismatch",
+            Self::MalformedEvidenceInput => "malformed_evidence_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceMetadata {
+    pub evidence_id: String,
+    pub evidence_version: String,
+    pub evidence_classification: String,
+    pub production_classification: String,
+    pub distribution_classification: String,
+    pub authority_classification: String,
+    pub evidence_status: TrialSessionEvidenceStatus,
+    pub validation_status: TrialSessionEvidenceValidationStatus,
+    pub content_digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceAbsenceMarkers {
+    pub release_artifact_absent: bool,
+    pub deployment_artifact_absent: bool,
+    pub readiness_approval_absent: bool,
+    pub public_use_approval_absent: bool,
+    pub production_use_approval_absent: bool,
+    pub provider_trust_absent: bool,
+    pub action_authorization_absent: bool,
+    pub replay_repair_absent: bool,
+    pub recovery_promotion_absent: bool,
+    pub default_persistence_absent: bool,
+    pub automatic_save_absent: bool,
+    pub background_persistence_absent: bool,
+    pub network_sync_absent: bool,
+    pub marker_summary: Vec<String>,
+}
+
+pub fn trial_session_evidence_absence_markers() -> TrialSessionEvidenceAbsenceMarkers {
+    TrialSessionEvidenceAbsenceMarkers {
+        release_artifact_absent: true,
+        deployment_artifact_absent: true,
+        readiness_approval_absent: true,
+        public_use_approval_absent: true,
+        production_use_approval_absent: true,
+        provider_trust_absent: true,
+        action_authorization_absent: true,
+        replay_repair_absent: true,
+        recovery_promotion_absent: true,
+        default_persistence_absent: true,
+        automatic_save_absent: true,
+        background_persistence_absent: true,
+        network_sync_absent: true,
+        marker_summary: vec![
+            "release artifact absent".to_string(),
+            "deployment artifact absent".to_string(),
+            "readiness approval absent".to_string(),
+            "public use approval absent".to_string(),
+            "production use approval absent".to_string(),
+            "provider trust absent".to_string(),
+            "action authorization absent".to_string(),
+            "replay repair absent".to_string(),
+            "recovery promotion absent".to_string(),
+            "default persistence absent".to_string(),
+            "automatic save absent".to_string(),
+            "background persistence absent".to_string(),
+            "network sync absent".to_string(),
+        ],
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidencePayload {
+    pub trial_package_id: String,
+    pub trial_package_version: String,
+    pub trial_package_status: String,
+    pub trial_package_validation_status: String,
+    pub trial_package_read_back_status: String,
+    pub runbook_status: String,
+    pub runbook_current_step: String,
+    pub runbook_current_blocker: String,
+    pub failure_drill_status: String,
+    pub failure_drill_highest_severity: String,
+    pub workflow_status_snapshot: String,
+    pub local_candidate_materialization_snapshot: String,
+    pub provider_output_pipeline_snapshot: String,
+    pub operator_decision_snapshot: String,
+    pub replay_status_snapshot: String,
+    pub local_evidence_export_snapshot: String,
+    pub local_session_package_snapshot: String,
+    pub restore_history_snapshot: String,
+    pub stop_condition_snapshot: Vec<String>,
+    pub escalation_guidance_snapshot: Vec<String>,
+    pub failure_category_snapshot: Vec<String>,
+    pub current_blocker_snapshot: String,
+    pub boundary_status: Vec<TrialSessionEvidenceBoundaryStatus>,
+    pub no_approval_no_authority_markers: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceRecord {
+    pub metadata: TrialSessionEvidenceMetadata,
+    pub payload: TrialSessionEvidencePayload,
+    pub absence_markers: TrialSessionEvidenceAbsenceMarkers,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceProjection {
+    pub status: TrialSessionEvidenceStatus,
+    pub evidence_id: Option<String>,
+    pub evidence_version: String,
+    pub evidence_classification: String,
+    pub production_classification: String,
+    pub distribution_classification: String,
+    pub authority_classification: String,
+    pub trial_package_linkage: String,
+    pub runbook_linkage: String,
+    pub failure_drill_linkage: String,
+    pub included_evidence_summary: Vec<String>,
+    pub workflow_snapshot_summary: String,
+    pub local_candidate_materialization_snapshot: String,
+    pub replay_status_snapshot: String,
+    pub evidence_export_session_package_restore_snapshot: String,
+    pub stop_condition_snapshot: Vec<String>,
+    pub escalation_snapshot: Vec<String>,
+    pub failure_category_snapshot: Vec<String>,
+    pub absence_marker_summary: Vec<String>,
+    pub validation_status: TrialSessionEvidenceValidationStatus,
+    pub validation_errors: Vec<String>,
+    pub read_back_validation_status: Option<TrialSessionEvidenceValidationStatus>,
+    pub boundary_status: Vec<TrialSessionEvidenceBoundaryStatus>,
+    pub local_only_non_authoritative_note: String,
+    pub local_preparation_only_note: String,
+    pub no_trial_approval_note: String,
+    pub no_release_deployment_readiness_note: String,
+    pub read_back_validation_note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceWriteResult {
+    pub status: TrialSessionEvidenceStatus,
+    pub path: String,
+    pub bytes_written: usize,
+    pub projection: TrialSessionEvidenceProjection,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialSessionEvidenceReadResult {
+    pub status: TrialSessionEvidenceStatus,
+    pub path: String,
+    pub record: Option<TrialSessionEvidenceRecord>,
+    pub projection: TrialSessionEvidenceProjection,
+}
+
+pub const TRIAL_SESSION_EVIDENCE_VERSION: &str = "trial-session-evidence-v1";
+
+pub fn initial_trial_session_evidence_projection() -> TrialSessionEvidenceProjection {
+    TrialSessionEvidenceProjection {
+        status: TrialSessionEvidenceStatus::NotCaptured,
+        evidence_id: None,
+        evidence_version: TRIAL_SESSION_EVIDENCE_VERSION.to_string(),
+        evidence_classification: TrialSessionEvidenceClassification::TrialSessionEvidenceOnly.code().to_string(),
+        production_classification: TrialSessionEvidenceProductionClassification::NonProduction.code().to_string(),
+        distribution_classification: TrialSessionEvidenceDistributionClassification::LocalOnlyNonPublic.code().to_string(),
+        authority_classification: TrialSessionEvidenceAuthorityClassification::NonAuthoritativeEvidence.code().to_string(),
+        trial_package_linkage: "trial package linkage not captured".to_string(),
+        runbook_linkage: "runbook linkage not captured".to_string(),
+        failure_drill_linkage: "failure drill linkage not captured".to_string(),
+        included_evidence_summary: Vec::new(),
+        workflow_snapshot_summary: "workflow snapshot not captured".to_string(),
+        local_candidate_materialization_snapshot: "local candidate materialization snapshot not captured".to_string(),
+        replay_status_snapshot: "replay/status snapshot not captured".to_string(),
+        evidence_export_session_package_restore_snapshot: "evidence export/session package/restore snapshot not captured".to_string(),
+        stop_condition_snapshot: Vec::new(),
+        escalation_snapshot: Vec::new(),
+        failure_category_snapshot: Vec::new(),
+        absence_marker_summary: trial_session_evidence_absence_markers().marker_summary,
+        validation_status: TrialSessionEvidenceValidationStatus::NotValidated,
+        validation_errors: Vec::new(),
+        read_back_validation_status: None,
+        boundary_status: trial_session_evidence_boundary_statuses(),
+        local_only_non_authoritative_note: "Trial session evidence is local-only, non-public, and non-authoritative.".to_string(),
+        local_preparation_only_note: "Evidence capture records local trial-preparation state only.".to_string(),
+        no_trial_approval_note: "Evidence capture does not start or approve a controlled trial.".to_string(),
+        no_release_deployment_readiness_note: "This evidence is not release, deployment, readiness, public-use, or production-use evidence.".to_string(),
+        read_back_validation_note: "Read-back validation checks evidence structure only.".to_string(),
+    }
+}
+
+fn stable_trial_session_evidence_digest(input: &str) -> String {
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for byte in input.as_bytes() {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    format!("{hash:016x}")
+}
+
+fn trial_session_evidence_payload_basis(
+    payload: &TrialSessionEvidencePayload,
+    markers: &TrialSessionEvidenceAbsenceMarkers,
+) -> String {
+    format!(
+        "version={}|classification=trial_session_evidence_only|production=non_production|distribution=local_only_non_public|authority=non_authoritative_evidence|payload={:?}|absence={:?}",
+        TRIAL_SESSION_EVIDENCE_VERSION, payload, markers
+    )
+}
+
+pub fn derive_trial_session_evidence_record(
+    state: &LocalOperatorShellState,
+) -> TrialSessionEvidenceRecord {
+    let absence_markers = trial_session_evidence_absence_markers();
+    let runbook = &state.trial_operator_runbook;
+    let failure = &state.trial_failure_drill;
+    let payload = TrialSessionEvidencePayload {
+        trial_package_id: runbook.trial_package_id.clone().unwrap_or_default(),
+        trial_package_version: state
+            .controlled_internal_trial_package_projection
+            .package_version
+            .clone(),
+        trial_package_status: runbook.trial_package_status.code().to_string(),
+        trial_package_validation_status: runbook.trial_package_validation_status.code().to_string(),
+        trial_package_read_back_status: runbook
+            .trial_package_read_back_status
+            .map(|status| status.code().to_string())
+            .unwrap_or_else(|| "not_read".to_string()),
+        runbook_status: runbook.status.code().to_string(),
+        runbook_current_step: runbook
+            .current_step
+            .map(|step| step.code().to_string())
+            .unwrap_or_else(|| "none".to_string()),
+        runbook_current_blocker: runbook.current_blocker.guidance.clone(),
+        failure_drill_status: failure.status.code().to_string(),
+        failure_drill_highest_severity: failure.highest_severity.code().to_string(),
+        workflow_status_snapshot: state
+            .complete_local_operator_workflow
+            .status
+            .code()
+            .to_string(),
+        local_candidate_materialization_snapshot: state
+            .local_candidate_output
+            .status
+            .code()
+            .to_string(),
+        provider_output_pipeline_snapshot: state
+            .local_provider_output_pipeline
+            .status
+            .code()
+            .to_string(),
+        operator_decision_snapshot: state.operator_candidate_decision.status.code().to_string(),
+        replay_status_snapshot: state.run.decision_replay.summary.clone(),
+        local_evidence_export_snapshot: state.local_session_evidence_export.summary.clone(),
+        local_session_package_snapshot: state
+            .local_session_package_projection
+            .status
+            .code()
+            .to_string(),
+        restore_history_snapshot: format!(
+            "{} / {}",
+            state.local_session_restore_projection.status.code(),
+            state.local_session_history_projection.status.code()
+        ),
+        stop_condition_snapshot: runbook.stop_condition_summary.clone(),
+        escalation_guidance_snapshot: failure
+            .escalation_guidance
+            .iter()
+            .map(|entry| format!("{}:{}", entry.role.code(), entry.guidance))
+            .collect(),
+        failure_category_snapshot: failure
+            .categories
+            .iter()
+            .map(|entry| format!("{}={}", entry.category.code(), entry.severity.code()))
+            .collect(),
+        current_blocker_snapshot: format!(
+            "step={}; workflow_step={}; workflow_error={}; guidance={}",
+            runbook
+                .current_blocker
+                .step
+                .map(|step| step.code())
+                .unwrap_or("none"),
+            runbook
+                .current_blocker
+                .workflow_step
+                .map(|step| step.code())
+                .unwrap_or("none"),
+            runbook
+                .current_blocker
+                .workflow_error
+                .map(|error| error.code())
+                .unwrap_or("none"),
+            runbook.current_blocker.guidance
+        ),
+        boundary_status: trial_session_evidence_boundary_statuses(),
+        no_approval_no_authority_markers: vec![
+            "no_controlled_human_use_approval".to_string(),
+            "no_readiness_approval".to_string(),
+            "no_release_approval".to_string(),
+            "no_deployment_approval".to_string(),
+            "no_public_use_approval".to_string(),
+            "no_production_approval".to_string(),
+            "no_provider_trust".to_string(),
+            "no_action_authorization".to_string(),
+            "no_replay_repair".to_string(),
+            "no_recovery_promotion".to_string(),
+        ],
+    };
+    let digest = stable_trial_session_evidence_digest(&trial_session_evidence_payload_basis(
+        &payload,
+        &absence_markers,
+    ));
+    TrialSessionEvidenceRecord {
+        metadata: TrialSessionEvidenceMetadata {
+            evidence_id: format!("trial-session-evidence-{digest}"),
+            evidence_version: TRIAL_SESSION_EVIDENCE_VERSION.to_string(),
+            evidence_classification: TrialSessionEvidenceClassification::TrialSessionEvidenceOnly
+                .code()
+                .to_string(),
+            production_classification: TrialSessionEvidenceProductionClassification::NonProduction
+                .code()
+                .to_string(),
+            distribution_classification:
+                TrialSessionEvidenceDistributionClassification::LocalOnlyNonPublic
+                    .code()
+                    .to_string(),
+            authority_classification:
+                TrialSessionEvidenceAuthorityClassification::NonAuthoritativeEvidence
+                    .code()
+                    .to_string(),
+            evidence_status: TrialSessionEvidenceStatus::EvidenceProjected,
+            validation_status: TrialSessionEvidenceValidationStatus::Valid,
+            content_digest: digest,
+        },
+        payload,
+        absence_markers,
+    }
+}
+
+fn trial_session_evidence_validation_errors(
+    record: &TrialSessionEvidenceRecord,
+) -> Vec<TrialSessionEvidenceValidationError> {
+    let mut errors = Vec::new();
+    if record.metadata.evidence_id.is_empty() {
+        errors.push(TrialSessionEvidenceValidationError::MissingEvidenceId);
+    }
+    if record.metadata.evidence_version.is_empty() {
+        errors.push(TrialSessionEvidenceValidationError::MissingEvidenceVersion);
+    }
+    if record.metadata.evidence_classification
+        != TrialSessionEvidenceClassification::TrialSessionEvidenceOnly.code()
+    {
+        errors.push(TrialSessionEvidenceValidationError::InvalidEvidenceClassification);
+    }
+    if record.metadata.production_classification
+        != TrialSessionEvidenceProductionClassification::NonProduction.code()
+    {
+        errors.push(TrialSessionEvidenceValidationError::InvalidProductionClassification);
+    }
+    if record.metadata.distribution_classification
+        != TrialSessionEvidenceDistributionClassification::LocalOnlyNonPublic.code()
+    {
+        errors.push(TrialSessionEvidenceValidationError::InvalidDistributionClassification);
+    }
+    if record.metadata.authority_classification
+        != TrialSessionEvidenceAuthorityClassification::NonAuthoritativeEvidence.code()
+    {
+        errors.push(TrialSessionEvidenceValidationError::InvalidAuthorityClassification);
+    }
+    if record.payload.trial_package_id.is_empty()
+        || record.payload.trial_package_version.is_empty()
+        || record.payload.trial_package_status
+            == ControlledInternalTrialPackageStatus::NotPackaged.code()
+        || record.payload.trial_package_validation_status
+            != ControlledInternalTrialPackageValidationStatus::Valid.code()
+    {
+        errors.push(TrialSessionEvidenceValidationError::MissingTrialPackageLinkage);
+    }
+    if record.payload.runbook_status.is_empty()
+        || record.payload.runbook_status == TrialOperatorRunbookStatus::NotAvailable.code()
+        || record.payload.runbook_current_blocker.is_empty()
+    {
+        errors.push(TrialSessionEvidenceValidationError::MissingRunbookLinkage);
+    }
+    if record.payload.failure_drill_status.is_empty()
+        || record.payload.failure_drill_highest_severity.is_empty()
+    {
+        errors.push(TrialSessionEvidenceValidationError::MissingFailureDrillLinkage);
+    }
+    if record.payload.workflow_status_snapshot.is_empty() {
+        errors.push(TrialSessionEvidenceValidationError::MissingWorkflowSnapshot);
+    }
+    if record.payload.stop_condition_snapshot.is_empty() {
+        errors.push(TrialSessionEvidenceValidationError::MissingStopConditionSnapshot);
+    }
+    if record.payload.escalation_guidance_snapshot.is_empty() {
+        errors.push(TrialSessionEvidenceValidationError::MissingEscalationSnapshot);
+    }
+    let markers = &record.absence_markers;
+    if !markers.release_artifact_absent
+        || !markers.deployment_artifact_absent
+        || !markers.readiness_approval_absent
+        || !markers.public_use_approval_absent
+        || !markers.production_use_approval_absent
+        || !markers.provider_trust_absent
+        || !markers.action_authorization_absent
+        || !markers.replay_repair_absent
+        || !markers.recovery_promotion_absent
+        || !markers.default_persistence_absent
+        || !markers.automatic_save_absent
+        || !markers.background_persistence_absent
+        || !markers.network_sync_absent
+        || markers.marker_summary.is_empty()
+    {
+        errors.push(TrialSessionEvidenceValidationError::MissingAbsenceMarker);
+    }
+    let text = format!("{:?}", record).to_ascii_lowercase();
+    let claim_checks = [
+        (
+            "claim:readiness_approved",
+            TrialSessionEvidenceValidationError::ReadinessClaimDetected,
+        ),
+        (
+            "claim:release_candidate_approved",
+            TrialSessionEvidenceValidationError::ReleaseClaimDetected,
+        ),
+        (
+            "claim:deployment_enabled",
+            TrialSessionEvidenceValidationError::DeploymentClaimDetected,
+        ),
+        (
+            "claim:public_use_approved",
+            TrialSessionEvidenceValidationError::PublicUseClaimDetected,
+        ),
+        (
+            "claim:production_use_approved",
+            TrialSessionEvidenceValidationError::ProductionUseClaimDetected,
+        ),
+        (
+            "claim:production_persistence_enabled",
+            TrialSessionEvidenceValidationError::ProductionUseClaimDetected,
+        ),
+        (
+            "claim:provider_trusted",
+            TrialSessionEvidenceValidationError::ProviderTrustClaimDetected,
+        ),
+        (
+            "claim:action_authorized",
+            TrialSessionEvidenceValidationError::ActionAuthorizationClaimDetected,
+        ),
+        (
+            "claim:action_executed",
+            TrialSessionEvidenceValidationError::ActionAuthorizationClaimDetected,
+        ),
+        (
+            "claim:replay_repaired",
+            TrialSessionEvidenceValidationError::ReplayRepairClaimDetected,
+        ),
+        (
+            "claim:recovery_promoted",
+            TrialSessionEvidenceValidationError::RecoveryPromotionClaimDetected,
+        ),
+    ];
+    for (needle, error) in claim_checks {
+        if text.contains(needle) && !errors.contains(&error) {
+            errors.push(error);
+        }
+    }
+    let expected_digest = stable_trial_session_evidence_digest(
+        &trial_session_evidence_payload_basis(&record.payload, &record.absence_markers),
+    );
+    let expected_id = format!("trial-session-evidence-{expected_digest}");
+    if record.metadata.content_digest != expected_digest
+        || (!record.metadata.evidence_id.is_empty() && record.metadata.evidence_id != expected_id)
+    {
+        errors.push(TrialSessionEvidenceValidationError::DeterministicDigestMismatch);
+    }
+    errors
+}
+
+pub fn validate_trial_session_evidence_record(
+    record: &TrialSessionEvidenceRecord,
+) -> Result<(), Vec<TrialSessionEvidenceValidationError>> {
+    let errors = trial_session_evidence_validation_errors(record);
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+pub fn project_trial_session_evidence_status(
+    record: Option<&TrialSessionEvidenceRecord>,
+    read_back_status: Option<TrialSessionEvidenceValidationStatus>,
+) -> TrialSessionEvidenceProjection {
+    match record {
+        None => initial_trial_session_evidence_projection(),
+        Some(record) => {
+            let errors = trial_session_evidence_validation_errors(record);
+            let validation_status = if errors.is_empty() {
+                TrialSessionEvidenceValidationStatus::Valid
+            } else {
+                TrialSessionEvidenceValidationStatus::Invalid
+            };
+            TrialSessionEvidenceProjection {
+                status: if errors.is_empty() { record.metadata.evidence_status } else { TrialSessionEvidenceStatus::EvidenceRejected },
+                evidence_id: Some(record.metadata.evidence_id.clone()),
+                evidence_version: record.metadata.evidence_version.clone(),
+                evidence_classification: record.metadata.evidence_classification.clone(),
+                production_classification: record.metadata.production_classification.clone(),
+                distribution_classification: record.metadata.distribution_classification.clone(),
+                authority_classification: record.metadata.authority_classification.clone(),
+                trial_package_linkage: format!("{} / {} / {}", record.payload.trial_package_id, record.payload.trial_package_status, record.payload.trial_package_validation_status),
+                runbook_linkage: format!("{} / {}", record.payload.runbook_status, record.payload.runbook_current_step),
+                failure_drill_linkage: format!("{} / {}", record.payload.failure_drill_status, record.payload.failure_drill_highest_severity),
+                included_evidence_summary: vec![
+                    format!("provider output pipeline snapshot: {}", record.payload.provider_output_pipeline_snapshot),
+                    format!("operator decision snapshot: {}", record.payload.operator_decision_snapshot),
+                    format!("local evidence export snapshot: {}", record.payload.local_evidence_export_snapshot),
+                    format!("local session package snapshot: {}", record.payload.local_session_package_snapshot),
+                    format!("restore/history snapshot: {}", record.payload.restore_history_snapshot),
+                ],
+                workflow_snapshot_summary: record.payload.workflow_status_snapshot.clone(),
+                local_candidate_materialization_snapshot: record.payload.local_candidate_materialization_snapshot.clone(),
+                replay_status_snapshot: record.payload.replay_status_snapshot.clone(),
+                evidence_export_session_package_restore_snapshot: format!("{} / {} / {}", record.payload.local_evidence_export_snapshot, record.payload.local_session_package_snapshot, record.payload.restore_history_snapshot),
+                stop_condition_snapshot: record.payload.stop_condition_snapshot.clone(),
+                escalation_snapshot: record.payload.escalation_guidance_snapshot.clone(),
+                failure_category_snapshot: record.payload.failure_category_snapshot.clone(),
+                absence_marker_summary: record.absence_markers.marker_summary.clone(),
+                validation_status,
+                validation_errors: errors.into_iter().map(|error| error.code().to_string()).collect(),
+                read_back_validation_status: read_back_status,
+                boundary_status: record.payload.boundary_status.clone(),
+                local_only_non_authoritative_note: "Trial session evidence is local-only, non-public, and non-authoritative.".to_string(),
+                local_preparation_only_note: "Evidence capture records local trial-preparation state only.".to_string(),
+                no_trial_approval_note: "Evidence capture does not start or approve a controlled trial.".to_string(),
+                no_release_deployment_readiness_note: "This evidence is not release, deployment, readiness, public-use, or production-use evidence.".to_string(),
+                read_back_validation_note: "Read-back validation checks evidence structure only.".to_string(),
+            }
+        }
+    }
+}
+
+fn trial_session_evidence_decode(
+    input: &str,
+) -> Result<String, TrialSessionEvidenceValidationError> {
+    if !input.len().is_multiple_of(2) {
+        return Err(TrialSessionEvidenceValidationError::MalformedEvidenceInput);
+    }
+    let mut bytes = Vec::with_capacity(input.len() / 2);
+    for index in (0..input.len()).step_by(2) {
+        let byte = u8::from_str_radix(&input[index..index + 2], 16)
+            .map_err(|_| TrialSessionEvidenceValidationError::MalformedEvidenceInput)?;
+        bytes.push(byte);
+    }
+    String::from_utf8(bytes)
+        .map_err(|_| TrialSessionEvidenceValidationError::MalformedEvidenceInput)
+}
+
+fn split_encoded_list(input: String) -> Vec<String> {
+    input
+        .split(";;")
+        .filter(|entry| !entry.is_empty())
+        .map(str::to_string)
+        .collect()
+}
+
+pub fn serialize_trial_session_evidence_record(
+    record: &TrialSessionEvidenceRecord,
+) -> Result<String, Vec<TrialSessionEvidenceValidationError>> {
+    validate_trial_session_evidence_record(record)?;
+    let lines = vec![
+        "ajentic_trial_session_evidence=v1".to_string(),
+        format!("evidence_id={}", record.metadata.evidence_id),
+        format!("evidence_version={}", record.metadata.evidence_version),
+        format!("evidence_classification={}", record.metadata.evidence_classification),
+        format!("production_classification={}", record.metadata.production_classification),
+        format!("distribution_classification={}", record.metadata.distribution_classification),
+        format!("authority_classification={}", record.metadata.authority_classification),
+        format!("evidence_status={}", record.metadata.evidence_status.code()),
+        format!("content_digest={}", record.metadata.content_digest),
+        format!("trial_package_id={}", hex_encode(&record.payload.trial_package_id)),
+        format!("trial_package_version={}", hex_encode(&record.payload.trial_package_version)),
+        format!("trial_package_status={}", record.payload.trial_package_status),
+        format!("trial_package_validation_status={}", record.payload.trial_package_validation_status),
+        format!("trial_package_read_back_status={}", record.payload.trial_package_read_back_status),
+        format!("runbook_status={}", record.payload.runbook_status),
+        format!("runbook_current_step={}", record.payload.runbook_current_step),
+        format!("runbook_current_blocker={}", hex_encode(&record.payload.runbook_current_blocker)),
+        format!("failure_drill_status={}", record.payload.failure_drill_status),
+        format!("failure_drill_highest_severity={}", record.payload.failure_drill_highest_severity),
+        format!("workflow_status_snapshot={}", record.payload.workflow_status_snapshot),
+        format!("local_candidate_materialization_snapshot={}", record.payload.local_candidate_materialization_snapshot),
+        format!("provider_output_pipeline_snapshot={}", record.payload.provider_output_pipeline_snapshot),
+        format!("operator_decision_snapshot={}", record.payload.operator_decision_snapshot),
+        format!("replay_status_snapshot={}", hex_encode(&record.payload.replay_status_snapshot)),
+        format!("local_evidence_export_snapshot={}", hex_encode(&record.payload.local_evidence_export_snapshot)),
+        format!("local_session_package_snapshot={}", record.payload.local_session_package_snapshot),
+        format!("restore_history_snapshot={}", hex_encode(&record.payload.restore_history_snapshot)),
+        format!("stop_condition_snapshot={}", hex_encode(&record.payload.stop_condition_snapshot.join(";;"))),
+        format!("escalation_guidance_snapshot={}", hex_encode(&record.payload.escalation_guidance_snapshot.join(";;"))),
+        format!("failure_category_snapshot={}", hex_encode(&record.payload.failure_category_snapshot.join(";;"))),
+        format!("current_blocker_snapshot={}", hex_encode(&record.payload.current_blocker_snapshot)),
+        format!("boundary_status={}", record.payload.boundary_status.iter().map(|status| status.code()).collect::<Vec<_>>().join(",")),
+        format!("no_approval_no_authority_markers={}", record.payload.no_approval_no_authority_markers.join(",")),
+        format!("absence_markers={}", hex_encode(&format!("{:?}", record.absence_markers))),
+        "local_only_non_authoritative_note=Trial session evidence is local-only, non-public, and non-authoritative.".to_string(),
+        "local_preparation_only_note=Evidence capture records local trial-preparation state only.".to_string(),
+        "no_trial_approval_note=Evidence capture does not start or approve a controlled trial.".to_string(),
+        "no_release_deployment_readiness_note=This evidence is not release, deployment, readiness, public-use, or production-use evidence.".to_string(),
+        "read_back_validation_note=Read-back validation checks evidence structure only.".to_string(),
+    ];
+    Ok(format!("{}\n", lines.join("\n")))
+}
+
+fn parse_trial_session_evidence_status(
+    code: &str,
+) -> Result<TrialSessionEvidenceStatus, TrialSessionEvidenceValidationError> {
+    match code {
+        "evidence_projected" => Ok(TrialSessionEvidenceStatus::EvidenceProjected),
+        "evidence_validated" => Ok(TrialSessionEvidenceStatus::EvidenceValidated),
+        "evidence_written" => Ok(TrialSessionEvidenceStatus::EvidenceWritten),
+        "evidence_read_back_validated" => Ok(TrialSessionEvidenceStatus::EvidenceReadBackValidated),
+        "evidence_rejected" => Ok(TrialSessionEvidenceStatus::EvidenceRejected),
+        "invalid_evidence_input" => Ok(TrialSessionEvidenceStatus::InvalidEvidenceInput),
+        "not_captured" => Ok(TrialSessionEvidenceStatus::NotCaptured),
+        _ => Err(TrialSessionEvidenceValidationError::MalformedEvidenceInput),
+    }
+}
+
+pub fn parse_trial_session_evidence_record(
+    content: &str,
+) -> Result<TrialSessionEvidenceRecord, Vec<TrialSessionEvidenceValidationError>> {
+    let mut values = std::collections::BTreeMap::new();
+    for line in content.lines() {
+        let Some((key, value)) = line.split_once('=') else {
+            return Err(vec![
+                TrialSessionEvidenceValidationError::MalformedEvidenceInput,
+            ]);
+        };
+        values.insert(key.to_string(), value.to_string());
+    }
+    if values
+        .get("ajentic_trial_session_evidence")
+        .map(String::as_str)
+        != Some("v1")
+    {
+        return Err(vec![
+            TrialSessionEvidenceValidationError::MalformedEvidenceInput,
+        ]);
+    }
+    let get = |key: &str| {
+        values
+            .get(key)
+            .cloned()
+            .ok_or(TrialSessionEvidenceValidationError::MalformedEvidenceInput)
+    };
+    let decode = |key: &str| get(key).and_then(|value| trial_session_evidence_decode(&value));
+    let record = TrialSessionEvidenceRecord {
+        metadata: TrialSessionEvidenceMetadata {
+            evidence_id: get("evidence_id").map_err(|e| vec![e])?,
+            evidence_version: get("evidence_version").map_err(|e| vec![e])?,
+            evidence_classification: get("evidence_classification").map_err(|e| vec![e])?,
+            production_classification: get("production_classification").map_err(|e| vec![e])?,
+            distribution_classification: get("distribution_classification").map_err(|e| vec![e])?,
+            authority_classification: get("authority_classification").map_err(|e| vec![e])?,
+            evidence_status: parse_trial_session_evidence_status(
+                &get("evidence_status").map_err(|e| vec![e])?,
+            )
+            .map_err(|e| vec![e])?,
+            validation_status: TrialSessionEvidenceValidationStatus::Valid,
+            content_digest: get("content_digest").map_err(|e| vec![e])?,
+        },
+        payload: TrialSessionEvidencePayload {
+            trial_package_id: decode("trial_package_id").map_err(|e| vec![e])?,
+            trial_package_version: decode("trial_package_version").map_err(|e| vec![e])?,
+            trial_package_status: get("trial_package_status").map_err(|e| vec![e])?,
+            trial_package_validation_status: get("trial_package_validation_status")
+                .map_err(|e| vec![e])?,
+            trial_package_read_back_status: get("trial_package_read_back_status")
+                .map_err(|e| vec![e])?,
+            runbook_status: get("runbook_status").map_err(|e| vec![e])?,
+            runbook_current_step: get("runbook_current_step").map_err(|e| vec![e])?,
+            runbook_current_blocker: decode("runbook_current_blocker").map_err(|e| vec![e])?,
+            failure_drill_status: get("failure_drill_status").map_err(|e| vec![e])?,
+            failure_drill_highest_severity: get("failure_drill_highest_severity")
+                .map_err(|e| vec![e])?,
+            workflow_status_snapshot: get("workflow_status_snapshot").map_err(|e| vec![e])?,
+            local_candidate_materialization_snapshot: get(
+                "local_candidate_materialization_snapshot",
+            )
+            .map_err(|e| vec![e])?,
+            provider_output_pipeline_snapshot: get("provider_output_pipeline_snapshot")
+                .map_err(|e| vec![e])?,
+            operator_decision_snapshot: get("operator_decision_snapshot").map_err(|e| vec![e])?,
+            replay_status_snapshot: decode("replay_status_snapshot").map_err(|e| vec![e])?,
+            local_evidence_export_snapshot: decode("local_evidence_export_snapshot")
+                .map_err(|e| vec![e])?,
+            local_session_package_snapshot: get("local_session_package_snapshot")
+                .map_err(|e| vec![e])?,
+            restore_history_snapshot: decode("restore_history_snapshot").map_err(|e| vec![e])?,
+            stop_condition_snapshot: split_encoded_list(
+                decode("stop_condition_snapshot").map_err(|e| vec![e])?,
+            ),
+            escalation_guidance_snapshot: split_encoded_list(
+                decode("escalation_guidance_snapshot").map_err(|e| vec![e])?,
+            ),
+            failure_category_snapshot: split_encoded_list(
+                decode("failure_category_snapshot").map_err(|e| vec![e])?,
+            ),
+            current_blocker_snapshot: decode("current_blocker_snapshot").map_err(|e| vec![e])?,
+            boundary_status: trial_session_evidence_boundary_statuses(),
+            no_approval_no_authority_markers: get("no_approval_no_authority_markers")
+                .map_err(|e| vec![e])?
+                .split(',')
+                .filter(|entry| !entry.is_empty())
+                .map(str::to_string)
+                .collect(),
+        },
+        absence_markers: trial_session_evidence_absence_markers(),
+    };
+    validate_trial_session_evidence_record(&record)?;
+    Ok(record)
+}
+
+pub fn validate_trial_session_evidence_read_back(
+    record: &TrialSessionEvidenceRecord,
+) -> TrialSessionEvidenceProjection {
+    project_trial_session_evidence_status(
+        Some(record),
+        Some(TrialSessionEvidenceValidationStatus::Valid),
+    )
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalOperatorShellState {
     pub harness_status: String,
@@ -11180,6 +12109,7 @@ pub struct LocalOperatorShellState {
     pub complete_local_operator_workflow: CompleteLocalOperatorWorkflowProjection,
     pub trial_operator_runbook: TrialOperatorRunbookProjection,
     pub trial_failure_drill: TrialFailureDrillProjection,
+    pub trial_session_evidence_projection: TrialSessionEvidenceProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -11417,6 +12347,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         complete_local_operator_workflow: initial_complete_local_operator_workflow_projection(),
         trial_operator_runbook: initial_trial_operator_runbook_projection(),
         trial_failure_drill: initial_trial_failure_drill_projection(),
+        trial_session_evidence_projection: initial_trial_session_evidence_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -16793,5 +17724,292 @@ mod tests {
             .escalation_guidance
             .iter()
             .all(|guidance| guidance.descriptive_only));
+    }
+
+    fn phase_163_state_with_valid_package() -> LocalOperatorShellState {
+        phase_162_state_with_package(phase_161_trial_package())
+    }
+
+    fn phase_163_evidence_record() -> TrialSessionEvidenceRecord {
+        derive_trial_session_evidence_record(&phase_163_state_with_valid_package())
+    }
+
+    #[test]
+    fn phase_163_initial_state_exposes_not_captured_projection() {
+        let state = initial_local_operator_shell_state();
+        let projection = state.trial_session_evidence_projection;
+        assert_eq!(projection.status, TrialSessionEvidenceStatus::NotCaptured);
+        assert_eq!(projection.evidence_id, None);
+        assert_eq!(
+            projection.evidence_classification,
+            "trial_session_evidence_only"
+        );
+        assert_eq!(projection.production_classification, "non_production");
+        assert_eq!(
+            projection.distribution_classification,
+            "local_only_non_public"
+        );
+        assert_eq!(
+            projection.authority_classification,
+            "non_authoritative_evidence"
+        );
+        assert!(projection
+            .local_only_non_authoritative_note
+            .contains("local-only, non-public, and non-authoritative"));
+        assert!(projection
+            .no_trial_approval_note
+            .contains("does not start or approve a controlled trial"));
+    }
+
+    #[test]
+    fn phase_163_evidence_derivation_id_and_serialization_are_deterministic() {
+        let state = phase_163_state_with_valid_package();
+        let before = state.clone();
+        let first = derive_trial_session_evidence_record(&state);
+        let second = derive_trial_session_evidence_record(&state);
+        assert_eq!(state, before);
+        assert_eq!(first, second);
+        assert_eq!(first.metadata.evidence_id, second.metadata.evidence_id);
+        assert_eq!(
+            first.metadata.content_digest,
+            second.metadata.content_digest
+        );
+        assert_eq!(
+            serialize_trial_session_evidence_record(&first).unwrap(),
+            serialize_trial_session_evidence_record(&second).unwrap()
+        );
+        assert_eq!(
+            first.metadata.evidence_classification,
+            "trial_session_evidence_only"
+        );
+        assert_eq!(first.metadata.production_classification, "non_production");
+        assert_eq!(
+            first.metadata.distribution_classification,
+            "local_only_non_public"
+        );
+        assert_eq!(
+            first.metadata.authority_classification,
+            "non_authoritative_evidence"
+        );
+    }
+
+    #[test]
+    fn phase_163_valid_evidence_includes_linkages_snapshots_and_boundaries() {
+        let record = phase_163_evidence_record();
+        validate_trial_session_evidence_record(&record).unwrap();
+        assert!(record
+            .payload
+            .trial_package_id
+            .starts_with("controlled-internal-trial-package-"));
+        assert!(!record.payload.runbook_status.is_empty());
+        assert!(!record.payload.failure_drill_status.is_empty());
+        assert!(!record.payload.workflow_status_snapshot.is_empty());
+        assert!(!record
+            .payload
+            .local_candidate_materialization_snapshot
+            .is_empty());
+        assert!(!record.payload.provider_output_pipeline_snapshot.is_empty());
+        assert!(!record.payload.operator_decision_snapshot.is_empty());
+        assert!(!record.payload.replay_status_snapshot.is_empty());
+        assert!(!record.payload.local_evidence_export_snapshot.is_empty());
+        assert!(!record.payload.local_session_package_snapshot.is_empty());
+        assert!(!record.payload.restore_history_snapshot.is_empty());
+        assert!(!record.payload.stop_condition_snapshot.is_empty());
+        assert!(!record.payload.escalation_guidance_snapshot.is_empty());
+        assert!(!record.payload.failure_category_snapshot.is_empty());
+        assert!(!record.payload.current_blocker_snapshot.is_empty());
+        assert!(record
+            .payload
+            .boundary_status
+            .contains(&TrialSessionEvidenceBoundaryStatus::NoControlledHumanUseApproval));
+        assert!(record
+            .payload
+            .boundary_status
+            .contains(&TrialSessionEvidenceBoundaryStatus::NoPublicUseApproval));
+        assert!(record
+            .payload
+            .boundary_status
+            .contains(&TrialSessionEvidenceBoundaryStatus::NoProductionApproval));
+        assert!(record.absence_markers.release_artifact_absent);
+        assert!(record.absence_markers.default_persistence_absent);
+    }
+
+    #[test]
+    fn phase_163_validation_rejects_missing_required_fields_and_linkages() {
+        let mut record = phase_163_evidence_record();
+        record.metadata.evidence_id.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingEvidenceId));
+
+        let mut record = phase_163_evidence_record();
+        record.metadata.evidence_version.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingEvidenceVersion));
+
+        let mut record = phase_163_evidence_record();
+        record.metadata.evidence_classification = "local_session_package_only".to_string();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::InvalidEvidenceClassification));
+
+        let mut record = phase_163_evidence_record();
+        record.metadata.production_classification = "production".to_string();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::InvalidProductionClassification));
+
+        let mut record = phase_163_evidence_record();
+        record.metadata.distribution_classification = "public".to_string();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::InvalidDistributionClassification));
+
+        let mut record = phase_163_evidence_record();
+        record.metadata.authority_classification = "authoritative".to_string();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::InvalidAuthorityClassification));
+
+        let mut record = phase_163_evidence_record();
+        record.payload.trial_package_id.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingTrialPackageLinkage));
+
+        let mut record = phase_163_evidence_record();
+        record.payload.runbook_status.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingRunbookLinkage));
+
+        let mut record = phase_163_evidence_record();
+        record.payload.failure_drill_status.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingFailureDrillLinkage));
+
+        let mut record = phase_163_evidence_record();
+        record.payload.stop_condition_snapshot.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingStopConditionSnapshot));
+
+        let mut record = phase_163_evidence_record();
+        record.payload.escalation_guidance_snapshot.clear();
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingEscalationSnapshot));
+
+        let mut record = phase_163_evidence_record();
+        record.absence_markers.release_artifact_absent = false;
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingAbsenceMarker));
+    }
+
+    #[test]
+    fn phase_163_validation_rejects_authority_and_execution_claims() {
+        let claims = [
+            (
+                "claim:readiness_approved",
+                TrialSessionEvidenceValidationError::ReadinessClaimDetected,
+            ),
+            (
+                "claim:release_candidate_approved",
+                TrialSessionEvidenceValidationError::ReleaseClaimDetected,
+            ),
+            (
+                "claim:deployment_enabled",
+                TrialSessionEvidenceValidationError::DeploymentClaimDetected,
+            ),
+            (
+                "claim:public_use_approved",
+                TrialSessionEvidenceValidationError::PublicUseClaimDetected,
+            ),
+            (
+                "claim:production_use_approved",
+                TrialSessionEvidenceValidationError::ProductionUseClaimDetected,
+            ),
+            (
+                "claim:provider_trusted",
+                TrialSessionEvidenceValidationError::ProviderTrustClaimDetected,
+            ),
+            (
+                "claim:action_authorized",
+                TrialSessionEvidenceValidationError::ActionAuthorizationClaimDetected,
+            ),
+            (
+                "claim:replay_repaired",
+                TrialSessionEvidenceValidationError::ReplayRepairClaimDetected,
+            ),
+            (
+                "claim:recovery_promoted",
+                TrialSessionEvidenceValidationError::RecoveryPromotionClaimDetected,
+            ),
+        ];
+        for (claim, expected) in claims {
+            let mut record = phase_163_evidence_record();
+            record.payload.current_blocker_snapshot = claim.to_string();
+            assert!(validate_trial_session_evidence_record(&record)
+                .unwrap_err()
+                .contains(&expected));
+        }
+    }
+
+    #[test]
+    fn phase_163_rejects_missing_package_linkage_from_initial_state() {
+        let record = derive_trial_session_evidence_record(&initial_local_operator_shell_state());
+        assert!(validate_trial_session_evidence_record(&record)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::MissingTrialPackageLinkage));
+    }
+
+    #[test]
+    fn phase_163_explicit_write_read_and_read_back_validation_use_temp_path() {
+        let state_before = phase_163_state_with_valid_package();
+        let record = derive_trial_session_evidence_record(&state_before);
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::path::PathBuf::from(format!(
+            "/tmp/ajentic-phase-163-{unique}-{}.trialevidence",
+            record.metadata.content_digest
+        ));
+        let _ = std::fs::remove_file(&path);
+        let write = crate::api::write_trial_session_evidence_record(&record, &path).unwrap();
+        assert_eq!(write.status, TrialSessionEvidenceStatus::EvidenceWritten);
+        assert!(write.bytes_written > 0);
+        let read = crate::api::read_trial_session_evidence_record(&path).unwrap();
+        assert_eq!(
+            read.status,
+            TrialSessionEvidenceStatus::EvidenceReadBackValidated
+        );
+        assert_eq!(
+            read.projection.read_back_validation_status,
+            Some(TrialSessionEvidenceValidationStatus::Valid)
+        );
+        assert_eq!(phase_163_state_with_valid_package(), state_before);
+        std::fs::remove_file(&path).unwrap();
+    }
+
+    #[test]
+    fn phase_163_read_back_rejects_malformed_content_and_digest_drift() {
+        assert!(
+            parse_trial_session_evidence_record("not trial session evidence")
+                .unwrap_err()
+                .contains(&TrialSessionEvidenceValidationError::MalformedEvidenceInput)
+        );
+        let record = phase_163_evidence_record();
+        let mut content = serialize_trial_session_evidence_record(&record).unwrap();
+        content = content.replace(
+            &format!("content_digest={}", record.metadata.content_digest),
+            "content_digest=0000000000000000",
+        );
+        assert!(parse_trial_session_evidence_record(&content)
+            .unwrap_err()
+            .contains(&TrialSessionEvidenceValidationError::DeterministicDigestMismatch));
     }
 }
