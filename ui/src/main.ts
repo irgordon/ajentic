@@ -635,6 +635,59 @@ function renderEscalationGuidance(state: LocalOperatorShellState): string {
     <p class="muted">Escalation guidance is descriptive only and does not activate authority.</p>`;
 }
 
+function renderTrialObservability(state: LocalOperatorShellState): string {
+  const observability = state.trialObservability;
+  return `
+    <dl>
+      <div><dt>Observability status</dt><dd>${observability.status}</dd></div>
+      <div><dt>Trial run status</dt><dd>${observability.trialRunStatus}</dd></div>
+      <div><dt>Current trial step</dt><dd>${observability.currentTrialStep}</dd></div>
+      <div><dt>Current blocker</dt><dd>${observability.currentBlocker}</dd></div>
+      <div><dt>Stop-condition observation status</dt><dd>${observability.stopConditionObservation.status}</dd></div>
+      <div><dt>Manual operator step status</dt><dd>${observability.manualOperatorStepStatus}</dd></div>
+      <div><dt>Package status</dt><dd>${observability.packageStatus}</dd></div>
+      <div><dt>Evidence status</dt><dd>${observability.evidenceStatus}</dd></div>
+      <div><dt>Read-back status</dt><dd>package=${observability.packageReadBackStatus}; evidence=${observability.evidenceReadBackStatus}</dd></div>
+      <div><dt>Replay/restore verification status</dt><dd>${observability.replayRestoreVerificationStatus}</dd></div>
+      <div><dt>Mismatch summary</dt><dd>${observability.mismatchSummary.mismatches.join(", ") || "none"}</dd></div>
+      <div><dt>Evidence linkage</dt><dd>${observability.evidenceLinkageSummary.join(" | ") || "none"}</dd></div>
+      <div><dt>Boundary markers</dt><dd>${observability.boundaryStatuses.join(", ")}</dd></div>
+    </dl>
+    <p class="muted">${observability.localOnlyNonPublicNote}</p>
+    <p class="muted">${observability.noProductionMonitoringNote}</p>
+    <p class="muted">${observability.noRemoteTelemetryNote}</p>
+    <p class="muted">${observability.noBackgroundServiceNote}</p>
+    <p class="muted">${observability.noRemediationEscalationStopAutomationNote}</p>
+    <p class="muted">${observability.noApprovalNote}</p>`;
+}
+
+function renderTrialErrorReporting(state: LocalOperatorShellState): string {
+  const report = state.trialErrorReport;
+  const details = report.details.length === 0
+    ? `<p class="muted">No local trial errors are projected.</p>`
+    : `<ul>${report.details.map((detail) => `<li><strong>${detail.category}</strong> (${detail.severity})<br /><span class="muted">Source: ${detail.source}</span><br /><span class="muted">${detail.summary}</span><br /><span class="muted">Guidance: ${detail.operatorGuidance}</span><br /><span class="muted">Evidence: ${detail.evidenceLinkage.linkage}</span></li>`).join("")}</ul>`;
+  return `
+    <dl>
+      <div><dt>Error report status</dt><dd>${report.status}</dd></div>
+      <div><dt>Failure category summary</dt><dd>${report.categorySummary.join(", ") || "none"}</dd></div>
+      <div><dt>Error severity</dt><dd>${report.highestSeverity}</dd></div>
+      <div><dt>Evidence linkage</dt><dd>${report.evidenceLinkageSummary.join(" | ") || "none"}</dd></div>
+    </dl>
+    <h3>Trial error drilldown</h3>
+    ${details}
+    <p class="muted">${report.localDescriptiveOnlyNote}</p>`;
+}
+
+function renderTrialBlockedStateSummary(state: LocalOperatorShellState): string {
+  const summary = state.trialObservability.blockedStateSummary;
+  return `
+    <dl>
+      <div><dt>Blocked-state summary</dt><dd>${summary.status}</dd></div>
+      <div><dt>Current blocker</dt><dd>${summary.currentBlocker}</dd></div>
+      <div><dt>Rejection reasons</dt><dd>${summary.rejectionReasons.join(", ") || "none"}</dd></div>
+    </dl>`;
+}
+
 function renderReplayProjection(state: LocalOperatorShellState): string {
   const replay = state.run.decisionReplay;
   return `
@@ -713,6 +766,21 @@ function render(): void {
       <section class="panel" aria-label="Escalation guidance">
         <h2>Escalation guidance</h2>
         ${renderEscalationGuidance(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Trial observability">
+        <h2>Trial observability</h2>
+        ${renderTrialObservability(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Trial error reporting">
+        <h2>Trial error reporting</h2>
+        ${renderTrialErrorReporting(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Trial blocked-state summary">
+        <h2>Trial blocked-state summary</h2>
+        ${renderTrialBlockedStateSummary(shellState)}
       </section>
 
       <section class="local-shell__grid" aria-label="AJENTIC local operator workflow">

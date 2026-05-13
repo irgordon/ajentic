@@ -41,6 +41,8 @@ import {
   deriveTrialFailureDrillProjection,
   deriveTrialOperatorRunbookProjection,
   deriveControlledInternalTrialExecutionProjection,
+  deriveTrialObservabilityProjection,
+  deriveTrialErrorReportProjection,
   initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
 } from "./localOperatorShell";
@@ -4922,6 +4924,99 @@ function assertControlledInternalTrialExecutionForbiddenLabelsAbsent(): void {
   assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic execution projection");
 }
 
+
+function assertTrialObservabilityAndErrorPanelsRender(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial observability", "observability panel label");
+  assertContains(rendered, "Trial error reporting", "error reporting panel label");
+  assertContains(rendered, "Trial error drilldown", "error drilldown label");
+  assertContains(rendered, "Trial blocked-state summary", "blocked summary label");
+  assertContains(rendered, "Observability status: observability_projected", "initial observability status");
+  assertContains(rendered, "Failure category summary: evidence_missing, materialization_missing, no_trial_run, package_missing, replay_restore_verification_missing, workflow_blocked", "initial deterministic categories");
+  assertContains(rendered, "Trial observability is local-only and non-public.", "local-only wording");
+  assertContains(rendered, "No production monitoring is active.", "no monitoring wording");
+  assertContains(rendered, "No remote telemetry is sent.", "no telemetry wording");
+  assertContains(rendered, "No background service is active.", "no background wording");
+  assertContains(rendered, "Error reporting is local and descriptive only.", "local descriptive wording");
+  assertContains(rendered, "No remediation, escalation, or stop-condition enforcement is automated.", "no automation wording");
+  assertContains(rendered, "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no approval wording");
+}
+
+function assertTrialObservabilityBlockedAndMismatchRendering(): void {
+  const base = initialLocalOperatorShellState();
+  const state: LocalOperatorShellState = {
+    ...base,
+    trialReplayRestoreVerification: {
+      ...base.trialReplayRestoreVerification,
+      status: "verification_rejected",
+      comparisonSummary: {
+        ...base.trialReplayRestoreVerification.comparisonSummary,
+        replayStatusComparison: "replay/status comparison rejected",
+        restoreHistoryComparison: "restore/history comparison rejected",
+      },
+      mismatches: ["replay_status_snapshot_mismatch", "restore_history_snapshot_mismatch", "trial_package_read_back_invalid"],
+    },
+    controlledInternalTrialExecution: {
+      ...base.controlledInternalTrialExecution,
+      status: "trial_run_blocked",
+      currentBlocker: "stop_condition_observed",
+      rejectionReasons: ["stop_condition_observed"],
+      lastRejectedRun: {
+        runId: "controlled-internal-trial-run-observability-ui",
+        status: "trial_run_blocked",
+        currentStep: "observe_stop_conditions",
+        nextStep: null,
+        steps: [{ step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" }],
+        currentBlocker: "stop_condition_observed",
+        rejectionReasons: ["stop_condition_observed"],
+        stopConditionObservation: { status: "stop_condition_observed", observed: true, markers: ["operator_reports_stop_condition"], enforcementAutomated: false },
+        manualOperatorStepStatus: "manual_operator_step_missing",
+        evidenceLinkage: base.controlledInternalTrialExecution.evidenceLinkage,
+        summary: "Blocked observability fixture.",
+      },
+    },
+  };
+  const projected: LocalOperatorShellState = {
+    ...state,
+    trialObservability: deriveTrialObservabilityProjection(state),
+    trialErrorReport: deriveTrialErrorReportProjection(state),
+  };
+  const rendered = renderLocalOperatorShellSnapshot(projected);
+  assertContains(rendered, "Observability status: stop_condition_observed", "stop condition observability status");
+  assertContains(rendered, "Blocked-state summary: observed", "blocked summary rendered");
+  assertContains(rendered, "Blocked-state current blocker: stop_condition_observed", "blocked current blocker rendered");
+  assertContains(rendered, "Mismatch summary: replay_status_snapshot_mismatch, restore_history_snapshot_mismatch, trial_package_read_back_invalid", "mismatch drilldown rendered");
+  assertContains(rendered, "replay_status_mismatch/blocking/replay_restore_verification", "replay error detail rendered");
+  assertContains(rendered, "restore_history_mismatch/blocking/replay_restore_verification", "restore error detail rendered");
+  const first = JSON.stringify(deriveTrialObservabilityProjection(projected));
+  const second = JSON.stringify(deriveTrialObservabilityProjection(projected));
+  assertEqual(first, second, "deterministic observability projection");
+  assertEqual(JSON.stringify(deriveTrialErrorReportProjection(projected)), JSON.stringify(deriveTrialErrorReportProjection(projected)), "deterministic error report projection");
+}
+
+function assertTrialObservabilityForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  for (const label of [
+    "production_monitoring_enabled",
+    "telemetry_sent",
+    "remote_telemetry_enabled",
+    "background_monitoring_enabled",
+    "stop_condition_enforced",
+    "alert_sent",
+    "incident_created",
+    "trial_approved",
+    "controlled_human_use_approved",
+    "release_ready",
+    "production_ready",
+    "deployment_ready",
+    "public_use_ready",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+  ]) assertDoesNotContain(rendered, label, `forbidden observability label ${label}`);
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5664,6 +5759,19 @@ payload_summary=authority before replay`),
     name: "controlled_internal_trial_execution_forbidden_labels_absent",
     run: assertControlledInternalTrialExecutionForbiddenLabelsAbsent,
   },
+  {
+    name: "trial_observability_and_error_panels_render",
+    run: assertTrialObservabilityAndErrorPanelsRender,
+  },
+  {
+    name: "trial_observability_blocked_and_mismatch_rendering",
+    run: assertTrialObservabilityBlockedAndMismatchRendering,
+  },
+  {
+    name: "trial_observability_forbidden_labels_absent",
+    run: assertTrialObservabilityForbiddenLabelsAbsent,
+  },
+
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",
     run: assertConstrainedLocalProviderInvocationRejectsAndPreservesNoAuthority,
