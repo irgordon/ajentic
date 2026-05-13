@@ -28,6 +28,32 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.170.7 - 2026-05-13
+**Status:** Phase 170.7 - Out-of-Band Rust Module Extraction Pass
+
+### Changed
+- Split selected oversized Rust surfaces into smaller behavior-preserving modules.
+- Extract `core/src/api/local_operator_shell.rs` module-local tests into `core/src/api/local_operator_shell_tests.rs` while preserving the local shell public API through the existing `core/src/api/local_operator_shell.rs` surface.
+- Preserve public behavior, validation semantics, serialized formats, deterministic ordering, and test coverage.
+- Update checklists/current-phase.md to Phase 170.7 procedural truth.
+
+### Notes
+- Out-of-band maintenance/code-quality phase.
+- Behavior-preserving extraction only.
+- No Phase 171 implementation.
+- No release-candidate preparation behavior.
+- No runtime behavior changes.
+- No TypeScript changes.
+- No schema changes.
+- No release artifact creation.
+- No provider execution expansion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 171 remains the next planned code-production phase after this extraction.
+
 ## v0.0.170.5 - 2026-05-13
 **Status:** Phase 170.5 - Out-of-Band Rust Surface Maintainability Audit
 
