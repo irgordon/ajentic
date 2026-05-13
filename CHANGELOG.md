@@ -28,6 +28,42 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.169 - 2026-05-13
+**Status:** Phase 169 - Local Beta Hardening Pass and User Help Surface
+
+### Added
+- Add local HTML operator help pages for getting started, local workflow, provider setup, validation/review/candidates, trial package/evidence, restore/verification, errors/stop conditions, glossary, and safety boundaries.
+- Add a visible UI help entry point for local operator help.
+- Add deterministic validation for required help pages and required help wording.
+- Add TypeScript behavior tests for visible help entry point and no-authority help wording.
+
+### Changed
+- Improve local beta usability wording by linking the shell to explanatory local help and by stating that the help entry point does not mutate state, run providers, write packages, use network, publish, deploy, sign, release, or approve actions.
+- Update checklists/current-phase.md to Phase 169 procedural truth.
+
+### Notes
+- Code-production phase.
+- Product-facing local help/documentation phase.
+- Help pages are explanatory only.
+- Help pages do not grant authority.
+- Help pages do not approve controlled human use.
+- Help pages do not approve readiness, release, deployment, public use, or production use.
+- Help pages do not trust provider output.
+- Help pages do not authorize actions.
+- No trial execution expansion.
+- No provider execution expansion.
+- No production monitoring.
+- No remote telemetry.
+- No automated remediation.
+- No automated escalation.
+- No stop-condition automation.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 170 remains the next production-path alignment checkpoint and must verify user-facing help exists.
+
 ## v0.0.168 - 2026-05-13
 **Status:** Phase 168 - Trial Evidence Review Surface
 

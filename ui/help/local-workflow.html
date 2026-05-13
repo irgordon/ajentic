@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Local workflow</title></head>
+<body>
+  <main>
+    <h1>Local workflow</h1>
+    <p>The local workflow moves in one visible path: provider setup → constrained invocation → provider output pipeline → validation/review → staged proposal → staged validation → candidate review → operator decision → local candidate materialization → replay/status → evidence export → session package → restore/history.</p>
+    <h2>What each stage does</h2>
+    <ul>
+      <li>Provider setup records a local adapter shape and provider configuration. It protects the shell from unknown provider paths.</li>
+      <li>Constrained invocation runs only the allowed local path. It prevents arbitrary commands, cloud paths, and secret use.</li>
+      <li>The provider output pipeline displays output as untrusted material. It prevents provider output from becoming authority by itself.</li>
+      <li>Validation and review check shape, linkage, policy status, and review notes. They protect the operator from treating raw output as candidate output.</li>
+      <li>A staged proposal prepares possible candidate material. It prevents direct promotion from provider output.</li>
+      <li>Staged validation checks the staged proposal before any local decision is recorded.</li>
+      <li>Candidate review shows what the operator is deciding on.</li>
+      <li>Operator decision records local intent only. It does not authorize actions.</li>
+      <li>Local candidate materialization creates local candidate output after the required local steps. It is not production approval.</li>
+      <li>Replay/status summarizes recorded local decisions. It does not repair replay.</li>
+      <li>Evidence export and session package collect local evidence for review. Evidence is not authority.</li>
+      <li>Restore/history shows read-back and restore previews. Verification does not repair replay or promote recovery.</li>
+    </ul>
+    <p>This local workflow is local-only and non-production.</p>
+    <p><a href="index.html">Back to help index</a></p>
+  </main>
+</body>
+</html>

@@ -29,6 +29,7 @@ import {
   submitLocalOperatorCandidateDecision,
   type LocalOperatorShellResponse,
 } from "./api/localOperatorShellTransport.js";
+import { renderLocalHelpEntryHtml } from "./app/help.js";
 
 const transport = createLocalOperatorShellTransport();
 let shellState = getInitialLocalOperatorShellState(transport).state;
@@ -736,6 +737,8 @@ function render(): void {
           <strong>${shellState.run.status}</strong>
         </div>
       </header>
+
+      ${renderLocalHelpEntryHtml()}
 
       <section class="panel" aria-label="Local transport boundary status">
         <h2>Local transport boundary</h2>

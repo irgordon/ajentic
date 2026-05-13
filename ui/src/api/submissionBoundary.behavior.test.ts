@@ -49,6 +49,7 @@ import {
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
+import { renderLocalHelpEntryText } from "../app/help";
 import {
   createLocalOperatorShellTransport,
   createLocalStagedCandidateConversionProposal,
@@ -225,6 +226,26 @@ function assertLocalOperatorShellRendersIdleState(): void {
     "no_decision_recorded",
     "initial replay status",
   );
+}
+
+function assertLocalHelpEntryPointVisibleAndNoAuthority(): void {
+  const response = getInitialLocalOperatorShellState(
+    createLocalOperatorShellTransport(),
+  );
+  const before = JSON.stringify(response.state);
+  const help = renderLocalHelpEntryText();
+  const snapshot = renderLocalOperatorShellSnapshot(response.state);
+  const after = JSON.stringify(response.state);
+
+  assertEqual(after, before, "help rendering does not mutate shell state");
+  assertContains(snapshot, "Local help", "snapshot help entry point visible");
+  assertContains(snapshot, "Operator help pages are explanatory only.", "explanatory help wording visible");
+  assertContains(help, "local-only and non-production", "help boundary wording");
+  assertContains(help, "does not change runtime state", "help no mutation wording");
+  assertContains(help, "run providers", "help no provider execution wording");
+  assertContains(help, "use network", "help no network wording");
+  assertContains(help, "publish, deploy, sign, release", "help no publish/deploy/sign/release wording");
+  assertContains(help, "approve actions", "help no action approval wording");
 }
 
 function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
@@ -5877,6 +5898,10 @@ payload_summary=authority before replay`),
   {
     name: "trial_observability_forbidden_labels_absent",
     run: assertTrialObservabilityForbiddenLabelsAbsent,
+  },
+  {
+    name: "local_help_entry_point_visible_and_no_authority",
+    run: assertLocalHelpEntryPointVisibleAndNoAuthority,
   },
   {
     name: "trial_evidence_review_panel_initial_state",
