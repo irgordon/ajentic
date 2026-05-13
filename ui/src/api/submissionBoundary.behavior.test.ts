@@ -4709,6 +4709,107 @@ function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
   assertDoesNotContain(first, "sign_evidence", "no sign control");
 }
 
+
+
+function assertTrialReplayRestoreVerificationPanelRendersInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const verification = state.trialReplayRestoreVerification;
+  assertEqual(verification.status, "not_verified", "initial verification status");
+  assertEqual(verification.verificationId, null, "initial verification id");
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial replay and restore verification", "verification panel label");
+  assertContains(rendered, "Replay/restore verification", "alternate verification panel label");
+  assertContains(rendered, "Verification mismatch drilldown", "mismatch drilldown label");
+  assertContains(rendered, "Verification status: not_verified", "initial status rendered");
+  assertContains(rendered, "Package/evidence linkage status: not_verified", "linkage status rendered");
+  assertContains(rendered, "Replay/status comparison: not_verified", "replay comparison rendered");
+  assertContains(rendered, "Restore/history comparison: not_verified", "restore comparison rendered");
+  assertContains(rendered, "Trial replay and restore verification is local-only, non-public, and non-authoritative.", "local-only wording");
+  assertContains(rendered, "Verification compares trial artifacts and restore/replay projections.", "comparison boundary wording");
+  assertContains(rendered, "Verification does not repair replay.", "no replay repair wording");
+  assertContains(rendered, "Verification does not promote recovery.", "no recovery promotion wording");
+  assertContains(rendered, "Verification does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no approval wording");
+  assertContains(rendered, "Verification does not execute actions.", "no action wording");
+}
+
+
+
+function assertTrialReplayRestoreVerificationPanelRendersPassedState(): void {
+  const base = initialLocalOperatorShellState();
+  const state: LocalOperatorShellState = {
+    ...base,
+    trialReplayRestoreVerification: {
+      ...base.trialReplayRestoreVerification,
+      status: "verification_passed",
+      verificationId: "trial-replay-restore-verification-ui-passed",
+      comparisonSummary: {
+        packageReadBackStatus: "package_read_back_valid",
+        evidenceReadBackStatus: "evidence_read_back_valid",
+        packageEvidenceLinkageStatus: "package_evidence_linkage_matched",
+        workflowLinkageStatus: "workflow_linkage_matched",
+        replayStatusComparison: "replay/status comparison matched",
+        restoreHistoryComparison: "restore/history comparison matched",
+        stopConditionComparison: "stop_condition_snapshot_matched",
+        escalationFailureComparison: "escalation_failure_snapshot_matched",
+      },
+      matchedFields: ["package_id=controlled-internal-trial-package-ui"],
+      mismatches: [],
+      missingInputs: [],
+    },
+  };
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Verification status: verification_passed", "passed status rendered");
+  assertContains(rendered, "Verification ID: trial-replay-restore-verification-ui-passed", "passed id rendered");
+  assertContains(rendered, "Package/evidence linkage status: package_evidence_linkage_matched", "passed linkage rendered");
+  assertContains(rendered, "Replay/status comparison: replay/status comparison matched", "passed replay comparison rendered");
+  assertContains(rendered, "Restore/history comparison: restore/history comparison matched", "passed restore comparison rendered");
+  assertContains(rendered, "Verification mismatch drilldown: none", "empty mismatch rendered");
+}
+
+function assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown(): void {
+  const base = initialLocalOperatorShellState();
+  const state: LocalOperatorShellState = {
+    ...base,
+    trialReplayRestoreVerification: {
+      ...base.trialReplayRestoreVerification,
+      status: "verification_rejected",
+      verificationId: "trial-replay-restore-verification-ui-fixture",
+      comparisonSummary: {
+        packageReadBackStatus: "package_read_back_valid",
+        evidenceReadBackStatus: "evidence_read_back_valid",
+        packageEvidenceLinkageStatus: "package_evidence_linkage_rejected",
+        workflowLinkageStatus: "workflow_linkage_rejected",
+        replayStatusComparison: "replay/status comparison rejected",
+        restoreHistoryComparison: "restore/history comparison rejected",
+        stopConditionComparison: "stop_condition_snapshot_rejected",
+        escalationFailureComparison: "escalation_failure_snapshot_rejected",
+      },
+      matchedFields: ["trial_package_read_back=valid"],
+      mismatches: [
+        "package_id_mismatch",
+        "workflow_status_mismatch",
+        "replay_status_snapshot_mismatch",
+        "restore_history_snapshot_mismatch",
+      ],
+      missingInputs: [],
+    },
+  };
+  const first = renderLocalOperatorShellSnapshot(state);
+  const second = renderLocalOperatorShellSnapshot(state);
+  assertEqual(first, second, "verification rendering deterministic");
+  assertContains(first, "Verification status: verification_rejected", "rejected status rendered");
+  assertContains(first, "Verification ID: trial-replay-restore-verification-ui-fixture", "verification id rendered");
+  assertContains(first, "Package read-back status: package_read_back_valid", "package read-back rendered");
+  assertContains(first, "Evidence read-back status: evidence_read_back_valid", "evidence read-back rendered");
+  assertContains(first, "Package/evidence linkage status: package_evidence_linkage_rejected", "linkage rejection rendered");
+  assertContains(first, "Workflow linkage status: workflow_linkage_rejected", "workflow rejection rendered");
+  assertContains(first, "Replay/status comparison: replay/status comparison rejected", "replay rejection rendered");
+  assertContains(first, "Restore/history comparison: restore/history comparison rejected", "restore rejection rendered");
+  assertContains(first, "Verification mismatch drilldown: package_id_mismatch, workflow_status_mismatch, replay_status_snapshot_mismatch, restore_history_snapshot_mismatch", "mismatch list rendered");
+  assertDoesNotContain(first, "repair replay now", "no replay repair control");
+  assertDoesNotContain(first, "promote recovery now", "no recovery control");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5416,6 +5517,20 @@ payload_summary=authority before replay`),
   {
     name: "trial_runbook_forbidden_labels_absent",
     run: assertTrialRunbookForbiddenLabelsAbsent,
+  },
+
+  {
+    name: "trial_replay_restore_verification_panel_initial_state",
+    run: assertTrialReplayRestoreVerificationPanelRendersInitialState,
+  },
+
+  {
+    name: "trial_replay_restore_verification_panel_passed_state",
+    run: assertTrialReplayRestoreVerificationPanelRendersPassedState,
+  },
+  {
+    name: "trial_replay_restore_verification_panel_rejected_drilldown",
+    run: assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown,
   },
   {
     name: "trial_session_evidence_panel_initial_state",
