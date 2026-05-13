@@ -240,6 +240,41 @@ export function renderLocalOperatorShellSnapshot(
     "Escalation guidance is descriptive only and does not activate authority.",
   ].join("\n");
 
+  const trialReview = state.trialEvidenceReview;
+  const trialEvidenceReviewLines = [
+    `Review status: ${trialReview.status}`,
+    `Finding count: ${trialReview.findings.length}`,
+    `Unresolved blocker count: ${trialReview.unresolvedBlockers.unresolvedBlockerCount}`,
+    `Hardening candidate count: ${trialReview.hardeningCandidates.length}`,
+    `Controlled trial package status: ${trialReview.controlledTrialPackageStatus}`,
+    `Trial execution status: ${trialReview.trialExecutionStatus}`,
+    `Trial evidence status: ${trialReview.trialSessionEvidenceStatus}`,
+    `Replay/restore verification status: ${trialReview.replayRestoreVerificationStatus}`,
+    `Observability/error status: ${trialReview.observabilityStatus} / ${trialReview.errorReportStatus}`,
+    `Stop-condition summary: ${trialReview.stopConditionObservation}`,
+    `Escalation summary: ${trialReview.escalationGuidanceSummary.join(" | ") || "none"}`,
+    `Mismatch/error summary: mismatches=${trialReview.mismatchErrorSummary.mismatchCount} errorCategories=${trialReview.mismatchErrorSummary.errorCategoryCount} replay=${trialReview.mismatchErrorSummary.replayStatusComparison} restore=${trialReview.mismatchErrorSummary.restoreHistoryComparison}`,
+    `Package/evidence/read-back failures: ${trialReview.mismatchErrorSummary.packageEvidenceReadBackFailures.join(", ") || "none"}`,
+    `Boundary markers: ${trialReview.boundaryStatuses.join(", ")}`,
+    trialReview.localOnlyNonPublicNote,
+    trialReview.noAuthorityNote,
+    trialReview.noAutomationNote,
+    trialReview.noReplayRepairNote,
+    trialReview.hardeningCandidateNote,
+  ].join("\n");
+  const trialReviewFindingsLines = trialReview.findings.length === 0
+    ? "No trial review findings."
+    : trialReview.findings.map((finding) => [`Finding ${finding.findingId}`, `Category: ${finding.category}`, `Severity: ${finding.severity}`, `Disposition: ${finding.disposition}`, `Source: ${finding.source}`, `Summary: ${finding.summary}`, `Evidence: ${finding.evidenceLinkage.surface} => ${finding.evidenceLinkage.summary}`].join("\n")).join("\n");
+  const trialUnresolvedBlockersLines = [
+    `Current blocker: ${trialReview.unresolvedBlockers.currentBlocker}`,
+    `Unresolved blocker count: ${trialReview.unresolvedBlockers.unresolvedBlockerCount}`,
+    trialReview.unresolvedBlockers.blockers.join("\n") || "No unresolved blockers projected.",
+  ].join("\n");
+  const trialHardeningCandidateLines = trialReview.hardeningCandidates.length === 0
+    ? "No local beta hardening candidates projected."
+    : trialReview.hardeningCandidates.map((candidate) => [`Candidate ${candidate.candidateId}`, `Source finding: ${candidate.sourceFindingId}`, `Target surface: ${candidate.targetSurface}`, `Scope: ${candidate.localBetaScope}`, `Summary: ${candidate.summary}`].join("\n")).join("\n");
+  const trialEvidenceLinkageLines = trialReview.evidenceLinkage.map((linkage) => `${linkage.source}:${linkage.surface}:${linkage.summary}`).join("\n") || "No evidence linkage projected.";
+
   const workflow = state.completeLocalOperatorWorkflow;
   const workflowLines = [
     `Workflow status: ${workflow.status}`,
@@ -573,6 +608,16 @@ export function renderLocalOperatorShellSnapshot(
     failureDrillLines,
     "Escalation guidance",
     failureDrillLines,
+    "Trial evidence review",
+    trialEvidenceReviewLines,
+    "Trial review findings",
+    trialReviewFindingsLines,
+    "Trial unresolved blockers",
+    trialUnresolvedBlockersLines,
+    "Local beta hardening candidates",
+    trialHardeningCandidateLines,
+    "Trial source evidence linkage",
+    trialEvidenceLinkageLines,
     "Trial observability",
     observabilityLines,
     "Trial error reporting",

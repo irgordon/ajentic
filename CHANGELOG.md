@@ -28,6 +28,40 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.168 - 2026-05-13
+**Status:** Phase 168 - Trial Evidence Review Surface
+
+### Added
+- Add Rust-owned trial evidence review projection derived from local shell state.
+- Add closed review finding categories, severity, disposition, source linkage, unresolved blocker summary, and local beta hardening candidate projection.
+- Add UI rendering for trial evidence review, review findings, unresolved blockers, source evidence linkage, and hardening candidates.
+- Add Rust and TypeScript tests for evidence review projection, finding derivation, hardening candidate derivation, deterministic ordering, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with trial evidence review state.
+- Update the local UI shell to display local trial evidence review findings and hardening candidates.
+- Update checklists/current-phase.md to Phase 168 procedural truth.
+
+### Notes
+- Code-production phase.
+- Trial evidence review is local-only and non-public.
+- Review findings are evidence, not approval.
+- Hardening candidates are inputs for Phase 169 code work, not approvals.
+- Review does not approve controlled human use.
+- Review does not approve readiness, release, deployment, public use, or production use.
+- Review does not automate remediation.
+- Review does not automate escalation.
+- Review does not enforce stop conditions.
+- Review does not repair replay.
+- Review does not promote recovery.
+- No provider trust approval.
+- No action execution.
+- No production monitoring.
+- No remote telemetry.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 169 remains the next code-production phase for local beta hardening, including user-facing help documentation if still missing.
+
 ## v0.0.167 - 2026-05-13
 **Status:** Phase 167 - Trial Observability and Error Reporting
 
