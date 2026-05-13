@@ -518,6 +518,67 @@ Goal: Decide whether AJENTIC may proceed toward Release Candidate preparation or
 
 Boundary: Alignment checkpoint only; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, or public/general use approval.
 
+Decision: `proceed_with_caveats_to_release_candidate_preparation_block`.
+
+Reconciliation: Phases 166-169 are treated as an aligned controlled-trial/local-beta block covering controlled internal trial execution harness, trial observability and error reporting, trial evidence review surface, local beta hardening, and user-facing local HTML help. Local HTML help pages, `help/index.html`, and the visible UI help entry point are present; coverage includes getting started, local workflow, provider setup, validation, review, and candidates, trial package and evidence, restore and verification, errors, stop conditions, and escalation, glossary, safety boundaries, plain English operator explanations, provider output remains untrusted, evidence is not authority, and verification does not repair replay or promote recovery.
+
+Authority preservation: controlled internal trial execution harness is not controlled-human-use approval; trial observability is local-only and not production monitoring; error reporting is local and descriptive only; trial evidence review is not approval; local beta hardening is not readiness; User help is explanatory only and not authority; Local HTML help pages are not release documentation approval or production readiness evidence; local beta workflow completion is not production readiness; local candidate materialization is not production approval; provider output remains untrusted unless a later explicit bounded phase changes that; evidence export is not release evidence; session package is not a release artifact; restore projection is not recovery promotion; replay/status projection is not replay repair; operator decisions are local workflow decisions, not release, deployment, or public-use approvals; passing validation is not readiness approval; absence of blockers is not approval; release-candidate preparation is not release readiness.
+
+### Phase 171 - Release Candidate Preparation Contract
+Goal: Define a release-candidate preparation contract from local beta evidence.
+
+Boundary: Code-production phase; must produce product-facing code, executable validation, or a concrete preparation contract surface; no release artifacts or release readiness approval.
+
+### Phase 172 - Release Artifact Dry Package Assembly
+Goal: Assemble a local, non-public, dry-run release package from existing build, help, session, and trial evidence through explicit caller-provided paths.
+
+Boundary: Code-production phase; local dry package artifact only; no publishing, signing, installer, public download, or release approval.
+
+### Phase 173 - Checksum and Provenance Evidence for Dry Package
+Goal: Generate deterministic checksum/provenance evidence for the dry package.
+
+Boundary: Code-production phase; executable checksum/provenance artifact only; no signing or publishing.
+
+### Phase 174 - Installer and Distribution Contract Surface
+Goal: Add local installer/distribution contract projection and UI visibility.
+
+Boundary: Code-production phase; contract surface only; no public distribution or update-channel activation.
+
+### Phase 175 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 171-174 and decide whether signing/key-custody dry-run work or another hardening block may proceed.
+
+Boundary: Alignment checkpoint only; no release approval, readiness approval, signing activation, publishing, deployment, or public/general use approval.
+
+### Phase 176 - Signing and Key-Custody Dry Run
+Goal: Add a local dry-run signing/key-custody evidence surface using test-only or placeholder metadata.
+
+Boundary: Code-production phase; no real signing keys, public signing, publishing, or release approval.
+
+### Phase 177 - Release Candidate Evidence Assembly UI
+Goal: Add a UI surface for assembling and reviewing release-candidate evidence categories from dry-package, checksum/provenance, installer/distribution contract, signing dry run, help docs, local beta evidence, and validation results.
+
+Boundary: Code-production phase; evidence assembly only; no approval.
+
+### Phase 178 - Release Candidate Gap Review and Hardening
+Goal: Fix confirmed gaps from the evidence assembly surface and missing local beta documentation or packaging surfaces.
+
+Boundary: Code-production phase; concrete code or validation hardening only; no release approval.
+
+### Phase 179 - Release Candidate Dry-Run Rehearsal
+Goal: Run a deterministic release-candidate dry-run rehearsal using all prior dry-package and evidence surfaces.
+
+Boundary: Code-production phase; local dry-run evidence artifact only; no release approval and no public artifact.
+
+### Phase 180 - Release Candidate Decision Gate
+Goal: Decide whether Release Candidate status is supportable or whether another hardening block is required.
+
+Boundary: Decision gate only; no release, production, deployment, public/general use, signing, publishing, or provider-output trust approval by implication.
+
+
+## Phase 170 alignment note
+
+`docs/roadmap/phase-170-production-path-alignment.md` records the concise Phase 170 reconciliation, Phase 171 gate decision, and Phase 171-180 remap. Every non-0/5 phase after Phase 170 must produce product-facing code, executable Rust capability, visible UI capability, release-candidate preparation artifact, local dry package artifact, checksum/provenance artifact, installer/distribution contract surface, signing/key-custody dry-run surface, release evidence review UI, concrete local-beta/release-candidate hardening code, or deterministic validation improvement. Safety checks remain embedded in implementation phases and must not become the only product of a non-0/5 phase unless they directly validate a newly introduced executable capability.
+
 ## Phase 165 alignment note
 
 `docs/roadmap/phase-165-code-production-alignment.md` records the concise Phase 165 reconciliation, Phase 166 gate decision, and confirmed Phase 166-170 block. Every non-0/5 phase after Phase 165 must produce visible UI capability, executable Rust capability, trial execution harness behavior, trial evidence artifact, local observability/error-reporting capability, restore/replay/export verification capability, end-to-end operator workflow improvement, or concrete local-beta hardening code. Safety checks remain embedded in implementation phases and must not become the only product of a non-0/5 phase unless they directly validate a newly introduced executable capability.
