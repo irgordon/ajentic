@@ -1,150 +1,203 @@
 ---
 truth_dimension: procedural
-scope: current_phase
 authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
 # Current phase checklist
 
-Phase 159 - Complete Local Operator Workflow.
+## Phase name
+Phase 160 - Production-Path Alignment Checkpoint.
 
 ## Phase goal
-- [x] Consolidate the implemented local provider, pipeline, validation, review, staging, decision, materialization, replay, export, package, history, and restore surfaces into one complete local operator workflow projection and UI panel.
-- [x] Keep the workflow local-only, non-production, non-authoritative, and bounded to existing typed local actions.
+- [x] Reconcile the Phase 151-159 local beta product-capability block.
+- [x] Decide whether AJENTIC may proceed toward controlled internal trial packaging.
+- [x] Remap Phases 161-170 without implementing Phase 161.
 
 ## Working-tree hygiene gate
-- [x] Start from the current branch.
-- [x] Keep edits limited to Phase 159 allowed surfaces.
-- [x] Run final validation after all edits.
-- [x] Commit Phase 159 changes.
+- [x] Start from a clean working tree.
+- [x] Keep edits limited to allowed Phase 160 surfaces.
+- [x] Do not modify Rust source, TypeScript source, tests, schemas, scripts, CI workflows, README.md, AGENTS.md, governance docs, architecture docs, archived changelog files, package files, lockfiles, release infrastructure, deployment infrastructure, or installer/update/signing/publishing behavior.
 
 ## Allowed surfaces
-- [x] `core/src/**`
-- [x] `ui/src/**`
+- [x] `docs/roadmap/phase-map.md`
+- [x] `docs/roadmap/phases.md`
+- [x] `docs/roadmap/sequencing.md`
+- [x] `docs/roadmap/phase-160-production-path-alignment.md`
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 
-## Code-production deliverable checklist
-- [x] Rust-owned complete local workflow projection.
-- [x] Rust-owned workflow step, status, error, evidence, boundary, and capability types.
-- [x] Transport/local shell state carries the complete workflow projection.
-- [x] TypeScript model carries Rust-shaped workflow projection.
-- [x] Visible local operator workflow panel added.
+## Phase 151 carry-forward checklist
+- [x] Local session package artifact reconciled.
+- [x] Session package is not a release artifact.
 
-## Complete workflow projection checklist
-- [x] Deterministic projection for identical shell state.
-- [x] Projection derived from `LocalOperatorShellState`.
-- [x] Projection includes classification `local_beta_workflow_only`.
-- [x] Projection covers provider setup through local candidate materialization and local evidence surfaces.
+## Phase 152 carry-forward checklist
+- [x] Session history and restore UI reconciled.
+- [x] Restore projection is not recovery promotion.
 
-## Workflow step/status checklist
-- [x] Provider adapter configured.
-- [x] Adapter dry-run available/executed.
-- [x] Constrained invocation completed.
-- [x] Provider output pipeline projected.
-- [x] Provider output validated and reviewed.
-- [x] Staged proposal created and validated.
-- [x] Candidate review projected.
-- [x] Operator decision recorded.
-- [x] Local candidate materialized.
-- [x] Replay, evidence export, session package, history, and restore projected.
+## Phase 153 carry-forward checklist
+- [x] Real local provider adapter contract reconciled.
+- [x] Adapter contract does not approve provider trust.
 
-## Current blocker checklist
-- [x] Missing adapter configuration blocks initial workflow.
-- [x] Missing/rejected invocation blocks or rejects workflow.
-- [x] Missing/rejected validation, review, staged proposal, staged validation, candidate review, operator decision, and materialization are surfaced.
-- [x] Rejection reasons are summarized for drilldown.
+## Phase 154 carry-forward checklist
+- [x] Controlled deterministic adapter dry-run harness reconciled.
+- [x] Adapter dry run remains bounded and non-production.
 
-## Evidence/package/replay/export summary checklist
-- [x] Provider output pipeline summary.
-- [x] Local candidate materialization summary.
-- [x] Replay/status summary.
-- [x] Local evidence export summary.
-- [x] Session package summary.
-- [x] Session history and restore summary.
+## Phase 156 carry-forward checklist
+- [x] One constrained local provider invocation path reconciled.
+- [x] No provider execution expansion approved.
 
-## UI workflow panel checklist
-- [x] Panel labeled “Complete local operator workflow”.
-- [x] Workflow status, current step, next required step, and current blocking step render.
-- [x] Ordered step list and statuses render.
-- [x] Rejection/error drilldown renders.
-- [x] Evidence/package/replay/export summaries render.
-- [x] UI remains usable when workflow is blocked or rejected.
+## Phase 157 carry-forward checklist
+- [x] Provider output pipeline integration reconciled.
+- [x] Provider output remains untrusted unless a later explicit bounded phase changes that.
 
-## Local-only/non-production boundary checklist
-- [x] UI states: “Complete local workflow is local-only and non-production.”
-- [x] UI states workflow completion does not approve readiness, release, deployment, public use, or production use.
-- [x] UI states provider output remains untrusted unless a later bounded phase explicitly changes that.
-- [x] UI states workflow status does not authorize actions.
-- [x] UI states replay is not repaired and recovery is not promoted.
+## Phase 158 carry-forward checklist
+- [x] Local candidate materialization reconciled.
+- [x] Local candidate materialization is not production approval.
 
-## No-authority checklist
-- [x] No provider trust.
-- [x] No production, readiness, release, deployment, or public-use approval.
-- [x] No action execution.
-- [x] No replay repair or recovery promotion.
-- [x] No provider execution expansion, arbitrary command execution, shell execution, network/cloud execution, secret handling, production persistence, release artifact, installer, update-channel, signing, publishing, or deployment behavior.
+## Phase 159 carry-forward checklist
+- [x] Complete local operator workflow projection and UI reconciled.
+- [x] Local beta workflow completion is not production readiness.
 
-## Rust test checklist
-- [x] Initial workflow projection.
-- [x] Determinism and non-mutation.
-- [x] Complete happy path after local candidate materialization.
-- [x] Blocked/rejected workflow states.
-- [x] Transport carries workflow projection.
-- [x] No-authority boundaries.
+## Local beta workflow status checklist
+- [x] Provider setup included.
+- [x] Constrained invocation included.
+- [x] Provider output pipeline included.
+- [x] Validation/review included.
+- [x] Staged proposal included.
+- [x] Staged validation included.
+- [x] Candidate review included.
+- [x] Operator decision included as local workflow decision only.
+- [x] Local candidate materialization included.
+- [x] Replay/status included.
+- [x] Evidence export included and not release evidence.
+- [x] Session package included and not a release artifact.
+- [x] Restore/history included.
 
-## TypeScript test checklist
-- [x] Visible workflow panel.
-- [x] Ordered step rendering.
-- [x] Blocked and rejected state rendering.
-- [x] Happy-path deterministic rendering.
-- [x] Required no-authority wording.
+## Controlled internal trial packaging blocker checklist
+- [x] Controlled internal trial package/checklist bundle remains to be produced in Phase 161.
+- [x] Trial operator runbook and failure drilldown UI remains to be produced in Phase 162.
+- [x] Trial-session evidence artifact remains to be produced in Phase 163.
+- [x] Trial replay and restore verification remains to be produced in Phase 164.
+- [x] Controlled internal trial execution harness remains to be produced in Phase 166.
+- [x] Trial observability/error reporting remains to be produced in Phase 167.
+- [x] Trial evidence review surface remains to be produced in Phase 168.
+- [x] Local beta hardening remains to be produced in Phase 169 from confirmed trial evidence.
 
-## Phase 160 handoff checklist
-- [x] Phase 160 remains the next production-path alignment checkpoint.
-- [x] No roadmap files changed.
-- [x] Production-path alignment, readiness, release, deployment, signing, publishing, installer, update-channel, public-use, provider trust, action execution, replay repair, and recovery promotion remain deferred.
+## Authority boundary preservation checklist
+- [x] Local beta workflow completion is not production readiness.
+- [x] Local candidate materialization is not production approval.
+- [x] Provider output remains untrusted unless a later explicit bounded phase changes that.
+- [x] Evidence export is not release evidence.
+- [x] Session package is not a release artifact.
+- [x] Restore projection is not recovery promotion.
+- [x] Replay/status projection is not replay repair.
+- [x] Operator decisions are local workflow decisions, not release/deployment/public-use approvals.
+- [x] Passing validation is not readiness approval.
+- [x] Absence of blockers is not approval.
+- [x] Phase 160 is not public/general use approval.
+- [x] Phase 160 is not release readiness approval.
+- [x] Phase 160 is not deployment approval.
+
+## Phase 161 gate decision checklist
+- [x] Decision: `proceed_with_caveats_to_controlled_internal_trial_packaging`.
+- [x] Phase 161 is expected to resume code production.
+- [x] Phase 161 must produce a local-only controlled internal trial package/checklist bundle.
+- [x] Phase 161 must not create public release, installer/update-channel, signing, publishing, deployment, provider trust, action execution, or readiness approval behavior.
+
+## Phase 161-170 remap checklist
+- [x] Phase 161 - Controlled Internal Trial Package.
+- [x] Phase 162 - Trial Operator Runbook and Failure Drill UI.
+- [x] Phase 163 - Trial Session Evidence Capture.
+- [x] Phase 164 - Trial Replay and Restore Verification.
+- [x] Phase 165 - Code-Production Alignment Checkpoint; alignment only.
+- [x] Phase 166 - Controlled Internal Trial Execution Harness.
+- [x] Phase 167 - Trial Observability and Error Reporting.
+- [x] Phase 168 - Trial Evidence Review Surface.
+- [x] Phase 169 - Local Beta Hardening Pass.
+- [x] Phase 170 - Production-Path Alignment Checkpoint; alignment only.
+- [x] Non-0/5 phases must produce product-facing code, executable artifacts, or operator-visible workflow improvements.
+- [x] 0/5 phases remain alignment checkpoints only.
+
+## No-implementation checklist
+- [x] No Rust source changes.
+- [x] No TypeScript source changes.
+- [x] No test changes.
+- [x] No schema changes.
+- [x] No runtime behavior.
+- [x] No provider execution expansion.
+- [x] No persistence implementation.
+- [x] No release artifact creation.
+- [x] No deployment behavior.
+- [x] No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-159-target ./scripts/check.sh` (dirty-tree gate reported expected uncommitted Phase 159 changes before commit)
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-160-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
-- [x] `cd ui && npm run typecheck`
-- [x] `cd ui && npm run lint`
-- [x] `cd ui && npm run build && rm -rf dist`
-- [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-159-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `cd ui && timeout 5 npm run dev`
-- [x] Workflow scan.
-- [x] Workflow boundary scan.
-- [x] Forbidden-label scan.
-- [x] Unsafe execution scan.
-- [x] No-persistence/release scan.
-- [x] Changed-file source guard.
-- [x] No-roadmap-drift guard.
+- [x] Remap scan.
+- [x] Local beta evidence scan.
+- [x] Authority boundary scan.
+- [x] No-source-drift guard.
+- [x] Readiness/release/provider scan.
+- [x] Implementation-drift scan.
 
 ## Deferred items
-- [x] New provider execution capability.
-- [x] Arbitrary provider execution, shell command execution, network/cloud execution, secret handling, production persistence, durable workflow/candidate/provider storage, action execution, replay repair, recovery promotion, release/deployment/signing/publishing/installer/update behavior, and readiness/public-use/production approval.
+- [x] Phase 161 implementation.
+- [x] Runtime behavior.
+- [x] Provider execution expansion.
+- [x] Persistence implementation.
+- [x] Release artifacts.
+- [x] Deployment behavior.
+- [x] Installer, update-channel, signing, publishing behavior.
+- [x] Public/general use approval.
+- [x] Production readiness approval.
+- [x] Release readiness approval.
+- [x] Provider-output trust.
+- [x] Candidate approval.
+- [x] Action authorization.
 
 ## Validation log
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-159-target ./scripts/check.sh` stopped at the expected dirty-tree gate before commit.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-160-target ./scripts/check.sh` passed.
 - `git diff --check` passed.
-- `git status --short` showed only Phase 159 allowed files changed before commit.
-- `cd ui && npm run typecheck` passed.
-- `cd ui && npm run lint` passed.
-- `cd ui && npm run build && rm -rf dist` passed.
-- `cd ui && npm run test:api` passed.
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-159-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
-- `cd ui && timeout 5 npm run dev` started `http://127.0.0.1:5173`; timeout stop is expected.
-- Workflow, boundary, forbidden-label, unsafe execution, no-persistence/release, changed-file, and no-roadmap-drift scans completed; matches are Phase 159 markers or existing prohibition/test/historical markers.
+- `git status --short` showed only allowed Phase 160 files changed before commit.
+- Remap scan completed with Phase 160-170 roadmap, changelog, and checklist matches.
+- Local beta evidence scan completed with local beta workflow and Phase 151-159 evidence matches.
+- Authority boundary scan completed with required non-approval boundary matches.
+- No-source-drift guard produced no output.
+- Readiness/release/provider scan produced no prohibited approval claims.
+- Implementation-drift scan completed with required Phase 160 no-implementation matches.
 
 ## Zero-drift checklist
-- [x] Changes match Phase 159 workflow consolidation scope.
-- [x] Rust owns workflow classification/projection.
-- [x] TypeScript remains non-authoritative.
-- [x] Roadmap files are not modified.
-- [x] CHANGELOG entry matches actual scope.
-- [x] Checklist describes Phase 159 procedural truth.
-- [x] Phase 160 remains the next production-path alignment checkpoint.
+- [x] Full validation passes after final edits.
+- [x] No masked failures exist.
+- [x] Generated artifacts are cleaned.
+- [x] Staged files match allowed Phase 160 surfaces.
+- [x] Phase 151-159 implementation block is reconciled accurately.
+- [x] Current local beta workflow is described accurately.
+- [x] Phase 161 gate decision is explicit.
+- [x] Phase 161-170 remap is present.
+- [x] Phase 161 produces controlled internal trial package.
+- [x] Phase 162 improves operator runbook/failure drill UI.
+- [x] Phase 163 captures trial session evidence.
+- [x] Phase 164 verifies trial replay/restore.
+- [x] Phase 165 remains alignment-only.
+- [x] Phase 166 introduces controlled internal trial execution harness.
+- [x] Phase 167 adds local trial observability/error reporting.
+- [x] Phase 168 adds trial evidence review surface.
+- [x] Phase 169 performs local beta hardening.
+- [x] Phase 170 remains production-path alignment checkpoint.
+- [x] Non-0/5 product-capability rule is preserved.
+- [x] 0/5 alignment checkpoint rule is preserved.
+- [x] Local beta workflow completion is not production readiness.
+- [x] Local candidate materialization is not production approval.
+- [x] Provider output remains untrusted.
+- [x] Evidence export is not release evidence.
+- [x] Session package is not a release artifact.
+- [x] Restore projection is not recovery promotion.
+- [x] Replay/status projection is not replay repair.
+- [x] No Rust/TypeScript/test/schema/script drift is introduced.
+- [x] No runtime behavior is introduced.
+- [x] No readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, public-use, or production approval is introduced.
+- [x] CHANGELOG entry matches actual diff.
+- [x] Phase 161 remains the next code-production phase.

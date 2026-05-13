@@ -338,8 +338,48 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: local beta workflow only; no production readiness, public release, installer, or deployment claim.
 
 60. **Phase 160 is the production-path alignment checkpoint**
-   - Phase 160 must decide whether controlled internal trial packaging may proceed and remap the next block.
-   - Boundary: alignment only; no implementation, public release approval, production approval, or automatic Release Candidate approval.
+   - Phase 160 reconciles Phases 151-159 and decides `proceed_with_caveats_to_controlled_internal_trial_packaging`.
+   - Boundary: alignment only; no implementation, public release approval, production approval, automatic Release Candidate approval, or absence-of-blockers approval.
+
+61. **Phase 161 creates a controlled internal trial package**
+   - Phase 161 must produce a local-only package/checklist bundle for named internal trial operators.
+   - Boundary: no public release, installer/update channel, signing, publishing, deployment, or readiness approval.
+
+62. **Phase 162 improves operator runbook and failure drilldown usability**
+   - Phase 162 must add operator-facing runbook surfaces and visible failure/rejection drilldowns.
+   - Boundary: UI/operator usability only; no provider trust, action execution, or approval authority.
+
+63. **Phase 163 captures local trial-session evidence**
+   - Phase 163 must capture workflow status, decision state, local candidate materialization, replay/status, export, package/restore, and errors in a local trial evidence artifact.
+   - Boundary: trial evidence artifact only; evidence export is not release evidence.
+
+64. **Phase 164 verifies trial replay and restore deterministically**
+   - Phase 164 must produce executable restore/replay verification for trial packages and evidence comparison.
+   - Boundary: restore projection is not recovery promotion; replay/status projection is not replay repair.
+
+65. **Phase 165 reconciles the first trial-packaging block**
+   - Phase 165 must reconcile Phases 161-164 and decide whether broader internal trial execution can proceed.
+   - Boundary: alignment only; no implementation, release readiness, production readiness, deployment, or public/general use approval.
+
+66. **Phase 166 adds the controlled internal trial execution harness**
+   - Phase 166 must run a bounded internal trial workflow using the package, runbook, and evidence surfaces.
+   - Boundary: deterministic local trial execution only; no production monitoring claim, provider trust, action execution, or public/general use.
+
+67. **Phase 167 adds local trial observability and error reporting**
+   - Phase 167 must add local surfaces for failures, blocked states, restore issues, replay status, and package validation.
+   - Boundary: local trial observability only; no production monitoring claim.
+
+68. **Phase 168 adds the trial evidence review surface**
+   - Phase 168 must add UI/evidence review for trial run evidence, operator notes, failure categories, and unresolved blockers.
+   - Boundary: review only; absence of blockers is not approval.
+
+69. **Phase 169 hardens local beta based on trial evidence**
+   - Phase 169 must fix confirmed usability, error-handling, restore, package, or workflow defects found in controlled trial evidence.
+   - Boundary: hardening only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
+
+70. **Phase 170 is the next production-path alignment checkpoint**
+   - Phase 170 must decide whether Release Candidate preparation may be planned or whether another local-beta hardening block is required.
+   - Boundary: alignment only; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, or public/general use approval.
 
 ## Ladder-Preservation sequencing invariants
 
