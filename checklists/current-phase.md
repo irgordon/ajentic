@@ -4,124 +4,86 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 170 - Production-Path Alignment Checkpoint
+# Current Phase Checklist: Phase 170.5 - Out-of-Band Rust Surface Maintainability Audit
+
+## Phase name
+- [x] Phase 170.5 - Out-of-Band Rust Surface Maintainability Audit.
 
 ## Phase goal
-- [x] Reconcile the Phase 166-169 controlled-trial/local-beta block and decide whether Phase 171 may proceed toward release-candidate preparation work.
+- [x] Identify Rust maintainability risk before Phase 171.
+- [x] Produce an advisory extraction map without implementing refactors.
+- [x] Preserve Phase 171 as the next planned code-production phase.
 
 ## Working-tree hygiene gate
-- [x] Keep changes within Phase 170 allowed surfaces.
-- [x] Do not modify Rust source, TypeScript source, tests, schemas, scripts, CI workflows, README, AGENTS, governance docs, architecture docs, archived changelog files, package files, lockfiles, release infrastructure, deployment infrastructure, installer/update/signing/publishing behavior, `ui/help/**`, or `ui/src/**`.
+- [x] Run `git status --short` before edits.
+- [x] Keep changes limited to allowed Phase 170.5 surfaces.
+- [x] Confirm no Rust, TypeScript, test, schema, script, workflow, package, README, AGENTS, governance, architecture, roadmap, changelog archive, or UI/help drift.
 
 ## Allowed surfaces
-- [x] `docs/roadmap/phase-map.md`
-- [x] `docs/roadmap/phases.md`
-- [x] `docs/roadmap/sequencing.md`
-- [x] `docs/roadmap/phase-170-production-path-alignment.md`
+- [x] `docs/operations/rust-maintainability-audit-phase-170-5.md`
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 
-## Phase 166 carry-forward checklist
-- [x] Controlled internal trial execution harness is present in the reconciled path.
-- [x] Controlled internal trial execution harness is not controlled-human-use approval.
-- [x] No trial execution behavior is added in Phase 170.
+## Audit-only checklist
+- [x] Identify large Rust source files.
+- [x] Identify monolithic Rust modules.
+- [x] Identify long functions.
+- [x] Identify deeply nested and branch-dense functions.
+- [x] Identify brittle projection, transport, validation, serialization, and parsing surfaces.
+- [x] Identify stale early-phase surface candidates.
+- [x] Identify repeated pattern candidates.
+- [x] Produce a prioritized extraction map.
 
-## Phase 167 carry-forward checklist
-- [x] Trial observability is present in the reconciled path.
-- [x] Trial error reporting is present in the reconciled path.
-- [x] Trial observability is local-only and not production monitoring.
-- [x] Error reporting is local and descriptive only.
+## Rust file inventory checklist
+- [x] Inventory `core/src/**/*.rs`.
+- [x] Inventory `tests/**/*.rs`.
+- [x] Check `core/tests/**/*.rs` when present; no `core/tests` directory is present.
+- [x] Record 39 Rust files in the audit inventory.
 
-## Phase 168 carry-forward checklist
-- [x] Trial evidence review surface is present in the reconciled path.
-- [x] Trial evidence review is not approval.
-- [x] Absence of blockers is not approval.
+## Large file checklist
+- [x] Record all Rust files over 750 lines.
+- [x] Record all Rust files over 1,500 lines.
+- [x] Record all Rust files over 3,000 lines.
+- [x] Identify `core/src/api/local_operator_shell.rs` as a critical oversized_file finding.
 
-## Phase 169 carry-forward checklist
-- [x] Local beta hardening is present in the reconciled path.
-- [x] User-facing local HTML help is present in the reconciled path.
-- [x] Local beta hardening is not readiness.
-- [x] User help is explanatory only.
-- [x] User help is not authority.
+## Large function checklist
+- [x] Record all Rust functions over 100 estimated lines.
+- [x] Record all Rust functions over 200 estimated lines.
+- [x] Identify local shell projection/classification functions as oversized_function findings.
 
-## Local beta / controlled-trial status checklist
-- [x] Current path is controlled internal trial package → runbook / failure drill → trial session evidence → replay / restore verification → controlled internal trial execution harness → trial observability and error reporting → trial evidence review surface → local beta hardening → user-facing local HTML help.
-- [x] Local beta workflow completion is not production readiness.
-- [x] Local candidate materialization is not production approval.
-- [x] Evidence export is not release evidence.
-- [x] Session package is not a release artifact.
-- [x] Restore projection is not recovery promotion.
-- [x] Replay/status projection is not replay repair.
+## Deep nesting / branch-density checklist
+- [x] Identify deep_nesting candidates.
+- [x] Identify branch_density candidates.
+- [x] Record branch-dense parser/decoder/projection functions where present.
 
-## User documentation readiness checklist
-- [x] HTML help pages exist.
-- [x] `help/index.html` exists.
-- [x] `help/index.html` is linked from the UI.
-- [x] Visible UI help entry point exists.
-- [x] Help pages cover getting started.
-- [x] Help pages cover local workflow.
-- [x] Help pages cover provider setup.
-- [x] Help pages cover validation, review, and candidates.
-- [x] Help pages cover trial package and evidence.
-- [x] Help pages cover restore and verification.
-- [x] Help pages cover errors, stop conditions, and escalation guidance.
-- [x] Help pages include a glossary.
-- [x] Help pages explain safety boundaries.
-- [x] Help pages use non-engineering plain English.
-- [x] Help pages explain major local beta features.
-- [x] Help pages explain failure states and stop conditions.
-- [x] Help pages explain that provider output remains untrusted.
-- [x] Help pages explain that evidence is not authority.
-- [x] Help pages explain that verification does not repair replay or promote recovery.
-- [x] Help pages avoid readiness, release, deployment, public-use, production-use, and controlled-human-use approval claims.
+## Transport/projection/validation accumulation checklist
+- [x] Identify transport_accumulation candidates.
+- [x] Identify projection_accumulation candidates.
+- [x] Identify validation_accumulation candidates.
+- [x] Identify serialization_accumulation candidates.
 
-## Release-candidate preparation blocker checklist
-- [x] No missing Phase 166-169 local beta capability blocker is identified in committed evidence.
-- [x] No missing local HTML help blocker is identified.
-- [x] No missing visible help entry point blocker is identified.
-- [x] Release-candidate preparation artifacts remain absent by design and are mapped to Phases 171-180.
-- [x] Release-candidate preparation is not release readiness.
+## Test accumulation checklist
+- [x] Identify test_accumulation in `core/src/api/local_operator_shell.rs`.
+- [x] Identify test_accumulation in `tests/integration_smoke.rs`.
+- [x] Identify test_accumulation in `tests/adversarial_corpus.rs`.
 
-## Authority boundary preservation checklist
-- [x] Controlled internal trial execution harness is not controlled-human-use approval.
-- [x] Trial observability is local-only and not production monitoring.
-- [x] Error reporting is local and descriptive only.
-- [x] Trial evidence review is not approval.
-- [x] Local beta hardening is not readiness.
-- [x] User help is explanatory only.
-- [x] User help is not authority.
-- [x] Local HTML help pages are not release documentation approval.
-- [x] Local HTML help pages are not production readiness evidence.
-- [x] Local beta workflow completion is not production readiness.
-- [x] Local candidate materialization is not production approval.
-- [x] Provider output remains untrusted unless a later explicit bounded phase changes that.
-- [x] Evidence export is not release evidence.
-- [x] Session package is not a release artifact.
-- [x] Restore projection is not recovery promotion.
-- [x] Replay/status projection is not replay repair.
-- [x] Operator decisions are local workflow decisions, not release, deployment, or public-use approvals.
-- [x] Passing validation is not readiness approval.
-- [x] Absence of blockers is not approval.
+## Stale surface checklist
+- [x] Identify stale_surface candidates from early phase transport/provider/persistence/deployment tests.
+- [x] Mark stale surfaces as extraction candidates only, not removal candidates.
 
-## Phase 171 gate decision checklist
-- [x] Decision is `proceed_with_caveats_to_release_candidate_preparation_block`.
-- [x] Phase 171 remains the next code-production phase.
-- [x] Phase 171 may define release-candidate preparation work only.
-- [x] Phase 171 must not approve release readiness.
+## Extraction candidate checklist
+- [x] Recommend release-candidate preparation module isolation.
+- [x] Recommend trial projection helper extraction candidates.
+- [x] Recommend transport handler extraction candidates.
+- [x] Recommend serialization/read-back helper extraction candidates.
+- [x] Recommend validation helper extraction candidates.
+- [x] Recommend phase-test reorganization candidates.
 
-## Phase 171-180 remap checklist
-- [x] Phase 171 remains implementation: Release Candidate Preparation Contract.
-- [x] Phase 172 remains implementation: Release Artifact Dry Package Assembly.
-- [x] Phase 173 remains implementation: Checksum and Provenance Evidence for Dry Package.
-- [x] Phase 174 remains implementation: Installer and Distribution Contract Surface.
-- [x] Phase 175 remains alignment-only.
-- [x] Phase 176 remains implementation: Signing and Key-Custody Dry Run.
-- [x] Phase 177 remains implementation: Release Candidate Evidence Assembly UI.
-- [x] Phase 178 remains implementation: Release Candidate Gap Review and Hardening.
-- [x] Phase 179 remains implementation: Release Candidate Dry-Run Rehearsal.
-- [x] Phase 180 remains decision gate: Release Candidate Decision Gate.
-- [x] Non-0/5 phases must produce product-facing code, executable artifacts, release-candidate preparation artifacts, or deterministic validation improvements.
-- [x] 0/5 phases remain alignment checkpoints only.
+## Phase 171 handoff checklist
+- [x] State decision status `phase_171_should_limit_changes_to_new_module`.
+- [x] State that Phase 171 can proceed safely with caveats.
+- [x] State that Phase 171 should avoid adding large release-candidate preparation logic directly to `local_operator_shell.rs`.
+- [x] State that Phase 171 remains the next planned code-production phase.
 
 ## No-implementation checklist
 - [x] No Rust source changes.
@@ -129,28 +91,35 @@ mutation_path: checklist_revision
 - [x] No test changes.
 - [x] No schema changes.
 - [x] No runtime behavior.
-- [x] No provider execution expansion.
-- [x] No persistence implementation.
-- [x] No trial execution behavior.
+- [x] No refactor implementation.
+- [x] No Phase 171 implementation.
+- [x] No release-candidate preparation behavior.
 - [x] No release artifact creation.
 - [x] No deployment behavior.
+- [x] No provider execution expansion.
+- [x] No persistence implementation.
 - [x] No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-5-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
-- [x] Remap scan.
-- [x] Local beta evidence scan.
-- [x] User documentation readiness scan.
-- [x] Authority boundary scan.
+- [x] Rust inventory scan.
+- [x] Large Rust file scan.
+- [x] Maintainability report scan.
 - [x] No-source-drift guard.
 - [x] Readiness/release/provider scan.
 - [x] Implementation-drift scan.
 
 ## Deferred items
-- [x] No Phase 171 implementation is included.
-- [x] No release, deployment, installer, signing, publishing, provider execution expansion, persistence implementation, trial execution behavior, replay repair, or recovery promotion work is included.
+- [x] Rust module splitting is deferred.
+- [x] Transport handler extraction is deferred.
+- [x] Trial projection helper extraction is deferred.
+- [x] Candidate materialization validation helper extraction is deferred.
+- [x] Persistence transaction codec extraction is deferred.
+- [x] Observability export encoder extraction is deferred.
+- [x] Root test reorganization is deferred.
+- [x] Phase 171 release-candidate preparation implementation is deferred.
 
 ## Validation log
 - [x] Full required validation passed after final edits.
@@ -158,15 +127,21 @@ mutation_path: checklist_revision
 - [x] Generated artifacts were cleaned.
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 170 surfaces.
-- [x] Phase 166-169 implementation block is reconciled accurately.
-- [x] Current local beta / controlled-trial path is described accurately.
-- [x] User documentation readiness check is explicit.
-- [x] Local HTML help pages are acknowledged as present.
-- [x] Visible UI help entry point is acknowledged as present.
-- [x] Plain-English help coverage is acknowledged.
-- [x] Release-candidate preparation blockers are explicit.
-- [x] Phase 171 gate decision is explicit.
-- [x] Phase 171-180 remap is present.
+- [x] Staged files match allowed Phase 170.5 surfaces.
+- [x] Rust file inventory is recorded.
+- [x] Large Rust files are identified.
+- [x] Largest functions are identified.
+- [x] Deep nesting or branch-density risks are identified where present.
+- [x] Transport accumulation risks are identified where present.
+- [x] Projection accumulation risks are identified where present.
+- [x] Validation accumulation risks are identified where present.
+- [x] Serialization/parsing accumulation risks are identified where present.
+- [x] Test accumulation risks are identified where present.
+- [x] Stale early-phase surface candidates are identified where present.
+- [x] Repeated patterns are identified where present.
+- [x] Recommended extraction map is present.
+- [x] Phase 171 risk assessment is present.
+- [x] Report states that Phase 171 can proceed with caveats and should limit changes to a new module.
+- [x] No readiness, Release Candidate, Production Candidate, controlled-human-use, public-use, or production approval is introduced.
 - [x] CHANGELOG entry matches actual diff.
 - [x] No runtime behavior or source drift is introduced.
