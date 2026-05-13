@@ -50,6 +50,37 @@ export function renderLocalOperatorShellSnapshot(
   ].join("\n");
 
 
+  const trialSessionEvidence = state.trialSessionEvidenceProjection;
+  const trialSessionEvidenceLines = [
+    `Evidence status: ${trialSessionEvidence.status}`,
+    `Evidence ID: ${trialSessionEvidence.evidenceId ?? "none"}`,
+    `Evidence version: ${trialSessionEvidence.evidenceVersion}`,
+    `Evidence classification: ${trialSessionEvidence.evidenceClassification}`,
+    `Production classification: ${trialSessionEvidence.productionClassification}`,
+    `Distribution classification: ${trialSessionEvidence.distributionClassification}`,
+    `Authority classification: ${trialSessionEvidence.authorityClassification}`,
+    `Trial package linkage: ${trialSessionEvidence.trialPackageLinkage}`,
+    `Runbook/failure drill linkage: ${trialSessionEvidence.runbookLinkage} / ${trialSessionEvidence.failureDrillLinkage}`,
+    `Included evidence summary: ${trialSessionEvidence.includedEvidenceSummary.join(", ") || "not captured"}`,
+    `Workflow snapshot summary: ${trialSessionEvidence.workflowSnapshotSummary}`,
+    `Local candidate materialization snapshot: ${trialSessionEvidence.localCandidateMaterializationSnapshot}`,
+    `Replay/status snapshot: ${trialSessionEvidence.replayStatusSnapshot}`,
+    `Evidence export/session package/restore snapshot: ${trialSessionEvidence.evidenceExportSessionPackageRestoreSnapshot}`,
+    `Stop-condition snapshot: ${trialSessionEvidence.stopConditionSnapshot.join(", ") || "not captured"}`,
+    `Escalation snapshot: ${trialSessionEvidence.escalationSnapshot.join(" | ") || "not captured"}`,
+    `Failure category snapshot: ${trialSessionEvidence.failureCategorySnapshot.join(", ") || "not captured"}`,
+    `Absence marker summary: ${trialSessionEvidence.absenceMarkerSummary.join(", ")}`,
+    `Validation status: ${trialSessionEvidence.validationStatus}`,
+    `Validation errors: ${trialSessionEvidence.validationErrors.join(", ") || "none"}`,
+    `Read-back validation status: ${trialSessionEvidence.readBackValidationStatus ?? "not_read"}`,
+    `Boundary markers: ${trialSessionEvidence.boundaryStatus.join(", ")}`,
+    trialSessionEvidence.localOnlyNonAuthoritativeNote,
+    trialSessionEvidence.localPreparationOnlyNote,
+    trialSessionEvidence.noTrialApprovalNote,
+    trialSessionEvidence.noReleaseDeploymentReadinessNote,
+    trialSessionEvidence.readBackValidationNote,
+  ].join("\n");
+
   const trialPackage = state.controlledInternalTrialPackageProjection;
   const trialPackageLines = [
     `Package status: ${trialPackage.status}`,
@@ -446,6 +477,12 @@ export function renderLocalOperatorShellSnapshot(
     failureDrillLines,
     "Escalation guidance",
     failureDrillLines,
+    "Trial session evidence",
+    trialSessionEvidenceLines,
+    "Trial evidence capture",
+    trialSessionEvidenceLines,
+    "Evidence read-back validation",
+    trialSessionEvidenceLines,
     "Controlled internal trial package",
     trialPackageLines,
     "Left panel: Run history / timeline",

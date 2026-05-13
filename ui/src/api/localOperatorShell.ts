@@ -5199,6 +5199,139 @@ export type TrialOperatorRunbookProjection = Readonly<{
   noAuthorityNote: string;
 }>;
 
+
+
+export type TrialSessionEvidenceStatus =
+  | "not_captured"
+  | "evidence_projected"
+  | "evidence_validated"
+  | "evidence_written"
+  | "evidence_read_back_validated"
+  | "evidence_rejected"
+  | "invalid_evidence_input";
+
+export type TrialSessionEvidenceValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+
+export type TrialSessionEvidenceBoundaryStatus =
+  | "local_trial_evidence_only"
+  | "non_public_evidence"
+  | "evidence_not_authority"
+  | "no_trial_execution"
+  | "no_controlled_human_use_approval"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type TrialSessionEvidenceProjection = Readonly<{
+  status: TrialSessionEvidenceStatus;
+  evidenceId: string | null;
+  evidenceVersion: "trial-session-evidence-v1";
+  evidenceClassification: "trial_session_evidence_only";
+  productionClassification: "non_production";
+  distributionClassification: "local_only_non_public";
+  authorityClassification: "non_authoritative_evidence";
+  trialPackageLinkage: string;
+  runbookLinkage: string;
+  failureDrillLinkage: string;
+  includedEvidenceSummary: readonly string[];
+  workflowSnapshotSummary: string;
+  localCandidateMaterializationSnapshot: string;
+  replayStatusSnapshot: string;
+  evidenceExportSessionPackageRestoreSnapshot: string;
+  stopConditionSnapshot: readonly string[];
+  escalationSnapshot: readonly string[];
+  failureCategorySnapshot: readonly string[];
+  absenceMarkerSummary: readonly string[];
+  validationStatus: TrialSessionEvidenceValidationStatus;
+  validationErrors: readonly string[];
+  readBackValidationStatus: TrialSessionEvidenceValidationStatus | null;
+  boundaryStatus: readonly TrialSessionEvidenceBoundaryStatus[];
+  localOnlyNonAuthoritativeNote: "Trial session evidence is local-only, non-public, and non-authoritative.";
+  localPreparationOnlyNote: "Evidence capture records local trial-preparation state only.";
+  noTrialApprovalNote: "Evidence capture does not start or approve a controlled trial.";
+  noReleaseDeploymentReadinessNote: "This evidence is not release, deployment, readiness, public-use, or production-use evidence.";
+  readBackValidationNote: "Read-back validation checks evidence structure only.";
+}>;
+
+export function trialSessionEvidenceBoundaryStatuses(): readonly TrialSessionEvidenceBoundaryStatus[] {
+  return [
+    "local_trial_evidence_only",
+    "non_public_evidence",
+    "evidence_not_authority",
+    "no_trial_execution",
+    "no_controlled_human_use_approval",
+    "no_readiness_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_production_approval",
+    "no_provider_trust",
+    "no_action_authorization",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+
+export function trialSessionEvidenceAbsenceMarkerSummary(): readonly string[] {
+  return [
+    "release artifact absent",
+    "deployment artifact absent",
+    "readiness approval absent",
+    "public use approval absent",
+    "production use approval absent",
+    "provider trust absent",
+    "action authorization absent",
+    "replay repair absent",
+    "recovery promotion absent",
+    "default persistence absent",
+    "automatic save absent",
+    "background persistence absent",
+    "network sync absent",
+  ];
+}
+
+export function initialTrialSessionEvidenceProjection(): TrialSessionEvidenceProjection {
+  return {
+    status: "not_captured",
+    evidenceId: null,
+    evidenceVersion: "trial-session-evidence-v1",
+    evidenceClassification: "trial_session_evidence_only",
+    productionClassification: "non_production",
+    distributionClassification: "local_only_non_public",
+    authorityClassification: "non_authoritative_evidence",
+    trialPackageLinkage: "trial package linkage not captured",
+    runbookLinkage: "runbook linkage not captured",
+    failureDrillLinkage: "failure drill linkage not captured",
+    includedEvidenceSummary: [],
+    workflowSnapshotSummary: "workflow snapshot not captured",
+    localCandidateMaterializationSnapshot: "local candidate materialization snapshot not captured",
+    replayStatusSnapshot: "replay/status snapshot not captured",
+    evidenceExportSessionPackageRestoreSnapshot: "evidence export/session package/restore snapshot not captured",
+    stopConditionSnapshot: [],
+    escalationSnapshot: [],
+    failureCategorySnapshot: [],
+    absenceMarkerSummary: trialSessionEvidenceAbsenceMarkerSummary(),
+    validationStatus: "not_validated",
+    validationErrors: [],
+    readBackValidationStatus: null,
+    boundaryStatus: trialSessionEvidenceBoundaryStatuses(),
+    localOnlyNonAuthoritativeNote: "Trial session evidence is local-only, non-public, and non-authoritative.",
+    localPreparationOnlyNote: "Evidence capture records local trial-preparation state only.",
+    noTrialApprovalNote: "Evidence capture does not start or approve a controlled trial.",
+    noReleaseDeploymentReadinessNote: "This evidence is not release, deployment, readiness, public-use, or production-use evidence.",
+    readBackValidationNote: "Read-back validation checks evidence structure only.",
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -5224,6 +5357,7 @@ export type LocalOperatorShellState = Readonly<{
   completeLocalOperatorWorkflow: CompleteLocalOperatorWorkflowProjection;
   trialOperatorRunbook: TrialOperatorRunbookProjection;
   trialFailureDrill: TrialFailureDrillProjection;
+  trialSessionEvidenceProjection: TrialSessionEvidenceProjection;
 }>;
 
 
@@ -5878,7 +6012,7 @@ export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellSt
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill"
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -5898,6 +6032,7 @@ function attachLocalSessionEvidenceExport(
     completeLocalOperatorWorkflow: initialCompleteLocalOperatorWorkflowProjection(),
     trialOperatorRunbook: initialTrialOperatorRunbookProjection(),
     trialFailureDrill: initialTrialFailureDrillProjection(),
+    trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
   };
   const withWorkflow: LocalOperatorShellState = {
     ...withExport,
@@ -5907,6 +6042,7 @@ function attachLocalSessionEvidenceExport(
     ...withWorkflow,
     trialFailureDrill: deriveTrialFailureDrillProjection(withWorkflow),
     trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
+    trialSessionEvidenceProjection: (state as Partial<LocalOperatorShellState>).trialSessionEvidenceProjection ?? initialTrialSessionEvidenceProjection(),
   };
 }
 
