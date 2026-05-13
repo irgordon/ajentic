@@ -132,6 +132,48 @@ export function renderLocalOperatorShellSnapshot(
     verification.noActionExecutionNote,
   ].join("\n");
 
+  const trialObservability = state.trialObservability;
+  const trialErrorReport = state.trialErrorReport;
+  const observabilityLines = [
+    `Observability status: ${trialObservability.status}`,
+    `Trial run status: ${trialObservability.trialRunStatus}`,
+    `Current trial step: ${trialObservability.currentTrialStep}`,
+    `Current blocker: ${trialObservability.currentBlocker}`,
+    `Stop-condition observation status: ${trialObservability.stopConditionObservation.status}`,
+    `Manual operator step status: ${trialObservability.manualOperatorStepStatus}`,
+    `Package status: ${trialObservability.packageStatus}`,
+    `Evidence status: ${trialObservability.evidenceStatus}`,
+    `Package read-back status: ${trialObservability.packageReadBackStatus}`,
+    `Evidence read-back status: ${trialObservability.evidenceReadBackStatus}`,
+    `Replay/restore verification status: ${trialObservability.replayRestoreVerificationStatus}`,
+    `Mismatch summary: ${trialObservability.mismatchSummary.mismatches.join(", ") || "none"}`,
+    `Replay/status comparison summary: ${trialObservability.replayStatusComparisonSummary}`,
+    `Restore/history comparison summary: ${trialObservability.restoreHistoryComparisonSummary}`,
+    `Package/evidence read-back failure summary: ${trialObservability.packageEvidenceReadBackFailureSummary.join(", ") || "none"}`,
+    `Runbook/failure drill category summary: ${trialObservability.runbookFailureDrillCategorySummary.join(", ") || "none"}`,
+    `Evidence linkage: ${trialObservability.evidenceLinkageSummary.join(" | ") || "none"}`,
+    `Boundary markers: ${trialObservability.boundaryStatuses.join(", ")}`,
+    trialObservability.localOnlyNonPublicNote,
+    trialObservability.noProductionMonitoringNote,
+    trialObservability.noRemoteTelemetryNote,
+    trialObservability.noBackgroundServiceNote,
+    trialObservability.noRemediationEscalationStopAutomationNote,
+    trialObservability.noApprovalNote,
+  ].join("\n");
+  const errorReportLines = [
+    `Error report status: ${trialErrorReport.status}`,
+    `Failure category summary: ${trialErrorReport.categorySummary.join(", ") || "none"}`,
+    `Highest error severity: ${trialErrorReport.highestSeverity}`,
+    `Trial error drilldown: ${trialErrorReport.details.map((detail) => `${detail.category}/${detail.severity}/${detail.source}/${detail.evidenceLinkage.linkage}`).join(" | ") || "none"}`,
+    `Evidence linkage: ${trialErrorReport.evidenceLinkageSummary.join(" | ") || "none"}`,
+    trialErrorReport.localDescriptiveOnlyNote,
+  ].join("\n");
+  const blockedStateLines = [
+    `Blocked-state summary: ${trialObservability.blockedStateSummary.status}`,
+    `Blocked-state current blocker: ${trialObservability.blockedStateSummary.currentBlocker}`,
+    `Blocked-state rejection reasons: ${trialObservability.blockedStateSummary.rejectionReasons.join(", ") || "none"}`,
+  ].join("\n");
+
   const trialExecution = state.controlledInternalTrialExecution;
   const displayedTrialRun = trialExecution.activeRun ?? trialExecution.lastRejectedRun;
   const trialExecutionLines = [
@@ -531,6 +573,14 @@ export function renderLocalOperatorShellSnapshot(
     failureDrillLines,
     "Escalation guidance",
     failureDrillLines,
+    "Trial observability",
+    observabilityLines,
+    "Trial error reporting",
+    errorReportLines,
+    "Trial error drilldown",
+    errorReportLines,
+    "Trial blocked-state summary",
+    blockedStateLines,
     "Controlled internal trial execution harness",
     trialExecutionLines,
     "Trial run status",

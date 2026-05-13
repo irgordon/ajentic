@@ -5733,6 +5733,405 @@ export function deriveControlledInternalTrialExecutionProjection(state: LocalOpe
   };
 }
 
+
+export type TrialObservabilityStatus =
+  | "not_observed"
+  | "observability_projected"
+  | "trial_run_observed"
+  | "blocked_state_observed"
+  | "rejected_state_observed"
+  | "stop_condition_observed"
+  | "verification_mismatch_observed"
+  | "error_report_projected";
+
+export type TrialErrorReportStatus =
+  | "no_errors_observed"
+  | "errors_observed"
+  | "blocked_errors_observed"
+  | "rejected_errors_observed"
+  | "invalid_observability_input";
+
+export type TrialErrorCategory =
+  | "no_trial_run"
+  | "trial_precondition_missing"
+  | "trial_run_blocked"
+  | "trial_run_rejected"
+  | "stop_condition_observed"
+  | "manual_operator_step_required"
+  | "package_missing"
+  | "package_validation_failed"
+  | "package_read_back_failed"
+  | "evidence_missing"
+  | "evidence_validation_failed"
+  | "evidence_read_back_failed"
+  | "replay_restore_verification_missing"
+  | "replay_restore_verification_rejected"
+  | "replay_status_mismatch"
+  | "restore_history_mismatch"
+  | "provider_pipeline_blocked"
+  | "provider_output_validation_rejected"
+  | "workflow_blocked"
+  | "workflow_rejected"
+  | "materialization_missing"
+  | "authority_claim_detected"
+  | "readiness_claim_detected"
+  | "release_or_deployment_claim_detected"
+  | "public_or_production_use_claim_detected"
+  | "action_authorization_claim_detected"
+  | "replay_repair_or_recovery_promotion_claim_detected";
+
+export type TrialErrorSeverity = "info" | "warning" | "blocking" | "stop_condition" | "invalid_input";
+
+export type TrialErrorSource =
+  | "controlled_trial_execution_harness"
+  | "controlled_internal_trial_package"
+  | "trial_session_evidence"
+  | "replay_restore_verification"
+  | "trial_runbook"
+  | "failure_drill"
+  | "complete_local_workflow"
+  | "provider_output_pipeline"
+  | "local_candidate_materialization"
+  | "session_restore";
+
+export type TrialObservabilityBoundaryStatus =
+  | "local_observability_only"
+  | "non_public_observability"
+  | "no_production_monitoring"
+  | "no_remote_telemetry"
+  | "no_network_reporting"
+  | "no_background_service"
+  | "no_automated_remediation"
+  | "no_automated_escalation"
+  | "no_stop_condition_automation"
+  | "no_action_execution"
+  | "no_replay_repair"
+  | "no_recovery_promotion"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval";
+
+export type TrialObservabilityCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonPublic: true;
+  productionMonitoring: false;
+  remoteTelemetry: false;
+  networkReporting: false;
+  backgroundService: false;
+  remediates: false;
+  escalates: false;
+  automatesStopConditions: false;
+  executesActions: false;
+  repairsReplay: false;
+  promotesRecovery: false;
+  approvesReadiness: false;
+  approvesRelease: false;
+  approvesDeployment: false;
+  approvesPublicUse: false;
+  approvesProduction: false;
+}>;
+
+export type TrialBlockedStateSummary = Readonly<{
+  status: string;
+  currentBlocker: string;
+  rejectionReasons: readonly string[];
+}>;
+
+export type TrialVerificationMismatchSummary = Readonly<{
+  verificationStatus: string;
+  mismatches: readonly string[];
+  replayStatusComparison: string;
+  restoreHistoryComparison: string;
+}>;
+
+export type TrialStopConditionObservationSummary = Readonly<{
+  status: string;
+  observed: boolean;
+  markers: readonly string[];
+}>;
+
+export type TrialErrorEvidenceLinkage = Readonly<{
+  source: TrialErrorSource;
+  linkage: string;
+}>;
+
+export type TrialErrorDetail = Readonly<{
+  category: TrialErrorCategory;
+  severity: TrialErrorSeverity;
+  source: TrialErrorSource;
+  summary: string;
+  operatorGuidance: string;
+  evidenceLinkage: TrialErrorEvidenceLinkage;
+}>;
+
+export type TrialErrorReportProjection = Readonly<{
+  status: TrialErrorReportStatus;
+  errorCount: number;
+  highestSeverity: TrialErrorSeverity;
+  details: readonly TrialErrorDetail[];
+  categorySummary: readonly TrialErrorCategory[];
+  evidenceLinkageSummary: readonly string[];
+  localDescriptiveOnlyNote: "Error reporting is local and descriptive only.";
+}>;
+
+export type TrialObservabilityProjection = Readonly<{
+  status: TrialObservabilityStatus;
+  trialRunStatus: string;
+  currentTrialStep: string;
+  currentBlocker: string;
+  stopConditionObservation: TrialStopConditionObservationSummary;
+  manualOperatorStepStatus: string;
+  packageStatus: string;
+  evidenceStatus: string;
+  packageReadBackStatus: string;
+  evidenceReadBackStatus: string;
+  replayRestoreVerificationStatus: string;
+  mismatchSummary: TrialVerificationMismatchSummary;
+  packageEvidenceReadBackFailureSummary: readonly string[];
+  replayStatusComparisonSummary: string;
+  restoreHistoryComparisonSummary: string;
+  runbookFailureDrillCategorySummary: readonly string[];
+  evidenceLinkageSummary: readonly string[];
+  blockedStateSummary: TrialBlockedStateSummary;
+  boundaryStatuses: readonly TrialObservabilityBoundaryStatus[];
+  capabilitySurface: TrialObservabilityCapabilitySurface;
+  localOnlyNonPublicNote: "Trial observability is local-only and non-public.";
+  noProductionMonitoringNote: "No production monitoring is active.";
+  noRemoteTelemetryNote: "No remote telemetry is sent.";
+  noBackgroundServiceNote: "No background service is active.";
+  noRemediationEscalationStopAutomationNote: "No remediation, escalation, or stop-condition enforcement is automated.";
+  noApprovalNote: "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.";
+}>;
+
+export function trialObservabilityBoundaryStatuses(): readonly TrialObservabilityBoundaryStatus[] {
+  return [
+    "local_observability_only",
+    "non_public_observability",
+    "no_production_monitoring",
+    "no_remote_telemetry",
+    "no_network_reporting",
+    "no_background_service",
+    "no_automated_remediation",
+    "no_automated_escalation",
+    "no_stop_condition_automation",
+    "no_action_execution",
+    "no_replay_repair",
+    "no_recovery_promotion",
+    "no_readiness_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_production_approval",
+  ];
+}
+
+function trialObservabilityCapabilitySurface(): TrialObservabilityCapabilitySurface {
+  return {
+    localOnly: true,
+    nonPublic: true,
+    productionMonitoring: false,
+    remoteTelemetry: false,
+    networkReporting: false,
+    backgroundService: false,
+    remediates: false,
+    escalates: false,
+    automatesStopConditions: false,
+    executesActions: false,
+    repairsReplay: false,
+    promotesRecovery: false,
+    approvesReadiness: false,
+    approvesRelease: false,
+    approvesDeployment: false,
+    approvesPublicUse: false,
+    approvesProduction: false,
+  };
+}
+
+export function initialTrialObservabilityProjection(): TrialObservabilityProjection {
+  return {
+    status: "not_observed",
+    trialRunStatus: "not_started",
+    currentTrialStep: "none",
+    currentBlocker: "none",
+    stopConditionObservation: { status: "not_started", observed: false, markers: [] },
+    manualOperatorStepStatus: "not_started",
+    packageStatus: "not_packaged",
+    evidenceStatus: "not_captured",
+    packageReadBackStatus: "not_read",
+    evidenceReadBackStatus: "not_read",
+    replayRestoreVerificationStatus: "not_verified",
+    mismatchSummary: { verificationStatus: "not_verified", mismatches: [], replayStatusComparison: "not_verified", restoreHistoryComparison: "not_verified" },
+    packageEvidenceReadBackFailureSummary: [],
+    replayStatusComparisonSummary: "not_verified",
+    restoreHistoryComparisonSummary: "not_verified",
+    runbookFailureDrillCategorySummary: [],
+    evidenceLinkageSummary: [],
+    blockedStateSummary: { status: "not_observed", currentBlocker: "none", rejectionReasons: [] },
+    boundaryStatuses: trialObservabilityBoundaryStatuses(),
+    capabilitySurface: trialObservabilityCapabilitySurface(),
+    localOnlyNonPublicNote: "Trial observability is local-only and non-public.",
+    noProductionMonitoringNote: "No production monitoring is active.",
+    noRemoteTelemetryNote: "No remote telemetry is sent.",
+    noBackgroundServiceNote: "No background service is active.",
+    noRemediationEscalationStopAutomationNote: "No remediation, escalation, or stop-condition enforcement is automated.",
+    noApprovalNote: "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+  };
+}
+
+function trialErrorSeverity(category: TrialErrorCategory): TrialErrorSeverity {
+  if (category === "stop_condition_observed") return "stop_condition";
+  if (["authority_claim_detected", "readiness_claim_detected", "release_or_deployment_claim_detected", "public_or_production_use_claim_detected", "action_authorization_claim_detected", "replay_repair_or_recovery_promotion_claim_detected"].includes(category)) return "invalid_input";
+  if (["no_trial_run", "manual_operator_step_required", "trial_precondition_missing"].includes(category)) return "warning";
+  return "blocking";
+}
+
+function trialErrorGuidance(category: TrialErrorCategory): string {
+  if (category === "no_trial_run") return "Inspect local trial preconditions before starting a bounded local trial run.";
+  if (category === "manual_operator_step_required") return "Record the manual operator step locally before closing the trial run.";
+  if (category === "stop_condition_observed") return "Review the observed stop-condition marker locally; no enforcement is automated.";
+  return "Review the linked local trial surface and preserve the diagnostic evidence.";
+}
+
+function trialErrorDetail(category: TrialErrorCategory, source: TrialErrorSource, summary: string, linkage: string): TrialErrorDetail {
+  return {
+    category,
+    severity: trialErrorSeverity(category),
+    source,
+    summary,
+    operatorGuidance: trialErrorGuidance(category),
+    evidenceLinkage: { source, linkage },
+  };
+}
+
+export function initialTrialErrorReportProjection(): TrialErrorReportProjection {
+  const detail = trialErrorDetail("no_trial_run", "controlled_trial_execution_harness", "No controlled internal trial run has been observed.", "controlled_internal_trial_execution=not_started");
+  return {
+    status: "errors_observed",
+    errorCount: 1,
+    highestSeverity: "warning",
+    details: [detail],
+    categorySummary: [detail.category],
+    evidenceLinkageSummary: [detail.evidenceLinkage.linkage],
+    localDescriptiveOnlyNote: "Error reporting is local and descriptive only.",
+  };
+}
+
+export function deriveTrialErrorReportProjection(state: LocalOperatorShellState): TrialErrorReportProjection {
+  const details: TrialErrorDetail[] = [];
+  const execution = state.controlledInternalTrialExecution;
+  const displayedRun = execution.activeRun ?? execution.lastRejectedRun;
+  if (!displayedRun) details.push(trialErrorDetail("no_trial_run", "controlled_trial_execution_harness", "No controlled internal trial run has been observed.", "controlled_internal_trial_execution=not_started"));
+  if (execution.status === "preconditions_missing") details.push(trialErrorDetail("trial_precondition_missing", "controlled_trial_execution_harness", "Trial preconditions are missing.", "controlled_internal_trial_execution=preconditions_missing"));
+  if (execution.status === "trial_run_blocked") details.push(trialErrorDetail("trial_run_blocked", "controlled_trial_execution_harness", "Controlled internal trial run is blocked.", "controlled_internal_trial_execution=trial_run_blocked"));
+  if (["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status)) details.push(trialErrorDetail("trial_run_rejected", "controlled_trial_execution_harness", "Controlled internal trial run is rejected.", "controlled_internal_trial_execution=trial_run_rejected"));
+  if (displayedRun?.stopConditionObservation.observed) details.push(trialErrorDetail("stop_condition_observed", "controlled_trial_execution_harness", "Stop condition was observed in the local trial run.", "stop_condition_observation=observed"));
+  if (["manual_action_required", "manual_operator_step_missing"].includes(displayedRun?.manualOperatorStepStatus ?? "")) details.push(trialErrorDetail("manual_operator_step_required", "controlled_trial_execution_harness", "Manual operator step is required or missing.", "manual_operator_step_status=required"));
+  if (state.controlledInternalTrialPackageProjection.status === "not_packaged") details.push(trialErrorDetail("package_missing", "controlled_internal_trial_package", "Controlled internal trial package is missing.", "trial_package=missing"));
+  if (state.controlledInternalTrialPackageProjection.status !== "not_packaged" && state.controlledInternalTrialPackageProjection.validationStatus !== "valid") details.push(trialErrorDetail("package_validation_failed", "controlled_internal_trial_package", "Controlled internal trial package validation failed.", "trial_package_validation=failed"));
+  if (state.controlledInternalTrialPackageProjection.readBackValidationStatus !== null && state.controlledInternalTrialPackageProjection.readBackValidationStatus !== "valid") details.push(trialErrorDetail("package_read_back_failed", "controlled_internal_trial_package", "Controlled internal trial package read-back failed.", "trial_package_read_back=failed"));
+  if (state.trialSessionEvidenceProjection.status === "not_captured") details.push(trialErrorDetail("evidence_missing", "trial_session_evidence", "Trial session evidence is missing.", "trial_session_evidence=missing"));
+  if (state.trialSessionEvidenceProjection.status !== "not_captured" && state.trialSessionEvidenceProjection.validationStatus !== "valid") details.push(trialErrorDetail("evidence_validation_failed", "trial_session_evidence", "Trial session evidence validation failed.", "trial_session_evidence_validation=failed"));
+  if (state.trialSessionEvidenceProjection.readBackValidationStatus !== null && state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid") details.push(trialErrorDetail("evidence_read_back_failed", "trial_session_evidence", "Trial session evidence read-back failed.", "trial_session_evidence_read_back=failed"));
+  if (["not_verified", "verification_input_missing"].includes(state.trialReplayRestoreVerification.status)) details.push(trialErrorDetail("replay_restore_verification_missing", "replay_restore_verification", "Replay/restore verification is missing.", "replay_restore_verification=missing"));
+  if (["verification_rejected", "invalid_verification_input"].includes(state.trialReplayRestoreVerification.status)) details.push(trialErrorDetail("replay_restore_verification_rejected", "replay_restore_verification", "Replay/restore verification is rejected.", "replay_restore_verification=rejected"));
+  if (state.trialReplayRestoreVerification.mismatches.includes("replay_status_snapshot_mismatch")) details.push(trialErrorDetail("replay_status_mismatch", "replay_restore_verification", "Replay/status comparison mismatch observed.", "replay_status_comparison=mismatch"));
+  if (state.trialReplayRestoreVerification.mismatches.includes("restore_history_snapshot_mismatch")) details.push(trialErrorDetail("restore_history_mismatch", "replay_restore_verification", "Restore/history comparison mismatch observed.", "restore_history_comparison=mismatch"));
+  if (state.localProviderOutputPipeline.status === "rejected") details.push(trialErrorDetail("provider_pipeline_blocked", "provider_output_pipeline", "Provider output pipeline is blocked or rejected.", "provider_output_pipeline=rejected"));
+  if (state.providerOutputValidation.status === "rejected") details.push(trialErrorDetail("provider_output_validation_rejected", "provider_output_pipeline", "Provider output validation is rejected.", "provider_output_validation=rejected"));
+  if (state.completeLocalOperatorWorkflow.status === "blocked") details.push(trialErrorDetail("workflow_blocked", "complete_local_workflow", "Complete local workflow is blocked.", "complete_local_workflow=blocked"));
+  if (state.completeLocalOperatorWorkflow.status === "rejected") details.push(trialErrorDetail("workflow_rejected", "complete_local_workflow", "Complete local workflow is rejected.", "complete_local_workflow=rejected"));
+  if (state.localCandidateOutput.status === "not_materialized") details.push(trialErrorDetail("materialization_missing", "local_candidate_materialization", "Local candidate materialization is missing.", "local_candidate_materialization=missing"));
+  for (const reason of execution.rejectionReasons) {
+    if (reason === "readiness_claim_rejected") details.push(trialErrorDetail("readiness_claim_detected", "controlled_trial_execution_harness", "Readiness claim detected and rejected.", "claim=readiness"));
+    if (["release_claim_rejected", "deployment_claim_rejected", "signing_claim_rejected", "publishing_claim_rejected", "release_artifact_claim_rejected"].includes(reason)) details.push(trialErrorDetail("release_or_deployment_claim_detected", "controlled_trial_execution_harness", "Release or deployment claim detected and rejected.", "claim=release_or_deployment"));
+    if (["public_use_claim_rejected", "production_use_claim_rejected"].includes(reason)) details.push(trialErrorDetail("public_or_production_use_claim_detected", "controlled_trial_execution_harness", "Public or production use claim detected and rejected.", "claim=public_or_production_use"));
+    if (reason === "provider_trust_claim_rejected") details.push(trialErrorDetail("authority_claim_detected", "controlled_trial_execution_harness", "Provider trust claim detected and rejected.", "claim=provider_trust"));
+    if (reason === "action_authorization_claim_rejected") details.push(trialErrorDetail("action_authorization_claim_detected", "controlled_trial_execution_harness", "Action authorization claim detected and rejected.", "claim=action_authorization"));
+    if (["replay_repair_claim_rejected", "recovery_promotion_claim_rejected"].includes(reason)) details.push(trialErrorDetail("replay_repair_or_recovery_promotion_claim_detected", "controlled_trial_execution_harness", "Replay repair or recovery promotion claim detected and rejected.", "claim=replay_repair_or_recovery_promotion"));
+  }
+  details.sort((left, right) => left.category.localeCompare(right.category));
+  const highestSeverity: TrialErrorSeverity = details.some((detail) => detail.severity === "invalid_input") ? "invalid_input" : details.some((detail) => detail.severity === "stop_condition") ? "stop_condition" : details.some((detail) => detail.severity === "blocking") ? "blocking" : details.some((detail) => detail.severity === "warning") ? "warning" : "info";
+  const status: TrialErrorReportStatus = details.length === 0 ? "no_errors_observed" : execution.status === "trial_run_blocked" ? "blocked_errors_observed" : ["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status) ? "rejected_errors_observed" : highestSeverity === "invalid_input" ? "invalid_observability_input" : "errors_observed";
+  return {
+    status,
+    errorCount: details.length,
+    highestSeverity,
+    details,
+    categorySummary: details.map((detail) => detail.category),
+    evidenceLinkageSummary: details.map((detail) => detail.evidenceLinkage.linkage),
+    localDescriptiveOnlyNote: "Error reporting is local and descriptive only.",
+  };
+}
+
+export function deriveTrialObservabilityProjection(state: LocalOperatorShellState): TrialObservabilityProjection {
+  const base = initialTrialObservabilityProjection();
+  const execution = state.controlledInternalTrialExecution;
+  const displayedRun = execution.activeRun ?? execution.lastRejectedRun;
+  const mismatches = state.trialReplayRestoreVerification.mismatches;
+  const stopObserved = displayedRun?.stopConditionObservation.observed === true;
+  const status: TrialObservabilityStatus = stopObserved
+    ? "stop_condition_observed"
+    : execution.status === "trial_run_blocked"
+      ? "blocked_state_observed"
+      : ["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status)
+        ? "rejected_state_observed"
+        : mismatches.length > 0
+          ? "verification_mismatch_observed"
+          : displayedRun
+            ? "trial_run_observed"
+            : "observability_projected";
+  const linkage = displayedRun?.evidenceLinkage ?? execution.evidenceLinkage;
+  return {
+    ...base,
+    status,
+    trialRunStatus: displayedRun?.status ?? execution.status,
+    currentTrialStep: displayedRun?.currentStep ?? "none",
+    currentBlocker: displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
+    stopConditionObservation: {
+      status: displayedRun?.stopConditionObservation.status ?? "not_started",
+      observed: displayedRun?.stopConditionObservation.observed ?? false,
+      markers: displayedRun?.stopConditionObservation.markers ?? [],
+    },
+    manualOperatorStepStatus: displayedRun?.manualOperatorStepStatus ?? "not_started",
+    packageStatus: state.controlledInternalTrialPackageProjection.status,
+    evidenceStatus: state.trialSessionEvidenceProjection.status,
+    packageReadBackStatus: state.controlledInternalTrialPackageProjection.readBackValidationStatus ?? "not_read",
+    evidenceReadBackStatus: state.trialSessionEvidenceProjection.readBackValidationStatus ?? "not_read",
+    replayRestoreVerificationStatus: state.trialReplayRestoreVerification.status,
+    mismatchSummary: {
+      verificationStatus: state.trialReplayRestoreVerification.status,
+      mismatches,
+      replayStatusComparison: state.trialReplayRestoreVerification.comparisonSummary.replayStatusComparison,
+      restoreHistoryComparison: state.trialReplayRestoreVerification.comparisonSummary.restoreHistoryComparison,
+    },
+    packageEvidenceReadBackFailureSummary: mismatches.filter((mismatch) => ["missing_trial_package_read_back", "missing_trial_session_evidence_read_back", "trial_package_read_back_invalid", "trial_session_evidence_read_back_invalid"].includes(mismatch)),
+    replayStatusComparisonSummary: state.trialReplayRestoreVerification.comparisonSummary.replayStatusComparison,
+    restoreHistoryComparisonSummary: state.trialReplayRestoreVerification.comparisonSummary.restoreHistoryComparison,
+    runbookFailureDrillCategorySummary: state.trialFailureDrill.categories.map((entry) => `${entry.category}=${entry.severity}`),
+    evidenceLinkageSummary: [linkage.trialPackage, linkage.runbook, linkage.failureDrill, linkage.trialSessionEvidence, linkage.replayRestoreVerification, linkage.localWorkflow],
+    blockedStateSummary: {
+      status: ["trial_run_blocked", "trial_run_rejected", "invalid_trial_run_request"].includes(execution.status) ? "observed" : "not_observed",
+      currentBlocker: displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
+      rejectionReasons: execution.rejectionReasons,
+    },
+  };
+}
+
+function refreshTrialObservabilityState(state: LocalOperatorShellState): LocalOperatorShellState {
+  const withoutReports = {
+    ...state,
+    trialObservability: initialTrialObservabilityProjection(),
+trialErrorReport: initialTrialErrorReportProjection(),
+  };
+  return {
+    ...withoutReports,
+    trialObservability: deriveTrialObservabilityProjection(withoutReports),
+    trialErrorReport: deriveTrialErrorReportProjection(withoutReports),
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -5761,6 +6160,8 @@ export type LocalOperatorShellState = Readonly<{
   trialSessionEvidenceProjection: TrialSessionEvidenceProjection;
   trialReplayRestoreVerification: TrialReplayRestoreVerificationProjection;
   controlledInternalTrialExecution: ControlledInternalTrialExecutionProjection;
+  trialObservability: TrialObservabilityProjection;
+  trialErrorReport: TrialErrorReportProjection;
 }>;
 
 
@@ -6415,7 +6816,7 @@ export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellSt
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification" | "controlledInternalTrialExecution"
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification" | "controlledInternalTrialExecution" | "trialObservability" | "trialErrorReport"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -6438,19 +6839,23 @@ function attachLocalSessionEvidenceExport(
     trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
     trialReplayRestoreVerification: initialTrialReplayRestoreVerificationProjection(),
     controlledInternalTrialExecution: initialControlledInternalTrialExecutionProjection(),
+    trialObservability: initialTrialObservabilityProjection(),
+    trialErrorReport: initialTrialErrorReportProjection(),
   };
   const withWorkflow: LocalOperatorShellState = {
     ...withExport,
     completeLocalOperatorWorkflow: deriveCompleteLocalOperatorWorkflowProjection(withExport),
   };
-  return {
+  return refreshTrialObservabilityState({
     ...withWorkflow,
     trialFailureDrill: deriveTrialFailureDrillProjection(withWorkflow),
     trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
     trialSessionEvidenceProjection: (state as Partial<LocalOperatorShellState>).trialSessionEvidenceProjection ?? initialTrialSessionEvidenceProjection(),
     trialReplayRestoreVerification: (state as Partial<LocalOperatorShellState>).trialReplayRestoreVerification ?? initialTrialReplayRestoreVerificationProjection(),
     controlledInternalTrialExecution: (state as Partial<LocalOperatorShellState>).controlledInternalTrialExecution ?? initialControlledInternalTrialExecutionProjection(),
-  };
+    trialObservability: (state as Partial<LocalOperatorShellState>).trialObservability ?? initialTrialObservabilityProjection(),
+    trialErrorReport: (state as Partial<LocalOperatorShellState>).trialErrorReport ?? initialTrialErrorReportProjection(),
+  });
 }
 
 
@@ -6515,7 +6920,7 @@ export function startControlledInternalTrialExecution(state: LocalOperatorShellS
     evidenceLinkage: base.evidenceLinkage,
     summary: `Bounded local controlled internal trial run status: ${status}.`,
   };
-  return {
+  return refreshTrialObservabilityState({
     ...state,
     controlledInternalTrialExecution: {
       ...base,
@@ -6525,7 +6930,7 @@ export function startControlledInternalTrialExecution(state: LocalOperatorShellS
       currentBlocker: run.currentBlocker,
       rejectionReasons: errors,
     },
-  };
+  });
 }
 
 export function stepControlledInternalTrialExecution(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest = {}): LocalOperatorShellState {

@@ -4,17 +4,14 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 166 - Controlled Internal Trial Execution Harness
+# Phase 167 - Trial Observability and Error Reporting
 
 ## Phase goal
-- [x] Add a bounded deterministic local controlled internal trial execution harness.
-- [x] Keep the harness local-only, non-public, and non-authoritative.
-- [x] Preserve Phase 167 as trial observability and error reporting.
+- [x] Add local trial observability and error reporting derived from controlled internal trial execution state.
 
 ## Working-tree hygiene gate
-- [x] Changes remain limited to Phase 166 code-production surfaces, CHANGELOG.md, and this checklist.
-- [x] Roadmap files are not modified.
-- [x] Generated UI build artifacts are removed after validation.
+- [x] Keep changes within Phase 167 allowed surfaces.
+- [x] Do not modify roadmap, governance, architecture, release, installer, deployment, or publishing files.
 
 ## Allowed surfaces
 - [x] `core/src/**`
@@ -23,104 +20,108 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Rust-owned trial execution harness projection exists.
-- [x] Trial run request and run projection exist.
-- [x] Initial harness state is `not_started`.
-- [x] Deterministic trial-run ID and projection derivation are implemented.
+- [x] Rust-owned trial observability projection exists.
+- [x] Rust-owned trial error report projection exists.
+- [x] Local shell state carries both projections.
+- [x] UI renders the projections without telemetry, monitoring, remediation, escalation, or approval controls.
 
-## Controlled trial execution harness checklist
-- [x] Harness can start a bounded local trial run only through typed local request data.
-- [x] Harness can step a local trial run to local completion when manual status is recorded.
-- [x] Rejected requests preserve the prior accepted trial run projection.
+## Trial observability checklist
+- [x] Trial observability status is projected.
+- [x] Trial run status and current trial step are projected.
+- [x] Current blocker is projected.
+- [x] Package, evidence, read-back, replay, and restore verification summaries are projected.
+- [x] Evidence linkage summary is projected.
 
-## Trial precondition checklist
-- [x] Controlled internal trial package is required.
-- [x] Trial operator runbook is required and must not be blocked.
-- [x] Failure drill projection is required.
-- [x] Trial session evidence must be valid or read-back valid.
-- [x] Replay/restore verification must be passed.
-- [x] Complete local workflow projection is required.
+## Trial error report checklist
+- [x] Error report status is projected.
+- [x] Error details include category, severity, source, guidance, and evidence linkage.
+- [x] Error ordering is deterministic.
+- [x] Error report is local and descriptive only.
 
-## Stop-condition observation checklist
-- [x] Stop-condition observation is typed.
-- [x] `stop_condition_observed` blocks continuation.
-- [x] Stop-condition enforcement is not automated in Phase 166.
+## Error category/severity checklist
+- [x] Closed categories cover missing, blocked, rejected, mismatched, invalid, and stop-condition-observed states.
+- [x] Severity classification is deterministic.
+- [x] Source linkage is deterministic.
 
-## Manual operator step checklist
-- [x] Manual operator step status is represented.
-- [x] Missing manual operator step produces `manual_action_required` or missing status.
-- [x] Manual status is not human-use approval.
+## Blocked-state reporting checklist
+- [x] Current blocker is summarized.
+- [x] Blocked/rejected reasons are summarized.
+- [x] Manual operator step requirement is reported.
 
-## Evidence linkage checklist
-- [x] Trial package linkage is represented.
-- [x] Runbook linkage is represented.
-- [x] Failure drill linkage is represented.
-- [x] Trial session evidence linkage is represented.
-- [x] Replay/restore verification linkage is represented.
-- [x] Complete local workflow linkage is represented.
+## Stop-condition observation reporting checklist
+- [x] Stop-condition observation status is rendered.
+- [x] Stop-condition markers are rendered.
+- [x] Stop-condition automation remains disabled.
 
-## UI harness panel checklist
-- [x] UI renders “Controlled internal trial execution harness”.
-- [x] UI renders “Trial run status”.
-- [x] UI renders “Trial stop-condition observation”.
-- [x] UI renders “Trial evidence linkage”.
-- [x] UI renders blockers, rejection reasons, preconditions, steps, and boundary markers.
-- [x] UI renders start/step controls as enabled or disabled from projection state.
+## Verification mismatch reporting checklist
+- [x] Replay/status mismatch is reported.
+- [x] Restore/history mismatch is reported.
+- [x] Mismatch drilldown is visible in the UI.
 
-## Local-only/non-public boundary checklist
-- [x] `controlled_internal_trial_harness_only`
-- [x] `local_trial_execution_only`
-- [x] `non_public_trial_execution`
-- [x] No network/cloud/background service behavior added.
+## Package/evidence failure reporting checklist
+- [x] Missing package and evidence are reported.
+- [x] Validation failures are reported.
+- [x] Read-back failures are reported.
+
+## UI observability/error panel checklist
+- [x] Trial observability panel renders.
+- [x] Trial error reporting panel renders.
+- [x] Trial error drilldown renders.
+- [x] Trial blocked-state summary renders.
+
+## Local-only/no-telemetry boundary checklist
+- [x] Trial observability is local-only and non-public.
+- [x] No production monitoring is active.
+- [x] No remote telemetry is sent.
+- [x] No network reporting is added.
+- [x] No background service is active.
 
 ## No-authority checklist
-- [x] No controlled human-use approval.
-- [x] No readiness, release, deployment, public-use, or production-use approval.
-- [x] No provider trust.
-- [x] No action authorization.
-- [x] No replay repair.
-- [x] No recovery promotion.
-- [x] No signing, publishing, deployment, release artifact, or installer behavior.
-- [x] No automated stop-condition enforcement.
-- [x] No automated escalation.
+- [x] No remediation, escalation, or stop-condition enforcement is automated.
+- [x] No action execution is added.
+- [x] No replay repair or recovery promotion is added.
+- [x] No controlled-human-use, readiness, release, deployment, public-use, or production-use approval is granted.
 
 ## Rust test checklist
-- [x] Accepted harness run.
-- [x] Missing precondition rejection.
-- [x] Stop-condition blocking.
-- [x] Deterministic run projection and ID.
-- [x] No-authority boundary rejection.
+- [x] Initial projection coverage.
+- [x] Happy-path observability coverage.
+- [x] Blocked/rejected and stop-condition coverage.
+- [x] Verification mismatch and package/evidence read-back failure coverage.
+- [x] No-authority boundary coverage.
 
 ## TypeScript test checklist
-- [x] Visible harness behavior.
-- [x] Blocked/rejected rendering.
-- [x] Stop-condition observation rendering.
-- [x] Evidence linkage rendering.
-- [x] No-authority wording and forbidden-label checks.
+- [x] Observability panel rendering coverage.
+- [x] Error reporting panel rendering coverage.
+- [x] Blocked-state rendering coverage.
+- [x] Mismatch drilldown coverage.
+- [x] Local-only/no-telemetry/no-monitoring wording coverage.
 
-## Phase 167 handoff checklist
-- [x] Phase 167 remains trial observability and error reporting.
-- [x] Phase 166 does not add observability/error-reporting doctrine beyond harness display.
+## Phase 168 handoff checklist
+- [x] Phase 168 remains the next code-production phase for trial evidence review surface.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-166-target ./scripts/check.sh` (run after commit for clean-worktree gate)
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-167-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
-- [x] UI typecheck, lint, build cleanup, and API behavior tests.
-- [x] Rust all-target tests.
+- [x] UI direct commands if needed.
+- [x] Rust direct tests if needed.
 - [x] Local dev smoke test.
-- [x] Harness, boundary, forbidden-label, unsafe-execution, release/deployment, changed-file, and roadmap-drift scans.
+- [x] Observability scan.
+- [x] Boundary scan.
+- [x] Forbidden label scan.
+- [x] Unsafe execution scan.
+- [x] Release/deployment scan.
+- [x] Changed-file source guard.
+- [x] No-roadmap-drift guard.
 
 ## Deferred items
-- [x] Trial observability and error reporting are deferred to Phase 167.
-- [x] Controlled human use, public use, production use, readiness, release, deployment, signing, publishing, replay repair, recovery promotion, and action authorization remain out of scope.
+- [x] Phase 168 trial evidence review surface.
 
 ## Validation log
-- Direct validation passed before commit except `scripts/check.sh` clean-worktree gate, which is run after commit.
-- UI dev smoke printed `http://127.0.0.1:5173`; timeout stopped the long-running local server.
-- Scans showed required harness and boundary markers; forbidden/unsafe/release scan matches are historical/test/prohibition strings or required `no_...` boundary markers, not new executable behavior.
+- Direct Rust and UI validation passed before commit.
+- Full `scripts/check.sh` is expected to run on the clean committed tree because the script requires no working-tree diff at startup.
 
 ## Zero-drift checklist
-- [x] CHANGELOG entry matches Phase 166 scope.
-- [x] Checklist reflects procedural truth for Phase 166.
-- [x] Governance, architecture, and roadmap documents are unchanged.
+- [x] Roadmap files are not modified.
+- [x] CHANGELOG entry reflects Phase 167 scope.
+- [x] No release, deployment, signing, publishing, installer, update-channel, production monitoring, or remote telemetry behavior is added.

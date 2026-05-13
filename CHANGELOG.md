@@ -28,6 +28,41 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.167 - 2026-05-13
+**Status:** Phase 167 - Trial Observability and Error Reporting
+
+### Added
+- Add Rust-owned trial observability and trial error report projections derived from local shell state.
+- Add closed trial error categories, severity classification, source linkage, blocked-state reporting, stop-condition observation reporting, replay/restore mismatch reporting, package/evidence read-back failure reporting, and local evidence linkage.
+- Add UI rendering for trial observability status, trial error reporting, blocked-state summary, mismatch/error drilldown, and local-only/no-telemetry boundaries.
+- Add Rust and TypeScript tests for happy-path observability, blocked/rejected states, stop-condition observation, verification mismatch, package/evidence failures, deterministic error reports, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with trial observability and error reporting state.
+- Update the local UI shell to display local trial observability and error reporting without production monitoring or telemetry.
+- Update checklists/current-phase.md to Phase 167 procedural truth.
+
+### Notes
+- Code-production phase.
+- Trial observability is local-only and non-public.
+- Error reporting is local and descriptive only.
+- No production monitoring.
+- No remote telemetry.
+- No network reporting.
+- No background service.
+- No automated remediation.
+- No automated escalation.
+- No stop-condition automation.
+- No action execution.
+- No replay repair.
+- No recovery promotion.
+- No provider trust approval.
+- No controlled-human-use approval.
+- No readiness, release, deployment, public-use, or production-use approval.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 168 remains the next code-production phase for trial evidence review surface.
+
 ## v0.0.166 - 2026-05-13
 **Status:** Phase 166 - Controlled Internal Trial Execution Harness
 
