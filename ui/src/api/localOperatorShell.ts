@@ -5028,6 +5028,177 @@ export type CompleteLocalOperatorWorkflowProjection = Readonly<{
   noAuthorityNote: string;
 }>;
 
+
+export type TrialOperatorRunbookStatus =
+  | "not_available"
+  | "trial_package_required"
+  | "trial_operator_runbook_projected"
+  | "blocked"
+  | "failure_drill_required"
+  | "ready_for_manual_trial_preparation";
+
+export type TrialOperatorRunbookStepStatus =
+  | "not_started"
+  | "available"
+  | "completed"
+  | "blocked"
+  | "rejected"
+  | "manual_action_required"
+  | "not_applicable";
+
+export type TrialOperatorRunbookStepKind =
+  | "confirm_local_beta_workflow"
+  | "confirm_controlled_trial_package"
+  | "confirm_trial_scope"
+  | "confirm_named_internal_operator"
+  | "confirm_named_trial_participant"
+  | "review_stop_conditions"
+  | "review_current_blocker"
+  | "review_failure_drill"
+  | "review_restore_status"
+  | "review_replay_status"
+  | "review_evidence_export_status"
+  | "prepare_manual_trial_notes"
+  | "confirm_no_public_release"
+  | "confirm_no_production_approval";
+
+export type TrialOperatorRunbookStep = Readonly<{
+  step: TrialOperatorRunbookStepKind;
+  status: TrialOperatorRunbookStepStatus;
+  summary: string;
+}>;
+
+export type TrialOperatorRunbookCurrentBlocker = Readonly<{
+  step: TrialOperatorRunbookStepKind | null;
+  workflowStep: CompleteLocalOperatorWorkflowStepKind | null;
+  workflowError: CompleteLocalOperatorWorkflowError | null;
+  guidance: string;
+}>;
+
+export type TrialRunbookBoundaryStatus =
+  | "local_trial_guidance_only"
+  | "non_public_trial_guidance"
+  | "no_trial_execution"
+  | "no_stop_condition_automation"
+  | "no_authority_activation"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval"
+  | "no_action_execution"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type TrialRunbookCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonPublic: true;
+  executesTrial: false;
+  automatesStopConditions: false;
+  activatesAuthority: false;
+  approvesReadiness: false;
+  approvesRelease: false;
+  approvesDeployment: false;
+  approvesPublicUse: false;
+  approvesProduction: false;
+  executesActions: false;
+  repairsReplay: false;
+  promotesRecovery: false;
+}>;
+
+export type TrialFailureSeverity = "info" | "manual_action" | "blocked" | "rejected";
+export type TrialFailureDrillStatus =
+  | "no_failures_projected"
+  | "failure_drill_required"
+  | "stop_condition_drill_required";
+export type TrialFailureCategory =
+  | "no_trial_package"
+  | "trial_package_validation_failure"
+  | "trial_package_read_back_failure"
+  | "missing_trial_scope"
+  | "missing_named_operator"
+  | "missing_named_participant"
+  | "missing_stop_conditions"
+  | "workflow_blocked"
+  | "workflow_rejected"
+  | "provider_pipeline_blocked"
+  | "provider_output_validation_rejected"
+  | "staged_validation_rejected"
+  | "operator_decision_rejected"
+  | "candidate_materialization_missing"
+  | "restore_projection_rejected"
+  | "replay_status_incomplete"
+  | "evidence_export_missing"
+  | "stop_condition_present"
+  | "security_escalation_required"
+  | "release_steward_review_required"
+  | "trial_coordinator_review_required";
+
+export type TrialFailureCategoryProjection = Readonly<{
+  category: TrialFailureCategory;
+  severity: TrialFailureSeverity;
+  summary: string;
+}>;
+
+export type TrialStopConditionDrill = Readonly<{
+  marker: string;
+  status: TrialOperatorRunbookStepStatus;
+  guidance: string;
+  enforcementAutomated: false;
+}>;
+
+export type TrialEscalationRole =
+  | "trial_coordinator"
+  | "security_reviewer"
+  | "release_steward"
+  | "operator_manual_review";
+
+export type TrialEscalationGuidance = Readonly<{
+  role: TrialEscalationRole;
+  categories: readonly TrialFailureCategory[];
+  guidance: string;
+  descriptiveOnly: true;
+}>;
+
+export type TrialFailureDrillProjection = Readonly<{
+  status: TrialFailureDrillStatus;
+  highestSeverity: TrialFailureSeverity;
+  categories: readonly TrialFailureCategoryProjection[];
+  stopConditionDrills: readonly TrialStopConditionDrill[];
+  escalationGuidance: readonly TrialEscalationGuidance[];
+  manualActionGuidance: readonly string[];
+  rejectionSummary: readonly string[];
+  boundaryStatuses: readonly TrialRunbookBoundaryStatus[];
+  noAutomationNote: string;
+}>;
+
+export type TrialOperatorRunbookProjection = Readonly<{
+  status: TrialOperatorRunbookStatus;
+  currentStep: TrialOperatorRunbookStepKind | null;
+  currentBlocker: TrialOperatorRunbookCurrentBlocker;
+  steps: readonly TrialOperatorRunbookStep[];
+  trialPackageStatus: ControlledInternalTrialPackageStatus;
+  trialPackageId: string | null;
+  trialPackageValidationStatus: ControlledInternalTrialPackageValidationStatus;
+  trialPackageReadBackStatus: ControlledInternalTrialPackageValidationStatus | null;
+  trialScopeStatus: TrialOperatorRunbookStepStatus;
+  namedOperatorStatus: TrialOperatorRunbookStepStatus;
+  namedParticipantStatus: TrialOperatorRunbookStepStatus;
+  stopConditionSummary: readonly string[];
+  localWorkflowStatus: CompleteLocalOperatorWorkflowStatus;
+  localCandidateMaterializationStatus: string;
+  providerOutputPipelineStatus: string;
+  replayStatusSummary: string;
+  localEvidenceExportSummary: string;
+  restoreHistoryStatus: string;
+  failureDrill: TrialFailureDrillProjection;
+  boundaryStatuses: readonly TrialRunbookBoundaryStatus[];
+  capabilitySurface: TrialRunbookCapabilitySurface;
+  localOnlyNonPublicNote: string;
+  noTrialExecutionNote: string;
+  noAuthorityNote: string;
+}>;
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -5051,6 +5222,8 @@ export type LocalOperatorShellState = Readonly<{
   localSessionRestoreProjection: LocalSessionRestoreProjection;
   controlledInternalTrialPackageProjection: ControlledInternalTrialPackageProjection;
   completeLocalOperatorWorkflow: CompleteLocalOperatorWorkflowProjection;
+  trialOperatorRunbook: TrialOperatorRunbookProjection;
+  trialFailureDrill: TrialFailureDrillProjection;
 }>;
 
 
@@ -5381,10 +5554,331 @@ export function validateLocalSessionEvidenceExport(
   return true;
 }
 
+
+export function trialRunbookBoundaryStatuses(): readonly TrialRunbookBoundaryStatus[] {
+  return [
+    "local_trial_guidance_only",
+    "non_public_trial_guidance",
+    "no_trial_execution",
+    "no_stop_condition_automation",
+    "no_authority_activation",
+    "no_readiness_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_production_approval",
+    "no_action_execution",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+
+function trialRunbookCapabilitySurface(): TrialRunbookCapabilitySurface {
+  return {
+    localOnly: true,
+    nonPublic: true,
+    executesTrial: false,
+    automatesStopConditions: false,
+    activatesAuthority: false,
+    approvesReadiness: false,
+    approvesRelease: false,
+    approvesDeployment: false,
+    approvesPublicUse: false,
+    approvesProduction: false,
+    executesActions: false,
+    repairsReplay: false,
+    promotesRecovery: false,
+  };
+}
+
+function hasNamedOperator(packageProjection: ControlledInternalTrialPackageProjection): boolean {
+  return packageProjection.namedOperatorParticipantSummary.some((item) => item.startsWith("operator:"));
+}
+
+function hasNamedParticipant(packageProjection: ControlledInternalTrialPackageProjection): boolean {
+  return packageProjection.namedOperatorParticipantSummary.some((item) => item.startsWith("participant:"));
+}
+
+function packageIsInvalid(packageProjection: ControlledInternalTrialPackageProjection): boolean {
+  return (
+    packageProjection.status === "package_rejected" ||
+    packageProjection.status === "invalid_package_input" ||
+    packageProjection.validationStatus === "invalid" ||
+    packageProjection.readBackValidationStatus === "invalid"
+  );
+}
+
+function trialScopeStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
+  return packageProjection.trialScopeSummary === "trial scope not provided" ? "blocked" : "completed";
+}
+
+function namedOperatorStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
+  return hasNamedOperator(packageProjection) ? "completed" : "blocked";
+}
+
+function namedParticipantStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
+  return hasNamedParticipant(packageProjection) ? "completed" : "blocked";
+}
+
+function trialRunbookStepOrder(): readonly TrialOperatorRunbookStepKind[] {
+  return [
+    "confirm_local_beta_workflow",
+    "confirm_controlled_trial_package",
+    "confirm_trial_scope",
+    "confirm_named_internal_operator",
+    "confirm_named_trial_participant",
+    "review_stop_conditions",
+    "review_current_blocker",
+    "review_failure_drill",
+    "review_restore_status",
+    "review_replay_status",
+    "review_evidence_export_status",
+    "prepare_manual_trial_notes",
+    "confirm_no_public_release",
+    "confirm_no_production_approval",
+  ];
+}
+
+function addTrialFailureCategory(
+  categories: TrialFailureCategoryProjection[],
+  category: TrialFailureCategory,
+  severity: TrialFailureSeverity,
+  summary: string,
+): void {
+  if (!categories.some((entry) => entry.category === category))
+    categories.push({ category, severity, summary });
+}
+
+export function deriveTrialStopConditionDrills(state: LocalOperatorShellState): readonly TrialStopConditionDrill[] {
+  return state.controlledInternalTrialPackageProjection.stopConditionSummary.map((marker) => ({
+    marker,
+    status: "manual_action_required",
+    guidance: `If stop-condition marker ${marker} is present during manual preparation, pause the local trial workflow, record notes, and involve the trial coordinator before continuing.`,
+    enforcementAutomated: false,
+  }));
+}
+
+export function deriveTrialEscalationGuidance(
+  categories: readonly TrialFailureCategoryProjection[],
+): readonly TrialEscalationGuidance[] {
+  const has = (category: TrialFailureCategory) => categories.some((entry) => entry.category === category);
+  const guidance: TrialEscalationGuidance[] = [
+    {
+      role: "operator_manual_review",
+      categories: ["candidate_materialization_missing", "evidence_export_missing", "replay_status_incomplete"],
+      guidance: "Operator manual review checks local notes, missing materialization, replay/status, and evidence export gaps without executing remediation.",
+      descriptiveOnly: true,
+    },
+  ];
+  if (has("provider_pipeline_blocked") || has("provider_output_validation_rejected") || has("security_escalation_required")) {
+    guidance.push({
+      role: "security_reviewer",
+      categories: ["provider_pipeline_blocked", "provider_output_validation_rejected", "security_escalation_required"],
+      guidance: "Security reviewer guidance applies to provider pipeline, provider output validation, and security-sensitive rejection categories; it does not trust provider output.",
+      descriptiveOnly: true,
+    });
+  }
+  if (has("release_steward_review_required") || categories.some((entry) => entry.summary.includes("release") || entry.summary.includes("deployment"))) {
+    guidance.push({
+      role: "release_steward",
+      categories: ["release_steward_review_required"],
+      guidance: "Release steward guidance applies only to reviewing release/deployment/readiness claims; it does not create release or deployment artifacts.",
+      descriptiveOnly: true,
+    });
+  }
+  if (has("workflow_blocked") || has("workflow_rejected") || has("trial_coordinator_review_required") || has("stop_condition_present") || has("no_trial_package")) {
+    guidance.push({
+      role: "trial_coordinator",
+      categories: ["workflow_blocked", "workflow_rejected", "trial_coordinator_review_required", "stop_condition_present", "no_trial_package"],
+      guidance: "Trial coordinator guidance applies to workflow blockers, missing package preparation, and stop-condition drill review; it does not approve use authority.",
+      descriptiveOnly: true,
+    });
+  }
+  return guidance;
+}
+
+export function deriveTrialFailureDrillProjection(state: LocalOperatorShellState): TrialFailureDrillProjection {
+  const categories: TrialFailureCategoryProjection[] = [];
+  const packageProjection = state.controlledInternalTrialPackageProjection;
+  if (packageProjection.status === "not_packaged") addTrialFailureCategory(categories, "no_trial_package", "blocked", "Controlled internal trial package has not been projected.");
+  if (packageIsInvalid(packageProjection)) addTrialFailureCategory(categories, "trial_package_validation_failure", "rejected", `Trial package validation errors: ${packageProjection.validationErrors.join(", ")}.`);
+  if (packageProjection.readBackValidationStatus === "invalid") addTrialFailureCategory(categories, "trial_package_read_back_failure", "rejected", "Trial package read-back validation is invalid.");
+  if (packageProjection.trialScopeSummary === "trial scope not provided") addTrialFailureCategory(categories, "missing_trial_scope", "blocked", "Trial scope is missing.");
+  if (!hasNamedOperator(packageProjection)) addTrialFailureCategory(categories, "missing_named_operator", "blocked", "Named internal operator metadata is missing.");
+  if (!hasNamedParticipant(packageProjection)) addTrialFailureCategory(categories, "missing_named_participant", "blocked", "Named trial participant metadata is missing.");
+  if (packageProjection.stopConditionSummary.length === 0) addTrialFailureCategory(categories, "missing_stop_conditions", "blocked", "Stop-condition markers are missing.");
+  else addTrialFailureCategory(categories, "stop_condition_present", "manual_action", "Stop-condition drill markers are present for operator review; enforcement is guidance only.");
+  if (state.completeLocalOperatorWorkflow.status === "blocked") addTrialFailureCategory(categories, "workflow_blocked", "blocked", `Workflow is blocked at ${state.completeLocalOperatorWorkflow.currentBlockingStep ?? "unknown"}.`);
+  if (state.completeLocalOperatorWorkflow.status === "rejected") addTrialFailureCategory(categories, "workflow_rejected", "rejected", `Workflow rejection summary: ${state.completeLocalOperatorWorkflow.rejectionReasons.join(", ")}.`);
+  if (state.localProviderOutputPipeline.status === "blocked" || state.localProviderOutputPipeline.status === "rejected") addTrialFailureCategory(categories, "provider_pipeline_blocked", state.localProviderOutputPipeline.status === "rejected" ? "rejected" : "blocked", `Provider output pipeline is ${state.localProviderOutputPipeline.status}.`);
+  if (state.providerOutputValidation.status === "rejected") {
+    addTrialFailureCategory(categories, "provider_output_validation_rejected", "rejected", "Provider output validation is rejected.");
+    addTrialFailureCategory(categories, "security_escalation_required", "manual_action", "Provider output validation rejection requires security-review guidance.");
+  }
+  if (state.stagedCandidateConversionValidation.status === "rejected_staged_proposal") addTrialFailureCategory(categories, "staged_validation_rejected", "rejected", "Staged proposal validation is rejected.");
+  if (state.operatorCandidateDecision.status === "rejected_validated_staged_proposal") addTrialFailureCategory(categories, "operator_decision_rejected", "manual_action", "Operator decision recorded a rejection of the validated staged proposal.");
+  if (state.localCandidateOutput.status === "not_materialized") addTrialFailureCategory(categories, "candidate_materialization_missing", "manual_action", "Local candidate materialization is missing.");
+  if (state.localSessionRestoreProjection.validationStatus === "invalid" || state.localSessionRestoreProjection.status === "restore_rejected") addTrialFailureCategory(categories, "restore_projection_rejected", "rejected", "Restore/history projection is rejected or invalid.");
+  if (state.run.decisionReplay.integrityStatus === "inconsistent" || state.run.decisionReplay.replayStatus === "no_decision_recorded") addTrialFailureCategory(categories, "replay_status_incomplete", "manual_action", `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`);
+  if (state.localSessionEvidenceExport.exportValidationStatus === "incomplete") addTrialFailureCategory(categories, "evidence_export_missing", "manual_action", "Local evidence export is incomplete.");
+  if (packageProjection.validationErrors.some((error) => /release|deployment|readiness|public|production/.test(error))) addTrialFailureCategory(categories, "release_steward_review_required", "manual_action", "Package contains release/deployment/readiness/public/production-use claim rejection summary.");
+  if (state.completeLocalOperatorWorkflow.currentBlockingStep) addTrialFailureCategory(categories, "trial_coordinator_review_required", "manual_action", "Workflow blocker requires trial coordinator guidance before manual preparation continues.");
+  const severityOrder: Record<TrialFailureSeverity, number> = { info: 0, manual_action: 1, blocked: 2, rejected: 3 };
+  const highestSeverity = categories.reduce<TrialFailureSeverity>((highest, entry) => severityOrder[entry.severity] > severityOrder[highest] ? entry.severity : highest, "info");
+  const status: TrialFailureDrillStatus = categories.some((entry) => entry.category === "stop_condition_present")
+    ? "stop_condition_drill_required"
+    : categories.length === 0 ? "no_failures_projected" : "failure_drill_required";
+  return {
+    status,
+    highestSeverity,
+    categories,
+    stopConditionDrills: deriveTrialStopConditionDrills(state),
+    escalationGuidance: deriveTrialEscalationGuidance(categories),
+    manualActionGuidance: categories.filter((entry) => entry.severity === "manual_action" || entry.severity === "blocked").map((entry) => `${entry.category}: review manually; no remediation is executed.`),
+    rejectionSummary: categories.filter((entry) => entry.severity === "rejected").map((entry) => `${entry.category}: ${entry.summary}`),
+    boundaryStatuses: trialRunbookBoundaryStatuses(),
+    noAutomationNote: "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
+  };
+}
+
+export function classifyTrialRunbookStep(
+  state: LocalOperatorShellState,
+  step: TrialOperatorRunbookStepKind,
+): TrialOperatorRunbookStep {
+  const packageProjection = state.controlledInternalTrialPackageProjection;
+  const failureDrill = deriveTrialFailureDrillProjection(state);
+  if (step === "confirm_local_beta_workflow") {
+    const status = state.completeLocalOperatorWorkflow.status === "rejected" ? "rejected" : state.completeLocalOperatorWorkflow.status === "blocked" ? "blocked" : state.completeLocalOperatorWorkflow.status === "not_started" ? "manual_action_required" : "completed";
+    return { step, status, summary: `Complete local workflow status is ${state.completeLocalOperatorWorkflow.status}.` };
+  }
+  if (step === "confirm_controlled_trial_package") {
+    if (packageProjection.status === "not_packaged") return { step, status: "blocked", summary: "Controlled internal trial package is required before manual trial preparation." };
+    if (packageIsInvalid(packageProjection)) return { step, status: "rejected", summary: `Controlled internal trial package validation is ${packageProjection.validationStatus}.` };
+    return { step, status: "completed", summary: `Controlled internal trial package status is ${packageProjection.status}.` };
+  }
+  if (step === "confirm_trial_scope") return { step, status: trialScopeStatus(packageProjection), summary: `Trial scope: ${packageProjection.trialScopeSummary}.` };
+  if (step === "confirm_named_internal_operator") return { step, status: namedOperatorStatus(packageProjection), summary: `Named operator metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.` };
+  if (step === "confirm_named_trial_participant") return { step, status: namedParticipantStatus(packageProjection), summary: `Named participant metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.` };
+  if (step === "review_stop_conditions") return packageProjection.stopConditionSummary.length === 0
+    ? { step, status: "blocked", summary: "Stop-condition markers are missing from the package projection." }
+    : { step, status: "manual_action_required", summary: `Review ${packageProjection.stopConditionSummary.length} stop-condition drill marker(s); guidance only.` };
+  if (step === "review_current_blocker") return state.completeLocalOperatorWorkflow.currentBlockingStep
+    ? { step, status: "manual_action_required", summary: `Current workflow blocker is ${state.completeLocalOperatorWorkflow.currentBlockingStep}.` }
+    : { step, status: "completed", summary: "No current complete-workflow blocker is projected." };
+  if (step === "review_failure_drill") return failureDrill.categories.length === 0
+    ? { step, status: "completed", summary: "No failure categories are projected." }
+    : { step, status: "manual_action_required", summary: `Review ${failureDrill.categories.length} failure drill categorization(s).` };
+  if (step === "review_restore_status") return { step, status: state.localSessionRestoreProjection.validationStatus === "invalid" ? "rejected" : "completed", summary: `Restore/history status is ${state.localSessionRestoreProjection.status} / ${state.localSessionHistoryProjection.status}.` };
+  if (step === "review_replay_status") return { step, status: state.run.decisionReplay.integrityStatus === "inconsistent" ? "rejected" : state.run.decisionReplay.replayStatus === "no_decision_recorded" ? "manual_action_required" : "completed", summary: `Replay/status projection is ${state.run.decisionReplay.replayStatus} with ${state.run.decisionReplay.integrityStatus} integrity.` };
+  if (step === "review_evidence_export_status") return { step, status: state.localSessionEvidenceExport.exportValidationStatus === "incomplete" ? "manual_action_required" : "completed", summary: `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.` };
+  if (step === "prepare_manual_trial_notes") return { step, status: "manual_action_required", summary: "Prepare manual notes; this projection does not execute or authorize trial operation." };
+  if (step === "confirm_no_public_release") return { step, status: "completed", summary: "Boundary confirms no public release, publication, signing, or deployment behavior." };
+  return { step, status: "completed", summary: "Boundary confirms no controlled human-use, public-use, production-use, release, deployment, or readiness approval." };
+}
+
+export function initialTrialFailureDrillProjection(): TrialFailureDrillProjection {
+  return {
+    status: "no_failures_projected",
+    highestSeverity: "info",
+    categories: [],
+    stopConditionDrills: [],
+    escalationGuidance: [],
+    manualActionGuidance: [],
+    rejectionSummary: [],
+    boundaryStatuses: trialRunbookBoundaryStatuses(),
+    noAutomationNote: "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
+  };
+}
+
+export function initialTrialOperatorRunbookProjection(): TrialOperatorRunbookProjection {
+  return {
+    status: "not_available",
+    currentStep: null,
+    currentBlocker: { step: null, workflowStep: null, workflowError: null, guidance: "Current blocker guidance: projection not yet derived." },
+    steps: [],
+    trialPackageStatus: "not_packaged",
+    trialPackageId: null,
+    trialPackageValidationStatus: "not_validated",
+    trialPackageReadBackStatus: null,
+    trialScopeStatus: "not_started",
+    namedOperatorStatus: "not_started",
+    namedParticipantStatus: "not_started",
+    stopConditionSummary: [],
+    localWorkflowStatus: "not_started",
+    localCandidateMaterializationStatus: "not_materialized",
+    providerOutputPipelineStatus: "not_projected",
+    replayStatusSummary: "not projected",
+    localEvidenceExportSummary: "not projected",
+    restoreHistoryStatus: "not projected",
+    failureDrill: initialTrialFailureDrillProjection(),
+    boundaryStatuses: trialRunbookBoundaryStatuses(),
+    capabilitySurface: trialRunbookCapabilitySurface(),
+    localOnlyNonPublicNote: "Trial operator runbook is local-only and non-public.",
+    noTrialExecutionNote: "This runbook does not start a controlled trial.",
+    noAuthorityNote: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
+  };
+}
+
+export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellState): TrialOperatorRunbookProjection {
+  const steps = trialRunbookStepOrder().map((step) => classifyTrialRunbookStep(state, step));
+  const currentStep = steps.find((step) => step.status !== "completed")?.step ?? null;
+  const currentBlockerStep = steps.find((step) => step.status === "blocked" || step.status === "rejected")?.step ?? null;
+  const failureDrill = deriveTrialFailureDrillProjection(state);
+  const packageProjection = state.controlledInternalTrialPackageProjection;
+  const status: TrialOperatorRunbookStatus = packageProjection.status === "not_packaged"
+    ? "trial_package_required"
+    : packageIsInvalid(packageProjection) || currentBlockerStep
+      ? "blocked"
+      : failureDrill.categories.length > 0
+        ? "failure_drill_required"
+        : steps.some((step) => step.status === "manual_action_required")
+          ? "trial_operator_runbook_projected"
+          : "ready_for_manual_trial_preparation";
+  const workflowStep = state.completeLocalOperatorWorkflow.currentBlockingStep;
+  const guidance = currentBlockerStep && workflowStep
+    ? `Current blocker guidance: review runbook step ${currentBlockerStep} and workflow step ${workflowStep}; manual action only.`
+    : currentBlockerStep
+      ? `Current blocker guidance: review runbook step ${currentBlockerStep}; manual action only.`
+      : workflowStep
+        ? `Current blocker guidance: review workflow step ${workflowStep}; manual action only.`
+        : "Current blocker guidance: no blocking step is projected; continue manual review without executing trial authority.";
+  return {
+    status,
+    currentStep,
+    currentBlocker: {
+      step: currentBlockerStep,
+      workflowStep,
+      workflowError: state.completeLocalOperatorWorkflow.currentError,
+      guidance,
+    },
+    steps,
+    trialPackageStatus: packageProjection.status,
+    trialPackageId: packageProjection.packageId,
+    trialPackageValidationStatus: packageProjection.validationStatus,
+    trialPackageReadBackStatus: packageProjection.readBackValidationStatus,
+    trialScopeStatus: trialScopeStatus(packageProjection),
+    namedOperatorStatus: namedOperatorStatus(packageProjection),
+    namedParticipantStatus: namedParticipantStatus(packageProjection),
+    stopConditionSummary: packageProjection.stopConditionSummary,
+    localWorkflowStatus: state.completeLocalOperatorWorkflow.status,
+    localCandidateMaterializationStatus: state.localCandidateOutput.status,
+    providerOutputPipelineStatus: state.localProviderOutputPipeline.status,
+    replayStatusSummary: state.run.decisionReplay.summary,
+    localEvidenceExportSummary: state.localSessionEvidenceExport.summary,
+    restoreHistoryStatus: `${state.localSessionRestoreProjection.status} / ${state.localSessionHistoryProjection.status}`,
+    failureDrill,
+    boundaryStatuses: trialRunbookBoundaryStatuses(),
+    capabilitySurface: trialRunbookCapabilitySurface(),
+    localOnlyNonPublicNote: "Trial operator runbook is local-only and non-public.",
+    noTrialExecutionNote: "This runbook does not start a controlled trial.",
+    noAuthorityNote: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
+  };
+}
+
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow"
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -5402,10 +5896,17 @@ function attachLocalSessionEvidenceExport(
       next.decisionLedger,
     ),
     completeLocalOperatorWorkflow: initialCompleteLocalOperatorWorkflowProjection(),
+    trialOperatorRunbook: initialTrialOperatorRunbookProjection(),
+    trialFailureDrill: initialTrialFailureDrillProjection(),
   };
-  return {
+  const withWorkflow: LocalOperatorShellState = {
     ...withExport,
     completeLocalOperatorWorkflow: deriveCompleteLocalOperatorWorkflowProjection(withExport),
+  };
+  return {
+    ...withWorkflow,
+    trialFailureDrill: deriveTrialFailureDrillProjection(withWorkflow),
+    trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
   };
 }
 

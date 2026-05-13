@@ -10136,6 +10136,1024 @@ pub fn derive_complete_local_operator_workflow_projection(
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialOperatorRunbookStatus {
+    NotAvailable,
+    TrialPackageRequired,
+    TrialOperatorRunbookProjected,
+    Blocked,
+    FailureDrillRequired,
+    ReadyForManualTrialPreparation,
+}
+
+impl TrialOperatorRunbookStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotAvailable => "not_available",
+            Self::TrialPackageRequired => "trial_package_required",
+            Self::TrialOperatorRunbookProjected => "trial_operator_runbook_projected",
+            Self::Blocked => "blocked",
+            Self::FailureDrillRequired => "failure_drill_required",
+            Self::ReadyForManualTrialPreparation => "ready_for_manual_trial_preparation",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialOperatorRunbookStepStatus {
+    NotStarted,
+    Available,
+    Completed,
+    Blocked,
+    Rejected,
+    ManualActionRequired,
+    NotApplicable,
+}
+
+impl TrialOperatorRunbookStepStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotStarted => "not_started",
+            Self::Available => "available",
+            Self::Completed => "completed",
+            Self::Blocked => "blocked",
+            Self::Rejected => "rejected",
+            Self::ManualActionRequired => "manual_action_required",
+            Self::NotApplicable => "not_applicable",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialOperatorRunbookStepKind {
+    ConfirmLocalBetaWorkflow,
+    ConfirmControlledTrialPackage,
+    ConfirmTrialScope,
+    ConfirmNamedInternalOperator,
+    ConfirmNamedTrialParticipant,
+    ReviewStopConditions,
+    ReviewCurrentBlocker,
+    ReviewFailureDrill,
+    ReviewRestoreStatus,
+    ReviewReplayStatus,
+    ReviewEvidenceExportStatus,
+    PrepareManualTrialNotes,
+    ConfirmNoPublicRelease,
+    ConfirmNoProductionApproval,
+}
+
+impl TrialOperatorRunbookStepKind {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::ConfirmLocalBetaWorkflow => "confirm_local_beta_workflow",
+            Self::ConfirmControlledTrialPackage => "confirm_controlled_trial_package",
+            Self::ConfirmTrialScope => "confirm_trial_scope",
+            Self::ConfirmNamedInternalOperator => "confirm_named_internal_operator",
+            Self::ConfirmNamedTrialParticipant => "confirm_named_trial_participant",
+            Self::ReviewStopConditions => "review_stop_conditions",
+            Self::ReviewCurrentBlocker => "review_current_blocker",
+            Self::ReviewFailureDrill => "review_failure_drill",
+            Self::ReviewRestoreStatus => "review_restore_status",
+            Self::ReviewReplayStatus => "review_replay_status",
+            Self::ReviewEvidenceExportStatus => "review_evidence_export_status",
+            Self::PrepareManualTrialNotes => "prepare_manual_trial_notes",
+            Self::ConfirmNoPublicRelease => "confirm_no_public_release",
+            Self::ConfirmNoProductionApproval => "confirm_no_production_approval",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialOperatorRunbookStep {
+    pub step: TrialOperatorRunbookStepKind,
+    pub status: TrialOperatorRunbookStepStatus,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialOperatorRunbookCurrentBlocker {
+    pub step: Option<TrialOperatorRunbookStepKind>,
+    pub workflow_step: Option<CompleteLocalOperatorWorkflowStepKind>,
+    pub workflow_error: Option<CompleteLocalOperatorWorkflowError>,
+    pub guidance: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialRunbookBoundaryStatus {
+    LocalTrialGuidanceOnly,
+    NonPublicTrialGuidance,
+    NoTrialExecution,
+    NoStopConditionAutomation,
+    NoAuthorityActivation,
+    NoReadinessApproval,
+    NoReleaseApproval,
+    NoDeploymentApproval,
+    NoPublicUseApproval,
+    NoProductionApproval,
+    NoActionExecution,
+    NoReplayRepair,
+    NoRecoveryPromotion,
+}
+
+impl TrialRunbookBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LocalTrialGuidanceOnly => "local_trial_guidance_only",
+            Self::NonPublicTrialGuidance => "non_public_trial_guidance",
+            Self::NoTrialExecution => "no_trial_execution",
+            Self::NoStopConditionAutomation => "no_stop_condition_automation",
+            Self::NoAuthorityActivation => "no_authority_activation",
+            Self::NoReadinessApproval => "no_readiness_approval",
+            Self::NoReleaseApproval => "no_release_approval",
+            Self::NoDeploymentApproval => "no_deployment_approval",
+            Self::NoPublicUseApproval => "no_public_use_approval",
+            Self::NoProductionApproval => "no_production_approval",
+            Self::NoActionExecution => "no_action_execution",
+            Self::NoReplayRepair => "no_replay_repair",
+            Self::NoRecoveryPromotion => "no_recovery_promotion",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialRunbookCapabilitySurface {
+    pub local_only: bool,
+    pub non_public: bool,
+    pub executes_trial: bool,
+    pub automates_stop_conditions: bool,
+    pub activates_authority: bool,
+    pub approves_readiness: bool,
+    pub approves_release: bool,
+    pub approves_deployment: bool,
+    pub approves_public_use: bool,
+    pub approves_production: bool,
+    pub executes_actions: bool,
+    pub repairs_replay: bool,
+    pub promotes_recovery: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum TrialFailureSeverity {
+    Info,
+    ManualAction,
+    Blocked,
+    Rejected,
+}
+
+impl TrialFailureSeverity {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::Info => "info",
+            Self::ManualAction => "manual_action",
+            Self::Blocked => "blocked",
+            Self::Rejected => "rejected",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialFailureDrillStatus {
+    NoFailuresProjected,
+    FailureDrillRequired,
+    StopConditionDrillRequired,
+}
+
+impl TrialFailureDrillStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoFailuresProjected => "no_failures_projected",
+            Self::FailureDrillRequired => "failure_drill_required",
+            Self::StopConditionDrillRequired => "stop_condition_drill_required",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialFailureCategory {
+    NoTrialPackage,
+    TrialPackageValidationFailure,
+    TrialPackageReadBackFailure,
+    MissingTrialScope,
+    MissingNamedOperator,
+    MissingNamedParticipant,
+    MissingStopConditions,
+    WorkflowBlocked,
+    WorkflowRejected,
+    ProviderPipelineBlocked,
+    ProviderOutputValidationRejected,
+    StagedValidationRejected,
+    OperatorDecisionRejected,
+    CandidateMaterializationMissing,
+    RestoreProjectionRejected,
+    ReplayStatusIncomplete,
+    EvidenceExportMissing,
+    StopConditionPresent,
+    SecurityEscalationRequired,
+    ReleaseStewardReviewRequired,
+    TrialCoordinatorReviewRequired,
+}
+
+impl TrialFailureCategory {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NoTrialPackage => "no_trial_package",
+            Self::TrialPackageValidationFailure => "trial_package_validation_failure",
+            Self::TrialPackageReadBackFailure => "trial_package_read_back_failure",
+            Self::MissingTrialScope => "missing_trial_scope",
+            Self::MissingNamedOperator => "missing_named_operator",
+            Self::MissingNamedParticipant => "missing_named_participant",
+            Self::MissingStopConditions => "missing_stop_conditions",
+            Self::WorkflowBlocked => "workflow_blocked",
+            Self::WorkflowRejected => "workflow_rejected",
+            Self::ProviderPipelineBlocked => "provider_pipeline_blocked",
+            Self::ProviderOutputValidationRejected => "provider_output_validation_rejected",
+            Self::StagedValidationRejected => "staged_validation_rejected",
+            Self::OperatorDecisionRejected => "operator_decision_rejected",
+            Self::CandidateMaterializationMissing => "candidate_materialization_missing",
+            Self::RestoreProjectionRejected => "restore_projection_rejected",
+            Self::ReplayStatusIncomplete => "replay_status_incomplete",
+            Self::EvidenceExportMissing => "evidence_export_missing",
+            Self::StopConditionPresent => "stop_condition_present",
+            Self::SecurityEscalationRequired => "security_escalation_required",
+            Self::ReleaseStewardReviewRequired => "release_steward_review_required",
+            Self::TrialCoordinatorReviewRequired => "trial_coordinator_review_required",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialFailureCategoryProjection {
+    pub category: TrialFailureCategory,
+    pub severity: TrialFailureSeverity,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialStopConditionDrill {
+    pub marker: String,
+    pub status: TrialOperatorRunbookStepStatus,
+    pub guidance: String,
+    pub enforcement_automated: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialEscalationRole {
+    TrialCoordinator,
+    SecurityReviewer,
+    ReleaseSteward,
+    OperatorManualReview,
+}
+
+impl TrialEscalationRole {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::TrialCoordinator => "trial_coordinator",
+            Self::SecurityReviewer => "security_reviewer",
+            Self::ReleaseSteward => "release_steward",
+            Self::OperatorManualReview => "operator_manual_review",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialEscalationGuidance {
+    pub role: TrialEscalationRole,
+    pub categories: Vec<TrialFailureCategory>,
+    pub guidance: String,
+    pub descriptive_only: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialFailureDrillProjection {
+    pub status: TrialFailureDrillStatus,
+    pub highest_severity: TrialFailureSeverity,
+    pub categories: Vec<TrialFailureCategoryProjection>,
+    pub stop_condition_drills: Vec<TrialStopConditionDrill>,
+    pub escalation_guidance: Vec<TrialEscalationGuidance>,
+    pub manual_action_guidance: Vec<String>,
+    pub rejection_summary: Vec<String>,
+    pub boundary_statuses: Vec<TrialRunbookBoundaryStatus>,
+    pub no_automation_note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrialOperatorRunbookProjection {
+    pub status: TrialOperatorRunbookStatus,
+    pub current_step: Option<TrialOperatorRunbookStepKind>,
+    pub current_blocker: TrialOperatorRunbookCurrentBlocker,
+    pub steps: Vec<TrialOperatorRunbookStep>,
+    pub trial_package_status: ControlledInternalTrialPackageStatus,
+    pub trial_package_id: Option<String>,
+    pub trial_package_validation_status: ControlledInternalTrialPackageValidationStatus,
+    pub trial_package_read_back_status: Option<ControlledInternalTrialPackageValidationStatus>,
+    pub trial_scope_status: TrialOperatorRunbookStepStatus,
+    pub named_operator_status: TrialOperatorRunbookStepStatus,
+    pub named_participant_status: TrialOperatorRunbookStepStatus,
+    pub stop_condition_summary: Vec<String>,
+    pub local_workflow_status: CompleteLocalOperatorWorkflowStatus,
+    pub local_candidate_materialization_status: String,
+    pub provider_output_pipeline_status: String,
+    pub replay_status_summary: String,
+    pub local_evidence_export_summary: String,
+    pub restore_history_status: String,
+    pub failure_drill: TrialFailureDrillProjection,
+    pub boundary_statuses: Vec<TrialRunbookBoundaryStatus>,
+    pub capability_surface: TrialRunbookCapabilitySurface,
+    pub local_only_non_public_note: String,
+    pub no_trial_execution_note: String,
+    pub no_authority_note: String,
+}
+
+pub fn trial_runbook_boundary_statuses() -> Vec<TrialRunbookBoundaryStatus> {
+    vec![
+        TrialRunbookBoundaryStatus::LocalTrialGuidanceOnly,
+        TrialRunbookBoundaryStatus::NonPublicTrialGuidance,
+        TrialRunbookBoundaryStatus::NoTrialExecution,
+        TrialRunbookBoundaryStatus::NoStopConditionAutomation,
+        TrialRunbookBoundaryStatus::NoAuthorityActivation,
+        TrialRunbookBoundaryStatus::NoReadinessApproval,
+        TrialRunbookBoundaryStatus::NoReleaseApproval,
+        TrialRunbookBoundaryStatus::NoDeploymentApproval,
+        TrialRunbookBoundaryStatus::NoPublicUseApproval,
+        TrialRunbookBoundaryStatus::NoProductionApproval,
+        TrialRunbookBoundaryStatus::NoActionExecution,
+        TrialRunbookBoundaryStatus::NoReplayRepair,
+        TrialRunbookBoundaryStatus::NoRecoveryPromotion,
+    ]
+}
+
+fn trial_runbook_capability_surface() -> TrialRunbookCapabilitySurface {
+    TrialRunbookCapabilitySurface {
+        local_only: true,
+        non_public: true,
+        executes_trial: false,
+        automates_stop_conditions: false,
+        activates_authority: false,
+        approves_readiness: false,
+        approves_release: false,
+        approves_deployment: false,
+        approves_public_use: false,
+        approves_production: false,
+        executes_actions: false,
+        repairs_replay: false,
+        promotes_recovery: false,
+    }
+}
+
+fn trial_package_is_invalid(package: &ControlledInternalTrialPackageProjection) -> bool {
+    package.status == ControlledInternalTrialPackageStatus::PackageRejected
+        || package.status == ControlledInternalTrialPackageStatus::InvalidPackageInput
+        || package.validation_status == ControlledInternalTrialPackageValidationStatus::Invalid
+        || package.read_back_validation_status
+            == Some(ControlledInternalTrialPackageValidationStatus::Invalid)
+}
+
+fn trial_has_named_operator(package: &ControlledInternalTrialPackageProjection) -> bool {
+    package
+        .named_operator_participant_summary
+        .iter()
+        .any(|item| item.starts_with("operator:"))
+}
+
+fn trial_has_named_participant(package: &ControlledInternalTrialPackageProjection) -> bool {
+    package
+        .named_operator_participant_summary
+        .iter()
+        .any(|item| item.starts_with("participant:"))
+}
+
+fn trial_scope_step_status(
+    package: &ControlledInternalTrialPackageProjection,
+) -> TrialOperatorRunbookStepStatus {
+    if package.trial_scope_summary == "trial scope not provided" {
+        TrialOperatorRunbookStepStatus::Blocked
+    } else {
+        TrialOperatorRunbookStepStatus::Completed
+    }
+}
+
+fn named_operator_step_status(
+    package: &ControlledInternalTrialPackageProjection,
+) -> TrialOperatorRunbookStepStatus {
+    if trial_has_named_operator(package) {
+        TrialOperatorRunbookStepStatus::Completed
+    } else {
+        TrialOperatorRunbookStepStatus::Blocked
+    }
+}
+
+fn named_participant_step_status(
+    package: &ControlledInternalTrialPackageProjection,
+) -> TrialOperatorRunbookStepStatus {
+    if trial_has_named_participant(package) {
+        TrialOperatorRunbookStepStatus::Completed
+    } else {
+        TrialOperatorRunbookStepStatus::Blocked
+    }
+}
+
+fn trial_runbook_step_order() -> Vec<TrialOperatorRunbookStepKind> {
+    vec![
+        TrialOperatorRunbookStepKind::ConfirmLocalBetaWorkflow,
+        TrialOperatorRunbookStepKind::ConfirmControlledTrialPackage,
+        TrialOperatorRunbookStepKind::ConfirmTrialScope,
+        TrialOperatorRunbookStepKind::ConfirmNamedInternalOperator,
+        TrialOperatorRunbookStepKind::ConfirmNamedTrialParticipant,
+        TrialOperatorRunbookStepKind::ReviewStopConditions,
+        TrialOperatorRunbookStepKind::ReviewCurrentBlocker,
+        TrialOperatorRunbookStepKind::ReviewFailureDrill,
+        TrialOperatorRunbookStepKind::ReviewRestoreStatus,
+        TrialOperatorRunbookStepKind::ReviewReplayStatus,
+        TrialOperatorRunbookStepKind::ReviewEvidenceExportStatus,
+        TrialOperatorRunbookStepKind::PrepareManualTrialNotes,
+        TrialOperatorRunbookStepKind::ConfirmNoPublicRelease,
+        TrialOperatorRunbookStepKind::ConfirmNoProductionApproval,
+    ]
+}
+
+pub fn classify_trial_runbook_step(
+    state: &LocalOperatorShellState,
+    step: TrialOperatorRunbookStepKind,
+) -> TrialOperatorRunbookStep {
+    let package = &state.controlled_internal_trial_package_projection;
+    let failure_drill = derive_trial_failure_drill_projection(state);
+    let (status, summary) = match step {
+        TrialOperatorRunbookStepKind::ConfirmLocalBetaWorkflow => {
+            let status = match state.complete_local_operator_workflow.status {
+                CompleteLocalOperatorWorkflowStatus::Rejected => TrialOperatorRunbookStepStatus::Rejected,
+                CompleteLocalOperatorWorkflowStatus::Blocked => TrialOperatorRunbookStepStatus::Blocked,
+                CompleteLocalOperatorWorkflowStatus::NotStarted => TrialOperatorRunbookStepStatus::ManualActionRequired,
+                _ => TrialOperatorRunbookStepStatus::Completed,
+            };
+            (status, format!("Complete local workflow status is {}.", state.complete_local_operator_workflow.status.code()))
+        }
+        TrialOperatorRunbookStepKind::ConfirmControlledTrialPackage => {
+            if package.status == ControlledInternalTrialPackageStatus::NotPackaged {
+                (TrialOperatorRunbookStepStatus::Blocked, "Controlled internal trial package is required before manual trial preparation.".to_string())
+            } else if trial_package_is_invalid(package) {
+                (TrialOperatorRunbookStepStatus::Rejected, format!("Controlled internal trial package validation is {}.", package.validation_status.code()))
+            } else {
+                (TrialOperatorRunbookStepStatus::Completed, format!("Controlled internal trial package status is {}.", package.status.code()))
+            }
+        }
+        TrialOperatorRunbookStepKind::ConfirmTrialScope => (
+            trial_scope_step_status(package),
+            format!("Trial scope: {}.", package.trial_scope_summary),
+        ),
+        TrialOperatorRunbookStepKind::ConfirmNamedInternalOperator => (
+            named_operator_step_status(package),
+            format!("Named operator metadata: {}.", package.named_operator_participant_summary.join(", ")),
+        ),
+        TrialOperatorRunbookStepKind::ConfirmNamedTrialParticipant => (
+            named_participant_step_status(package),
+            format!("Named participant metadata: {}.", package.named_operator_participant_summary.join(", ")),
+        ),
+        TrialOperatorRunbookStepKind::ReviewStopConditions => {
+            if package.stop_condition_summary.is_empty() {
+                (TrialOperatorRunbookStepStatus::Blocked, "Stop-condition markers are missing from the package projection.".to_string())
+            } else {
+                (TrialOperatorRunbookStepStatus::ManualActionRequired, format!("Review {} stop-condition drill marker(s); guidance only.", package.stop_condition_summary.len()))
+            }
+        }
+        TrialOperatorRunbookStepKind::ReviewCurrentBlocker => {
+            if let Some(blocker) = state.complete_local_operator_workflow.current_blocking_step {
+                (TrialOperatorRunbookStepStatus::ManualActionRequired, format!("Current workflow blocker is {}.", blocker.code()))
+            } else {
+                (TrialOperatorRunbookStepStatus::Completed, "No current complete-workflow blocker is projected.".to_string())
+            }
+        }
+        TrialOperatorRunbookStepKind::ReviewFailureDrill => {
+            if failure_drill.categories.is_empty() {
+                (TrialOperatorRunbookStepStatus::Completed, "No failure categories are projected.".to_string())
+            } else {
+                (TrialOperatorRunbookStepStatus::ManualActionRequired, format!("Review {} failure drill categorization(s).", failure_drill.categories.len()))
+            }
+        }
+        TrialOperatorRunbookStepKind::ReviewRestoreStatus => {
+            let status = if state.local_session_restore_projection.validation_status == LocalSessionRestoreValidationStatus::Invalid {
+                TrialOperatorRunbookStepStatus::Rejected
+            } else {
+                TrialOperatorRunbookStepStatus::Completed
+            };
+            (status, format!("Restore/history status is {} / {}.", state.local_session_restore_projection.status.code(), state.local_session_history_projection.status.code()))
+        }
+        TrialOperatorRunbookStepKind::ReviewReplayStatus => {
+            let status = if state.run.decision_replay.integrity_status == LocalDecisionReplayIntegrityStatus::Inconsistent {
+                TrialOperatorRunbookStepStatus::Rejected
+            } else if state.run.decision_replay.replay_status == LocalDecisionReplayStatus::NoDecisionRecorded {
+                TrialOperatorRunbookStepStatus::ManualActionRequired
+            } else {
+                TrialOperatorRunbookStepStatus::Completed
+            };
+            (status, format!("Replay/status projection is {} with {} integrity.", state.run.decision_replay.replay_status.code(), state.run.decision_replay.integrity_status.code()))
+        }
+        TrialOperatorRunbookStepKind::ReviewEvidenceExportStatus => {
+            let status = if state.local_session_evidence_export.export_validation_status == LocalSessionEvidenceExportValidationStatus::Incomplete {
+                TrialOperatorRunbookStepStatus::ManualActionRequired
+            } else {
+                TrialOperatorRunbookStepStatus::Completed
+            };
+            (status, format!("Local evidence export is {}.", state.local_session_evidence_export.export_status.code()))
+        }
+        TrialOperatorRunbookStepKind::PrepareManualTrialNotes => (
+            TrialOperatorRunbookStepStatus::ManualActionRequired,
+            "Prepare manual notes; this projection does not execute or authorize trial operation.".to_string(),
+        ),
+        TrialOperatorRunbookStepKind::ConfirmNoPublicRelease => (
+            TrialOperatorRunbookStepStatus::Completed,
+            "Boundary confirms no public release, publication, signing, or deployment behavior.".to_string(),
+        ),
+        TrialOperatorRunbookStepKind::ConfirmNoProductionApproval => (
+            TrialOperatorRunbookStepStatus::Completed,
+            "Boundary confirms no controlled human-use, public-use, production-use, release, deployment, or readiness approval.".to_string(),
+        ),
+    };
+    TrialOperatorRunbookStep {
+        step,
+        status,
+        summary,
+    }
+}
+
+fn add_trial_failure_category(
+    categories: &mut Vec<TrialFailureCategoryProjection>,
+    category: TrialFailureCategory,
+    severity: TrialFailureSeverity,
+    summary: String,
+) {
+    if !categories.iter().any(|entry| entry.category == category) {
+        categories.push(TrialFailureCategoryProjection {
+            category,
+            severity,
+            summary,
+        });
+    }
+}
+
+pub fn derive_trial_stop_condition_drills(
+    state: &LocalOperatorShellState,
+) -> Vec<TrialStopConditionDrill> {
+    state
+        .controlled_internal_trial_package_projection
+        .stop_condition_summary
+        .iter()
+        .map(|marker| TrialStopConditionDrill {
+            marker: marker.clone(),
+            status: TrialOperatorRunbookStepStatus::ManualActionRequired,
+            guidance: format!(
+                "If stop-condition marker {marker} is present during manual preparation, pause the local trial workflow, record notes, and involve the trial coordinator before continuing."
+            ),
+            enforcement_automated: false,
+        })
+        .collect()
+}
+
+pub fn derive_trial_escalation_guidance(
+    categories: &[TrialFailureCategoryProjection],
+) -> Vec<TrialEscalationGuidance> {
+    let has = |category| categories.iter().any(|entry| entry.category == category);
+    let mut guidance = vec![TrialEscalationGuidance {
+        role: TrialEscalationRole::OperatorManualReview,
+        categories: vec![
+            TrialFailureCategory::CandidateMaterializationMissing,
+            TrialFailureCategory::EvidenceExportMissing,
+            TrialFailureCategory::ReplayStatusIncomplete,
+        ],
+        guidance: "Operator manual review checks local notes, missing materialization, replay/status, and evidence export gaps without executing remediation.".to_string(),
+        descriptive_only: true,
+    }];
+    if has(TrialFailureCategory::ProviderPipelineBlocked)
+        || has(TrialFailureCategory::ProviderOutputValidationRejected)
+        || has(TrialFailureCategory::SecurityEscalationRequired)
+    {
+        guidance.push(TrialEscalationGuidance {
+            role: TrialEscalationRole::SecurityReviewer,
+            categories: vec![
+                TrialFailureCategory::ProviderPipelineBlocked,
+                TrialFailureCategory::ProviderOutputValidationRejected,
+                TrialFailureCategory::SecurityEscalationRequired,
+            ],
+            guidance: "Security reviewer guidance applies to provider pipeline, provider output validation, and security-sensitive rejection categories; it does not trust provider output.".to_string(),
+            descriptive_only: true,
+        });
+    }
+    if has(TrialFailureCategory::ReleaseStewardReviewRequired)
+        || categories
+            .iter()
+            .any(|entry| entry.summary.contains("release") || entry.summary.contains("deployment"))
+    {
+        guidance.push(TrialEscalationGuidance {
+            role: TrialEscalationRole::ReleaseSteward,
+            categories: vec![TrialFailureCategory::ReleaseStewardReviewRequired],
+            guidance: "Release steward guidance applies only to reviewing release/deployment/readiness claims; it does not create release or deployment artifacts.".to_string(),
+            descriptive_only: true,
+        });
+    }
+    if has(TrialFailureCategory::WorkflowBlocked)
+        || has(TrialFailureCategory::WorkflowRejected)
+        || has(TrialFailureCategory::TrialCoordinatorReviewRequired)
+        || has(TrialFailureCategory::StopConditionPresent)
+        || has(TrialFailureCategory::NoTrialPackage)
+    {
+        guidance.push(TrialEscalationGuidance {
+            role: TrialEscalationRole::TrialCoordinator,
+            categories: vec![
+                TrialFailureCategory::WorkflowBlocked,
+                TrialFailureCategory::WorkflowRejected,
+                TrialFailureCategory::TrialCoordinatorReviewRequired,
+                TrialFailureCategory::StopConditionPresent,
+                TrialFailureCategory::NoTrialPackage,
+            ],
+            guidance: "Trial coordinator guidance applies to workflow blockers, missing package preparation, and stop-condition drill review; it does not approve use authority.".to_string(),
+            descriptive_only: true,
+        });
+    }
+    guidance
+}
+
+pub fn derive_trial_failure_drill_projection(
+    state: &LocalOperatorShellState,
+) -> TrialFailureDrillProjection {
+    let mut categories = Vec::new();
+    let package = &state.controlled_internal_trial_package_projection;
+    if package.status == ControlledInternalTrialPackageStatus::NotPackaged {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::NoTrialPackage,
+            TrialFailureSeverity::Blocked,
+            "Controlled internal trial package has not been projected.".to_string(),
+        );
+    }
+    if package.validation_status == ControlledInternalTrialPackageValidationStatus::Invalid
+        || package.status == ControlledInternalTrialPackageStatus::PackageRejected
+        || package.status == ControlledInternalTrialPackageStatus::InvalidPackageInput
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::TrialPackageValidationFailure,
+            TrialFailureSeverity::Rejected,
+            format!(
+                "Trial package validation errors: {}.",
+                package.validation_errors.join(", ")
+            ),
+        );
+    }
+    if package.read_back_validation_status
+        == Some(ControlledInternalTrialPackageValidationStatus::Invalid)
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::TrialPackageReadBackFailure,
+            TrialFailureSeverity::Rejected,
+            "Trial package read-back validation is invalid.".to_string(),
+        );
+    }
+    if package.trial_scope_summary == "trial scope not provided" {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::MissingTrialScope,
+            TrialFailureSeverity::Blocked,
+            "Trial scope is missing.".to_string(),
+        );
+    }
+    if !trial_has_named_operator(package) {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::MissingNamedOperator,
+            TrialFailureSeverity::Blocked,
+            "Named internal operator metadata is missing.".to_string(),
+        );
+    }
+    if !trial_has_named_participant(package) {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::MissingNamedParticipant,
+            TrialFailureSeverity::Blocked,
+            "Named trial participant metadata is missing.".to_string(),
+        );
+    }
+    if package.stop_condition_summary.is_empty() {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::MissingStopConditions,
+            TrialFailureSeverity::Blocked,
+            "Stop-condition markers are missing.".to_string(),
+        );
+    } else {
+        add_trial_failure_category(&mut categories, TrialFailureCategory::StopConditionPresent, TrialFailureSeverity::ManualAction, "Stop-condition drill markers are present for operator review; enforcement is guidance only.".to_string());
+    }
+    match state.complete_local_operator_workflow.status {
+        CompleteLocalOperatorWorkflowStatus::Blocked => add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::WorkflowBlocked,
+            TrialFailureSeverity::Blocked,
+            format!(
+                "Workflow is blocked at {}.",
+                state
+                    .complete_local_operator_workflow
+                    .current_blocking_step
+                    .map(|step| step.code())
+                    .unwrap_or("unknown")
+            ),
+        ),
+        CompleteLocalOperatorWorkflowStatus::Rejected => add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::WorkflowRejected,
+            TrialFailureSeverity::Rejected,
+            format!(
+                "Workflow rejection summary: {}.",
+                state
+                    .complete_local_operator_workflow
+                    .rejection_reasons
+                    .join(", ")
+            ),
+        ),
+        _ => {}
+    }
+    match state.local_provider_output_pipeline.status {
+        LocalProviderOutputPipelineValidationStatus::Blocked => add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::ProviderPipelineBlocked,
+            TrialFailureSeverity::Blocked,
+            "Provider output pipeline is blocked.".to_string(),
+        ),
+        LocalProviderOutputPipelineValidationStatus::Rejected => add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::ProviderPipelineBlocked,
+            TrialFailureSeverity::Rejected,
+            "Provider output pipeline is rejected.".to_string(),
+        ),
+        _ => {}
+    }
+    if state.provider_output_validation.status == LocalProviderOutputValidationStatus::Rejected {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::ProviderOutputValidationRejected,
+            TrialFailureSeverity::Rejected,
+            "Provider output validation is rejected.".to_string(),
+        );
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::SecurityEscalationRequired,
+            TrialFailureSeverity::ManualAction,
+            "Provider output validation rejection requires security-review guidance.".to_string(),
+        );
+    }
+    if state.staged_candidate_conversion_validation.status
+        == StagedCandidateConversionValidationStatus::RejectedStagedProposal
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::StagedValidationRejected,
+            TrialFailureSeverity::Rejected,
+            "Staged proposal validation is rejected.".to_string(),
+        );
+    }
+    if state.operator_candidate_decision.status
+        == OperatorCandidateDecisionStatus::RejectedValidatedStagedProposal
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::OperatorDecisionRejected,
+            TrialFailureSeverity::ManualAction,
+            "Operator decision recorded a rejection of the validated staged proposal.".to_string(),
+        );
+    }
+    if state.local_candidate_output.status == LocalCandidateMaterializationStatus::NotMaterialized {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::CandidateMaterializationMissing,
+            TrialFailureSeverity::ManualAction,
+            "Local candidate materialization is missing.".to_string(),
+        );
+    }
+    if state.local_session_restore_projection.validation_status
+        == LocalSessionRestoreValidationStatus::Invalid
+        || state.local_session_restore_projection.status
+            == LocalSessionRestoreStatus::RestoreRejected
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::RestoreProjectionRejected,
+            TrialFailureSeverity::Rejected,
+            "Restore/history projection is rejected or invalid.".to_string(),
+        );
+    }
+    if state.run.decision_replay.integrity_status
+        == LocalDecisionReplayIntegrityStatus::Inconsistent
+        || state.run.decision_replay.replay_status == LocalDecisionReplayStatus::NoDecisionRecorded
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::ReplayStatusIncomplete,
+            TrialFailureSeverity::ManualAction,
+            format!(
+                "Replay/status projection is {}.",
+                state.run.decision_replay.replay_status.code()
+            ),
+        );
+    }
+    if state.local_session_evidence_export.export_validation_status
+        == LocalSessionEvidenceExportValidationStatus::Incomplete
+    {
+        add_trial_failure_category(
+            &mut categories,
+            TrialFailureCategory::EvidenceExportMissing,
+            TrialFailureSeverity::ManualAction,
+            "Local evidence export is incomplete.".to_string(),
+        );
+    }
+    if package.validation_errors.iter().any(|error| {
+        error.contains("release")
+            || error.contains("deployment")
+            || error.contains("readiness")
+            || error.contains("public")
+            || error.contains("production")
+    }) {
+        add_trial_failure_category(&mut categories, TrialFailureCategory::ReleaseStewardReviewRequired, TrialFailureSeverity::ManualAction, "Package contains release/deployment/readiness/public/production-use claim rejection summary.".to_string());
+    }
+    if state
+        .complete_local_operator_workflow
+        .current_blocking_step
+        .is_some()
+    {
+        add_trial_failure_category(&mut categories, TrialFailureCategory::TrialCoordinatorReviewRequired, TrialFailureSeverity::ManualAction, "Workflow blocker requires trial coordinator guidance before manual preparation continues.".to_string());
+    }
+    let highest_severity = categories
+        .iter()
+        .map(|entry| entry.severity)
+        .max()
+        .unwrap_or(TrialFailureSeverity::Info);
+    let stop_condition_drills = derive_trial_stop_condition_drills(state);
+    let status = if categories
+        .iter()
+        .any(|entry| entry.category == TrialFailureCategory::StopConditionPresent)
+    {
+        TrialFailureDrillStatus::StopConditionDrillRequired
+    } else if categories.is_empty() {
+        TrialFailureDrillStatus::NoFailuresProjected
+    } else {
+        TrialFailureDrillStatus::FailureDrillRequired
+    };
+    let manual_action_guidance = categories
+        .iter()
+        .filter(|entry| {
+            entry.severity == TrialFailureSeverity::ManualAction
+                || entry.severity == TrialFailureSeverity::Blocked
+        })
+        .map(|entry| {
+            format!(
+                "{}: review manually; no remediation is executed.",
+                entry.category.code()
+            )
+        })
+        .collect::<Vec<_>>();
+    let rejection_summary = categories
+        .iter()
+        .filter(|entry| entry.severity == TrialFailureSeverity::Rejected)
+        .map(|entry| format!("{}: {}", entry.category.code(), entry.summary))
+        .collect::<Vec<_>>();
+    let escalation_guidance = derive_trial_escalation_guidance(&categories);
+    TrialFailureDrillProjection {
+        status,
+        highest_severity,
+        categories,
+        stop_condition_drills,
+        escalation_guidance,
+        manual_action_guidance,
+        rejection_summary,
+        boundary_statuses: trial_runbook_boundary_statuses(),
+        no_automation_note:
+            "Stop conditions are guidance only; enforcement is not automated in Phase 162."
+                .to_string(),
+    }
+}
+
+pub fn derive_trial_operator_runbook_projection(
+    state: &LocalOperatorShellState,
+) -> TrialOperatorRunbookProjection {
+    let steps = trial_runbook_step_order()
+        .into_iter()
+        .map(|step| classify_trial_runbook_step(state, step))
+        .collect::<Vec<_>>();
+    let current_step = steps
+        .iter()
+        .find(|step| step.status != TrialOperatorRunbookStepStatus::Completed)
+        .map(|step| step.step);
+    let current_blocker_step = steps
+        .iter()
+        .find(|step| {
+            matches!(
+                step.status,
+                TrialOperatorRunbookStepStatus::Blocked | TrialOperatorRunbookStepStatus::Rejected
+            )
+        })
+        .map(|step| step.step);
+    let current_blocker = TrialOperatorRunbookCurrentBlocker {
+        step: current_blocker_step,
+        workflow_step: state.complete_local_operator_workflow.current_blocking_step,
+        workflow_error: state.complete_local_operator_workflow.current_error,
+        guidance: match (current_blocker_step, state.complete_local_operator_workflow.current_blocking_step) {
+            (Some(step), Some(workflow_step)) => format!("Current blocker guidance: review runbook step {} and workflow step {}; manual action only.", step.code(), workflow_step.code()),
+            (Some(step), None) => format!("Current blocker guidance: review runbook step {}; manual action only.", step.code()),
+            (None, Some(workflow_step)) => format!("Current blocker guidance: review workflow step {}; manual action only.", workflow_step.code()),
+            (None, None) => "Current blocker guidance: no blocking step is projected; continue manual review without executing trial authority.".to_string(),
+        },
+    };
+    let failure_drill = derive_trial_failure_drill_projection(state);
+    let package = &state.controlled_internal_trial_package_projection;
+    let status = if package.status == ControlledInternalTrialPackageStatus::NotPackaged {
+        TrialOperatorRunbookStatus::TrialPackageRequired
+    } else if trial_package_is_invalid(package) || current_blocker_step.is_some() {
+        TrialOperatorRunbookStatus::Blocked
+    } else if !failure_drill.categories.is_empty() {
+        TrialOperatorRunbookStatus::FailureDrillRequired
+    } else if steps
+        .iter()
+        .any(|step| step.status == TrialOperatorRunbookStepStatus::ManualActionRequired)
+    {
+        TrialOperatorRunbookStatus::TrialOperatorRunbookProjected
+    } else {
+        TrialOperatorRunbookStatus::ReadyForManualTrialPreparation
+    };
+    TrialOperatorRunbookProjection {
+        status,
+        current_step,
+        current_blocker,
+        steps,
+        trial_package_status: package.status,
+        trial_package_id: package.package_id.clone(),
+        trial_package_validation_status: package.validation_status,
+        trial_package_read_back_status: package.read_back_validation_status,
+        trial_scope_status: trial_scope_step_status(package),
+        named_operator_status: named_operator_step_status(package),
+        named_participant_status: named_participant_step_status(package),
+        stop_condition_summary: package.stop_condition_summary.clone(),
+        local_workflow_status: state.complete_local_operator_workflow.status,
+        local_candidate_materialization_status: state.local_candidate_output.status.code().to_string(),
+        provider_output_pipeline_status: state.local_provider_output_pipeline.status.code().to_string(),
+        replay_status_summary: state.run.decision_replay.summary.clone(),
+        local_evidence_export_summary: state.local_session_evidence_export.summary.clone(),
+        restore_history_status: format!("{} / {}", state.local_session_restore_projection.status.code(), state.local_session_history_projection.status.code()),
+        failure_drill,
+        boundary_statuses: trial_runbook_boundary_statuses(),
+        capability_surface: trial_runbook_capability_surface(),
+        local_only_non_public_note: "Trial operator runbook is local-only and non-public.".to_string(),
+        no_trial_execution_note: "This runbook does not start a controlled trial.".to_string(),
+        no_authority_note: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.".to_string(),
+    }
+}
+
+pub fn initial_trial_failure_drill_projection() -> TrialFailureDrillProjection {
+    TrialFailureDrillProjection {
+        status: TrialFailureDrillStatus::NoFailuresProjected,
+        highest_severity: TrialFailureSeverity::Info,
+        categories: Vec::new(),
+        stop_condition_drills: Vec::new(),
+        escalation_guidance: Vec::new(),
+        manual_action_guidance: Vec::new(),
+        rejection_summary: Vec::new(),
+        boundary_statuses: trial_runbook_boundary_statuses(),
+        no_automation_note:
+            "Stop conditions are guidance only; enforcement is not automated in Phase 162."
+                .to_string(),
+    }
+}
+
+pub fn initial_trial_operator_runbook_projection() -> TrialOperatorRunbookProjection {
+    TrialOperatorRunbookProjection {
+        status: TrialOperatorRunbookStatus::NotAvailable,
+        current_step: None,
+        current_blocker: TrialOperatorRunbookCurrentBlocker {
+            step: None,
+            workflow_step: None,
+            workflow_error: None,
+            guidance: "Current blocker guidance: projection not yet derived.".to_string(),
+        },
+        steps: Vec::new(),
+        trial_package_status: ControlledInternalTrialPackageStatus::NotPackaged,
+        trial_package_id: None,
+        trial_package_validation_status: ControlledInternalTrialPackageValidationStatus::NotValidated,
+        trial_package_read_back_status: None,
+        trial_scope_status: TrialOperatorRunbookStepStatus::NotStarted,
+        named_operator_status: TrialOperatorRunbookStepStatus::NotStarted,
+        named_participant_status: TrialOperatorRunbookStepStatus::NotStarted,
+        stop_condition_summary: Vec::new(),
+        local_workflow_status: CompleteLocalOperatorWorkflowStatus::NotStarted,
+        local_candidate_materialization_status: "not_materialized".to_string(),
+        provider_output_pipeline_status: "not_projected".to_string(),
+        replay_status_summary: "not projected".to_string(),
+        local_evidence_export_summary: "not projected".to_string(),
+        restore_history_status: "not projected".to_string(),
+        failure_drill: initial_trial_failure_drill_projection(),
+        boundary_statuses: trial_runbook_boundary_statuses(),
+        capability_surface: trial_runbook_capability_surface(),
+        local_only_non_public_note: "Trial operator runbook is local-only and non-public.".to_string(),
+        no_trial_execution_note: "This runbook does not start a controlled trial.".to_string(),
+        no_authority_note: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.".to_string(),
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalOperatorShellState {
     pub harness_status: String,
@@ -10160,6 +11178,8 @@ pub struct LocalOperatorShellState {
     pub local_session_restore_projection: LocalSessionRestoreProjection,
     pub controlled_internal_trial_package_projection: ControlledInternalTrialPackageProjection,
     pub complete_local_operator_workflow: CompleteLocalOperatorWorkflowProjection,
+    pub trial_operator_runbook: TrialOperatorRunbookProjection,
+    pub trial_failure_drill: TrialFailureDrillProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -10315,6 +11335,8 @@ fn attach_local_session_evidence_export(
     state.local_session_evidence_export = project_local_session_evidence_export(&state);
     state.complete_local_operator_workflow =
         derive_complete_local_operator_workflow_projection(&state);
+    state.trial_failure_drill = derive_trial_failure_drill_projection(&state);
+    state.trial_operator_runbook = derive_trial_operator_runbook_projection(&state);
     state
 }
 
@@ -10393,10 +11415,14 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         controlled_internal_trial_package_projection:
             initial_controlled_internal_trial_package_projection(),
         complete_local_operator_workflow: initial_complete_local_operator_workflow_projection(),
+        trial_operator_runbook: initial_trial_operator_runbook_projection(),
+        trial_failure_drill: initial_trial_failure_drill_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
         derive_complete_local_operator_workflow_projection(&state);
+    state.trial_failure_drill = derive_trial_failure_drill_projection(&state);
+    state.trial_operator_runbook = derive_trial_operator_runbook_projection(&state);
     state
 }
 
@@ -15528,5 +16554,244 @@ mod tests {
             .unwrap_err()
             .contains(&ControlledInternalTrialPackageValidationError::MalformedPackageInput));
         std::fs::remove_file(&path).unwrap();
+    }
+
+    fn phase_162_state_with_package(
+        mut package: ControlledInternalTrialPackage,
+    ) -> LocalOperatorShellState {
+        package.metadata.package_status = ControlledInternalTrialPackageStatus::PackageValidated;
+        let mut state = initial_local_operator_shell_state();
+        state.controlled_internal_trial_package_projection =
+            project_controlled_internal_trial_package_status(
+                Some(&package),
+                Some(ControlledInternalTrialPackageValidationStatus::Valid),
+            );
+        attach_local_session_evidence_export(state)
+    }
+
+    #[test]
+    fn phase_162_initial_runbook_and_failure_drill_are_projected_and_deterministic() {
+        let state = initial_local_operator_shell_state();
+        assert_eq!(
+            state.trial_operator_runbook,
+            derive_trial_operator_runbook_projection(&state)
+        );
+        assert_eq!(
+            state.trial_failure_drill,
+            derive_trial_failure_drill_projection(&state)
+        );
+        assert_eq!(
+            derive_trial_operator_runbook_projection(&state),
+            derive_trial_operator_runbook_projection(&state)
+        );
+        assert_eq!(
+            derive_trial_failure_drill_projection(&state),
+            derive_trial_failure_drill_projection(&state)
+        );
+        assert_eq!(
+            state.trial_operator_runbook.status,
+            TrialOperatorRunbookStatus::TrialPackageRequired
+        );
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::NoTrialPackage));
+        assert!(state
+            .trial_operator_runbook
+            .boundary_statuses
+            .contains(&TrialRunbookBoundaryStatus::LocalTrialGuidanceOnly));
+        assert!(state
+            .trial_operator_runbook
+            .boundary_statuses
+            .contains(&TrialRunbookBoundaryStatus::NoTrialExecution));
+        assert!(
+            !state
+                .trial_operator_runbook
+                .capability_surface
+                .executes_trial
+        );
+        assert!(
+            !state
+                .trial_operator_runbook
+                .capability_surface
+                .activates_authority
+        );
+    }
+
+    #[test]
+    fn phase_162_valid_package_exposes_package_state_steps_and_stop_drill() {
+        let state = phase_162_state_with_package(phase_161_trial_package());
+        let runbook = &state.trial_operator_runbook;
+        assert_eq!(
+            runbook.trial_package_id,
+            state
+                .controlled_internal_trial_package_projection
+                .package_id
+        );
+        assert_eq!(
+            runbook.trial_package_validation_status,
+            ControlledInternalTrialPackageValidationStatus::Valid
+        );
+        assert_eq!(
+            runbook.trial_scope_status,
+            TrialOperatorRunbookStepStatus::Completed
+        );
+        assert_eq!(
+            runbook.named_operator_status,
+            TrialOperatorRunbookStepStatus::Completed
+        );
+        assert_eq!(
+            runbook.named_participant_status,
+            TrialOperatorRunbookStepStatus::Completed
+        );
+        assert_eq!(
+            runbook.stop_condition_summary,
+            required_controlled_internal_trial_stop_conditions()
+                .into_iter()
+                .map(|condition| condition.code().to_string())
+                .collect::<Vec<_>>()
+        );
+        assert!(runbook
+            .steps
+            .iter()
+            .any(|step| step.step == TrialOperatorRunbookStepKind::ReviewStopConditions));
+        assert!(state
+            .trial_failure_drill
+            .stop_condition_drills
+            .iter()
+            .all(|drill| !drill.enforcement_automated));
+    }
+
+    #[test]
+    fn phase_162_missing_or_rejected_package_metadata_blocks_runbook() {
+        let mut missing_scope = phase_161_trial_package();
+        missing_scope.payload.trial_scope = None;
+        let state = phase_162_state_with_package(missing_scope);
+        assert_eq!(
+            state.trial_operator_runbook.trial_scope_status,
+            TrialOperatorRunbookStepStatus::Blocked
+        );
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::MissingTrialScope));
+
+        let mut missing_operator = phase_161_trial_package();
+        missing_operator.payload.named_internal_operators.clear();
+        let state = phase_162_state_with_package(missing_operator);
+        assert_eq!(
+            state.trial_operator_runbook.named_operator_status,
+            TrialOperatorRunbookStepStatus::Blocked
+        );
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::MissingNamedOperator));
+
+        let mut missing_participant = phase_161_trial_package();
+        missing_participant.payload.trial_participants.clear();
+        let state = phase_162_state_with_package(missing_participant);
+        assert_eq!(
+            state.trial_operator_runbook.named_participant_status,
+            TrialOperatorRunbookStepStatus::Blocked
+        );
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::MissingNamedParticipant));
+
+        let mut missing_stop = phase_161_trial_package();
+        missing_stop.payload.stop_conditions.clear();
+        let state = phase_162_state_with_package(missing_stop);
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::MissingStopConditions));
+    }
+
+    #[test]
+    fn phase_162_failure_drill_classifies_workflow_provider_restore_and_read_back() {
+        let mut state = phase_162_state_with_package(phase_161_trial_package());
+        state.local_provider_output_pipeline.status =
+            LocalProviderOutputPipelineValidationStatus::Rejected;
+        state.provider_output_validation.status = LocalProviderOutputValidationStatus::Rejected;
+        state.local_session_restore_projection.status = LocalSessionRestoreStatus::RestoreRejected;
+        state.local_session_restore_projection.validation_status =
+            LocalSessionRestoreValidationStatus::Invalid;
+        state
+            .controlled_internal_trial_package_projection
+            .read_back_validation_status =
+            Some(ControlledInternalTrialPackageValidationStatus::Invalid);
+        state.complete_local_operator_workflow =
+            derive_complete_local_operator_workflow_projection(&state);
+        state.trial_failure_drill = derive_trial_failure_drill_projection(&state);
+        for expected in [
+            TrialFailureCategory::ProviderPipelineBlocked,
+            TrialFailureCategory::ProviderOutputValidationRejected,
+            TrialFailureCategory::SecurityEscalationRequired,
+            TrialFailureCategory::RestoreProjectionRejected,
+            TrialFailureCategory::TrialPackageReadBackFailure,
+        ] {
+            assert!(
+                state
+                    .trial_failure_drill
+                    .categories
+                    .iter()
+                    .any(|entry| entry.category == expected),
+                "missing {expected:?}"
+            );
+        }
+        assert!(state
+            .trial_failure_drill
+            .escalation_guidance
+            .iter()
+            .any(|guidance| guidance.role == TrialEscalationRole::SecurityReviewer));
+    }
+
+    #[test]
+    fn phase_162_release_claim_failure_gets_release_steward_guidance() {
+        let mut state = phase_162_state_with_package(phase_161_trial_package());
+        state
+            .controlled_internal_trial_package_projection
+            .validation_errors
+            .push("release_deployment_readiness_public_production_claim_rejected".to_string());
+        state.trial_failure_drill = derive_trial_failure_drill_projection(&state);
+        assert!(state
+            .trial_failure_drill
+            .categories
+            .iter()
+            .any(|entry| entry.category == TrialFailureCategory::ReleaseStewardReviewRequired));
+        assert!(state
+            .trial_failure_drill
+            .escalation_guidance
+            .iter()
+            .any(|guidance| guidance.role == TrialEscalationRole::ReleaseSteward));
+    }
+
+    #[test]
+    fn phase_162_projection_does_not_mutate_shell_state_or_enable_authority() {
+        let state = phase_162_state_with_package(phase_161_trial_package());
+        let before = state.clone();
+        let runbook = derive_trial_operator_runbook_projection(&state);
+        let drill = derive_trial_failure_drill_projection(&state);
+        assert_eq!(state, before);
+        assert!(!runbook.capability_surface.executes_trial);
+        assert!(!runbook.capability_surface.approves_readiness);
+        assert!(!runbook.capability_surface.approves_release);
+        assert!(!runbook.capability_surface.approves_deployment);
+        assert!(!runbook.capability_surface.approves_public_use);
+        assert!(!runbook.capability_surface.approves_production);
+        assert!(!runbook.capability_surface.executes_actions);
+        assert!(!runbook.capability_surface.repairs_replay);
+        assert!(!runbook.capability_surface.promotes_recovery);
+        assert!(drill
+            .escalation_guidance
+            .iter()
+            .all(|guidance| guidance.descriptive_only));
     }
 }

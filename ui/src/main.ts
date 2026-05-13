@@ -564,6 +564,77 @@ function renderLocalSessionRestore(state: LocalOperatorShellState): string {
     <p class="muted">${restore.remoteBackgroundNote}</p>`;
 }
 
+
+function renderTrialOperatorRunbook(state: LocalOperatorShellState): string {
+  const runbook = state.trialOperatorRunbook;
+  const steps = runbook.steps
+    .map((step) => `<li><strong>${step.step}</strong>: ${step.status}<br /><span class="muted">${step.summary}</span></li>`)
+    .join("");
+  return `
+    <dl>
+      <div><dt>Runbook status</dt><dd>${runbook.status}</dd></div>
+      <div><dt>Current runbook step</dt><dd>${runbook.currentStep ?? "none"}</dd></div>
+      <div><dt>Current blocker</dt><dd>${runbook.currentBlocker.step ?? "none"}</dd></div>
+      <div><dt>Current blocker guidance</dt><dd>${runbook.currentBlocker.guidance}</dd></div>
+      <div><dt>Trial package status</dt><dd>${runbook.trialPackageStatus}</dd></div>
+      <div><dt>Trial package ID</dt><dd>${runbook.trialPackageId ?? "none"}</dd></div>
+      <div><dt>Package validation/read-back</dt><dd>${runbook.trialPackageValidationStatus} / ${runbook.trialPackageReadBackStatus ?? "not_read"}</dd></div>
+      <div><dt>Trial scope status</dt><dd>${runbook.trialScopeStatus}</dd></div>
+      <div><dt>Named operator/participant status</dt><dd>${runbook.namedOperatorStatus} / ${runbook.namedParticipantStatus}</dd></div>
+      <div><dt>Stop-condition summary</dt><dd>${runbook.stopConditionSummary.join(", ") || "none"}</dd></div>
+      <div><dt>Workflow status</dt><dd>${runbook.localWorkflowStatus}</dd></div>
+      <div><dt>Candidate materialization status</dt><dd>${runbook.localCandidateMaterializationStatus}</dd></div>
+      <div><dt>Provider output pipeline status</dt><dd>${runbook.providerOutputPipelineStatus}</dd></div>
+      <div><dt>Replay/status summary</dt><dd>${runbook.replayStatusSummary}</dd></div>
+      <div><dt>Evidence export summary</dt><dd>${runbook.localEvidenceExportSummary}</dd></div>
+      <div><dt>Restore/history status</dt><dd>${runbook.restoreHistoryStatus}</dd></div>
+      <div><dt>Boundary markers</dt><dd>${runbook.boundaryStatuses.join(", ")}</dd></div>
+    </dl>
+    <h3>Ordered runbook steps</h3>
+    <ol>${steps}</ol>
+    <p class="muted">${runbook.localOnlyNonPublicNote}</p>
+    <p class="muted">${runbook.noTrialExecutionNote}</p>
+    <p class="muted">${runbook.noAuthorityNote}</p>`;
+}
+
+function renderTrialFailureDrill(state: LocalOperatorShellState): string {
+  const drill = state.trialFailureDrill;
+  const categories = drill.categories.length === 0
+    ? `<p class="muted">No failure categories projected.</p>`
+    : `<ul>${drill.categories.map((entry) => `<li><strong>${entry.category}</strong>: ${entry.severity}<br /><span class="muted">${entry.summary}</span></li>`).join("")}</ul>`;
+  return `
+    <dl>
+      <div><dt>Failure drill status</dt><dd>${drill.status}</dd></div>
+      <div><dt>Failure severity</dt><dd>${drill.highestSeverity}</dd></div>
+      <div><dt>Manual action guidance</dt><dd>${drill.manualActionGuidance.join(" | ") || "none"}</dd></div>
+      <div><dt>Rejection summary</dt><dd>${drill.rejectionSummary.join(" | ") || "none"}</dd></div>
+      <div><dt>Boundary markers</dt><dd>${drill.boundaryStatuses.join(", ")}</dd></div>
+    </dl>
+    <h3>Failure category list</h3>
+    ${categories}
+    <p class="muted">${drill.noAutomationNote}</p>`;
+}
+
+function renderStopConditionDrill(state: LocalOperatorShellState): string {
+  const drills = state.trialFailureDrill.stopConditionDrills;
+  const entries = drills.length === 0
+    ? `<p class="muted">No stop-condition drill markers are projected.</p>`
+    : `<ul>${drills.map((entry) => `<li><strong>${entry.marker}</strong>: ${entry.status}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Automated enforcement: ${entry.enforcementAutomated}</span></li>`).join("")}</ul>`;
+  return `
+    ${entries}
+    <p class="muted">Stop conditions are guidance only; enforcement is not automated in Phase 162.</p>`;
+}
+
+function renderEscalationGuidance(state: LocalOperatorShellState): string {
+  const guidance = state.trialFailureDrill.escalationGuidance;
+  const entries = guidance.length === 0
+    ? `<p class="muted">No escalation guidance projected.</p>`
+    : `<ul>${guidance.map((entry) => `<li><strong>${entry.role}</strong>: ${entry.categories.join(", ")}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Descriptive only: ${entry.descriptiveOnly}</span></li>`).join("")}</ul>`;
+  return `
+    ${entries}
+    <p class="muted">Escalation guidance is descriptive only and does not activate authority.</p>`;
+}
+
 function renderReplayProjection(state: LocalOperatorShellState): string {
   const replay = state.run.decisionReplay;
   return `
@@ -622,6 +693,26 @@ function render(): void {
       <section class="panel workflow-panel" aria-label="Complete local operator workflow">
         <h2>Complete local operator workflow</h2>
         ${renderCompleteLocalOperatorWorkflow(shellState.completeLocalOperatorWorkflow)}
+      </section>
+
+      <section class="panel" aria-label="Trial operator runbook">
+        <h2>Trial operator runbook</h2>
+        ${renderTrialOperatorRunbook(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Trial failure drill">
+        <h2>Trial failure drill</h2>
+        ${renderTrialFailureDrill(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Stop-condition drill">
+        <h2>Stop-condition drill</h2>
+        ${renderStopConditionDrill(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Escalation guidance">
+        <h2>Escalation guidance</h2>
+        ${renderEscalationGuidance(shellState)}
       </section>
 
       <section class="local-shell__grid" aria-label="AJENTIC local operator workflow">

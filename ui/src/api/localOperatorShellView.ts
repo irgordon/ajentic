@@ -75,6 +75,44 @@ export function renderLocalOperatorShellSnapshot(
     "This package does not approve controlled human use.",
   ].join("\n");
 
+
+  const runbook = state.trialOperatorRunbook;
+  const runbookLines = [
+    `Runbook status: ${runbook.status}`,
+    `Current runbook step: ${runbook.currentStep ?? "none"}`,
+    `Current blocker: ${runbook.currentBlocker.step ?? "none"}`,
+    `Current blocker guidance: ${runbook.currentBlocker.guidance}`,
+    `Trial package status: ${runbook.trialPackageStatus}`,
+    `Trial package ID: ${runbook.trialPackageId ?? "none"}`,
+    `Trial package validation/read-back: ${runbook.trialPackageValidationStatus} / ${runbook.trialPackageReadBackStatus ?? "not_read"}`,
+    `Trial scope status: ${runbook.trialScopeStatus}`,
+    `Named operator/participant status: ${runbook.namedOperatorStatus} / ${runbook.namedParticipantStatus}`,
+    `Stop-condition summary: ${runbook.stopConditionSummary.join(", ") || "none"}`,
+    `Local candidate materialization status: ${runbook.localCandidateMaterializationStatus}`,
+    `Provider output pipeline status: ${runbook.providerOutputPipelineStatus}`,
+    `Replay/status summary: ${runbook.replayStatusSummary}`,
+    `Local evidence export summary: ${runbook.localEvidenceExportSummary}`,
+    `Restore/history status: ${runbook.restoreHistoryStatus}`,
+    `Ordered runbook steps: ${runbook.steps.map((step) => `${step.step}=${step.status}`).join(", ")}`,
+    `Boundary markers: ${runbook.boundaryStatuses.join(", ")}`,
+    runbook.localOnlyNonPublicNote,
+    runbook.noTrialExecutionNote,
+    runbook.noAuthorityNote,
+  ].join("\n");
+
+  const failureDrill = state.trialFailureDrill;
+  const failureDrillLines = [
+    `Failure drill status: ${failureDrill.status}`,
+    `Failure severity: ${failureDrill.highestSeverity}`,
+    `Failure category list: ${failureDrill.categories.map((entry) => `${entry.category}=${entry.severity}`).join(", ") || "none"}`,
+    `Manual action guidance: ${failureDrill.manualActionGuidance.join(" | ") || "none"}`,
+    `Rejection summary: ${failureDrill.rejectionSummary.join(" | ") || "none"}`,
+    `Stop-condition drill: ${failureDrill.stopConditionDrills.map((entry) => `${entry.marker}=${entry.status}`).join(", ") || "none"}`,
+    `Escalation guidance: ${failureDrill.escalationGuidance.map((entry) => `${entry.role}:${entry.categories.join("/")}`).join(", ") || "none"}`,
+    failureDrill.noAutomationNote,
+    "Escalation guidance is descriptive only and does not activate authority.",
+  ].join("\n");
+
   const workflow = state.completeLocalOperatorWorkflow;
   const workflowLines = [
     `Workflow status: ${workflow.status}`,
@@ -400,6 +438,14 @@ export function renderLocalOperatorShellSnapshot(
     `Run status: ${state.run.status}`,
     "Complete local operator workflow",
     workflowLines,
+    "Trial operator runbook",
+    runbookLines,
+    "Trial failure drill",
+    failureDrillLines,
+    "Stop-condition drill",
+    failureDrillLines,
+    "Escalation guidance",
+    failureDrillLines,
     "Controlled internal trial package",
     trialPackageLines,
     "Left panel: Run history / timeline",
