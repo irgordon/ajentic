@@ -38,7 +38,8 @@ echo "Running Python compile checks..."
 PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/bootstrap_repo.py \
   scripts/validate_structure.py \
-  scripts/validate_docs.py
+  scripts/validate_docs.py \
+  scripts/check_help_pages.py
 require_clean_worktree "Python compile checks"
 echo "  Python OK"
 
@@ -49,6 +50,10 @@ echo "  structure OK"
 echo "Running documentation boundary validation..."
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py
 echo "  docs OK"
+
+echo "Running local help page validation..."
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_help_pages.py
+echo "  help pages OK"
 
 echo "Running schema validation..."
 while IFS= read -r -d "" schema_file; do

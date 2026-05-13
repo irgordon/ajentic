@@ -7,6 +7,7 @@ import {
 } from "./localOperatorShell";
 import { renderProviderOutputReviewText } from "./providerOutputReview";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
+import { renderLocalHelpEntryText } from "../app/help";
 
 export function renderLocalOperatorShellSnapshot(
   state: LocalOperatorShellState,
@@ -598,6 +599,7 @@ export function renderLocalOperatorShellSnapshot(
     "AJENTIC local operator shell - non-production",
     `Harness status: ${state.harnessStatus}`,
     `Run status: ${state.run.status}`,
+    renderLocalHelpEntryText(),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
