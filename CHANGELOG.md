@@ -28,6 +28,32 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.170.5 - 2026-05-13
+**Status:** Phase 170.5 - Out-of-Band Rust Surface Maintainability Audit
+
+### Added
+- Add the Phase 170.5 Rust maintainability audit identifying oversized Rust files, monolithic functions, deep nesting, transport/projection/validation accumulation, stale surfaces, repeated patterns, and extraction candidates before Phase 171.
+
+### Changed
+- Update checklists/current-phase.md to Phase 170.5 procedural truth.
+
+### Notes
+- Out-of-band maintenance audit only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No refactor implementation.
+- No Phase 171 implementation.
+- No release-candidate preparation behavior.
+- No release artifact creation.
+- No deployment behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
+- Phase 171 remains the next planned code-production phase after this audit.
+
 ## v0.0.170 - 2026-05-13
 **Status:** Phase 170 - Production-Path Alignment Checkpoint
 
