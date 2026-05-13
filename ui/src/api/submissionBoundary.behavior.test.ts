@@ -3488,6 +3488,88 @@ function assertLocalSessionPackageProjectionIsStableAcrossRenderingState(): void
   );
 }
 
+
+function assertControlledInternalTrialPackageProjectionInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const projection = state.controlledInternalTrialPackageProjection;
+  assertEqual(projection.status, "not_packaged", "initial trial package status");
+  assertEqual(projection.packageId, null, "initial trial package id");
+  assertEqual(
+    projection.packageClassification,
+    "controlled_internal_trial_package_only",
+    "trial package classification",
+  );
+  assertEqual(
+    projection.productionClassification,
+    "non_production",
+    "trial package production classification",
+  );
+  assertEqual(
+    projection.distributionClassification,
+    "local_only_non_public",
+    "trial package distribution classification",
+  );
+  assertContains(
+    projection.localOnlyNonPublicNote,
+    "Controlled internal trial package is local-only and non-public.",
+    "trial local-only/non-public boundary note",
+  );
+  assertContains(
+    projection.releaseBoundaryNote,
+    "This package is not a release artifact.",
+    "trial release boundary note",
+  );
+  assertContains(
+    projection.deploymentReadinessBoundaryNote,
+    "This package is not deployment or readiness evidence.",
+    "trial deployment readiness boundary note",
+  );
+  assertContains(
+    projection.publicProductionBoundaryNote,
+    "This package does not approve public/general use or production use.",
+    "trial public production boundary note",
+  );
+  assertContains(
+    projection.stopConditionNote,
+    "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.",
+    "trial stop condition note",
+  );
+  assertEqual(
+    projection.stopConditionSummary.includes("stop_on_provider_trust_claim"),
+    true,
+    "trial package stop condition summary",
+  );
+}
+
+function assertControlledInternalTrialPackagePanelRendersBoundaries(): void {
+  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  assertContains(rendered, "Controlled internal trial package", "trial package panel label");
+  assertContains(rendered, "Package status: not_packaged", "trial package status rendering");
+  assertContains(rendered, "controlled_internal_trial_package_only", "trial package classification rendering");
+  assertContains(rendered, "local_only_non_public", "trial distribution rendering");
+  assertContains(rendered, "Trial scope:", "trial scope rendering");
+  assertContains(rendered, "Named operator/participant metadata:", "trial operator participant rendering");
+  assertContains(rendered, "Stop-condition summary:", "trial stop condition rendering");
+  assertContains(rendered, "Included local beta evidence/artifact summary:", "trial evidence rendering");
+  assertContains(rendered, "Absence marker summary:", "trial absence marker rendering");
+  assertContains(rendered, "Validation status:", "trial validation status rendering");
+  assertContains(rendered, "Read-back validation status:", "trial read-back rendering");
+  assertContains(rendered, "Controlled internal trial package is local-only and non-public.", "trial local boundary wording");
+  assertContains(rendered, "This package is not a release artifact.", "trial release wording");
+  assertContains(rendered, "This package is not deployment or readiness evidence.", "trial deployment readiness wording");
+  assertContains(rendered, "This package does not approve public/general use or production use.", "trial public production wording");
+  assertContains(rendered, "This package does not approve controlled human use.", "trial human use wording");
+  assertContains(rendered, "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.", "trial stop condition wording");
+  assertDoesNotContain(rendered, "Publish trial package", "no publish control");
+  assertDoesNotContain(rendered, "Deploy trial package", "no deploy control");
+  assertDoesNotContain(rendered, "Sign trial package", "no sign control");
+  assertEqual(
+    renderLocalOperatorShellSnapshot(initialLocalOperatorShellState()),
+    renderLocalOperatorShellSnapshot(initialLocalOperatorShellState()),
+    "deterministic trial package panel rendering",
+  );
+}
+
 function validPackageProjectionForPhase152() {
   return {
     ...initialLocalOperatorShellState().localSessionPackageProjection,
@@ -5098,6 +5180,14 @@ payload_summary=authority before replay`),
   {
     name: "local_session_package_projection_is_stable",
     run: assertLocalSessionPackageProjectionIsStableAcrossRenderingState,
+  },
+  {
+    name: "controlled_internal_trial_package_projection_initial_state",
+    run: assertControlledInternalTrialPackageProjectionInitialState,
+  },
+  {
+    name: "controlled_internal_trial_package_panel_renders_boundaries",
+    run: assertControlledInternalTrialPackagePanelRendersBoundaries,
   },
   {
     name: "local_session_history_and_restore_initial_state",

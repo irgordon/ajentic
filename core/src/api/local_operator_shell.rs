@@ -8284,6 +8284,1040 @@ pub fn project_local_session_restore_from_payload(content: &str) -> LocalSession
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageStatus {
+    NotPackaged,
+    PackageProjected,
+    PackageValidated,
+    PackageWritten,
+    PackageReadBackValidated,
+    PackageRejected,
+    InvalidPackageInput,
+}
+
+impl ControlledInternalTrialPackageStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotPackaged => "not_packaged",
+            Self::PackageProjected => "package_projected",
+            Self::PackageValidated => "package_validated",
+            Self::PackageWritten => "package_written",
+            Self::PackageReadBackValidated => "package_read_back_validated",
+            Self::PackageRejected => "package_rejected",
+            Self::InvalidPackageInput => "invalid_package_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+}
+
+impl ControlledInternalTrialPackageValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotValidated => "not_validated",
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageClassification {
+    ControlledInternalTrialPackageOnly,
+}
+
+impl ControlledInternalTrialPackageClassification {
+    pub fn code(&self) -> &'static str {
+        "controlled_internal_trial_package_only"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageProductionClassification {
+    NonProduction,
+}
+
+impl ControlledInternalTrialPackageProductionClassification {
+    pub fn code(&self) -> &'static str {
+        "non_production"
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageDistributionClassification {
+    LocalOnlyNonPublic,
+}
+
+impl ControlledInternalTrialPackageDistributionClassification {
+    pub fn code(&self) -> &'static str {
+        "local_only_non_public"
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialScope {
+    pub scope_id: String,
+    pub scope_summary: String,
+    pub local_beta_workflow_scope: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialOperator {
+    pub operator_id: String,
+    pub display_label: String,
+    pub role: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialParticipant {
+    pub participant_id: String,
+    pub display_label: String,
+    pub role: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialStopCondition {
+    StopOnProviderTrustClaim,
+    StopOnReadinessClaim,
+    StopOnReleaseOrDeploymentClaim,
+    StopOnPublicUseClaim,
+    StopOnActionAuthorizationClaim,
+    StopOnReplayRepairOrRecoveryPromotionClaim,
+    StopOnPackageValidationFailure,
+    StopOnRestoreValidationFailure,
+    StopOnWorkflowRejection,
+    StopOnOperatorEscalation,
+}
+
+impl ControlledInternalTrialStopCondition {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::StopOnProviderTrustClaim => "stop_on_provider_trust_claim",
+            Self::StopOnReadinessClaim => "stop_on_readiness_claim",
+            Self::StopOnReleaseOrDeploymentClaim => "stop_on_release_or_deployment_claim",
+            Self::StopOnPublicUseClaim => "stop_on_public_use_claim",
+            Self::StopOnActionAuthorizationClaim => "stop_on_action_authorization_claim",
+            Self::StopOnReplayRepairOrRecoveryPromotionClaim => {
+                "stop_on_replay_repair_or_recovery_promotion_claim"
+            }
+            Self::StopOnPackageValidationFailure => "stop_on_package_validation_failure",
+            Self::StopOnRestoreValidationFailure => "stop_on_restore_validation_failure",
+            Self::StopOnWorkflowRejection => "stop_on_workflow_rejection",
+            Self::StopOnOperatorEscalation => "stop_on_operator_escalation",
+        }
+    }
+}
+
+pub fn required_controlled_internal_trial_stop_conditions(
+) -> Vec<ControlledInternalTrialStopCondition> {
+    vec![
+        ControlledInternalTrialStopCondition::StopOnProviderTrustClaim,
+        ControlledInternalTrialStopCondition::StopOnReadinessClaim,
+        ControlledInternalTrialStopCondition::StopOnReleaseOrDeploymentClaim,
+        ControlledInternalTrialStopCondition::StopOnPublicUseClaim,
+        ControlledInternalTrialStopCondition::StopOnActionAuthorizationClaim,
+        ControlledInternalTrialStopCondition::StopOnReplayRepairOrRecoveryPromotionClaim,
+        ControlledInternalTrialStopCondition::StopOnPackageValidationFailure,
+        ControlledInternalTrialStopCondition::StopOnRestoreValidationFailure,
+        ControlledInternalTrialStopCondition::StopOnWorkflowRejection,
+        ControlledInternalTrialStopCondition::StopOnOperatorEscalation,
+    ]
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialIncludedEvidence {
+    pub local_beta_workflow_status: String,
+    pub provider_output_pipeline_status: String,
+    pub local_candidate_materialization_status: String,
+    pub operator_decision_status: String,
+    pub replay_status_summary: String,
+    pub local_evidence_export_summary: String,
+    pub local_session_package_summary: String,
+    pub restore_history_summary: String,
+    pub phase_160_gate_decision_context: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackageAbsenceMarkers {
+    pub release_artifact_absent: bool,
+    pub deployment_artifact_absent: bool,
+    pub readiness_approval_absent: bool,
+    pub public_use_approval_absent: bool,
+    pub production_use_approval_absent: bool,
+    pub provider_trust_absent: bool,
+    pub action_authorization_absent: bool,
+    pub replay_repair_absent: bool,
+    pub recovery_promotion_absent: bool,
+    pub default_persistence_absent: bool,
+    pub marker_summary: Vec<String>,
+}
+
+pub fn controlled_internal_trial_package_absence_markers(
+) -> ControlledInternalTrialPackageAbsenceMarkers {
+    ControlledInternalTrialPackageAbsenceMarkers {
+        release_artifact_absent: true,
+        deployment_artifact_absent: true,
+        readiness_approval_absent: true,
+        public_use_approval_absent: true,
+        production_use_approval_absent: true,
+        provider_trust_absent: true,
+        action_authorization_absent: true,
+        replay_repair_absent: true,
+        recovery_promotion_absent: true,
+        default_persistence_absent: true,
+        marker_summary: vec![
+            "no_release_artifact".to_string(),
+            "no_deployment_artifact".to_string(),
+            "no_readiness_approval".to_string(),
+            "no_public_use_approval".to_string(),
+            "no_production_approval".to_string(),
+            "no_provider_trust".to_string(),
+            "no_action_authorization".to_string(),
+            "no_replay_repair".to_string(),
+            "no_recovery_promotion".to_string(),
+            "no_default_persistence".to_string(),
+        ],
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageBoundaryStatus {
+    LocalOnlyTrialPackage,
+    NonPublicTrialPackage,
+    NoReleaseArtifact,
+    NoDeploymentArtifact,
+    NoReadinessApproval,
+    NoReleaseApproval,
+    NoProductionApproval,
+    NoPublicUseApproval,
+    NoProviderTrust,
+    NoActionAuthorization,
+    NoReplayRepair,
+    NoRecoveryPromotion,
+}
+
+impl ControlledInternalTrialPackageBoundaryStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::LocalOnlyTrialPackage => "local_only_trial_package",
+            Self::NonPublicTrialPackage => "non_public_trial_package",
+            Self::NoReleaseArtifact => "no_release_artifact",
+            Self::NoDeploymentArtifact => "no_deployment_artifact",
+            Self::NoReadinessApproval => "no_readiness_approval",
+            Self::NoReleaseApproval => "no_release_approval",
+            Self::NoProductionApproval => "no_production_approval",
+            Self::NoPublicUseApproval => "no_public_use_approval",
+            Self::NoProviderTrust => "no_provider_trust",
+            Self::NoActionAuthorization => "no_action_authorization",
+            Self::NoReplayRepair => "no_replay_repair",
+            Self::NoRecoveryPromotion => "no_recovery_promotion",
+        }
+    }
+}
+
+pub fn controlled_internal_trial_package_boundary_statuses(
+) -> Vec<ControlledInternalTrialPackageBoundaryStatus> {
+    vec![
+        ControlledInternalTrialPackageBoundaryStatus::LocalOnlyTrialPackage,
+        ControlledInternalTrialPackageBoundaryStatus::NonPublicTrialPackage,
+        ControlledInternalTrialPackageBoundaryStatus::NoReleaseArtifact,
+        ControlledInternalTrialPackageBoundaryStatus::NoDeploymentArtifact,
+        ControlledInternalTrialPackageBoundaryStatus::NoReadinessApproval,
+        ControlledInternalTrialPackageBoundaryStatus::NoReleaseApproval,
+        ControlledInternalTrialPackageBoundaryStatus::NoProductionApproval,
+        ControlledInternalTrialPackageBoundaryStatus::NoPublicUseApproval,
+        ControlledInternalTrialPackageBoundaryStatus::NoProviderTrust,
+        ControlledInternalTrialPackageBoundaryStatus::NoActionAuthorization,
+        ControlledInternalTrialPackageBoundaryStatus::NoReplayRepair,
+        ControlledInternalTrialPackageBoundaryStatus::NoRecoveryPromotion,
+    ]
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlledInternalTrialPackageValidationError {
+    MissingPackageId,
+    MissingPackageVersion,
+    InvalidPackageClassification,
+    InvalidProductionClassification,
+    InvalidDistributionClassification,
+    MissingTrialScope,
+    MissingNamedOperatorOrParticipant,
+    MissingStopConditionMarkers,
+    MissingAbsenceMarker,
+    ForbiddenReleaseDeploymentReadinessPublicOrProductionUseClaim,
+    ForbiddenProviderTrustActionReplayRepairOrRecoveryPromotionClaim,
+    DeterministicContentMismatch,
+    MalformedPackageInput,
+}
+
+impl ControlledInternalTrialPackageValidationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingPackageId => "missing_package_id",
+            Self::MissingPackageVersion => "missing_package_version",
+            Self::InvalidPackageClassification => "invalid_package_classification",
+            Self::InvalidProductionClassification => "invalid_production_classification",
+            Self::InvalidDistributionClassification => "invalid_distribution_classification",
+            Self::MissingTrialScope => "missing_trial_scope",
+            Self::MissingNamedOperatorOrParticipant => "missing_named_operator_or_participant",
+            Self::MissingStopConditionMarkers => "missing_stop_condition_markers",
+            Self::MissingAbsenceMarker => "missing_absence_marker",
+            Self::ForbiddenReleaseDeploymentReadinessPublicOrProductionUseClaim => {
+                "forbidden_release_deployment_readiness_public_or_production_use_claim"
+            }
+            Self::ForbiddenProviderTrustActionReplayRepairOrRecoveryPromotionClaim => {
+                "forbidden_provider_trust_action_replay_repair_or_recovery_promotion_claim"
+            }
+            Self::DeterministicContentMismatch => "deterministic_content_mismatch",
+            Self::MalformedPackageInput => "malformed_package_input",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackageMetadata {
+    pub package_id: String,
+    pub package_version: String,
+    pub package_classification: String,
+    pub production_classification: String,
+    pub distribution_classification: String,
+    pub package_status: ControlledInternalTrialPackageStatus,
+    pub validation_status: ControlledInternalTrialPackageValidationStatus,
+    pub content_digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackagePayload {
+    pub trial_scope: Option<ControlledInternalTrialScope>,
+    pub named_internal_operators: Vec<ControlledInternalTrialOperator>,
+    pub trial_participants: Vec<ControlledInternalTrialParticipant>,
+    pub stop_conditions: Vec<ControlledInternalTrialStopCondition>,
+    pub included_evidence: ControlledInternalTrialIncludedEvidence,
+    pub boundary_status: Vec<ControlledInternalTrialPackageBoundaryStatus>,
+    pub no_release_marker: String,
+    pub no_deployment_marker: String,
+    pub no_readiness_marker: String,
+    pub no_public_use_marker: String,
+    pub no_production_use_marker: String,
+    pub no_provider_trust_marker: String,
+    pub no_action_authorization_marker: String,
+    pub no_replay_repair_marker: String,
+    pub no_recovery_promotion_marker: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackage {
+    pub metadata: ControlledInternalTrialPackageMetadata,
+    pub payload: ControlledInternalTrialPackagePayload,
+    pub absence_markers: ControlledInternalTrialPackageAbsenceMarkers,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackageProjection {
+    pub status: ControlledInternalTrialPackageStatus,
+    pub package_id: Option<String>,
+    pub package_version: String,
+    pub package_classification: String,
+    pub production_classification: String,
+    pub distribution_classification: String,
+    pub trial_scope_summary: String,
+    pub named_operator_participant_summary: Vec<String>,
+    pub stop_condition_summary: Vec<String>,
+    pub included_evidence_summary: Vec<String>,
+    pub absence_marker_summary: Vec<String>,
+    pub validation_status: ControlledInternalTrialPackageValidationStatus,
+    pub validation_errors: Vec<String>,
+    pub read_back_validation_status: Option<ControlledInternalTrialPackageValidationStatus>,
+    pub boundary_status: Vec<ControlledInternalTrialPackageBoundaryStatus>,
+    pub local_only_non_public_note: String,
+    pub release_boundary_note: String,
+    pub deployment_readiness_boundary_note: String,
+    pub public_production_boundary_note: String,
+    pub stop_condition_note: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackageWriteResult {
+    pub status: ControlledInternalTrialPackageStatus,
+    pub path: String,
+    pub bytes_written: usize,
+    pub projection: ControlledInternalTrialPackageProjection,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ControlledInternalTrialPackageReadResult {
+    pub status: ControlledInternalTrialPackageStatus,
+    pub path: String,
+    pub package: Option<ControlledInternalTrialPackage>,
+    pub projection: ControlledInternalTrialPackageProjection,
+}
+
+pub const CONTROLLED_INTERNAL_TRIAL_PACKAGE_VERSION: &str = "controlled-internal-trial-package-v1";
+
+pub fn initial_controlled_internal_trial_package_projection(
+) -> ControlledInternalTrialPackageProjection {
+    ControlledInternalTrialPackageProjection {
+        status: ControlledInternalTrialPackageStatus::NotPackaged,
+        package_id: None,
+        package_version: CONTROLLED_INTERNAL_TRIAL_PACKAGE_VERSION.to_string(),
+        package_classification:
+            ControlledInternalTrialPackageClassification::ControlledInternalTrialPackageOnly
+                .code()
+                .to_string(),
+        production_classification:
+            ControlledInternalTrialPackageProductionClassification::NonProduction
+                .code()
+                .to_string(),
+        distribution_classification:
+            ControlledInternalTrialPackageDistributionClassification::LocalOnlyNonPublic
+                .code()
+                .to_string(),
+        trial_scope_summary: "trial scope not provided".to_string(),
+        named_operator_participant_summary: Vec::new(),
+        stop_condition_summary: required_controlled_internal_trial_stop_conditions()
+            .into_iter()
+            .map(|condition| condition.code().to_string())
+            .collect(),
+        included_evidence_summary: Vec::new(),
+        absence_marker_summary: controlled_internal_trial_package_absence_markers().marker_summary,
+        validation_status: ControlledInternalTrialPackageValidationStatus::NotValidated,
+        validation_errors: Vec::new(),
+        read_back_validation_status: None,
+        boundary_status: controlled_internal_trial_package_boundary_statuses(),
+        local_only_non_public_note:
+            "Controlled internal trial package is local-only and non-public.".to_string(),
+        release_boundary_note: "This package is not a release artifact.".to_string(),
+        deployment_readiness_boundary_note: "This package is not deployment or readiness evidence."
+            .to_string(),
+        public_production_boundary_note:
+            "This package does not approve public/general use or production use.".to_string(),
+        stop_condition_note:
+            "Stop conditions are trial metadata; they do not automate enforcement in Phase 161."
+                .to_string(),
+    }
+}
+
+fn controlled_internal_trial_included_evidence_from_state(
+    state: &LocalOperatorShellState,
+) -> ControlledInternalTrialIncludedEvidence {
+    ControlledInternalTrialIncludedEvidence {
+        local_beta_workflow_status: state
+            .complete_local_operator_workflow
+            .status
+            .code()
+            .to_string(),
+        provider_output_pipeline_status: state
+            .local_provider_output_pipeline
+            .status
+            .code()
+            .to_string(),
+        local_candidate_materialization_status: state
+            .local_candidate_output
+            .status
+            .code()
+            .to_string(),
+        operator_decision_status: state.operator_candidate_decision.status.code().to_string(),
+        replay_status_summary: state.run.decision_replay.replay_status.code().to_string(),
+        local_evidence_export_summary: state
+            .local_session_evidence_export
+            .export_status
+            .code()
+            .to_string(),
+        local_session_package_summary: state
+            .local_session_package_projection
+            .status
+            .code()
+            .to_string(),
+        restore_history_summary: format!(
+            "{} / {}",
+            state.local_session_restore_projection.status.code(),
+            state.local_session_history_projection.status.code()
+        ),
+        phase_160_gate_decision_context:
+            "Phase 160 gate decision: proceed_with_caveats_to_controlled_internal_trial_packaging"
+                .to_string(),
+    }
+}
+
+fn controlled_internal_trial_package_content_basis(
+    payload: &ControlledInternalTrialPackagePayload,
+    markers: &ControlledInternalTrialPackageAbsenceMarkers,
+) -> String {
+    format!(
+        "version={}|classification=controlled_internal_trial_package_only|production=non_production|distribution=local_only_non_public|payload={:?}|absence={:?}",
+        CONTROLLED_INTERNAL_TRIAL_PACKAGE_VERSION, payload, markers
+    )
+}
+
+fn stable_controlled_internal_trial_package_digest(input: &str) -> String {
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for byte in input.as_bytes() {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    format!("{hash:016x}")
+}
+
+pub fn derive_controlled_internal_trial_package(
+    state: &LocalOperatorShellState,
+    trial_scope: ControlledInternalTrialScope,
+    named_internal_operators: Vec<ControlledInternalTrialOperator>,
+    trial_participants: Vec<ControlledInternalTrialParticipant>,
+    stop_conditions: Vec<ControlledInternalTrialStopCondition>,
+) -> ControlledInternalTrialPackage {
+    let absence_markers = controlled_internal_trial_package_absence_markers();
+    let payload = ControlledInternalTrialPackagePayload {
+        trial_scope: Some(trial_scope),
+        named_internal_operators,
+        trial_participants,
+        stop_conditions,
+        included_evidence: controlled_internal_trial_included_evidence_from_state(state),
+        boundary_status: controlled_internal_trial_package_boundary_statuses(),
+        no_release_marker: "not a release artifact".to_string(),
+        no_deployment_marker: "not deployment evidence".to_string(),
+        no_readiness_marker: "not readiness evidence".to_string(),
+        no_public_use_marker: "does not approve public/general use".to_string(),
+        no_production_use_marker: "does not approve production use".to_string(),
+        no_provider_trust_marker: "no provider trust".to_string(),
+        no_action_authorization_marker: "no action authorization".to_string(),
+        no_replay_repair_marker: "no replay repair".to_string(),
+        no_recovery_promotion_marker: "no recovery promotion".to_string(),
+    };
+    let content_digest = stable_controlled_internal_trial_package_digest(
+        &controlled_internal_trial_package_content_basis(&payload, &absence_markers),
+    );
+    ControlledInternalTrialPackage {
+        metadata: ControlledInternalTrialPackageMetadata {
+            package_id: format!("controlled-internal-trial-package-{content_digest}"),
+            package_version: CONTROLLED_INTERNAL_TRIAL_PACKAGE_VERSION.to_string(),
+            package_classification:
+                ControlledInternalTrialPackageClassification::ControlledInternalTrialPackageOnly
+                    .code()
+                    .to_string(),
+            production_classification:
+                ControlledInternalTrialPackageProductionClassification::NonProduction
+                    .code()
+                    .to_string(),
+            distribution_classification:
+                ControlledInternalTrialPackageDistributionClassification::LocalOnlyNonPublic
+                    .code()
+                    .to_string(),
+            package_status: ControlledInternalTrialPackageStatus::PackageProjected,
+            validation_status: ControlledInternalTrialPackageValidationStatus::Valid,
+            content_digest,
+        },
+        payload,
+        absence_markers,
+    }
+}
+
+fn controlled_internal_trial_package_validation_errors(
+    package: &ControlledInternalTrialPackage,
+) -> Vec<ControlledInternalTrialPackageValidationError> {
+    let mut errors = Vec::new();
+    if package.metadata.package_id.is_empty() {
+        errors.push(ControlledInternalTrialPackageValidationError::MissingPackageId);
+    }
+    if package.metadata.package_version.is_empty() {
+        errors.push(ControlledInternalTrialPackageValidationError::MissingPackageVersion);
+    }
+    if package.metadata.package_classification
+        != ControlledInternalTrialPackageClassification::ControlledInternalTrialPackageOnly.code()
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::InvalidPackageClassification);
+    }
+    if package.metadata.production_classification
+        != ControlledInternalTrialPackageProductionClassification::NonProduction.code()
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::InvalidProductionClassification);
+    }
+    if package.metadata.distribution_classification
+        != ControlledInternalTrialPackageDistributionClassification::LocalOnlyNonPublic.code()
+    {
+        errors
+            .push(ControlledInternalTrialPackageValidationError::InvalidDistributionClassification);
+    }
+    match package.payload.trial_scope.as_ref() {
+        Some(scope)
+            if !scope.scope_id.is_empty()
+                && !scope.scope_summary.is_empty()
+                && !scope.local_beta_workflow_scope.is_empty() => {}
+        _ => errors.push(ControlledInternalTrialPackageValidationError::MissingTrialScope),
+    }
+    if package.payload.named_internal_operators.is_empty()
+        || package.payload.trial_participants.is_empty()
+        || package
+            .payload
+            .named_internal_operators
+            .iter()
+            .any(|operator| {
+                operator.operator_id.is_empty()
+                    || operator.display_label.is_empty()
+                    || operator.role.is_empty()
+            })
+        || package
+            .payload
+            .trial_participants
+            .iter()
+            .any(|participant| {
+                participant.participant_id.is_empty()
+                    || participant.display_label.is_empty()
+                    || participant.role.is_empty()
+            })
+    {
+        errors
+            .push(ControlledInternalTrialPackageValidationError::MissingNamedOperatorOrParticipant);
+    }
+    let required = required_controlled_internal_trial_stop_conditions();
+    if package.payload.stop_conditions.len() < required.len()
+        || required
+            .iter()
+            .any(|condition| !package.payload.stop_conditions.contains(condition))
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::MissingStopConditionMarkers);
+    }
+    let markers = &package.absence_markers;
+    if !markers.release_artifact_absent
+        || !markers.deployment_artifact_absent
+        || !markers.readiness_approval_absent
+        || !markers.public_use_approval_absent
+        || !markers.production_use_approval_absent
+        || !markers.provider_trust_absent
+        || !markers.action_authorization_absent
+        || !markers.replay_repair_absent
+        || !markers.recovery_promotion_absent
+        || !markers.default_persistence_absent
+        || markers.marker_summary.is_empty()
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::MissingAbsenceMarker);
+    }
+    let text = format!("{:?}", package).to_ascii_lowercase();
+    if [
+        "claim:readiness_approved",
+        "claim:release_candidate_approved",
+        "claim:deployment_enabled",
+        "claim:public_use_approved",
+        "claim:production_use_approved",
+        "claim:production_persistence_enabled",
+        "claim:release artifact",
+        "claim:deployment artifact",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::ForbiddenReleaseDeploymentReadinessPublicOrProductionUseClaim);
+    }
+    if [
+        "claim:provider_trusted",
+        "claim:provider trust granted",
+        "claim:action_authorized",
+        "claim:action_executed",
+        "claim:replay_repaired",
+        "claim:recovery_promoted",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::ForbiddenProviderTrustActionReplayRepairOrRecoveryPromotionClaim);
+    }
+    let expected_digest = stable_controlled_internal_trial_package_digest(
+        &controlled_internal_trial_package_content_basis(
+            &package.payload,
+            &package.absence_markers,
+        ),
+    );
+    let expected_id = format!("controlled-internal-trial-package-{expected_digest}");
+    if package.metadata.content_digest != expected_digest
+        || (!package.metadata.package_id.is_empty() && package.metadata.package_id != expected_id)
+    {
+        errors.push(ControlledInternalTrialPackageValidationError::DeterministicContentMismatch);
+    }
+    errors
+}
+
+pub fn validate_controlled_internal_trial_package(
+    package: &ControlledInternalTrialPackage,
+) -> Result<(), Vec<ControlledInternalTrialPackageValidationError>> {
+    let errors = controlled_internal_trial_package_validation_errors(package);
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+fn controlled_internal_trial_included_evidence_summary(
+    evidence: &ControlledInternalTrialIncludedEvidence,
+) -> Vec<String> {
+    vec![
+        format!(
+            "local beta workflow status: {}",
+            evidence.local_beta_workflow_status
+        ),
+        format!(
+            "provider output pipeline status: {}",
+            evidence.provider_output_pipeline_status
+        ),
+        format!(
+            "local candidate materialization status: {}",
+            evidence.local_candidate_materialization_status
+        ),
+        format!(
+            "operator decision status: {}",
+            evidence.operator_decision_status
+        ),
+        format!("replay/status summary: {}", evidence.replay_status_summary),
+        format!(
+            "local evidence export summary: {}",
+            evidence.local_evidence_export_summary
+        ),
+        format!(
+            "local session package summary: {}",
+            evidence.local_session_package_summary
+        ),
+        format!(
+            "restore/history summary: {}",
+            evidence.restore_history_summary
+        ),
+        evidence.phase_160_gate_decision_context.clone(),
+    ]
+}
+
+pub fn project_controlled_internal_trial_package_status(
+    package: Option<&ControlledInternalTrialPackage>,
+    read_back_status: Option<ControlledInternalTrialPackageValidationStatus>,
+) -> ControlledInternalTrialPackageProjection {
+    match package {
+        None => initial_controlled_internal_trial_package_projection(),
+        Some(package) => {
+            let errors = controlled_internal_trial_package_validation_errors(package);
+            let validation_status = if errors.is_empty() {
+                ControlledInternalTrialPackageValidationStatus::Valid
+            } else {
+                ControlledInternalTrialPackageValidationStatus::Invalid
+            };
+            let scope_summary = package
+                .payload
+                .trial_scope
+                .as_ref()
+                .map(|scope| format!("{}: {}", scope.scope_id, scope.scope_summary))
+                .unwrap_or_else(|| "trial scope not provided".to_string());
+            let mut named = package
+                .payload
+                .named_internal_operators
+                .iter()
+                .map(|operator| format!("operator:{}:{}", operator.operator_id, operator.role))
+                .collect::<Vec<_>>();
+            named.extend(
+                package
+                    .payload
+                    .trial_participants
+                    .iter()
+                    .map(|participant| {
+                        format!(
+                            "participant:{}:{}",
+                            participant.participant_id, participant.role
+                        )
+                    }),
+            );
+            ControlledInternalTrialPackageProjection {
+                status: if errors.is_empty() { package.metadata.package_status } else { ControlledInternalTrialPackageStatus::PackageRejected },
+                package_id: Some(package.metadata.package_id.clone()),
+                package_version: package.metadata.package_version.clone(),
+                package_classification: package.metadata.package_classification.clone(),
+                production_classification: package.metadata.production_classification.clone(),
+                distribution_classification: package.metadata.distribution_classification.clone(),
+                trial_scope_summary: scope_summary,
+                named_operator_participant_summary: named,
+                stop_condition_summary: package.payload.stop_conditions.iter().map(|condition| condition.code().to_string()).collect(),
+                included_evidence_summary: controlled_internal_trial_included_evidence_summary(&package.payload.included_evidence),
+                absence_marker_summary: package.absence_markers.marker_summary.clone(),
+                validation_status,
+                validation_errors: errors.into_iter().map(|error| error.code().to_string()).collect(),
+                read_back_validation_status: read_back_status,
+                boundary_status: package.payload.boundary_status.clone(),
+                local_only_non_public_note: "Controlled internal trial package is local-only and non-public.".to_string(),
+                release_boundary_note: "This package is not a release artifact.".to_string(),
+                deployment_readiness_boundary_note: "This package is not deployment or readiness evidence.".to_string(),
+                public_production_boundary_note: "This package does not approve public/general use or production use.".to_string(),
+                stop_condition_note: "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.".to_string(),
+            }
+        }
+    }
+}
+
+pub fn serialize_controlled_internal_trial_package(
+    package: &ControlledInternalTrialPackage,
+) -> Result<String, Vec<ControlledInternalTrialPackageValidationError>> {
+    validate_controlled_internal_trial_package(package)?;
+    let scope =
+        package.payload.trial_scope.as_ref().ok_or_else(|| {
+            vec![ControlledInternalTrialPackageValidationError::MissingTrialScope]
+        })?;
+    let lines = vec![
+        "ajentic_controlled_internal_trial_package=v1".to_string(),
+        format!("package_id={}", package.metadata.package_id),
+        format!("package_version={}", package.metadata.package_version),
+        format!("package_classification={}", package.metadata.package_classification),
+        format!("production_classification={}", package.metadata.production_classification),
+        format!("distribution_classification={}", package.metadata.distribution_classification),
+        format!("package_status={}", package.metadata.package_status.code()),
+        format!("content_digest={}", package.metadata.content_digest),
+        format!("scope_id={}", hex_encode(&scope.scope_id)),
+        format!("scope_summary={}", hex_encode(&scope.scope_summary)),
+        format!("scope_local_beta_workflow={}", hex_encode(&scope.local_beta_workflow_scope)),
+        format!("operators={}", hex_encode(&package.payload.named_internal_operators.iter().map(|operator| format!("{}|{}|{}", operator.operator_id, operator.display_label, operator.role)).collect::<Vec<_>>().join(";;"))),
+        format!("participants={}", hex_encode(&package.payload.trial_participants.iter().map(|participant| format!("{}|{}|{}", participant.participant_id, participant.display_label, participant.role)).collect::<Vec<_>>().join(";;"))),
+        format!("stop_conditions={}", package.payload.stop_conditions.iter().map(|condition| condition.code()).collect::<Vec<_>>().join(",")),
+        format!("included_evidence={}", hex_encode(&[package.payload.included_evidence.local_beta_workflow_status.as_str(), package.payload.included_evidence.provider_output_pipeline_status.as_str(), package.payload.included_evidence.local_candidate_materialization_status.as_str(), package.payload.included_evidence.operator_decision_status.as_str(), package.payload.included_evidence.replay_status_summary.as_str(), package.payload.included_evidence.local_evidence_export_summary.as_str(), package.payload.included_evidence.local_session_package_summary.as_str(), package.payload.included_evidence.restore_history_summary.as_str(), package.payload.included_evidence.phase_160_gate_decision_context.as_str()].join(";;"))),
+        format!("absence_markers={}", hex_encode(&format!("{:?}", package.absence_markers))),
+        "local_only_non_public_note=Controlled internal trial package is local-only and non-public.".to_string(),
+        "release_boundary_note=This package is not a release artifact.".to_string(),
+        "deployment_readiness_boundary_note=This package is not deployment or readiness evidence.".to_string(),
+        "public_production_boundary_note=This package does not approve public/general use or production use.".to_string(),
+        "stop_condition_note=Stop conditions are trial metadata; they do not automate enforcement in Phase 161.".to_string(),
+    ];
+    Ok(format!("{}\n", lines.join("\n")))
+}
+
+fn parse_controlled_internal_trial_package_status(
+    code: &str,
+) -> Result<ControlledInternalTrialPackageStatus, ControlledInternalTrialPackageValidationError> {
+    match code {
+        "package_projected" => Ok(ControlledInternalTrialPackageStatus::PackageProjected),
+        "package_validated" => Ok(ControlledInternalTrialPackageStatus::PackageValidated),
+        "package_written" => Ok(ControlledInternalTrialPackageStatus::PackageWritten),
+        "package_read_back_validated" => {
+            Ok(ControlledInternalTrialPackageStatus::PackageReadBackValidated)
+        }
+        "package_rejected" => Ok(ControlledInternalTrialPackageStatus::PackageRejected),
+        "invalid_package_input" => Ok(ControlledInternalTrialPackageStatus::InvalidPackageInput),
+        "not_packaged" => Ok(ControlledInternalTrialPackageStatus::NotPackaged),
+        _ => Err(ControlledInternalTrialPackageValidationError::MalformedPackageInput),
+    }
+}
+
+fn parse_stop_condition(
+    code: &str,
+) -> Result<ControlledInternalTrialStopCondition, ControlledInternalTrialPackageValidationError> {
+    match code {
+        "stop_on_provider_trust_claim" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnProviderTrustClaim)
+        }
+        "stop_on_readiness_claim" => Ok(ControlledInternalTrialStopCondition::StopOnReadinessClaim),
+        "stop_on_release_or_deployment_claim" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnReleaseOrDeploymentClaim)
+        }
+        "stop_on_public_use_claim" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnPublicUseClaim)
+        }
+        "stop_on_action_authorization_claim" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnActionAuthorizationClaim)
+        }
+        "stop_on_replay_repair_or_recovery_promotion_claim" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnReplayRepairOrRecoveryPromotionClaim)
+        }
+        "stop_on_package_validation_failure" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnPackageValidationFailure)
+        }
+        "stop_on_restore_validation_failure" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnRestoreValidationFailure)
+        }
+        "stop_on_workflow_rejection" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnWorkflowRejection)
+        }
+        "stop_on_operator_escalation" => {
+            Ok(ControlledInternalTrialStopCondition::StopOnOperatorEscalation)
+        }
+        _ => Err(ControlledInternalTrialPackageValidationError::MalformedPackageInput),
+    }
+}
+
+pub fn parse_controlled_internal_trial_package(
+    content: &str,
+) -> Result<ControlledInternalTrialPackage, Vec<ControlledInternalTrialPackageValidationError>> {
+    let mut values = std::collections::BTreeMap::new();
+    for line in content.lines() {
+        let Some((key, value)) = line.split_once('=') else {
+            return Err(vec![
+                ControlledInternalTrialPackageValidationError::MalformedPackageInput,
+            ]);
+        };
+        values.insert(key.to_string(), value.to_string());
+    }
+    if values
+        .get("ajentic_controlled_internal_trial_package")
+        .map(String::as_str)
+        != Some("v1")
+    {
+        return Err(vec![
+            ControlledInternalTrialPackageValidationError::MalformedPackageInput,
+        ]);
+    }
+    let get = |key: &str| {
+        values
+            .get(key)
+            .cloned()
+            .ok_or(ControlledInternalTrialPackageValidationError::MalformedPackageInput)
+    };
+    let decode = |key: &str| {
+        get(key).and_then(|value| {
+            hex_decode(&value)
+                .map_err(|_| ControlledInternalTrialPackageValidationError::MalformedPackageInput)
+        })
+    };
+    let stop_conditions = get("stop_conditions")
+        .map_err(|e| vec![e])?
+        .split(',')
+        .map(parse_stop_condition)
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| vec![e])?;
+    let operators_text = decode("operators").map_err(|e| vec![e])?;
+    let named_internal_operators = operators_text
+        .split(";;")
+        .filter(|entry| !entry.is_empty())
+        .map(|entry| {
+            let parts = entry.split('|').collect::<Vec<_>>();
+            if parts.len() != 3 {
+                return Err(ControlledInternalTrialPackageValidationError::MalformedPackageInput);
+            }
+            Ok(ControlledInternalTrialOperator {
+                operator_id: parts[0].to_string(),
+                display_label: parts[1].to_string(),
+                role: parts[2].to_string(),
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| vec![e])?;
+    let participants_text = decode("participants").map_err(|e| vec![e])?;
+    let trial_participants = participants_text
+        .split(";;")
+        .filter(|entry| !entry.is_empty())
+        .map(|entry| {
+            let parts = entry.split('|').collect::<Vec<_>>();
+            if parts.len() != 3 {
+                return Err(ControlledInternalTrialPackageValidationError::MalformedPackageInput);
+            }
+            Ok(ControlledInternalTrialParticipant {
+                participant_id: parts[0].to_string(),
+                display_label: parts[1].to_string(),
+                role: parts[2].to_string(),
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| vec![e])?;
+    let evidence_text = decode("included_evidence").map_err(|e| vec![e])?;
+    let evidence_parts = evidence_text.split(";;").collect::<Vec<_>>();
+    if evidence_parts.len() != 9 {
+        return Err(vec![
+            ControlledInternalTrialPackageValidationError::MalformedPackageInput,
+        ]);
+    }
+    let included_evidence = ControlledInternalTrialIncludedEvidence {
+        local_beta_workflow_status: evidence_parts[0].to_string(),
+        provider_output_pipeline_status: evidence_parts[1].to_string(),
+        local_candidate_materialization_status: evidence_parts[2].to_string(),
+        operator_decision_status: evidence_parts[3].to_string(),
+        replay_status_summary: evidence_parts[4].to_string(),
+        local_evidence_export_summary: evidence_parts[5].to_string(),
+        local_session_package_summary: evidence_parts[6].to_string(),
+        restore_history_summary: evidence_parts[7].to_string(),
+        phase_160_gate_decision_context: evidence_parts[8].to_string(),
+    };
+    let package = ControlledInternalTrialPackage {
+        metadata: ControlledInternalTrialPackageMetadata {
+            package_id: get("package_id").map_err(|e| vec![e])?,
+            package_version: get("package_version").map_err(|e| vec![e])?,
+            package_classification: get("package_classification").map_err(|e| vec![e])?,
+            production_classification: get("production_classification").map_err(|e| vec![e])?,
+            distribution_classification: get("distribution_classification").map_err(|e| vec![e])?,
+            package_status: parse_controlled_internal_trial_package_status(
+                &get("package_status").map_err(|e| vec![e])?,
+            )
+            .map_err(|e| vec![e])?,
+            validation_status: ControlledInternalTrialPackageValidationStatus::Valid,
+            content_digest: get("content_digest").map_err(|e| vec![e])?,
+        },
+        payload: ControlledInternalTrialPackagePayload {
+            trial_scope: Some(ControlledInternalTrialScope {
+                scope_id: decode("scope_id").map_err(|e| vec![e])?,
+                scope_summary: decode("scope_summary").map_err(|e| vec![e])?,
+                local_beta_workflow_scope: decode("scope_local_beta_workflow")
+                    .map_err(|e| vec![e])?,
+            }),
+            named_internal_operators,
+            trial_participants,
+            stop_conditions,
+            included_evidence,
+            boundary_status: controlled_internal_trial_package_boundary_statuses(),
+            no_release_marker: "not a release artifact".to_string(),
+            no_deployment_marker: "not deployment evidence".to_string(),
+            no_readiness_marker: "not readiness evidence".to_string(),
+            no_public_use_marker: "does not approve public/general use".to_string(),
+            no_production_use_marker: "does not approve production use".to_string(),
+            no_provider_trust_marker: "no provider trust".to_string(),
+            no_action_authorization_marker: "no action authorization".to_string(),
+            no_replay_repair_marker: "no replay repair".to_string(),
+            no_recovery_promotion_marker: "no recovery promotion".to_string(),
+        },
+        absence_markers: controlled_internal_trial_package_absence_markers(),
+    };
+    validate_controlled_internal_trial_package(&package)?;
+    Ok(package)
+}
+
+pub fn write_controlled_internal_trial_package(
+    package: &ControlledInternalTrialPackage,
+    caller_provided_path: &std::path::Path,
+) -> Result<
+    ControlledInternalTrialPackageWriteResult,
+    Vec<ControlledInternalTrialPackageValidationError>,
+> {
+    let content = serialize_controlled_internal_trial_package(package)?;
+    std::fs::write(caller_provided_path, content.as_bytes())
+        .map_err(|_| vec![ControlledInternalTrialPackageValidationError::MalformedPackageInput])?;
+    let mut written = package.clone();
+    written.metadata.package_status = ControlledInternalTrialPackageStatus::PackageWritten;
+    Ok(ControlledInternalTrialPackageWriteResult {
+        status: ControlledInternalTrialPackageStatus::PackageWritten,
+        path: caller_provided_path.display().to_string(),
+        bytes_written: content.len(),
+        projection: project_controlled_internal_trial_package_status(Some(&written), None),
+    })
+}
+
+pub fn read_controlled_internal_trial_package(
+    caller_provided_path: &std::path::Path,
+) -> Result<
+    ControlledInternalTrialPackageReadResult,
+    Vec<ControlledInternalTrialPackageValidationError>,
+> {
+    let content = std::fs::read_to_string(caller_provided_path)
+        .map_err(|_| vec![ControlledInternalTrialPackageValidationError::MalformedPackageInput])?;
+    let package = parse_controlled_internal_trial_package(&content)?;
+    let projection = validate_controlled_internal_trial_package_read_back(&package);
+    Ok(ControlledInternalTrialPackageReadResult {
+        status: ControlledInternalTrialPackageStatus::PackageReadBackValidated,
+        path: caller_provided_path.display().to_string(),
+        package: Some(package),
+        projection,
+    })
+}
+
+pub fn validate_controlled_internal_trial_package_read_back(
+    package: &ControlledInternalTrialPackage,
+) -> ControlledInternalTrialPackageProjection {
+    project_controlled_internal_trial_package_status(
+        Some(package),
+        Some(ControlledInternalTrialPackageValidationStatus::Valid),
+    )
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompleteLocalOperatorWorkflowStatus {
     NotStarted,
     InProgress,
@@ -9124,6 +10158,7 @@ pub struct LocalOperatorShellState {
     pub local_session_package_projection: LocalSessionPackageProjection,
     pub local_session_history_projection: LocalSessionHistoryProjection,
     pub local_session_restore_projection: LocalSessionRestoreProjection,
+    pub controlled_internal_trial_package_projection: ControlledInternalTrialPackageProjection,
     pub complete_local_operator_workflow: CompleteLocalOperatorWorkflowProjection,
 }
 
@@ -9355,6 +10390,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         local_session_package_projection: initial_local_session_package_projection(),
         local_session_history_projection: initial_local_session_history_projection(),
         local_session_restore_projection: initial_local_session_restore_projection(),
+        controlled_internal_trial_package_projection:
+            initial_controlled_internal_trial_package_projection(),
         complete_local_operator_workflow: initial_complete_local_operator_workflow_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
@@ -14206,5 +15243,290 @@ mod tests {
             .any(|step| step.step
                 == CompleteLocalOperatorWorkflowStepKind::ProviderOutputValidated
                 && step.status == CompleteLocalOperatorWorkflowStepStatus::Completed));
+    }
+
+    fn phase_161_trial_scope() -> ControlledInternalTrialScope {
+        ControlledInternalTrialScope {
+            scope_id: "phase-161-internal-trial-scope".to_string(),
+            scope_summary:
+                "Controlled internal trial preparation from local beta workflow evidence"
+                    .to_string(),
+            local_beta_workflow_scope: "provider setup through restore/history projection"
+                .to_string(),
+        }
+    }
+
+    fn phase_161_trial_operator() -> ControlledInternalTrialOperator {
+        ControlledInternalTrialOperator {
+            operator_id: "internal-operator-alpha".to_string(),
+            display_label: "Internal Operator Alpha".to_string(),
+            role: "internal_trial_operator".to_string(),
+        }
+    }
+
+    fn phase_161_trial_participant() -> ControlledInternalTrialParticipant {
+        ControlledInternalTrialParticipant {
+            participant_id: "internal-participant-beta".to_string(),
+            display_label: "Internal Participant Beta".to_string(),
+            role: "internal_trial_participant".to_string(),
+        }
+    }
+
+    fn phase_161_trial_package() -> ControlledInternalTrialPackage {
+        derive_controlled_internal_trial_package(
+            &initial_local_operator_shell_state(),
+            phase_161_trial_scope(),
+            vec![phase_161_trial_operator()],
+            vec![phase_161_trial_participant()],
+            required_controlled_internal_trial_stop_conditions(),
+        )
+    }
+
+    #[test]
+    fn phase_161_initial_state_exposes_not_packaged_projection() {
+        let state = initial_local_operator_shell_state();
+        let projection = state.controlled_internal_trial_package_projection;
+        assert_eq!(
+            projection.status,
+            ControlledInternalTrialPackageStatus::NotPackaged
+        );
+        assert_eq!(projection.package_id, None);
+        assert_eq!(
+            projection.package_classification,
+            "controlled_internal_trial_package_only"
+        );
+        assert_eq!(projection.production_classification, "non_production");
+        assert_eq!(
+            projection.distribution_classification,
+            "local_only_non_public"
+        );
+        assert!(projection
+            .local_only_non_public_note
+            .contains("local-only and non-public"));
+        assert!(projection
+            .release_boundary_note
+            .contains("not a release artifact"));
+        assert!(projection
+            .deployment_readiness_boundary_note
+            .contains("not deployment or readiness evidence"));
+        assert!(projection
+            .public_production_boundary_note
+            .contains("does not approve public/general use or production use"));
+    }
+
+    #[test]
+    fn phase_161_package_derivation_and_serialization_are_deterministic() {
+        let first = phase_161_trial_package();
+        let second = phase_161_trial_package();
+        assert_eq!(first, second);
+        assert_eq!(first.metadata.package_id, second.metadata.package_id);
+        assert_eq!(
+            first.metadata.content_digest,
+            second.metadata.content_digest
+        );
+        assert_eq!(
+            serialize_controlled_internal_trial_package(&first).unwrap(),
+            serialize_controlled_internal_trial_package(&second).unwrap()
+        );
+        assert_eq!(
+            first.metadata.package_classification,
+            "controlled_internal_trial_package_only"
+        );
+        assert_eq!(first.metadata.production_classification, "non_production");
+        assert_eq!(
+            first.metadata.distribution_classification,
+            "local_only_non_public"
+        );
+    }
+
+    #[test]
+    fn phase_161_valid_package_includes_trial_metadata_stop_conditions_and_evidence() {
+        let package = phase_161_trial_package();
+        validate_controlled_internal_trial_package(&package).unwrap();
+        assert!(package.payload.trial_scope.is_some());
+        assert_eq!(package.payload.named_internal_operators.len(), 1);
+        assert_eq!(package.payload.trial_participants.len(), 1);
+        assert_eq!(
+            package.payload.stop_conditions,
+            required_controlled_internal_trial_stop_conditions()
+        );
+        let summary =
+            controlled_internal_trial_included_evidence_summary(&package.payload.included_evidence);
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("local beta workflow status")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("local candidate materialization status")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("replay/status summary")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("local evidence export summary")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("local session package summary")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("restore/history summary")));
+        assert!(summary
+            .iter()
+            .any(|line| line.contains("Phase 160 gate decision")));
+    }
+
+    #[test]
+    fn phase_161_validation_rejects_missing_metadata_scope_operator_stop_and_markers() {
+        let mut package = phase_161_trial_package();
+        package.metadata.package_id.clear();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MissingPackageId));
+
+        let mut package = phase_161_trial_package();
+        package.metadata.package_version.clear();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MissingPackageVersion));
+
+        let mut package = phase_161_trial_package();
+        package.metadata.package_classification = "local_session_package_only".to_string();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(
+                &ControlledInternalTrialPackageValidationError::InvalidPackageClassification
+            ));
+
+        let mut package = phase_161_trial_package();
+        package.metadata.production_classification = "production".to_string();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(
+                &ControlledInternalTrialPackageValidationError::InvalidProductionClassification
+            ));
+
+        let mut package = phase_161_trial_package();
+        package.metadata.distribution_classification = "public".to_string();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(
+                &ControlledInternalTrialPackageValidationError::InvalidDistributionClassification
+            ));
+
+        let mut package = phase_161_trial_package();
+        package.payload.trial_scope = None;
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MissingTrialScope));
+
+        let mut package = phase_161_trial_package();
+        package.payload.named_internal_operators.clear();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(
+                &ControlledInternalTrialPackageValidationError::MissingNamedOperatorOrParticipant
+            ));
+
+        let mut package = phase_161_trial_package();
+        package.payload.trial_participants.clear();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(
+                &ControlledInternalTrialPackageValidationError::MissingNamedOperatorOrParticipant
+            ));
+
+        let mut package = phase_161_trial_package();
+        package.payload.stop_conditions.clear();
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MissingStopConditionMarkers));
+
+        let mut package = phase_161_trial_package();
+        package.absence_markers.release_artifact_absent = false;
+        assert!(validate_controlled_internal_trial_package(&package)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MissingAbsenceMarker));
+    }
+
+    #[test]
+    fn phase_161_validation_rejects_no_authority_boundary_claims() {
+        let release_claims = [
+            "claim:readiness_approved",
+            "claim:release_candidate_approved",
+            "claim:deployment_enabled",
+            "claim:public_use_approved",
+            "claim:production_use_approved",
+        ];
+        for claim in release_claims {
+            let mut package = phase_161_trial_package();
+            package
+                .payload
+                .included_evidence
+                .phase_160_gate_decision_context = claim.to_string();
+            assert!(validate_controlled_internal_trial_package(&package).unwrap_err().contains(&ControlledInternalTrialPackageValidationError::ForbiddenReleaseDeploymentReadinessPublicOrProductionUseClaim));
+        }
+        let execution_claims = [
+            "claim:provider_trusted",
+            "claim:action_authorized",
+            "claim:replay_repaired",
+            "claim:recovery_promoted",
+        ];
+        for claim in execution_claims {
+            let mut package = phase_161_trial_package();
+            package
+                .payload
+                .included_evidence
+                .phase_160_gate_decision_context = claim.to_string();
+            assert!(validate_controlled_internal_trial_package(&package).unwrap_err().contains(&ControlledInternalTrialPackageValidationError::ForbiddenProviderTrustActionReplayRepairOrRecoveryPromotionClaim));
+        }
+    }
+
+    #[test]
+    fn phase_161_explicit_write_read_and_read_back_validation_use_temp_path() {
+        let state_before = initial_local_operator_shell_state();
+        let package = phase_161_trial_package();
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::path::PathBuf::from(format!(
+            "/tmp/ajentic-phase-161-{unique}-{}.trialpkg",
+            package.metadata.content_digest
+        ));
+        let _ = std::fs::remove_file(&path);
+        let write = write_controlled_internal_trial_package(&package, &path).unwrap();
+        assert_eq!(
+            write.status,
+            ControlledInternalTrialPackageStatus::PackageWritten
+        );
+        assert!(write.bytes_written > 0);
+        let read = read_controlled_internal_trial_package(&path).unwrap();
+        assert_eq!(
+            read.status,
+            ControlledInternalTrialPackageStatus::PackageReadBackValidated
+        );
+        assert_eq!(
+            read.projection.read_back_validation_status,
+            Some(ControlledInternalTrialPackageValidationStatus::Valid)
+        );
+        assert_eq!(initial_local_operator_shell_state(), state_before);
+        std::fs::remove_file(&path).unwrap();
+    }
+
+    #[test]
+    fn phase_161_read_back_rejects_malformed_content() {
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::path::PathBuf::from(format!(
+            "/tmp/ajentic-phase-161-malformed-{unique}.trialpkg"
+        ));
+        let _ = std::fs::remove_file(&path);
+        std::fs::write(&path, "not a controlled internal trial package").unwrap();
+        assert!(read_controlled_internal_trial_package(&path)
+            .unwrap_err()
+            .contains(&ControlledInternalTrialPackageValidationError::MalformedPackageInput));
+        std::fs::remove_file(&path).unwrap();
     }
 }

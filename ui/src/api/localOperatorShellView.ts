@@ -49,6 +49,32 @@ export function renderLocalOperatorShellSnapshot(
     `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`,
   ].join("\n");
 
+
+  const trialPackage = state.controlledInternalTrialPackageProjection;
+  const trialPackageLines = [
+    `Package status: ${trialPackage.status}`,
+    `Package ID: ${trialPackage.packageId ?? "none"}`,
+    `Package version: ${trialPackage.packageVersion}`,
+    `Package classification: ${trialPackage.packageClassification}`,
+    `Production classification: ${trialPackage.productionClassification}`,
+    `Distribution classification: ${trialPackage.distributionClassification}`,
+    `Trial scope: ${trialPackage.trialScopeSummary}`,
+    `Named operator/participant metadata: ${trialPackage.namedOperatorParticipantSummary.join(", ") || "not provided"}`,
+    `Stop-condition summary: ${trialPackage.stopConditionSummary.join(", ")}`,
+    `Included local beta evidence/artifact summary: ${trialPackage.includedEvidenceSummary.join(", ") || "not projected"}`,
+    `Absence marker summary: ${trialPackage.absenceMarkerSummary.join(", ")}`,
+    `Validation status: ${trialPackage.validationStatus}`,
+    `Validation errors: ${trialPackage.validationErrors.join(", ") || "none"}`,
+    `Read-back validation status: ${trialPackage.readBackValidationStatus ?? "not_read"}`,
+    `Boundary status: ${trialPackage.boundaryStatus.join(", ")}`,
+    trialPackage.localOnlyNonPublicNote,
+    trialPackage.releaseBoundaryNote,
+    trialPackage.deploymentReadinessBoundaryNote,
+    trialPackage.publicProductionBoundaryNote,
+    trialPackage.stopConditionNote,
+    "This package does not approve controlled human use.",
+  ].join("\n");
+
   const workflow = state.completeLocalOperatorWorkflow;
   const workflowLines = [
     `Workflow status: ${workflow.status}`,
@@ -374,6 +400,8 @@ export function renderLocalOperatorShellSnapshot(
     `Run status: ${state.run.status}`,
     "Complete local operator workflow",
     workflowLines,
+    "Controlled internal trial package",
+    trialPackageLines,
     "Left panel: Run history / timeline",
     state.run.timeline.join(" | "),
     "Center panel: Bounded context and candidate output",
