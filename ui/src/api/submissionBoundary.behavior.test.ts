@@ -40,6 +40,8 @@ import {
   deriveCompleteLocalOperatorWorkflowProjection,
   deriveTrialFailureDrillProjection,
   deriveTrialOperatorRunbookProjection,
+  deriveControlledInternalTrialExecutionProjection,
+  initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
@@ -4810,6 +4812,116 @@ function assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown(): vo
   assertDoesNotContain(first, "promote recovery now", "no recovery control");
 }
 
+
+function assertControlledInternalTrialExecutionPanelInitialBlockedState(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Controlled internal trial execution harness", "execution harness panel label");
+  assertContains(rendered, "Trial run status", "trial run status label");
+  assertContains(rendered, "Trial stop-condition observation", "stop observation label");
+  assertContains(rendered, "Trial evidence linkage", "evidence linkage label");
+  assertContains(rendered, "Harness status: not_started", "initial harness status");
+  assertContains(rendered, "Start control: disabled", "start disabled when preconditions fail");
+  assertContains(rendered, "Step control: disabled", "step disabled when preconditions fail");
+  assertContains(rendered, "Controlled internal trial execution harness is local-only and non-public.", "local-only wording");
+  assertContains(rendered, "The harness does not approve controlled human use.", "human-use boundary wording");
+  assertContains(rendered, "The harness does not approve readiness, release, deployment, public use, or production use.", "approval boundary wording");
+  assertContains(rendered, "Stop conditions are observed only; enforcement is not automated in Phase 166.", "stop observation wording");
+  assertContains(rendered, "Escalation is not automated.", "escalation boundary wording");
+  assertContains(rendered, "No action authorization is granted.", "action boundary wording");
+}
+
+function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): void {
+  const base = initialLocalOperatorShellState();
+  const readyProjection = {
+    ...initialControlledInternalTrialExecutionProjection(),
+    status: "ready_for_bounded_local_trial_run" as const,
+    preconditionStatus: ["trial_package=package_read_back_validated", "runbook=ready_for_manual_trial_preparation"],
+    evidenceLinkage: {
+      trialPackage: "package=controlled-internal-trial-package-ui-fixture status=package_read_back_validated",
+      runbook: "runbook_status=ready_for_manual_trial_preparation",
+      failureDrill: "failure_drill_status=stop_condition_drill_required",
+      trialSessionEvidence: "evidence=trial-session-evidence-ui-fixture status=evidence_read_back_validated",
+      replayRestoreVerification: "verification=trial-replay-restore-verification-ui-fixture status=verification_passed",
+      localWorkflow: "workflow_status=complete_local_workflow_projected",
+    },
+  };
+  const readyState: LocalOperatorShellState = {
+    ...base,
+    controlledInternalTrialExecution: readyProjection,
+  };
+  const readyRendered = renderLocalOperatorShellSnapshot(readyState);
+  assertContains(readyRendered, "Harness status: ready_for_bounded_local_trial_run", "ready harness status");
+  assertContains(readyRendered, "Start control: enabled", "start enabled when projection says ready");
+  assertContains(readyRendered, "Trial evidence linkage: package=controlled-internal-trial-package-ui-fixture", "evidence linkage rendered");
+
+  const rejectedState: LocalOperatorShellState = {
+    ...base,
+    controlledInternalTrialExecution: {
+      ...readyProjection,
+      status: "trial_run_blocked",
+      currentBlocker: "stop_condition_observed",
+      lastRejectedRun: {
+        runId: "controlled-internal-trial-run-ui-fixture",
+        status: "trial_run_blocked",
+        currentStep: "observe_stop_conditions",
+        nextStep: null,
+        steps: [
+          { step: "verify_trial_package", status: "completed", summary: "package checked" },
+          { step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" },
+          { step: "record_manual_operator_step", status: "blocked", summary: "manual_action_required" },
+        ],
+        currentBlocker: "stop_condition_observed",
+        rejectionReasons: ["stop_condition_observed"],
+        stopConditionObservation: {
+          status: "stop_condition_observed",
+          observed: true,
+          markers: ["operator_reports_stop_condition"],
+          enforcementAutomated: false,
+        },
+        manualOperatorStepStatus: "manual_operator_step_missing",
+        evidenceLinkage: readyProjection.evidenceLinkage,
+        summary: "Blocked local trial run fixture.",
+      },
+    },
+  };
+  const rejectedRendered = renderLocalOperatorShellSnapshot(rejectedState);
+  assertContains(rejectedRendered, "Trial run ID: controlled-internal-trial-run-ui-fixture", "trial run id rendered");
+  assertContains(rejectedRendered, "Current blocker: stop_condition_observed", "stop blocker rendered");
+  assertContains(rejectedRendered, "Trial stop-condition observation: stop_condition_observed", "stop observation rendered");
+  assertContains(rejectedRendered, "Manual operator step status: manual_operator_step_missing", "manual operator status rendered");
+  assertContains(rejectedRendered, "Step control: disabled", "step disabled when stop condition observed");
+}
+
+function assertControlledInternalTrialExecutionForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  const forbidden = [
+    "trial_ready",
+    "trial_approved",
+    "controlled_human_use_approved",
+    "public_use_approved",
+    "production_use_approved",
+    "release_ready",
+    "production_ready",
+    "deployment_ready",
+    "public_ready",
+    "trial_authorized",
+    "stop_condition_enforced",
+    "authority_activated",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+    "publish_trial",
+    "deploy_trial",
+    "sign_trial",
+    "release_trial",
+  ];
+  for (const label of forbidden) assertDoesNotContain(rendered, label, `forbidden ${label}`);
+  const first = deriveControlledInternalTrialExecutionProjection(initialLocalOperatorShellState());
+  const second = deriveControlledInternalTrialExecutionProjection(initialLocalOperatorShellState());
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic execution projection");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5539,6 +5651,18 @@ payload_summary=authority before replay`),
   {
     name: "trial_session_evidence_panel_projected_read_back_state",
     run: assertTrialSessionEvidencePanelRendersProjectedReadBackState,
+  },
+  {
+    name: "controlled_internal_trial_execution_panel_initial_blocked_state",
+    run: assertControlledInternalTrialExecutionPanelInitialBlockedState,
+  },
+  {
+    name: "controlled_internal_trial_execution_panel_valid_and_rejected_state",
+    run: assertControlledInternalTrialExecutionPanelValidAndRejectedState,
+  },
+  {
+    name: "controlled_internal_trial_execution_forbidden_labels_absent",
+    run: assertControlledInternalTrialExecutionForbiddenLabelsAbsent,
   },
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",

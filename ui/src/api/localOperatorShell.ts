@@ -5459,6 +5459,280 @@ export function initialTrialReplayRestoreVerificationProjection(): TrialReplayRe
   };
 }
 
+
+export type ControlledInternalTrialRunStatus =
+  | "not_started"
+  | "preconditions_missing"
+  | "ready_for_bounded_local_trial_run"
+  | "trial_run_started"
+  | "trial_run_in_progress"
+  | "trial_run_blocked"
+  | "trial_run_completed_locally"
+  | "trial_run_rejected"
+  | "invalid_trial_run_request";
+
+export type ControlledInternalTrialRunStep =
+  | "verify_trial_package"
+  | "verify_runbook"
+  | "verify_failure_drill"
+  | "verify_trial_session_evidence"
+  | "verify_replay_restore"
+  | "verify_complete_local_workflow"
+  | "observe_stop_conditions"
+  | "record_manual_operator_step"
+  | "project_trial_run_summary"
+  | "project_trial_evidence_linkage"
+  | "close_local_trial_run";
+
+export type ControlledInternalTrialRunStepStatus =
+  | "not_started"
+  | "available"
+  | "completed"
+  | "blocked"
+  | "rejected"
+  | "manual_action_required"
+  | "not_applicable";
+
+export type ControlledInternalTrialRunError =
+  | "trial_package_missing"
+  | "trial_package_invalid"
+  | "runbook_missing"
+  | "runbook_blocked"
+  | "failure_drill_missing"
+  | "trial_session_evidence_missing"
+  | "trial_session_evidence_invalid"
+  | "replay_restore_verification_missing"
+  | "replay_restore_verification_rejected"
+  | "replay_restore_verification_not_passed"
+  | "complete_local_workflow_missing"
+  | "complete_local_workflow_blocked"
+  | "complete_local_workflow_rejected"
+  | "stop_condition_observed"
+  | "manual_operator_step_missing"
+  | "readiness_claim_rejected"
+  | "release_claim_rejected"
+  | "deployment_claim_rejected"
+  | "public_use_claim_rejected"
+  | "production_use_claim_rejected"
+  | "provider_trust_claim_rejected"
+  | "action_authorization_claim_rejected"
+  | "replay_repair_claim_rejected"
+  | "recovery_promotion_claim_rejected"
+  | "signing_claim_rejected"
+  | "publishing_claim_rejected"
+  | "release_artifact_claim_rejected";
+
+export type ControlledInternalTrialManualStepStatus =
+  | "not_started"
+  | "manual_action_required"
+  | "recorded"
+  | "manual_operator_step_missing";
+
+export type ControlledInternalTrialExecutionBoundaryStatus =
+  | "controlled_internal_trial_harness_only"
+  | "local_trial_execution_only"
+  | "non_public_trial_execution"
+  | "no_controlled_human_use_approval"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion"
+  | "no_stop_condition_automation"
+  | "no_automated_escalation";
+
+export type ControlledInternalTrialExecutionRequest = Readonly<{
+  operatorStepRecorded?: boolean;
+  stopConditionObserved?: boolean;
+  claimsReadiness?: boolean;
+  claimsRelease?: boolean;
+  claimsDeployment?: boolean;
+  claimsPublicUse?: boolean;
+  claimsProductionUse?: boolean;
+  claimsProviderTrust?: boolean;
+  claimsActionAuthorization?: boolean;
+  claimsReplayRepair?: boolean;
+  claimsRecoveryPromotion?: boolean;
+  claimsSigning?: boolean;
+  claimsPublishing?: boolean;
+  claimsReleaseArtifact?: boolean;
+}>;
+
+export type ControlledInternalTrialRunStepProjection = Readonly<{
+  step: ControlledInternalTrialRunStep;
+  status: ControlledInternalTrialRunStepStatus;
+  summary: string;
+}>;
+
+export type ControlledInternalTrialStopObservation = Readonly<{
+  status: string;
+  observed: boolean;
+  markers: readonly string[];
+  enforcementAutomated: false;
+}>;
+
+export type ControlledInternalTrialEvidenceLinkage = Readonly<{
+  trialPackage: string;
+  runbook: string;
+  failureDrill: string;
+  trialSessionEvidence: string;
+  replayRestoreVerification: string;
+  localWorkflow: string;
+}>;
+
+export type ControlledInternalTrialExecutionCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonPublic: true;
+  approvesControlledHumanUse: false;
+  approvesReadiness: false;
+  approvesRelease: false;
+  approvesDeployment: false;
+  approvesPublicUse: false;
+  approvesProduction: false;
+  trustsProviderOutput: false;
+  authorizesActions: false;
+  repairsReplay: false;
+  promotesRecovery: false;
+  automatesStopConditions: false;
+  automatesEscalation: false;
+}>;
+
+export type ControlledInternalTrialRunProjection = Readonly<{
+  runId: string;
+  status: ControlledInternalTrialRunStatus;
+  currentStep: ControlledInternalTrialRunStep | null;
+  nextStep: ControlledInternalTrialRunStep | null;
+  steps: readonly ControlledInternalTrialRunStepProjection[];
+  currentBlocker: ControlledInternalTrialRunError | null;
+  rejectionReasons: readonly ControlledInternalTrialRunError[];
+  stopConditionObservation: ControlledInternalTrialStopObservation;
+  manualOperatorStepStatus: ControlledInternalTrialManualStepStatus;
+  evidenceLinkage: ControlledInternalTrialEvidenceLinkage;
+  summary: string;
+}>;
+
+export type ControlledInternalTrialExecutionProjection = Readonly<{
+  status: ControlledInternalTrialRunStatus;
+  activeRun: ControlledInternalTrialRunProjection | null;
+  lastRejectedRun: ControlledInternalTrialRunProjection | null;
+  preconditionStatus: readonly string[];
+  currentBlocker: ControlledInternalTrialRunError | null;
+  rejectionReasons: readonly ControlledInternalTrialRunError[];
+  evidenceLinkage: ControlledInternalTrialEvidenceLinkage;
+  boundaryStatuses: readonly ControlledInternalTrialExecutionBoundaryStatus[];
+  capabilitySurface: ControlledInternalTrialExecutionCapabilitySurface;
+  localOnlyNonPublicNote: "Controlled internal trial execution harness is local-only and non-public.";
+  noControlledHumanUseNote: "The harness does not approve controlled human use.";
+  noReadinessReleaseDeploymentPublicProductionNote: "The harness does not approve readiness, release, deployment, public use, or production use.";
+  stopConditionNote: "Stop conditions are observed only; enforcement is not automated in Phase 166.";
+  escalationNote: "Escalation is not automated.";
+  noActionAuthorizationNote: "No action authorization is granted.";
+}>;
+
+function emptyControlledInternalTrialEvidenceLinkage(): ControlledInternalTrialEvidenceLinkage {
+  return {
+    trialPackage: "trial_package=missing",
+    runbook: "runbook=missing",
+    failureDrill: "failure_drill=missing",
+    trialSessionEvidence: "trial_session_evidence=missing",
+    replayRestoreVerification: "replay_restore_verification=missing",
+    localWorkflow: "local_workflow=missing",
+  };
+}
+
+export function initialControlledInternalTrialExecutionProjection(): ControlledInternalTrialExecutionProjection {
+  return {
+    status: "not_started",
+    activeRun: null,
+    lastRejectedRun: null,
+    preconditionStatus: [],
+    currentBlocker: null,
+    rejectionReasons: [],
+    evidenceLinkage: emptyControlledInternalTrialEvidenceLinkage(),
+    boundaryStatuses: [
+      "controlled_internal_trial_harness_only",
+      "local_trial_execution_only",
+      "non_public_trial_execution",
+      "no_controlled_human_use_approval",
+      "no_readiness_approval",
+      "no_release_approval",
+      "no_deployment_approval",
+      "no_public_use_approval",
+      "no_production_approval",
+      "no_provider_trust",
+      "no_action_authorization",
+      "no_replay_repair",
+      "no_recovery_promotion",
+      "no_stop_condition_automation",
+      "no_automated_escalation",
+    ],
+    capabilitySurface: {
+      localOnly: true,
+      nonPublic: true,
+      approvesControlledHumanUse: false,
+      approvesReadiness: false,
+      approvesRelease: false,
+      approvesDeployment: false,
+      approvesPublicUse: false,
+      approvesProduction: false,
+      trustsProviderOutput: false,
+      authorizesActions: false,
+      repairsReplay: false,
+      promotesRecovery: false,
+      automatesStopConditions: false,
+      automatesEscalation: false,
+    },
+    localOnlyNonPublicNote: "Controlled internal trial execution harness is local-only and non-public.",
+    noControlledHumanUseNote: "The harness does not approve controlled human use.",
+    noReadinessReleaseDeploymentPublicProductionNote: "The harness does not approve readiness, release, deployment, public use, or production use.",
+    stopConditionNote: "Stop conditions are observed only; enforcement is not automated in Phase 166.",
+    escalationNote: "Escalation is not automated.",
+    noActionAuthorizationNote: "No action authorization is granted.",
+  };
+}
+
+export function deriveControlledInternalTrialExecutionProjection(state: LocalOperatorShellState): ControlledInternalTrialExecutionProjection {
+  const errors: ControlledInternalTrialRunError[] = [];
+  if (state.controlledInternalTrialPackageProjection.status === "not_packaged") errors.push("trial_package_missing");
+  if (state.trialOperatorRunbook.status === "not_available") errors.push("runbook_missing");
+  if (["trial_package_required", "blocked"].includes(state.trialOperatorRunbook.status)) errors.push("runbook_blocked");
+  if (state.trialFailureDrill.stopConditionDrills.length === 0 && state.trialFailureDrill.categories.length === 0) errors.push("failure_drill_missing");
+  if (state.trialSessionEvidenceProjection.status === "not_captured") errors.push("trial_session_evidence_missing");
+  if (state.trialSessionEvidenceProjection.validationStatus !== "valid" && state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid" && !errors.includes("trial_session_evidence_missing")) errors.push("trial_session_evidence_invalid");
+  if (state.trialReplayRestoreVerification.status === "not_verified") errors.push("replay_restore_verification_missing");
+  if (state.trialReplayRestoreVerification.status === "trial_replay_restore_verification_projected") errors.push("replay_restore_verification_not_passed");
+  if (["verification_rejected", "invalid_verification_input"].includes(state.trialReplayRestoreVerification.status)) errors.push("replay_restore_verification_rejected");
+  if (state.completeLocalOperatorWorkflow.status === "not_started" || state.completeLocalOperatorWorkflow.status === "in_progress") errors.push("complete_local_workflow_missing");
+  if (state.completeLocalOperatorWorkflow.status === "blocked") errors.push("complete_local_workflow_blocked");
+  if (state.completeLocalOperatorWorkflow.status === "rejected") errors.push("complete_local_workflow_rejected");
+  return {
+    ...initialControlledInternalTrialExecutionProjection(),
+    status: errors.length === 0 ? "ready_for_bounded_local_trial_run" : "preconditions_missing",
+    preconditionStatus: [
+      `trial_package=${state.controlledInternalTrialPackageProjection.status}`,
+      `runbook=${state.trialOperatorRunbook.status}`,
+      `failure_drill=${state.trialFailureDrill.status}`,
+      `trial_session_evidence=${state.trialSessionEvidenceProjection.status}`,
+      `replay_restore_verification=${state.trialReplayRestoreVerification.status}`,
+      `local_workflow=${state.completeLocalOperatorWorkflow.status}`,
+    ],
+    currentBlocker: errors[0] ?? null,
+    rejectionReasons: errors,
+    evidenceLinkage: {
+      trialPackage: `package=${state.controlledInternalTrialPackageProjection.packageId ?? "none"} status=${state.controlledInternalTrialPackageProjection.status}`,
+      runbook: `runbook_status=${state.trialOperatorRunbook.status}`,
+      failureDrill: `failure_drill_status=${state.trialFailureDrill.status}`,
+      trialSessionEvidence: `evidence=${state.trialSessionEvidenceProjection.evidenceId ?? "none"} status=${state.trialSessionEvidenceProjection.status}`,
+      replayRestoreVerification: `verification=${state.trialReplayRestoreVerification.verificationId ?? "none"} status=${state.trialReplayRestoreVerification.status}`,
+      localWorkflow: `workflow_status=${state.completeLocalOperatorWorkflow.status}`,
+    },
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -5486,6 +5760,7 @@ export type LocalOperatorShellState = Readonly<{
   trialFailureDrill: TrialFailureDrillProjection;
   trialSessionEvidenceProjection: TrialSessionEvidenceProjection;
   trialReplayRestoreVerification: TrialReplayRestoreVerificationProjection;
+  controlledInternalTrialExecution: ControlledInternalTrialExecutionProjection;
 }>;
 
 
@@ -6140,7 +6415,7 @@ export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellSt
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification"
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification" | "controlledInternalTrialExecution"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -6162,6 +6437,7 @@ function attachLocalSessionEvidenceExport(
     trialFailureDrill: initialTrialFailureDrillProjection(),
     trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
     trialReplayRestoreVerification: initialTrialReplayRestoreVerificationProjection(),
+    controlledInternalTrialExecution: initialControlledInternalTrialExecutionProjection(),
   };
   const withWorkflow: LocalOperatorShellState = {
     ...withExport,
@@ -6173,7 +6449,87 @@ function attachLocalSessionEvidenceExport(
     trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
     trialSessionEvidenceProjection: (state as Partial<LocalOperatorShellState>).trialSessionEvidenceProjection ?? initialTrialSessionEvidenceProjection(),
     trialReplayRestoreVerification: (state as Partial<LocalOperatorShellState>).trialReplayRestoreVerification ?? initialTrialReplayRestoreVerificationProjection(),
+    controlledInternalTrialExecution: (state as Partial<LocalOperatorShellState>).controlledInternalTrialExecution ?? initialControlledInternalTrialExecutionProjection(),
   };
+}
+
+
+function controlledInternalTrialClaimErrors(request: ControlledInternalTrialExecutionRequest): ControlledInternalTrialRunError[] {
+  const errors: ControlledInternalTrialRunError[] = [];
+  if (request.claimsReadiness) errors.push("readiness_claim_rejected");
+  if (request.claimsRelease) errors.push("release_claim_rejected");
+  if (request.claimsDeployment) errors.push("deployment_claim_rejected");
+  if (request.claimsPublicUse) errors.push("public_use_claim_rejected");
+  if (request.claimsProductionUse) errors.push("production_use_claim_rejected");
+  if (request.claimsProviderTrust) errors.push("provider_trust_claim_rejected");
+  if (request.claimsActionAuthorization) errors.push("action_authorization_claim_rejected");
+  if (request.claimsReplayRepair) errors.push("replay_repair_claim_rejected");
+  if (request.claimsRecoveryPromotion) errors.push("recovery_promotion_claim_rejected");
+  if (request.claimsSigning) errors.push("signing_claim_rejected");
+  if (request.claimsPublishing) errors.push("publishing_claim_rejected");
+  if (request.claimsReleaseArtifact) errors.push("release_artifact_claim_rejected");
+  return errors;
+}
+
+function controlledInternalTrialRunStepOrder(): readonly ControlledInternalTrialRunStep[] {
+  return ["verify_trial_package", "verify_runbook", "verify_failure_drill", "verify_trial_session_evidence", "verify_replay_restore", "verify_complete_local_workflow", "observe_stop_conditions", "record_manual_operator_step", "project_trial_run_summary", "project_trial_evidence_linkage", "close_local_trial_run"];
+}
+
+function deterministicTrialExecutionId(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest): string {
+  const basis = `${state.controlledInternalTrialPackageProjection.packageId ?? "none"}|${state.trialOperatorRunbook.status}|${state.trialSessionEvidenceProjection.evidenceId ?? "none"}|${state.trialReplayRestoreVerification.verificationId ?? "none"}|${state.completeLocalOperatorWorkflow.status}|${request.operatorStepRecorded === true}|${request.stopConditionObserved === true}`;
+  let hash = 0x811c9dc5;
+  for (const char of basis) hash = Math.imul(hash ^ char.charCodeAt(0), 0x01000193) >>> 0;
+  return `controlled-internal-trial-run-${hash.toString(16).padStart(8, "0")}`;
+}
+
+export function startControlledInternalTrialExecution(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest = {}): LocalOperatorShellState {
+  const base = deriveControlledInternalTrialExecutionProjection(state);
+  const errors = [...base.rejectionReasons, ...controlledInternalTrialClaimErrors(request)];
+  const stopped = request.stopConditionObserved === true;
+  const status: ControlledInternalTrialRunStatus = errors.length > 0
+    ? "trial_run_rejected"
+    : stopped
+      ? "trial_run_blocked"
+      : request.operatorStepRecorded === true
+        ? "trial_run_completed_locally"
+        : "trial_run_in_progress";
+  const run: ControlledInternalTrialRunProjection = {
+    runId: deterministicTrialExecutionId(state, request),
+    status,
+    currentStep: stopped ? "observe_stop_conditions" : request.operatorStepRecorded ? null : "record_manual_operator_step",
+    nextStep: stopped || request.operatorStepRecorded ? null : "record_manual_operator_step",
+    steps: controlledInternalTrialRunStepOrder().map((step) => ({
+      step,
+      status: errors.length > 0 ? "rejected" : stopped && ["observe_stop_conditions", "record_manual_operator_step", "project_trial_run_summary", "project_trial_evidence_linkage", "close_local_trial_run"].includes(step) ? "blocked" : step === "record_manual_operator_step" && !request.operatorStepRecorded ? "manual_action_required" : "completed",
+      summary: step,
+    })),
+    currentBlocker: stopped ? "stop_condition_observed" : errors[0] ?? (request.operatorStepRecorded ? null : "manual_operator_step_missing"),
+    rejectionReasons: errors,
+    stopConditionObservation: {
+      status: stopped ? "stop_condition_observed" : "no_stop_condition_observed",
+      observed: stopped,
+      markers: state.controlledInternalTrialPackageProjection.stopConditionSummary,
+      enforcementAutomated: false,
+    },
+    manualOperatorStepStatus: request.operatorStepRecorded ? "recorded" : stopped || errors.length > 0 ? "manual_operator_step_missing" : "manual_action_required",
+    evidenceLinkage: base.evidenceLinkage,
+    summary: `Bounded local controlled internal trial run status: ${status}.`,
+  };
+  return {
+    ...state,
+    controlledInternalTrialExecution: {
+      ...base,
+      status: controlledInternalTrialClaimErrors(request).length > 0 ? "invalid_trial_run_request" : status,
+      activeRun: errors.length === 0 && !stopped ? run : state.controlledInternalTrialExecution.activeRun,
+      lastRejectedRun: errors.length > 0 || stopped ? run : null,
+      currentBlocker: run.currentBlocker,
+      rejectionReasons: errors,
+    },
+  };
+}
+
+export function stepControlledInternalTrialExecution(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest = {}): LocalOperatorShellState {
+  return startControlledInternalTrialExecution(state, { ...request, operatorStepRecorded: true });
 }
 
 export type LocalOperatorIntent = Readonly<{
