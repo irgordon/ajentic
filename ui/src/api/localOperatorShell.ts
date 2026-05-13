@@ -5332,6 +5332,133 @@ export function initialTrialSessionEvidenceProjection(): TrialSessionEvidencePro
   };
 }
 
+
+export type TrialReplayRestoreVerificationStatus =
+  | "not_verified"
+  | "trial_replay_restore_verification_projected"
+  | "verification_passed"
+  | "verification_rejected"
+  | "verification_input_missing"
+  | "invalid_verification_input";
+
+export type TrialReplayRestoreVerificationMismatch =
+  | "missing_trial_package_read_back"
+  | "missing_trial_session_evidence_read_back"
+  | "trial_package_read_back_invalid"
+  | "trial_session_evidence_read_back_invalid"
+  | "package_id_mismatch"
+  | "package_version_mismatch"
+  | "package_classification_mismatch"
+  | "production_classification_mismatch"
+  | "distribution_classification_mismatch"
+  | "authority_classification_mismatch"
+  | "workflow_status_mismatch"
+  | "local_candidate_materialization_status_mismatch"
+  | "provider_output_pipeline_status_mismatch"
+  | "operator_decision_status_mismatch"
+  | "replay_status_snapshot_mismatch"
+  | "restore_history_snapshot_mismatch"
+  | "stop_condition_snapshot_mismatch"
+  | "escalation_snapshot_mismatch"
+  | "failure_category_snapshot_mismatch"
+  | "readiness_claim_detected"
+  | "release_claim_detected"
+  | "deployment_claim_detected"
+  | "public_use_claim_detected"
+  | "production_use_claim_detected"
+  | "provider_trust_claim_detected"
+  | "action_authorization_claim_detected"
+  | "replay_repair_claim_detected"
+  | "recovery_promotion_claim_detected";
+
+export type TrialReplayRestoreVerificationBoundaryStatus =
+  | "local_verification_only"
+  | "non_public_verification"
+  | "verification_not_authority"
+  | "no_trial_execution"
+  | "no_controlled_human_use_approval"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type TrialReplayRestoreVerificationComparisonSummary = Readonly<{
+  packageReadBackStatus: string;
+  evidenceReadBackStatus: string;
+  packageEvidenceLinkageStatus: string;
+  workflowLinkageStatus: string;
+  replayStatusComparison: string;
+  restoreHistoryComparison: string;
+  stopConditionComparison: string;
+  escalationFailureComparison: string;
+}>;
+
+export type TrialReplayRestoreVerificationProjection = Readonly<{
+  status: TrialReplayRestoreVerificationStatus;
+  verificationId: string | null;
+  comparisonSummary: TrialReplayRestoreVerificationComparisonSummary;
+  matchedFields: readonly string[];
+  mismatches: readonly TrialReplayRestoreVerificationMismatch[];
+  missingInputs: readonly string[];
+  boundaryStatus: readonly TrialReplayRestoreVerificationBoundaryStatus[];
+  localOnlyNonAuthorityNote: string;
+  comparisonScopeNote: "Verification compares trial artifacts and restore/replay projections.";
+  noReplayRepairNote: "Verification does not repair replay.";
+  noRecoveryPromotionNote: "Verification does not promote recovery.";
+  noApprovalNote: "Verification does not approve controlled human use, readiness, release, deployment, public use, or production use.";
+  noActionExecutionNote: "Verification does not execute actions.";
+}>;
+
+export function initialTrialReplayRestoreVerificationProjection(): TrialReplayRestoreVerificationProjection {
+  return {
+    status: "not_verified",
+    verificationId: null,
+    comparisonSummary: {
+      packageReadBackStatus: "not_verified",
+      evidenceReadBackStatus: "not_verified",
+      packageEvidenceLinkageStatus: "not_verified",
+      workflowLinkageStatus: "not_verified",
+      replayStatusComparison: "not_verified",
+      restoreHistoryComparison: "not_verified",
+      stopConditionComparison: "not_verified",
+      escalationFailureComparison: "not_verified",
+    },
+    matchedFields: [],
+    mismatches: [],
+    missingInputs: [],
+    boundaryStatus: [
+      "local_verification_only",
+      "non_public_verification",
+      "verification_not_authority",
+      "no_trial_execution",
+      "no_controlled_human_use_approval",
+      "no_readiness_approval",
+      "no_release_approval",
+      "no_deployment_approval",
+      "no_public_use_approval",
+      "no_production_approval",
+      "no_provider_trust",
+      "no_action_authorization",
+      "no_replay_repair",
+      "no_recovery_promotion",
+    ],
+    localOnlyNonAuthorityNote:
+      "Trial replay and restore verification is local-only, non-public, and non-authoritative.",
+    comparisonScopeNote:
+      "Verification compares trial artifacts and restore/replay projections.",
+    noReplayRepairNote: "Verification does not repair replay.",
+    noRecoveryPromotionNote: "Verification does not promote recovery.",
+    noApprovalNote:
+      "Verification does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    noActionExecutionNote: "Verification does not execute actions.",
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -5358,6 +5485,7 @@ export type LocalOperatorShellState = Readonly<{
   trialOperatorRunbook: TrialOperatorRunbookProjection;
   trialFailureDrill: TrialFailureDrillProjection;
   trialSessionEvidenceProjection: TrialSessionEvidenceProjection;
+  trialReplayRestoreVerification: TrialReplayRestoreVerificationProjection;
 }>;
 
 
@@ -6012,7 +6140,7 @@ export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellSt
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection"
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -6033,6 +6161,7 @@ function attachLocalSessionEvidenceExport(
     trialOperatorRunbook: initialTrialOperatorRunbookProjection(),
     trialFailureDrill: initialTrialFailureDrillProjection(),
     trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
+    trialReplayRestoreVerification: initialTrialReplayRestoreVerificationProjection(),
   };
   const withWorkflow: LocalOperatorShellState = {
     ...withExport,
@@ -6043,6 +6172,7 @@ function attachLocalSessionEvidenceExport(
     trialFailureDrill: deriveTrialFailureDrillProjection(withWorkflow),
     trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
     trialSessionEvidenceProjection: (state as Partial<LocalOperatorShellState>).trialSessionEvidenceProjection ?? initialTrialSessionEvidenceProjection(),
+    trialReplayRestoreVerification: (state as Partial<LocalOperatorShellState>).trialReplayRestoreVerification ?? initialTrialReplayRestoreVerificationProjection(),
   };
 }
 

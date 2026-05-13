@@ -107,6 +107,31 @@ export function renderLocalOperatorShellSnapshot(
   ].join("\n");
 
 
+
+  const verification = state.trialReplayRestoreVerification;
+  const verificationLines = [
+    `Verification status: ${verification.status}`,
+    `Verification ID: ${verification.verificationId ?? "none"}`,
+    `Package read-back status: ${verification.comparisonSummary.packageReadBackStatus}`,
+    `Evidence read-back status: ${verification.comparisonSummary.evidenceReadBackStatus}`,
+    `Package/evidence linkage status: ${verification.comparisonSummary.packageEvidenceLinkageStatus}`,
+    `Workflow linkage status: ${verification.comparisonSummary.workflowLinkageStatus}`,
+    `Replay/status comparison: ${verification.comparisonSummary.replayStatusComparison}`,
+    `Restore/history comparison: ${verification.comparisonSummary.restoreHistoryComparison}`,
+    `Stop-condition comparison: ${verification.comparisonSummary.stopConditionComparison}`,
+    `Escalation/failure comparison: ${verification.comparisonSummary.escalationFailureComparison}`,
+    `Verification mismatch drilldown: ${verification.mismatches.join(", ") || "none"}`,
+    `Missing verification inputs: ${verification.missingInputs.join(", ") || "none"}`,
+    `Matched verification fields: ${verification.matchedFields.join(", ") || "none"}`,
+    `Boundary markers: ${verification.boundaryStatus.join(", ")}`,
+    verification.localOnlyNonAuthorityNote,
+    verification.comparisonScopeNote,
+    verification.noReplayRepairNote,
+    verification.noRecoveryPromotionNote,
+    verification.noApprovalNote,
+    verification.noActionExecutionNote,
+  ].join("\n");
+
   const runbook = state.trialOperatorRunbook;
   const runbookLines = [
     `Runbook status: ${runbook.status}`,
@@ -477,6 +502,12 @@ export function renderLocalOperatorShellSnapshot(
     failureDrillLines,
     "Escalation guidance",
     failureDrillLines,
+    "Trial replay and restore verification",
+    verificationLines,
+    "Replay/restore verification",
+    verificationLines,
+    "Verification mismatch drilldown",
+    verificationLines,
     "Trial session evidence",
     trialSessionEvidenceLines,
     "Trial evidence capture",

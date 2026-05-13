@@ -28,6 +28,37 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.164 - 2026-05-13
+**Status:** Phase 164 - Trial Replay and Restore Verification
+
+### Added
+- Add Rust-owned trial replay and restore verification projection, comparison summary, mismatch/error model, boundary markers, and deterministic verification result.
+- Add package/evidence linkage verification, restore/history verification, and replay/status snapshot comparison.
+- Add fail-closed rejection for missing, malformed, mismatched, authority-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, replay-repair-bearing, recovery-promotion-bearing, or action-bearing verification inputs.
+- Add UI rendering for trial replay/restore verification status, package/evidence linkage, read-back state, replay/status comparison, restore/history comparison, and mismatch drilldown.
+- Add Rust and TypeScript tests for valid verification, package/evidence mismatch rejection, malformed input rejection, replay/status mismatch rejection, restore/history mismatch rejection, deterministic results, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with trial replay/restore verification status.
+- Update the local UI shell to display trial replay and restore verification results.
+- Update checklists/current-phase.md to Phase 164 procedural truth.
+
+### Notes
+- Code-production phase.
+- Verification compares trial artifacts and restore/replay projections.
+- Verification does not repair replay.
+- Verification does not promote recovery.
+- Verification does not approve controlled human use.
+- Verification does not approve readiness, release, deployment, public use, or production use.
+- Verification does not execute actions.
+- No trial execution.
+- No automated remediation.
+- No provider trust approval.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 165 remains the next code-production alignment checkpoint.
+
 ## v0.0.163 - 2026-05-13
 **Status:** Phase 163 - Trial Session Evidence Capture
 
