@@ -4,21 +4,21 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist: Phase 170.8 - Out-of-Band Local Operator Shell Module Extraction
+# Current Phase Checklist: Phase 170.9 - Out-of-Band Local Operator Shell Extraction Continuation
 
 ## Phase name
-- [x] Phase 170.8 - Out-of-Band Local Operator Shell Module Extraction.
+- [x] Phase 170.9 - Out-of-Band Local Operator Shell Extraction Continuation.
 
 ## Phase goal
-- [x] Move a coherent production-code family out of `core/src/api/local_operator_shell.rs`.
+- [x] Move another coherent production-code family out of `core/src/api/local_operator_shell.rs`.
 - [x] Preserve behavior exactly while reducing local shell monolith risk before Phase 171.
 - [x] Keep Phase 171 as the next planned code-production phase.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
 - [x] Read `docs/operations/rust-maintainability-audit-phase-170-5.md` before extraction.
-- [x] Inspect the Phase 170.7 end state with `core/src/api/local_operator_shell_tests.rs` already split.
-- [x] Keep edits limited to allowed Phase 170.8 surfaces.
+- [x] Inspect the Phase 170.8 end state with the provider output pipeline already split.
+- [x] Keep edits limited to allowed Phase 170.9 surfaces.
 
 ## Allowed surfaces
 - [x] `core/src/api/local_operator_shell.rs`
@@ -26,18 +26,20 @@ mutation_path: checklist_revision
 - [x] `CHANGELOG.md`
 - [x] `checklists/current-phase.md`
 - [ ] `core/src/api/local_operator_shell_tests.rs` only if direct test movement is required.
+- [ ] `core/src/api/local_operator_shell_provider_pipeline.rs` only if import visibility requires adjustment.
 - [ ] `core/src/api/mod.rs` only if a public sibling export is strictly required.
 - [ ] `tests/**/*.rs` only if import paths must be corrected.
 
 ## Extraction target checklist
 - [x] Required target: `core/src/api/local_operator_shell.rs`.
-- [x] Selected target: provider output pipeline projection/types/helpers.
+- [x] Selected target: local candidate materialization types, validation, projection helpers, and boundary helpers.
 - [x] Create a non-empty sibling module owning moved production code.
 - [x] Keep `core/src/api/local_operator_shell.rs` as the public local shell surface.
 - [x] Avoid circular module dependencies.
 
 ## Production-code movement checklist
-- [x] Move provider output pipeline enums, projection structs, stage order, boundary/effect helpers, bridge projection, validation helpers, and derivation functions.
+- [x] Move local candidate materialization status/error enums, request/capability/linkage/projection structs, boundary/effect helper lists, initial projection helper, validation helper, rejection helper, projection helper, and state materialization helper.
+- [x] Do not repeat Phase 170.8 provider output pipeline extraction.
 - [x] Do not count Phase 170.7 test extraction as sufficient.
 - [x] Do not redesign code.
 - [x] Do not introduce provider execution expansion or persistence authority expansion.
@@ -51,7 +53,7 @@ mutation_path: checklist_revision
 - [x] Preserve UI, TypeScript, and schema behavior.
 
 ## Public API preservation checklist
-- [x] Re-export moved provider pipeline items through `local_operator_shell.rs`.
+- [x] Re-export moved candidate materialization items through `local_operator_shell.rs`.
 - [x] Do not rename public types, enum variants, or functions.
 - [x] Keep `core/src/api/mod.rs` stable.
 - [x] Do not add Phase 171 release-candidate preparation APIs.
@@ -66,10 +68,10 @@ mutation_path: checklist_revision
 ## Validation checklist
 - [x] `cargo fmt --manifest-path core/Cargo.toml`
 - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-8-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-8-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-9-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-9-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-8-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-9-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] File-size scan.
@@ -81,8 +83,8 @@ mutation_path: checklist_revision
 
 ## Remaining monolith risk checklist
 - [x] `core/src/api/local_operator_shell.rs` remains oversized after this focused extraction.
-- [x] Candidate materialization helpers remain in the monolith.
-- [x] Trial verification, observability, review, evidence, codec, and transport helpers remain extraction candidates.
+- [x] Trial replay/restore verification helpers remain in the monolith.
+- [x] Trial observability, error reporting, evidence review, evidence codecs, boundary marker, and transport helpers remain extraction candidates.
 - [x] Phase 171 should avoid adding release-candidate preparation logic to the monolith.
 
 ## Phase 171 handoff checklist
@@ -91,7 +93,6 @@ mutation_path: checklist_revision
 - [x] No readiness, release, deployment, public-use, or production approval is introduced.
 
 ## Deferred items
-- [x] Local candidate materialization extraction is deferred.
 - [x] Trial replay/restore verification extraction is deferred.
 - [x] Trial observability/error-reporting extraction is deferred.
 - [x] Trial evidence review extraction is deferred.
@@ -105,8 +106,9 @@ mutation_path: checklist_revision
 - [x] Generated artifacts were cleaned.
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 170.8 surfaces.
-- [x] At least one coherent production-code family moved out of `local_operator_shell.rs`.
+- [x] Staged files match allowed Phase 170.9 surfaces.
+- [x] At least one additional coherent production-code family moved out of `local_operator_shell.rs`.
+- [x] Moved family is not the provider output pipeline extracted in Phase 170.8.
 - [x] Test extraction alone is not counted as sufficient.
 - [x] Moved code remains behavior-preserving.
 - [x] Existing tests pass.
