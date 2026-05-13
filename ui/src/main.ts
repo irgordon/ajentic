@@ -4,11 +4,13 @@ import {
   deterministicFakeAdapterDryRunRequest,
   deterministicStubProviderConfigurationCandidate,
   deterministicStubProviderExecutionRequest,
+  localCandidateMaterializationRequestFromState,
   projectLocalProviderAdapterRegistry,
   projectLocalProviderConfiguration,
   projectLocalProviderExecution,
   type LocalOperatorIntentKind,
   type LocalOperatorShellState,
+  type CompleteLocalOperatorWorkflowProjection,
 } from "./api/localOperatorShell.js";
 import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
 import {
@@ -23,6 +25,8 @@ import {
   submitLocalProviderAdapterDeclaration,
   runLocalProviderAdapterDryRun,
   invokeConstrainedLocalProvider,
+  requestLocalCandidateMaterialization,
+  submitLocalOperatorCandidateDecision,
   type LocalOperatorShellResponse,
 } from "./api/localOperatorShellTransport.js";
 
@@ -161,10 +165,79 @@ function validateStagedProposal(): void {
     validateLocalStagedCandidateConversionProposal(transport),
   );
 }
+function approveValidatedStagedProposal(): void {
+  const proposal = shellState.stagedCandidateConversionProposal.proposal;
+  if (!proposal) return;
+  applyTransportResponse(
+    submitLocalOperatorCandidateDecision(transport, {
+      kind: "approve_validated_staged_proposal",
+      stagedProposalId: proposal.proposalId,
+      providerExecutionResultId: proposal.sourceExecutionResultId,
+      stagedProposalValidationStatus:
+        shellState.stagedCandidateConversionValidation.status,
+    }),
+  );
+}
+
+function materializeLocalCandidate(): void {
+  const request = localCandidateMaterializationRequestFromState(shellState);
+  if (!request) return;
+  applyTransportResponse(requestLocalCandidateMaterialization(transport, request));
+}
+
 
 function renderList(items: readonly string[], emptyText: string): string {
   if (items.length === 0) return `<p class="muted">${emptyText}</p>`;
   return `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function renderCompleteLocalOperatorWorkflow(
+  workflow: CompleteLocalOperatorWorkflowProjection,
+): string {
+  const blocker = workflow.currentBlockingStep ?? "none";
+  const current = workflow.currentStep ?? "none";
+  const next = workflow.nextRequiredStep ?? "none";
+  const rejectionReasons =
+    workflow.rejectionReasons.length === 0
+      ? "<li>none</li>"
+      : workflow.rejectionReasons.map((reason) => `<li>${reason}</li>`).join("");
+  const stepItems = workflow.steps
+    .map(
+      (step) =>
+        `<li><strong>${step.step}</strong>: ${step.status}${step.error ? ` (${step.error})` : ""}<br /><span class="muted">${step.summary}</span></li>`,
+    )
+    .join("");
+  const evidence = workflow.evidenceSummary;
+  return `
+    <div class="workflow-summary">
+      <p><strong>Workflow status:</strong> ${workflow.status}</p>
+      <p><strong>Workflow classification:</strong> ${workflow.classification}</p>
+      <p><strong>Current step:</strong> ${current}</p>
+      <p><strong>Next required step:</strong> ${next}</p>
+      <p><strong>Current blocking step:</strong> ${blocker}</p>
+      <p><strong>Current error:</strong> ${workflow.currentError ?? "none"}</p>
+      <h3>Ordered workflow steps</h3>
+      <ol>${stepItems}</ol>
+      <h3>Rejection / error drilldown</h3>
+      <ul>${rejectionReasons}</ul>
+      <h3>Evidence, package, replay, export status</h3>
+      <dl>
+        <div><dt>Provider output pipeline</dt><dd>${evidence.providerOutputPipelineStatus}</dd></div>
+        <div><dt>Local candidate materialization</dt><dd>${evidence.localCandidateMaterializationStatus}</dd></div>
+        <div><dt>Replay/status projection</dt><dd>${evidence.replayStatus}</dd></div>
+        <div><dt>Local evidence export</dt><dd>${evidence.localEvidenceExportStatus}</dd></div>
+        <div><dt>Session package</dt><dd>${evidence.sessionPackageStatus}</dd></div>
+        <div><dt>Session history</dt><dd>${evidence.sessionHistoryStatus}</dd></div>
+        <div><dt>Restore status</dt><dd>${evidence.restoreStatus}</dd></div>
+      </dl>
+      <h3>Local-only / non-production boundary markers</h3>
+      ${renderList(workflow.boundaryStatuses, "No boundary markers projected.")}
+      <p>${workflow.localOnlyNote}</p>
+      <p>Workflow completion does not approve readiness, release, deployment, public use, or production use.</p>
+      <p>Provider output remains untrusted unless a later bounded phase explicitly changes that.</p>
+      <p>Workflow status does not authorize actions.</p>
+      <p>Replay is not repaired and recovery is not promoted.</p>
+    </div>`;
 }
 
 function renderCandidate(state: LocalOperatorShellState): string {
@@ -546,6 +619,11 @@ function render(): void {
         <p class="muted">The browser shell submits typed local requests only; Rust remains the authoritative state-transition owner.</p>
       </section>
 
+      <section class="panel workflow-panel" aria-label="Complete local operator workflow">
+        <h2>Complete local operator workflow</h2>
+        ${renderCompleteLocalOperatorWorkflow(shellState.completeLocalOperatorWorkflow)}
+      </section>
+
       <section class="local-shell__grid" aria-label="AJENTIC local operator workflow">
         <aside class="panel timeline-panel">
           <h2>Run history / timeline</h2>
@@ -616,6 +694,24 @@ function render(): void {
       <section class="panel" aria-label="Staged proposal validation">
         <h2>Staged proposal validation</h2>
         ${renderStagedProposalValidation(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Operator candidate decision">
+        <h2>Operator candidate decision</h2>
+        <p><strong>Status:</strong> ${shellState.operatorCandidateDecision.status}</p>
+        <p><strong>Decision:</strong> ${shellState.operatorCandidateDecision.record?.decisionId ?? "none"}</p>
+        <button id="approve-staged-proposal" type="button" ${shellState.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" ? "" : "disabled"}>Record validated staged proposal decision</button>
+        <p class="muted">Decision is bounded to the validated staged proposal and does not grant provider trust or production approval.</p>
+      </section>
+
+      <section class="panel" aria-label="Local candidate materialization">
+        <h2>Local candidate materialization</h2>
+        <p><strong>Status:</strong> ${shellState.localCandidateOutput.status}</p>
+        <p><strong>Candidate:</strong> ${shellState.localCandidateOutput.candidateId ?? "none"}</p>
+        <p><strong>Summary:</strong> ${shellState.localCandidateOutput.contentSummary ?? "none"}</p>
+        <p><strong>Rejection reason:</strong> ${shellState.localCandidateOutput.error ?? "none"}</p>
+        <button id="materialize-local-candidate" type="button" ${localCandidateMaterializationRequestFromState(shellState) ? "" : "disabled"}>Materialize local candidate output</button>
+        <p class="muted">Local candidate output is local-only, non-production, and does not authorize actions.</p>
       </section>
 
 
@@ -691,6 +787,12 @@ function render(): void {
   document
     .querySelector<HTMLButtonElement>("#validate-staged-proposal")
     ?.addEventListener("click", validateStagedProposal);
+  document
+    .querySelector<HTMLButtonElement>("#approve-staged-proposal")
+    ?.addEventListener("click", approveValidatedStagedProposal);
+  document
+    .querySelector<HTMLButtonElement>("#materialize-local-candidate")
+    ?.addEventListener("click", materializeLocalCandidate);
 }
 
 render();

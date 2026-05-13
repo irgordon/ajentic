@@ -2232,18 +2232,25 @@ export function applyConstrainedLocalProviderInvocation(
     request,
   );
   if ("result" in validation)
-    return {
-      status: "rejected",
-      reason: "constrained_local_provider_invocation_rejected",
-      state: {
+    {
+      const rejectedState = {
         ...state,
         constrainedLocalProviderInvocation: validation,
         localProviderOutputPipeline: deriveLocalProviderOutputPipelineProjection({
           ...state,
           constrainedLocalProviderInvocation: validation,
         }),
-      },
-    };
+      };
+      return {
+        status: "rejected",
+        reason: "constrained_local_provider_invocation_rejected",
+        state: {
+          ...rejectedState,
+          completeLocalOperatorWorkflow:
+            deriveCompleteLocalOperatorWorkflowProjection(rejectedState),
+        },
+      };
+    }
   const result = executeAllowlistedLocalDeterministicProviderInvocation(
     validation,
     request,
@@ -3711,22 +3718,22 @@ export function materializeLocalCandidateOutput(
     return {
       status: "rejected",
       reason: projection,
-      state: {
+      state: attachLocalSessionEvidenceExport({
         ...state,
         localCandidateOutput: rejectLocalCandidateMaterialization(
           state.localCandidateOutput,
           projection,
         ),
-      },
+      }),
     };
   }
   return {
     status: "accepted",
     reason: "local_candidate_materialized",
-    state: {
+    state: attachLocalSessionEvidenceExport({
       ...state,
       localCandidateOutput: projection,
-    },
+    }),
   };
 }
 
@@ -4794,6 +4801,117 @@ export type LocalRunProjection = Readonly<{
   decisionReplay: LocalDecisionReplayProjection;
 }>;
 
+
+export type CompleteLocalOperatorWorkflowStatus =
+  | "not_started"
+  | "in_progress"
+  | "blocked"
+  | "rejected"
+  | "local_candidate_materialized"
+  | "complete_local_workflow_projected";
+
+export type CompleteLocalOperatorWorkflowStepStatus =
+  | "not_started"
+  | "available"
+  | "completed"
+  | "blocked"
+  | "rejected"
+  | "not_applicable";
+
+export type CompleteLocalOperatorWorkflowStepKind =
+  | "provider_adapter_configured"
+  | "adapter_dry_run_available"
+  | "constrained_invocation_completed"
+  | "provider_output_pipeline_projected"
+  | "provider_output_validated"
+  | "provider_output_reviewed"
+  | "staged_proposal_created"
+  | "staged_proposal_validated"
+  | "candidate_review_projected"
+  | "operator_decision_recorded"
+  | "local_candidate_materialized"
+  | "replay_status_projected"
+  | "local_evidence_export_projected"
+  | "session_package_projected"
+  | "restore_status_projected";
+
+export type CompleteLocalOperatorWorkflowError =
+  | "adapter_not_configured"
+  | "invocation_missing"
+  | "invocation_rejected"
+  | "provider_pipeline_blocked"
+  | "provider_output_validation_missing"
+  | "provider_output_validation_rejected"
+  | "provider_output_review_missing"
+  | "staged_proposal_missing"
+  | "staged_proposal_validation_missing"
+  | "staged_proposal_validation_rejected"
+  | "candidate_review_missing"
+  | "operator_decision_missing"
+  | "operator_decision_rejected"
+  | "local_candidate_not_materialized"
+  | "replay_status_missing"
+  | "evidence_export_missing"
+  | "session_package_missing"
+  | "restore_status_missing";
+
+export type CompleteLocalOperatorWorkflowBoundaryStatus =
+  | "local_beta_workflow_only"
+  | "no_provider_trust"
+  | "no_production_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_action_execution"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type CompleteLocalOperatorWorkflowStep = Readonly<{
+  step: CompleteLocalOperatorWorkflowStepKind;
+  status: CompleteLocalOperatorWorkflowStepStatus;
+  error: CompleteLocalOperatorWorkflowError | null;
+  summary: string;
+}>;
+
+export type CompleteLocalOperatorWorkflowEvidenceSummary = Readonly<{
+  providerOutputPipelineStatus: string;
+  localCandidateMaterializationStatus: string;
+  replayStatus: string;
+  localEvidenceExportStatus: string;
+  sessionPackageStatus: string;
+  sessionHistoryStatus: string;
+  restoreStatus: string;
+}>;
+
+export type CompleteLocalOperatorWorkflowCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonProduction: true;
+  providerTrustGranted: false;
+  actionExecutionAuthorized: false;
+  readinessApproved: false;
+  releaseApproved: false;
+  deploymentApproved: false;
+  publicUseApproved: false;
+  replayRepairPerformed: false;
+  recoveryPromotionPerformed: false;
+}>;
+
+export type CompleteLocalOperatorWorkflowProjection = Readonly<{
+  status: CompleteLocalOperatorWorkflowStatus;
+  classification: "local_beta_workflow_only";
+  currentStep: CompleteLocalOperatorWorkflowStepKind | null;
+  nextRequiredStep: CompleteLocalOperatorWorkflowStepKind | null;
+  currentBlockingStep: CompleteLocalOperatorWorkflowStepKind | null;
+  currentError: CompleteLocalOperatorWorkflowError | null;
+  steps: readonly CompleteLocalOperatorWorkflowStep[];
+  rejectionReasons: readonly string[];
+  evidenceSummary: CompleteLocalOperatorWorkflowEvidenceSummary;
+  boundaryStatuses: readonly CompleteLocalOperatorWorkflowBoundaryStatus[];
+  capabilitySurface: CompleteLocalOperatorWorkflowCapabilitySurface;
+  localOnlyNote: string;
+  noAuthorityNote: string;
+}>;
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -4815,7 +4933,229 @@ export type LocalOperatorShellState = Readonly<{
   localSessionPackageProjection: LocalSessionPackageProjection;
   localSessionHistoryProjection: LocalSessionHistoryProjection;
   localSessionRestoreProjection: LocalSessionRestoreProjection;
+  completeLocalOperatorWorkflow: CompleteLocalOperatorWorkflowProjection;
 }>;
+
+
+export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
+  return [
+    "local_beta_workflow_only",
+    "no_provider_trust",
+    "no_production_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_action_execution",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+
+export function completeLocalOperatorWorkflowStepOrder(): readonly CompleteLocalOperatorWorkflowStepKind[] {
+  return [
+    "provider_adapter_configured",
+    "adapter_dry_run_available",
+    "constrained_invocation_completed",
+    "provider_output_pipeline_projected",
+    "provider_output_validated",
+    "provider_output_reviewed",
+    "staged_proposal_created",
+    "staged_proposal_validated",
+    "candidate_review_projected",
+    "operator_decision_recorded",
+    "local_candidate_materialized",
+    "replay_status_projected",
+    "local_evidence_export_projected",
+    "session_package_projected",
+    "restore_status_projected",
+  ];
+}
+
+function completeLocalOperatorWorkflowCapabilitySurface(): CompleteLocalOperatorWorkflowCapabilitySurface {
+  return {
+    localOnly: true,
+    nonProduction: true,
+    providerTrustGranted: false,
+    actionExecutionAuthorized: false,
+    readinessApproved: false,
+    releaseApproved: false,
+    deploymentApproved: false,
+    publicUseApproved: false,
+    replayRepairPerformed: false,
+    recoveryPromotionPerformed: false,
+  };
+}
+
+function workflowStep(
+  step: CompleteLocalOperatorWorkflowStepKind,
+  status: CompleteLocalOperatorWorkflowStepStatus,
+  error: CompleteLocalOperatorWorkflowError | null,
+  summary: string,
+): CompleteLocalOperatorWorkflowStep {
+  return { step, status, error, summary };
+}
+
+export function initialCompleteLocalOperatorWorkflowProjection(): CompleteLocalOperatorWorkflowProjection {
+  return {
+    status: "blocked",
+    classification: "local_beta_workflow_only",
+    currentStep: "provider_adapter_configured",
+    nextRequiredStep: "provider_adapter_configured",
+    currentBlockingStep: "provider_adapter_configured",
+    currentError: "adapter_not_configured",
+    steps: completeLocalOperatorWorkflowStepOrder().map((step) =>
+      step === "provider_adapter_configured"
+        ? workflowStep(step, "blocked", "adapter_not_configured", "Provider adapter declaration is missing.")
+        : workflowStep(step, "not_started", null, "Waiting for earlier local workflow steps."),
+    ),
+    rejectionReasons: [],
+    evidenceSummary: {
+      providerOutputPipelineStatus: "not_started",
+      localCandidateMaterializationStatus: "not_materialized",
+      replayStatus: "no_decision_recorded",
+      localEvidenceExportStatus: "no_completed_run_evidence",
+      sessionPackageStatus: "not_packaged",
+      sessionHistoryStatus: "no_session_history",
+      restoreStatus: "restore_not_requested",
+    },
+    boundaryStatuses: completeLocalOperatorWorkflowBoundaryStatuses(),
+    capabilitySurface: completeLocalOperatorWorkflowCapabilitySurface(),
+    localOnlyNote: "Complete local workflow is local-only and non-production.",
+    noAuthorityNote:
+      "Workflow completion does not approve readiness, release, deployment, public use, or production use. Provider output remains untrusted unless a later bounded phase explicitly changes that. Workflow status does not authorize actions. Replay is not repaired and recovery is not promoted.",
+  };
+}
+
+export function classifyCompleteLocalOperatorWorkflowStep(
+  state: LocalOperatorShellState,
+  step: CompleteLocalOperatorWorkflowStepKind,
+): CompleteLocalOperatorWorkflowStep {
+  switch (step) {
+    case "provider_adapter_configured":
+      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
+        return workflowStep(step, "completed", null, "Provider adapter declaration is accepted.");
+      if (state.localProviderAdapterRegistry.lastValidation.status === "registry_projected")
+        return workflowStep(step, "blocked", "adapter_not_configured", "Provider adapter declaration is missing.");
+      return workflowStep(step, "rejected", "adapter_not_configured", "Provider adapter declaration is rejected or invalid.");
+    case "adapter_dry_run_available":
+      if (state.localProviderAdapterDryRun.status === "dry_run_executed")
+        return workflowStep(step, "completed", null, "Controlled adapter dry run has executed.");
+      if (["dry_run_rejected", "unsupported_adapter", "invalid_dry_run_request"].includes(state.localProviderAdapterDryRun.status))
+        return workflowStep(step, "rejected", "invocation_rejected", `Controlled adapter dry run rejected: ${state.localProviderAdapterDryRun.errorCodes.join(", ")}.`);
+      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
+        return workflowStep(step, "available", null, "Controlled adapter dry run is available.");
+      return workflowStep(step, "not_started", null, "Controlled adapter dry run waits for adapter configuration.");
+    case "constrained_invocation_completed":
+      if (state.constrainedLocalProviderInvocation.status === "invocation_executed")
+        return workflowStep(step, "completed", null, "Constrained local provider invocation has executed.");
+      if (["invocation_rejected", "unsupported_provider", "invalid_invocation_request"].includes(state.constrainedLocalProviderInvocation.status))
+        return workflowStep(step, "rejected", "invocation_rejected", `Constrained local provider invocation rejected: ${state.constrainedLocalProviderInvocation.errorCodes.join(", ")}.`);
+      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
+        return workflowStep(step, "blocked", "invocation_missing", "Constrained local provider invocation is missing.");
+      return workflowStep(step, "not_started", null, "Invocation waits for provider adapter configuration.");
+    case "provider_output_pipeline_projected":
+      if (state.localProviderOutputPipeline.status === "valid")
+        return workflowStep(step, "completed", null, "Provider output pipeline is valid.");
+      if (state.localProviderOutputPipeline.status === "rejected")
+        return workflowStep(step, "rejected", "provider_pipeline_blocked", `Provider output pipeline blocked: ${state.localProviderOutputPipeline.errors.join(", ")}.`);
+      return workflowStep(step, "blocked", "provider_pipeline_blocked", "Provider output pipeline projection is missing or incomplete.");
+    case "provider_output_validated":
+      if (state.providerOutputValidation.status === "reviewable_untrusted")
+        return workflowStep(step, "completed", null, "Provider output validation is reviewable and untrusted.");
+      if (state.providerOutputValidation.status === "not_validated")
+        return workflowStep(step, "blocked", "provider_output_validation_missing", "Provider output validation is missing.");
+      return workflowStep(step, "rejected", "provider_output_validation_rejected", `Provider output validation rejected: ${state.providerOutputValidation.reasons.join(", ")}.`);
+    case "provider_output_reviewed":
+      if (state.providerOutputValidation.reviewabilityStatus === "reviewable_untrusted")
+        return workflowStep(step, "completed", null, "Provider output review surface is projected.");
+      if (state.providerOutputValidation.reviewabilityStatus === "rejected_before_review")
+        return workflowStep(step, "rejected", "provider_output_validation_rejected", "Provider output was rejected before review.");
+      return workflowStep(step, "blocked", "provider_output_review_missing", "Provider output review is missing.");
+    case "staged_proposal_created":
+      if (state.stagedCandidateConversionProposal.status === "staged_proposal_created")
+        return workflowStep(step, "completed", null, "Staged candidate-conversion proposal exists.");
+      if (["rejected_source_not_eligible", "invalid_proposal_request"].includes(state.stagedCandidateConversionProposal.status))
+        return workflowStep(step, "rejected", "staged_proposal_missing", "Staged proposal creation was rejected.");
+      return workflowStep(step, "blocked", "staged_proposal_missing", "Staged candidate-conversion proposal is missing.");
+    case "staged_proposal_validated":
+      if (state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid")
+        return workflowStep(step, "completed", null, "Staged proposal shape and linkage are valid.");
+      if (state.stagedCandidateConversionValidation.status === "not_validated")
+        return workflowStep(step, "blocked", "staged_proposal_validation_missing", "Staged proposal validation is missing.");
+      return workflowStep(step, "rejected", "staged_proposal_validation_rejected", `Staged proposal validation rejected: ${state.stagedCandidateConversionValidation.reasons.join(", ")}.`);
+    case "candidate_review_projected":
+      return state.localProviderOutputPipeline.candidateReviewStatus === "display_only"
+        ? workflowStep(step, "completed", null, "Candidate review surface is projected as display-only.")
+        : workflowStep(step, "blocked", "candidate_review_missing", "Candidate review projection is missing.");
+    case "operator_decision_recorded":
+      if (state.operatorCandidateDecision.status === "approved_validated_staged_proposal")
+        return workflowStep(step, "completed", null, "Operator decision on validated staged proposal is recorded.");
+      if (state.operatorCandidateDecision.status === "no_operator_decision")
+        return workflowStep(step, "blocked", "operator_decision_missing", "Operator decision is missing.");
+      return workflowStep(step, "rejected", "operator_decision_rejected", "Operator decision is rejected or invalid.");
+    case "local_candidate_materialized":
+      if (state.localCandidateOutput.status === "local_candidate_materialized")
+        return workflowStep(step, "completed", null, "Local candidate output is materialized.");
+      if (state.localCandidateOutput.status === "not_materialized")
+        return workflowStep(step, "blocked", "local_candidate_not_materialized", "Local candidate output is not materialized.");
+      return workflowStep(step, "rejected", "local_candidate_not_materialized", `Local candidate materialization rejected: ${state.localCandidateOutput.error ?? "unknown"}.`);
+    case "replay_status_projected":
+      return workflowStep(step, "completed", null, `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`);
+    case "local_evidence_export_projected":
+      return workflowStep(step, "completed", null, `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.`);
+    case "session_package_projected":
+      return workflowStep(step, "completed", null, `Local session package status is ${state.localSessionPackageProjection.status}.`);
+    case "restore_status_projected":
+      return workflowStep(step, "completed", null, `Restore/history status is ${state.localSessionHistoryProjection.status} / ${state.localSessionRestoreProjection.status}.`);
+  }
+}
+
+export function deriveCompleteLocalOperatorWorkflowProjection(
+  state: LocalOperatorShellState,
+): CompleteLocalOperatorWorkflowProjection {
+  const steps = completeLocalOperatorWorkflowStepOrder().map((step) =>
+    classifyCompleteLocalOperatorWorkflowStep(state, step),
+  );
+  const blocker = steps.find((step) => step.status === "blocked" || step.status === "rejected") ?? null;
+  const rejectionReasons = steps
+    .filter((step) => step.status === "rejected")
+    .map((step) => `${step.step}: ${step.error ?? "rejected"}`);
+  const status: CompleteLocalOperatorWorkflowStatus =
+    rejectionReasons.length > 0
+      ? "rejected"
+      : blocker
+        ? "blocked"
+        : state.localCandidateOutput.status === "local_candidate_materialized"
+          ? "complete_local_workflow_projected"
+          : steps.some((step) => step.status === "completed")
+            ? "in_progress"
+            : "not_started";
+  const currentStep = blocker?.step ?? steps.find((step) => step.status !== "completed")?.step ?? null;
+  return {
+    status,
+    classification: "local_beta_workflow_only",
+    currentStep,
+    nextRequiredStep: currentStep,
+    currentBlockingStep: blocker?.step ?? null,
+    currentError: blocker?.error ?? null,
+    steps,
+    rejectionReasons,
+    evidenceSummary: {
+      providerOutputPipelineStatus: state.localProviderOutputPipeline.status,
+      localCandidateMaterializationStatus: state.localCandidateOutput.status,
+      replayStatus: state.run.decisionReplay.replayStatus,
+      localEvidenceExportStatus: state.localSessionEvidenceExport.exportStatus,
+      sessionPackageStatus: state.localSessionPackageProjection.status,
+      sessionHistoryStatus: state.localSessionHistoryProjection.status,
+      restoreStatus: state.localSessionRestoreProjection.status,
+    },
+    boundaryStatuses: completeLocalOperatorWorkflowBoundaryStatuses(),
+    capabilitySurface: completeLocalOperatorWorkflowCapabilitySurface(),
+    localOnlyNote: "Complete local workflow is local-only and non-production.",
+    noAuthorityNote:
+      "Workflow completion does not approve readiness, release, deployment, public use, or production use. Provider output remains untrusted unless a later bounded phase explicitly changes that. Workflow status does not authorize actions. Replay is not repaired and recovery is not promoted.",
+  };
+}
 
 export function deriveLocalSessionEvidenceExport(
   harnessStatus: string,
@@ -4925,7 +5265,10 @@ export function validateLocalSessionEvidenceExport(
 }
 
 function attachLocalSessionEvidenceExport(
-  state: Omit<LocalOperatorShellState, "localSessionEvidenceExport">,
+  state: Omit<
+    LocalOperatorShellState,
+    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow"
+  >,
 ): LocalOperatorShellState {
   const next = {
     ...state,
@@ -4933,7 +5276,7 @@ function attachLocalSessionEvidenceExport(
       state as LocalOperatorShellState,
     ),
   };
-  return {
+  const withExport: LocalOperatorShellState = {
     ...next,
     localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
       next.harnessStatus,
@@ -4941,6 +5284,11 @@ function attachLocalSessionEvidenceExport(
       next.run,
       next.decisionLedger,
     ),
+    completeLocalOperatorWorkflow: initialCompleteLocalOperatorWorkflowProjection(),
+  };
+  return {
+    ...withExport,
+    completeLocalOperatorWorkflow: deriveCompleteLocalOperatorWorkflowProjection(withExport),
   };
 }
 

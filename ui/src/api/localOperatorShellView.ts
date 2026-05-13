@@ -49,6 +49,30 @@ export function renderLocalOperatorShellSnapshot(
     `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`,
   ].join("\n");
 
+  const workflow = state.completeLocalOperatorWorkflow;
+  const workflowLines = [
+    `Workflow status: ${workflow.status}`,
+    `Workflow classification: ${workflow.classification}`,
+    `Current step: ${workflow.currentStep ?? "none"}`,
+    `Next required step: ${workflow.nextRequiredStep ?? "none"}`,
+    `Current blocking step: ${workflow.currentBlockingStep ?? "none"}`,
+    `Current error: ${workflow.currentError ?? "none"}`,
+    `Workflow steps: ${workflow.steps.map((step) => `${step.step}=${step.status}${step.error ? `/${step.error}` : ""}`).join(", ")}`,
+    `Rejection reasons: ${workflow.rejectionReasons.join(", ") || "none"}`,
+    `Provider output pipeline status: ${workflow.evidenceSummary.providerOutputPipelineStatus}`,
+    `Local candidate materialization status: ${workflow.evidenceSummary.localCandidateMaterializationStatus}`,
+    `Replay/status summary: ${workflow.evidenceSummary.replayStatus}`,
+    `Local evidence export summary: ${workflow.evidenceSummary.localEvidenceExportStatus}`,
+    `Session package status: ${workflow.evidenceSummary.sessionPackageStatus}`,
+    `Restore/history status: ${workflow.evidenceSummary.restoreStatus} / ${workflow.evidenceSummary.sessionHistoryStatus}`,
+    `Boundary markers: ${workflow.boundaryStatuses.join(", ")}`,
+    workflow.localOnlyNote,
+    "Workflow completion does not approve readiness, release, deployment, public use, or production use.",
+    "Provider output remains untrusted unless a later bounded phase explicitly changes that.",
+    "Workflow status does not authorize actions.",
+    "Replay is not repaired and recovery is not promoted.",
+  ].join("\n");
+
   const providerConfiguration = projectLocalProviderConfiguration(
     state.providerConfiguration,
   );
@@ -348,6 +372,8 @@ export function renderLocalOperatorShellSnapshot(
     "AJENTIC local operator shell - non-production",
     `Harness status: ${state.harnessStatus}`,
     `Run status: ${state.run.status}`,
+    "Complete local operator workflow",
+    workflowLines,
     "Left panel: Run history / timeline",
     state.run.timeline.join(" | "),
     "Center panel: Bounded context and candidate output",

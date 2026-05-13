@@ -37,6 +37,7 @@ import {
   validateProviderOutputPipelineStageOrder,
   localCandidateMaterializationRequestFromState,
   materializeLocalCandidateOutput,
+  deriveCompleteLocalOperatorWorkflowProjection,
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
@@ -4345,6 +4346,127 @@ function assertConstrainedLocalProviderInvocationRejectsAndPreservesNoAuthority(
   );
 }
 
+
+function assertCompleteLocalOperatorWorkflowPanelInitialBlocked(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Complete local operator workflow", "workflow panel label");
+  assertContains(rendered, "Workflow status: blocked", "initial blocked status");
+  assertContains(
+    rendered,
+    "Current blocking step: provider_adapter_configured",
+    "initial blocker",
+  );
+  assertContains(rendered, "adapter_not_configured", "initial blocker error");
+  assertContains(
+    rendered,
+    "Complete local workflow is local-only and non-production.",
+    "local-only wording",
+  );
+  assertContains(
+    rendered,
+    "Workflow completion does not approve readiness, release, deployment, public use, or production use.",
+    "no approval wording",
+  );
+  assertContains(
+    rendered,
+    "Provider output remains untrusted unless a later bounded phase explicitly changes that.",
+    "provider trust wording",
+  );
+  assertContains(
+    rendered,
+    "Workflow status does not authorize actions.",
+    "no action wording",
+  );
+  assertContains(
+    rendered,
+    "Replay is not repaired and recovery is not promoted.",
+    "no replay repair wording",
+  );
+}
+
+function assertCompleteLocalOperatorWorkflowPanelRejectedState(): void {
+  const transport = createLocalOperatorShellTransport();
+  submitLocalProviderAdapterDeclaration(
+    transport,
+    deterministicFakeAdapterDeclarationCandidate(),
+  );
+  const response = invokeConstrainedLocalProvider(transport, {
+    providerKind: "allowlisted_local_deterministic_provider",
+    inputSummary: "phase 159 rejected workflow invocation",
+    fields: [{ key: "secret", value: "token" }],
+  });
+  const workflow = response.state.completeLocalOperatorWorkflow;
+  assertEqual(workflow.status, "rejected", "rejected workflow status");
+  assertEqual(
+    workflow.currentBlockingStep,
+    "constrained_invocation_completed",
+    "rejected invocation blocker",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(response.state);
+  assertContains(rendered, "Workflow status: rejected", "rendered rejected status");
+  assertContains(rendered, "invocation_rejected", "rendered invocation rejection");
+  assertContains(rendered, "Rejection reasons:", "rejection drilldown");
+}
+
+function assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic(): void {
+  const { transport, request } = phase158ApprovedMaterializationState();
+  const response = requestLocalCandidateMaterialization(transport, request);
+  const workflow = response.state.completeLocalOperatorWorkflow;
+  assertEqual(
+    workflow.status,
+    "complete_local_workflow_projected",
+    "complete workflow status",
+  );
+  assertEqual(
+    workflow.currentBlockingStep,
+    null,
+    "no blocker after materialization",
+  );
+  assertEqual(
+    workflow.evidenceSummary.localCandidateMaterializationStatus,
+    "local_candidate_materialized",
+    "materialization evidence summary",
+  );
+  assertEqual(
+    workflow.boundaryStatuses.includes("local_beta_workflow_only"),
+    true,
+    "local beta boundary",
+  );
+  assertEqual(
+    workflow.boundaryStatuses.includes("no_provider_trust"),
+    true,
+    "no provider trust boundary",
+  );
+  assertEqual(
+    workflow.boundaryStatuses.includes("no_action_execution"),
+    true,
+    "no action boundary",
+  );
+  assertEqual(
+    workflow.capabilitySurface.providerTrustGranted,
+    false,
+    "provider trust remains false",
+  );
+  assertEqual(
+    workflow.capabilitySurface.actionExecutionAuthorized,
+    false,
+    "action execution remains false",
+  );
+  const first = renderLocalOperatorShellSnapshot(response.state);
+  const second = renderLocalOperatorShellSnapshot(response.state);
+  assertEqual(first, second, "workflow rendering deterministic");
+  assertEqual(
+    JSON.stringify(deriveCompleteLocalOperatorWorkflowProjection(response.state)),
+    JSON.stringify(workflow),
+    "derived projection matches carried shell state",
+  );
+  assertContains(first, "provider_adapter_configured=completed", "step list rendered");
+  assertContains(first, "local_candidate_materialized=completed", "materialized step rendered");
+  assertContains(first, "Session package status:", "package summary rendered");
+  assertContains(first, "Restore/history status:", "restore summary rendered");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5016,6 +5138,18 @@ payload_summary=authority before replay`),
   {
     name: "provider_output_pipeline_has_no_shortcut_controls",
     run: assertProviderOutputPipelineHasNoShortcutControls,
+  },
+  {
+    name: "complete_local_operator_workflow_panel_initial_blocked",
+    run: assertCompleteLocalOperatorWorkflowPanelInitialBlocked,
+  },
+  {
+    name: "complete_local_operator_workflow_panel_rejected_state",
+    run: assertCompleteLocalOperatorWorkflowPanelRejectedState,
+  },
+  {
+    name: "complete_local_operator_workflow_panel_happy_path_deterministic",
+    run: assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic,
   },
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",
