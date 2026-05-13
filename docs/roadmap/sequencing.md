@@ -377,9 +377,52 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 169 must fix confirmed usability, restore, package, evidence, verification, runbook, observability, or workflow defects found in controlled trial evidence.
    - Boundary: concrete local-beta hardening code only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
 
-70. **Phase 170 is the next production-path alignment checkpoint**
-   - Phase 170 must decide whether Release Candidate preparation may be planned or whether another local-beta hardening block is required.
-   - Boundary: alignment only; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, or public/general use approval.
+70. **Phase 170 reconciles the controlled-trial/local-beta block**
+   - Phase 170 decides `proceed_with_caveats_to_release_candidate_preparation_block` after reconciling the controlled internal trial execution harness, trial observability, trial error reporting, trial evidence review, local beta hardening, user-facing local HTML help, `help/index.html`, and the visible UI help entry point.
+   - Boundary: alignment only; release-candidate preparation is not release readiness; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, controlled human-use approval, or public/general use approval.
+
+71. **Phase 171 defines the Release Candidate Preparation Contract**
+   - Phase 171 must produce product-facing code, executable validation, or a concrete preparation contract surface from local beta evidence.
+   - Boundary: no release artifacts and no release readiness approval.
+
+72. **Phase 172 assembles a local dry package**
+   - Phase 172 must produce a local, non-public dry package artifact through explicit caller-provided paths.
+   - Boundary: no publishing, signing, installer, public download, or release approval.
+
+73. **Phase 173 generates checksum and provenance evidence**
+   - Phase 173 must produce deterministic checksum/provenance evidence for the dry package.
+   - Boundary: no signing or publishing.
+
+74. **Phase 174 exposes installer and distribution contract status**
+   - Phase 174 must add a local installer/distribution contract projection and UI visibility.
+   - Boundary: no public distribution and no update-channel activation.
+
+75. **Phase 175 is a code-production alignment checkpoint**
+   - Phase 175 must reconcile Phases 171-174 and decide whether signing/key-custody dry-run work or another hardening block may proceed.
+   - Boundary: alignment only; no release approval, readiness approval, signing activation, publishing, deployment, or public/general use approval.
+
+76. **Phase 176 performs signing and key-custody dry run work**
+   - Phase 176 must add a local dry-run signing/key-custody evidence surface using test-only or placeholder metadata.
+   - Boundary: no real signing keys, public signing, publishing, or release approval.
+
+77. **Phase 177 assembles Release Candidate evidence in the UI**
+   - Phase 177 must add a UI surface for dry-package, checksum/provenance, installer/distribution contract, signing dry run, help docs, local beta evidence, and validation results.
+   - Boundary: evidence assembly only; no approval.
+
+78. **Phase 178 hardens confirmed Release Candidate preparation gaps**
+   - Phase 178 must ship concrete code or validation hardening for confirmed evidence/documentation/packaging gaps.
+   - Boundary: no release approval.
+
+79. **Phase 179 rehearses the Release Candidate dry run**
+   - Phase 179 must produce a deterministic local dry-run evidence artifact.
+   - Boundary: no release approval and no public artifact.
+
+80. **Phase 180 is the Release Candidate Decision Gate**
+   - Phase 180 must decide whether Release Candidate status is supportable or whether another hardening block is required.
+   - Boundary: decision gate only; no release, production, deployment, public/general use, signing, publishing, or provider-output trust approval by implication.
+
+
+Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements. Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
 
 ## Ladder-Preservation sequencing invariants
 

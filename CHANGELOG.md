@@ -28,6 +28,36 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.170 - 2026-05-13
+**Status:** Phase 170 - Production-Path Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 166-169 controlled-trial/local-beta block.
+- Confirm the current local beta path includes controlled internal trial execution harness, trial observability/error reporting, trial evidence review surface, local beta hardening, and user-facing local HTML help.
+- Verify local HTML help pages and visible UI help entry point exist as part of local beta readiness for the next block.
+- Decide whether Phase 171 may proceed toward release-candidate preparation work.
+- Remap Phase 171-180 toward release-candidate preparation contract, dry package assembly, checksum/provenance evidence, installer/distribution contract, signing/key-custody dry run, release-candidate evidence assembly UI, gap hardening, dry-run rehearsal, and a Release Candidate decision gate.
+- Preserve the post-Phase-170 rule that non-0/5 phases must produce product-facing code, executable artifacts, release-candidate preparation artifacts, or deterministic validation improvements.
+- Update checklists/current-phase.md to Phase 170 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No trial execution behavior.
+- No release artifact creation.
+- No deployment behavior.
+- No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
+- User help is explanatory only and not authority.
+- Local beta workflow completion is not production readiness.
+- Release-candidate preparation is not release readiness.
+- Phase 171 is expected to resume code production.
+
 ## v0.0.169 - 2026-05-13
 **Status:** Phase 169 - Local Beta Hardening Pass and User Help Surface
 
