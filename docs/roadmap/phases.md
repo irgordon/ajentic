@@ -460,6 +460,66 @@ Goal: Decide whether controlled internal trial packaging may proceed and remap t
 
 Boundary: Alignment checkpoint only; no implementation, public release approval, production approval, or automatic Release Candidate approval.
 
+Decision: `proceed_with_caveats_to_controlled_internal_trial_packaging`.
+
+Reconciliation: Phases 151-159 are treated as an aligned local beta product-capability block covering local session package, session history and restore UI, real local provider adapter contract, controlled adapter dry run, constrained invocation, provider output pipeline integration, local candidate materialization, and complete local operator workflow.
+
+Authority preservation: local beta workflow completion is not production readiness; local candidate materialization is not production approval; provider output remains untrusted unless a later explicit bounded phase changes that; evidence export is not release evidence; session package is not a release artifact; restore projection is not recovery promotion; replay/status projection is not replay repair; operator decisions are local workflow decisions, not release/deployment/public-use approvals; passing validation is not readiness approval; absence of blockers is not approval.
+
+### Phase 161 - Controlled Internal Trial Package
+Goal: Create a local-only controlled internal trial package from the local beta workflow for named internal trial operators.
+
+Boundary: Code-production phase; must produce a real local package/checklist bundle; no public release, signing, publishing, installer/update channel, deployment, provider trust, action execution, or readiness approval.
+
+### Phase 162 - Trial Operator Runbook and Failure Drill UI
+Goal: Add operator-facing runbook surfaces and visible failure/rejection drilldowns in the UI.
+
+Boundary: Code-production phase for human usability and troubleshooting only; no approval authority.
+
+### Phase 163 - Trial Session Evidence Capture
+Goal: Capture local trial-session evidence for workflow status, decision state, candidate materialization, replay/status, export, package/restore, and errors.
+
+Boundary: Code-production phase; local trial evidence artifact only; evidence export is not release evidence.
+
+### Phase 164 - Trial Replay and Restore Verification
+Goal: Verify a trial package can be restored, replay/status inspected, and evidence compared deterministically.
+
+Boundary: Code-production phase; executable restore/replay verification only; restore projection is not recovery promotion and replay/status projection is not replay repair.
+
+### Phase 165 - Code-Production Alignment Checkpoint
+Goal: Reconcile Phases 161-164 and decide whether broader internal trial execution can proceed.
+
+Boundary: Alignment checkpoint only; no implementation, release readiness, production readiness, deployment, or public/general use approval.
+
+### Phase 166 - Controlled Internal Trial Execution Harness
+Goal: Run a bounded internal trial workflow using the package, runbook, and evidence surfaces.
+
+Boundary: Code-production phase; executable trial-run harness or deterministic local trial runner only; no production monitoring claim, provider trust, action execution, or public/general use.
+
+### Phase 167 - Trial Observability and Error Reporting
+Goal: Add local trial observability/error reporting surfaces for failures, blocked states, restore issues, replay status, and package validation.
+
+Boundary: Code-production phase; local trial observability only; no production monitoring claim.
+
+### Phase 168 - Trial Evidence Review Surface
+Goal: Add UI/evidence surfaces for reviewing trial run evidence, operator notes, failure categories, and unresolved blockers.
+
+Boundary: Code-production phase; review only; no approval and absence of blockers is not approval.
+
+### Phase 169 - Local Beta Hardening Pass
+Goal: Fix confirmed usability, error-handling, restore, package, or workflow defects found in controlled trial evidence.
+
+Boundary: Code-production phase; hardening only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
+
+### Phase 170 - Production-Path Alignment Checkpoint
+Goal: Decide whether AJENTIC may proceed toward Release Candidate preparation or requires another local-beta hardening block.
+
+Boundary: Alignment checkpoint only; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, or public/general use approval.
+
+## Phase 160 alignment note
+
+`docs/roadmap/phase-160-production-path-alignment.md` records the concise Phase 160 reconciliation and Phase 161-170 remap. Every non-0/5 phase after Phase 160 must produce visible UI capability, executable Rust capability, persisted local artifact, restore/replay/export capability, trial package or trial evidence artifact, local observability/error-reporting capability, or end-to-end operator workflow improvement. Safety checks remain embedded in implementation phases and must not become the only product of a non-0/5 phase unless they directly validate a newly introduced executable capability.
+
 ## Phase 150 remap note
 
 `docs/roadmap/phase-150-code-production-remap.md` is the single authoritative remap for Phases 151-160. It uses Phase 149 executable handoff evidence, preserves existing safety boundaries, embeds safety checks in implementation phases, and requires non-0/5 phases to produce larger product capabilities toward a usable local beta.

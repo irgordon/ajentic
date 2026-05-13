@@ -28,6 +28,43 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+
+## v0.0.160 - 2026-05-13
+**Status:** Phase 160 - Production-Path Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 151-159 local beta product-capability block.
+- Confirm the current local beta workflow includes session package, restore/history UI, adapter contract, controlled adapter dry run, constrained invocation, provider output pipeline integration, local candidate materialization, and complete local operator workflow.
+- Remap Phase 161-170 toward controlled internal trial packaging, trial evidence capture, restore/replay verification, trial observability, evidence review, and local beta hardening.
+- Preserve the post-Phase-150 rule that non-0/5 phases must produce product-facing code, executable artifacts, or operator-visible workflow improvements.
+- Update checklists/current-phase.md to Phase 160 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No release artifact creation.
+- No deployment behavior.
+- No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
+- Phase 160 is not release readiness approval.
+- Phase 160 is not deployment approval.
+- Local beta workflow completion is not production readiness.
+- Local candidate materialization is not production approval.
+- Provider output remains untrusted unless a later explicit bounded phase changes that.
+- Evidence export is not release evidence.
+- Session package is not a release artifact.
+- Restore projection is not recovery promotion.
+- Replay/status projection is not replay repair.
+- Operator decisions are local workflow decisions, not release/deployment/public-use approvals.
+- Passing validation is not readiness approval.
+- Absence of blockers is not approval.
+- Phase 161 is expected to resume code production.
+
 ## v0.0.159 - 2026-05-12
 **Status:** Phase 159 - Complete Local Operator Workflow
 
