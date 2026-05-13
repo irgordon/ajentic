@@ -43,6 +43,7 @@ import {
   deriveControlledInternalTrialExecutionProjection,
   deriveTrialObservabilityProjection,
   deriveTrialErrorReportProjection,
+  deriveTrialEvidenceReviewProjection,
   initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
 } from "./localOperatorShell";
@@ -5017,6 +5018,112 @@ function assertTrialObservabilityForbiddenLabelsAbsent(): void {
   ]) assertDoesNotContain(rendered, label, `forbidden observability label ${label}`);
 }
 
+
+function assertTrialEvidenceReviewPanelRendersInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial evidence review", "review panel label");
+  assertContains(rendered, "Trial review findings", "findings panel label");
+  assertContains(rendered, "Trial unresolved blockers", "unresolved blockers panel label");
+  assertContains(rendered, "Local beta hardening candidates", "hardening candidates panel label");
+  assertContains(rendered, "Trial source evidence linkage", "source linkage label");
+  assertContains(rendered, "Review status: hardening_candidates_projected", "initial review status");
+  assertContains(rendered, "Controlled trial package status: not_packaged", "package status rendered");
+  assertContains(rendered, "Trial execution status: not_started", "execution status rendered");
+  assertContains(rendered, "Trial evidence status: not_captured", "evidence status rendered");
+  assertContains(rendered, "Replay/restore verification status: not_verified", "verification status rendered");
+  assertContains(rendered, "Category: trial_package", "finding category rendered");
+  assertContains(rendered, "Severity: blocking", "finding severity rendered");
+  assertContains(rendered, "Disposition: requires_phase_169_hardening", "hardening disposition rendered");
+  assertContains(rendered, "Source: controlled_internal_trial_package", "finding source rendered");
+  assertContains(rendered, "Trial evidence review is local-only and non-public.", "local-only wording");
+  assertContains(rendered, "Review findings are evidence, not approval.", "evidence not approval wording");
+  assertContains(rendered, "Review does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no authority wording");
+  assertContains(rendered, "Review does not automate remediation, escalation, or stop-condition enforcement.", "no automation wording");
+  assertContains(rendered, "Review does not repair replay or promote recovery.", "no repair wording");
+  assertContains(rendered, "Hardening candidates are inputs for Phase 169 code work, not approvals.", "hardening note wording");
+}
+
+function assertTrialEvidenceReviewBlockedAndMismatchRendering(): void {
+  const base = initialLocalOperatorShellState();
+  const state: LocalOperatorShellState = {
+    ...base,
+    trialReplayRestoreVerification: {
+      ...base.trialReplayRestoreVerification,
+      status: "verification_rejected",
+      comparisonSummary: {
+        ...base.trialReplayRestoreVerification.comparisonSummary,
+        replayStatusComparison: "replay/status comparison rejected",
+        restoreHistoryComparison: "restore/history comparison rejected",
+      },
+      mismatches: ["replay_status_snapshot_mismatch", "restore_history_snapshot_mismatch", "trial_package_read_back_invalid"],
+    },
+    controlledInternalTrialExecution: {
+      ...base.controlledInternalTrialExecution,
+      status: "trial_run_blocked",
+      currentBlocker: "stop_condition_observed",
+      rejectionReasons: ["stop_condition_observed"],
+      lastRejectedRun: {
+        runId: "controlled-internal-trial-run-review-ui",
+        status: "trial_run_blocked",
+        currentStep: "observe_stop_conditions",
+        nextStep: null,
+        steps: [{ step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" }],
+        currentBlocker: "stop_condition_observed",
+        rejectionReasons: ["stop_condition_observed"],
+        stopConditionObservation: { status: "stop_condition_observed", observed: true, markers: ["operator_reports_stop_condition"], enforcementAutomated: false },
+        manualOperatorStepStatus: "manual_operator_step_missing",
+        evidenceLinkage: base.controlledInternalTrialExecution.evidenceLinkage,
+        summary: "Blocked evidence review fixture.",
+      },
+    },
+  };
+  const observed: LocalOperatorShellState = {
+    ...state,
+    trialObservability: deriveTrialObservabilityProjection(state),
+    trialErrorReport: deriveTrialErrorReportProjection(state),
+  };
+  const projected: LocalOperatorShellState = { ...observed, trialEvidenceReview: deriveTrialEvidenceReviewProjection(observed) };
+  const rendered = renderLocalOperatorShellSnapshot(projected);
+  assertContains(rendered, "Review status: review_blocked", "blocked review status");
+  assertContains(rendered, "Category: stop_condition", "stop-condition finding");
+  assertContains(rendered, "Category: replay_status", "replay mismatch finding");
+  assertContains(rendered, "Category: restore_history", "restore mismatch finding");
+  assertContains(rendered, "trial_package_read_back_invalid", "package read-back failure finding");
+  assertContains(rendered, "Unresolved blocker count:", "unresolved blocker count rendered");
+  assertContains(rendered, "Target surface: replay_restore_verification", "hardening target surface rendered");
+  assertContains(rendered, "controlled_internal_trial_package:controlled_internal_trial_package", "source evidence linkage rendered");
+  assertEqual(JSON.stringify(deriveTrialEvidenceReviewProjection(projected)), JSON.stringify(deriveTrialEvidenceReviewProjection(projected)), "deterministic evidence review projection");
+}
+
+function assertTrialEvidenceReviewForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  for (const label of [
+    "review_approved",
+    "trial_approved",
+    "controlled_human_use_approved",
+    "public_use_approved",
+    "production_use_approved",
+    "release_ready",
+    "production_ready",
+    "deployment_ready",
+    "public_ready",
+    "trusted_review",
+    "approved_review",
+    "finding_resolved_by_review",
+    "hardening_complete",
+    "auto_remediation_enabled",
+    "stop_condition_enforced",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+    "publish_review",
+    "deploy_review",
+    "sign_review",
+    "release_review",
+  ]) assertDoesNotContain(rendered, label, `forbidden trial evidence review label ${label}`);
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -5770,6 +5877,18 @@ payload_summary=authority before replay`),
   {
     name: "trial_observability_forbidden_labels_absent",
     run: assertTrialObservabilityForbiddenLabelsAbsent,
+  },
+  {
+    name: "trial_evidence_review_panel_initial_state",
+    run: assertTrialEvidenceReviewPanelRendersInitialState,
+  },
+  {
+    name: "trial_evidence_review_blocked_and_mismatch_rendering",
+    run: assertTrialEvidenceReviewBlockedAndMismatchRendering,
+  },
+  {
+    name: "trial_evidence_review_forbidden_labels_absent",
+    run: assertTrialEvidenceReviewForbiddenLabelsAbsent,
   },
 
   {
