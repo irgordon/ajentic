@@ -28,6 +28,38 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.159 - 2026-05-12
+**Status:** Phase 159 - Complete Local Operator Workflow
+
+### Added
+- Add Rust-owned complete local operator workflow projection, step classification, current blocker detection, evidence summary, and boundary markers.
+- Add UI rendering for a complete local operator workflow panel with step status, blocked/rejected state, error drilldown, local candidate materialization status, replay/status summary, evidence export summary, session package status, and restore/history status.
+- Add Rust and TypeScript tests for happy-path workflow projection, blocked/rejected workflow states, deterministic rendering, and no-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with complete local workflow status.
+- Update the local UI shell to show the complete local workflow from provider setup through local candidate materialization.
+- Update checklists/current-phase.md to Phase 159 procedural truth.
+
+### Notes
+- Code-production phase.
+- Complete local workflow is local-only and non-production.
+- Workflow completion does not approve readiness, release, deployment, public use, or production use.
+- Workflow completion does not grant provider trust.
+- Workflow completion does not authorize actions.
+- No additional provider execution capability.
+- No arbitrary command execution.
+- No shell command execution.
+- No network sockets.
+- No secret handling.
+- No production persistence.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 160 remains the next production-path alignment checkpoint.
+
 ## v0.0.158 - 2026-05-12
 **Status:** Phase 158 - Local Candidate Materialization
 
