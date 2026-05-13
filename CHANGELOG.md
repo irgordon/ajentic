@@ -28,6 +28,44 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.165 - 2026-05-13
+**Status:** Phase 165 - Code-Production Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 161-164 controlled-internal-trial preparation block.
+- Confirm the current controlled-trial preparation path includes controlled internal trial package, operator runbook/failure drill UI, trial session evidence capture, and trial replay/restore verification.
+- Decide whether Phase 166 may proceed to a controlled internal trial execution harness.
+- Confirm or adjust the Phase 166-170 block toward controlled internal trial execution, trial observability/error reporting, trial evidence review, local beta hardening, and the next production-path checkpoint.
+- Preserve the post-Phase-160 rule that non-0/5 phases must produce product-facing code, executable artifacts, trial evidence artifacts, observability/error-reporting capability, or operator-visible workflow improvements.
+- Update checklists/current-phase.md to Phase 165 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No trial execution behavior.
+- No release artifact creation.
+- No deployment behavior.
+- No installer, update-channel, signing, publishing, public-use, or readiness approval behavior.
+- Controlled internal trial package is not trial approval.
+- Trial operator runbook is guidance only.
+- Failure drill is guidance only.
+- Stop-condition drill is not automated enforcement.
+- Escalation guidance does not activate authority.
+- Trial session evidence is not readiness evidence.
+- Trial session evidence is not release evidence.
+- Trial session evidence is not deployment evidence.
+- Replay/restore verification is not replay repair or recovery promotion.
+- Verification passing is not approval.
+- Absence of blockers is not approval.
+- Phase 166 does not imply public/general use, production use, release readiness, Production Candidate status, controlled human-use approval, provider trust, or action execution.
+- Phase 166 is expected to resume code production.
+
 ## v0.0.164 - 2026-05-13
 **Status:** Phase 164 - Trial Replay and Restore Verification
 

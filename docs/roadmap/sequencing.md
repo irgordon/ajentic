@@ -358,24 +358,24 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: restore projection is not recovery promotion; replay/status projection is not replay repair.
 
 65. **Phase 165 reconciles the first trial-packaging block**
-   - Phase 165 must reconcile Phases 161-164 and decide whether broader internal trial execution can proceed.
-   - Boundary: alignment only; no implementation, release readiness, production readiness, deployment, or public/general use approval.
+   - Phase 165 reconciles Phases 161-164 and decides `proceed_with_caveats_to_controlled_internal_trial_execution_harness`.
+   - Boundary: alignment only; no implementation, controlled human-use approval, release readiness, production readiness, deployment, or public/general use approval.
 
 66. **Phase 166 adds the controlled internal trial execution harness**
-   - Phase 166 must run a bounded internal trial workflow using the package, runbook, and evidence surfaces.
-   - Boundary: deterministic local trial execution only; no production monitoring claim, provider trust, action execution, or public/general use.
+   - Phase 166 must run a bounded internal trial workflow using the package, runbook, evidence, restore, and verification surfaces.
+   - Boundary: deterministic local trial execution only; no public release, production approval, trial authority outside explicit local harness constraints, provider trust, action execution, or public/general use.
 
 67. **Phase 167 adds local trial observability and error reporting**
-   - Phase 167 must add local surfaces for failures, blocked states, restore issues, replay status, and package validation.
-   - Boundary: local trial observability only; no production monitoring claim.
+   - Phase 167 must add local surfaces for failures, blocked states, restore issues, replay status, package validation, evidence validation, and verification mismatches.
+   - Boundary: local trial observability only; no production monitoring claim, background telemetry, or network telemetry.
 
 68. **Phase 168 adds the trial evidence review surface**
-   - Phase 168 must add UI/evidence review for trial run evidence, operator notes, failure categories, and unresolved blockers.
-   - Boundary: review only; absence of blockers is not approval.
+   - Phase 168 must add UI/evidence review for trial run evidence, operator notes, failure categories, verification results, stop-condition outcomes, and unresolved blockers.
+   - Boundary: evidence review only; no readiness approval and absence of blockers is not approval.
 
 69. **Phase 169 hardens local beta based on trial evidence**
-   - Phase 169 must fix confirmed usability, error-handling, restore, package, or workflow defects found in controlled trial evidence.
-   - Boundary: hardening only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
+   - Phase 169 must fix confirmed usability, restore, package, evidence, verification, runbook, observability, or workflow defects found in controlled trial evidence.
+   - Boundary: concrete local-beta hardening code only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
 
 70. **Phase 170 is the next production-path alignment checkpoint**
    - Phase 170 must decide whether Release Candidate preparation may be planned or whether another local-beta hardening block is required.
