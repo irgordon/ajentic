@@ -487,34 +487,40 @@ Goal: Verify a trial package can be restored, replay/status inspected, and evide
 Boundary: Code-production phase; executable restore/replay verification only; restore projection is not recovery promotion and replay/status projection is not replay repair.
 
 ### Phase 165 - Code-Production Alignment Checkpoint
-Goal: Reconcile Phases 161-164 and decide whether broader internal trial execution can proceed.
+Goal: Reconcile Phases 161-164 and decide that Phase 166 may proceed to a controlled internal trial execution harness with caveats.
 
-Boundary: Alignment checkpoint only; no implementation, release readiness, production readiness, deployment, or public/general use approval.
+Boundary: Alignment checkpoint only; no implementation, release readiness, production readiness, deployment, controlled human-use approval, or public/general use approval.
+
+Decision: `proceed_with_caveats_to_controlled_internal_trial_execution_harness`.
 
 ### Phase 166 - Controlled Internal Trial Execution Harness
-Goal: Run a bounded internal trial workflow using the package, runbook, and evidence surfaces.
+Goal: Run a bounded internal trial workflow using the package, runbook, evidence, restore, and verification surfaces.
 
-Boundary: Code-production phase; executable trial-run harness or deterministic local trial runner only; no production monitoring claim, provider trust, action execution, or public/general use.
+Boundary: Code-production phase; executable trial-run harness or deterministic local trial runner only; no public release, production approval, trial authority outside explicit local harness constraints, production monitoring claim, provider trust, action execution, or public/general use.
 
 ### Phase 167 - Trial Observability and Error Reporting
-Goal: Add local trial observability/error reporting surfaces for failures, blocked states, restore issues, replay status, and package validation.
+Goal: Add local trial observability/error reporting surfaces for failures, blocked states, restore issues, replay status, package validation, evidence validation, and verification mismatches.
 
-Boundary: Code-production phase; local trial observability only; no production monitoring claim.
+Boundary: Code-production phase; local trial observability only; no production monitoring claim, background telemetry, or network telemetry.
 
 ### Phase 168 - Trial Evidence Review Surface
-Goal: Add UI/evidence surfaces for reviewing trial run evidence, operator notes, failure categories, and unresolved blockers.
+Goal: Add UI/evidence surfaces for reviewing trial run evidence, operator notes, failure categories, verification results, stop-condition outcomes, and unresolved blockers.
 
-Boundary: Code-production phase; review only; no approval and absence of blockers is not approval.
+Boundary: Code-production phase; evidence review only; no readiness approval and absence of blockers is not approval.
 
 ### Phase 169 - Local Beta Hardening Pass
-Goal: Fix confirmed usability, error-handling, restore, package, or workflow defects found in controlled trial evidence.
+Goal: Fix confirmed usability, restore, package, evidence, verification, runbook, observability, or workflow defects found in controlled trial evidence.
 
-Boundary: Code-production phase; hardening only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
+Boundary: Code-production phase; concrete local-beta hardening code only; no readiness, release, deployment, signing, publishing, provider-output trust, candidate approval, or public/general-use approval.
 
 ### Phase 170 - Production-Path Alignment Checkpoint
 Goal: Decide whether AJENTIC may proceed toward Release Candidate preparation or requires another local-beta hardening block.
 
 Boundary: Alignment checkpoint only; no Release Candidate status, Production Candidate status, release readiness, production readiness, deployment, or public/general use approval.
+
+## Phase 165 alignment note
+
+`docs/roadmap/phase-165-code-production-alignment.md` records the concise Phase 165 reconciliation, Phase 166 gate decision, and confirmed Phase 166-170 block. Every non-0/5 phase after Phase 165 must produce visible UI capability, executable Rust capability, trial execution harness behavior, trial evidence artifact, local observability/error-reporting capability, restore/replay/export verification capability, end-to-end operator workflow improvement, or concrete local-beta hardening code. Safety checks remain embedded in implementation phases and must not become the only product of a non-0/5 phase unless they directly validate a newly introduced executable capability.
 
 ## Phase 160 alignment note
 
