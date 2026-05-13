@@ -28,6 +28,37 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.166 - 2026-05-13
+**Status:** Phase 166 - Controlled Internal Trial Execution Harness
+
+### Added
+- Add Rust-owned controlled internal trial execution harness projection, trial-run request, lifecycle steps, stop-condition observation, manual operator step status, evidence linkage, and boundary markers.
+- Add deterministic bounded local trial-run projection gated by controlled internal trial package, runbook, failure drill, trial session evidence, replay/restore verification, and complete local workflow preconditions.
+- Add fail-closed rejection for missing, blocked, rejected, authority-bearing, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, action-bearing, replay-repair-bearing, recovery-promotion-bearing, signing-bearing, or publishing-bearing trial execution requests.
+- Add UI rendering for controlled trial execution harness status, trial-run lifecycle, stop-condition observation, manual operator step status, evidence linkage, blockers, and rejection reasons.
+- Add Rust and TypeScript tests for valid harness execution, missing precondition rejection, stop-condition blocking, deterministic trial-run projection, no-authority boundaries, and visible harness behavior.
+
+### Changed
+- Extend the local operator shell projection with controlled internal trial execution harness status.
+- Update the local UI shell to display and operate the bounded local trial execution harness.
+- Update checklists/current-phase.md to Phase 166 procedural truth.
+
+### Notes
+- Code-production phase.
+- Controlled internal trial execution harness is local-only and non-public.
+- Harness execution does not approve controlled human use.
+- Harness execution does not approve readiness, release, deployment, public use, or production use.
+- Stop conditions are observed only; enforcement is not automated.
+- Escalation is not automated.
+- No action authorization is granted.
+- No provider trust approval.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 167 remains the next code-production phase for trial observability and error reporting.
+
 ## v0.0.165 - 2026-05-13
 **Status:** Phase 165 - Code-Production Alignment Checkpoint
 

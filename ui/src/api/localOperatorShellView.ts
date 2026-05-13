@@ -132,6 +132,35 @@ export function renderLocalOperatorShellSnapshot(
     verification.noActionExecutionNote,
   ].join("\n");
 
+  const trialExecution = state.controlledInternalTrialExecution;
+  const displayedTrialRun = trialExecution.activeRun ?? trialExecution.lastRejectedRun;
+  const trialExecutionLines = [
+    `Harness status: ${trialExecution.status}`,
+    `Trial run status: ${displayedTrialRun?.status ?? trialExecution.status}`,
+    `Trial run ID: ${displayedTrialRun?.runId ?? "none"}`,
+    `Current trial step: ${displayedTrialRun?.currentStep ?? "none"}`,
+    `Next trial step: ${displayedTrialRun?.nextStep ?? "none"}`,
+    `Ordered trial run steps: ${displayedTrialRun?.steps.map((step) => `${step.step}=${step.status}`).join(", ") ?? "none"}`,
+    `Current blocker: ${displayedTrialRun?.currentBlocker ?? trialExecution.currentBlocker ?? "none"}`,
+    `Rejection reasons: ${(displayedTrialRun?.rejectionReasons ?? trialExecution.rejectionReasons).join(", ") || "none"}`,
+    `Precondition status: ${trialExecution.preconditionStatus.join(", ") || "not evaluated"}`,
+    `Start control: ${trialExecution.status === "ready_for_bounded_local_trial_run" ? "enabled" : "disabled"}`,
+    `Step control: ${displayedTrialRun && displayedTrialRun.status === "trial_run_in_progress" && !displayedTrialRun.stopConditionObservation.observed ? "enabled" : "disabled"}`,
+    `Trial stop-condition observation: ${displayedTrialRun?.stopConditionObservation.status ?? "not_started"}`,
+    `Stop-condition observed: ${displayedTrialRun?.stopConditionObservation.observed ?? false}`,
+    `Stop-condition markers: ${displayedTrialRun?.stopConditionObservation.markers.join(", ") || "none"}`,
+    `Stop-condition enforcement automated: ${displayedTrialRun?.stopConditionObservation.enforcementAutomated ?? false}`,
+    `Manual operator step status: ${displayedTrialRun?.manualOperatorStepStatus ?? "not_started"}`,
+    `Trial evidence linkage: ${trialExecution.evidenceLinkage.trialPackage} | ${trialExecution.evidenceLinkage.runbook} | ${trialExecution.evidenceLinkage.failureDrill} | ${trialExecution.evidenceLinkage.trialSessionEvidence} | ${trialExecution.evidenceLinkage.replayRestoreVerification} | ${trialExecution.evidenceLinkage.localWorkflow}`,
+    `Boundary markers: ${trialExecution.boundaryStatuses.join(", ")}`,
+    trialExecution.localOnlyNonPublicNote,
+    trialExecution.noControlledHumanUseNote,
+    trialExecution.noReadinessReleaseDeploymentPublicProductionNote,
+    trialExecution.stopConditionNote,
+    trialExecution.escalationNote,
+    trialExecution.noActionAuthorizationNote,
+  ].join("\n");
+
   const runbook = state.trialOperatorRunbook;
   const runbookLines = [
     `Runbook status: ${runbook.status}`,
@@ -502,6 +531,14 @@ export function renderLocalOperatorShellSnapshot(
     failureDrillLines,
     "Escalation guidance",
     failureDrillLines,
+    "Controlled internal trial execution harness",
+    trialExecutionLines,
+    "Trial run status",
+    trialExecutionLines,
+    "Trial stop-condition observation",
+    trialExecutionLines,
+    "Trial evidence linkage",
+    trialExecutionLines,
     "Trial replay and restore verification",
     verificationLines,
     "Replay/restore verification",

@@ -11,6 +11,9 @@ import {
   submitOperatorCandidateDecision,
   materializeLocalCandidateOutput,
   startDeterministicStubRun,
+  startControlledInternalTrialExecution,
+  stepControlledInternalTrialExecution,
+  type ControlledInternalTrialExecutionRequest,
   type LocalOperatorIntent,
   type LocalProviderConfigurationCandidate,
   type LocalProviderAdapterConfigurationCandidate,
@@ -41,6 +44,8 @@ export type LocalOperatorShellRequest =
   | Readonly<{ kind: "get_initial_state" }>
   | Readonly<{ kind: "get_current_state" }>
   | Readonly<{ kind: "start_deterministic_stub_run" }>
+  | Readonly<{ kind: "start_controlled_internal_trial_execution"; request: ControlledInternalTrialExecutionRequest }>
+  | Readonly<{ kind: "step_controlled_internal_trial_execution"; request: ControlledInternalTrialExecutionRequest }>
   | Readonly<{ kind: "submit_operator_intent"; intent: LocalOperatorIntent }>
   | Readonly<{
       kind: "submit_provider_configuration";
@@ -109,6 +114,8 @@ export type LocalOperatorShellTransport = Readonly<{
   getInitialState: () => LocalOperatorShellResponse;
   getCurrentState: () => LocalOperatorShellResponse;
   startDeterministicStubRun: () => LocalOperatorShellResponse;
+  startControlledInternalTrialExecution: (request: ControlledInternalTrialExecutionRequest) => LocalOperatorShellResponse;
+  stepControlledInternalTrialExecution: (request: ControlledInternalTrialExecutionRequest) => LocalOperatorShellResponse;
   submitOperatorIntent: (
     intent: LocalOperatorIntent,
   ) => LocalOperatorShellResponse;
@@ -215,6 +222,16 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
           "deterministic_stub_run_completed",
           startDeterministicStubRun(state),
         );
+      case "start_controlled_internal_trial_execution": {
+        const next = startControlledInternalTrialExecution(state, request.request);
+        if (["trial_run_rejected", "trial_run_blocked", "invalid_trial_run_request"].includes(next.controlledInternalTrialExecution.status)) return rejected("controlled_internal_trial_execution_rejected", next);
+        return accepted("controlled_internal_trial_execution_started", next);
+      }
+      case "step_controlled_internal_trial_execution": {
+        const next = stepControlledInternalTrialExecution(state, request.request);
+        if (["trial_run_rejected", "trial_run_blocked", "invalid_trial_run_request"].includes(next.controlledInternalTrialExecution.status)) return rejected("controlled_internal_trial_execution_step_rejected", next);
+        return accepted("controlled_internal_trial_execution_stepped", next);
+      }
       case "submit_operator_intent": {
         const result = applyLocalOperatorIntent(state, request.intent);
         if (result.status === "accepted")
@@ -307,6 +324,10 @@ export function createLocalOperatorShellTransport(): LocalOperatorShellTransport
     getCurrentState: () => step({ kind: "get_current_state" }),
     startDeterministicStubRun: () =>
       step({ kind: "start_deterministic_stub_run" }),
+    startControlledInternalTrialExecution: (request) =>
+      step({ kind: "start_controlled_internal_trial_execution", request }),
+    stepControlledInternalTrialExecution: (request) =>
+      step({ kind: "step_controlled_internal_trial_execution", request }),
     submitOperatorIntent: (intent) =>
       step({ kind: "submit_operator_intent", intent }),
     submitProviderConfiguration: (candidate) =>
@@ -417,4 +438,12 @@ export function requestLocalCandidateMaterialization(
   request: LocalCandidateMaterializationRequest,
 ): LocalOperatorShellResponse {
   return transport.materializeLocalCandidateOutput(request);
+}
+
+export function requestControlledInternalTrialExecutionStart(transport: LocalOperatorShellTransport, request: ControlledInternalTrialExecutionRequest): LocalOperatorShellResponse {
+  return transport.startControlledInternalTrialExecution(request);
+}
+
+export function requestControlledInternalTrialExecutionStep(transport: LocalOperatorShellTransport, request: ControlledInternalTrialExecutionRequest): LocalOperatorShellResponse {
+  return transport.stepControlledInternalTrialExecution(request);
 }
