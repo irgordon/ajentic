@@ -29,6 +29,44 @@ Archive guarantees:
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
 
+## v0.0.161 - 2026-05-13
+**Status:** Phase 161 - Controlled Internal Trial Package
+
+### Added
+- Add Rust-owned controlled internal trial package derivation, validation, serialization, write, read, and read-back validation.
+- Add deterministic trial package metadata, package ID, classification, trial scope, named internal operator/trial participant metadata, stop-condition markers, included local beta evidence summary, absence markers, and validation errors.
+- Add explicit caller-provided path helpers for controlled internal trial package write/read.
+- Add controlled internal trial package projection to the local shell/transport surface.
+- Add UI rendering for controlled internal trial package status, scope, included evidence, stop conditions, and local-only/non-public boundaries.
+- Add Rust and TypeScript tests for deterministic package content, explicit write/read behavior, read-back validation, malformed package rejection, missing trial metadata rejection, and non-public/non-production boundaries.
+
+### Changed
+- Extend the local operator shell projection with controlled internal trial package status.
+- Update checklists/current-phase.md to Phase 161 procedural truth.
+
+### Notes
+- Code-production phase.
+- Produces a real local controlled internal trial package artifact through explicit caller-provided path helpers.
+- Controlled internal trial package is local-only and non-public.
+- Controlled internal trial package is not a release artifact.
+- Controlled internal trial package is not deployment evidence.
+- Controlled internal trial package is not readiness evidence.
+- Controlled internal trial package does not approve controlled human use.
+- Controlled internal trial package does not approve public/general use.
+- Controlled internal trial package does not approve production use.
+- No default filesystem persistence.
+- No automatic save.
+- No background persistence.
+- No production persistence.
+- No release artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- No provider trust approval.
+- No candidate approval.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- Phase 162 remains the next code-production phase for trial operator runbook and failure drill UI.
+
 ## v0.0.160 - 2026-05-13
 **Status:** Phase 160 - Production-Path Alignment Checkpoint
 

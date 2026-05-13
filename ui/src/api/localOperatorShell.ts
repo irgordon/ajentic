@@ -4555,6 +4555,122 @@ export function initialLocalSessionPackageProjection(): LocalSessionPackageProje
   };
 }
 
+
+export type ControlledInternalTrialPackageStatus =
+  | "not_packaged"
+  | "package_projected"
+  | "package_validated"
+  | "package_written"
+  | "package_read_back_validated"
+  | "package_rejected"
+  | "invalid_package_input";
+
+export type ControlledInternalTrialPackageValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+
+export type ControlledInternalTrialPackageBoundaryStatus =
+  | "local_only_trial_package"
+  | "non_public_trial_package"
+  | "no_release_artifact"
+  | "no_deployment_artifact"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_production_approval"
+  | "no_public_use_approval"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+
+export type ControlledInternalTrialPackageProjection = Readonly<{
+  status: ControlledInternalTrialPackageStatus;
+  packageId: string | null;
+  packageVersion: "controlled-internal-trial-package-v1";
+  packageClassification: "controlled_internal_trial_package_only";
+  productionClassification: "non_production";
+  distributionClassification: "local_only_non_public";
+  trialScopeSummary: string;
+  namedOperatorParticipantSummary: readonly string[];
+  stopConditionSummary: readonly string[];
+  includedEvidenceSummary: readonly string[];
+  absenceMarkerSummary: readonly string[];
+  validationStatus: ControlledInternalTrialPackageValidationStatus;
+  validationErrors: readonly string[];
+  readBackValidationStatus: ControlledInternalTrialPackageValidationStatus | null;
+  boundaryStatus: readonly ControlledInternalTrialPackageBoundaryStatus[];
+  localOnlyNonPublicNote: "Controlled internal trial package is local-only and non-public.";
+  releaseBoundaryNote: "This package is not a release artifact.";
+  deploymentReadinessBoundaryNote: "This package is not deployment or readiness evidence.";
+  publicProductionBoundaryNote: "This package does not approve public/general use or production use.";
+  stopConditionNote: "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.";
+}>;
+
+export function initialControlledInternalTrialPackageProjection(): ControlledInternalTrialPackageProjection {
+  return {
+    status: "not_packaged",
+    packageId: null,
+    packageVersion: "controlled-internal-trial-package-v1",
+    packageClassification: "controlled_internal_trial_package_only",
+    productionClassification: "non_production",
+    distributionClassification: "local_only_non_public",
+    trialScopeSummary: "trial scope not provided",
+    namedOperatorParticipantSummary: [],
+    stopConditionSummary: [
+      "stop_on_provider_trust_claim",
+      "stop_on_readiness_claim",
+      "stop_on_release_or_deployment_claim",
+      "stop_on_public_use_claim",
+      "stop_on_action_authorization_claim",
+      "stop_on_replay_repair_or_recovery_promotion_claim",
+      "stop_on_package_validation_failure",
+      "stop_on_restore_validation_failure",
+      "stop_on_workflow_rejection",
+      "stop_on_operator_escalation",
+    ],
+    includedEvidenceSummary: [],
+    absenceMarkerSummary: [
+      "no_release_artifact",
+      "no_deployment_artifact",
+      "no_readiness_approval",
+      "no_public_use_approval",
+      "no_production_approval",
+      "no_provider_trust",
+      "no_action_authorization",
+      "no_replay_repair",
+      "no_recovery_promotion",
+      "no_default_persistence",
+    ],
+    validationStatus: "not_validated",
+    validationErrors: [],
+    readBackValidationStatus: null,
+    boundaryStatus: [
+      "local_only_trial_package",
+      "non_public_trial_package",
+      "no_release_artifact",
+      "no_deployment_artifact",
+      "no_readiness_approval",
+      "no_release_approval",
+      "no_production_approval",
+      "no_public_use_approval",
+      "no_provider_trust",
+      "no_action_authorization",
+      "no_replay_repair",
+      "no_recovery_promotion",
+    ],
+    localOnlyNonPublicNote:
+      "Controlled internal trial package is local-only and non-public.",
+    releaseBoundaryNote: "This package is not a release artifact.",
+    deploymentReadinessBoundaryNote:
+      "This package is not deployment or readiness evidence.",
+    publicProductionBoundaryNote:
+      "This package does not approve public/general use or production use.",
+    stopConditionNote:
+      "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.",
+  };
+}
+
 export type LocalSessionHistoryStatus =
   | "no_session_history"
   | "session_history_projected";
@@ -4933,6 +5049,7 @@ export type LocalOperatorShellState = Readonly<{
   localSessionPackageProjection: LocalSessionPackageProjection;
   localSessionHistoryProjection: LocalSessionHistoryProjection;
   localSessionRestoreProjection: LocalSessionRestoreProjection;
+  controlledInternalTrialPackageProjection: ControlledInternalTrialPackageProjection;
   completeLocalOperatorWorkflow: CompleteLocalOperatorWorkflowProjection;
 }>;
 
@@ -5359,6 +5476,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     localSessionPackageProjection: initialLocalSessionPackageProjection(),
     localSessionHistoryProjection: initialLocalSessionHistoryProjection(),
     localSessionRestoreProjection: initialLocalSessionRestoreProjection(),
+    controlledInternalTrialPackageProjection:
+      initialControlledInternalTrialPackageProjection(),
   });
   return {
     ...state,
