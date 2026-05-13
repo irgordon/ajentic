@@ -4,18 +4,18 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 161 Controlled Internal Trial Package
+# Current Phase Checklist - Phase 162 Trial Operator Runbook and Failure Drill UI
 
 ## Phase name
-- [x] Phase 161 - Controlled Internal Trial Package.
+- [x] Phase 162 - Trial Operator Runbook and Failure Drill UI.
 
 ## Phase goal
-- [x] Derive, validate, serialize, write, read, read-back validate, and display a deterministic controlled internal trial package using explicit caller-provided paths.
-- [x] Keep the package local-only, non-public, non-production, and preparation-only.
+- [x] Add Rust-owned local trial operator runbook and failure drill projections.
+- [x] Display controlled-trial preparation guidance, blockers, stop-condition drills, and escalation guidance in the local UI without starting a trial or granting authority.
 
 ## Working-tree hygiene gate
 - [x] Confirm starting worktree state.
-- [x] Keep changes limited to Phase 161 allowed code, UI, test, changelog, and checklist surfaces.
+- [x] Keep changes limited to Phase 162 code, UI, test, changelog, and checklist surfaces.
 - [x] Do not edit roadmap, governance, architecture, release, deployment, installer, update, signing, publishing, provider execution, action execution, replay repair, or recovery promotion surfaces.
 
 ## Allowed surfaces
@@ -25,149 +25,111 @@ mutation_path: checklist_revision
 - [x] `checklists/current-phase.md`
 
 ## Code-production deliverable checklist
-- [x] Rust-owned controlled internal trial package types exist.
-- [x] Deterministic package derivation exists.
-- [x] Deterministic serialization exists.
-- [x] Explicit write/read helpers exist.
-- [x] UI-visible trial package panel exists.
+- [x] Rust-owned runbook projection.
+- [x] Rust-owned failure drill projection.
+- [x] Visible UI panels for trial operator runbook, trial failure drill, stop-condition drill, and escalation guidance.
+- [x] Behavior tests for Rust projections and TypeScript rendering.
 
-## Controlled internal trial package checklist
-- [x] Package ID is deterministic.
-- [x] Package version is present.
-- [x] Package classification is `controlled_internal_trial_package_only`.
-- [x] Production classification is `non_production`.
-- [x] Distribution classification is `local_only_non_public`.
-- [x] Package status projection starts as `not_packaged`.
+## Trial operator runbook checklist
+- [x] Include runbook status, current step, ordered steps, package status/ID, validation/read-back status, trial scope, named operator, named participant, workflow blocker, candidate materialization, provider pipeline, replay, evidence export, and restore/history summaries.
+- [x] Derive deterministically from local shell state.
 
-## Trial metadata checklist
-- [x] Trial scope type is present.
-- [x] Named internal operator metadata type is present.
-- [x] Trial participant metadata type is present.
-- [x] Validation fails closed when scope is missing.
-- [x] Validation fails closed when named operator or participant metadata is missing.
+## Failure drill checklist
+- [x] Classify missing package, package validation/read-back failure, workflow blocked/rejected, provider pipeline, provider validation, staged validation, operator decision, materialization, restore, replay, evidence export, and stop-condition categories.
+- [x] Include severity, manual action guidance, and rejection summary.
 
-## Stop-condition marker checklist
-- [x] Stop-condition marker type is present.
-- [x] Required stop-condition markers are included.
-- [x] Validation fails closed when stop-condition markers are missing.
-- [x] UI states stop conditions are metadata and do not automate enforcement in Phase 161.
+## Stop-condition drill checklist
+- [x] Render stop-condition drill markers from the controlled internal trial package projection.
+- [x] State that enforcement is not automated in Phase 162.
 
-## Included evidence summary checklist
-- [x] Local beta workflow status is included.
-- [x] Provider output pipeline status is included.
-- [x] Local candidate materialization status is included.
-- [x] Operator decision status is included.
-- [x] Replay/status summary is included.
-- [x] Local evidence export summary is included.
-- [x] Session package summary is included.
-- [x] Restore/history summary is included.
-- [x] Phase 160 gate-decision context is included.
+## Escalation guidance checklist
+- [x] Include trial coordinator, security reviewer, release steward, and operator manual review guidance where applicable.
+- [x] State that escalation guidance is descriptive only and does not activate authority.
 
-## Package validation checklist
-- [x] Reject missing package ID.
-- [x] Reject missing package version.
-- [x] Reject invalid package, production, or distribution classification.
-- [x] Reject missing absence markers.
-- [x] Reject release, deployment, readiness, public-use, or production-use claims.
-- [x] Reject provider trust, action authorization, replay repair, or recovery promotion claims.
-- [x] Reject deterministic content mismatch.
-
-## Explicit write/read helper checklist
-- [x] Write helper requires a caller-provided path.
-- [x] Write helper validates before writing.
-- [x] Read helper requires a caller-provided path.
-- [x] No default write occurs.
-- [x] No automatic persistence is added.
-- [x] Tests write only under `/tmp` paths.
-
-## Read-back validation checklist
-- [x] Read-back parses the caller-provided package file.
-- [x] Read-back validates the parsed package.
-- [x] Malformed package content is rejected fail-closed.
-
-## UI trial package projection checklist
-- [x] TypeScript local shell state includes controlled internal trial package projection.
-- [x] UI renders a `Controlled internal trial package` panel.
-- [x] UI renders status, ID, version, classifications, scope, named operator/participant summary, stop conditions, evidence, absence markers, validation, read-back status, and boundary notes.
-- [x] UI does not expose publish, deploy, sign, release, public-use, production-use, or approval controls.
+## UI runbook/failure drill checklist
+- [x] Render `Trial operator runbook`.
+- [x] Render `Trial failure drill`.
+- [x] Render `Stop-condition drill`.
+- [x] Render `Escalation guidance`.
+- [x] Render current blocker guidance.
+- [x] Avoid start-trial, publish, deploy, sign, release, and approval controls.
 
 ## Local-only/non-public boundary checklist
-- [x] UI states: “Controlled internal trial package is local-only and non-public.”
-- [x] UI states: “This package is not a release artifact.”
-- [x] UI states: “This package is not deployment or readiness evidence.”
-- [x] UI states: “This package does not approve public/general use or production use.”
-- [x] UI states controlled human use is not approved.
-- [x] Rust boundary markers include no release, deployment, readiness, public-use, production-use, provider trust, action authorization, replay repair, or recovery promotion.
+- [x] Include `local_trial_guidance_only`.
+- [x] Include `non_public_trial_guidance`.
+- [x] UI states: “Trial operator runbook is local-only and non-public.”
+- [x] UI states: “This runbook does not start a controlled trial.”
+
+## No-authority checklist
+- [x] Include no trial execution.
+- [x] Include no stop-condition automation.
+- [x] Include no authority activation.
+- [x] Include no readiness, release, deployment, public-use, or production approval.
+- [x] Include no action execution.
+- [x] Include no replay repair or recovery promotion.
 
 ## Rust test checklist
-- [x] Initial `not_packaged` projection.
-- [x] Deterministic derivation, package ID, content digest, and serialization.
-- [x] Required metadata, classifications, scope, operators, participants, stop conditions, included evidence, and absence markers.
-- [x] Missing metadata/scope/operator/participant/stop-condition rejection.
-- [x] No-authority boundary rejection.
-- [x] Explicit write/read and read-back validation using temp paths.
-- [x] Malformed read-back rejection.
+- [x] Initial runbook and failure drill projection.
+- [x] Determinism.
+- [x] Valid package state.
+- [x] Missing package/scope/operator/participant/stop-condition blockers.
+- [x] Validation/read-back, workflow/provider/restore classifications.
+- [x] Stop-condition, escalation guidance, and no-authority boundaries.
 
 ## TypeScript test checklist
-- [x] Initial controlled internal trial package projection.
-- [x] Visible UI package panel and required boundary wording.
-- [x] Deterministic rendering.
-- [x] No publish/deploy/sign controls.
+- [x] Visible runbook panel.
+- [x] Valid and blocked states.
+- [x] Failure drill rendering.
+- [x] Stop-condition drill rendering.
+- [x] Escalation guidance rendering.
+- [x] Forbidden control absence and deterministic rendering.
 
-## Phase 162 handoff checklist
-- [x] Phase 162 remains the next code-production phase for trial operator runbook and failure drill UI.
-- [x] Phase 161 does not start trial execution.
-- [x] Phase 161 does not approve controlled human use, public/general use, production use, release readiness, deployment readiness, or production readiness.
+## Phase 163 handoff checklist
+- [x] Phase 163 remains the next code-production phase for trial session evidence capture.
+- [x] Phase 162 does not start trial execution or approve controlled human use.
 
 ## Validation checklist
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-161-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] `cd ui && npm run typecheck`
 - [x] `cd ui && npm run lint`
 - [x] `cd ui && npm run build && rm -rf dist`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-161-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target cargo test --manifest-path core/Cargo.toml --all-targets`
 - [x] `cd ui && timeout 5 npm run dev`
-- [x] Trial package scan.
-- [x] Trial boundary scan.
-- [x] Filesystem scan.
+- [x] Runbook scan.
+- [x] Boundary scan.
 - [x] Forbidden label scan.
 - [x] Unsafe execution scan.
-- [x] No-release/deployment/readiness scan.
+- [x] Release/deployment scan.
 - [x] Changed-file source guard.
 - [x] No-roadmap-drift guard.
 
 ## Deferred items
-- [x] Trial execution harness remains deferred.
-- [x] Trial operator runbook/failure drill UI remains Phase 162.
+- [x] Trial execution remains deferred.
+- [x] Automated stop-condition enforcement remains deferred.
 - [x] Trial session evidence capture remains Phase 163.
-- [x] Trial replay/restore verification remains Phase 164.
-- [x] Release, deployment, installer, update-channel, signing, publishing, public-use, production-use, readiness, provider trust, action authorization, replay repair, and recovery promotion remain deferred.
+- [x] Replay repair, recovery promotion, action execution, release, deployment, signing, publishing, installer, update-channel, public-use, production-use, readiness, and provider trust remain deferred.
 
 ## Validation log
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-161-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target ./scripts/check.sh` was attempted before commit and correctly stopped on dirty-worktree preflight, then passed after committing the Phase 162 patch.
+- `git diff --check` passed.
 - `cd ui && npm run typecheck` passed.
 - `cd ui && npm run lint` passed.
 - `cd ui && npm run build && rm -rf dist` passed and generated `dist` was removed.
 - `cd ui && npm run test:api` passed.
+- `CARGO_TARGET_DIR=/tmp/ajentic-phase-162-target cargo test --manifest-path core/Cargo.toml --all-targets` passed.
 - `cd ui && timeout 5 npm run dev` printed the local browser URL; timeout stopped the long-running dev server as expected.
-- `git diff --check` passed.
-- `git status --short` showed only allowed Phase 161 files changed before commit.
-- Trial package, trial boundary, filesystem, forbidden label, unsafe execution, no-release/deployment/readiness, changed-file source guard, and no-roadmap-drift scans completed.
-- `CARGO_TARGET_DIR=/tmp/ajentic-phase-161-target ./scripts/check.sh` requires a clean worktree and is run after committing the Phase 161 patch.
+- Runbook, boundary, forbidden-label, unsafe-execution, release/deployment, changed-file, and no-roadmap-drift scans completed; broad scans reported historical/prohibition matches only, with no Phase 162 runtime execution, network, release, deployment, or authority behavior added.
+- `git status --short` showed only allowed Phase 162 files changed before commit.
 
 ## Zero-drift checklist
-- [x] Full validation passes after final edits.
-- [x] Generated artifacts are cleaned.
-- [x] Staged files match allowed Phase 161 surfaces.
-- [x] Rust-owned controlled internal trial package exists.
-- [x] Package metadata includes deterministic package ID, version, classifications, scope, named internal operator/trial participant metadata, stop-condition markers, included evidence summary, and absence markers.
-- [x] Validation fails closed for missing/malformed/drifted required fields and authority claims.
-- [x] Write/read helpers require explicit caller-provided paths.
-- [x] No default persistence, automatic save, background persistence, release artifact, deployment artifact, installer/update/signing/publishing behavior, production persistence, or approval behavior is introduced.
-- [x] Package derivation/write/read does not mutate shell workflow state or execute providers/actions/replay repair/recovery promotion.
-- [x] UI renders controlled internal trial package status.
+- [x] Rust-owned trial operator runbook projection exists.
+- [x] Rust-owned trial failure drill projection exists.
+- [x] Transport/local shell state carries projections.
+- [x] UI renders required runbook and drill surfaces.
+- [x] Local-only/non-public and no-authority markers are present.
 - [x] Roadmap files are not modified.
 - [x] CHANGELOG entry matches actual diff.
-- [x] Phase 162 remains the next code-production phase for trial operator runbook and failure drill UI.
+- [x] Phase 163 remains the next code-production phase for trial session evidence capture.

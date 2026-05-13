@@ -28,6 +28,39 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.162 - 2026-05-13
+**Status:** Phase 162 - Trial Operator Runbook and Failure Drill UI
+
+### Added
+- Add Rust-owned trial operator runbook and failure drill projections derived from local shell state.
+- Add runbook step/status, failure category, stop-condition drill, current blocker, and escalation guidance projections.
+- Add UI rendering for trial operator runbook, failure drilldown, stop-condition drill, current blocker guidance, and escalation guidance.
+- Add Rust and TypeScript tests for runbook projection, blocked/rejected states, stop-condition drill rendering, escalation guidance rendering, deterministic rendering, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with trial runbook and failure drill status.
+- Update the local UI shell to display controlled-trial operator guidance and failure drill surfaces.
+- Update checklists/current-phase.md to Phase 162 procedural truth.
+
+### Notes
+- Code-production phase.
+- Product-facing UI/runbook phase, not document-only.
+- Trial operator runbook is local-only and non-public.
+- Runbook does not start a controlled trial.
+- Stop conditions are guidance only; enforcement is not automated.
+- Escalation guidance is descriptive only and does not activate authority.
+- No controlled human-use approval.
+- No public/general-use approval.
+- No production-use approval.
+- No readiness approval.
+- No release artifact creation.
+- No deployment artifact creation.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- No provider trust approval.
+- No action execution.
+- No replay repair.
+- No recovery promotion.
+- Phase 163 remains the next code-production phase for trial session evidence capture.
 
 ## v0.0.161 - 2026-05-13
 **Status:** Phase 161 - Controlled Internal Trial Package

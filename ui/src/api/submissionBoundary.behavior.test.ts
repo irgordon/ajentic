@@ -38,6 +38,9 @@ import {
   localCandidateMaterializationRequestFromState,
   materializeLocalCandidateOutput,
   deriveCompleteLocalOperatorWorkflowProjection,
+  deriveTrialFailureDrillProjection,
+  deriveTrialOperatorRunbookProjection,
+  type LocalOperatorShellState,
 } from "./localOperatorShell";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
@@ -3570,6 +3573,98 @@ function assertControlledInternalTrialPackagePanelRendersBoundaries(): void {
   );
 }
 
+
+function phase162ProjectedState(
+  packageOverrides: Partial<LocalOperatorShellState["controlledInternalTrialPackageProjection"]> = {},
+): LocalOperatorShellState {
+  const base = initialLocalOperatorShellState();
+  const state = {
+    ...base,
+    controlledInternalTrialPackageProjection: {
+      ...base.controlledInternalTrialPackageProjection,
+      status: "package_validated" as const,
+      packageId: "controlled-internal-trial-package-phase-162",
+      trialScopeSummary: "phase-162-scope: controlled internal operator runbook drill",
+      namedOperatorParticipantSummary: [
+        "operator:internal-operator-alpha:internal_trial_operator",
+        "participant:internal-participant-beta:internal_trial_participant",
+      ],
+      validationStatus: "valid" as const,
+      readBackValidationStatus: "valid" as const,
+      includedEvidenceSummary: ["local beta workflow status: blocked"],
+      validationErrors: [],
+      ...packageOverrides,
+    },
+  };
+  return {
+    ...state,
+    trialFailureDrill: deriveTrialFailureDrillProjection(state),
+    trialOperatorRunbook: deriveTrialOperatorRunbookProjection(state),
+  };
+}
+
+function assertTrialOperatorRunbookPanelRendersBlockedState(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial operator runbook", "runbook panel label");
+  assertContains(rendered, "Runbook status: trial_package_required", "missing package runbook status");
+  assertContains(rendered, "Current blocker guidance:", "current blocker guidance rendering");
+  assertContains(rendered, "Trial package status: not_packaged", "package status rendering");
+  assertContains(rendered, "Trial operator runbook is local-only and non-public.", "local non-public wording");
+  assertContains(rendered, "This runbook does not start a controlled trial.", "no trial execution wording");
+  assertContains(rendered, "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.", "no authority wording");
+  assertContains(rendered, "local_trial_guidance_only", "local boundary marker");
+  assertContains(rendered, "no_trial_execution", "no trial execution marker");
+}
+
+function assertTrialOperatorRunbookPanelRendersValidPackageState(): void {
+  const state = phase162ProjectedState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial package ID: controlled-internal-trial-package-phase-162", "package id rendering");
+  assertContains(rendered, "Trial scope status: completed", "trial scope status rendering");
+  assertContains(rendered, "Named operator/participant status: completed / completed", "named metadata rendering");
+  assertContains(rendered, "Stop-condition summary:", "stop condition summary rendering");
+  assertContains(rendered, "Ordered runbook steps:", "ordered steps rendering");
+  assertEqual(
+    renderLocalOperatorShellSnapshot(state),
+    renderLocalOperatorShellSnapshot(state),
+    "deterministic runbook rendering",
+  );
+}
+
+function assertTrialFailureDrillStopConditionAndEscalationRendering(): void {
+  const state = phase162ProjectedState({
+    validationStatus: "invalid",
+    validationErrors: ["release_deployment_readiness_public_production_claim_rejected"],
+    readBackValidationStatus: "invalid",
+  });
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Trial failure drill", "failure drill panel label");
+  assertContains(rendered, "Failure category list:", "failure category rendering");
+  assertContains(rendered, "trial_package_validation_failure", "package validation failure category");
+  assertContains(rendered, "trial_package_read_back_failure", "read-back failure category");
+  assertContains(rendered, "stop_condition_present", "stop condition category");
+  assertContains(rendered, "Stop-condition drill", "stop-condition drill panel label");
+  assertContains(rendered, "Stop conditions are guidance only; enforcement is not automated in Phase 162.", "stop condition non-automation wording");
+  assertContains(rendered, "Escalation guidance", "escalation guidance panel label");
+  assertContains(rendered, "release_steward", "release steward guidance rendering");
+  assertContains(rendered, "Escalation guidance is descriptive only and does not activate authority.", "descriptive escalation wording");
+}
+
+function assertTrialRunbookForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(phase162ProjectedState());
+  for (const forbidden of [
+    "Start trial",
+    "Approve trial",
+    "Publish trial package",
+    "Deploy trial package",
+    "Sign trial package",
+    "Release trial package",
+  ]) {
+    assertDoesNotContain(rendered, forbidden, `forbidden control absent: ${forbidden}`);
+  }
+}
+
 function validPackageProjectionForPhase152() {
   return {
     ...initialLocalOperatorShellState().localSessionPackageProjection,
@@ -5240,6 +5335,22 @@ payload_summary=authority before replay`),
   {
     name: "complete_local_operator_workflow_panel_happy_path_deterministic",
     run: assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic,
+  },
+  {
+    name: "trial_operator_runbook_panel_renders_blocked_state",
+    run: assertTrialOperatorRunbookPanelRendersBlockedState,
+  },
+  {
+    name: "trial_operator_runbook_panel_renders_valid_package_state",
+    run: assertTrialOperatorRunbookPanelRendersValidPackageState,
+  },
+  {
+    name: "trial_failure_drill_stop_condition_and_escalation_rendering",
+    run: assertTrialFailureDrillStopConditionAndEscalationRendering,
+  },
+  {
+    name: "trial_runbook_forbidden_labels_absent",
+    run: assertTrialRunbookForbiddenLabelsAbsent,
   },
   {
     name: "constrained_local_provider_invocation_rejects_and_preserves_no_authority",
