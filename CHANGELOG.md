@@ -28,6 +28,34 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.170.13 - 2026-05-14
+**Status:** Phase 170.13 - Out-of-Band Local Operator Shell Codec Extraction
+
+### Changed
+- Extract the trial package / trial session evidence codec production-code family from `core/src/api/local_operator_shell.rs` into a smaller sibling Rust module.
+- Preserve public behavior, validation semantics, serialized formats, deterministic ordering, reason strings, read-back validation behavior, and test coverage.
+- Update checklists/current-phase.md to Phase 170.13 procedural truth.
+
+### Notes
+- Out-of-band maintenance/code-quality phase.
+- Behavior-preserving extraction only.
+- Codec extraction only.
+- Serialized formats are unchanged.
+- Read-back validation behavior is unchanged.
+- No Phase 171 implementation.
+- No release-candidate preparation behavior.
+- No runtime behavior changes.
+- No TypeScript changes.
+- No schema changes.
+- No release artifact creation.
+- No provider execution expansion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 171 remains the next planned code-production phase after this extraction.
+
 ## v0.0.170.12 - 2026-05-13
 **Status:** Phase 170.12 - Out-of-Band Local Operator Shell Extraction Continuation IV
 
