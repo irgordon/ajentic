@@ -142,7 +142,8 @@ pub fn constrained_local_provider_invocation_effect_statuses(
     ]
 }
 
-pub(super) fn local_session_restore_boundary_statuses() -> Vec<LocalSessionRestoreBoundaryStatus> {
+pub(in crate::api::local_operator_shell) fn local_session_restore_boundary_statuses(
+) -> Vec<LocalSessionRestoreBoundaryStatus> {
     vec![
         LocalSessionRestoreBoundaryStatus::LocalRestoreProjectionOnly,
         LocalSessionRestoreBoundaryStatus::NoRecoveryPromotion,
