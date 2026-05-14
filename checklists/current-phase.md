@@ -4,21 +4,18 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist: Phase 170.11
-
-## Phase name
-- [x] Phase 170.11 - Out-of-Band Local Operator Shell Extraction Continuation III.
+# Current Phase Checklist: Phase 170.12 - Out-of-Band Local Operator Shell Extraction Continuation IV
 
 ## Phase goal
-- [x] Move another coherent production-code family out of `core/src/api/local_operator_shell.rs`.
-- [x] Preserve behavior exactly while reducing local shell monolith risk before Phase 171.
-- [x] Keep Phase 171 as the next planned code-production phase.
+- [x] Continue behavior-preserving decomposition of `core/src/api/local_operator_shell.rs` before Phase 171.
+- [x] Move one additional coherent production-code family into a smaller sibling Rust module.
+- [x] Keep Phase 171 release-candidate preparation behavior unimplemented.
 
 ## Working-tree hygiene gate
 - [x] Run `git status --short` before edits.
 - [x] Read `docs/operations/rust-maintainability-audit-phase-170-5.md` before extraction.
-- [x] Inspect the Phase 170.10 end state with provider pipeline, candidate materialization, and trial replay/restore verification already split.
-- [x] Keep edits limited to allowed Phase 170.11 surfaces.
+- [x] Inspect the Phase 170.11 end state with provider pipeline, candidate materialization, trial replay/restore verification, and trial observability/error reporting already split.
+- [x] Keep edits limited to allowed Phase 170.12 surfaces.
 
 ## Allowed surfaces
 - [x] `core/src/api/local_operator_shell.rs`
@@ -32,17 +29,20 @@ mutation_path: checklist_revision
 
 ## Extraction target checklist
 - [x] Required target: `core/src/api/local_operator_shell.rs`.
-- [x] Selected target: trial observability and error-reporting types, projection helpers, severity/category logic, and boundary helpers.
-- [x] Created a non-empty sibling module owning moved production code.
+- [x] Selected target: trial evidence review types, projection helpers, finding logic, hardening candidate derivation, evidence linkage, blocker summaries, and boundary helpers.
+- [x] Created `core/src/api/local_operator_shell_trial_review.rs` as a non-empty sibling module owning moved production code.
 - [x] Kept `core/src/api/local_operator_shell.rs` as the public local shell surface.
 - [x] Avoided circular module dependencies.
 
 ## Production-code movement checklist
-- [x] Moved trial observability statuses, error report statuses, error category/severity/source enums, observability boundary statuses, capability and summary structs, error detail/report structs, observability projection structs, boundary/capability helpers, initial projections, severity/guidance helpers, error report derivation, observability derivation, and observability refresh into `core/src/api/local_operator_shell_trial_observability.rs`.
+- [x] Moved trial evidence review status/category/severity/disposition/source enums.
+- [x] Moved trial evidence review evidence linkage, finding, hardening candidate, blocker summary, mismatch summary, capability surface, and projection structs.
+- [x] Moved trial evidence review boundary status helpers, initial projection, finding/link helper functions, hardening candidate derivation, projection derivation, and refresh function.
 - [x] Did not repeat Phase 170.8 provider output pipeline extraction.
 - [x] Did not repeat Phase 170.9 local candidate materialization extraction.
 - [x] Did not repeat Phase 170.10 trial replay/restore verification extraction.
-- [x] Did not count Phase 170.7 test extraction as sufficient.
+- [x] Did not repeat Phase 170.11 trial observability/error-reporting extraction.
+- [x] Did not count test extraction as sufficient.
 - [x] Did not redesign code.
 
 ## Behavior-preservation checklist
@@ -54,7 +54,7 @@ mutation_path: checklist_revision
 - [x] Preserve UI, TypeScript, and schema behavior.
 
 ## Public API preservation checklist
-- [x] Re-export moved trial observability and error-reporting items through `local_operator_shell.rs`.
+- [x] Re-export moved trial evidence review items through `local_operator_shell.rs`.
 - [x] Do not rename public types, enum variants, or functions.
 - [x] Keep `core/src/api/mod.rs` stable.
 - [x] Do not add Phase 171 release-candidate preparation APIs.
@@ -69,10 +69,10 @@ mutation_path: checklist_revision
 ## Validation checklist
 - [x] `cargo fmt --manifest-path core/Cargo.toml`
 - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-11-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-11-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-12-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-12-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-11-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-12-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] File-size scan.
@@ -84,7 +84,7 @@ mutation_path: checklist_revision
 
 ## Remaining monolith risk checklist
 - [x] `core/src/api/local_operator_shell.rs` remains oversized after this focused extraction.
-- [x] Trial evidence review, package/session evidence codecs, boundary marker, and transport helpers remain extraction candidates.
+- [x] Trial package/session evidence codecs, boundary marker helpers, and transport helpers remain extraction candidates.
 - [x] Phase 171 should avoid adding release-candidate preparation logic to the monolith.
 
 ## Phase 171 handoff checklist
@@ -93,7 +93,6 @@ mutation_path: checklist_revision
 - [x] No readiness, release, deployment, public-use, or production approval is introduced.
 
 ## Deferred items
-- [x] Trial evidence review extraction is deferred.
 - [x] Trial package/session evidence codec extraction is deferred.
 - [x] Boundary marker helper extraction is deferred.
 - [x] Local shell transport extraction is deferred.
@@ -104,11 +103,12 @@ mutation_path: checklist_revision
 - [x] Generated artifacts were cleaned.
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 170.11 surfaces.
+- [x] Staged files match allowed Phase 170.12 surfaces.
 - [x] At least one additional coherent production-code family moved out of `local_operator_shell.rs`.
 - [x] Moved family is not the provider output pipeline extracted in Phase 170.8.
 - [x] Moved family is not the local candidate materialization family extracted in Phase 170.9.
 - [x] Moved family is not the trial replay/restore verification family extracted in Phase 170.10.
+- [x] Moved family is not the trial observability/error-reporting family extracted in Phase 170.11.
 - [x] Test extraction alone is not counted as sufficient.
 - [x] Moved code remains behavior-preserving.
 - [x] Existing tests pass.
