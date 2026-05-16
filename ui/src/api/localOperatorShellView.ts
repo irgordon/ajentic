@@ -53,6 +53,34 @@ function renderReleaseCandidatePreparationText(
   ].join("\n");
 }
 
+function renderReleaseDryPackageChecksumProvenanceText(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.releaseDryPackageChecksumProvenance;
+  return [
+    `Evidence status: ${projection.status}`,
+    `Dry package ID: ${projection.dryPackageId ?? "none"}`,
+    `Checksum value: ${projection.checksumValue ?? "none"}`,
+    `Checksum algorithm: ${projection.checksumAlgorithm}`,
+    `Provenance ID: ${projection.provenanceId ?? "none"}`,
+    `Provenance classification: ${projection.provenanceClassification}`,
+    `Checksum classification: ${projection.checksumClassification}`,
+    `Production classification: ${projection.productionClassification}`,
+    `Distribution classification: ${projection.distributionClassification}`,
+    `Authority classification: ${projection.authorityClassification}`,
+    `Release classification: ${projection.releaseClassification}`,
+    `Provenance linkage summary: ${projection.provenanceLinkageSummary}`,
+    `Validation status: ${projection.validationStatus}`,
+    `Read-back validation status: ${projection.readBackValidationStatus}`,
+    `Rejection reason: ${projection.validationErrors.join(", ") || "none"}`,
+    `Boundary markers: ${projection.boundaryStatuses.join(", ")}`,
+    projection.checksumProvesContentsNote,
+    projection.noSignPublishReleaseDeployApproveNote,
+    projection.localOnlyNonPublicNote,
+    projection.noDistributionNote,
+    projection.readBackValidationNote,
+  ].join("\n");
+}
 
 function renderReleaseArtifactDryPackageText(
   state: LocalOperatorShellState,
@@ -715,6 +743,8 @@ export function renderLocalOperatorShellSnapshot(
     renderReleaseCandidatePreparationText(state),
     "Release artifact dry package",
     renderReleaseArtifactDryPackageText(state),
+    "Checksum and provenance evidence",
+    renderReleaseDryPackageChecksumProvenanceText(state),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
