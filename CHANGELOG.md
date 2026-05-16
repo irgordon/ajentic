@@ -28,6 +28,25 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.171.1 - 2026-05-16
+**Status:** Phase 171.1 - OOB Missing Constrained Invocation Module Restore
+
+### Fixed
+- Restore the missing constrained local provider invocation module expected from the Phase 170.19 extraction.
+- Preserve the local shell public API by keeping constrained invocation symbols available through local_operator_shell.rs.
+- Preserve constrained invocation validation, rejection, deterministic result construction, provider output pipeline linkage, and no-authority boundaries.
+
+### Notes
+- Out-of-band maintenance fix only.
+- No new provider execution behavior.
+- No Phase 172 implementation.
+- No release-candidate preparation expansion.
+- No runtime semantic change.
+- No TypeScript changes.
+- No schema changes.
+- No release artifact creation.
+- No signing, publishing, installer, update-channel, deployment, public-use, or readiness approval behavior.
+
 ## v0.0.171 - 2026-05-16
 **Status:** Phase 171 - Release Candidate Preparation Contract
 
