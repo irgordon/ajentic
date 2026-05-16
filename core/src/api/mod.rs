@@ -19,6 +19,7 @@ mod provider_configuration;
 mod provider_execution_sandbox;
 mod provider_transport;
 mod read_projection;
+mod release_artifact_dry_package;
 mod release_candidate_preparation;
 mod runtime_config;
 
@@ -43,5 +44,6 @@ pub use provider_configuration::*;
 pub use provider_execution_sandbox::*;
 pub use provider_transport::*;
 pub use read_projection::*;
+pub use release_artifact_dry_package::*;
 pub use release_candidate_preparation::*;
 pub use runtime_config::*;
