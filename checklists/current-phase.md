@@ -1,86 +1,98 @@
 ---
 truth_dimension: procedural
+phase: 170.19
 authority_level: authoritative
 mutation_path: checklist_revision
-operator_notes: active_phase_checklist
 ---
 
-# Current Phase Checklist: Phase 170.18
-
-## Phase name
-- [x] Phase 170.18 - Out-of-Band Local Operator Shell Provider Adapter Extraction.
+# Phase 170.19 - Out-of-Band Local Operator Shell Constrained Invocation Extraction
 
 ## Phase goal
-- [x] Extract the provider adapter projection/helper family from `core/src/api/local_operator_shell.rs` into a focused sibling Rust module.
-- [x] Preserve behavior exactly before Phase 171 begins.
+- [x] Extract the constrained local provider invocation helper family from `core/src/api/local_operator_shell.rs` into a smaller sibling Rust module.
+- [x] Preserve behavior exactly.
+- [x] Keep Phase 171 release-candidate preparation unimplemented.
 
 ## Working-tree hygiene gate
 - [x] Started from a clean working tree.
-- [x] Reviewed the Phase 170.5 Rust maintainability audit.
-- [x] Inspected the Phase 170.17 end state before editing.
-- [x] Removed no generated artifacts from the repository working tree.
+- [x] Ran `git status --short` before editing.
+- [x] Read `docs/operations/rust-maintainability-audit-phase-170-5.md`.
+- [x] Inspected the Phase 170.18 end state.
 
 ## Allowed surfaces
-- [x] `core/src/api/local_operator_shell.rs`
-- [x] `core/src/api/local_operator_shell_provider_adapter.rs`
-- [x] `CHANGELOG.md`
-- [x] `checklists/current-phase.md`
-- [x] No UI, schema, roadmap, governance, architecture, package, lockfile, CI, release, or deployment surfaces changed.
+- [x] Edited `core/src/api/local_operator_shell.rs`.
+- [x] Created `core/src/api/local_operator_shell_constrained_invocation.rs`.
+- [x] Edited `CHANGELOG.md`.
+- [x] Edited `checklists/current-phase.md`.
+- [x] Did not edit UI, schemas, roadmap, governance, architecture, package, lockfile, CI, release, or deployment surfaces.
 
 ## Extraction target checklist
-- [x] Required extraction target remained `core/src/api/local_operator_shell.rs`.
-- [x] Selected the provider adapter contract, registry, declaration validation, and dry-run family.
+- [x] Selected the constrained local provider invocation helper family.
+- [x] Did not repeat prior extracted provider output pipeline helpers.
+- [x] Did not repeat prior candidate materialization helpers.
+- [x] Did not repeat prior trial, transport, boundary-marker, workflow, restore, or provider-adapter helper families.
 - [x] Kept `core/src/api/local_operator_shell.rs` as the public local shell surface.
 - [x] Created a non-empty sibling Rust module owning moved production code.
-- [x] Avoided circular module dependencies.
-- [x] Did not repeat previously extracted Phase 170 helper families.
 
-## Provider adapter movement checklist
-- [x] Moved local provider adapter kind, status, error, and contract types.
-- [x] Moved adapter declaration and configuration candidate types.
-- [x] Moved adapter registry projection and validation helpers.
-- [x] Moved adapter rejection helpers.
-- [x] Moved adapter dry-run request, result, projection, validation, and execution helpers.
+## Constrained invocation movement checklist
+- [x] Moved constrained local provider invocation request, result, and projection types.
+- [x] Moved invocation status, error, boundary, trust, effect, and capability-surface types.
+- [x] Moved allowlisted local provider kind helpers.
+- [x] Moved invocation validation helpers.
+- [x] Moved invocation rejection helpers.
+- [x] Moved deterministic invocation checksum, result ID, and output summary helpers.
+- [x] Moved invocation projection helpers.
+- [x] Moved the apply/derive helper that updates invocation projection and connected provider output pipeline projection.
 - [x] Moved code mechanically without redesign.
 
-## Adapter registry preservation checklist
-- [x] Preserved registry projection output.
-- [x] Preserved declaration ordering.
-- [x] Preserved boundary status ordering.
-- [x] Preserved capability surface content.
+## Projection preservation checklist
+- [x] Preserved constrained invocation projection output.
+- [x] Preserved initial projection reason text.
+- [x] Preserved rejection projection reason text.
+- [x] Preserved executed projection reason text.
+- [x] Preserved status-code strings.
+- [x] Preserved deterministic ordering.
 
-## Adapter declaration validation preservation checklist
-- [x] Preserved `deterministic_fake_adapter` acceptance behavior.
-- [x] Preserved `local_model_adapter_contract` declaration behavior.
-- [x] Preserved unsupported/cloud/network/shell/filesystem/unknown rejection behavior.
-- [x] Preserved endpoint, command, path, secret, execution, trust, readiness, release, deployment, public-use, signing, publishing, and unknown-field rejection behavior.
-- [x] Preserved fail-closed status construction.
+## Allowlisted provider behavior preservation checklist
+- [x] Preserved `allowlisted_local_deterministic_provider` acceptance behavior.
+- [x] Preserved deterministic fake adapter precondition behavior.
+- [x] Preserved deterministic result ID and output summary behavior.
+- [x] Preserved allowlisted provider kind code strings.
 
-## Adapter dry-run preservation checklist
-- [x] Preserved dry-run status and projection behavior.
-- [x] Preserved dry-run precondition and rejection behavior.
-- [x] Preserved deterministic fake adapter dry-run output construction.
-- [x] Preserved output trust, boundary, effect, and capability flags.
+## Rejection behavior preservation checklist
+- [x] Preserved fail-closed non-allowlisted provider rejection behavior.
+- [x] Preserved unsupported cloud, network, shell, and local provider rejection behavior.
+- [x] Preserved no-arbitrary-command, no-shell, no-network, no-cloud, and no-secret field rejection behavior.
+- [x] Preserved trust, provider-output approval, readiness, release, deployment, public-use, candidate-materialization, action, and persistence claim rejection behavior.
+- [x] Preserved error-code strings and ordering.
+
+## Pipeline linkage preservation checklist
+- [x] Preserved provider output pipeline re-derivation after invocation execution.
+- [x] Preserved provider output pipeline rejection bridge behavior.
+- [x] Preserved local provider output validation linkage.
+- [x] Preserved local session evidence export attachment after successful invocation.
 
 ## Provider boundary preservation checklist
-- [x] Preserved provider execution boundaries.
-- [x] Preserved no provider trust, network, shell, secret, persistence, readiness, release, deployment, and public-use boundaries.
-- [x] Preserved no candidate materialization and no action execution dry-run boundaries.
-- [x] Introduced no provider execution expansion.
+- [x] Preserved provider output remains untrusted/descriptive behavior.
+- [x] Preserved no provider trust behavior.
+- [x] Preserved candidate-materialization prohibition behavior.
+- [x] Preserved action-authorization prohibition behavior.
+- [x] Preserved replay-repair and recovery-promotion prohibition behavior.
+- [x] Preserved no provider execution expansion.
 
 ## Behavior-preservation checklist
 - [x] Preserved runtime semantics.
 - [x] Preserved validation outcomes.
-- [x] Preserved reason strings and status-code strings.
+- [x] Preserved reason strings.
 - [x] Preserved boundary marker strings.
+- [x] Preserved capability flags.
 - [x] Preserved deterministic ordering.
 - [x] Preserved UI, TypeScript, and schema behavior.
 
 ## Public API preservation checklist
-- [x] Re-exported moved provider adapter public types and helpers through `local_operator_shell.rs`.
+- [x] Re-exported moved public constrained invocation types and helpers through `local_operator_shell.rs`.
 - [x] Kept `core/src/api/mod.rs` stable.
 - [x] Did not rename public types, functions, or enum variants.
-- [x] Avoided broad new public module exports.
+- [x] Avoided broad public module exports.
 
 ## Test preservation checklist
 - [x] Kept `core/src/api/local_operator_shell_tests.rs` intact.
@@ -92,10 +104,10 @@ operator_notes: active_phase_checklist
 ## Validation checklist
 - [x] `cargo fmt --manifest-path core/Cargo.toml`
 - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-18-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-18-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-19-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-19-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
 - [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-18-target ./scripts/check.sh`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-19-target ./scripts/check.sh`
 - [x] `git diff --check`
 - [x] `git status --short`
 - [x] File-size scan.
@@ -103,14 +115,14 @@ operator_notes: active_phase_checklist
 - [x] Remaining-shell-function scan.
 - [x] Moved-code scan.
 - [x] Helper location scan.
-- [x] Provider-adapter boundary scan.
+- [x] Provider-invocation boundary scan.
 - [x] Behavior-boundary scan.
 - [x] No-Phase-171 scan.
 - [x] No-UI-drift guard.
 
 ## Remaining monolith risk checklist
 - [x] `core/src/api/local_operator_shell.rs` remains oversized after this focused extraction.
-- [x] Remaining constrained local provider invocation and controlled internal trial execution projection code remain extraction candidates.
+- [x] Remaining local shell production-code families remain extraction candidates.
 - [x] Phase 171 should avoid adding release-candidate preparation behavior to the monolith.
 
 ## Phase 171 handoff checklist
@@ -120,8 +132,8 @@ operator_notes: active_phase_checklist
 
 ## Deferred items
 - [x] Broader local shell decomposition is deferred.
-- [x] Constrained invocation and controlled internal trial execution extraction is deferred.
 - [x] Release-candidate preparation remains deferred to Phase 171.
+- [x] Release artifacts, deployment, signing, publishing, installer, update-channel, public-use, and production approval remain deferred.
 
 ## Validation log
 - [x] Full required validation passed after final edits.
@@ -129,19 +141,23 @@ operator_notes: active_phase_checklist
 - [x] Generated artifacts were cleaned.
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 170.18 surfaces.
-- [x] The provider adapter projection/helper family moved out of `local_operator_shell.rs`.
+- [x] Staged files match allowed Phase 170.19 surfaces.
+- [x] The constrained local provider invocation helper family moved out of `local_operator_shell.rs`.
 - [x] Test extraction alone is not counted as sufficient.
 - [x] Moved code remains behavior-preserving.
 - [x] Existing tests pass.
 - [x] UI behavior tests pass.
 - [x] No tests are removed or weakened.
 - [x] Public API compatibility is preserved.
-- [x] Adapter registry projection output is unchanged.
-- [x] Adapter declaration validation behavior is unchanged.
-- [x] Adapter dry-run behavior is unchanged.
-- [x] Provider execution boundaries are unchanged.
-- [x] Unsupported/unsafe adapter rejection behavior is unchanged.
+- [x] Constrained invocation projection output is unchanged.
+- [x] Allowlisted provider behavior is unchanged.
+- [x] Non-allowlisted provider rejection behavior is unchanged.
+- [x] No-arbitrary-command, no-shell, no-network, no-cloud, and no-secret boundary behavior is unchanged.
+- [x] Provider output remains untrusted/descriptive.
+- [x] Candidate-materialization prohibition is unchanged.
+- [x] Action-authorization prohibition is unchanged.
+- [x] Replay-repair and recovery-promotion prohibition is unchanged.
+- [x] Provider output pipeline linkage behavior is unchanged.
 - [x] Boundary marker strings are unchanged.
 - [x] Capability flags are unchanged.
 - [x] Reason strings are unchanged.
