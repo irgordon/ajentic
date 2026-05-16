@@ -4,7 +4,9 @@ use super::*;
 use crate::api::{
     derive_release_candidate_preparation_input_snapshot,
     derive_release_candidate_preparation_projection,
-    initial_release_candidate_preparation_projection, ReleaseCandidatePreparationProjection,
+    initial_release_artifact_dry_package_projection,
+    initial_release_candidate_preparation_projection, ReleaseArtifactDryPackageProjection,
+    ReleaseCandidatePreparationProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -72,6 +74,7 @@ pub struct LocalOperatorShellState {
     pub trial_error_report: TrialErrorReportProjection,
     pub trial_evidence_review: TrialEvidenceReviewProjection,
     pub release_candidate_preparation: ReleaseCandidatePreparationProjection,
+    pub release_artifact_dry_package: ReleaseArtifactDryPackageProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -322,6 +325,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         trial_error_report: initial_trial_error_report_projection(),
         trial_evidence_review: initial_trial_evidence_review_projection(),
         release_candidate_preparation: initial_release_candidate_preparation_projection(),
+        release_artifact_dry_package: initial_release_artifact_dry_package_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =

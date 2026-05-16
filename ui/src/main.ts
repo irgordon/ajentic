@@ -779,6 +779,40 @@ function renderReleaseCandidatePreparation(
     <p class="muted">${projection.noActionAuthorizationNote}</p>`;
 }
 
+
+function renderReleaseArtifactDryPackage(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.releaseArtifactDryPackage;
+  return `
+    <p><strong>Package status:</strong> ${projection.status}</p>
+    <p><strong>Dry package ID:</strong> ${projection.dryPackageId ?? "none"}</p>
+    <p><strong>Dry package classification:</strong> ${projection.dryPackageClassification}</p>
+    <p><strong>Production classification:</strong> ${projection.productionClassification}</p>
+    <p><strong>Distribution classification:</strong> ${projection.distributionClassification}</p>
+    <p><strong>Authority classification:</strong> ${projection.authorityClassification}</p>
+    <p><strong>Release classification:</strong> ${projection.releaseClassification}</p>
+    <p><strong>Included evidence count:</strong> ${projection.includedEvidenceCount}</p>
+    <h3>Included evidence summary</h3>
+    ${renderList(
+      projection.includedEvidence.map(
+        (item) =>
+          `${item.category}: ${item.categoryStatus} (${item.sourceSurface}:${item.sourceStatus}) ${item.sourceSummary}`,
+      ),
+      "No dry package evidence included.",
+    )}
+    <p><strong>Validation status:</strong> ${projection.validationStatus}</p>
+    <p><strong>Read-back validation status:</strong> ${projection.readBackValidationStatus}</p>
+    <p><strong>Rejection reason:</strong> ${projection.validationErrors.join(", ") || "none"}</p>
+    <p><strong>Boundary markers:</strong> ${projection.boundaryStatuses.join(", ")}</p>
+    <p class="muted">${projection.dryPackageOnlyNote}</p>
+    <p class="muted">${projection.notReleaseArtifactNote}</p>
+    <p class="muted">${projection.noReadinessOrCandidateApprovalNote}</p>
+    <p class="muted">${projection.localOnlyNonPublicNote}</p>
+    <p class="muted">${projection.noDistributionNote}</p>
+    <p class="muted">${projection.readBackValidationNote}</p>`;
+}
+
 function render(): void {
   const app = document.querySelector<HTMLDivElement>("#app");
   if (!app) return;
@@ -804,6 +838,11 @@ function render(): void {
       <section class="panel" aria-label="Release candidate preparation">
         <h2>Release candidate preparation</h2>
         ${renderReleaseCandidatePreparation(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Release artifact dry package">
+        <h2>Release artifact dry package</h2>
+        ${renderReleaseArtifactDryPackage(shellState)}
       </section>
 
       <section class="panel" aria-label="Local transport boundary status">

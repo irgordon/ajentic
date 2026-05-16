@@ -28,6 +28,47 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.172 - 2026-05-16
+**Status:** Phase 172 - Release Artifact Dry Package Assembly
+
+### Added
+- Add Rust-owned release artifact dry package derivation, validation, serialization, write, read, and read-back validation.
+- Add deterministic dry package metadata, dry package ID, classifications, included evidence summary, boundary markers, validation errors, and read-back projection.
+- Add explicit caller-provided path helpers for dry package write/read.
+- Add UI rendering for dry package status, package ID, included evidence summary, read-back validation status, and no-release/no-public-distribution boundaries.
+- Add Rust and TypeScript tests for deterministic dry package assembly, missing/blocked/rejected preparation rejection, explicit write/read behavior, malformed read-back rejection, digest mismatch rejection, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with release artifact dry package status using thin integration.
+- Update the local UI shell to display dry package assembly state and included evidence summary.
+- Update checklists/current-phase.md to Phase 172 procedural truth.
+
+### Notes
+- Code-production phase.
+- A dry package is rehearsal evidence, not a release artifact.
+- Dry package classification is dry_run_package_only.
+- Dry package is local-only and non-public.
+- Dry package does not approve release readiness.
+- Dry package does not approve Release Candidate status.
+- No release artifact creation.
+- No public artifact creation.
+- No signing.
+- No publishing.
+- No installer activation.
+- No update-channel activation.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No deployment behavior.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 173 remains the next code-production phase for checksum and provenance evidence for the dry package.
+
 ## v0.0.171.1 - 2026-05-16
 **Status:** Phase 171.1 - OOB Missing Constrained Invocation Module Restore
 

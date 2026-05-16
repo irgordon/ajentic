@@ -45,6 +45,7 @@ import {
   deriveTrialErrorReportProjection,
   deriveTrialEvidenceReviewProjection,
   deriveReleaseCandidatePreparationProjection,
+  deriveReleaseArtifactDryPackageProjection,
   releaseCandidatePreparationEvidenceCategories,
   initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
@@ -6099,6 +6100,133 @@ function assertReleaseCandidatePreparationForbiddenLabelsAbsent(): void {
     );
 }
 
+
+
+function completeReleaseCandidatePreparationForDryPackage(
+  state: LocalOperatorShellState,
+): LocalOperatorShellState["releaseCandidatePreparation"] {
+  return {
+    ...state.releaseCandidatePreparation,
+    status: "preparation_validated",
+    validationStatus: "valid",
+    evidenceItems: state.releaseCandidatePreparation.evidenceItems.map((item) => ({
+      ...item,
+      status: "present",
+      reason: "complete dry package behavior test evidence",
+      sourceLinkage: {
+        ...item.sourceLinkage,
+        sourceStatus: "present",
+        sourceSummary: "complete dry package behavior test evidence",
+      },
+    })),
+    missingEvidence: [],
+    blockers: [],
+    validationErrors: [],
+    presentEvidenceCount: state.releaseCandidatePreparation.categoryCount,
+    missingEvidenceCount: 0,
+    blockedEvidenceCount: 0,
+    rejectedEvidenceCount: 0,
+  };
+}
+
+function assertReleaseArtifactDryPackagePanelRendersInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Release artifact dry package", "dry package panel label");
+  assertContains(rendered, "Package status: not_assembled", "dry package status");
+  assertContains(rendered, "Dry package ID: none", "dry package id empty state");
+  assertContains(rendered, "Dry package classification: dry_run_package_only", "dry classification");
+  assertContains(rendered, "Production classification: non_production", "production classification");
+  assertContains(rendered, "Distribution classification: local_only_non_public", "distribution classification");
+  assertContains(rendered, "Authority classification: non_authoritative_rehearsal_evidence", "authority classification");
+  assertContains(rendered, "Release classification: release_not_approved", "release classification");
+  assertContains(rendered, "Included evidence count: 0", "initial included evidence count");
+  assertContains(rendered, "Read-back validation status: not_validated", "read-back status");
+  assertContains(rendered, "A dry package is rehearsal evidence, not a release artifact.", "dry package wording");
+  assertContains(rendered, "This package does not approve release readiness or Release Candidate status.", "approval boundary wording");
+  assertContains(rendered, "This package is local-only and non-public.", "local-only wording");
+  assertContains(rendered, "No signing, publishing, installer, update-channel, public download, GitHub release, release tag, deployment, or public distribution occurs.", "distribution boundary wording");
+  assertContains(rendered, "Read-back validation checks dry package structure only.", "read-back wording");
+}
+
+function assertReleaseArtifactDryPackageProjectionRendersIncludedEvidence(): void {
+  const base = initialLocalOperatorShellState();
+  const dryPackage = deriveReleaseArtifactDryPackageProjection(
+    completeReleaseCandidatePreparationForDryPackage(base),
+  );
+  const state: LocalOperatorShellState = {
+    ...base,
+    releaseArtifactDryPackage: dryPackage,
+  };
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Package status: dry_package_validated", "validated dry package status");
+  assertContains(rendered, "Dry package ID: release-artifact-dry-package-", "deterministic dry package id");
+  assertContains(rendered, "Included evidence summary", "included evidence summary heading");
+  assertContains(rendered, "local_beta_workflow:", "included local beta evidence");
+  assertContains(rendered, "Read-back validation status: not_validated", "read-back status render");
+}
+
+function assertReleaseArtifactDryPackageRendersRejectedState(): void {
+  const base = initialLocalOperatorShellState();
+  const rejectedDryPackage = deriveReleaseArtifactDryPackageProjection({
+    ...base.releaseCandidatePreparation,
+    status: "preparation_rejected",
+    validationStatus: "invalid",
+    validationErrors: ["release_claim_detected"],
+  });
+  const rendered = renderLocalOperatorShellSnapshot({
+    ...base,
+    releaseArtifactDryPackage: rejectedDryPackage,
+  });
+  assertContains(rendered, "Package status: dry_package_rejected", "rejected dry package status");
+  assertContains(rendered, "preparation_rejected", "dry package rejected reason");
+  assertContains(rendered, "release_claim_detected", "dry package release claim reason");
+}
+
+function assertReleaseArtifactDryPackageRenderingIsDeterministic(): void {
+  const base = initialLocalOperatorShellState();
+  const completePreparation = completeReleaseCandidatePreparationForDryPackage(base);
+  const first = deriveReleaseArtifactDryPackageProjection(completePreparation);
+  const second = deriveReleaseArtifactDryPackageProjection(completePreparation);
+  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic dry package projection");
+  assertEqual(
+    renderLocalOperatorShellSnapshot({ ...base, releaseArtifactDryPackage: first }),
+    renderLocalOperatorShellSnapshot({ ...base, releaseArtifactDryPackage: second }),
+    "deterministic dry package render",
+  );
+}
+
+function assertReleaseArtifactDryPackageForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  for (const label of [
+    "release_ready",
+    "release_candidate_ready",
+    "production_ready",
+    "production_candidate_approved",
+    "deployment_ready",
+    "public_use_ready",
+    "release_artifact_created",
+    "public_artifact_created",
+    "signed_release",
+    "published_release",
+    "installer_enabled",
+    "update_channel_enabled",
+    "github_release_created",
+    "release_tag_created",
+    "public_download_created",
+    "deployment_enabled",
+    "provider_output_trusted",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+  ])
+    assertDoesNotContain(
+      rendered,
+      label,
+      `forbidden dry package label ${label}`,
+    );
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -6885,6 +7013,27 @@ payload_summary=authority before replay`),
   {
     name: "release_candidate_preparation_forbidden_labels_absent",
     run: assertReleaseCandidatePreparationForbiddenLabelsAbsent,
+  },
+
+  {
+    name: "release_artifact_dry_package_panel_initial_state",
+    run: assertReleaseArtifactDryPackagePanelRendersInitialState,
+  },
+  {
+    name: "release_artifact_dry_package_included_evidence_summary",
+    run: assertReleaseArtifactDryPackageProjectionRendersIncludedEvidence,
+  },
+  {
+    name: "release_artifact_dry_package_rejected_state",
+    run: assertReleaseArtifactDryPackageRendersRejectedState,
+  },
+  {
+    name: "release_artifact_dry_package_rendering_is_deterministic",
+    run: assertReleaseArtifactDryPackageRenderingIsDeterministic,
+  },
+  {
+    name: "release_artifact_dry_package_forbidden_labels_absent",
+    run: assertReleaseArtifactDryPackageForbiddenLabelsAbsent,
   },
 
   {

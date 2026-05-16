@@ -53,6 +53,40 @@ function renderReleaseCandidatePreparationText(
   ].join("\n");
 }
 
+
+function renderReleaseArtifactDryPackageText(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.releaseArtifactDryPackage;
+  return [
+    `Package status: ${projection.status}`,
+    `Dry package ID: ${projection.dryPackageId ?? "none"}`,
+    `Dry package classification: ${projection.dryPackageClassification}`,
+    `Production classification: ${projection.productionClassification}`,
+    `Distribution classification: ${projection.distributionClassification}`,
+    `Authority classification: ${projection.authorityClassification}`,
+    `Release classification: ${projection.releaseClassification}`,
+    `Included evidence count: ${projection.includedEvidenceCount}`,
+    "Included evidence summary",
+    projection.includedEvidence
+      .map(
+        (item) =>
+          `${item.category}: ${item.categoryStatus} (${item.sourceSurface}:${item.sourceStatus}) ${item.sourceSummary}`,
+      )
+      .join("\n") || "none",
+    `Validation status: ${projection.validationStatus}`,
+    `Read-back validation status: ${projection.readBackValidationStatus}`,
+    `Rejection reason: ${projection.validationErrors.join(", ") || "none"}`,
+    `Boundary markers: ${projection.boundaryStatuses.join(", ")}`,
+    projection.dryPackageOnlyNote,
+    projection.notReleaseArtifactNote,
+    projection.noReadinessOrCandidateApprovalNote,
+    projection.localOnlyNonPublicNote,
+    projection.noDistributionNote,
+    projection.readBackValidationNote,
+  ].join("\n");
+}
+
 export function renderLocalOperatorShellSnapshot(
   state: LocalOperatorShellState,
 ): string {
@@ -679,6 +713,8 @@ export function renderLocalOperatorShellSnapshot(
     renderLocalHelpEntryText(),
     "Release candidate preparation",
     renderReleaseCandidatePreparationText(state),
+    "Release artifact dry package",
+    renderReleaseArtifactDryPackageText(state),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
