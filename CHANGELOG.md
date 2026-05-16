@@ -28,6 +28,38 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.170.21 - 2026-05-16
+**Status:** Phase 170.21 - Out-of-Band Local Operator Shell Final Extraction
+
+### Changed
+- Extract one final coherent shell initialization, projection, or helper family from core/src/api/local_operator_shell.rs into smaller sibling Rust module files.
+- Preserve public behavior, validation semantics, shell initial-state behavior, projection output, deterministic ordering, reason strings, and test coverage.
+- Update checklists/current-phase.md to Phase 170.21 procedural truth.
+
+### Notes
+- Out-of-band maintenance/code-quality phase.
+- Behavior-preserving extraction only.
+- Final pre-Phase-171 extraction pass.
+- Shell initial-state behavior is unchanged.
+- Projection output is unchanged.
+- Status classification is unchanged.
+- Boundary marker strings are unchanged.
+- Capability surface behavior is unchanged.
+- No Phase 171 implementation.
+- No release-candidate preparation behavior.
+- No runtime behavior changes.
+- No TypeScript changes.
+- No schema changes.
+- No release artifact creation.
+- No provider execution expansion.
+- No persistence authority expansion.
+- No replay repair.
+- No recovery promotion.
+- No action execution.
+- No controlled-human-use approval.
+- No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
+- Phase 171 remains the next planned code-production phase and should use a dedicated release-candidate preparation module with thin local shell integration.
+
 ## v0.0.170.20 - 2026-05-16
 **Status:** Phase 170.20 - Out-of-Band Local Operator Shell Controlled Trial Execution Extraction
 
