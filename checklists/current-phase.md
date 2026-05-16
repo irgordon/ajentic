@@ -4,142 +4,106 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist: Phase 170.21
+# Current Phase Checklist: Phase 171
 
 ## Phase name
-- [x] Phase 170.21 - Out-of-Band Local Operator Shell Final Extraction.
+- [x] Phase 171 - Release Candidate Preparation Contract.
 
 ## Phase goal
-- [x] Complete the final behavior-preserving decomposition pass on `core/src/api/local_operator_shell.rs` before Phase 171.
-- [x] Move one last safe coherent shell initialization, state projection, or tightly scoped glue helper family into a sibling Rust module.
-- [x] Keep Phase 171 release-candidate preparation unimplemented.
+- [x] Add a Rust-owned release-candidate preparation contract that organizes committed local beta, controlled-trial, help, validation, package, restore, replay, and evidence surfaces.
+- [x] Expose the projection in the local UI without approving release readiness.
 
 ## Working-tree hygiene gate
 - [x] Start from `git status --short`.
-- [x] Restrict changes to allowed Phase 170.21 surfaces.
-- [x] Do not leave generated artifacts or unrelated drift.
+- [x] Restrict edits to Phase 171 allowed code, UI, checklist, and changelog surfaces.
+- [x] Keep generated artifacts cleaned after validation.
 
 ## Allowed surfaces
-- [x] `core/src/api/local_operator_shell.rs`.
-- [x] `core/src/api/local_operator_shell_state.rs`.
-- [x] Existing `core/src/api/local_operator_shell_*.rs` only for narrow import visibility if required.
+- [x] `core/src/api/release_candidate_preparation.rs`.
+- [x] Thin local shell state/module export integration.
+- [x] `ui/src/**`.
 - [x] `CHANGELOG.md`.
 - [x] `checklists/current-phase.md`.
 
-## Extraction target checklist
-- [x] Select shell state initialization and state projection glue as the final extraction target.
-- [x] Move production code; do not count test movement as sufficient.
-- [x] Do not repeat prior extracted provider, candidate, trial, codec, transport, boundary marker, workflow, restore, adapter, constrained invocation, or trial execution families.
-- [x] Avoid circular module dependencies.
+## Code-production deliverable checklist
+- [x] Rust-owned release-candidate preparation contract exists.
+- [x] Local shell state exposes the preparation projection.
+- [x] Browser UI renders a release candidate preparation panel.
 
-## Final extraction checklist
-- [x] Create `core/src/api/local_operator_shell_state.rs` with moved production code.
-- [x] Keep `core/src/api/local_operator_shell.rs` as the public local shell surface.
-- [x] Re-export moved public types and functions through `local_operator_shell.rs`.
-- [x] Use narrow crate visibility only where existing sibling glue requires it.
+## Dedicated module checklist
+- [x] Implement preparation types, derivation, validation, ordering, blockers, and boundaries in `core/src/api/release_candidate_preparation.rs`.
+- [x] Do not add large preparation logic to `core/src/api/local_operator_shell.rs`.
 
-## Initial-state preservation checklist
-- [x] Initial harness status is unchanged.
-- [x] Initial non-production flag is unchanged.
-- [x] Initial run projection is unchanged.
-- [x] Initial decision ledger and replay projection are unchanged.
-- [x] Initial provider, candidate, session, workflow, trial, observability, and review projections are unchanged.
-- [x] Initial refresh/recompute order is unchanged.
+## Thin shell integration checklist
+- [x] Add one projection field to local shell state.
+- [x] Refresh the projection by calling the dedicated module helper.
+- [x] Re-export the module through the API surface.
 
-## Projection output preservation checklist
-- [x] Local run projection fields and values are unchanged.
-- [x] Local validation projection fields and values are unchanged.
-- [x] Local session evidence export projection is unchanged.
-- [x] Local workflow, trial failure drill, trial runbook, and controlled trial execution recomputation calls are unchanged.
-- [x] Deterministic ordering is unchanged.
+## Release-candidate preparation contract checklist
+- [x] Add contract, projection, status, classification, capability, source linkage, input snapshot, evidence, missing evidence, blocker, validation status, validation error, and boundary status types.
+- [x] Add deterministic preparation ID generation.
 
-## Status classification preservation checklist
-- [x] Local run status classification is unchanged.
-- [x] Local decision replay status classification is unchanged.
-- [x] Local session evidence export status classification is unchanged.
-- [x] Existing status-code strings are unchanged.
+## Evidence category checklist
+- [x] Include all required closed evidence categories.
+- [x] Keep category ordering deterministic.
+- [x] Do not silently omit unrepresented categories.
 
-## Behavior-preservation checklist
-- [x] Runtime semantics are unchanged.
-- [x] Request and response behavior is unchanged.
-- [x] Reason strings are unchanged.
-- [x] Boundary marker strings are unchanged.
-- [x] Capability flags and capability surface behavior are unchanged.
-- [x] Validation outcomes are unchanged.
-- [x] Fail-closed behavior is unchanged.
-- [x] No Phase 171 release-candidate preparation behavior is implemented.
+## Missing evidence checklist
+- [x] Derive missing evidence deterministically.
+- [x] Fail closed when required evidence is missing.
 
-## Public API preservation checklist
-- [x] Public shell state, run projection, validation projection, candidate output, intent, initialization, stub-run, intent-application, and evidence-export helpers remain available through `local_operator_shell.rs`.
-- [x] Public type names and enum variants are unchanged.
-- [x] `core/src/api/mod.rs` remains stable.
-- [x] No broad public module export was added.
+## Blocker checklist
+- [x] Derive blocked and rejected evidence blockers deterministically.
+- [x] Fail closed when required evidence is blocked or rejected.
 
-## Test preservation checklist
-- [x] Existing tests remain in place.
-- [x] No tests were deleted.
-- [x] No assertions were weakened.
-- [x] No tests were marked ignored.
-- [x] Snapshot text was not relaxed.
+## Source linkage checklist
+- [x] Link each category back to its local shell or UI source surface.
+- [x] Render source linkage in the UI.
+
+## Validation/fail-closed checklist
+- [x] Reject readiness, release, deployment, public-use, and production-use claims.
+- [x] Reject signing, publishing, installer, and update-channel claims.
+- [x] Reject provider-trust, action-authorization, replay-repair, and recovery-promotion claims.
+
+## UI preparation panel checklist
+- [x] Render preparation status and preparation ID.
+- [x] Render evidence category counts and category statuses.
+- [x] Render missing evidence, blockers, source linkage, and boundaries.
+- [x] Avoid publish, sign, deploy, release, installer, update-channel, approval, or public-distribution controls.
+
+## No-release/no-readiness boundary checklist
+- [x] State that release-candidate preparation is not release readiness.
+- [x] State that the contract creates no release artifacts.
+- [x] State that the contract approves no Release Candidate status.
+- [x] State provider output remains untrusted and no action authorization is granted.
+
+## Rust test checklist
+- [x] Cover complete evidence mapping.
+- [x] Cover missing, blocked, and rejected evidence.
+- [x] Cover deterministic projection and no-authority boundaries.
+
+## TypeScript test checklist
+- [x] Cover visible preparation panel.
+- [x] Cover category status, missing evidence, blockers, source linkage, deterministic rendering, and boundary wording.
+- [x] Cover forbidden-label absence.
+
+## Phase 172 handoff checklist
+- [x] Phase 172 remains the next code-production phase for release artifact dry package assembly.
+- [x] Phase 171 creates no release artifacts.
 
 ## Validation checklist
-- [x] `cargo fmt --manifest-path core/Cargo.toml`
-- [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-21-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-21-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-- [x] `cd ui && npm run test:api`
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-170-21-target ./scripts/check.sh`
-- [x] `git diff --check`
-- [x] `git status --short`
-- [x] File-size scan.
-- [x] Extraction scan.
-- [x] Remaining-shell-function scan.
-- [x] Moved-code scan.
-- [x] Helper location scan.
-- [x] Boundary scan.
-- [x] Behavior-boundary scan.
-- [x] No-Phase-171 scan.
-- [x] No-UI-drift guard.
-
-## Remaining monolith risk checklist
-- [x] `core/src/api/local_operator_shell.rs` remains oversized after this focused final extraction.
-- [x] Remaining local shell helper families remain future maintenance candidates.
-- [x] Phase 171 should avoid adding release-candidate preparation behavior to the monolith.
-
-## Phase 171 handoff checklist
-- [x] Phase 171 remains the next planned code-production phase.
-- [x] Phase 171 release-candidate preparation behavior remains unimplemented.
-- [x] Phase 171 should use a dedicated release-candidate preparation module.
-- [x] Phase 171 local shell integration should remain thin.
+- [x] Run full required validation after final edits.
+- [x] Confirm staged files match allowed surfaces.
 
 ## Deferred items
-- [x] Broader local shell decomposition is deferred.
-- [x] Release-candidate preparation remains deferred to Phase 171.
-- [x] Release artifacts, signing, publishing, deployment, update-channel, installer, public-use, controlled-human-use, readiness, and production approval behavior remain out of scope.
+- [x] Release artifact dry package assembly remains deferred to Phase 172.
+- [x] Signing, publishing, installers, update channels, deployment, and public distribution remain deferred.
 
 ## Validation log
-- [x] Full required validation passed after final edits.
-- [x] No masked failures exist.
-- [x] Generated artifacts were cleaned.
+- [x] Record final validation commands in the agent final response.
 
 ## Zero-drift checklist
-- [x] Staged files match allowed Phase 170.21 surfaces.
-- [x] One final coherent shell initialization/projection helper family moved out of `local_operator_shell.rs`.
-- [x] Test extraction alone is not counted as sufficient.
-- [x] Moved code remains behavior-preserving.
-- [x] Existing tests pass.
-- [x] UI behavior tests pass.
-- [x] No tests are removed or weakened.
-- [x] Public API compatibility is preserved.
-- [x] Initial shell state behavior is unchanged.
-- [x] Projection output is unchanged.
-- [x] Status classification is unchanged.
-- [x] Boundary marker strings are unchanged.
-- [x] Capability flags are unchanged.
-- [x] Reason strings are unchanged.
-- [x] Deterministic ordering is unchanged.
-- [x] Validation outcomes are unchanged.
-- [x] No Phase 171 release-candidate preparation behavior is implemented.
-- [x] No release artifact, deployment, signing, publishing, installer, update-channel, public-use, controlled-human-use, readiness, or production approval is introduced.
-- [x] CHANGELOG entry matches actual diff.
-- [x] Phase 171 remains the next planned code-production phase with a dedicated release-candidate preparation module and thin local shell integration.
+- [x] No roadmap files changed.
+- [x] No Phase 170.5 audit file changed.
+- [x] No release/deployment/signing/publishing behavior added.
+- [x] No provider execution, action authorization, replay repair, or recovery promotion added.

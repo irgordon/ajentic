@@ -1,6 +1,11 @@
 //! Local operator shell state shapes and initialization glue.
 
 use super::*;
+use crate::api::{
+    derive_release_candidate_preparation_input_snapshot,
+    derive_release_candidate_preparation_projection,
+    initial_release_candidate_preparation_projection, ReleaseCandidatePreparationProjection,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalCandidateOutput {
@@ -66,6 +71,7 @@ pub struct LocalOperatorShellState {
     pub trial_observability: TrialObservabilityProjection,
     pub trial_error_report: TrialErrorReportProjection,
     pub trial_evidence_review: TrialEvidenceReviewProjection,
+    pub release_candidate_preparation: ReleaseCandidatePreparationProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -225,6 +231,9 @@ pub(crate) fn attach_local_session_evidence_export(
     state.trial_operator_runbook = derive_trial_operator_runbook_projection(&state);
     state.controlled_internal_trial_execution =
         derive_controlled_internal_trial_execution_projection(&state);
+    state.release_candidate_preparation = derive_release_candidate_preparation_projection(
+        &derive_release_candidate_preparation_input_snapshot(&state),
+    );
     state
 }
 
@@ -312,13 +321,18 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         trial_observability: initial_trial_observability_projection(),
         trial_error_report: initial_trial_error_report_projection(),
         trial_evidence_review: initial_trial_evidence_review_projection(),
+        release_candidate_preparation: initial_release_candidate_preparation_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
         derive_complete_local_operator_workflow_projection(&state);
     state.trial_failure_drill = derive_trial_failure_drill_projection(&state);
     state.trial_operator_runbook = derive_trial_operator_runbook_projection(&state);
-    refresh_trial_evidence_review_state(refresh_trial_observability_state(state))
+    let mut state = refresh_trial_evidence_review_state(refresh_trial_observability_state(state));
+    state.release_candidate_preparation = derive_release_candidate_preparation_projection(
+        &derive_release_candidate_preparation_input_snapshot(&state),
+    );
+    state
 }
 
 pub fn start_deterministic_stub_run(state: &LocalOperatorShellState) -> LocalOperatorShellState {

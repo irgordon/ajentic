@@ -1436,7 +1436,6 @@ export type ConstrainedLocalProviderInvocationProjection = Readonly<{
   reason: string;
 }>;
 
-
 export type LocalProviderOutputPipelineSourceKind =
   | "deterministic_stub_provider_execution"
   | "constrained_local_provider_invocation";
@@ -1650,7 +1649,9 @@ export function initialLocalProviderOutputPipelineProjection(): LocalProviderOut
 
 export function projectInvocationOutputIntoProviderPipeline(
   state: LocalOperatorShellState,
-): InvocationProviderOutputBridgeProjection | readonly LocalProviderOutputPipelineError[] {
+):
+  | InvocationProviderOutputBridgeProjection
+  | readonly LocalProviderOutputPipelineError[] {
   const invocation = state.constrainedLocalProviderInvocation;
   if (invocation.status === "not_invoked") return ["no_invocation_output"];
   if (invocation.status !== "invocation_executed")
@@ -1677,7 +1678,15 @@ export function projectInvocationOutputIntoProviderPipeline(
   )
     errors.add("invocation_output_summary_mismatch");
   const lower = result.outputSummary.toLowerCase();
-  if (["trust", "trusted", "provider_output_approval", "approved output", "approval granted"].some((needle) => lower.includes(needle))) {
+  if (
+    [
+      "trust",
+      "trusted",
+      "provider_output_approval",
+      "approved output",
+      "approval granted",
+    ].some((needle) => lower.includes(needle))
+  ) {
     errors.add("trust_claim_rejected");
     errors.add("approval_claim_rejected");
   }
@@ -1686,9 +1695,17 @@ export function projectInvocationOutputIntoProviderPipeline(
   if (lower.includes("release")) errors.add("release_claim_rejected");
   if (["deployment", "deploy"].some((needle) => lower.includes(needle)))
     errors.add("deployment_claim_rejected");
-  if (["public_use", "public-use", "public use"].some((needle) => lower.includes(needle)))
+  if (
+    ["public_use", "public-use", "public use"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
     errors.add("public_use_claim_rejected");
-  if (["candidate creation", "candidate_output"].some((needle) => lower.includes(needle)))
+  if (
+    ["candidate creation", "candidate_output"].some((needle) =>
+      lower.includes(needle),
+    )
+  )
     errors.add("candidate_creation_claim_rejected");
   if (["candidate", "materialization"].some((needle) => lower.includes(needle)))
     errors.add("candidate_materialization_claim_rejected");
@@ -1711,7 +1728,9 @@ export function projectInvocationOutputIntoProviderPipeline(
 }
 
 function isPipelineBridge(
-  value: InvocationProviderOutputBridgeProjection | readonly LocalProviderOutputPipelineError[],
+  value:
+    | InvocationProviderOutputBridgeProjection
+    | readonly LocalProviderOutputPipelineError[],
 ): value is InvocationProviderOutputBridgeProjection {
   return !Array.isArray(value);
 }
@@ -1799,8 +1818,13 @@ export function deriveLocalProviderOutputPipelineProjection(
   ];
   const errors: LocalProviderOutputPipelineError[] = [];
   let nextRequiredStage: LocalProviderOutputPipelineStage | null = null;
-  const blockRest = (startIndex: number, reason: LocalProviderOutputPipelineError) => {
-    for (const stage of localProviderOutputPipelineStageOrder().slice(startIndex))
+  const blockRest = (
+    startIndex: number,
+    reason: LocalProviderOutputPipelineError,
+  ) => {
+    for (const stage of localProviderOutputPipelineStageOrder().slice(
+      startIndex,
+    ))
       stages.push(pipelineStage(stage, "blocked", reason));
   };
   const validationRejected = [
@@ -1831,49 +1855,91 @@ export function deriveLocalProviderOutputPipelineProjection(
     blockRest(4, "provider_output_validation_missing");
     nextRequiredStage = "provider_output_validation_projected";
   } else {
-    stages.push(pipelineStage("provider_output_validation_projected", "completed", null));
-    stages.push(pipelineStage("provider_output_review_required", "completed", null));
-    stages.push(pipelineStage("provider_output_review_projected", "completed", null));
+    stages.push(
+      pipelineStage("provider_output_validation_projected", "completed", null),
+    );
+    stages.push(
+      pipelineStage("provider_output_review_required", "completed", null),
+    );
+    stages.push(
+      pipelineStage("provider_output_review_projected", "completed", null),
+    );
     stages.push(pipelineStage("staged_conversion_required", "completed", null));
-    if (state.stagedCandidateConversionProposal.status !== "staged_proposal_created") {
+    if (
+      state.stagedCandidateConversionProposal.status !==
+      "staged_proposal_created"
+    ) {
       errors.push("staged_proposal_missing");
       stages.push(
-        pipelineStage("staged_proposal_projected", "available", "staged_proposal_missing"),
+        pipelineStage(
+          "staged_proposal_projected",
+          "available",
+          "staged_proposal_missing",
+        ),
       );
       blockRest(8, "staged_proposal_missing");
       nextRequiredStage = "staged_proposal_projected";
     } else {
-      stages.push(pipelineStage("staged_proposal_projected", "completed", null));
-      stages.push(pipelineStage("staged_validation_required", "completed", null));
-      if (state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid") {
-        stages.push(pipelineStage("staged_proposal_validation_projected", "completed", null));
-        stages.push(pipelineStage("candidate_review_required", "completed", null));
-        stages.push(pipelineStage("candidate_review_projected", "completed", null));
-        stages.push(pipelineStage("operator_decision_required", "completed", null));
+      stages.push(
+        pipelineStage("staged_proposal_projected", "completed", null),
+      );
+      stages.push(
+        pipelineStage("staged_validation_required", "completed", null),
+      );
+      if (
+        state.stagedCandidateConversionValidation.status ===
+        "staged_proposal_shape_valid"
+      ) {
+        stages.push(
+          pipelineStage(
+            "staged_proposal_validation_projected",
+            "completed",
+            null,
+          ),
+        );
+        stages.push(
+          pipelineStage("candidate_review_required", "completed", null),
+        );
+        stages.push(
+          pipelineStage("candidate_review_projected", "completed", null),
+        );
+        stages.push(
+          pipelineStage("operator_decision_required", "completed", null),
+        );
         const decisionDone = [
           "approved_validated_staged_proposal",
           "rejected_validated_staged_proposal",
         ].includes(state.operatorCandidateDecision.status);
         if (decisionDone) {
-          stages.push(pipelineStage("operator_decision_projected", "completed", null));
+          stages.push(
+            pipelineStage("operator_decision_projected", "completed", null),
+          );
         } else {
           errors.push("operator_decision_missing");
           stages.push(
-            pipelineStage("operator_decision_projected", "available", "operator_decision_missing"),
+            pipelineStage(
+              "operator_decision_projected",
+              "available",
+              "operator_decision_missing",
+            ),
           );
           nextRequiredStage = "operator_decision_projected";
         }
       } else {
         const reason =
-          state.stagedCandidateConversionValidation.status === "rejected_staged_proposal" ||
-          state.stagedCandidateConversionValidation.status === "invalid_validation_input"
+          state.stagedCandidateConversionValidation.status ===
+            "rejected_staged_proposal" ||
+          state.stagedCandidateConversionValidation.status ===
+            "invalid_validation_input"
             ? "staged_proposal_validation_rejected"
             : "staged_proposal_validation_missing";
         errors.push(reason);
         stages.push(
           pipelineStage(
             "staged_proposal_validation_projected",
-            reason === "staged_proposal_validation_rejected" ? "rejected" : "available",
+            reason === "staged_proposal_validation_rejected"
+              ? "rejected"
+              : "available",
             reason,
           ),
         );
@@ -1882,9 +1948,9 @@ export function deriveLocalProviderOutputPipelineProjection(
       }
     }
   }
-  const currentStage = [...stages]
-    .reverse()
-    .find((stage) => stage.status === "completed")?.stage ?? null;
+  const currentStage =
+    [...stages].reverse().find((stage) => stage.status === "completed")
+      ?.stage ?? null;
   return {
     status: errors.some((error) => error.endsWith("rejected"))
       ? "rejected"
@@ -1898,11 +1964,14 @@ export function deriveLocalProviderOutputPipelineProjection(
     nextRequiredStage,
     stages,
     providerOutputValidationStatus: state.providerOutputValidation.status,
-    providerOutputReviewStatus: state.providerOutputValidation.reviewabilityStatus,
+    providerOutputReviewStatus:
+      state.providerOutputValidation.reviewabilityStatus,
     stagedProposalStatus: state.stagedCandidateConversionProposal.status,
-    stagedProposalValidationStatus: state.stagedCandidateConversionValidation.status,
+    stagedProposalValidationStatus:
+      state.stagedCandidateConversionValidation.status,
     candidateReviewStatus:
-      state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid"
+      state.stagedCandidateConversionValidation.status ===
+      "staged_proposal_shape_valid"
         ? "display_only"
         : "required",
     operatorDecisionStatus: state.operatorCandidateDecision.status,
@@ -2231,51 +2300,53 @@ export function applyConstrainedLocalProviderInvocation(
     state.localProviderAdapterRegistry,
     request,
   );
-  if ("result" in validation)
-    {
-      const rejectedState = {
+  if ("result" in validation) {
+    const rejectedState = {
+      ...state,
+      constrainedLocalProviderInvocation: validation,
+      localProviderOutputPipeline: deriveLocalProviderOutputPipelineProjection({
         ...state,
         constrainedLocalProviderInvocation: validation,
-        localProviderOutputPipeline: deriveLocalProviderOutputPipelineProjection({
-          ...state,
-          constrainedLocalProviderInvocation: validation,
-        }),
-      };
-      return {
-        status: "rejected",
-        reason: "constrained_local_provider_invocation_rejected",
-        state: {
-          ...rejectedState,
-          completeLocalOperatorWorkflow:
-            deriveCompleteLocalOperatorWorkflowProjection(rejectedState),
-        },
-      };
-    }
+      }),
+    };
+    return {
+      status: "rejected",
+      reason: "constrained_local_provider_invocation_rejected",
+      state: {
+        ...rejectedState,
+        completeLocalOperatorWorkflow:
+          deriveCompleteLocalOperatorWorkflowProjection(rejectedState),
+      },
+    };
+  }
   const result = executeAllowlistedLocalDeterministicProviderInvocation(
     validation,
     request,
   );
-  const constrainedLocalProviderInvocation: ConstrainedLocalProviderInvocationProjection = {
-    status: "invocation_executed",
-    providerKind: result.providerKind,
-    adapterKind: result.adapterKind,
-    adapterDeclarationId: result.adapterDeclarationId,
-    result,
-    errorCodes: [],
-    boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
-    outputTrustStatus: "untrusted_descriptive",
-    effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
-    capabilitySurface: constrainedLocalProviderInvocationCapabilitySurface(),
-    registryDeclarationCount: state.localProviderAdapterRegistry.declarations.length,
-    reason:
-      "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
-  };
+  const constrainedLocalProviderInvocation: ConstrainedLocalProviderInvocationProjection =
+    {
+      status: "invocation_executed",
+      providerKind: result.providerKind,
+      adapterKind: result.adapterKind,
+      adapterDeclarationId: result.adapterDeclarationId,
+      result,
+      errorCodes: [],
+      boundaryStatuses: constrainedLocalProviderInvocationBoundaryStatuses(),
+      outputTrustStatus: "untrusted_descriptive",
+      effectStatuses: constrainedLocalProviderInvocationEffectStatuses(),
+      capabilitySurface: constrainedLocalProviderInvocationCapabilitySurface(),
+      registryDeclarationCount:
+        state.localProviderAdapterRegistry.declarations.length,
+      reason:
+        "constrained local provider invocation executed through exactly one allowlisted local provider path; output remains untrusted_descriptive and no provider trust, candidate, action, readiness, release, deployment, public-use, command, shell, network, cloud, secret, environment, or persistence effect occurs",
+    };
   const bridgeState = { ...state, constrainedLocalProviderInvocation };
   const bridge = projectInvocationOutputIntoProviderPipeline(bridgeState);
   const providerExecution = isPipelineBridge(bridge)
     ? providerExecutionProjectionFromInvocationBridge(bridgeState, bridge)
     : state.providerExecution;
-  const providerOutputValidation = validateLocalProviderOutput(providerExecution);
+  const providerOutputValidation =
+    validateLocalProviderOutput(providerExecution);
   const next = {
     ...state,
     constrainedLocalProviderInvocation,
@@ -3330,7 +3401,6 @@ export type OperatorCandidateDecisionProjection = Readonly<{
   note: string;
 }>;
 
-
 export type LocalCandidateMaterializationStatus =
   | "not_materialized"
   | "local_candidate_materialized"
@@ -3516,8 +3586,7 @@ export function initialLocalCandidateOutputProjection(): LocalCandidateOutputPro
     effectStatuses: localCandidateMaterializationEffectStatuses(),
     error: null,
     capabilitySurface: localCandidateMaterializationCapabilitySurface(),
-    note:
-      "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
+    note: "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
   };
 }
 
@@ -3575,35 +3644,55 @@ export function validateLocalCandidateMaterializationRequest(
     return "provider_pipeline_rejected";
   if (state.localProviderOutputPipeline.status !== "valid")
     return "provider_pipeline_incomplete";
-  if (validateProviderOutputPipelineStageOrder(state.localProviderOutputPipeline))
+  if (
+    validateProviderOutputPipelineStageOrder(state.localProviderOutputPipeline)
+  )
     return "provider_pipeline_incomplete";
   if (state.providerOutputValidation.status === "not_validated")
     return "provider_output_validation_missing";
   if (state.providerOutputValidation.status !== "reviewable_untrusted")
     return "provider_output_validation_not_reviewable_untrusted";
-  if (state.providerOutputValidation.reviewabilityStatus !== "reviewable_untrusted")
+  if (
+    state.providerOutputValidation.reviewabilityStatus !==
+    "reviewable_untrusted"
+  )
     return "provider_output_review_missing";
   const proposal = state.stagedCandidateConversionProposal.proposal;
-  if (!proposal || state.stagedCandidateConversionProposal.status !== "staged_proposal_created")
+  if (
+    !proposal ||
+    state.stagedCandidateConversionProposal.status !== "staged_proposal_created"
+  )
     return "staged_proposal_missing";
   if (state.stagedCandidateConversionValidation.status === "not_validated")
     return "staged_proposal_validation_missing";
-  if (state.stagedCandidateConversionValidation.status !== "staged_proposal_shape_valid")
+  if (
+    state.stagedCandidateConversionValidation.status !==
+    "staged_proposal_shape_valid"
+  )
     return "staged_proposal_validation_not_valid";
-  if (state.localProviderOutputPipeline.candidateReviewStatus !== "display_only")
+  if (
+    state.localProviderOutputPipeline.candidateReviewStatus !== "display_only"
+  )
     return "candidate_review_missing";
   if (state.operatorCandidateDecision.status === "no_operator_decision")
     return "operator_decision_missing";
-  if (state.operatorCandidateDecision.status === "rejected_validated_staged_proposal")
+  if (
+    state.operatorCandidateDecision.status ===
+    "rejected_validated_staged_proposal"
+  )
     return "operator_decision_rejected";
-  if (state.operatorCandidateDecision.status !== "approved_validated_staged_proposal")
+  if (
+    state.operatorCandidateDecision.status !==
+    "approved_validated_staged_proposal"
+  )
     return "operator_decision_not_approved";
   const decision = state.operatorCandidateDecision.record;
   if (!decision) return "operator_decision_missing";
   if (
     request.stagedProposalId !== proposal.proposalId ||
     request.stagedProposalId !== decision.stagedProposalId ||
-    request.stagedProposalId !== state.stagedCandidateConversionValidation.proposalId
+    request.stagedProposalId !==
+      state.stagedCandidateConversionValidation.proposalId
   )
     return "staged_proposal_id_mismatch";
   if (request.operatorDecisionId !== decision.decisionId)
@@ -3614,30 +3703,40 @@ export function validateLocalCandidateMaterializationRequest(
     request.providerExecutionResultId !== providerResultId ||
     request.providerExecutionResultId !== proposal.sourceExecutionResultId ||
     request.providerExecutionResultId !== decision.providerExecutionResultId ||
-    request.providerExecutionResultId !== state.providerOutputValidation.providerExecutionResultId ||
-    request.providerExecutionResultId !== state.stagedCandidateConversionValidation.sourceExecutionResultId ||
-    request.providerExecutionResultId !== state.localProviderOutputPipeline.providerExecutionResultId
+    request.providerExecutionResultId !==
+      state.providerOutputValidation.providerExecutionResultId ||
+    request.providerExecutionResultId !==
+      state.stagedCandidateConversionValidation.sourceExecutionResultId ||
+    request.providerExecutionResultId !==
+      state.localProviderOutputPipeline.providerExecutionResultId
   )
     return "provider_execution_result_id_mismatch";
-  const invocationResultId = state.constrainedLocalProviderInvocation.result?.resultId;
+  const invocationResultId =
+    state.constrainedLocalProviderInvocation.result?.resultId;
   if (
     !invocationResultId ||
     request.sourceInvocationResultId !== invocationResultId ||
-    request.sourceInvocationResultId !== state.localProviderOutputPipeline.sourceInvocationResultId
+    request.sourceInvocationResultId !==
+      state.localProviderOutputPipeline.sourceInvocationResultId
   )
     return "invocation_result_id_mismatch";
   const reprojected = projectStagedCandidateConversionValidation(state, {
     proposalId: proposal.proposalId,
   });
-  if (JSON.stringify(reprojected) !== JSON.stringify(state.stagedCandidateConversionValidation))
+  if (
+    JSON.stringify(reprojected) !==
+    JSON.stringify(state.stagedCandidateConversionValidation)
+  )
     return "source_linkage_mismatch";
   return {
     sourceInvocationResultId: request.sourceInvocationResultId,
     providerExecutionResultId: request.providerExecutionResultId,
     providerOutputValidationStatus: state.providerOutputValidation.status,
-    providerOutputReviewStatus: state.providerOutputValidation.reviewabilityStatus,
+    providerOutputReviewStatus:
+      state.providerOutputValidation.reviewabilityStatus,
     stagedProposalId: request.stagedProposalId,
-    stagedProposalValidationStatus: state.stagedCandidateConversionValidation.status,
+    stagedProposalValidationStatus:
+      state.stagedCandidateConversionValidation.status,
     operatorDecisionId: request.operatorDecisionId,
     operatorDecisionStatus: state.operatorCandidateDecision.status,
   };
@@ -3704,8 +3803,7 @@ export function projectLocalCandidateOutput(
     effectStatuses: localCandidateMaterializationEffectStatuses(),
     error: null,
     capabilitySurface: localCandidateMaterializationCapabilitySurface(),
-    note:
-      "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
+    note: "Local candidate output only. This candidate output is non-production. Provider output remains untrusted. Candidate materialization does not approve readiness, release, deployment, or public use. Candidate materialization does not authorize actions. Production approval remains unavailable.",
   };
 }
 
@@ -4555,7 +4653,6 @@ export function initialLocalSessionPackageProjection(): LocalSessionPackageProje
   };
 }
 
-
 export type ControlledInternalTrialPackageStatus =
   | "not_packaged"
   | "package_projected"
@@ -4917,7 +5014,6 @@ export type LocalRunProjection = Readonly<{
   decisionReplay: LocalDecisionReplayProjection;
 }>;
 
-
 export type CompleteLocalOperatorWorkflowStatus =
   | "not_started"
   | "in_progress"
@@ -5028,7 +5124,6 @@ export type CompleteLocalOperatorWorkflowProjection = Readonly<{
   noAuthorityNote: string;
 }>;
 
-
 export type TrialOperatorRunbookStatus =
   | "not_available"
   | "trial_package_required"
@@ -5106,7 +5201,11 @@ export type TrialRunbookCapabilitySurface = Readonly<{
   promotesRecovery: false;
 }>;
 
-export type TrialFailureSeverity = "info" | "manual_action" | "blocked" | "rejected";
+export type TrialFailureSeverity =
+  | "info"
+  | "manual_action"
+  | "blocked"
+  | "rejected";
 export type TrialFailureDrillStatus =
   | "no_failures_projected"
   | "failure_drill_required"
@@ -5198,8 +5297,6 @@ export type TrialOperatorRunbookProjection = Readonly<{
   noTrialExecutionNote: string;
   noAuthorityNote: string;
 }>;
-
-
 
 export type TrialSessionEvidenceStatus =
   | "not_captured"
@@ -5313,9 +5410,11 @@ export function initialTrialSessionEvidenceProjection(): TrialSessionEvidencePro
     failureDrillLinkage: "failure drill linkage not captured",
     includedEvidenceSummary: [],
     workflowSnapshotSummary: "workflow snapshot not captured",
-    localCandidateMaterializationSnapshot: "local candidate materialization snapshot not captured",
+    localCandidateMaterializationSnapshot:
+      "local candidate materialization snapshot not captured",
     replayStatusSnapshot: "replay/status snapshot not captured",
-    evidenceExportSessionPackageRestoreSnapshot: "evidence export/session package/restore snapshot not captured",
+    evidenceExportSessionPackageRestoreSnapshot:
+      "evidence export/session package/restore snapshot not captured",
     stopConditionSnapshot: [],
     escalationSnapshot: [],
     failureCategorySnapshot: [],
@@ -5324,14 +5423,18 @@ export function initialTrialSessionEvidenceProjection(): TrialSessionEvidencePro
     validationErrors: [],
     readBackValidationStatus: null,
     boundaryStatus: trialSessionEvidenceBoundaryStatuses(),
-    localOnlyNonAuthoritativeNote: "Trial session evidence is local-only, non-public, and non-authoritative.",
-    localPreparationOnlyNote: "Evidence capture records local trial-preparation state only.",
-    noTrialApprovalNote: "Evidence capture does not start or approve a controlled trial.",
-    noReleaseDeploymentReadinessNote: "This evidence is not release, deployment, readiness, public-use, or production-use evidence.",
-    readBackValidationNote: "Read-back validation checks evidence structure only.",
+    localOnlyNonAuthoritativeNote:
+      "Trial session evidence is local-only, non-public, and non-authoritative.",
+    localPreparationOnlyNote:
+      "Evidence capture records local trial-preparation state only.",
+    noTrialApprovalNote:
+      "Evidence capture does not start or approve a controlled trial.",
+    noReleaseDeploymentReadinessNote:
+      "This evidence is not release, deployment, readiness, public-use, or production-use evidence.",
+    readBackValidationNote:
+      "Read-back validation checks evidence structure only.",
   };
 }
-
 
 export type TrialReplayRestoreVerificationStatus =
   | "not_verified"
@@ -5458,7 +5561,6 @@ export function initialTrialReplayRestoreVerificationProjection(): TrialReplayRe
     noActionExecutionNote: "Verification does not execute actions.",
   };
 }
-
 
 export type ControlledInternalTrialRunStatus =
   | "not_started"
@@ -5686,32 +5788,74 @@ export function initialControlledInternalTrialExecutionProjection(): ControlledI
       automatesStopConditions: false,
       automatesEscalation: false,
     },
-    localOnlyNonPublicNote: "Controlled internal trial execution harness is local-only and non-public.",
-    noControlledHumanUseNote: "The harness does not approve controlled human use.",
-    noReadinessReleaseDeploymentPublicProductionNote: "The harness does not approve readiness, release, deployment, public use, or production use.",
-    stopConditionNote: "Stop conditions are observed only; enforcement is not automated in Phase 166.",
+    localOnlyNonPublicNote:
+      "Controlled internal trial execution harness is local-only and non-public.",
+    noControlledHumanUseNote:
+      "The harness does not approve controlled human use.",
+    noReadinessReleaseDeploymentPublicProductionNote:
+      "The harness does not approve readiness, release, deployment, public use, or production use.",
+    stopConditionNote:
+      "Stop conditions are observed only; enforcement is not automated in Phase 166.",
     escalationNote: "Escalation is not automated.",
     noActionAuthorizationNote: "No action authorization is granted.",
   };
 }
 
-export function deriveControlledInternalTrialExecutionProjection(state: LocalOperatorShellState): ControlledInternalTrialExecutionProjection {
+export function deriveControlledInternalTrialExecutionProjection(
+  state: LocalOperatorShellState,
+): ControlledInternalTrialExecutionProjection {
   const errors: ControlledInternalTrialRunError[] = [];
-  if (state.controlledInternalTrialPackageProjection.status === "not_packaged") errors.push("trial_package_missing");
-  if (state.trialOperatorRunbook.status === "not_available") errors.push("runbook_missing");
-  if (["trial_package_required", "blocked"].includes(state.trialOperatorRunbook.status)) errors.push("runbook_blocked");
-  if (state.trialFailureDrill.stopConditionDrills.length === 0 && state.trialFailureDrill.categories.length === 0) errors.push("failure_drill_missing");
-  if (state.trialSessionEvidenceProjection.status === "not_captured") errors.push("trial_session_evidence_missing");
-  if (state.trialSessionEvidenceProjection.validationStatus !== "valid" && state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid" && !errors.includes("trial_session_evidence_missing")) errors.push("trial_session_evidence_invalid");
-  if (state.trialReplayRestoreVerification.status === "not_verified") errors.push("replay_restore_verification_missing");
-  if (state.trialReplayRestoreVerification.status === "trial_replay_restore_verification_projected") errors.push("replay_restore_verification_not_passed");
-  if (["verification_rejected", "invalid_verification_input"].includes(state.trialReplayRestoreVerification.status)) errors.push("replay_restore_verification_rejected");
-  if (state.completeLocalOperatorWorkflow.status === "not_started" || state.completeLocalOperatorWorkflow.status === "in_progress") errors.push("complete_local_workflow_missing");
-  if (state.completeLocalOperatorWorkflow.status === "blocked") errors.push("complete_local_workflow_blocked");
-  if (state.completeLocalOperatorWorkflow.status === "rejected") errors.push("complete_local_workflow_rejected");
+  if (state.controlledInternalTrialPackageProjection.status === "not_packaged")
+    errors.push("trial_package_missing");
+  if (state.trialOperatorRunbook.status === "not_available")
+    errors.push("runbook_missing");
+  if (
+    ["trial_package_required", "blocked"].includes(
+      state.trialOperatorRunbook.status,
+    )
+  )
+    errors.push("runbook_blocked");
+  if (
+    state.trialFailureDrill.stopConditionDrills.length === 0 &&
+    state.trialFailureDrill.categories.length === 0
+  )
+    errors.push("failure_drill_missing");
+  if (state.trialSessionEvidenceProjection.status === "not_captured")
+    errors.push("trial_session_evidence_missing");
+  if (
+    state.trialSessionEvidenceProjection.validationStatus !== "valid" &&
+    state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid" &&
+    !errors.includes("trial_session_evidence_missing")
+  )
+    errors.push("trial_session_evidence_invalid");
+  if (state.trialReplayRestoreVerification.status === "not_verified")
+    errors.push("replay_restore_verification_missing");
+  if (
+    state.trialReplayRestoreVerification.status ===
+    "trial_replay_restore_verification_projected"
+  )
+    errors.push("replay_restore_verification_not_passed");
+  if (
+    ["verification_rejected", "invalid_verification_input"].includes(
+      state.trialReplayRestoreVerification.status,
+    )
+  )
+    errors.push("replay_restore_verification_rejected");
+  if (
+    state.completeLocalOperatorWorkflow.status === "not_started" ||
+    state.completeLocalOperatorWorkflow.status === "in_progress"
+  )
+    errors.push("complete_local_workflow_missing");
+  if (state.completeLocalOperatorWorkflow.status === "blocked")
+    errors.push("complete_local_workflow_blocked");
+  if (state.completeLocalOperatorWorkflow.status === "rejected")
+    errors.push("complete_local_workflow_rejected");
   return {
     ...initialControlledInternalTrialExecutionProjection(),
-    status: errors.length === 0 ? "ready_for_bounded_local_trial_run" : "preconditions_missing",
+    status:
+      errors.length === 0
+        ? "ready_for_bounded_local_trial_run"
+        : "preconditions_missing",
     preconditionStatus: [
       `trial_package=${state.controlledInternalTrialPackageProjection.status}`,
       `runbook=${state.trialOperatorRunbook.status}`,
@@ -5732,7 +5876,6 @@ export function deriveControlledInternalTrialExecutionProjection(state: LocalOpe
     },
   };
 }
-
 
 export type TrialObservabilityStatus =
   | "not_observed"
@@ -5780,7 +5923,12 @@ export type TrialErrorCategory =
   | "action_authorization_claim_detected"
   | "replay_repair_or_recovery_promotion_claim_detected";
 
-export type TrialErrorSeverity = "info" | "warning" | "blocking" | "stop_condition" | "invalid_input";
+export type TrialErrorSeverity =
+  | "info"
+  | "warning"
+  | "blocking"
+  | "stop_condition"
+  | "invalid_input";
 
 export type TrialErrorSource =
   | "controlled_trial_execution_harness"
@@ -5955,46 +6103,86 @@ export function initialTrialObservabilityProjection(): TrialObservabilityProject
     trialRunStatus: "not_started",
     currentTrialStep: "none",
     currentBlocker: "none",
-    stopConditionObservation: { status: "not_started", observed: false, markers: [] },
+    stopConditionObservation: {
+      status: "not_started",
+      observed: false,
+      markers: [],
+    },
     manualOperatorStepStatus: "not_started",
     packageStatus: "not_packaged",
     evidenceStatus: "not_captured",
     packageReadBackStatus: "not_read",
     evidenceReadBackStatus: "not_read",
     replayRestoreVerificationStatus: "not_verified",
-    mismatchSummary: { verificationStatus: "not_verified", mismatches: [], replayStatusComparison: "not_verified", restoreHistoryComparison: "not_verified" },
+    mismatchSummary: {
+      verificationStatus: "not_verified",
+      mismatches: [],
+      replayStatusComparison: "not_verified",
+      restoreHistoryComparison: "not_verified",
+    },
     packageEvidenceReadBackFailureSummary: [],
     replayStatusComparisonSummary: "not_verified",
     restoreHistoryComparisonSummary: "not_verified",
     runbookFailureDrillCategorySummary: [],
     evidenceLinkageSummary: [],
-    blockedStateSummary: { status: "not_observed", currentBlocker: "none", rejectionReasons: [] },
+    blockedStateSummary: {
+      status: "not_observed",
+      currentBlocker: "none",
+      rejectionReasons: [],
+    },
     boundaryStatuses: trialObservabilityBoundaryStatuses(),
     capabilitySurface: trialObservabilityCapabilitySurface(),
     localOnlyNonPublicNote: "Trial observability is local-only and non-public.",
     noProductionMonitoringNote: "No production monitoring is active.",
     noRemoteTelemetryNote: "No remote telemetry is sent.",
     noBackgroundServiceNote: "No background service is active.",
-    noRemediationEscalationStopAutomationNote: "No remediation, escalation, or stop-condition enforcement is automated.",
-    noApprovalNote: "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    noRemediationEscalationStopAutomationNote:
+      "No remediation, escalation, or stop-condition enforcement is automated.",
+    noApprovalNote:
+      "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.",
   };
 }
 
 function trialErrorSeverity(category: TrialErrorCategory): TrialErrorSeverity {
   if (category === "stop_condition_observed") return "stop_condition";
-  if (["authority_claim_detected", "readiness_claim_detected", "release_or_deployment_claim_detected", "public_or_production_use_claim_detected", "action_authorization_claim_detected", "replay_repair_or_recovery_promotion_claim_detected"].includes(category)) return "invalid_input";
-  if (["no_trial_run", "manual_operator_step_required", "trial_precondition_missing"].includes(category)) return "warning";
+  if (
+    [
+      "authority_claim_detected",
+      "readiness_claim_detected",
+      "release_or_deployment_claim_detected",
+      "public_or_production_use_claim_detected",
+      "action_authorization_claim_detected",
+      "replay_repair_or_recovery_promotion_claim_detected",
+    ].includes(category)
+  )
+    return "invalid_input";
+  if (
+    [
+      "no_trial_run",
+      "manual_operator_step_required",
+      "trial_precondition_missing",
+    ].includes(category)
+  )
+    return "warning";
   return "blocking";
 }
 
 function trialErrorGuidance(category: TrialErrorCategory): string {
-  if (category === "no_trial_run") return "Inspect local trial preconditions before starting a bounded local trial run.";
-  if (category === "manual_operator_step_required") return "Record the manual operator step locally before closing the trial run.";
-  if (category === "stop_condition_observed") return "Review the observed stop-condition marker locally; no enforcement is automated.";
+  if (category === "no_trial_run")
+    return "Inspect local trial preconditions before starting a bounded local trial run.";
+  if (category === "manual_operator_step_required")
+    return "Record the manual operator step locally before closing the trial run.";
+  if (category === "stop_condition_observed")
+    return "Review the observed stop-condition marker locally; no enforcement is automated.";
   return "Review the linked local trial surface and preserve the diagnostic evidence.";
 }
 
-function trialErrorDetail(category: TrialErrorCategory, source: TrialErrorSource, summary: string, linkage: string): TrialErrorDetail {
+function trialErrorDetail(
+  category: TrialErrorCategory,
+  source: TrialErrorSource,
+  summary: string,
+  linkage: string,
+): TrialErrorDetail {
   return {
     category,
     severity: trialErrorSeverity(category),
@@ -6006,7 +6194,12 @@ function trialErrorDetail(category: TrialErrorCategory, source: TrialErrorSource
 }
 
 export function initialTrialErrorReportProjection(): TrialErrorReportProjection {
-  const detail = trialErrorDetail("no_trial_run", "controlled_trial_execution_harness", "No controlled internal trial run has been observed.", "controlled_internal_trial_execution=not_started");
+  const detail = trialErrorDetail(
+    "no_trial_run",
+    "controlled_trial_execution_harness",
+    "No controlled internal trial run has been observed.",
+    "controlled_internal_trial_execution=not_started",
+  );
   return {
     status: "errors_observed",
     errorCount: 1,
@@ -6018,54 +6211,352 @@ export function initialTrialErrorReportProjection(): TrialErrorReportProjection 
   };
 }
 
-export function deriveTrialErrorReportProjection(state: LocalOperatorShellState): TrialErrorReportProjection {
+export function deriveTrialErrorReportProjection(
+  state: LocalOperatorShellState,
+): TrialErrorReportProjection {
   const details: TrialErrorDetail[] = [];
   const execution = state.controlledInternalTrialExecution;
   const displayedRun = execution.activeRun ?? execution.lastRejectedRun;
-  if (!displayedRun) details.push(trialErrorDetail("no_trial_run", "controlled_trial_execution_harness", "No controlled internal trial run has been observed.", "controlled_internal_trial_execution=not_started"));
-  if (execution.status === "preconditions_missing") details.push(trialErrorDetail("trial_precondition_missing", "controlled_trial_execution_harness", "Trial preconditions are missing.", "controlled_internal_trial_execution=preconditions_missing"));
-  if (execution.status === "trial_run_blocked") details.push(trialErrorDetail("trial_run_blocked", "controlled_trial_execution_harness", "Controlled internal trial run is blocked.", "controlled_internal_trial_execution=trial_run_blocked"));
-  if (["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status)) details.push(trialErrorDetail("trial_run_rejected", "controlled_trial_execution_harness", "Controlled internal trial run is rejected.", "controlled_internal_trial_execution=trial_run_rejected"));
-  if (displayedRun?.stopConditionObservation.observed) details.push(trialErrorDetail("stop_condition_observed", "controlled_trial_execution_harness", "Stop condition was observed in the local trial run.", "stop_condition_observation=observed"));
-  if (["manual_action_required", "manual_operator_step_missing"].includes(displayedRun?.manualOperatorStepStatus ?? "")) details.push(trialErrorDetail("manual_operator_step_required", "controlled_trial_execution_harness", "Manual operator step is required or missing.", "manual_operator_step_status=required"));
-  if (state.controlledInternalTrialPackageProjection.status === "not_packaged") details.push(trialErrorDetail("package_missing", "controlled_internal_trial_package", "Controlled internal trial package is missing.", "trial_package=missing"));
-  if (state.controlledInternalTrialPackageProjection.status !== "not_packaged" && state.controlledInternalTrialPackageProjection.validationStatus !== "valid") details.push(trialErrorDetail("package_validation_failed", "controlled_internal_trial_package", "Controlled internal trial package validation failed.", "trial_package_validation=failed"));
-  if (state.controlledInternalTrialPackageProjection.readBackValidationStatus !== null && state.controlledInternalTrialPackageProjection.readBackValidationStatus !== "valid") details.push(trialErrorDetail("package_read_back_failed", "controlled_internal_trial_package", "Controlled internal trial package read-back failed.", "trial_package_read_back=failed"));
-  if (state.trialSessionEvidenceProjection.status === "not_captured") details.push(trialErrorDetail("evidence_missing", "trial_session_evidence", "Trial session evidence is missing.", "trial_session_evidence=missing"));
-  if (state.trialSessionEvidenceProjection.status !== "not_captured" && state.trialSessionEvidenceProjection.validationStatus !== "valid") details.push(trialErrorDetail("evidence_validation_failed", "trial_session_evidence", "Trial session evidence validation failed.", "trial_session_evidence_validation=failed"));
-  if (state.trialSessionEvidenceProjection.readBackValidationStatus !== null && state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid") details.push(trialErrorDetail("evidence_read_back_failed", "trial_session_evidence", "Trial session evidence read-back failed.", "trial_session_evidence_read_back=failed"));
-  if (["not_verified", "verification_input_missing"].includes(state.trialReplayRestoreVerification.status)) details.push(trialErrorDetail("replay_restore_verification_missing", "replay_restore_verification", "Replay/restore verification is missing.", "replay_restore_verification=missing"));
-  if (["verification_rejected", "invalid_verification_input"].includes(state.trialReplayRestoreVerification.status)) details.push(trialErrorDetail("replay_restore_verification_rejected", "replay_restore_verification", "Replay/restore verification is rejected.", "replay_restore_verification=rejected"));
-  if (state.trialReplayRestoreVerification.mismatches.includes("replay_status_snapshot_mismatch")) details.push(trialErrorDetail("replay_status_mismatch", "replay_restore_verification", "Replay/status comparison mismatch observed.", "replay_status_comparison=mismatch"));
-  if (state.trialReplayRestoreVerification.mismatches.includes("restore_history_snapshot_mismatch")) details.push(trialErrorDetail("restore_history_mismatch", "replay_restore_verification", "Restore/history comparison mismatch observed.", "restore_history_comparison=mismatch"));
-  if (state.localProviderOutputPipeline.status === "rejected") details.push(trialErrorDetail("provider_pipeline_blocked", "provider_output_pipeline", "Provider output pipeline is blocked or rejected.", "provider_output_pipeline=rejected"));
-  if (state.providerOutputValidation.status === "rejected") details.push(trialErrorDetail("provider_output_validation_rejected", "provider_output_pipeline", "Provider output validation is rejected.", "provider_output_validation=rejected"));
-  if (state.completeLocalOperatorWorkflow.status === "blocked") details.push(trialErrorDetail("workflow_blocked", "complete_local_workflow", "Complete local workflow is blocked.", "complete_local_workflow=blocked"));
-  if (state.completeLocalOperatorWorkflow.status === "rejected") details.push(trialErrorDetail("workflow_rejected", "complete_local_workflow", "Complete local workflow is rejected.", "complete_local_workflow=rejected"));
-  if (state.localCandidateOutput.status === "not_materialized") details.push(trialErrorDetail("materialization_missing", "local_candidate_materialization", "Local candidate materialization is missing.", "local_candidate_materialization=missing"));
+  if (!displayedRun)
+    details.push(
+      trialErrorDetail(
+        "no_trial_run",
+        "controlled_trial_execution_harness",
+        "No controlled internal trial run has been observed.",
+        "controlled_internal_trial_execution=not_started",
+      ),
+    );
+  if (execution.status === "preconditions_missing")
+    details.push(
+      trialErrorDetail(
+        "trial_precondition_missing",
+        "controlled_trial_execution_harness",
+        "Trial preconditions are missing.",
+        "controlled_internal_trial_execution=preconditions_missing",
+      ),
+    );
+  if (execution.status === "trial_run_blocked")
+    details.push(
+      trialErrorDetail(
+        "trial_run_blocked",
+        "controlled_trial_execution_harness",
+        "Controlled internal trial run is blocked.",
+        "controlled_internal_trial_execution=trial_run_blocked",
+      ),
+    );
+  if (
+    ["trial_run_rejected", "invalid_trial_run_request"].includes(
+      execution.status,
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "trial_run_rejected",
+        "controlled_trial_execution_harness",
+        "Controlled internal trial run is rejected.",
+        "controlled_internal_trial_execution=trial_run_rejected",
+      ),
+    );
+  if (displayedRun?.stopConditionObservation.observed)
+    details.push(
+      trialErrorDetail(
+        "stop_condition_observed",
+        "controlled_trial_execution_harness",
+        "Stop condition was observed in the local trial run.",
+        "stop_condition_observation=observed",
+      ),
+    );
+  if (
+    ["manual_action_required", "manual_operator_step_missing"].includes(
+      displayedRun?.manualOperatorStepStatus ?? "",
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "manual_operator_step_required",
+        "controlled_trial_execution_harness",
+        "Manual operator step is required or missing.",
+        "manual_operator_step_status=required",
+      ),
+    );
+  if (state.controlledInternalTrialPackageProjection.status === "not_packaged")
+    details.push(
+      trialErrorDetail(
+        "package_missing",
+        "controlled_internal_trial_package",
+        "Controlled internal trial package is missing.",
+        "trial_package=missing",
+      ),
+    );
+  if (
+    state.controlledInternalTrialPackageProjection.status !== "not_packaged" &&
+    state.controlledInternalTrialPackageProjection.validationStatus !== "valid"
+  )
+    details.push(
+      trialErrorDetail(
+        "package_validation_failed",
+        "controlled_internal_trial_package",
+        "Controlled internal trial package validation failed.",
+        "trial_package_validation=failed",
+      ),
+    );
+  if (
+    state.controlledInternalTrialPackageProjection.readBackValidationStatus !==
+      null &&
+    state.controlledInternalTrialPackageProjection.readBackValidationStatus !==
+      "valid"
+  )
+    details.push(
+      trialErrorDetail(
+        "package_read_back_failed",
+        "controlled_internal_trial_package",
+        "Controlled internal trial package read-back failed.",
+        "trial_package_read_back=failed",
+      ),
+    );
+  if (state.trialSessionEvidenceProjection.status === "not_captured")
+    details.push(
+      trialErrorDetail(
+        "evidence_missing",
+        "trial_session_evidence",
+        "Trial session evidence is missing.",
+        "trial_session_evidence=missing",
+      ),
+    );
+  if (
+    state.trialSessionEvidenceProjection.status !== "not_captured" &&
+    state.trialSessionEvidenceProjection.validationStatus !== "valid"
+  )
+    details.push(
+      trialErrorDetail(
+        "evidence_validation_failed",
+        "trial_session_evidence",
+        "Trial session evidence validation failed.",
+        "trial_session_evidence_validation=failed",
+      ),
+    );
+  if (
+    state.trialSessionEvidenceProjection.readBackValidationStatus !== null &&
+    state.trialSessionEvidenceProjection.readBackValidationStatus !== "valid"
+  )
+    details.push(
+      trialErrorDetail(
+        "evidence_read_back_failed",
+        "trial_session_evidence",
+        "Trial session evidence read-back failed.",
+        "trial_session_evidence_read_back=failed",
+      ),
+    );
+  if (
+    ["not_verified", "verification_input_missing"].includes(
+      state.trialReplayRestoreVerification.status,
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "replay_restore_verification_missing",
+        "replay_restore_verification",
+        "Replay/restore verification is missing.",
+        "replay_restore_verification=missing",
+      ),
+    );
+  if (
+    ["verification_rejected", "invalid_verification_input"].includes(
+      state.trialReplayRestoreVerification.status,
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "replay_restore_verification_rejected",
+        "replay_restore_verification",
+        "Replay/restore verification is rejected.",
+        "replay_restore_verification=rejected",
+      ),
+    );
+  if (
+    state.trialReplayRestoreVerification.mismatches.includes(
+      "replay_status_snapshot_mismatch",
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "replay_status_mismatch",
+        "replay_restore_verification",
+        "Replay/status comparison mismatch observed.",
+        "replay_status_comparison=mismatch",
+      ),
+    );
+  if (
+    state.trialReplayRestoreVerification.mismatches.includes(
+      "restore_history_snapshot_mismatch",
+    )
+  )
+    details.push(
+      trialErrorDetail(
+        "restore_history_mismatch",
+        "replay_restore_verification",
+        "Restore/history comparison mismatch observed.",
+        "restore_history_comparison=mismatch",
+      ),
+    );
+  if (state.localProviderOutputPipeline.status === "rejected")
+    details.push(
+      trialErrorDetail(
+        "provider_pipeline_blocked",
+        "provider_output_pipeline",
+        "Provider output pipeline is blocked or rejected.",
+        "provider_output_pipeline=rejected",
+      ),
+    );
+  if (state.providerOutputValidation.status === "rejected")
+    details.push(
+      trialErrorDetail(
+        "provider_output_validation_rejected",
+        "provider_output_pipeline",
+        "Provider output validation is rejected.",
+        "provider_output_validation=rejected",
+      ),
+    );
+  if (state.completeLocalOperatorWorkflow.status === "blocked")
+    details.push(
+      trialErrorDetail(
+        "workflow_blocked",
+        "complete_local_workflow",
+        "Complete local workflow is blocked.",
+        "complete_local_workflow=blocked",
+      ),
+    );
+  if (state.completeLocalOperatorWorkflow.status === "rejected")
+    details.push(
+      trialErrorDetail(
+        "workflow_rejected",
+        "complete_local_workflow",
+        "Complete local workflow is rejected.",
+        "complete_local_workflow=rejected",
+      ),
+    );
+  if (state.localCandidateOutput.status === "not_materialized")
+    details.push(
+      trialErrorDetail(
+        "materialization_missing",
+        "local_candidate_materialization",
+        "Local candidate materialization is missing.",
+        "local_candidate_materialization=missing",
+      ),
+    );
   for (const reason of execution.rejectionReasons) {
-    if (reason === "readiness_claim_rejected") details.push(trialErrorDetail("readiness_claim_detected", "controlled_trial_execution_harness", "Readiness claim detected and rejected.", "claim=readiness"));
-    if (["release_claim_rejected", "deployment_claim_rejected", "signing_claim_rejected", "publishing_claim_rejected", "release_artifact_claim_rejected"].includes(reason)) details.push(trialErrorDetail("release_or_deployment_claim_detected", "controlled_trial_execution_harness", "Release or deployment claim detected and rejected.", "claim=release_or_deployment"));
-    if (["public_use_claim_rejected", "production_use_claim_rejected"].includes(reason)) details.push(trialErrorDetail("public_or_production_use_claim_detected", "controlled_trial_execution_harness", "Public or production use claim detected and rejected.", "claim=public_or_production_use"));
-    if (reason === "provider_trust_claim_rejected") details.push(trialErrorDetail("authority_claim_detected", "controlled_trial_execution_harness", "Provider trust claim detected and rejected.", "claim=provider_trust"));
-    if (reason === "action_authorization_claim_rejected") details.push(trialErrorDetail("action_authorization_claim_detected", "controlled_trial_execution_harness", "Action authorization claim detected and rejected.", "claim=action_authorization"));
-    if (["replay_repair_claim_rejected", "recovery_promotion_claim_rejected"].includes(reason)) details.push(trialErrorDetail("replay_repair_or_recovery_promotion_claim_detected", "controlled_trial_execution_harness", "Replay repair or recovery promotion claim detected and rejected.", "claim=replay_repair_or_recovery_promotion"));
+    if (reason === "readiness_claim_rejected")
+      details.push(
+        trialErrorDetail(
+          "readiness_claim_detected",
+          "controlled_trial_execution_harness",
+          "Readiness claim detected and rejected.",
+          "claim=readiness",
+        ),
+      );
+    if (
+      [
+        "release_claim_rejected",
+        "deployment_claim_rejected",
+        "signing_claim_rejected",
+        "publishing_claim_rejected",
+        "release_artifact_claim_rejected",
+      ].includes(reason)
+    )
+      details.push(
+        trialErrorDetail(
+          "release_or_deployment_claim_detected",
+          "controlled_trial_execution_harness",
+          "Release or deployment claim detected and rejected.",
+          "claim=release_or_deployment",
+        ),
+      );
+    if (
+      ["public_use_claim_rejected", "production_use_claim_rejected"].includes(
+        reason,
+      )
+    )
+      details.push(
+        trialErrorDetail(
+          "public_or_production_use_claim_detected",
+          "controlled_trial_execution_harness",
+          "Public or production use claim detected and rejected.",
+          "claim=public_or_production_use",
+        ),
+      );
+    if (reason === "provider_trust_claim_rejected")
+      details.push(
+        trialErrorDetail(
+          "authority_claim_detected",
+          "controlled_trial_execution_harness",
+          "Provider trust claim detected and rejected.",
+          "claim=provider_trust",
+        ),
+      );
+    if (reason === "action_authorization_claim_rejected")
+      details.push(
+        trialErrorDetail(
+          "action_authorization_claim_detected",
+          "controlled_trial_execution_harness",
+          "Action authorization claim detected and rejected.",
+          "claim=action_authorization",
+        ),
+      );
+    if (
+      [
+        "replay_repair_claim_rejected",
+        "recovery_promotion_claim_rejected",
+      ].includes(reason)
+    )
+      details.push(
+        trialErrorDetail(
+          "replay_repair_or_recovery_promotion_claim_detected",
+          "controlled_trial_execution_harness",
+          "Replay repair or recovery promotion claim detected and rejected.",
+          "claim=replay_repair_or_recovery_promotion",
+        ),
+      );
   }
   details.sort((left, right) => left.category.localeCompare(right.category));
-  const highestSeverity: TrialErrorSeverity = details.some((detail) => detail.severity === "invalid_input") ? "invalid_input" : details.some((detail) => detail.severity === "stop_condition") ? "stop_condition" : details.some((detail) => detail.severity === "blocking") ? "blocking" : details.some((detail) => detail.severity === "warning") ? "warning" : "info";
-  const status: TrialErrorReportStatus = details.length === 0 ? "no_errors_observed" : execution.status === "trial_run_blocked" ? "blocked_errors_observed" : ["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status) ? "rejected_errors_observed" : highestSeverity === "invalid_input" ? "invalid_observability_input" : "errors_observed";
+  const highestSeverity: TrialErrorSeverity = details.some(
+    (detail) => detail.severity === "invalid_input",
+  )
+    ? "invalid_input"
+    : details.some((detail) => detail.severity === "stop_condition")
+      ? "stop_condition"
+      : details.some((detail) => detail.severity === "blocking")
+        ? "blocking"
+        : details.some((detail) => detail.severity === "warning")
+          ? "warning"
+          : "info";
+  const status: TrialErrorReportStatus =
+    details.length === 0
+      ? "no_errors_observed"
+      : execution.status === "trial_run_blocked"
+        ? "blocked_errors_observed"
+        : ["trial_run_rejected", "invalid_trial_run_request"].includes(
+              execution.status,
+            )
+          ? "rejected_errors_observed"
+          : highestSeverity === "invalid_input"
+            ? "invalid_observability_input"
+            : "errors_observed";
   return {
     status,
     errorCount: details.length,
     highestSeverity,
     details,
     categorySummary: details.map((detail) => detail.category),
-    evidenceLinkageSummary: details.map((detail) => detail.evidenceLinkage.linkage),
+    evidenceLinkageSummary: details.map(
+      (detail) => detail.evidenceLinkage.linkage,
+    ),
     localDescriptiveOnlyNote: "Error reporting is local and descriptive only.",
   };
 }
 
-export function deriveTrialObservabilityProjection(state: LocalOperatorShellState): TrialObservabilityProjection {
+export function deriveTrialObservabilityProjection(
+  state: LocalOperatorShellState,
+): TrialObservabilityProjection {
   const base = initialTrialObservabilityProjection();
   const execution = state.controlledInternalTrialExecution;
   const displayedRun = execution.activeRun ?? execution.lastRejectedRun;
@@ -6075,7 +6566,9 @@ export function deriveTrialObservabilityProjection(state: LocalOperatorShellStat
     ? "stop_condition_observed"
     : execution.status === "trial_run_blocked"
       ? "blocked_state_observed"
-      : ["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status)
+      : ["trial_run_rejected", "invalid_trial_run_request"].includes(
+            execution.status,
+          )
         ? "rejected_state_observed"
         : mismatches.length > 0
           ? "verification_mismatch_observed"
@@ -6088,37 +6581,74 @@ export function deriveTrialObservabilityProjection(state: LocalOperatorShellStat
     status,
     trialRunStatus: displayedRun?.status ?? execution.status,
     currentTrialStep: displayedRun?.currentStep ?? "none",
-    currentBlocker: displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
+    currentBlocker:
+      displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
     stopConditionObservation: {
       status: displayedRun?.stopConditionObservation.status ?? "not_started",
       observed: displayedRun?.stopConditionObservation.observed ?? false,
       markers: displayedRun?.stopConditionObservation.markers ?? [],
     },
-    manualOperatorStepStatus: displayedRun?.manualOperatorStepStatus ?? "not_started",
+    manualOperatorStepStatus:
+      displayedRun?.manualOperatorStepStatus ?? "not_started",
     packageStatus: state.controlledInternalTrialPackageProjection.status,
     evidenceStatus: state.trialSessionEvidenceProjection.status,
-    packageReadBackStatus: state.controlledInternalTrialPackageProjection.readBackValidationStatus ?? "not_read",
-    evidenceReadBackStatus: state.trialSessionEvidenceProjection.readBackValidationStatus ?? "not_read",
-    replayRestoreVerificationStatus: state.trialReplayRestoreVerification.status,
+    packageReadBackStatus:
+      state.controlledInternalTrialPackageProjection.readBackValidationStatus ??
+      "not_read",
+    evidenceReadBackStatus:
+      state.trialSessionEvidenceProjection.readBackValidationStatus ??
+      "not_read",
+    replayRestoreVerificationStatus:
+      state.trialReplayRestoreVerification.status,
     mismatchSummary: {
       verificationStatus: state.trialReplayRestoreVerification.status,
       mismatches,
-      replayStatusComparison: state.trialReplayRestoreVerification.comparisonSummary.replayStatusComparison,
-      restoreHistoryComparison: state.trialReplayRestoreVerification.comparisonSummary.restoreHistoryComparison,
+      replayStatusComparison:
+        state.trialReplayRestoreVerification.comparisonSummary
+          .replayStatusComparison,
+      restoreHistoryComparison:
+        state.trialReplayRestoreVerification.comparisonSummary
+          .restoreHistoryComparison,
     },
-    packageEvidenceReadBackFailureSummary: mismatches.filter((mismatch) => ["missing_trial_package_read_back", "missing_trial_session_evidence_read_back", "trial_package_read_back_invalid", "trial_session_evidence_read_back_invalid"].includes(mismatch)),
-    replayStatusComparisonSummary: state.trialReplayRestoreVerification.comparisonSummary.replayStatusComparison,
-    restoreHistoryComparisonSummary: state.trialReplayRestoreVerification.comparisonSummary.restoreHistoryComparison,
-    runbookFailureDrillCategorySummary: state.trialFailureDrill.categories.map((entry) => `${entry.category}=${entry.severity}`),
-    evidenceLinkageSummary: [linkage.trialPackage, linkage.runbook, linkage.failureDrill, linkage.trialSessionEvidence, linkage.replayRestoreVerification, linkage.localWorkflow],
+    packageEvidenceReadBackFailureSummary: mismatches.filter((mismatch) =>
+      [
+        "missing_trial_package_read_back",
+        "missing_trial_session_evidence_read_back",
+        "trial_package_read_back_invalid",
+        "trial_session_evidence_read_back_invalid",
+      ].includes(mismatch),
+    ),
+    replayStatusComparisonSummary:
+      state.trialReplayRestoreVerification.comparisonSummary
+        .replayStatusComparison,
+    restoreHistoryComparisonSummary:
+      state.trialReplayRestoreVerification.comparisonSummary
+        .restoreHistoryComparison,
+    runbookFailureDrillCategorySummary: state.trialFailureDrill.categories.map(
+      (entry) => `${entry.category}=${entry.severity}`,
+    ),
+    evidenceLinkageSummary: [
+      linkage.trialPackage,
+      linkage.runbook,
+      linkage.failureDrill,
+      linkage.trialSessionEvidence,
+      linkage.replayRestoreVerification,
+      linkage.localWorkflow,
+    ],
     blockedStateSummary: {
-      status: ["trial_run_blocked", "trial_run_rejected", "invalid_trial_run_request"].includes(execution.status) ? "observed" : "not_observed",
-      currentBlocker: displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
+      status: [
+        "trial_run_blocked",
+        "trial_run_rejected",
+        "invalid_trial_run_request",
+      ].includes(execution.status)
+        ? "observed"
+        : "not_observed",
+      currentBlocker:
+        displayedRun?.currentBlocker ?? execution.currentBlocker ?? "none",
       rejectionReasons: execution.rejectionReasons,
     },
   };
 }
-
 
 export type TrialEvidenceReviewStatus =
   | "not_reviewed"
@@ -6149,107 +6679,1298 @@ export type TrialEvidenceReviewFindingCategory =
   | "user_help_needed"
   | "local_beta_hardening";
 
-export type TrialEvidenceReviewFindingSeverity = "info" | "warning" | "blocking" | "stop_condition" | "hardening_required" | "invalid_input";
-export type TrialEvidenceReviewFindingDisposition = "unresolved" | "requires_phase_169_hardening" | "requires_operator_review" | "requires_security_reviewer_review" | "requires_release_steward_review" | "requires_trial_coordinator_review" | "deferred" | "not_applicable";
-export type TrialEvidenceReviewSource = "controlled_internal_trial_package" | "trial_operator_runbook" | "trial_failure_drill" | "trial_session_evidence" | "replay_restore_verification" | "controlled_trial_execution_harness" | "trial_observability" | "trial_error_report" | "complete_local_workflow" | "local_candidate_materialization" | "session_package" | "restore_history";
-export type TrialEvidenceReviewBoundaryStatus = "local_evidence_review_only" | "non_public_review" | "review_not_authority" | "no_controlled_human_use_approval" | "no_readiness_approval" | "no_release_approval" | "no_deployment_approval" | "no_public_use_approval" | "no_production_approval" | "no_provider_trust" | "no_action_execution" | "no_automated_remediation" | "no_automated_escalation" | "no_stop_condition_automation" | "no_replay_repair" | "no_recovery_promotion";
+export type TrialEvidenceReviewFindingSeverity =
+  | "info"
+  | "warning"
+  | "blocking"
+  | "stop_condition"
+  | "hardening_required"
+  | "invalid_input";
+export type TrialEvidenceReviewFindingDisposition =
+  | "unresolved"
+  | "requires_phase_169_hardening"
+  | "requires_operator_review"
+  | "requires_security_reviewer_review"
+  | "requires_release_steward_review"
+  | "requires_trial_coordinator_review"
+  | "deferred"
+  | "not_applicable";
+export type TrialEvidenceReviewSource =
+  | "controlled_internal_trial_package"
+  | "trial_operator_runbook"
+  | "trial_failure_drill"
+  | "trial_session_evidence"
+  | "replay_restore_verification"
+  | "controlled_trial_execution_harness"
+  | "trial_observability"
+  | "trial_error_report"
+  | "complete_local_workflow"
+  | "local_candidate_materialization"
+  | "session_package"
+  | "restore_history";
+export type TrialEvidenceReviewBoundaryStatus =
+  | "local_evidence_review_only"
+  | "non_public_review"
+  | "review_not_authority"
+  | "no_controlled_human_use_approval"
+  | "no_readiness_approval"
+  | "no_release_approval"
+  | "no_deployment_approval"
+  | "no_public_use_approval"
+  | "no_production_approval"
+  | "no_provider_trust"
+  | "no_action_execution"
+  | "no_automated_remediation"
+  | "no_automated_escalation"
+  | "no_stop_condition_automation"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
 
-export type TrialEvidenceReviewEvidenceLinkage = Readonly<{ source: TrialEvidenceReviewSource; surface: string; summary: string }>;
-export type TrialEvidenceReviewFinding = Readonly<{ findingId: string; category: TrialEvidenceReviewFindingCategory; severity: TrialEvidenceReviewFindingSeverity; disposition: TrialEvidenceReviewFindingDisposition; source: TrialEvidenceReviewSource; summary: string; evidenceLinkage: TrialEvidenceReviewEvidenceLinkage }>;
-export type TrialEvidenceReviewHardeningCandidate = Readonly<{ candidateId: string; sourceFindingId: string; targetSurface: string; localBetaScope: "local_beta_only_phase_169_input"; summary: string }>;
-export type TrialEvidenceReviewCapabilitySurface = Readonly<{ localOnly: true; nonPublic: true; authoritative: false; approvesControlledHumanUse: false; approvesReadiness: false; approvesRelease: false; approvesDeployment: false; approvesPublicUse: false; approvesProduction: false; trustsProviderOutput: false; executesActions: false; automatesRemediation: false; automatesEscalation: false; automatesStopConditions: false; repairsReplay: false; promotesRecovery: false }>;
-export type TrialEvidenceReviewBlockerSummary = Readonly<{ currentBlocker: string; unresolvedBlockerCount: number; blockers: readonly string[] }>;
-export type TrialEvidenceReviewMismatchSummary = Readonly<{ mismatchCount: number; errorCategoryCount: number; replayStatusComparison: string; restoreHistoryComparison: string; packageEvidenceReadBackFailures: readonly string[] }>;
-export type TrialEvidenceReviewProjection = Readonly<{ status: TrialEvidenceReviewStatus; reviewId: string; controlledTrialPackageStatus: string; trialExecutionStatus: string; trialSessionEvidenceStatus: string; replayRestoreVerificationStatus: string; observabilityStatus: string; errorReportStatus: string; stopConditionObservation: string; escalationGuidanceSummary: readonly string[]; evidenceLinkage: readonly TrialEvidenceReviewEvidenceLinkage[]; findings: readonly TrialEvidenceReviewFinding[]; unresolvedBlockers: TrialEvidenceReviewBlockerSummary; mismatchErrorSummary: TrialEvidenceReviewMismatchSummary; unresolvedFindingCount: number; hardeningCandidates: readonly TrialEvidenceReviewHardeningCandidate[]; boundaryStatuses: readonly TrialEvidenceReviewBoundaryStatus[]; capabilitySurface: TrialEvidenceReviewCapabilitySurface; localOnlyNonPublicNote: string; noAuthorityNote: string; noAutomationNote: string; noReplayRepairNote: string; hardeningCandidateNote: string }>;
+export type TrialEvidenceReviewEvidenceLinkage = Readonly<{
+  source: TrialEvidenceReviewSource;
+  surface: string;
+  summary: string;
+}>;
+export type TrialEvidenceReviewFinding = Readonly<{
+  findingId: string;
+  category: TrialEvidenceReviewFindingCategory;
+  severity: TrialEvidenceReviewFindingSeverity;
+  disposition: TrialEvidenceReviewFindingDisposition;
+  source: TrialEvidenceReviewSource;
+  summary: string;
+  evidenceLinkage: TrialEvidenceReviewEvidenceLinkage;
+}>;
+export type TrialEvidenceReviewHardeningCandidate = Readonly<{
+  candidateId: string;
+  sourceFindingId: string;
+  targetSurface: string;
+  localBetaScope: "local_beta_only_phase_169_input";
+  summary: string;
+}>;
+export type TrialEvidenceReviewCapabilitySurface = Readonly<{
+  localOnly: true;
+  nonPublic: true;
+  authoritative: false;
+  approvesControlledHumanUse: false;
+  approvesReadiness: false;
+  approvesRelease: false;
+  approvesDeployment: false;
+  approvesPublicUse: false;
+  approvesProduction: false;
+  trustsProviderOutput: false;
+  executesActions: false;
+  automatesRemediation: false;
+  automatesEscalation: false;
+  automatesStopConditions: false;
+  repairsReplay: false;
+  promotesRecovery: false;
+}>;
+export type TrialEvidenceReviewBlockerSummary = Readonly<{
+  currentBlocker: string;
+  unresolvedBlockerCount: number;
+  blockers: readonly string[];
+}>;
+export type TrialEvidenceReviewMismatchSummary = Readonly<{
+  mismatchCount: number;
+  errorCategoryCount: number;
+  replayStatusComparison: string;
+  restoreHistoryComparison: string;
+  packageEvidenceReadBackFailures: readonly string[];
+}>;
+export type TrialEvidenceReviewProjection = Readonly<{
+  status: TrialEvidenceReviewStatus;
+  reviewId: string;
+  controlledTrialPackageStatus: string;
+  trialExecutionStatus: string;
+  trialSessionEvidenceStatus: string;
+  replayRestoreVerificationStatus: string;
+  observabilityStatus: string;
+  errorReportStatus: string;
+  stopConditionObservation: string;
+  escalationGuidanceSummary: readonly string[];
+  evidenceLinkage: readonly TrialEvidenceReviewEvidenceLinkage[];
+  findings: readonly TrialEvidenceReviewFinding[];
+  unresolvedBlockers: TrialEvidenceReviewBlockerSummary;
+  mismatchErrorSummary: TrialEvidenceReviewMismatchSummary;
+  unresolvedFindingCount: number;
+  hardeningCandidates: readonly TrialEvidenceReviewHardeningCandidate[];
+  boundaryStatuses: readonly TrialEvidenceReviewBoundaryStatus[];
+  capabilitySurface: TrialEvidenceReviewCapabilitySurface;
+  localOnlyNonPublicNote: string;
+  noAuthorityNote: string;
+  noAutomationNote: string;
+  noReplayRepairNote: string;
+  hardeningCandidateNote: string;
+}>;
 
 export function trialEvidenceReviewBoundaryStatuses(): readonly TrialEvidenceReviewBoundaryStatus[] {
-  return ["local_evidence_review_only", "non_public_review", "review_not_authority", "no_controlled_human_use_approval", "no_readiness_approval", "no_release_approval", "no_deployment_approval", "no_public_use_approval", "no_production_approval", "no_provider_trust", "no_action_execution", "no_automated_remediation", "no_automated_escalation", "no_stop_condition_automation", "no_replay_repair", "no_recovery_promotion"];
+  return [
+    "local_evidence_review_only",
+    "non_public_review",
+    "review_not_authority",
+    "no_controlled_human_use_approval",
+    "no_readiness_approval",
+    "no_release_approval",
+    "no_deployment_approval",
+    "no_public_use_approval",
+    "no_production_approval",
+    "no_provider_trust",
+    "no_action_execution",
+    "no_automated_remediation",
+    "no_automated_escalation",
+    "no_stop_condition_automation",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
 }
 
 function trialEvidenceReviewCapabilitySurface(): TrialEvidenceReviewCapabilitySurface {
-  return { localOnly: true, nonPublic: true, authoritative: false, approvesControlledHumanUse: false, approvesReadiness: false, approvesRelease: false, approvesDeployment: false, approvesPublicUse: false, approvesProduction: false, trustsProviderOutput: false, executesActions: false, automatesRemediation: false, automatesEscalation: false, automatesStopConditions: false, repairsReplay: false, promotesRecovery: false };
+  return {
+    localOnly: true,
+    nonPublic: true,
+    authoritative: false,
+    approvesControlledHumanUse: false,
+    approvesReadiness: false,
+    approvesRelease: false,
+    approvesDeployment: false,
+    approvesPublicUse: false,
+    approvesProduction: false,
+    trustsProviderOutput: false,
+    executesActions: false,
+    automatesRemediation: false,
+    automatesEscalation: false,
+    automatesStopConditions: false,
+    repairsReplay: false,
+    promotesRecovery: false,
+  };
 }
 
 export function initialTrialEvidenceReviewProjection(): TrialEvidenceReviewProjection {
-  return { status: "not_reviewed", reviewId: "trial-evidence-review-initial", controlledTrialPackageStatus: "not_packaged", trialExecutionStatus: "not_started", trialSessionEvidenceStatus: "not_captured", replayRestoreVerificationStatus: "not_verified", observabilityStatus: "not_observed", errorReportStatus: "no_errors_observed", stopConditionObservation: "not_observed", escalationGuidanceSummary: [], evidenceLinkage: [], findings: [], unresolvedBlockers: { currentBlocker: "not_reviewed", unresolvedBlockerCount: 0, blockers: [] }, mismatchErrorSummary: { mismatchCount: 0, errorCategoryCount: 0, replayStatusComparison: "not_reviewed", restoreHistoryComparison: "not_reviewed", packageEvidenceReadBackFailures: [] }, unresolvedFindingCount: 0, hardeningCandidates: [], boundaryStatuses: trialEvidenceReviewBoundaryStatuses(), capabilitySurface: trialEvidenceReviewCapabilitySurface(), localOnlyNonPublicNote: "Trial evidence review is local-only and non-public.", noAuthorityNote: "Review findings are evidence, not approval. Review does not approve controlled human use, readiness, release, deployment, public use, or production use.", noAutomationNote: "Review does not automate remediation, escalation, or stop-condition enforcement.", noReplayRepairNote: "Review does not repair replay or promote recovery.", hardeningCandidateNote: "Hardening candidates are inputs for Phase 169 code work, not approvals." };
+  return {
+    status: "not_reviewed",
+    reviewId: "trial-evidence-review-initial",
+    controlledTrialPackageStatus: "not_packaged",
+    trialExecutionStatus: "not_started",
+    trialSessionEvidenceStatus: "not_captured",
+    replayRestoreVerificationStatus: "not_verified",
+    observabilityStatus: "not_observed",
+    errorReportStatus: "no_errors_observed",
+    stopConditionObservation: "not_observed",
+    escalationGuidanceSummary: [],
+    evidenceLinkage: [],
+    findings: [],
+    unresolvedBlockers: {
+      currentBlocker: "not_reviewed",
+      unresolvedBlockerCount: 0,
+      blockers: [],
+    },
+    mismatchErrorSummary: {
+      mismatchCount: 0,
+      errorCategoryCount: 0,
+      replayStatusComparison: "not_reviewed",
+      restoreHistoryComparison: "not_reviewed",
+      packageEvidenceReadBackFailures: [],
+    },
+    unresolvedFindingCount: 0,
+    hardeningCandidates: [],
+    boundaryStatuses: trialEvidenceReviewBoundaryStatuses(),
+    capabilitySurface: trialEvidenceReviewCapabilitySurface(),
+    localOnlyNonPublicNote:
+      "Trial evidence review is local-only and non-public.",
+    noAuthorityNote:
+      "Review findings are evidence, not approval. Review does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    noAutomationNote:
+      "Review does not automate remediation, escalation, or stop-condition enforcement.",
+    noReplayRepairNote: "Review does not repair replay or promote recovery.",
+    hardeningCandidateNote:
+      "Hardening candidates are inputs for Phase 169 code work, not approvals.",
+  };
 }
 
-function reviewFinding(category: TrialEvidenceReviewFindingCategory, severity: TrialEvidenceReviewFindingSeverity, disposition: TrialEvidenceReviewFindingDisposition, source: TrialEvidenceReviewSource, summary: string, surface: string, linkage: string): TrialEvidenceReviewFinding {
-  return { findingId: "", category, severity, disposition, source, summary, evidenceLinkage: { source, surface, summary: linkage } };
+function reviewFinding(
+  category: TrialEvidenceReviewFindingCategory,
+  severity: TrialEvidenceReviewFindingSeverity,
+  disposition: TrialEvidenceReviewFindingDisposition,
+  source: TrialEvidenceReviewSource,
+  summary: string,
+  surface: string,
+  linkage: string,
+): TrialEvidenceReviewFinding {
+  return {
+    findingId: "",
+    category,
+    severity,
+    disposition,
+    source,
+    summary,
+    evidenceLinkage: { source, surface, summary: linkage },
+  };
 }
 
-function orderedReviewFindings(findings: TrialEvidenceReviewFinding[]): TrialEvidenceReviewFinding[] {
+function orderedReviewFindings(
+  findings: TrialEvidenceReviewFinding[],
+): TrialEvidenceReviewFinding[] {
   return [...findings]
-    .sort((a, b) => `${a.severity}|${a.category}|${a.source}|${a.summary}`.localeCompare(`${b.severity}|${b.category}|${b.source}|${b.summary}`))
-    .map((finding, index) => ({ ...finding, findingId: `trial-evidence-review-finding-${String(index + 1).padStart(4, "0")}` }));
+    .sort((a, b) =>
+      `${a.severity}|${a.category}|${a.source}|${a.summary}`.localeCompare(
+        `${b.severity}|${b.category}|${b.source}|${b.summary}`,
+      ),
+    )
+    .map((finding, index) => ({
+      ...finding,
+      findingId: `trial-evidence-review-finding-${String(index + 1).padStart(4, "0")}`,
+    }));
 }
 
-export function deriveTrialEvidenceReviewFindings(state: LocalOperatorShellState): readonly TrialEvidenceReviewFinding[] {
+export function deriveTrialEvidenceReviewFindings(
+  state: LocalOperatorShellState,
+): readonly TrialEvidenceReviewFinding[] {
   const findings: TrialEvidenceReviewFinding[] = [];
   const pkg = state.controlledInternalTrialPackageProjection;
-  if (pkg.status === "not_packaged") findings.push(reviewFinding("trial_package", "blocking", "requires_trial_coordinator_review", "controlled_internal_trial_package", "Controlled internal trial package is missing.", "controlled_internal_trial_package", `package_status=${pkg.status}`));
-  if (pkg.validationStatus === "invalid" || (pkg.readBackValidationStatus !== null && pkg.readBackValidationStatus !== "valid")) findings.push(reviewFinding("trial_package", "blocking", "requires_operator_review", "controlled_internal_trial_package", "Controlled internal trial package validation or read-back failed.", "controlled_internal_trial_package", `validation=${pkg.validationStatus} read_back=${pkg.readBackValidationStatus ?? "not_read"}`));
+  if (pkg.status === "not_packaged")
+    findings.push(
+      reviewFinding(
+        "trial_package",
+        "blocking",
+        "requires_trial_coordinator_review",
+        "controlled_internal_trial_package",
+        "Controlled internal trial package is missing.",
+        "controlled_internal_trial_package",
+        `package_status=${pkg.status}`,
+      ),
+    );
+  if (
+    pkg.validationStatus === "invalid" ||
+    (pkg.readBackValidationStatus !== null &&
+      pkg.readBackValidationStatus !== "valid")
+  )
+    findings.push(
+      reviewFinding(
+        "trial_package",
+        "blocking",
+        "requires_operator_review",
+        "controlled_internal_trial_package",
+        "Controlled internal trial package validation or read-back failed.",
+        "controlled_internal_trial_package",
+        `validation=${pkg.validationStatus} read_back=${pkg.readBackValidationStatus ?? "not_read"}`,
+      ),
+    );
   const execution = state.controlledInternalTrialExecution;
-  if (execution.status === "not_started") findings.push(reviewFinding("trial_execution", "warning", "requires_operator_review", "controlled_trial_execution_harness", "Controlled internal trial execution harness has no trial run.", "controlled_trial_execution_harness", `trial_execution_status=${execution.status}`));
-  if (["trial_run_rejected", "invalid_trial_run_request"].includes(execution.status)) findings.push(reviewFinding("trial_execution", "blocking", "requires_trial_coordinator_review", "controlled_trial_execution_harness", `Controlled trial run rejected: ${execution.rejectionReasons.join(", ") || "none"}.`, "controlled_trial_execution_harness", `trial_execution_status=${execution.status}`));
-  if (execution.status === "trial_run_blocked") findings.push(reviewFinding("workflow_blocker", "blocking", "requires_operator_review", "controlled_trial_execution_harness", `Controlled trial run blocked at ${execution.currentBlocker ?? "unknown"}.`, "controlled_trial_execution_harness", `current_blocker=${execution.currentBlocker ?? "none"}`));
+  if (execution.status === "not_started")
+    findings.push(
+      reviewFinding(
+        "trial_execution",
+        "warning",
+        "requires_operator_review",
+        "controlled_trial_execution_harness",
+        "Controlled internal trial execution harness has no trial run.",
+        "controlled_trial_execution_harness",
+        `trial_execution_status=${execution.status}`,
+      ),
+    );
+  if (
+    ["trial_run_rejected", "invalid_trial_run_request"].includes(
+      execution.status,
+    )
+  )
+    findings.push(
+      reviewFinding(
+        "trial_execution",
+        "blocking",
+        "requires_trial_coordinator_review",
+        "controlled_trial_execution_harness",
+        `Controlled trial run rejected: ${execution.rejectionReasons.join(", ") || "none"}.`,
+        "controlled_trial_execution_harness",
+        `trial_execution_status=${execution.status}`,
+      ),
+    );
+  if (execution.status === "trial_run_blocked")
+    findings.push(
+      reviewFinding(
+        "workflow_blocker",
+        "blocking",
+        "requires_operator_review",
+        "controlled_trial_execution_harness",
+        `Controlled trial run blocked at ${execution.currentBlocker ?? "unknown"}.`,
+        "controlled_trial_execution_harness",
+        `current_blocker=${execution.currentBlocker ?? "none"}`,
+      ),
+    );
   const evidence = state.trialSessionEvidenceProjection;
-  if (evidence.status === "not_captured") findings.push(reviewFinding("trial_session_evidence", "blocking", "requires_operator_review", "trial_session_evidence", "Trial session evidence is missing.", "trial_session_evidence", `evidence_status=${evidence.status}`));
-  if (evidence.validationStatus === "invalid" || (evidence.readBackValidationStatus !== null && evidence.readBackValidationStatus !== "valid")) findings.push(reviewFinding("trial_session_evidence", "blocking", "requires_operator_review", "trial_session_evidence", "Trial session evidence validation or read-back failed.", "trial_session_evidence", `validation=${evidence.validationStatus} read_back=${evidence.readBackValidationStatus ?? "not_read"}`));
+  if (evidence.status === "not_captured")
+    findings.push(
+      reviewFinding(
+        "trial_session_evidence",
+        "blocking",
+        "requires_operator_review",
+        "trial_session_evidence",
+        "Trial session evidence is missing.",
+        "trial_session_evidence",
+        `evidence_status=${evidence.status}`,
+      ),
+    );
+  if (
+    evidence.validationStatus === "invalid" ||
+    (evidence.readBackValidationStatus !== null &&
+      evidence.readBackValidationStatus !== "valid")
+  )
+    findings.push(
+      reviewFinding(
+        "trial_session_evidence",
+        "blocking",
+        "requires_operator_review",
+        "trial_session_evidence",
+        "Trial session evidence validation or read-back failed.",
+        "trial_session_evidence",
+        `validation=${evidence.validationStatus} read_back=${evidence.readBackValidationStatus ?? "not_read"}`,
+      ),
+    );
   const verification = state.trialReplayRestoreVerification;
-  if (verification.status === "not_verified") findings.push(reviewFinding("replay_restore_verification", "blocking", "requires_operator_review", "replay_restore_verification", "Replay/restore verification is missing.", "replay_restore_verification", `verification_status=${verification.status}`));
-  if (["verification_rejected", "invalid_verification_input"].includes(verification.status)) findings.push(reviewFinding("replay_restore_verification", "blocking", "requires_operator_review", "replay_restore_verification", "Replay/restore verification did not pass.", "replay_restore_verification", `verification_status=${verification.status}`));
+  if (verification.status === "not_verified")
+    findings.push(
+      reviewFinding(
+        "replay_restore_verification",
+        "blocking",
+        "requires_operator_review",
+        "replay_restore_verification",
+        "Replay/restore verification is missing.",
+        "replay_restore_verification",
+        `verification_status=${verification.status}`,
+      ),
+    );
+  if (
+    ["verification_rejected", "invalid_verification_input"].includes(
+      verification.status,
+    )
+  )
+    findings.push(
+      reviewFinding(
+        "replay_restore_verification",
+        "blocking",
+        "requires_operator_review",
+        "replay_restore_verification",
+        "Replay/restore verification did not pass.",
+        "replay_restore_verification",
+        `verification_status=${verification.status}`,
+      ),
+    );
   for (const mismatch of verification.mismatches) {
-    const category: TrialEvidenceReviewFindingCategory = mismatch === "replay_status_snapshot_mismatch" ? "replay_status" : mismatch === "restore_history_snapshot_mismatch" ? "restore_history" : mismatch.includes("evidence") ? "trial_session_evidence" : mismatch.includes("package") ? "trial_package" : "replay_restore_verification";
-    findings.push(reviewFinding(category, "blocking", "requires_operator_review", "replay_restore_verification", `Replay/restore verification mismatch observed: ${mismatch}.`, "replay_restore_verification", `mismatch=${mismatch}`));
+    const category: TrialEvidenceReviewFindingCategory =
+      mismatch === "replay_status_snapshot_mismatch"
+        ? "replay_status"
+        : mismatch === "restore_history_snapshot_mismatch"
+          ? "restore_history"
+          : mismatch.includes("evidence")
+            ? "trial_session_evidence"
+            : mismatch.includes("package")
+              ? "trial_package"
+              : "replay_restore_verification";
+    findings.push(
+      reviewFinding(
+        category,
+        "blocking",
+        "requires_operator_review",
+        "replay_restore_verification",
+        `Replay/restore verification mismatch observed: ${mismatch}.`,
+        "replay_restore_verification",
+        `mismatch=${mismatch}`,
+      ),
+    );
   }
-  if (state.trialObservability.stopConditionObservation.observed) findings.push(reviewFinding("stop_condition", "stop_condition", "requires_security_reviewer_review", "trial_observability", "Stop-condition observation is present for operator review.", "trial_observability", state.trialObservability.stopConditionObservation.status));
+  if (state.trialObservability.stopConditionObservation.observed)
+    findings.push(
+      reviewFinding(
+        "stop_condition",
+        "stop_condition",
+        "requires_security_reviewer_review",
+        "trial_observability",
+        "Stop-condition observation is present for operator review.",
+        "trial_observability",
+        state.trialObservability.stopConditionObservation.status,
+      ),
+    );
   for (const detail of state.trialErrorReport.details) {
-    const category: TrialEvidenceReviewFindingCategory = detail.category === "stop_condition_observed" ? "stop_condition" : detail.category === "replay_status_mismatch" ? "replay_status" : detail.category === "restore_history_mismatch" ? "restore_history" : detail.category === "materialization_missing" ? "candidate_materialization" : detail.category.includes("workflow") ? "workflow_blocker" : detail.category.includes("package") ? "trial_package" : detail.category.includes("evidence") ? "trial_session_evidence" : "error_reporting";
-    findings.push(reviewFinding(category, detail.severity === "invalid_input" ? "invalid_input" : detail.severity, "requires_operator_review", "trial_error_report", detail.summary, "trial_error_report", detail.evidenceLinkage.linkage));
+    const category: TrialEvidenceReviewFindingCategory =
+      detail.category === "stop_condition_observed"
+        ? "stop_condition"
+        : detail.category === "replay_status_mismatch"
+          ? "replay_status"
+          : detail.category === "restore_history_mismatch"
+            ? "restore_history"
+            : detail.category === "materialization_missing"
+              ? "candidate_materialization"
+              : detail.category.includes("workflow")
+                ? "workflow_blocker"
+                : detail.category.includes("package")
+                  ? "trial_package"
+                  : detail.category.includes("evidence")
+                    ? "trial_session_evidence"
+                    : "error_reporting";
+    findings.push(
+      reviewFinding(
+        category,
+        detail.severity === "invalid_input" ? "invalid_input" : detail.severity,
+        "requires_operator_review",
+        "trial_error_report",
+        detail.summary,
+        "trial_error_report",
+        detail.evidenceLinkage.linkage,
+      ),
+    );
   }
-  if (state.completeLocalOperatorWorkflow.currentBlockingStep) findings.push(reviewFinding("workflow_blocker", "blocking", "requires_operator_review", "complete_local_workflow", `Complete local workflow blocker: ${state.completeLocalOperatorWorkflow.currentBlockingStep}.`, "complete_local_workflow", `workflow_status=${state.completeLocalOperatorWorkflow.status}`));
-  if (state.localCandidateOutput.status === "not_materialized") findings.push(reviewFinding("candidate_materialization", "warning", "requires_phase_169_hardening", "local_candidate_materialization", "Local candidate materialization is missing from the trial evidence chain.", "local_candidate_materialization", `materialization_status=${state.localCandidateOutput.status}`));
-  findings.push(reviewFinding("user_help_needed", "hardening_required", "requires_phase_169_hardening", "trial_operator_runbook", "User-facing local help documentation is not yet represented in the trial review surface.", "trial_operator_runbook", "Phase 169 owns user-facing local HTML help if still missing."));
-  for (const guidance of state.trialFailureDrill.escalationGuidance) findings.push(reviewFinding("escalation_guidance", "info", "requires_trial_coordinator_review", "trial_failure_drill", `Escalation guidance remains descriptive for role ${guidance.role}.`, "trial_failure_drill", guidance.categories.join(",")));
+  if (state.completeLocalOperatorWorkflow.currentBlockingStep)
+    findings.push(
+      reviewFinding(
+        "workflow_blocker",
+        "blocking",
+        "requires_operator_review",
+        "complete_local_workflow",
+        `Complete local workflow blocker: ${state.completeLocalOperatorWorkflow.currentBlockingStep}.`,
+        "complete_local_workflow",
+        `workflow_status=${state.completeLocalOperatorWorkflow.status}`,
+      ),
+    );
+  if (state.localCandidateOutput.status === "not_materialized")
+    findings.push(
+      reviewFinding(
+        "candidate_materialization",
+        "warning",
+        "requires_phase_169_hardening",
+        "local_candidate_materialization",
+        "Local candidate materialization is missing from the trial evidence chain.",
+        "local_candidate_materialization",
+        `materialization_status=${state.localCandidateOutput.status}`,
+      ),
+    );
+  findings.push(
+    reviewFinding(
+      "user_help_needed",
+      "hardening_required",
+      "requires_phase_169_hardening",
+      "trial_operator_runbook",
+      "User-facing local help documentation is not yet represented in the trial review surface.",
+      "trial_operator_runbook",
+      "Phase 169 owns user-facing local HTML help if still missing.",
+    ),
+  );
+  for (const guidance of state.trialFailureDrill.escalationGuidance)
+    findings.push(
+      reviewFinding(
+        "escalation_guidance",
+        "info",
+        "requires_trial_coordinator_review",
+        "trial_failure_drill",
+        `Escalation guidance remains descriptive for role ${guidance.role}.`,
+        "trial_failure_drill",
+        guidance.categories.join(","),
+      ),
+    );
   return orderedReviewFindings(findings);
 }
 
-export function deriveTrialHardeningCandidates(findings: readonly TrialEvidenceReviewFinding[]): readonly TrialEvidenceReviewHardeningCandidate[] {
+export function deriveTrialHardeningCandidates(
+  findings: readonly TrialEvidenceReviewFinding[],
+): readonly TrialEvidenceReviewHardeningCandidate[] {
   return findings
-    .filter((finding) => finding.disposition === "requires_phase_169_hardening" || ["blocking", "hardening_required"].includes(finding.severity))
-    .map((finding): TrialEvidenceReviewHardeningCandidate => ({ candidateId: "", sourceFindingId: finding.findingId, targetSurface: finding.evidenceLinkage.surface, localBetaScope: "local_beta_only_phase_169_input", summary: `Phase 169 local-beta hardening candidate from ${finding.category}: ${finding.summary}` }))
-    .sort((a, b) => `${a.targetSurface}|${a.sourceFindingId}|${a.summary}`.localeCompare(`${b.targetSurface}|${b.sourceFindingId}|${b.summary}`))
-    .map((candidate, index) => ({ ...candidate, candidateId: `trial-hardening-candidate-${String(index + 1).padStart(4, "0")}` }));
+    .filter(
+      (finding) =>
+        finding.disposition === "requires_phase_169_hardening" ||
+        ["blocking", "hardening_required"].includes(finding.severity),
+    )
+    .map(
+      (finding): TrialEvidenceReviewHardeningCandidate => ({
+        candidateId: "",
+        sourceFindingId: finding.findingId,
+        targetSurface: finding.evidenceLinkage.surface,
+        localBetaScope: "local_beta_only_phase_169_input",
+        summary: `Phase 169 local-beta hardening candidate from ${finding.category}: ${finding.summary}`,
+      }),
+    )
+    .sort((a, b) =>
+      `${a.targetSurface}|${a.sourceFindingId}|${a.summary}`.localeCompare(
+        `${b.targetSurface}|${b.sourceFindingId}|${b.summary}`,
+      ),
+    )
+    .map((candidate, index) => ({
+      ...candidate,
+      candidateId: `trial-hardening-candidate-${String(index + 1).padStart(4, "0")}`,
+    }));
 }
 
-export function deriveTrialEvidenceReviewProjection(state: LocalOperatorShellState): TrialEvidenceReviewProjection {
+export function deriveTrialEvidenceReviewProjection(
+  state: LocalOperatorShellState,
+): TrialEvidenceReviewProjection {
   const findings = deriveTrialEvidenceReviewFindings(state);
   const hardeningCandidates = deriveTrialHardeningCandidates(findings);
-  const blockerFindings = findings.filter((finding) => ["blocking", "stop_condition", "invalid_input"].includes(finding.severity));
-  const status: TrialEvidenceReviewStatus = findings.some((finding) => finding.severity === "invalid_input") ? "invalid_review_input" : findings.some((finding) => finding.severity === "stop_condition") ? "review_blocked" : ["trial_run_rejected", "invalid_trial_run_request"].includes(state.controlledInternalTrialExecution.status) ? "review_rejected" : hardeningCandidates.length > 0 ? "hardening_candidates_projected" : findings.length > 0 ? "review_with_findings" : "review_projected";
-  return { status, reviewId: `trial-evidence-review-findings-${String(findings.length).padStart(4, "0")}-hardening-${String(hardeningCandidates.length).padStart(4, "0")}`, controlledTrialPackageStatus: state.controlledInternalTrialPackageProjection.status, trialExecutionStatus: state.controlledInternalTrialExecution.status, trialSessionEvidenceStatus: state.trialSessionEvidenceProjection.status, replayRestoreVerificationStatus: state.trialReplayRestoreVerification.status, observabilityStatus: state.trialObservability.status, errorReportStatus: state.trialErrorReport.status, stopConditionObservation: state.trialObservability.stopConditionObservation.status, escalationGuidanceSummary: state.trialFailureDrill.escalationGuidance.map((guidance) => `${guidance.role}:${guidance.categories.join("/")}`), evidenceLinkage: [
-    { source: "controlled_internal_trial_package", surface: "controlled_internal_trial_package", summary: `package_status=${state.controlledInternalTrialPackageProjection.status} package_id=${state.controlledInternalTrialPackageProjection.packageId ?? "none"}` },
-    { source: "controlled_trial_execution_harness", surface: "controlled_trial_execution_harness", summary: `trial_execution_status=${state.controlledInternalTrialExecution.status}` },
-    { source: "trial_session_evidence", surface: "trial_session_evidence", summary: `evidence_status=${state.trialSessionEvidenceProjection.status} evidence_id=${state.trialSessionEvidenceProjection.evidenceId ?? "none"}` },
-    { source: "replay_restore_verification", surface: "replay_restore_verification", summary: `verification_status=${state.trialReplayRestoreVerification.status}` },
-    { source: "trial_observability", surface: "trial_observability", summary: `observability_status=${state.trialObservability.status}` },
-    { source: "trial_error_report", surface: "trial_error_report", summary: `error_report_status=${state.trialErrorReport.status} categories=${state.trialErrorReport.categorySummary.length}` },
-  ], findings, unresolvedBlockers: { currentBlocker: state.trialObservability.currentBlocker, unresolvedBlockerCount: blockerFindings.length, blockers: blockerFindings.map((finding) => `${finding.findingId}:${finding.summary}`) }, mismatchErrorSummary: { mismatchCount: state.trialObservability.mismatchSummary.mismatches.length, errorCategoryCount: state.trialErrorReport.categorySummary.length, replayStatusComparison: state.trialObservability.replayStatusComparisonSummary, restoreHistoryComparison: state.trialObservability.restoreHistoryComparisonSummary, packageEvidenceReadBackFailures: state.trialObservability.packageEvidenceReadBackFailureSummary }, unresolvedFindingCount: findings.filter((finding) => finding.disposition !== "not_applicable").length, hardeningCandidates, boundaryStatuses: trialEvidenceReviewBoundaryStatuses(), capabilitySurface: trialEvidenceReviewCapabilitySurface(), localOnlyNonPublicNote: "Trial evidence review is local-only and non-public.", noAuthorityNote: "Review findings are evidence, not approval. Review does not approve controlled human use, readiness, release, deployment, public use, or production use.", noAutomationNote: "Review does not automate remediation, escalation, or stop-condition enforcement.", noReplayRepairNote: "Review does not repair replay or promote recovery.", hardeningCandidateNote: "Hardening candidates are inputs for Phase 169 code work, not approvals." };
+  const blockerFindings = findings.filter((finding) =>
+    ["blocking", "stop_condition", "invalid_input"].includes(finding.severity),
+  );
+  const status: TrialEvidenceReviewStatus = findings.some(
+    (finding) => finding.severity === "invalid_input",
+  )
+    ? "invalid_review_input"
+    : findings.some((finding) => finding.severity === "stop_condition")
+      ? "review_blocked"
+      : ["trial_run_rejected", "invalid_trial_run_request"].includes(
+            state.controlledInternalTrialExecution.status,
+          )
+        ? "review_rejected"
+        : hardeningCandidates.length > 0
+          ? "hardening_candidates_projected"
+          : findings.length > 0
+            ? "review_with_findings"
+            : "review_projected";
+  return {
+    status,
+    reviewId: `trial-evidence-review-findings-${String(findings.length).padStart(4, "0")}-hardening-${String(hardeningCandidates.length).padStart(4, "0")}`,
+    controlledTrialPackageStatus:
+      state.controlledInternalTrialPackageProjection.status,
+    trialExecutionStatus: state.controlledInternalTrialExecution.status,
+    trialSessionEvidenceStatus: state.trialSessionEvidenceProjection.status,
+    replayRestoreVerificationStatus:
+      state.trialReplayRestoreVerification.status,
+    observabilityStatus: state.trialObservability.status,
+    errorReportStatus: state.trialErrorReport.status,
+    stopConditionObservation:
+      state.trialObservability.stopConditionObservation.status,
+    escalationGuidanceSummary: state.trialFailureDrill.escalationGuidance.map(
+      (guidance) => `${guidance.role}:${guidance.categories.join("/")}`,
+    ),
+    evidenceLinkage: [
+      {
+        source: "controlled_internal_trial_package",
+        surface: "controlled_internal_trial_package",
+        summary: `package_status=${state.controlledInternalTrialPackageProjection.status} package_id=${state.controlledInternalTrialPackageProjection.packageId ?? "none"}`,
+      },
+      {
+        source: "controlled_trial_execution_harness",
+        surface: "controlled_trial_execution_harness",
+        summary: `trial_execution_status=${state.controlledInternalTrialExecution.status}`,
+      },
+      {
+        source: "trial_session_evidence",
+        surface: "trial_session_evidence",
+        summary: `evidence_status=${state.trialSessionEvidenceProjection.status} evidence_id=${state.trialSessionEvidenceProjection.evidenceId ?? "none"}`,
+      },
+      {
+        source: "replay_restore_verification",
+        surface: "replay_restore_verification",
+        summary: `verification_status=${state.trialReplayRestoreVerification.status}`,
+      },
+      {
+        source: "trial_observability",
+        surface: "trial_observability",
+        summary: `observability_status=${state.trialObservability.status}`,
+      },
+      {
+        source: "trial_error_report",
+        surface: "trial_error_report",
+        summary: `error_report_status=${state.trialErrorReport.status} categories=${state.trialErrorReport.categorySummary.length}`,
+      },
+    ],
+    findings,
+    unresolvedBlockers: {
+      currentBlocker: state.trialObservability.currentBlocker,
+      unresolvedBlockerCount: blockerFindings.length,
+      blockers: blockerFindings.map(
+        (finding) => `${finding.findingId}:${finding.summary}`,
+      ),
+    },
+    mismatchErrorSummary: {
+      mismatchCount: state.trialObservability.mismatchSummary.mismatches.length,
+      errorCategoryCount: state.trialErrorReport.categorySummary.length,
+      replayStatusComparison:
+        state.trialObservability.replayStatusComparisonSummary,
+      restoreHistoryComparison:
+        state.trialObservability.restoreHistoryComparisonSummary,
+      packageEvidenceReadBackFailures:
+        state.trialObservability.packageEvidenceReadBackFailureSummary,
+    },
+    unresolvedFindingCount: findings.filter(
+      (finding) => finding.disposition !== "not_applicable",
+    ).length,
+    hardeningCandidates,
+    boundaryStatuses: trialEvidenceReviewBoundaryStatuses(),
+    capabilitySurface: trialEvidenceReviewCapabilitySurface(),
+    localOnlyNonPublicNote:
+      "Trial evidence review is local-only and non-public.",
+    noAuthorityNote:
+      "Review findings are evidence, not approval. Review does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    noAutomationNote:
+      "Review does not automate remediation, escalation, or stop-condition enforcement.",
+    noReplayRepairNote: "Review does not repair replay or promote recovery.",
+    hardeningCandidateNote:
+      "Hardening candidates are inputs for Phase 169 code work, not approvals.",
+  };
 }
 
-function refreshTrialObservabilityState(state: LocalOperatorShellState): LocalOperatorShellState {
+function refreshTrialObservabilityState(
+  state: LocalOperatorShellState,
+): LocalOperatorShellState {
   const withoutReports = {
     ...state,
     trialObservability: initialTrialObservabilityProjection(),
-trialErrorReport: initialTrialErrorReportProjection(),
+    trialErrorReport: initialTrialErrorReportProjection(),
   };
   const refreshed = {
     ...withoutReports,
     trialObservability: deriveTrialObservabilityProjection(withoutReports),
     trialErrorReport: deriveTrialErrorReportProjection(withoutReports),
   };
-  return { ...refreshed, trialEvidenceReview: deriveTrialEvidenceReviewProjection(refreshed) };
+  return {
+    ...refreshed,
+    trialEvidenceReview: deriveTrialEvidenceReviewProjection(refreshed),
+  };
+}
+
+export type ReleaseCandidatePreparationStatus =
+  | "not_prepared"
+  | "preparation_projected"
+  | "preparation_validated"
+  | "preparation_blocked"
+  | "preparation_rejected"
+  | "invalid_preparation_input";
+export type ReleaseCandidatePreparationEvidenceCategory =
+  | "local_beta_workflow"
+  | "controlled_internal_trial_execution"
+  | "trial_observability"
+  | "trial_error_reporting"
+  | "trial_evidence_review"
+  | "user_facing_help"
+  | "local_html_help_pages"
+  | "visible_help_entry_point"
+  | "provider_configuration"
+  | "provider_adapter_contract"
+  | "provider_adapter_dry_run"
+  | "constrained_provider_invocation"
+  | "provider_output_pipeline"
+  | "provider_output_validation"
+  | "provider_output_review"
+  | "staged_proposal"
+  | "staged_proposal_validation"
+  | "candidate_review"
+  | "operator_decision"
+  | "local_candidate_materialization"
+  | "replay_status"
+  | "evidence_export"
+  | "local_session_package"
+  | "session_restore_history"
+  | "controlled_internal_trial_package"
+  | "trial_operator_runbook"
+  | "trial_failure_drill"
+  | "trial_session_evidence"
+  | "replay_restore_verification"
+  | "deterministic_validation";
+export type ReleaseCandidatePreparationEvidenceCategoryStatus =
+  | "present"
+  | "missing"
+  | "blocked"
+  | "rejected"
+  | "deferred"
+  | "not_applicable";
+export type ReleaseCandidatePreparationValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+export type ReleaseCandidatePreparationValidationError =
+  | "missing_local_beta_workflow"
+  | "missing_trial_execution"
+  | "missing_trial_observability"
+  | "missing_trial_evidence_review"
+  | "missing_user_help"
+  | "missing_help_index"
+  | "missing_visible_help_entry_point"
+  | "missing_candidate_materialization"
+  | "missing_replay_status"
+  | "missing_session_package"
+  | "missing_restore_history"
+  | "missing_trial_package"
+  | "missing_trial_session_evidence"
+  | "missing_replay_restore_verification"
+  | "evidence_category_blocked"
+  | "evidence_category_rejected"
+  | "readiness_claim_detected"
+  | "release_claim_detected"
+  | "deployment_claim_detected"
+  | "public_use_claim_detected"
+  | "production_use_claim_detected"
+  | "signing_claim_detected"
+  | "publishing_claim_detected"
+  | "installer_claim_detected"
+  | "update_channel_claim_detected"
+  | "provider_trust_claim_detected"
+  | "action_authorization_claim_detected"
+  | "replay_repair_claim_detected"
+  | "recovery_promotion_claim_detected";
+export type ReleaseCandidatePreparationBoundaryStatus =
+  | "release_candidate_preparation_only"
+  | "release_readiness_not_approved"
+  | "release_candidate_status_not_approved"
+  | "production_status_not_approved"
+  | "no_release_artifact"
+  | "no_deployment_artifact"
+  | "no_public_distribution"
+  | "no_signing"
+  | "no_publishing"
+  | "no_installer_activation"
+  | "no_update_channel_activation"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+export type ReleaseCandidatePreparationClassification =
+  | "release_candidate_preparation_only"
+  | "non_production"
+  | "release_not_approved"
+  | "no_public_distribution";
+export type ReleaseCandidatePreparationSourceLinkage = Readonly<{
+  category: ReleaseCandidatePreparationEvidenceCategory;
+  sourceSurface: string;
+  sourceStatus: string;
+  sourceSummary: string;
+}>;
+export type ReleaseCandidatePreparationEvidenceItem = Readonly<{
+  category: ReleaseCandidatePreparationEvidenceCategory;
+  status: ReleaseCandidatePreparationEvidenceCategoryStatus;
+  reason: string;
+  sourceLinkage: ReleaseCandidatePreparationSourceLinkage;
+}>;
+export type ReleaseCandidatePreparationMissingEvidence = Readonly<{
+  category: ReleaseCandidatePreparationEvidenceCategory;
+  reason: string;
+  sourceSurface: string;
+}>;
+export type ReleaseCandidatePreparationBlocker = Readonly<{
+  category: ReleaseCandidatePreparationEvidenceCategory;
+  reason: string;
+  sourceSurface: string;
+}>;
+export type ReleaseCandidatePreparationCapabilitySurface = Readonly<{
+  createsReleaseArtifacts: false;
+  createsDeploymentArtifacts: false;
+  createsPublicDownloads: false;
+  createsReleaseTags: false;
+  createsGithubReleases: false;
+  signsArtifacts: false;
+  publishesArtifacts: false;
+  createsInstallers: false;
+  activatesUpdateChannels: false;
+  approvesReleaseCandidateStatus: false;
+  approvesReleaseReadiness: false;
+  approvesProductionStatus: false;
+  approvesProductionReadiness: false;
+  approvesDeployment: false;
+  approvesPublicUse: false;
+  approvesProductionUse: false;
+  trustsProviderOutput: false;
+  authorizesActions: false;
+  repairsReplay: false;
+  promotesRecovery: false;
+}>;
+export type ReleaseCandidatePreparationProjection = Readonly<{
+  preparationId: string;
+  status: ReleaseCandidatePreparationStatus;
+  validationStatus: ReleaseCandidatePreparationValidationStatus;
+  classification: readonly ReleaseCandidatePreparationClassification[];
+  evidenceItems: readonly ReleaseCandidatePreparationEvidenceItem[];
+  missingEvidence: readonly ReleaseCandidatePreparationMissingEvidence[];
+  blockers: readonly ReleaseCandidatePreparationBlocker[];
+  validationErrors: readonly ReleaseCandidatePreparationValidationError[];
+  boundaryStatuses: readonly ReleaseCandidatePreparationBoundaryStatus[];
+  capabilitySurface: ReleaseCandidatePreparationCapabilitySurface;
+  categoryCount: number;
+  presentEvidenceCount: number;
+  missingEvidenceCount: number;
+  blockedEvidenceCount: number;
+  rejectedEvidenceCount: number;
+  noReleaseReadinessNote: string;
+  noReleaseArtifactNote: string;
+  noReleaseCandidateStatusNote: string;
+  noProductionDeploymentPublicSigningPublishingInstallerUpdateNote: string;
+  noProviderTrustNote: string;
+  noActionAuthorizationNote: string;
+}>;
+
+export function releaseCandidatePreparationEvidenceCategories(): readonly ReleaseCandidatePreparationEvidenceCategory[] {
+  return [
+    "local_beta_workflow",
+    "controlled_internal_trial_execution",
+    "trial_observability",
+    "trial_error_reporting",
+    "trial_evidence_review",
+    "user_facing_help",
+    "local_html_help_pages",
+    "visible_help_entry_point",
+    "provider_configuration",
+    "provider_adapter_contract",
+    "provider_adapter_dry_run",
+    "constrained_provider_invocation",
+    "provider_output_pipeline",
+    "provider_output_validation",
+    "provider_output_review",
+    "staged_proposal",
+    "staged_proposal_validation",
+    "candidate_review",
+    "operator_decision",
+    "local_candidate_materialization",
+    "replay_status",
+    "evidence_export",
+    "local_session_package",
+    "session_restore_history",
+    "controlled_internal_trial_package",
+    "trial_operator_runbook",
+    "trial_failure_drill",
+    "trial_session_evidence",
+    "replay_restore_verification",
+    "deterministic_validation",
+  ];
+}
+function releaseCandidatePreparationBoundaryStatuses(): readonly ReleaseCandidatePreparationBoundaryStatus[] {
+  return [
+    "release_candidate_preparation_only",
+    "release_readiness_not_approved",
+    "release_candidate_status_not_approved",
+    "production_status_not_approved",
+    "no_release_artifact",
+    "no_deployment_artifact",
+    "no_public_distribution",
+    "no_signing",
+    "no_publishing",
+    "no_installer_activation",
+    "no_update_channel_activation",
+    "no_provider_trust",
+    "no_action_authorization",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+function releaseCandidatePreparationCapabilitySurface(): ReleaseCandidatePreparationCapabilitySurface {
+  return {
+    createsReleaseArtifacts: false,
+    createsDeploymentArtifacts: false,
+    createsPublicDownloads: false,
+    createsReleaseTags: false,
+    createsGithubReleases: false,
+    signsArtifacts: false,
+    publishesArtifacts: false,
+    createsInstallers: false,
+    activatesUpdateChannels: false,
+    approvesReleaseCandidateStatus: false,
+    approvesReleaseReadiness: false,
+    approvesProductionStatus: false,
+    approvesProductionReadiness: false,
+    approvesDeployment: false,
+    approvesPublicUse: false,
+    approvesProductionUse: false,
+    trustsProviderOutput: false,
+    authorizesActions: false,
+    repairsReplay: false,
+    promotesRecovery: false,
+  };
+}
+function releaseCandidatePreparationItem(
+  category: ReleaseCandidatePreparationEvidenceCategory,
+  status: ReleaseCandidatePreparationEvidenceCategoryStatus,
+  sourceSurface: string,
+  sourceStatus: string,
+  reason = status === "present"
+    ? "committed local shell evidence is present"
+    : "required committed evidence is missing",
+): ReleaseCandidatePreparationEvidenceItem {
+  return {
+    category,
+    status,
+    reason,
+    sourceLinkage: {
+      category,
+      sourceSurface,
+      sourceStatus,
+      sourceSummary: `${sourceSurface}:${sourceStatus}`,
+    },
+  };
+}
+function releaseCandidatePreparationId(
+  items: readonly ReleaseCandidatePreparationEvidenceItem[],
+): string {
+  let hash = 0x811c9dc5;
+  for (const item of items)
+    for (const char of `${item.category}:${item.status}:${item.sourceLinkage.sourceStatus};`)
+      hash = Math.imul((hash ^ char.charCodeAt(0)) >>> 0, 0x01000193) >>> 0;
+  return `release-candidate-preparation-${hash.toString(16).padStart(8, "0")}`;
+}
+export function deriveReleaseCandidatePreparationProjection(
+  state: LocalOperatorShellState,
+): ReleaseCandidatePreparationProjection {
+  const statusFor = (
+    condition: boolean,
+    sourceStatus: string,
+  ): ReleaseCandidatePreparationEvidenceCategoryStatus =>
+    condition
+      ? "present"
+      : sourceStatus.includes("rejected") || sourceStatus.includes("invalid")
+        ? "rejected"
+        : sourceStatus.includes("blocked") ||
+            sourceStatus.includes("required") ||
+            sourceStatus.includes("missing")
+          ? "blocked"
+          : "missing";
+  const items: ReleaseCandidatePreparationEvidenceItem[] = [
+    releaseCandidatePreparationItem(
+      "local_beta_workflow",
+      statusFor(
+        state.completeLocalOperatorWorkflow.status ===
+          "complete_local_workflow_projected" ||
+          state.completeLocalOperatorWorkflow.status ===
+            "local_candidate_materialized",
+        state.completeLocalOperatorWorkflow.status,
+      ),
+      "completeLocalOperatorWorkflow",
+      state.completeLocalOperatorWorkflow.status,
+    ),
+    releaseCandidatePreparationItem(
+      "controlled_internal_trial_execution",
+      statusFor(
+        state.controlledInternalTrialExecution.status ===
+          "trial_run_completed_locally",
+        state.controlledInternalTrialExecution.status,
+      ),
+      "controlledInternalTrialExecution",
+      state.controlledInternalTrialExecution.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_observability",
+      statusFor(
+        state.trialObservability.status !== "not_observed" &&
+          state.trialObservability.status !== "observability_projected",
+        state.trialObservability.status,
+      ),
+      "trialObservability",
+      state.trialObservability.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_error_reporting",
+      state.trialErrorReport.status === "invalid_observability_input"
+        ? "rejected"
+        : "present",
+      "trialErrorReport",
+      state.trialErrorReport.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_evidence_review",
+      statusFor(
+        ![
+          "not_reviewed",
+          "review_blocked",
+          "review_rejected",
+          "invalid_review_input",
+        ].includes(state.trialEvidenceReview.status),
+        state.trialEvidenceReview.status,
+      ),
+      "trialEvidenceReview",
+      state.trialEvidenceReview.status,
+    ),
+    releaseCandidatePreparationItem(
+      "user_facing_help",
+      "present",
+      "uiHelpSurface",
+      "present",
+    ),
+    releaseCandidatePreparationItem(
+      "local_html_help_pages",
+      "present",
+      "uiHelpSurface",
+      "present",
+    ),
+    releaseCandidatePreparationItem(
+      "visible_help_entry_point",
+      "present",
+      "uiHelpEntryPoint",
+      "present",
+    ),
+    releaseCandidatePreparationItem(
+      "provider_configuration",
+      statusFor(
+        state.providerConfiguration.status === "accepted",
+        state.providerConfiguration.status,
+      ),
+      "providerConfiguration",
+      state.providerConfiguration.status,
+    ),
+    releaseCandidatePreparationItem(
+      "provider_adapter_contract",
+      statusFor(
+        state.localProviderAdapterRegistry.declarations.some(
+          (declaration) =>
+            declaration.status === "adapter_declared_non_executing",
+        ),
+        `declarations=${state.localProviderAdapterRegistry.declarations.length}`,
+      ),
+      "localProviderAdapterRegistry",
+      `declarations=${state.localProviderAdapterRegistry.declarations.length}`,
+    ),
+    releaseCandidatePreparationItem(
+      "provider_adapter_dry_run",
+      statusFor(
+        state.localProviderAdapterDryRun.status === "dry_run_executed",
+        state.localProviderAdapterDryRun.status,
+      ),
+      "localProviderAdapterDryRun",
+      state.localProviderAdapterDryRun.status,
+    ),
+    releaseCandidatePreparationItem(
+      "constrained_provider_invocation",
+      statusFor(
+        state.constrainedLocalProviderInvocation.status ===
+          "invocation_executed",
+        state.constrainedLocalProviderInvocation.status,
+      ),
+      "constrainedLocalProviderInvocation",
+      state.constrainedLocalProviderInvocation.status,
+    ),
+    releaseCandidatePreparationItem(
+      "provider_output_pipeline",
+      statusFor(
+        state.localProviderOutputPipeline.status === "valid",
+        state.localProviderOutputPipeline.status,
+      ),
+      "localProviderOutputPipeline",
+      state.localProviderOutputPipeline.status,
+    ),
+    releaseCandidatePreparationItem(
+      "provider_output_validation",
+      statusFor(
+        state.providerOutputValidation.status === "reviewable_untrusted",
+        state.providerOutputValidation.status,
+      ),
+      "providerOutputValidation",
+      state.providerOutputValidation.status,
+    ),
+    releaseCandidatePreparationItem(
+      "provider_output_review",
+      statusFor(
+        state.providerOutputValidation.reviewabilityStatus ===
+          "reviewable_untrusted",
+        state.providerOutputValidation.reviewabilityStatus,
+      ),
+      "providerOutputValidation.reviewability",
+      state.providerOutputValidation.reviewabilityStatus,
+    ),
+    releaseCandidatePreparationItem(
+      "staged_proposal",
+      statusFor(
+        state.stagedCandidateConversionProposal.status ===
+          "staged_proposal_created",
+        state.stagedCandidateConversionProposal.status,
+      ),
+      "stagedCandidateConversionProposal",
+      state.stagedCandidateConversionProposal.status,
+    ),
+    releaseCandidatePreparationItem(
+      "staged_proposal_validation",
+      statusFor(
+        state.stagedCandidateConversionValidation.status ===
+          "staged_proposal_shape_valid",
+        state.stagedCandidateConversionValidation.status,
+      ),
+      "stagedCandidateConversionValidation",
+      state.stagedCandidateConversionValidation.status,
+    ),
+    releaseCandidatePreparationItem(
+      "candidate_review",
+      statusFor(
+        state.localProviderOutputPipeline.candidateReviewStatus ===
+          "display_only",
+        state.localProviderOutputPipeline.candidateReviewStatus,
+      ),
+      "localProviderOutputPipeline.candidateReviewStatus",
+      state.localProviderOutputPipeline.candidateReviewStatus,
+    ),
+    releaseCandidatePreparationItem(
+      "operator_decision",
+      statusFor(
+        state.operatorCandidateDecision.status ===
+          "approved_validated_staged_proposal",
+        state.operatorCandidateDecision.status,
+      ),
+      "operatorCandidateDecision",
+      state.operatorCandidateDecision.status,
+    ),
+    releaseCandidatePreparationItem(
+      "local_candidate_materialization",
+      statusFor(
+        state.localCandidateOutput.status === "local_candidate_materialized",
+        state.localCandidateOutput.status,
+      ),
+      "localCandidateOutput",
+      state.localCandidateOutput.status,
+    ),
+    releaseCandidatePreparationItem(
+      "replay_status",
+      state.run.replayStatus.length > 0 ? "present" : "missing",
+      "run.replayStatus",
+      state.run.replayStatus,
+    ),
+    releaseCandidatePreparationItem(
+      "evidence_export",
+      state.localSessionEvidenceExport.exportId.length > 0
+        ? "present"
+        : "missing",
+      "localSessionEvidenceExport",
+      state.localSessionEvidenceExport.exportStatus,
+    ),
+    releaseCandidatePreparationItem(
+      "local_session_package",
+      statusFor(
+        state.localSessionPackageProjection.status !== "not_packaged",
+        state.localSessionPackageProjection.status,
+      ),
+      "localSessionPackageProjection",
+      state.localSessionPackageProjection.status,
+    ),
+    releaseCandidatePreparationItem(
+      "session_restore_history",
+      statusFor(
+        state.localSessionHistoryProjection.status ===
+          "session_history_projected" &&
+          !state.localSessionRestoreProjection.status.includes("rejected"),
+        state.localSessionRestoreProjection.status,
+      ),
+      "localSessionRestoreHistory",
+      state.localSessionRestoreProjection.status,
+    ),
+    releaseCandidatePreparationItem(
+      "controlled_internal_trial_package",
+      statusFor(
+        state.controlledInternalTrialPackageProjection.status !==
+          "not_packaged",
+        state.controlledInternalTrialPackageProjection.status,
+      ),
+      "controlledInternalTrialPackageProjection",
+      state.controlledInternalTrialPackageProjection.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_operator_runbook",
+      statusFor(
+        state.trialOperatorRunbook.status ===
+          "ready_for_manual_trial_preparation" ||
+          state.trialOperatorRunbook.status ===
+            "trial_operator_runbook_projected",
+        state.trialOperatorRunbook.status,
+      ),
+      "trialOperatorRunbook",
+      state.trialOperatorRunbook.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_failure_drill",
+      "present",
+      "trialFailureDrill",
+      state.trialFailureDrill.status,
+    ),
+    releaseCandidatePreparationItem(
+      "trial_session_evidence",
+      statusFor(
+        state.trialSessionEvidenceProjection.status !== "not_captured",
+        state.trialSessionEvidenceProjection.status,
+      ),
+      "trialSessionEvidenceProjection",
+      state.trialSessionEvidenceProjection.status,
+    ),
+    releaseCandidatePreparationItem(
+      "replay_restore_verification",
+      statusFor(
+        state.trialReplayRestoreVerification.status === "verification_passed" ||
+          state.trialReplayRestoreVerification.status ===
+            "trial_replay_restore_verification_projected",
+        state.trialReplayRestoreVerification.status,
+      ),
+      "trialReplayRestoreVerification",
+      state.trialReplayRestoreVerification.status,
+    ),
+    releaseCandidatePreparationItem(
+      "deterministic_validation",
+      state.run.validation ? "present" : "missing",
+      "run.validation",
+      state.run.validation?.validationStatus ?? "missing",
+    ),
+  ];
+  const missingEvidence = items
+    .filter((item) => item.status === "missing" || item.status === "deferred")
+    .map((item) => ({
+      category: item.category,
+      reason: item.reason,
+      sourceSurface: item.sourceLinkage.sourceSurface,
+    }));
+  const blockers = items
+    .filter((item) => item.status === "blocked" || item.status === "rejected")
+    .map((item) => ({
+      category: item.category,
+      reason: item.reason,
+      sourceSurface: item.sourceLinkage.sourceSurface,
+    }));
+  const validationErrors: ReleaseCandidatePreparationValidationError[] = [];
+  if (missingEvidence.some((item) => item.category === "local_beta_workflow"))
+    validationErrors.push("missing_local_beta_workflow");
+  if (
+    missingEvidence.some(
+      (item) => item.category === "controlled_internal_trial_execution",
+    )
+  )
+    validationErrors.push("missing_trial_execution");
+  if (missingEvidence.some((item) => item.category === "trial_observability"))
+    validationErrors.push("missing_trial_observability");
+  if (missingEvidence.some((item) => item.category === "trial_evidence_review"))
+    validationErrors.push("missing_trial_evidence_review");
+  if (
+    missingEvidence.some((item) => item.category === "visible_help_entry_point")
+  )
+    validationErrors.push("missing_visible_help_entry_point");
+  if (items.some((item) => item.status === "blocked"))
+    validationErrors.push("evidence_category_blocked");
+  if (items.some((item) => item.status === "rejected"))
+    validationErrors.push("evidence_category_rejected");
+  const status: ReleaseCandidatePreparationStatus = validationErrors.includes(
+    "evidence_category_rejected",
+  )
+    ? "preparation_rejected"
+    : validationErrors.includes("evidence_category_blocked")
+      ? "preparation_blocked"
+      : validationErrors.length === 0
+        ? "preparation_validated"
+        : "invalid_preparation_input";
+  return {
+    preparationId: releaseCandidatePreparationId(items),
+    status,
+    validationStatus: validationErrors.length === 0 ? "valid" : "invalid",
+    classification: [
+      "release_candidate_preparation_only",
+      "non_production",
+      "release_not_approved",
+      "no_public_distribution",
+    ],
+    evidenceItems: items,
+    missingEvidence,
+    blockers,
+    validationErrors,
+    boundaryStatuses: releaseCandidatePreparationBoundaryStatuses(),
+    capabilitySurface: releaseCandidatePreparationCapabilitySurface(),
+    categoryCount: items.length,
+    presentEvidenceCount: items.filter((item) => item.status === "present")
+      .length,
+    missingEvidenceCount: missingEvidence.length,
+    blockedEvidenceCount: items.filter((item) => item.status === "blocked")
+      .length,
+    rejectedEvidenceCount: items.filter((item) => item.status === "rejected")
+      .length,
+    noReleaseReadinessNote:
+      "Release-candidate preparation is not release readiness.",
+    noReleaseArtifactNote: "This contract does not create release artifacts.",
+    noReleaseCandidateStatusNote:
+      "This contract does not approve Release Candidate status.",
+    noProductionDeploymentPublicSigningPublishingInstallerUpdateNote:
+      "This contract does not approve production, deployment, public use, signing, publishing, installer, or update-channel behavior.",
+    noProviderTrustNote: "Provider output remains untrusted.",
+    noActionAuthorizationNote: "No action authorization is granted.",
+  };
 }
 
 export type LocalOperatorShellState = Readonly<{
@@ -6283,8 +8004,8 @@ export type LocalOperatorShellState = Readonly<{
   trialObservability: TrialObservabilityProjection;
   trialErrorReport: TrialErrorReportProjection;
   trialEvidenceReview: TrialEvidenceReviewProjection;
+  releaseCandidatePreparation: ReleaseCandidatePreparationProjection;
 }>;
-
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
   return [
@@ -6354,8 +8075,18 @@ export function initialCompleteLocalOperatorWorkflowProjection(): CompleteLocalO
     currentError: "adapter_not_configured",
     steps: completeLocalOperatorWorkflowStepOrder().map((step) =>
       step === "provider_adapter_configured"
-        ? workflowStep(step, "blocked", "adapter_not_configured", "Provider adapter declaration is missing.")
-        : workflowStep(step, "not_started", null, "Waiting for earlier local workflow steps."),
+        ? workflowStep(
+            step,
+            "blocked",
+            "adapter_not_configured",
+            "Provider adapter declaration is missing.",
+          )
+        : workflowStep(
+            step,
+            "not_started",
+            null,
+            "Waiting for earlier local workflow steps.",
+          ),
     ),
     rejectionReasons: [],
     evidenceSummary: {
@@ -6381,81 +8112,318 @@ export function classifyCompleteLocalOperatorWorkflowStep(
 ): CompleteLocalOperatorWorkflowStep {
   switch (step) {
     case "provider_adapter_configured":
-      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
-        return workflowStep(step, "completed", null, "Provider adapter declaration is accepted.");
-      if (state.localProviderAdapterRegistry.lastValidation.status === "registry_projected")
-        return workflowStep(step, "blocked", "adapter_not_configured", "Provider adapter declaration is missing.");
-      return workflowStep(step, "rejected", "adapter_not_configured", "Provider adapter declaration is rejected or invalid.");
+      if (
+        state.localProviderAdapterRegistry.lastValidation.status ===
+        "adapter_declared_non_executing"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Provider adapter declaration is accepted.",
+        );
+      if (
+        state.localProviderAdapterRegistry.lastValidation.status ===
+        "registry_projected"
+      )
+        return workflowStep(
+          step,
+          "blocked",
+          "adapter_not_configured",
+          "Provider adapter declaration is missing.",
+        );
+      return workflowStep(
+        step,
+        "rejected",
+        "adapter_not_configured",
+        "Provider adapter declaration is rejected or invalid.",
+      );
     case "adapter_dry_run_available":
       if (state.localProviderAdapterDryRun.status === "dry_run_executed")
-        return workflowStep(step, "completed", null, "Controlled adapter dry run has executed.");
-      if (["dry_run_rejected", "unsupported_adapter", "invalid_dry_run_request"].includes(state.localProviderAdapterDryRun.status))
-        return workflowStep(step, "rejected", "invocation_rejected", `Controlled adapter dry run rejected: ${state.localProviderAdapterDryRun.errorCodes.join(", ")}.`);
-      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
-        return workflowStep(step, "available", null, "Controlled adapter dry run is available.");
-      return workflowStep(step, "not_started", null, "Controlled adapter dry run waits for adapter configuration.");
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Controlled adapter dry run has executed.",
+        );
+      if (
+        [
+          "dry_run_rejected",
+          "unsupported_adapter",
+          "invalid_dry_run_request",
+        ].includes(state.localProviderAdapterDryRun.status)
+      )
+        return workflowStep(
+          step,
+          "rejected",
+          "invocation_rejected",
+          `Controlled adapter dry run rejected: ${state.localProviderAdapterDryRun.errorCodes.join(", ")}.`,
+        );
+      if (
+        state.localProviderAdapterRegistry.lastValidation.status ===
+        "adapter_declared_non_executing"
+      )
+        return workflowStep(
+          step,
+          "available",
+          null,
+          "Controlled adapter dry run is available.",
+        );
+      return workflowStep(
+        step,
+        "not_started",
+        null,
+        "Controlled adapter dry run waits for adapter configuration.",
+      );
     case "constrained_invocation_completed":
-      if (state.constrainedLocalProviderInvocation.status === "invocation_executed")
-        return workflowStep(step, "completed", null, "Constrained local provider invocation has executed.");
-      if (["invocation_rejected", "unsupported_provider", "invalid_invocation_request"].includes(state.constrainedLocalProviderInvocation.status))
-        return workflowStep(step, "rejected", "invocation_rejected", `Constrained local provider invocation rejected: ${state.constrainedLocalProviderInvocation.errorCodes.join(", ")}.`);
-      if (state.localProviderAdapterRegistry.lastValidation.status === "adapter_declared_non_executing")
-        return workflowStep(step, "blocked", "invocation_missing", "Constrained local provider invocation is missing.");
-      return workflowStep(step, "not_started", null, "Invocation waits for provider adapter configuration.");
+      if (
+        state.constrainedLocalProviderInvocation.status ===
+        "invocation_executed"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Constrained local provider invocation has executed.",
+        );
+      if (
+        [
+          "invocation_rejected",
+          "unsupported_provider",
+          "invalid_invocation_request",
+        ].includes(state.constrainedLocalProviderInvocation.status)
+      )
+        return workflowStep(
+          step,
+          "rejected",
+          "invocation_rejected",
+          `Constrained local provider invocation rejected: ${state.constrainedLocalProviderInvocation.errorCodes.join(", ")}.`,
+        );
+      if (
+        state.localProviderAdapterRegistry.lastValidation.status ===
+        "adapter_declared_non_executing"
+      )
+        return workflowStep(
+          step,
+          "blocked",
+          "invocation_missing",
+          "Constrained local provider invocation is missing.",
+        );
+      return workflowStep(
+        step,
+        "not_started",
+        null,
+        "Invocation waits for provider adapter configuration.",
+      );
     case "provider_output_pipeline_projected":
       if (state.localProviderOutputPipeline.status === "valid")
-        return workflowStep(step, "completed", null, "Provider output pipeline is valid.");
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Provider output pipeline is valid.",
+        );
       if (state.localProviderOutputPipeline.status === "rejected")
-        return workflowStep(step, "rejected", "provider_pipeline_blocked", `Provider output pipeline blocked: ${state.localProviderOutputPipeline.errors.join(", ")}.`);
-      return workflowStep(step, "blocked", "provider_pipeline_blocked", "Provider output pipeline projection is missing or incomplete.");
+        return workflowStep(
+          step,
+          "rejected",
+          "provider_pipeline_blocked",
+          `Provider output pipeline blocked: ${state.localProviderOutputPipeline.errors.join(", ")}.`,
+        );
+      return workflowStep(
+        step,
+        "blocked",
+        "provider_pipeline_blocked",
+        "Provider output pipeline projection is missing or incomplete.",
+      );
     case "provider_output_validated":
       if (state.providerOutputValidation.status === "reviewable_untrusted")
-        return workflowStep(step, "completed", null, "Provider output validation is reviewable and untrusted.");
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Provider output validation is reviewable and untrusted.",
+        );
       if (state.providerOutputValidation.status === "not_validated")
-        return workflowStep(step, "blocked", "provider_output_validation_missing", "Provider output validation is missing.");
-      return workflowStep(step, "rejected", "provider_output_validation_rejected", `Provider output validation rejected: ${state.providerOutputValidation.reasons.join(", ")}.`);
+        return workflowStep(
+          step,
+          "blocked",
+          "provider_output_validation_missing",
+          "Provider output validation is missing.",
+        );
+      return workflowStep(
+        step,
+        "rejected",
+        "provider_output_validation_rejected",
+        `Provider output validation rejected: ${state.providerOutputValidation.reasons.join(", ")}.`,
+      );
     case "provider_output_reviewed":
-      if (state.providerOutputValidation.reviewabilityStatus === "reviewable_untrusted")
-        return workflowStep(step, "completed", null, "Provider output review surface is projected.");
-      if (state.providerOutputValidation.reviewabilityStatus === "rejected_before_review")
-        return workflowStep(step, "rejected", "provider_output_validation_rejected", "Provider output was rejected before review.");
-      return workflowStep(step, "blocked", "provider_output_review_missing", "Provider output review is missing.");
+      if (
+        state.providerOutputValidation.reviewabilityStatus ===
+        "reviewable_untrusted"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Provider output review surface is projected.",
+        );
+      if (
+        state.providerOutputValidation.reviewabilityStatus ===
+        "rejected_before_review"
+      )
+        return workflowStep(
+          step,
+          "rejected",
+          "provider_output_validation_rejected",
+          "Provider output was rejected before review.",
+        );
+      return workflowStep(
+        step,
+        "blocked",
+        "provider_output_review_missing",
+        "Provider output review is missing.",
+      );
     case "staged_proposal_created":
-      if (state.stagedCandidateConversionProposal.status === "staged_proposal_created")
-        return workflowStep(step, "completed", null, "Staged candidate-conversion proposal exists.");
-      if (["rejected_source_not_eligible", "invalid_proposal_request"].includes(state.stagedCandidateConversionProposal.status))
-        return workflowStep(step, "rejected", "staged_proposal_missing", "Staged proposal creation was rejected.");
-      return workflowStep(step, "blocked", "staged_proposal_missing", "Staged candidate-conversion proposal is missing.");
+      if (
+        state.stagedCandidateConversionProposal.status ===
+        "staged_proposal_created"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Staged candidate-conversion proposal exists.",
+        );
+      if (
+        ["rejected_source_not_eligible", "invalid_proposal_request"].includes(
+          state.stagedCandidateConversionProposal.status,
+        )
+      )
+        return workflowStep(
+          step,
+          "rejected",
+          "staged_proposal_missing",
+          "Staged proposal creation was rejected.",
+        );
+      return workflowStep(
+        step,
+        "blocked",
+        "staged_proposal_missing",
+        "Staged candidate-conversion proposal is missing.",
+      );
     case "staged_proposal_validated":
-      if (state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid")
-        return workflowStep(step, "completed", null, "Staged proposal shape and linkage are valid.");
+      if (
+        state.stagedCandidateConversionValidation.status ===
+        "staged_proposal_shape_valid"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Staged proposal shape and linkage are valid.",
+        );
       if (state.stagedCandidateConversionValidation.status === "not_validated")
-        return workflowStep(step, "blocked", "staged_proposal_validation_missing", "Staged proposal validation is missing.");
-      return workflowStep(step, "rejected", "staged_proposal_validation_rejected", `Staged proposal validation rejected: ${state.stagedCandidateConversionValidation.reasons.join(", ")}.`);
+        return workflowStep(
+          step,
+          "blocked",
+          "staged_proposal_validation_missing",
+          "Staged proposal validation is missing.",
+        );
+      return workflowStep(
+        step,
+        "rejected",
+        "staged_proposal_validation_rejected",
+        `Staged proposal validation rejected: ${state.stagedCandidateConversionValidation.reasons.join(", ")}.`,
+      );
     case "candidate_review_projected":
-      return state.localProviderOutputPipeline.candidateReviewStatus === "display_only"
-        ? workflowStep(step, "completed", null, "Candidate review surface is projected as display-only.")
-        : workflowStep(step, "blocked", "candidate_review_missing", "Candidate review projection is missing.");
+      return state.localProviderOutputPipeline.candidateReviewStatus ===
+        "display_only"
+        ? workflowStep(
+            step,
+            "completed",
+            null,
+            "Candidate review surface is projected as display-only.",
+          )
+        : workflowStep(
+            step,
+            "blocked",
+            "candidate_review_missing",
+            "Candidate review projection is missing.",
+          );
     case "operator_decision_recorded":
-      if (state.operatorCandidateDecision.status === "approved_validated_staged_proposal")
-        return workflowStep(step, "completed", null, "Operator decision on validated staged proposal is recorded.");
+      if (
+        state.operatorCandidateDecision.status ===
+        "approved_validated_staged_proposal"
+      )
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Operator decision on validated staged proposal is recorded.",
+        );
       if (state.operatorCandidateDecision.status === "no_operator_decision")
-        return workflowStep(step, "blocked", "operator_decision_missing", "Operator decision is missing.");
-      return workflowStep(step, "rejected", "operator_decision_rejected", "Operator decision is rejected or invalid.");
+        return workflowStep(
+          step,
+          "blocked",
+          "operator_decision_missing",
+          "Operator decision is missing.",
+        );
+      return workflowStep(
+        step,
+        "rejected",
+        "operator_decision_rejected",
+        "Operator decision is rejected or invalid.",
+      );
     case "local_candidate_materialized":
       if (state.localCandidateOutput.status === "local_candidate_materialized")
-        return workflowStep(step, "completed", null, "Local candidate output is materialized.");
+        return workflowStep(
+          step,
+          "completed",
+          null,
+          "Local candidate output is materialized.",
+        );
       if (state.localCandidateOutput.status === "not_materialized")
-        return workflowStep(step, "blocked", "local_candidate_not_materialized", "Local candidate output is not materialized.");
-      return workflowStep(step, "rejected", "local_candidate_not_materialized", `Local candidate materialization rejected: ${state.localCandidateOutput.error ?? "unknown"}.`);
+        return workflowStep(
+          step,
+          "blocked",
+          "local_candidate_not_materialized",
+          "Local candidate output is not materialized.",
+        );
+      return workflowStep(
+        step,
+        "rejected",
+        "local_candidate_not_materialized",
+        `Local candidate materialization rejected: ${state.localCandidateOutput.error ?? "unknown"}.`,
+      );
     case "replay_status_projected":
-      return workflowStep(step, "completed", null, `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`);
+      return workflowStep(
+        step,
+        "completed",
+        null,
+        `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`,
+      );
     case "local_evidence_export_projected":
-      return workflowStep(step, "completed", null, `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.`);
+      return workflowStep(
+        step,
+        "completed",
+        null,
+        `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.`,
+      );
     case "session_package_projected":
-      return workflowStep(step, "completed", null, `Local session package status is ${state.localSessionPackageProjection.status}.`);
+      return workflowStep(
+        step,
+        "completed",
+        null,
+        `Local session package status is ${state.localSessionPackageProjection.status}.`,
+      );
     case "restore_status_projected":
-      return workflowStep(step, "completed", null, `Restore/history status is ${state.localSessionHistoryProjection.status} / ${state.localSessionRestoreProjection.status}.`);
+      return workflowStep(
+        step,
+        "completed",
+        null,
+        `Restore/history status is ${state.localSessionHistoryProjection.status} / ${state.localSessionRestoreProjection.status}.`,
+      );
   }
 }
 
@@ -6465,7 +8433,10 @@ export function deriveCompleteLocalOperatorWorkflowProjection(
   const steps = completeLocalOperatorWorkflowStepOrder().map((step) =>
     classifyCompleteLocalOperatorWorkflowStep(state, step),
   );
-  const blocker = steps.find((step) => step.status === "blocked" || step.status === "rejected") ?? null;
+  const blocker =
+    steps.find(
+      (step) => step.status === "blocked" || step.status === "rejected",
+    ) ?? null;
   const rejectionReasons = steps
     .filter((step) => step.status === "rejected")
     .map((step) => `${step.step}: ${step.error ?? "rejected"}`);
@@ -6479,7 +8450,10 @@ export function deriveCompleteLocalOperatorWorkflowProjection(
           : steps.some((step) => step.status === "completed")
             ? "in_progress"
             : "not_started";
-  const currentStep = blocker?.step ?? steps.find((step) => step.status !== "completed")?.step ?? null;
+  const currentStep =
+    blocker?.step ??
+    steps.find((step) => step.status !== "completed")?.step ??
+    null;
   return {
     status,
     classification: "local_beta_workflow_only",
@@ -6613,7 +8587,6 @@ export function validateLocalSessionEvidenceExport(
   return true;
 }
 
-
 export function trialRunbookBoundaryStatuses(): readonly TrialRunbookBoundaryStatus[] {
   return [
     "local_trial_guidance_only",
@@ -6650,15 +8623,25 @@ function trialRunbookCapabilitySurface(): TrialRunbookCapabilitySurface {
   };
 }
 
-function hasNamedOperator(packageProjection: ControlledInternalTrialPackageProjection): boolean {
-  return packageProjection.namedOperatorParticipantSummary.some((item) => item.startsWith("operator:"));
+function hasNamedOperator(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): boolean {
+  return packageProjection.namedOperatorParticipantSummary.some((item) =>
+    item.startsWith("operator:"),
+  );
 }
 
-function hasNamedParticipant(packageProjection: ControlledInternalTrialPackageProjection): boolean {
-  return packageProjection.namedOperatorParticipantSummary.some((item) => item.startsWith("participant:"));
+function hasNamedParticipant(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): boolean {
+  return packageProjection.namedOperatorParticipantSummary.some((item) =>
+    item.startsWith("participant:"),
+  );
 }
 
-function packageIsInvalid(packageProjection: ControlledInternalTrialPackageProjection): boolean {
+function packageIsInvalid(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): boolean {
   return (
     packageProjection.status === "package_rejected" ||
     packageProjection.status === "invalid_package_input" ||
@@ -6667,15 +8650,23 @@ function packageIsInvalid(packageProjection: ControlledInternalTrialPackageProje
   );
 }
 
-function trialScopeStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
-  return packageProjection.trialScopeSummary === "trial scope not provided" ? "blocked" : "completed";
+function trialScopeStatus(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): TrialOperatorRunbookStepStatus {
+  return packageProjection.trialScopeSummary === "trial scope not provided"
+    ? "blocked"
+    : "completed";
 }
 
-function namedOperatorStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
+function namedOperatorStatus(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): TrialOperatorRunbookStepStatus {
   return hasNamedOperator(packageProjection) ? "completed" : "blocked";
 }
 
-function namedParticipantStatus(packageProjection: ControlledInternalTrialPackageProjection): TrialOperatorRunbookStepStatus {
+function namedParticipantStatus(
+  packageProjection: ControlledInternalTrialPackageProjection,
+): TrialOperatorRunbookStepStatus {
   return hasNamedParticipant(packageProjection) ? "completed" : "blocked";
 }
 
@@ -6708,95 +8699,308 @@ function addTrialFailureCategory(
     categories.push({ category, severity, summary });
 }
 
-export function deriveTrialStopConditionDrills(state: LocalOperatorShellState): readonly TrialStopConditionDrill[] {
-  return state.controlledInternalTrialPackageProjection.stopConditionSummary.map((marker) => ({
-    marker,
-    status: "manual_action_required",
-    guidance: `If stop-condition marker ${marker} is present during manual preparation, pause the local trial workflow, record notes, and involve the trial coordinator before continuing.`,
-    enforcementAutomated: false,
-  }));
+export function deriveTrialStopConditionDrills(
+  state: LocalOperatorShellState,
+): readonly TrialStopConditionDrill[] {
+  return state.controlledInternalTrialPackageProjection.stopConditionSummary.map(
+    (marker) => ({
+      marker,
+      status: "manual_action_required",
+      guidance: `If stop-condition marker ${marker} is present during manual preparation, pause the local trial workflow, record notes, and involve the trial coordinator before continuing.`,
+      enforcementAutomated: false,
+    }),
+  );
 }
 
 export function deriveTrialEscalationGuidance(
   categories: readonly TrialFailureCategoryProjection[],
 ): readonly TrialEscalationGuidance[] {
-  const has = (category: TrialFailureCategory) => categories.some((entry) => entry.category === category);
+  const has = (category: TrialFailureCategory) =>
+    categories.some((entry) => entry.category === category);
   const guidance: TrialEscalationGuidance[] = [
     {
       role: "operator_manual_review",
-      categories: ["candidate_materialization_missing", "evidence_export_missing", "replay_status_incomplete"],
-      guidance: "Operator manual review checks local notes, missing materialization, replay/status, and evidence export gaps without executing remediation.",
+      categories: [
+        "candidate_materialization_missing",
+        "evidence_export_missing",
+        "replay_status_incomplete",
+      ],
+      guidance:
+        "Operator manual review checks local notes, missing materialization, replay/status, and evidence export gaps without executing remediation.",
       descriptiveOnly: true,
     },
   ];
-  if (has("provider_pipeline_blocked") || has("provider_output_validation_rejected") || has("security_escalation_required")) {
+  if (
+    has("provider_pipeline_blocked") ||
+    has("provider_output_validation_rejected") ||
+    has("security_escalation_required")
+  ) {
     guidance.push({
       role: "security_reviewer",
-      categories: ["provider_pipeline_blocked", "provider_output_validation_rejected", "security_escalation_required"],
-      guidance: "Security reviewer guidance applies to provider pipeline, provider output validation, and security-sensitive rejection categories; it does not trust provider output.",
+      categories: [
+        "provider_pipeline_blocked",
+        "provider_output_validation_rejected",
+        "security_escalation_required",
+      ],
+      guidance:
+        "Security reviewer guidance applies to provider pipeline, provider output validation, and security-sensitive rejection categories; it does not trust provider output.",
       descriptiveOnly: true,
     });
   }
-  if (has("release_steward_review_required") || categories.some((entry) => entry.summary.includes("release") || entry.summary.includes("deployment"))) {
+  if (
+    has("release_steward_review_required") ||
+    categories.some(
+      (entry) =>
+        entry.summary.includes("release") ||
+        entry.summary.includes("deployment"),
+    )
+  ) {
     guidance.push({
       role: "release_steward",
       categories: ["release_steward_review_required"],
-      guidance: "Release steward guidance applies only to reviewing release/deployment/readiness claims; it does not create release or deployment artifacts.",
+      guidance:
+        "Release steward guidance applies only to reviewing release/deployment/readiness claims; it does not create release or deployment artifacts.",
       descriptiveOnly: true,
     });
   }
-  if (has("workflow_blocked") || has("workflow_rejected") || has("trial_coordinator_review_required") || has("stop_condition_present") || has("no_trial_package")) {
+  if (
+    has("workflow_blocked") ||
+    has("workflow_rejected") ||
+    has("trial_coordinator_review_required") ||
+    has("stop_condition_present") ||
+    has("no_trial_package")
+  ) {
     guidance.push({
       role: "trial_coordinator",
-      categories: ["workflow_blocked", "workflow_rejected", "trial_coordinator_review_required", "stop_condition_present", "no_trial_package"],
-      guidance: "Trial coordinator guidance applies to workflow blockers, missing package preparation, and stop-condition drill review; it does not approve use authority.",
+      categories: [
+        "workflow_blocked",
+        "workflow_rejected",
+        "trial_coordinator_review_required",
+        "stop_condition_present",
+        "no_trial_package",
+      ],
+      guidance:
+        "Trial coordinator guidance applies to workflow blockers, missing package preparation, and stop-condition drill review; it does not approve use authority.",
       descriptiveOnly: true,
     });
   }
   return guidance;
 }
 
-export function deriveTrialFailureDrillProjection(state: LocalOperatorShellState): TrialFailureDrillProjection {
+export function deriveTrialFailureDrillProjection(
+  state: LocalOperatorShellState,
+): TrialFailureDrillProjection {
   const categories: TrialFailureCategoryProjection[] = [];
   const packageProjection = state.controlledInternalTrialPackageProjection;
-  if (packageProjection.status === "not_packaged") addTrialFailureCategory(categories, "no_trial_package", "blocked", "Controlled internal trial package has not been projected.");
-  if (packageIsInvalid(packageProjection)) addTrialFailureCategory(categories, "trial_package_validation_failure", "rejected", `Trial package validation errors: ${packageProjection.validationErrors.join(", ")}.`);
-  if (packageProjection.readBackValidationStatus === "invalid") addTrialFailureCategory(categories, "trial_package_read_back_failure", "rejected", "Trial package read-back validation is invalid.");
-  if (packageProjection.trialScopeSummary === "trial scope not provided") addTrialFailureCategory(categories, "missing_trial_scope", "blocked", "Trial scope is missing.");
-  if (!hasNamedOperator(packageProjection)) addTrialFailureCategory(categories, "missing_named_operator", "blocked", "Named internal operator metadata is missing.");
-  if (!hasNamedParticipant(packageProjection)) addTrialFailureCategory(categories, "missing_named_participant", "blocked", "Named trial participant metadata is missing.");
-  if (packageProjection.stopConditionSummary.length === 0) addTrialFailureCategory(categories, "missing_stop_conditions", "blocked", "Stop-condition markers are missing.");
-  else addTrialFailureCategory(categories, "stop_condition_present", "manual_action", "Stop-condition drill markers are present for operator review; enforcement is guidance only.");
-  if (state.completeLocalOperatorWorkflow.status === "blocked") addTrialFailureCategory(categories, "workflow_blocked", "blocked", `Workflow is blocked at ${state.completeLocalOperatorWorkflow.currentBlockingStep ?? "unknown"}.`);
-  if (state.completeLocalOperatorWorkflow.status === "rejected") addTrialFailureCategory(categories, "workflow_rejected", "rejected", `Workflow rejection summary: ${state.completeLocalOperatorWorkflow.rejectionReasons.join(", ")}.`);
-  if (state.localProviderOutputPipeline.status === "blocked" || state.localProviderOutputPipeline.status === "rejected") addTrialFailureCategory(categories, "provider_pipeline_blocked", state.localProviderOutputPipeline.status === "rejected" ? "rejected" : "blocked", `Provider output pipeline is ${state.localProviderOutputPipeline.status}.`);
+  if (packageProjection.status === "not_packaged")
+    addTrialFailureCategory(
+      categories,
+      "no_trial_package",
+      "blocked",
+      "Controlled internal trial package has not been projected.",
+    );
+  if (packageIsInvalid(packageProjection))
+    addTrialFailureCategory(
+      categories,
+      "trial_package_validation_failure",
+      "rejected",
+      `Trial package validation errors: ${packageProjection.validationErrors.join(", ")}.`,
+    );
+  if (packageProjection.readBackValidationStatus === "invalid")
+    addTrialFailureCategory(
+      categories,
+      "trial_package_read_back_failure",
+      "rejected",
+      "Trial package read-back validation is invalid.",
+    );
+  if (packageProjection.trialScopeSummary === "trial scope not provided")
+    addTrialFailureCategory(
+      categories,
+      "missing_trial_scope",
+      "blocked",
+      "Trial scope is missing.",
+    );
+  if (!hasNamedOperator(packageProjection))
+    addTrialFailureCategory(
+      categories,
+      "missing_named_operator",
+      "blocked",
+      "Named internal operator metadata is missing.",
+    );
+  if (!hasNamedParticipant(packageProjection))
+    addTrialFailureCategory(
+      categories,
+      "missing_named_participant",
+      "blocked",
+      "Named trial participant metadata is missing.",
+    );
+  if (packageProjection.stopConditionSummary.length === 0)
+    addTrialFailureCategory(
+      categories,
+      "missing_stop_conditions",
+      "blocked",
+      "Stop-condition markers are missing.",
+    );
+  else
+    addTrialFailureCategory(
+      categories,
+      "stop_condition_present",
+      "manual_action",
+      "Stop-condition drill markers are present for operator review; enforcement is guidance only.",
+    );
+  if (state.completeLocalOperatorWorkflow.status === "blocked")
+    addTrialFailureCategory(
+      categories,
+      "workflow_blocked",
+      "blocked",
+      `Workflow is blocked at ${state.completeLocalOperatorWorkflow.currentBlockingStep ?? "unknown"}.`,
+    );
+  if (state.completeLocalOperatorWorkflow.status === "rejected")
+    addTrialFailureCategory(
+      categories,
+      "workflow_rejected",
+      "rejected",
+      `Workflow rejection summary: ${state.completeLocalOperatorWorkflow.rejectionReasons.join(", ")}.`,
+    );
+  if (
+    state.localProviderOutputPipeline.status === "blocked" ||
+    state.localProviderOutputPipeline.status === "rejected"
+  )
+    addTrialFailureCategory(
+      categories,
+      "provider_pipeline_blocked",
+      state.localProviderOutputPipeline.status === "rejected"
+        ? "rejected"
+        : "blocked",
+      `Provider output pipeline is ${state.localProviderOutputPipeline.status}.`,
+    );
   if (state.providerOutputValidation.status === "rejected") {
-    addTrialFailureCategory(categories, "provider_output_validation_rejected", "rejected", "Provider output validation is rejected.");
-    addTrialFailureCategory(categories, "security_escalation_required", "manual_action", "Provider output validation rejection requires security-review guidance.");
+    addTrialFailureCategory(
+      categories,
+      "provider_output_validation_rejected",
+      "rejected",
+      "Provider output validation is rejected.",
+    );
+    addTrialFailureCategory(
+      categories,
+      "security_escalation_required",
+      "manual_action",
+      "Provider output validation rejection requires security-review guidance.",
+    );
   }
-  if (state.stagedCandidateConversionValidation.status === "rejected_staged_proposal") addTrialFailureCategory(categories, "staged_validation_rejected", "rejected", "Staged proposal validation is rejected.");
-  if (state.operatorCandidateDecision.status === "rejected_validated_staged_proposal") addTrialFailureCategory(categories, "operator_decision_rejected", "manual_action", "Operator decision recorded a rejection of the validated staged proposal.");
-  if (state.localCandidateOutput.status === "not_materialized") addTrialFailureCategory(categories, "candidate_materialization_missing", "manual_action", "Local candidate materialization is missing.");
-  if (state.localSessionRestoreProjection.validationStatus === "invalid" || state.localSessionRestoreProjection.status === "restore_rejected") addTrialFailureCategory(categories, "restore_projection_rejected", "rejected", "Restore/history projection is rejected or invalid.");
-  if (state.run.decisionReplay.integrityStatus === "inconsistent" || state.run.decisionReplay.replayStatus === "no_decision_recorded") addTrialFailureCategory(categories, "replay_status_incomplete", "manual_action", `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`);
-  if (state.localSessionEvidenceExport.exportValidationStatus === "incomplete") addTrialFailureCategory(categories, "evidence_export_missing", "manual_action", "Local evidence export is incomplete.");
-  if (packageProjection.validationErrors.some((error) => /release|deployment|readiness|public|production/.test(error))) addTrialFailureCategory(categories, "release_steward_review_required", "manual_action", "Package contains release/deployment/readiness/public/production-use claim rejection summary.");
-  if (state.completeLocalOperatorWorkflow.currentBlockingStep) addTrialFailureCategory(categories, "trial_coordinator_review_required", "manual_action", "Workflow blocker requires trial coordinator guidance before manual preparation continues.");
-  const severityOrder: Record<TrialFailureSeverity, number> = { info: 0, manual_action: 1, blocked: 2, rejected: 3 };
-  const highestSeverity = categories.reduce<TrialFailureSeverity>((highest, entry) => severityOrder[entry.severity] > severityOrder[highest] ? entry.severity : highest, "info");
-  const status: TrialFailureDrillStatus = categories.some((entry) => entry.category === "stop_condition_present")
+  if (
+    state.stagedCandidateConversionValidation.status ===
+    "rejected_staged_proposal"
+  )
+    addTrialFailureCategory(
+      categories,
+      "staged_validation_rejected",
+      "rejected",
+      "Staged proposal validation is rejected.",
+    );
+  if (
+    state.operatorCandidateDecision.status ===
+    "rejected_validated_staged_proposal"
+  )
+    addTrialFailureCategory(
+      categories,
+      "operator_decision_rejected",
+      "manual_action",
+      "Operator decision recorded a rejection of the validated staged proposal.",
+    );
+  if (state.localCandidateOutput.status === "not_materialized")
+    addTrialFailureCategory(
+      categories,
+      "candidate_materialization_missing",
+      "manual_action",
+      "Local candidate materialization is missing.",
+    );
+  if (
+    state.localSessionRestoreProjection.validationStatus === "invalid" ||
+    state.localSessionRestoreProjection.status === "restore_rejected"
+  )
+    addTrialFailureCategory(
+      categories,
+      "restore_projection_rejected",
+      "rejected",
+      "Restore/history projection is rejected or invalid.",
+    );
+  if (
+    state.run.decisionReplay.integrityStatus === "inconsistent" ||
+    state.run.decisionReplay.replayStatus === "no_decision_recorded"
+  )
+    addTrialFailureCategory(
+      categories,
+      "replay_status_incomplete",
+      "manual_action",
+      `Replay/status projection is ${state.run.decisionReplay.replayStatus}.`,
+    );
+  if (state.localSessionEvidenceExport.exportValidationStatus === "incomplete")
+    addTrialFailureCategory(
+      categories,
+      "evidence_export_missing",
+      "manual_action",
+      "Local evidence export is incomplete.",
+    );
+  if (
+    packageProjection.validationErrors.some((error) =>
+      /release|deployment|readiness|public|production/.test(error),
+    )
+  )
+    addTrialFailureCategory(
+      categories,
+      "release_steward_review_required",
+      "manual_action",
+      "Package contains release/deployment/readiness/public/production-use claim rejection summary.",
+    );
+  if (state.completeLocalOperatorWorkflow.currentBlockingStep)
+    addTrialFailureCategory(
+      categories,
+      "trial_coordinator_review_required",
+      "manual_action",
+      "Workflow blocker requires trial coordinator guidance before manual preparation continues.",
+    );
+  const severityOrder: Record<TrialFailureSeverity, number> = {
+    info: 0,
+    manual_action: 1,
+    blocked: 2,
+    rejected: 3,
+  };
+  const highestSeverity = categories.reduce<TrialFailureSeverity>(
+    (highest, entry) =>
+      severityOrder[entry.severity] > severityOrder[highest]
+        ? entry.severity
+        : highest,
+    "info",
+  );
+  const status: TrialFailureDrillStatus = categories.some(
+    (entry) => entry.category === "stop_condition_present",
+  )
     ? "stop_condition_drill_required"
-    : categories.length === 0 ? "no_failures_projected" : "failure_drill_required";
+    : categories.length === 0
+      ? "no_failures_projected"
+      : "failure_drill_required";
   return {
     status,
     highestSeverity,
     categories,
     stopConditionDrills: deriveTrialStopConditionDrills(state),
     escalationGuidance: deriveTrialEscalationGuidance(categories),
-    manualActionGuidance: categories.filter((entry) => entry.severity === "manual_action" || entry.severity === "blocked").map((entry) => `${entry.category}: review manually; no remediation is executed.`),
-    rejectionSummary: categories.filter((entry) => entry.severity === "rejected").map((entry) => `${entry.category}: ${entry.summary}`),
+    manualActionGuidance: categories
+      .filter(
+        (entry) =>
+          entry.severity === "manual_action" || entry.severity === "blocked",
+      )
+      .map(
+        (entry) =>
+          `${entry.category}: review manually; no remediation is executed.`,
+      ),
+    rejectionSummary: categories
+      .filter((entry) => entry.severity === "rejected")
+      .map((entry) => `${entry.category}: ${entry.summary}`),
     boundaryStatuses: trialRunbookBoundaryStatuses(),
-    noAutomationNote: "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
+    noAutomationNote:
+      "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
   };
 }
 
@@ -6807,32 +9011,144 @@ export function classifyTrialRunbookStep(
   const packageProjection = state.controlledInternalTrialPackageProjection;
   const failureDrill = deriveTrialFailureDrillProjection(state);
   if (step === "confirm_local_beta_workflow") {
-    const status = state.completeLocalOperatorWorkflow.status === "rejected" ? "rejected" : state.completeLocalOperatorWorkflow.status === "blocked" ? "blocked" : state.completeLocalOperatorWorkflow.status === "not_started" ? "manual_action_required" : "completed";
-    return { step, status, summary: `Complete local workflow status is ${state.completeLocalOperatorWorkflow.status}.` };
+    const status =
+      state.completeLocalOperatorWorkflow.status === "rejected"
+        ? "rejected"
+        : state.completeLocalOperatorWorkflow.status === "blocked"
+          ? "blocked"
+          : state.completeLocalOperatorWorkflow.status === "not_started"
+            ? "manual_action_required"
+            : "completed";
+    return {
+      step,
+      status,
+      summary: `Complete local workflow status is ${state.completeLocalOperatorWorkflow.status}.`,
+    };
   }
   if (step === "confirm_controlled_trial_package") {
-    if (packageProjection.status === "not_packaged") return { step, status: "blocked", summary: "Controlled internal trial package is required before manual trial preparation." };
-    if (packageIsInvalid(packageProjection)) return { step, status: "rejected", summary: `Controlled internal trial package validation is ${packageProjection.validationStatus}.` };
-    return { step, status: "completed", summary: `Controlled internal trial package status is ${packageProjection.status}.` };
+    if (packageProjection.status === "not_packaged")
+      return {
+        step,
+        status: "blocked",
+        summary:
+          "Controlled internal trial package is required before manual trial preparation.",
+      };
+    if (packageIsInvalid(packageProjection))
+      return {
+        step,
+        status: "rejected",
+        summary: `Controlled internal trial package validation is ${packageProjection.validationStatus}.`,
+      };
+    return {
+      step,
+      status: "completed",
+      summary: `Controlled internal trial package status is ${packageProjection.status}.`,
+    };
   }
-  if (step === "confirm_trial_scope") return { step, status: trialScopeStatus(packageProjection), summary: `Trial scope: ${packageProjection.trialScopeSummary}.` };
-  if (step === "confirm_named_internal_operator") return { step, status: namedOperatorStatus(packageProjection), summary: `Named operator metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.` };
-  if (step === "confirm_named_trial_participant") return { step, status: namedParticipantStatus(packageProjection), summary: `Named participant metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.` };
-  if (step === "review_stop_conditions") return packageProjection.stopConditionSummary.length === 0
-    ? { step, status: "blocked", summary: "Stop-condition markers are missing from the package projection." }
-    : { step, status: "manual_action_required", summary: `Review ${packageProjection.stopConditionSummary.length} stop-condition drill marker(s); guidance only.` };
-  if (step === "review_current_blocker") return state.completeLocalOperatorWorkflow.currentBlockingStep
-    ? { step, status: "manual_action_required", summary: `Current workflow blocker is ${state.completeLocalOperatorWorkflow.currentBlockingStep}.` }
-    : { step, status: "completed", summary: "No current complete-workflow blocker is projected." };
-  if (step === "review_failure_drill") return failureDrill.categories.length === 0
-    ? { step, status: "completed", summary: "No failure categories are projected." }
-    : { step, status: "manual_action_required", summary: `Review ${failureDrill.categories.length} failure drill categorization(s).` };
-  if (step === "review_restore_status") return { step, status: state.localSessionRestoreProjection.validationStatus === "invalid" ? "rejected" : "completed", summary: `Restore/history status is ${state.localSessionRestoreProjection.status} / ${state.localSessionHistoryProjection.status}.` };
-  if (step === "review_replay_status") return { step, status: state.run.decisionReplay.integrityStatus === "inconsistent" ? "rejected" : state.run.decisionReplay.replayStatus === "no_decision_recorded" ? "manual_action_required" : "completed", summary: `Replay/status projection is ${state.run.decisionReplay.replayStatus} with ${state.run.decisionReplay.integrityStatus} integrity.` };
-  if (step === "review_evidence_export_status") return { step, status: state.localSessionEvidenceExport.exportValidationStatus === "incomplete" ? "manual_action_required" : "completed", summary: `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.` };
-  if (step === "prepare_manual_trial_notes") return { step, status: "manual_action_required", summary: "Prepare manual notes; this projection does not execute or authorize trial operation." };
-  if (step === "confirm_no_public_release") return { step, status: "completed", summary: "Boundary confirms no public release, publication, signing, or deployment behavior." };
-  return { step, status: "completed", summary: "Boundary confirms no controlled human-use, public-use, production-use, release, deployment, or readiness approval." };
+  if (step === "confirm_trial_scope")
+    return {
+      step,
+      status: trialScopeStatus(packageProjection),
+      summary: `Trial scope: ${packageProjection.trialScopeSummary}.`,
+    };
+  if (step === "confirm_named_internal_operator")
+    return {
+      step,
+      status: namedOperatorStatus(packageProjection),
+      summary: `Named operator metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.`,
+    };
+  if (step === "confirm_named_trial_participant")
+    return {
+      step,
+      status: namedParticipantStatus(packageProjection),
+      summary: `Named participant metadata: ${packageProjection.namedOperatorParticipantSummary.join(", ")}.`,
+    };
+  if (step === "review_stop_conditions")
+    return packageProjection.stopConditionSummary.length === 0
+      ? {
+          step,
+          status: "blocked",
+          summary:
+            "Stop-condition markers are missing from the package projection.",
+        }
+      : {
+          step,
+          status: "manual_action_required",
+          summary: `Review ${packageProjection.stopConditionSummary.length} stop-condition drill marker(s); guidance only.`,
+        };
+  if (step === "review_current_blocker")
+    return state.completeLocalOperatorWorkflow.currentBlockingStep
+      ? {
+          step,
+          status: "manual_action_required",
+          summary: `Current workflow blocker is ${state.completeLocalOperatorWorkflow.currentBlockingStep}.`,
+        }
+      : {
+          step,
+          status: "completed",
+          summary: "No current complete-workflow blocker is projected.",
+        };
+  if (step === "review_failure_drill")
+    return failureDrill.categories.length === 0
+      ? {
+          step,
+          status: "completed",
+          summary: "No failure categories are projected.",
+        }
+      : {
+          step,
+          status: "manual_action_required",
+          summary: `Review ${failureDrill.categories.length} failure drill categorization(s).`,
+        };
+  if (step === "review_restore_status")
+    return {
+      step,
+      status:
+        state.localSessionRestoreProjection.validationStatus === "invalid"
+          ? "rejected"
+          : "completed",
+      summary: `Restore/history status is ${state.localSessionRestoreProjection.status} / ${state.localSessionHistoryProjection.status}.`,
+    };
+  if (step === "review_replay_status")
+    return {
+      step,
+      status:
+        state.run.decisionReplay.integrityStatus === "inconsistent"
+          ? "rejected"
+          : state.run.decisionReplay.replayStatus === "no_decision_recorded"
+            ? "manual_action_required"
+            : "completed",
+      summary: `Replay/status projection is ${state.run.decisionReplay.replayStatus} with ${state.run.decisionReplay.integrityStatus} integrity.`,
+    };
+  if (step === "review_evidence_export_status")
+    return {
+      step,
+      status:
+        state.localSessionEvidenceExport.exportValidationStatus === "incomplete"
+          ? "manual_action_required"
+          : "completed",
+      summary: `Local evidence export is ${state.localSessionEvidenceExport.exportStatus}.`,
+    };
+  if (step === "prepare_manual_trial_notes")
+    return {
+      step,
+      status: "manual_action_required",
+      summary:
+        "Prepare manual notes; this projection does not execute or authorize trial operation.",
+    };
+  if (step === "confirm_no_public_release")
+    return {
+      step,
+      status: "completed",
+      summary:
+        "Boundary confirms no public release, publication, signing, or deployment behavior.",
+    };
+  return {
+    step,
+    status: "completed",
+    summary:
+      "Boundary confirms no controlled human-use, public-use, production-use, release, deployment, or readiness approval.",
+  };
 }
 
 export function initialTrialFailureDrillProjection(): TrialFailureDrillProjection {
@@ -6845,7 +9161,8 @@ export function initialTrialFailureDrillProjection(): TrialFailureDrillProjectio
     manualActionGuidance: [],
     rejectionSummary: [],
     boundaryStatuses: trialRunbookBoundaryStatuses(),
-    noAutomationNote: "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
+    noAutomationNote:
+      "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
   };
 }
 
@@ -6853,7 +9170,12 @@ export function initialTrialOperatorRunbookProjection(): TrialOperatorRunbookPro
   return {
     status: "not_available",
     currentStep: null,
-    currentBlocker: { step: null, workflowStep: null, workflowError: null, guidance: "Current blocker guidance: projection not yet derived." },
+    currentBlocker: {
+      step: null,
+      workflowStep: null,
+      workflowError: null,
+      guidance: "Current blocker guidance: projection not yet derived.",
+    },
     steps: [],
     trialPackageStatus: "not_packaged",
     trialPackageId: null,
@@ -6872,35 +9194,47 @@ export function initialTrialOperatorRunbookProjection(): TrialOperatorRunbookPro
     failureDrill: initialTrialFailureDrillProjection(),
     boundaryStatuses: trialRunbookBoundaryStatuses(),
     capabilitySurface: trialRunbookCapabilitySurface(),
-    localOnlyNonPublicNote: "Trial operator runbook is local-only and non-public.",
+    localOnlyNonPublicNote:
+      "Trial operator runbook is local-only and non-public.",
     noTrialExecutionNote: "This runbook does not start a controlled trial.",
-    noAuthorityNote: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
+    noAuthorityNote:
+      "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
   };
 }
 
-export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellState): TrialOperatorRunbookProjection {
-  const steps = trialRunbookStepOrder().map((step) => classifyTrialRunbookStep(state, step));
-  const currentStep = steps.find((step) => step.status !== "completed")?.step ?? null;
-  const currentBlockerStep = steps.find((step) => step.status === "blocked" || step.status === "rejected")?.step ?? null;
+export function deriveTrialOperatorRunbookProjection(
+  state: LocalOperatorShellState,
+): TrialOperatorRunbookProjection {
+  const steps = trialRunbookStepOrder().map((step) =>
+    classifyTrialRunbookStep(state, step),
+  );
+  const currentStep =
+    steps.find((step) => step.status !== "completed")?.step ?? null;
+  const currentBlockerStep =
+    steps.find(
+      (step) => step.status === "blocked" || step.status === "rejected",
+    )?.step ?? null;
   const failureDrill = deriveTrialFailureDrillProjection(state);
   const packageProjection = state.controlledInternalTrialPackageProjection;
-  const status: TrialOperatorRunbookStatus = packageProjection.status === "not_packaged"
-    ? "trial_package_required"
-    : packageIsInvalid(packageProjection) || currentBlockerStep
-      ? "blocked"
-      : failureDrill.categories.length > 0
-        ? "failure_drill_required"
-        : steps.some((step) => step.status === "manual_action_required")
-          ? "trial_operator_runbook_projected"
-          : "ready_for_manual_trial_preparation";
+  const status: TrialOperatorRunbookStatus =
+    packageProjection.status === "not_packaged"
+      ? "trial_package_required"
+      : packageIsInvalid(packageProjection) || currentBlockerStep
+        ? "blocked"
+        : failureDrill.categories.length > 0
+          ? "failure_drill_required"
+          : steps.some((step) => step.status === "manual_action_required")
+            ? "trial_operator_runbook_projected"
+            : "ready_for_manual_trial_preparation";
   const workflowStep = state.completeLocalOperatorWorkflow.currentBlockingStep;
-  const guidance = currentBlockerStep && workflowStep
-    ? `Current blocker guidance: review runbook step ${currentBlockerStep} and workflow step ${workflowStep}; manual action only.`
-    : currentBlockerStep
-      ? `Current blocker guidance: review runbook step ${currentBlockerStep}; manual action only.`
-      : workflowStep
-        ? `Current blocker guidance: review workflow step ${workflowStep}; manual action only.`
-        : "Current blocker guidance: no blocking step is projected; continue manual review without executing trial authority.";
+  const guidance =
+    currentBlockerStep && workflowStep
+      ? `Current blocker guidance: review runbook step ${currentBlockerStep} and workflow step ${workflowStep}; manual action only.`
+      : currentBlockerStep
+        ? `Current blocker guidance: review runbook step ${currentBlockerStep}; manual action only.`
+        : workflowStep
+          ? `Current blocker guidance: review workflow step ${workflowStep}; manual action only.`
+          : "Current blocker guidance: no blocking step is projected; continue manual review without executing trial authority.";
   return {
     status,
     currentStep,
@@ -6928,16 +9262,28 @@ export function deriveTrialOperatorRunbookProjection(state: LocalOperatorShellSt
     failureDrill,
     boundaryStatuses: trialRunbookBoundaryStatuses(),
     capabilitySurface: trialRunbookCapabilitySurface(),
-    localOnlyNonPublicNote: "Trial operator runbook is local-only and non-public.",
+    localOnlyNonPublicNote:
+      "Trial operator runbook is local-only and non-public.",
     noTrialExecutionNote: "This runbook does not start a controlled trial.",
-    noAuthorityNote: "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
+    noAuthorityNote:
+      "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
   };
 }
 
 function attachLocalSessionEvidenceExport(
   state: Omit<
     LocalOperatorShellState,
-    "localSessionEvidenceExport" | "completeLocalOperatorWorkflow" | "trialOperatorRunbook" | "trialFailureDrill" | "trialSessionEvidenceProjection" | "trialReplayRestoreVerification" | "controlledInternalTrialExecution" | "trialObservability" | "trialErrorReport" | "trialEvidenceReview"
+    | "localSessionEvidenceExport"
+    | "completeLocalOperatorWorkflow"
+    | "trialOperatorRunbook"
+    | "trialFailureDrill"
+    | "trialSessionEvidenceProjection"
+    | "trialReplayRestoreVerification"
+    | "controlledInternalTrialExecution"
+    | "trialObservability"
+    | "trialErrorReport"
+    | "trialEvidenceReview"
+    | "releaseCandidatePreparation"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -6954,35 +9300,84 @@ function attachLocalSessionEvidenceExport(
       next.run,
       next.decisionLedger,
     ),
-    completeLocalOperatorWorkflow: initialCompleteLocalOperatorWorkflowProjection(),
+    completeLocalOperatorWorkflow:
+      initialCompleteLocalOperatorWorkflowProjection(),
     trialOperatorRunbook: initialTrialOperatorRunbookProjection(),
     trialFailureDrill: initialTrialFailureDrillProjection(),
     trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
-    trialReplayRestoreVerification: initialTrialReplayRestoreVerificationProjection(),
-    controlledInternalTrialExecution: initialControlledInternalTrialExecutionProjection(),
+    trialReplayRestoreVerification:
+      initialTrialReplayRestoreVerificationProjection(),
+    controlledInternalTrialExecution:
+      initialControlledInternalTrialExecutionProjection(),
     trialObservability: initialTrialObservabilityProjection(),
     trialErrorReport: initialTrialErrorReportProjection(),
     trialEvidenceReview: initialTrialEvidenceReviewProjection(),
+    releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
+      ...(state as LocalOperatorShellState),
+      localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
+        next.harnessStatus,
+        next.nonProduction,
+        next.run,
+        next.decisionLedger,
+      ),
+      completeLocalOperatorWorkflow:
+        initialCompleteLocalOperatorWorkflowProjection(),
+      trialOperatorRunbook: initialTrialOperatorRunbookProjection(),
+      trialFailureDrill: initialTrialFailureDrillProjection(),
+      trialSessionEvidenceProjection: initialTrialSessionEvidenceProjection(),
+      trialReplayRestoreVerification:
+        initialTrialReplayRestoreVerificationProjection(),
+      controlledInternalTrialExecution:
+        initialControlledInternalTrialExecutionProjection(),
+      trialObservability: initialTrialObservabilityProjection(),
+      trialErrorReport: initialTrialErrorReportProjection(),
+      trialEvidenceReview: initialTrialEvidenceReviewProjection(),
+    }),
   };
   const withWorkflow: LocalOperatorShellState = {
     ...withExport,
-    completeLocalOperatorWorkflow: deriveCompleteLocalOperatorWorkflowProjection(withExport),
+    completeLocalOperatorWorkflow:
+      deriveCompleteLocalOperatorWorkflowProjection(withExport),
   };
-  return refreshTrialObservabilityState({
+  const refreshed = refreshTrialObservabilityState({
     ...withWorkflow,
     trialFailureDrill: deriveTrialFailureDrillProjection(withWorkflow),
     trialOperatorRunbook: deriveTrialOperatorRunbookProjection(withWorkflow),
-    trialSessionEvidenceProjection: (state as Partial<LocalOperatorShellState>).trialSessionEvidenceProjection ?? initialTrialSessionEvidenceProjection(),
-    trialReplayRestoreVerification: (state as Partial<LocalOperatorShellState>).trialReplayRestoreVerification ?? initialTrialReplayRestoreVerificationProjection(),
-    controlledInternalTrialExecution: (state as Partial<LocalOperatorShellState>).controlledInternalTrialExecution ?? initialControlledInternalTrialExecutionProjection(),
-    trialObservability: (state as Partial<LocalOperatorShellState>).trialObservability ?? initialTrialObservabilityProjection(),
-    trialErrorReport: (state as Partial<LocalOperatorShellState>).trialErrorReport ?? initialTrialErrorReportProjection(),
-    trialEvidenceReview: (state as Partial<LocalOperatorShellState>).trialEvidenceReview ?? initialTrialEvidenceReviewProjection(),
+    trialSessionEvidenceProjection:
+      (state as Partial<LocalOperatorShellState>)
+        .trialSessionEvidenceProjection ??
+      initialTrialSessionEvidenceProjection(),
+    trialReplayRestoreVerification:
+      (state as Partial<LocalOperatorShellState>)
+        .trialReplayRestoreVerification ??
+      initialTrialReplayRestoreVerificationProjection(),
+    controlledInternalTrialExecution:
+      (state as Partial<LocalOperatorShellState>)
+        .controlledInternalTrialExecution ??
+      initialControlledInternalTrialExecutionProjection(),
+    trialObservability:
+      (state as Partial<LocalOperatorShellState>).trialObservability ??
+      initialTrialObservabilityProjection(),
+    trialErrorReport:
+      (state as Partial<LocalOperatorShellState>).trialErrorReport ??
+      initialTrialErrorReportProjection(),
+    trialEvidenceReview:
+      (state as Partial<LocalOperatorShellState>).trialEvidenceReview ??
+      initialTrialEvidenceReviewProjection(),
+    releaseCandidatePreparation:
+      (state as Partial<LocalOperatorShellState>).releaseCandidatePreparation ??
+      deriveReleaseCandidatePreparationProjection(withWorkflow),
   });
+  return {
+    ...refreshed,
+    releaseCandidatePreparation:
+      deriveReleaseCandidatePreparationProjection(refreshed),
+  };
 }
 
-
-function controlledInternalTrialClaimErrors(request: ControlledInternalTrialExecutionRequest): ControlledInternalTrialRunError[] {
+function controlledInternalTrialClaimErrors(
+  request: ControlledInternalTrialExecutionRequest,
+): ControlledInternalTrialRunError[] {
   const errors: ControlledInternalTrialRunError[] = [];
   if (request.claimsReadiness) errors.push("readiness_claim_rejected");
   if (request.claimsRelease) errors.push("release_claim_rejected");
@@ -6990,56 +9385,114 @@ function controlledInternalTrialClaimErrors(request: ControlledInternalTrialExec
   if (request.claimsPublicUse) errors.push("public_use_claim_rejected");
   if (request.claimsProductionUse) errors.push("production_use_claim_rejected");
   if (request.claimsProviderTrust) errors.push("provider_trust_claim_rejected");
-  if (request.claimsActionAuthorization) errors.push("action_authorization_claim_rejected");
+  if (request.claimsActionAuthorization)
+    errors.push("action_authorization_claim_rejected");
   if (request.claimsReplayRepair) errors.push("replay_repair_claim_rejected");
-  if (request.claimsRecoveryPromotion) errors.push("recovery_promotion_claim_rejected");
+  if (request.claimsRecoveryPromotion)
+    errors.push("recovery_promotion_claim_rejected");
   if (request.claimsSigning) errors.push("signing_claim_rejected");
   if (request.claimsPublishing) errors.push("publishing_claim_rejected");
-  if (request.claimsReleaseArtifact) errors.push("release_artifact_claim_rejected");
+  if (request.claimsReleaseArtifact)
+    errors.push("release_artifact_claim_rejected");
   return errors;
 }
 
 function controlledInternalTrialRunStepOrder(): readonly ControlledInternalTrialRunStep[] {
-  return ["verify_trial_package", "verify_runbook", "verify_failure_drill", "verify_trial_session_evidence", "verify_replay_restore", "verify_complete_local_workflow", "observe_stop_conditions", "record_manual_operator_step", "project_trial_run_summary", "project_trial_evidence_linkage", "close_local_trial_run"];
+  return [
+    "verify_trial_package",
+    "verify_runbook",
+    "verify_failure_drill",
+    "verify_trial_session_evidence",
+    "verify_replay_restore",
+    "verify_complete_local_workflow",
+    "observe_stop_conditions",
+    "record_manual_operator_step",
+    "project_trial_run_summary",
+    "project_trial_evidence_linkage",
+    "close_local_trial_run",
+  ];
 }
 
-function deterministicTrialExecutionId(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest): string {
+function deterministicTrialExecutionId(
+  state: LocalOperatorShellState,
+  request: ControlledInternalTrialExecutionRequest,
+): string {
   const basis = `${state.controlledInternalTrialPackageProjection.packageId ?? "none"}|${state.trialOperatorRunbook.status}|${state.trialSessionEvidenceProjection.evidenceId ?? "none"}|${state.trialReplayRestoreVerification.verificationId ?? "none"}|${state.completeLocalOperatorWorkflow.status}|${request.operatorStepRecorded === true}|${request.stopConditionObserved === true}`;
   let hash = 0x811c9dc5;
-  for (const char of basis) hash = Math.imul(hash ^ char.charCodeAt(0), 0x01000193) >>> 0;
+  for (const char of basis)
+    hash = Math.imul(hash ^ char.charCodeAt(0), 0x01000193) >>> 0;
   return `controlled-internal-trial-run-${hash.toString(16).padStart(8, "0")}`;
 }
 
-export function startControlledInternalTrialExecution(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest = {}): LocalOperatorShellState {
+export function startControlledInternalTrialExecution(
+  state: LocalOperatorShellState,
+  request: ControlledInternalTrialExecutionRequest = {},
+): LocalOperatorShellState {
   const base = deriveControlledInternalTrialExecutionProjection(state);
-  const errors = [...base.rejectionReasons, ...controlledInternalTrialClaimErrors(request)];
+  const errors = [
+    ...base.rejectionReasons,
+    ...controlledInternalTrialClaimErrors(request),
+  ];
   const stopped = request.stopConditionObserved === true;
-  const status: ControlledInternalTrialRunStatus = errors.length > 0
-    ? "trial_run_rejected"
-    : stopped
-      ? "trial_run_blocked"
-      : request.operatorStepRecorded === true
-        ? "trial_run_completed_locally"
-        : "trial_run_in_progress";
+  const status: ControlledInternalTrialRunStatus =
+    errors.length > 0
+      ? "trial_run_rejected"
+      : stopped
+        ? "trial_run_blocked"
+        : request.operatorStepRecorded === true
+          ? "trial_run_completed_locally"
+          : "trial_run_in_progress";
   const run: ControlledInternalTrialRunProjection = {
     runId: deterministicTrialExecutionId(state, request),
     status,
-    currentStep: stopped ? "observe_stop_conditions" : request.operatorStepRecorded ? null : "record_manual_operator_step",
-    nextStep: stopped || request.operatorStepRecorded ? null : "record_manual_operator_step",
+    currentStep: stopped
+      ? "observe_stop_conditions"
+      : request.operatorStepRecorded
+        ? null
+        : "record_manual_operator_step",
+    nextStep:
+      stopped || request.operatorStepRecorded
+        ? null
+        : "record_manual_operator_step",
     steps: controlledInternalTrialRunStepOrder().map((step) => ({
       step,
-      status: errors.length > 0 ? "rejected" : stopped && ["observe_stop_conditions", "record_manual_operator_step", "project_trial_run_summary", "project_trial_evidence_linkage", "close_local_trial_run"].includes(step) ? "blocked" : step === "record_manual_operator_step" && !request.operatorStepRecorded ? "manual_action_required" : "completed",
+      status:
+        errors.length > 0
+          ? "rejected"
+          : stopped &&
+              [
+                "observe_stop_conditions",
+                "record_manual_operator_step",
+                "project_trial_run_summary",
+                "project_trial_evidence_linkage",
+                "close_local_trial_run",
+              ].includes(step)
+            ? "blocked"
+            : step === "record_manual_operator_step" &&
+                !request.operatorStepRecorded
+              ? "manual_action_required"
+              : "completed",
       summary: step,
     })),
-    currentBlocker: stopped ? "stop_condition_observed" : errors[0] ?? (request.operatorStepRecorded ? null : "manual_operator_step_missing"),
+    currentBlocker: stopped
+      ? "stop_condition_observed"
+      : (errors[0] ??
+        (request.operatorStepRecorded ? null : "manual_operator_step_missing")),
     rejectionReasons: errors,
     stopConditionObservation: {
-      status: stopped ? "stop_condition_observed" : "no_stop_condition_observed",
+      status: stopped
+        ? "stop_condition_observed"
+        : "no_stop_condition_observed",
       observed: stopped,
-      markers: state.controlledInternalTrialPackageProjection.stopConditionSummary,
+      markers:
+        state.controlledInternalTrialPackageProjection.stopConditionSummary,
       enforcementAutomated: false,
     },
-    manualOperatorStepStatus: request.operatorStepRecorded ? "recorded" : stopped || errors.length > 0 ? "manual_operator_step_missing" : "manual_action_required",
+    manualOperatorStepStatus: request.operatorStepRecorded
+      ? "recorded"
+      : stopped || errors.length > 0
+        ? "manual_operator_step_missing"
+        : "manual_action_required",
     evidenceLinkage: base.evidenceLinkage,
     summary: `Bounded local controlled internal trial run status: ${status}.`,
   };
@@ -7047,8 +9500,14 @@ export function startControlledInternalTrialExecution(state: LocalOperatorShellS
     ...state,
     controlledInternalTrialExecution: {
       ...base,
-      status: controlledInternalTrialClaimErrors(request).length > 0 ? "invalid_trial_run_request" : status,
-      activeRun: errors.length === 0 && !stopped ? run : state.controlledInternalTrialExecution.activeRun,
+      status:
+        controlledInternalTrialClaimErrors(request).length > 0
+          ? "invalid_trial_run_request"
+          : status,
+      activeRun:
+        errors.length === 0 && !stopped
+          ? run
+          : state.controlledInternalTrialExecution.activeRun,
       lastRejectedRun: errors.length > 0 || stopped ? run : null,
       currentBlocker: run.currentBlocker,
       rejectionReasons: errors,
@@ -7056,8 +9515,14 @@ export function startControlledInternalTrialExecution(state: LocalOperatorShellS
   });
 }
 
-export function stepControlledInternalTrialExecution(state: LocalOperatorShellState, request: ControlledInternalTrialExecutionRequest = {}): LocalOperatorShellState {
-  return startControlledInternalTrialExecution(state, { ...request, operatorStepRecorded: true });
+export function stepControlledInternalTrialExecution(
+  state: LocalOperatorShellState,
+  request: ControlledInternalTrialExecutionRequest = {},
+): LocalOperatorShellState {
+  return startControlledInternalTrialExecution(state, {
+    ...request,
+    operatorStepRecorded: true,
+  });
 }
 
 export type LocalOperatorIntent = Readonly<{
