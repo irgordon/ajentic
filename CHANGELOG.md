@@ -28,6 +28,42 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.171 - 2026-05-16
+**Status:** Phase 171 - Release Candidate Preparation Contract
+
+### Added
+- Add Rust-owned release-candidate preparation contract and projection in a dedicated release-candidate preparation module.
+- Add closed evidence category model for local beta, controlled-trial, help, package, restore, replay, validation, and evidence surfaces.
+- Add fail-closed validation for missing, blocked, rejected, readiness-bearing, release-bearing, deployment-bearing, public-use-bearing, production-use-bearing, signing-bearing, publishing-bearing, installer-bearing, update-channel-bearing, provider-trust-bearing, action-bearing, replay-repair-bearing, or recovery-promotion-bearing preparation inputs.
+- Add UI rendering for release-candidate preparation status, evidence category status, missing evidence, blockers, source linkage, and no-authority boundaries.
+- Add Rust and TypeScript tests for complete evidence mapping, missing evidence rejection, deterministic projection, and no-release/no-readiness boundaries.
+
+### Changed
+- Extend the local operator shell projection with release-candidate preparation contract status using thin shell integration.
+- Update the local UI shell to display release-candidate preparation evidence categories and missing evidence.
+- Update checklists/current-phase.md to Phase 171 procedural truth.
+
+### Notes
+- Code-production phase.
+- Release-candidate preparation is not release readiness.
+- Release-candidate preparation does not approve Release Candidate status.
+- Release-candidate preparation does not approve production, deployment, public use, or production use.
+- Release-candidate preparation is implemented in a dedicated module to avoid growing the local operator shell monolith.
+- No release artifact creation.
+- No signing.
+- No publishing.
+- No installer activation.
+- No update-channel activation.
+- No deployment behavior.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 172 remains the next code-production phase for release artifact dry package assembly.
+
 ## v0.0.170.21 - 2026-05-16
 **Status:** Phase 170.21 - Out-of-Band Local Operator Shell Final Extraction
 

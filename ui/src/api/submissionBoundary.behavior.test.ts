@@ -44,6 +44,8 @@ import {
   deriveTrialObservabilityProjection,
   deriveTrialErrorReportProjection,
   deriveTrialEvidenceReviewProjection,
+  deriveReleaseCandidatePreparationProjection,
+  releaseCandidatePreparationEvidenceCategories,
   initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
 } from "./localOperatorShell";
@@ -239,12 +241,28 @@ function assertLocalHelpEntryPointVisibleAndNoAuthority(): void {
 
   assertEqual(after, before, "help rendering does not mutate shell state");
   assertContains(snapshot, "Local help", "snapshot help entry point visible");
-  assertContains(snapshot, "Operator help pages are explanatory only.", "explanatory help wording visible");
-  assertContains(help, "local-only and non-production", "help boundary wording");
-  assertContains(help, "does not change runtime state", "help no mutation wording");
+  assertContains(
+    snapshot,
+    "Operator help pages are explanatory only.",
+    "explanatory help wording visible",
+  );
+  assertContains(
+    help,
+    "local-only and non-production",
+    "help boundary wording",
+  );
+  assertContains(
+    help,
+    "does not change runtime state",
+    "help no mutation wording",
+  );
   assertContains(help, "run providers", "help no provider execution wording");
   assertContains(help, "use network", "help no network wording");
-  assertContains(help, "publish, deploy, sign, release", "help no publish/deploy/sign/release wording");
+  assertContains(
+    help,
+    "publish, deploy, sign, release",
+    "help no publish/deploy/sign/release wording",
+  );
   assertContains(help, "approve actions", "help no action approval wording");
 }
 
@@ -3517,11 +3535,14 @@ function assertLocalSessionPackageProjectionIsStableAcrossRenderingState(): void
   );
 }
 
-
 function assertControlledInternalTrialPackageProjectionInitialState(): void {
   const state = initialLocalOperatorShellState();
   const projection = state.controlledInternalTrialPackageProjection;
-  assertEqual(projection.status, "not_packaged", "initial trial package status");
+  assertEqual(
+    projection.status,
+    "not_packaged",
+    "initial trial package status",
+  );
   assertEqual(projection.packageId, null, "initial trial package id");
   assertEqual(
     projection.packageClassification,
@@ -3571,24 +3592,90 @@ function assertControlledInternalTrialPackageProjectionInitialState(): void {
 }
 
 function assertControlledInternalTrialPackagePanelRendersBoundaries(): void {
-  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
-  assertContains(rendered, "Controlled internal trial package", "trial package panel label");
-  assertContains(rendered, "Package status: not_packaged", "trial package status rendering");
-  assertContains(rendered, "controlled_internal_trial_package_only", "trial package classification rendering");
-  assertContains(rendered, "local_only_non_public", "trial distribution rendering");
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
+  assertContains(
+    rendered,
+    "Controlled internal trial package",
+    "trial package panel label",
+  );
+  assertContains(
+    rendered,
+    "Package status: not_packaged",
+    "trial package status rendering",
+  );
+  assertContains(
+    rendered,
+    "controlled_internal_trial_package_only",
+    "trial package classification rendering",
+  );
+  assertContains(
+    rendered,
+    "local_only_non_public",
+    "trial distribution rendering",
+  );
   assertContains(rendered, "Trial scope:", "trial scope rendering");
-  assertContains(rendered, "Named operator/participant metadata:", "trial operator participant rendering");
-  assertContains(rendered, "Stop-condition summary:", "trial stop condition rendering");
-  assertContains(rendered, "Included local beta evidence/artifact summary:", "trial evidence rendering");
-  assertContains(rendered, "Absence marker summary:", "trial absence marker rendering");
-  assertContains(rendered, "Validation status:", "trial validation status rendering");
-  assertContains(rendered, "Read-back validation status:", "trial read-back rendering");
-  assertContains(rendered, "Controlled internal trial package is local-only and non-public.", "trial local boundary wording");
-  assertContains(rendered, "This package is not a release artifact.", "trial release wording");
-  assertContains(rendered, "This package is not deployment or readiness evidence.", "trial deployment readiness wording");
-  assertContains(rendered, "This package does not approve public/general use or production use.", "trial public production wording");
-  assertContains(rendered, "This package does not approve controlled human use.", "trial human use wording");
-  assertContains(rendered, "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.", "trial stop condition wording");
+  assertContains(
+    rendered,
+    "Named operator/participant metadata:",
+    "trial operator participant rendering",
+  );
+  assertContains(
+    rendered,
+    "Stop-condition summary:",
+    "trial stop condition rendering",
+  );
+  assertContains(
+    rendered,
+    "Included local beta evidence/artifact summary:",
+    "trial evidence rendering",
+  );
+  assertContains(
+    rendered,
+    "Absence marker summary:",
+    "trial absence marker rendering",
+  );
+  assertContains(
+    rendered,
+    "Validation status:",
+    "trial validation status rendering",
+  );
+  assertContains(
+    rendered,
+    "Read-back validation status:",
+    "trial read-back rendering",
+  );
+  assertContains(
+    rendered,
+    "Controlled internal trial package is local-only and non-public.",
+    "trial local boundary wording",
+  );
+  assertContains(
+    rendered,
+    "This package is not a release artifact.",
+    "trial release wording",
+  );
+  assertContains(
+    rendered,
+    "This package is not deployment or readiness evidence.",
+    "trial deployment readiness wording",
+  );
+  assertContains(
+    rendered,
+    "This package does not approve public/general use or production use.",
+    "trial public production wording",
+  );
+  assertContains(
+    rendered,
+    "This package does not approve controlled human use.",
+    "trial human use wording",
+  );
+  assertContains(
+    rendered,
+    "Stop conditions are trial metadata; they do not automate enforcement in Phase 161.",
+    "trial stop condition wording",
+  );
   assertDoesNotContain(rendered, "Publish trial package", "no publish control");
   assertDoesNotContain(rendered, "Deploy trial package", "no deploy control");
   assertDoesNotContain(rendered, "Sign trial package", "no sign control");
@@ -3599,9 +3686,10 @@ function assertControlledInternalTrialPackagePanelRendersBoundaries(): void {
   );
 }
 
-
 function phase162ProjectedState(
-  packageOverrides: Partial<LocalOperatorShellState["controlledInternalTrialPackageProjection"]> = {},
+  packageOverrides: Partial<
+    LocalOperatorShellState["controlledInternalTrialPackageProjection"]
+  > = {},
 ): LocalOperatorShellState {
   const base = initialLocalOperatorShellState();
   const state = {
@@ -3610,7 +3698,8 @@ function phase162ProjectedState(
       ...base.controlledInternalTrialPackageProjection,
       status: "package_validated" as const,
       packageId: "controlled-internal-trial-package-phase-162",
-      trialScopeSummary: "phase-162-scope: controlled internal operator runbook drill",
+      trialScopeSummary:
+        "phase-162-scope: controlled internal operator runbook drill",
       namedOperatorParticipantSummary: [
         "operator:internal-operator-alpha:internal_trial_operator",
         "participant:internal-participant-beta:internal_trial_participant",
@@ -3633,23 +3722,67 @@ function assertTrialOperatorRunbookPanelRendersBlockedState(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial operator runbook", "runbook panel label");
-  assertContains(rendered, "Runbook status: trial_package_required", "missing package runbook status");
-  assertContains(rendered, "Current blocker guidance:", "current blocker guidance rendering");
-  assertContains(rendered, "Trial package status: not_packaged", "package status rendering");
-  assertContains(rendered, "Trial operator runbook is local-only and non-public.", "local non-public wording");
-  assertContains(rendered, "This runbook does not start a controlled trial.", "no trial execution wording");
-  assertContains(rendered, "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.", "no authority wording");
-  assertContains(rendered, "local_trial_guidance_only", "local boundary marker");
+  assertContains(
+    rendered,
+    "Runbook status: trial_package_required",
+    "missing package runbook status",
+  );
+  assertContains(
+    rendered,
+    "Current blocker guidance:",
+    "current blocker guidance rendering",
+  );
+  assertContains(
+    rendered,
+    "Trial package status: not_packaged",
+    "package status rendering",
+  );
+  assertContains(
+    rendered,
+    "Trial operator runbook is local-only and non-public.",
+    "local non-public wording",
+  );
+  assertContains(
+    rendered,
+    "This runbook does not start a controlled trial.",
+    "no trial execution wording",
+  );
+  assertContains(
+    rendered,
+    "This runbook does not approve controlled human use, public use, production use, release, deployment, or readiness.",
+    "no authority wording",
+  );
+  assertContains(
+    rendered,
+    "local_trial_guidance_only",
+    "local boundary marker",
+  );
   assertContains(rendered, "no_trial_execution", "no trial execution marker");
 }
 
 function assertTrialOperatorRunbookPanelRendersValidPackageState(): void {
   const state = phase162ProjectedState();
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Trial package ID: controlled-internal-trial-package-phase-162", "package id rendering");
-  assertContains(rendered, "Trial scope status: completed", "trial scope status rendering");
-  assertContains(rendered, "Named operator/participant status: completed / completed", "named metadata rendering");
-  assertContains(rendered, "Stop-condition summary:", "stop condition summary rendering");
+  assertContains(
+    rendered,
+    "Trial package ID: controlled-internal-trial-package-phase-162",
+    "package id rendering",
+  );
+  assertContains(
+    rendered,
+    "Trial scope status: completed",
+    "trial scope status rendering",
+  );
+  assertContains(
+    rendered,
+    "Named operator/participant status: completed / completed",
+    "named metadata rendering",
+  );
+  assertContains(
+    rendered,
+    "Stop-condition summary:",
+    "stop condition summary rendering",
+  );
   assertContains(rendered, "Ordered runbook steps:", "ordered steps rendering");
   assertEqual(
     renderLocalOperatorShellSnapshot(state),
@@ -3661,20 +3794,54 @@ function assertTrialOperatorRunbookPanelRendersValidPackageState(): void {
 function assertTrialFailureDrillStopConditionAndEscalationRendering(): void {
   const state = phase162ProjectedState({
     validationStatus: "invalid",
-    validationErrors: ["release_deployment_readiness_public_production_claim_rejected"],
+    validationErrors: [
+      "release_deployment_readiness_public_production_claim_rejected",
+    ],
     readBackValidationStatus: "invalid",
   });
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial failure drill", "failure drill panel label");
-  assertContains(rendered, "Failure category list:", "failure category rendering");
-  assertContains(rendered, "trial_package_validation_failure", "package validation failure category");
-  assertContains(rendered, "trial_package_read_back_failure", "read-back failure category");
+  assertContains(
+    rendered,
+    "Failure category list:",
+    "failure category rendering",
+  );
+  assertContains(
+    rendered,
+    "trial_package_validation_failure",
+    "package validation failure category",
+  );
+  assertContains(
+    rendered,
+    "trial_package_read_back_failure",
+    "read-back failure category",
+  );
   assertContains(rendered, "stop_condition_present", "stop condition category");
-  assertContains(rendered, "Stop-condition drill", "stop-condition drill panel label");
-  assertContains(rendered, "Stop conditions are guidance only; enforcement is not automated in Phase 162.", "stop condition non-automation wording");
-  assertContains(rendered, "Escalation guidance", "escalation guidance panel label");
-  assertContains(rendered, "release_steward", "release steward guidance rendering");
-  assertContains(rendered, "Escalation guidance is descriptive only and does not activate authority.", "descriptive escalation wording");
+  assertContains(
+    rendered,
+    "Stop-condition drill",
+    "stop-condition drill panel label",
+  );
+  assertContains(
+    rendered,
+    "Stop conditions are guidance only; enforcement is not automated in Phase 162.",
+    "stop condition non-automation wording",
+  );
+  assertContains(
+    rendered,
+    "Escalation guidance",
+    "escalation guidance panel label",
+  );
+  assertContains(
+    rendered,
+    "release_steward",
+    "release steward guidance rendering",
+  );
+  assertContains(
+    rendered,
+    "Escalation guidance is descriptive only and does not activate authority.",
+    "descriptive escalation wording",
+  );
 }
 
 function assertTrialRunbookForbiddenLabelsAbsent(): void {
@@ -3687,7 +3854,11 @@ function assertTrialRunbookForbiddenLabelsAbsent(): void {
     "Sign trial package",
     "Release trial package",
   ]) {
-    assertDoesNotContain(rendered, forbidden, `forbidden control absent: ${forbidden}`);
+    assertDoesNotContain(
+      rendered,
+      forbidden,
+      `forbidden control absent: ${forbidden}`,
+    );
   }
 }
 
@@ -4127,7 +4298,6 @@ function assertConstrainedLocalProviderInvocationInitialAndAcceptedRendering(): 
   assertContains(rendered, "untrusted_descriptive", "trust marker");
 }
 
-
 function phase157AcceptedInvocationState() {
   const transport = createLocalOperatorShellTransport();
   submitLocalProviderAdapterDeclaration(
@@ -4139,7 +4309,6 @@ function phase157AcceptedInvocationState() {
     allowlistedLocalProviderInvocationRequest(),
   ).state;
 }
-
 
 function phase158ApprovedMaterializationState() {
   const transport = createLocalOperatorShellTransport();
@@ -4156,7 +4325,9 @@ function phase158ApprovedMaterializationState() {
     claims: [],
   });
   validateLocalStagedCandidateConversionProposal(transport, {});
-  const staged = transport.getCurrentState().state.stagedCandidateConversionProposal.proposal;
+  const staged =
+    transport.getCurrentState().state.stagedCandidateConversionProposal
+      .proposal;
   if (!staged) throw new Error("expected staged proposal");
   submitLocalOperatorCandidateDecision(transport, {
     kind: "approve_validated_staged_proposal",
@@ -4221,7 +4392,11 @@ function assertLocalCandidateMaterializationUiAndProjection(): void {
   );
   const rendered = renderLocalOperatorShellSnapshot(response.state);
   assertContains(rendered, "Local candidate materialization", "panel title");
-  assertContains(rendered, "Local candidate output only.", "local only wording");
+  assertContains(
+    rendered,
+    "Local candidate output only.",
+    "local only wording",
+  );
   assertContains(
     rendered,
     "This candidate output is non-production.",
@@ -4262,7 +4437,11 @@ function assertLocalCandidateMaterializationRejectedStatesAndForbiddenLabels(): 
     providerExecutionResultId: "missing",
     sourceInvocationResultId: "missing",
   });
-  assertEqual(rejectedMissing.status, "rejected", "missing precondition rejected");
+  assertEqual(
+    rejectedMissing.status,
+    "rejected",
+    "missing precondition rejected",
+  );
   assertEqual(
     rejectedMissing.state.localCandidateOutput.status,
     "materialization_precondition_missing",
@@ -4292,7 +4471,11 @@ function assertLocalCandidateMaterializationRejectedStatesAndForbiddenLabels(): 
     "trust claim reason",
   );
   const rendered = renderLocalOperatorShellSnapshot(claimRejected.state);
-  assertContains(rendered, "Rejection reason: trust_claim_rejected", "rejection rendered");
+  assertContains(
+    rendered,
+    "Rejection reason: trust_claim_rejected",
+    "rejection rendered",
+  );
   for (const forbidden of [
     "trusted_candidate",
     "approved_candidate",
@@ -4311,7 +4494,11 @@ function assertLocalCandidateMaterializationRejectedStatesAndForbiddenLabels(): 
     "publish_candidate",
     "deploy_candidate",
   ]) {
-    assertDoesNotContain(rendered, forbidden, `${forbidden} absent from materialization UI`);
+    assertDoesNotContain(
+      rendered,
+      forbidden,
+      `${forbidden} absent from materialization UI`,
+    );
   }
   assertEqual(
     rendered,
@@ -4423,7 +4610,9 @@ function assertProviderOutputPipelineRendersBlockedAndRejectedStates(): void {
 }
 
 function assertProviderOutputPipelineHasNoShortcutControls(): void {
-  const rendered = renderLocalOperatorShellSnapshot(phase157AcceptedInvocationState());
+  const rendered = renderLocalOperatorShellSnapshot(
+    phase157AcceptedInvocationState(),
+  );
   for (const forbidden of [
     "trusted_provider_output",
     "approved_provider_output",
@@ -4443,7 +4632,11 @@ function assertProviderOutputPipelineHasNoShortcutControls(): void {
     "deployment_ready",
     "public_use_ready",
   ]) {
-    assertDoesNotContain(rendered, forbidden, `${forbidden} absent from pipeline`);
+    assertDoesNotContain(
+      rendered,
+      forbidden,
+      `${forbidden} absent from pipeline`,
+    );
   }
   assertEqual(
     rendered,
@@ -4549,12 +4742,19 @@ function assertConstrainedLocalProviderInvocationRejectsAndPreservesNoAuthority(
   );
 }
 
-
 function assertCompleteLocalOperatorWorkflowPanelInitialBlocked(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Complete local operator workflow", "workflow panel label");
-  assertContains(rendered, "Workflow status: blocked", "initial blocked status");
+  assertContains(
+    rendered,
+    "Complete local operator workflow",
+    "workflow panel label",
+  );
+  assertContains(
+    rendered,
+    "Workflow status: blocked",
+    "initial blocked status",
+  );
   assertContains(
     rendered,
     "Current blocking step: provider_adapter_configured",
@@ -4607,8 +4807,16 @@ function assertCompleteLocalOperatorWorkflowPanelRejectedState(): void {
     "rejected invocation blocker",
   );
   const rendered = renderLocalOperatorShellSnapshot(response.state);
-  assertContains(rendered, "Workflow status: rejected", "rendered rejected status");
-  assertContains(rendered, "invocation_rejected", "rendered invocation rejection");
+  assertContains(
+    rendered,
+    "Workflow status: rejected",
+    "rendered rejected status",
+  );
+  assertContains(
+    rendered,
+    "invocation_rejected",
+    "rendered invocation rejection",
+  );
   assertContains(rendered, "Rejection reasons:", "rejection drilldown");
 }
 
@@ -4660,40 +4868,117 @@ function assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic(): void 
   const second = renderLocalOperatorShellSnapshot(response.state);
   assertEqual(first, second, "workflow rendering deterministic");
   assertEqual(
-    JSON.stringify(deriveCompleteLocalOperatorWorkflowProjection(response.state)),
+    JSON.stringify(
+      deriveCompleteLocalOperatorWorkflowProjection(response.state),
+    ),
     JSON.stringify(workflow),
     "derived projection matches carried shell state",
   );
-  assertContains(first, "provider_adapter_configured=completed", "step list rendered");
-  assertContains(first, "local_candidate_materialized=completed", "materialized step rendered");
+  assertContains(
+    first,
+    "provider_adapter_configured=completed",
+    "step list rendered",
+  );
+  assertContains(
+    first,
+    "local_candidate_materialized=completed",
+    "materialized step rendered",
+  );
   assertContains(first, "Session package status:", "package summary rendered");
   assertContains(first, "Restore/history status:", "restore summary rendered");
 }
-
 
 function assertTrialSessionEvidencePanelRendersInitialState(): void {
   const state = initialLocalOperatorShellState();
   const projection = state.trialSessionEvidenceProjection;
   assertEqual(projection.status, "not_captured", "initial evidence status");
-  assertEqual(projection.evidenceClassification, "trial_session_evidence_only", "evidence classification");
-  assertEqual(projection.productionClassification, "non_production", "production classification");
-  assertEqual(projection.distributionClassification, "local_only_non_public", "distribution classification");
-  assertEqual(projection.authorityClassification, "non_authoritative_evidence", "authority classification");
+  assertEqual(
+    projection.evidenceClassification,
+    "trial_session_evidence_only",
+    "evidence classification",
+  );
+  assertEqual(
+    projection.productionClassification,
+    "non_production",
+    "production classification",
+  );
+  assertEqual(
+    projection.distributionClassification,
+    "local_only_non_public",
+    "distribution classification",
+  );
+  assertEqual(
+    projection.authorityClassification,
+    "non_authoritative_evidence",
+    "authority classification",
+  );
 
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Trial session evidence", "trial session evidence panel label");
-  assertContains(rendered, "Trial evidence capture", "trial evidence capture panel label");
-  assertContains(rendered, "Evidence read-back validation", "read-back validation panel label");
-  assertContains(rendered, "Evidence status: not_captured", "not captured status");
-  assertContains(rendered, "Evidence classification: trial_session_evidence_only", "classification rendered");
-  assertContains(rendered, "Production classification: non_production", "production rendered");
-  assertContains(rendered, "Distribution classification: local_only_non_public", "distribution rendered");
-  assertContains(rendered, "Authority classification: non_authoritative_evidence", "authority rendered");
-  assertContains(rendered, "Trial session evidence is local-only, non-public, and non-authoritative.", "local-only boundary wording");
-  assertContains(rendered, "Evidence capture records local trial-preparation state only.", "preparation-only wording");
-  assertContains(rendered, "Evidence capture does not start or approve a controlled trial.", "no trial approval wording");
-  assertContains(rendered, "This evidence is not release, deployment, readiness, public-use, or production-use evidence.", "not release/deployment/readiness wording");
-  assertContains(rendered, "Read-back validation checks evidence structure only.", "read-back structure-only wording");
+  assertContains(
+    rendered,
+    "Trial session evidence",
+    "trial session evidence panel label",
+  );
+  assertContains(
+    rendered,
+    "Trial evidence capture",
+    "trial evidence capture panel label",
+  );
+  assertContains(
+    rendered,
+    "Evidence read-back validation",
+    "read-back validation panel label",
+  );
+  assertContains(
+    rendered,
+    "Evidence status: not_captured",
+    "not captured status",
+  );
+  assertContains(
+    rendered,
+    "Evidence classification: trial_session_evidence_only",
+    "classification rendered",
+  );
+  assertContains(
+    rendered,
+    "Production classification: non_production",
+    "production rendered",
+  );
+  assertContains(
+    rendered,
+    "Distribution classification: local_only_non_public",
+    "distribution rendered",
+  );
+  assertContains(
+    rendered,
+    "Authority classification: non_authoritative_evidence",
+    "authority rendered",
+  );
+  assertContains(
+    rendered,
+    "Trial session evidence is local-only, non-public, and non-authoritative.",
+    "local-only boundary wording",
+  );
+  assertContains(
+    rendered,
+    "Evidence capture records local trial-preparation state only.",
+    "preparation-only wording",
+  );
+  assertContains(
+    rendered,
+    "Evidence capture does not start or approve a controlled trial.",
+    "no trial approval wording",
+  );
+  assertContains(
+    rendered,
+    "This evidence is not release, deployment, readiness, public-use, or production-use evidence.",
+    "not release/deployment/readiness wording",
+  );
+  assertContains(
+    rendered,
+    "Read-back validation checks evidence structure only.",
+    "read-back structure-only wording",
+  );
 }
 
 function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
@@ -4706,15 +4991,23 @@ function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
       evidenceId: "trial-session-evidence-ui-fixture",
       validationStatus: "valid",
       readBackValidationStatus: "valid",
-      trialPackageLinkage: "controlled-internal-trial-package-ui-fixture / package_validated / valid",
+      trialPackageLinkage:
+        "controlled-internal-trial-package-ui-fixture / package_validated / valid",
       runbookLinkage: "failure_drill_required / review_trial_package",
       failureDrillLinkage: "failures_projected / blocked",
-      includedEvidenceSummary: ["provider output pipeline snapshot: not_started", "local evidence export snapshot: no_completed_run_evidence"],
+      includedEvidenceSummary: [
+        "provider output pipeline snapshot: not_started",
+        "local evidence export snapshot: no_completed_run_evidence",
+      ],
       workflowSnapshotSummary: "blocked",
       localCandidateMaterializationSnapshot: "not_materialized",
       replayStatusSnapshot: "no decision recorded for local-stub-run-133",
-      evidenceExportSessionPackageRestoreSnapshot: "no_completed_run_evidence / not_packaged / restore_not_requested / no_session_history",
-      stopConditionSnapshot: ["stop_on_provider_trust_claim", "stop_on_operator_escalation"],
+      evidenceExportSessionPackageRestoreSnapshot:
+        "no_completed_run_evidence / not_packaged / restore_not_requested / no_session_history",
+      stopConditionSnapshot: [
+        "stop_on_provider_trust_claim",
+        "stop_on_operator_escalation",
+      ],
       escalationSnapshot: ["trial_coordinator:manual review only"],
       failureCategorySnapshot: ["no_trial_package=blocked"],
     },
@@ -4722,43 +5015,127 @@ function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
   const first = renderLocalOperatorShellSnapshot(state);
   const second = renderLocalOperatorShellSnapshot(state);
   assertEqual(first, second, "trial session evidence rendering deterministic");
-  assertContains(first, "Evidence status: evidence_read_back_validated", "read-back status rendered");
-  assertContains(first, "Evidence ID: trial-session-evidence-ui-fixture", "evidence ID rendered");
-  assertContains(first, "Trial package linkage: controlled-internal-trial-package-ui-fixture / package_validated / valid", "trial package linkage rendered");
-  assertContains(first, "Runbook/failure drill linkage: failure_drill_required / review_trial_package / failures_projected / blocked", "runbook/failure linkage rendered");
-  assertContains(first, "Stop-condition snapshot: stop_on_provider_trust_claim, stop_on_operator_escalation", "stop-condition snapshot rendered");
-  assertContains(first, "Escalation snapshot: trial_coordinator:manual review only", "escalation snapshot rendered");
-  assertContains(first, "Failure category snapshot: no_trial_package=blocked", "failure category snapshot rendered");
-  assertContains(first, "Read-back validation status: valid", "read-back validation rendered");
+  assertContains(
+    first,
+    "Evidence status: evidence_read_back_validated",
+    "read-back status rendered",
+  );
+  assertContains(
+    first,
+    "Evidence ID: trial-session-evidence-ui-fixture",
+    "evidence ID rendered",
+  );
+  assertContains(
+    first,
+    "Trial package linkage: controlled-internal-trial-package-ui-fixture / package_validated / valid",
+    "trial package linkage rendered",
+  );
+  assertContains(
+    first,
+    "Runbook/failure drill linkage: failure_drill_required / review_trial_package / failures_projected / blocked",
+    "runbook/failure linkage rendered",
+  );
+  assertContains(
+    first,
+    "Stop-condition snapshot: stop_on_provider_trust_claim, stop_on_operator_escalation",
+    "stop-condition snapshot rendered",
+  );
+  assertContains(
+    first,
+    "Escalation snapshot: trial_coordinator:manual review only",
+    "escalation snapshot rendered",
+  );
+  assertContains(
+    first,
+    "Failure category snapshot: no_trial_package=blocked",
+    "failure category snapshot rendered",
+  );
+  assertContains(
+    first,
+    "Read-back validation status: valid",
+    "read-back validation rendered",
+  );
   assertDoesNotContain(first, "publish_evidence", "no publish control");
   assertDoesNotContain(first, "deploy_evidence", "no deploy control");
   assertDoesNotContain(first, "sign_evidence", "no sign control");
 }
 
-
-
 function assertTrialReplayRestoreVerificationPanelRendersInitialState(): void {
   const state = initialLocalOperatorShellState();
   const verification = state.trialReplayRestoreVerification;
-  assertEqual(verification.status, "not_verified", "initial verification status");
+  assertEqual(
+    verification.status,
+    "not_verified",
+    "initial verification status",
+  );
   assertEqual(verification.verificationId, null, "initial verification id");
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Trial replay and restore verification", "verification panel label");
-  assertContains(rendered, "Replay/restore verification", "alternate verification panel label");
-  assertContains(rendered, "Verification mismatch drilldown", "mismatch drilldown label");
-  assertContains(rendered, "Verification status: not_verified", "initial status rendered");
-  assertContains(rendered, "Package/evidence linkage status: not_verified", "linkage status rendered");
-  assertContains(rendered, "Replay/status comparison: not_verified", "replay comparison rendered");
-  assertContains(rendered, "Restore/history comparison: not_verified", "restore comparison rendered");
-  assertContains(rendered, "Trial replay and restore verification is local-only, non-public, and non-authoritative.", "local-only wording");
-  assertContains(rendered, "Verification compares trial artifacts and restore/replay projections.", "comparison boundary wording");
-  assertContains(rendered, "Verification does not repair replay.", "no replay repair wording");
-  assertContains(rendered, "Verification does not promote recovery.", "no recovery promotion wording");
-  assertContains(rendered, "Verification does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no approval wording");
-  assertContains(rendered, "Verification does not execute actions.", "no action wording");
+  assertContains(
+    rendered,
+    "Trial replay and restore verification",
+    "verification panel label",
+  );
+  assertContains(
+    rendered,
+    "Replay/restore verification",
+    "alternate verification panel label",
+  );
+  assertContains(
+    rendered,
+    "Verification mismatch drilldown",
+    "mismatch drilldown label",
+  );
+  assertContains(
+    rendered,
+    "Verification status: not_verified",
+    "initial status rendered",
+  );
+  assertContains(
+    rendered,
+    "Package/evidence linkage status: not_verified",
+    "linkage status rendered",
+  );
+  assertContains(
+    rendered,
+    "Replay/status comparison: not_verified",
+    "replay comparison rendered",
+  );
+  assertContains(
+    rendered,
+    "Restore/history comparison: not_verified",
+    "restore comparison rendered",
+  );
+  assertContains(
+    rendered,
+    "Trial replay and restore verification is local-only, non-public, and non-authoritative.",
+    "local-only wording",
+  );
+  assertContains(
+    rendered,
+    "Verification compares trial artifacts and restore/replay projections.",
+    "comparison boundary wording",
+  );
+  assertContains(
+    rendered,
+    "Verification does not repair replay.",
+    "no replay repair wording",
+  );
+  assertContains(
+    rendered,
+    "Verification does not promote recovery.",
+    "no recovery promotion wording",
+  );
+  assertContains(
+    rendered,
+    "Verification does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    "no approval wording",
+  );
+  assertContains(
+    rendered,
+    "Verification does not execute actions.",
+    "no action wording",
+  );
 }
-
-
 
 function assertTrialReplayRestoreVerificationPanelRendersPassedState(): void {
   const base = initialLocalOperatorShellState();
@@ -4784,12 +5161,36 @@ function assertTrialReplayRestoreVerificationPanelRendersPassedState(): void {
     },
   };
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Verification status: verification_passed", "passed status rendered");
-  assertContains(rendered, "Verification ID: trial-replay-restore-verification-ui-passed", "passed id rendered");
-  assertContains(rendered, "Package/evidence linkage status: package_evidence_linkage_matched", "passed linkage rendered");
-  assertContains(rendered, "Replay/status comparison: replay/status comparison matched", "passed replay comparison rendered");
-  assertContains(rendered, "Restore/history comparison: restore/history comparison matched", "passed restore comparison rendered");
-  assertContains(rendered, "Verification mismatch drilldown: none", "empty mismatch rendered");
+  assertContains(
+    rendered,
+    "Verification status: verification_passed",
+    "passed status rendered",
+  );
+  assertContains(
+    rendered,
+    "Verification ID: trial-replay-restore-verification-ui-passed",
+    "passed id rendered",
+  );
+  assertContains(
+    rendered,
+    "Package/evidence linkage status: package_evidence_linkage_matched",
+    "passed linkage rendered",
+  );
+  assertContains(
+    rendered,
+    "Replay/status comparison: replay/status comparison matched",
+    "passed replay comparison rendered",
+  );
+  assertContains(
+    rendered,
+    "Restore/history comparison: restore/history comparison matched",
+    "passed restore comparison rendered",
+  );
+  assertContains(
+    rendered,
+    "Verification mismatch drilldown: none",
+    "empty mismatch rendered",
+  );
 }
 
 function assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown(): void {
@@ -4823,36 +5224,115 @@ function assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown(): vo
   const first = renderLocalOperatorShellSnapshot(state);
   const second = renderLocalOperatorShellSnapshot(state);
   assertEqual(first, second, "verification rendering deterministic");
-  assertContains(first, "Verification status: verification_rejected", "rejected status rendered");
-  assertContains(first, "Verification ID: trial-replay-restore-verification-ui-fixture", "verification id rendered");
-  assertContains(first, "Package read-back status: package_read_back_valid", "package read-back rendered");
-  assertContains(first, "Evidence read-back status: evidence_read_back_valid", "evidence read-back rendered");
-  assertContains(first, "Package/evidence linkage status: package_evidence_linkage_rejected", "linkage rejection rendered");
-  assertContains(first, "Workflow linkage status: workflow_linkage_rejected", "workflow rejection rendered");
-  assertContains(first, "Replay/status comparison: replay/status comparison rejected", "replay rejection rendered");
-  assertContains(first, "Restore/history comparison: restore/history comparison rejected", "restore rejection rendered");
-  assertContains(first, "Verification mismatch drilldown: package_id_mismatch, workflow_status_mismatch, replay_status_snapshot_mismatch, restore_history_snapshot_mismatch", "mismatch list rendered");
+  assertContains(
+    first,
+    "Verification status: verification_rejected",
+    "rejected status rendered",
+  );
+  assertContains(
+    first,
+    "Verification ID: trial-replay-restore-verification-ui-fixture",
+    "verification id rendered",
+  );
+  assertContains(
+    first,
+    "Package read-back status: package_read_back_valid",
+    "package read-back rendered",
+  );
+  assertContains(
+    first,
+    "Evidence read-back status: evidence_read_back_valid",
+    "evidence read-back rendered",
+  );
+  assertContains(
+    first,
+    "Package/evidence linkage status: package_evidence_linkage_rejected",
+    "linkage rejection rendered",
+  );
+  assertContains(
+    first,
+    "Workflow linkage status: workflow_linkage_rejected",
+    "workflow rejection rendered",
+  );
+  assertContains(
+    first,
+    "Replay/status comparison: replay/status comparison rejected",
+    "replay rejection rendered",
+  );
+  assertContains(
+    first,
+    "Restore/history comparison: restore/history comparison rejected",
+    "restore rejection rendered",
+  );
+  assertContains(
+    first,
+    "Verification mismatch drilldown: package_id_mismatch, workflow_status_mismatch, replay_status_snapshot_mismatch, restore_history_snapshot_mismatch",
+    "mismatch list rendered",
+  );
   assertDoesNotContain(first, "repair replay now", "no replay repair control");
   assertDoesNotContain(first, "promote recovery now", "no recovery control");
 }
 
-
 function assertControlledInternalTrialExecutionPanelInitialBlockedState(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
-  assertContains(rendered, "Controlled internal trial execution harness", "execution harness panel label");
+  assertContains(
+    rendered,
+    "Controlled internal trial execution harness",
+    "execution harness panel label",
+  );
   assertContains(rendered, "Trial run status", "trial run status label");
-  assertContains(rendered, "Trial stop-condition observation", "stop observation label");
+  assertContains(
+    rendered,
+    "Trial stop-condition observation",
+    "stop observation label",
+  );
   assertContains(rendered, "Trial evidence linkage", "evidence linkage label");
-  assertContains(rendered, "Harness status: not_started", "initial harness status");
-  assertContains(rendered, "Start control: disabled", "start disabled when preconditions fail");
-  assertContains(rendered, "Step control: disabled", "step disabled when preconditions fail");
-  assertContains(rendered, "Controlled internal trial execution harness is local-only and non-public.", "local-only wording");
-  assertContains(rendered, "The harness does not approve controlled human use.", "human-use boundary wording");
-  assertContains(rendered, "The harness does not approve readiness, release, deployment, public use, or production use.", "approval boundary wording");
-  assertContains(rendered, "Stop conditions are observed only; enforcement is not automated in Phase 166.", "stop observation wording");
-  assertContains(rendered, "Escalation is not automated.", "escalation boundary wording");
-  assertContains(rendered, "No action authorization is granted.", "action boundary wording");
+  assertContains(
+    rendered,
+    "Harness status: not_started",
+    "initial harness status",
+  );
+  assertContains(
+    rendered,
+    "Start control: disabled",
+    "start disabled when preconditions fail",
+  );
+  assertContains(
+    rendered,
+    "Step control: disabled",
+    "step disabled when preconditions fail",
+  );
+  assertContains(
+    rendered,
+    "Controlled internal trial execution harness is local-only and non-public.",
+    "local-only wording",
+  );
+  assertContains(
+    rendered,
+    "The harness does not approve controlled human use.",
+    "human-use boundary wording",
+  );
+  assertContains(
+    rendered,
+    "The harness does not approve readiness, release, deployment, public use, or production use.",
+    "approval boundary wording",
+  );
+  assertContains(
+    rendered,
+    "Stop conditions are observed only; enforcement is not automated in Phase 166.",
+    "stop observation wording",
+  );
+  assertContains(
+    rendered,
+    "Escalation is not automated.",
+    "escalation boundary wording",
+  );
+  assertContains(
+    rendered,
+    "No action authorization is granted.",
+    "action boundary wording",
+  );
 }
 
 function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): void {
@@ -4860,13 +5340,19 @@ function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): voi
   const readyProjection = {
     ...initialControlledInternalTrialExecutionProjection(),
     status: "ready_for_bounded_local_trial_run" as const,
-    preconditionStatus: ["trial_package=package_read_back_validated", "runbook=ready_for_manual_trial_preparation"],
+    preconditionStatus: [
+      "trial_package=package_read_back_validated",
+      "runbook=ready_for_manual_trial_preparation",
+    ],
     evidenceLinkage: {
-      trialPackage: "package=controlled-internal-trial-package-ui-fixture status=package_read_back_validated",
+      trialPackage:
+        "package=controlled-internal-trial-package-ui-fixture status=package_read_back_validated",
       runbook: "runbook_status=ready_for_manual_trial_preparation",
       failureDrill: "failure_drill_status=stop_condition_drill_required",
-      trialSessionEvidence: "evidence=trial-session-evidence-ui-fixture status=evidence_read_back_validated",
-      replayRestoreVerification: "verification=trial-replay-restore-verification-ui-fixture status=verification_passed",
+      trialSessionEvidence:
+        "evidence=trial-session-evidence-ui-fixture status=evidence_read_back_validated",
+      replayRestoreVerification:
+        "verification=trial-replay-restore-verification-ui-fixture status=verification_passed",
       localWorkflow: "workflow_status=complete_local_workflow_projected",
     },
   };
@@ -4875,9 +5361,21 @@ function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): voi
     controlledInternalTrialExecution: readyProjection,
   };
   const readyRendered = renderLocalOperatorShellSnapshot(readyState);
-  assertContains(readyRendered, "Harness status: ready_for_bounded_local_trial_run", "ready harness status");
-  assertContains(readyRendered, "Start control: enabled", "start enabled when projection says ready");
-  assertContains(readyRendered, "Trial evidence linkage: package=controlled-internal-trial-package-ui-fixture", "evidence linkage rendered");
+  assertContains(
+    readyRendered,
+    "Harness status: ready_for_bounded_local_trial_run",
+    "ready harness status",
+  );
+  assertContains(
+    readyRendered,
+    "Start control: enabled",
+    "start enabled when projection says ready",
+  );
+  assertContains(
+    readyRendered,
+    "Trial evidence linkage: package=controlled-internal-trial-package-ui-fixture",
+    "evidence linkage rendered",
+  );
 
   const rejectedState: LocalOperatorShellState = {
     ...base,
@@ -4891,9 +5389,21 @@ function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): voi
         currentStep: "observe_stop_conditions",
         nextStep: null,
         steps: [
-          { step: "verify_trial_package", status: "completed", summary: "package checked" },
-          { step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" },
-          { step: "record_manual_operator_step", status: "blocked", summary: "manual_action_required" },
+          {
+            step: "verify_trial_package",
+            status: "completed",
+            summary: "package checked",
+          },
+          {
+            step: "observe_stop_conditions",
+            status: "blocked",
+            summary: "stop_condition_observed",
+          },
+          {
+            step: "record_manual_operator_step",
+            status: "blocked",
+            summary: "manual_action_required",
+          },
         ],
         currentBlocker: "stop_condition_observed",
         rejectionReasons: ["stop_condition_observed"],
@@ -4910,15 +5420,37 @@ function assertControlledInternalTrialExecutionPanelValidAndRejectedState(): voi
     },
   };
   const rejectedRendered = renderLocalOperatorShellSnapshot(rejectedState);
-  assertContains(rejectedRendered, "Trial run ID: controlled-internal-trial-run-ui-fixture", "trial run id rendered");
-  assertContains(rejectedRendered, "Current blocker: stop_condition_observed", "stop blocker rendered");
-  assertContains(rejectedRendered, "Trial stop-condition observation: stop_condition_observed", "stop observation rendered");
-  assertContains(rejectedRendered, "Manual operator step status: manual_operator_step_missing", "manual operator status rendered");
-  assertContains(rejectedRendered, "Step control: disabled", "step disabled when stop condition observed");
+  assertContains(
+    rejectedRendered,
+    "Trial run ID: controlled-internal-trial-run-ui-fixture",
+    "trial run id rendered",
+  );
+  assertContains(
+    rejectedRendered,
+    "Current blocker: stop_condition_observed",
+    "stop blocker rendered",
+  );
+  assertContains(
+    rejectedRendered,
+    "Trial stop-condition observation: stop_condition_observed",
+    "stop observation rendered",
+  );
+  assertContains(
+    rejectedRendered,
+    "Manual operator step status: manual_operator_step_missing",
+    "manual operator status rendered",
+  );
+  assertContains(
+    rejectedRendered,
+    "Step control: disabled",
+    "step disabled when stop condition observed",
+  );
 }
 
 function assertControlledInternalTrialExecutionForbiddenLabelsAbsent(): void {
-  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
   const forbidden = [
     "trial_ready",
     "trial_approved",
@@ -4940,29 +5472,81 @@ function assertControlledInternalTrialExecutionForbiddenLabelsAbsent(): void {
     "sign_trial",
     "release_trial",
   ];
-  for (const label of forbidden) assertDoesNotContain(rendered, label, `forbidden ${label}`);
-  const first = deriveControlledInternalTrialExecutionProjection(initialLocalOperatorShellState());
-  const second = deriveControlledInternalTrialExecutionProjection(initialLocalOperatorShellState());
-  assertEqual(JSON.stringify(first), JSON.stringify(second), "deterministic execution projection");
+  for (const label of forbidden)
+    assertDoesNotContain(rendered, label, `forbidden ${label}`);
+  const first = deriveControlledInternalTrialExecutionProjection(
+    initialLocalOperatorShellState(),
+  );
+  const second = deriveControlledInternalTrialExecutionProjection(
+    initialLocalOperatorShellState(),
+  );
+  assertEqual(
+    JSON.stringify(first),
+    JSON.stringify(second),
+    "deterministic execution projection",
+  );
 }
-
 
 function assertTrialObservabilityAndErrorPanelsRender(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial observability", "observability panel label");
-  assertContains(rendered, "Trial error reporting", "error reporting panel label");
+  assertContains(
+    rendered,
+    "Trial error reporting",
+    "error reporting panel label",
+  );
   assertContains(rendered, "Trial error drilldown", "error drilldown label");
-  assertContains(rendered, "Trial blocked-state summary", "blocked summary label");
-  assertContains(rendered, "Observability status: observability_projected", "initial observability status");
-  assertContains(rendered, "Failure category summary: evidence_missing, materialization_missing, no_trial_run, package_missing, replay_restore_verification_missing, workflow_blocked", "initial deterministic categories");
-  assertContains(rendered, "Trial observability is local-only and non-public.", "local-only wording");
-  assertContains(rendered, "No production monitoring is active.", "no monitoring wording");
-  assertContains(rendered, "No remote telemetry is sent.", "no telemetry wording");
-  assertContains(rendered, "No background service is active.", "no background wording");
-  assertContains(rendered, "Error reporting is local and descriptive only.", "local descriptive wording");
-  assertContains(rendered, "No remediation, escalation, or stop-condition enforcement is automated.", "no automation wording");
-  assertContains(rendered, "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no approval wording");
+  assertContains(
+    rendered,
+    "Trial blocked-state summary",
+    "blocked summary label",
+  );
+  assertContains(
+    rendered,
+    "Observability status: observability_projected",
+    "initial observability status",
+  );
+  assertContains(
+    rendered,
+    "Failure category summary: evidence_missing, materialization_missing, no_trial_run, package_missing, replay_restore_verification_missing, workflow_blocked",
+    "initial deterministic categories",
+  );
+  assertContains(
+    rendered,
+    "Trial observability is local-only and non-public.",
+    "local-only wording",
+  );
+  assertContains(
+    rendered,
+    "No production monitoring is active.",
+    "no monitoring wording",
+  );
+  assertContains(
+    rendered,
+    "No remote telemetry is sent.",
+    "no telemetry wording",
+  );
+  assertContains(
+    rendered,
+    "No background service is active.",
+    "no background wording",
+  );
+  assertContains(
+    rendered,
+    "Error reporting is local and descriptive only.",
+    "local descriptive wording",
+  );
+  assertContains(
+    rendered,
+    "No remediation, escalation, or stop-condition enforcement is automated.",
+    "no automation wording",
+  );
+  assertContains(
+    rendered,
+    "Observability does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    "no approval wording",
+  );
 }
 
 function assertTrialObservabilityBlockedAndMismatchRendering(): void {
@@ -4977,7 +5561,11 @@ function assertTrialObservabilityBlockedAndMismatchRendering(): void {
         replayStatusComparison: "replay/status comparison rejected",
         restoreHistoryComparison: "restore/history comparison rejected",
       },
-      mismatches: ["replay_status_snapshot_mismatch", "restore_history_snapshot_mismatch", "trial_package_read_back_invalid"],
+      mismatches: [
+        "replay_status_snapshot_mismatch",
+        "restore_history_snapshot_mismatch",
+        "trial_package_read_back_invalid",
+      ],
     },
     controlledInternalTrialExecution: {
       ...base.controlledInternalTrialExecution,
@@ -4989,10 +5577,21 @@ function assertTrialObservabilityBlockedAndMismatchRendering(): void {
         status: "trial_run_blocked",
         currentStep: "observe_stop_conditions",
         nextStep: null,
-        steps: [{ step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" }],
+        steps: [
+          {
+            step: "observe_stop_conditions",
+            status: "blocked",
+            summary: "stop_condition_observed",
+          },
+        ],
         currentBlocker: "stop_condition_observed",
         rejectionReasons: ["stop_condition_observed"],
-        stopConditionObservation: { status: "stop_condition_observed", observed: true, markers: ["operator_reports_stop_condition"], enforcementAutomated: false },
+        stopConditionObservation: {
+          status: "stop_condition_observed",
+          observed: true,
+          markers: ["operator_reports_stop_condition"],
+          enforcementAutomated: false,
+        },
         manualOperatorStepStatus: "manual_operator_step_missing",
         evidenceLinkage: base.controlledInternalTrialExecution.evidenceLinkage,
         summary: "Blocked observability fixture.",
@@ -5005,20 +5604,50 @@ function assertTrialObservabilityBlockedAndMismatchRendering(): void {
     trialErrorReport: deriveTrialErrorReportProjection(state),
   };
   const rendered = renderLocalOperatorShellSnapshot(projected);
-  assertContains(rendered, "Observability status: stop_condition_observed", "stop condition observability status");
-  assertContains(rendered, "Blocked-state summary: observed", "blocked summary rendered");
-  assertContains(rendered, "Blocked-state current blocker: stop_condition_observed", "blocked current blocker rendered");
-  assertContains(rendered, "Mismatch summary: replay_status_snapshot_mismatch, restore_history_snapshot_mismatch, trial_package_read_back_invalid", "mismatch drilldown rendered");
-  assertContains(rendered, "replay_status_mismatch/blocking/replay_restore_verification", "replay error detail rendered");
-  assertContains(rendered, "restore_history_mismatch/blocking/replay_restore_verification", "restore error detail rendered");
+  assertContains(
+    rendered,
+    "Observability status: stop_condition_observed",
+    "stop condition observability status",
+  );
+  assertContains(
+    rendered,
+    "Blocked-state summary: observed",
+    "blocked summary rendered",
+  );
+  assertContains(
+    rendered,
+    "Blocked-state current blocker: stop_condition_observed",
+    "blocked current blocker rendered",
+  );
+  assertContains(
+    rendered,
+    "Mismatch summary: replay_status_snapshot_mismatch, restore_history_snapshot_mismatch, trial_package_read_back_invalid",
+    "mismatch drilldown rendered",
+  );
+  assertContains(
+    rendered,
+    "replay_status_mismatch/blocking/replay_restore_verification",
+    "replay error detail rendered",
+  );
+  assertContains(
+    rendered,
+    "restore_history_mismatch/blocking/replay_restore_verification",
+    "restore error detail rendered",
+  );
   const first = JSON.stringify(deriveTrialObservabilityProjection(projected));
   const second = JSON.stringify(deriveTrialObservabilityProjection(projected));
   assertEqual(first, second, "deterministic observability projection");
-  assertEqual(JSON.stringify(deriveTrialErrorReportProjection(projected)), JSON.stringify(deriveTrialErrorReportProjection(projected)), "deterministic error report projection");
+  assertEqual(
+    JSON.stringify(deriveTrialErrorReportProjection(projected)),
+    JSON.stringify(deriveTrialErrorReportProjection(projected)),
+    "deterministic error report projection",
+  );
 }
 
 function assertTrialObservabilityForbiddenLabelsAbsent(): void {
-  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
   for (const label of [
     "production_monitoring_enabled",
     "telemetry_sent",
@@ -5036,33 +5665,105 @@ function assertTrialObservabilityForbiddenLabelsAbsent(): void {
     "action_authorized",
     "replay_repaired",
     "recovery_promoted",
-  ]) assertDoesNotContain(rendered, label, `forbidden observability label ${label}`);
+  ])
+    assertDoesNotContain(
+      rendered,
+      label,
+      `forbidden observability label ${label}`,
+    );
 }
-
 
 function assertTrialEvidenceReviewPanelRendersInitialState(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial evidence review", "review panel label");
   assertContains(rendered, "Trial review findings", "findings panel label");
-  assertContains(rendered, "Trial unresolved blockers", "unresolved blockers panel label");
-  assertContains(rendered, "Local beta hardening candidates", "hardening candidates panel label");
-  assertContains(rendered, "Trial source evidence linkage", "source linkage label");
-  assertContains(rendered, "Review status: hardening_candidates_projected", "initial review status");
-  assertContains(rendered, "Controlled trial package status: not_packaged", "package status rendered");
-  assertContains(rendered, "Trial execution status: not_started", "execution status rendered");
-  assertContains(rendered, "Trial evidence status: not_captured", "evidence status rendered");
-  assertContains(rendered, "Replay/restore verification status: not_verified", "verification status rendered");
-  assertContains(rendered, "Category: trial_package", "finding category rendered");
+  assertContains(
+    rendered,
+    "Trial unresolved blockers",
+    "unresolved blockers panel label",
+  );
+  assertContains(
+    rendered,
+    "Local beta hardening candidates",
+    "hardening candidates panel label",
+  );
+  assertContains(
+    rendered,
+    "Trial source evidence linkage",
+    "source linkage label",
+  );
+  assertContains(
+    rendered,
+    "Review status: hardening_candidates_projected",
+    "initial review status",
+  );
+  assertContains(
+    rendered,
+    "Controlled trial package status: not_packaged",
+    "package status rendered",
+  );
+  assertContains(
+    rendered,
+    "Trial execution status: not_started",
+    "execution status rendered",
+  );
+  assertContains(
+    rendered,
+    "Trial evidence status: not_captured",
+    "evidence status rendered",
+  );
+  assertContains(
+    rendered,
+    "Replay/restore verification status: not_verified",
+    "verification status rendered",
+  );
+  assertContains(
+    rendered,
+    "Category: trial_package",
+    "finding category rendered",
+  );
   assertContains(rendered, "Severity: blocking", "finding severity rendered");
-  assertContains(rendered, "Disposition: requires_phase_169_hardening", "hardening disposition rendered");
-  assertContains(rendered, "Source: controlled_internal_trial_package", "finding source rendered");
-  assertContains(rendered, "Trial evidence review is local-only and non-public.", "local-only wording");
-  assertContains(rendered, "Review findings are evidence, not approval.", "evidence not approval wording");
-  assertContains(rendered, "Review does not approve controlled human use, readiness, release, deployment, public use, or production use.", "no authority wording");
-  assertContains(rendered, "Review does not automate remediation, escalation, or stop-condition enforcement.", "no automation wording");
-  assertContains(rendered, "Review does not repair replay or promote recovery.", "no repair wording");
-  assertContains(rendered, "Hardening candidates are inputs for Phase 169 code work, not approvals.", "hardening note wording");
+  assertContains(
+    rendered,
+    "Disposition: requires_phase_169_hardening",
+    "hardening disposition rendered",
+  );
+  assertContains(
+    rendered,
+    "Source: controlled_internal_trial_package",
+    "finding source rendered",
+  );
+  assertContains(
+    rendered,
+    "Trial evidence review is local-only and non-public.",
+    "local-only wording",
+  );
+  assertContains(
+    rendered,
+    "Review findings are evidence, not approval.",
+    "evidence not approval wording",
+  );
+  assertContains(
+    rendered,
+    "Review does not approve controlled human use, readiness, release, deployment, public use, or production use.",
+    "no authority wording",
+  );
+  assertContains(
+    rendered,
+    "Review does not automate remediation, escalation, or stop-condition enforcement.",
+    "no automation wording",
+  );
+  assertContains(
+    rendered,
+    "Review does not repair replay or promote recovery.",
+    "no repair wording",
+  );
+  assertContains(
+    rendered,
+    "Hardening candidates are inputs for Phase 169 code work, not approvals.",
+    "hardening note wording",
+  );
 }
 
 function assertTrialEvidenceReviewBlockedAndMismatchRendering(): void {
@@ -5077,7 +5778,11 @@ function assertTrialEvidenceReviewBlockedAndMismatchRendering(): void {
         replayStatusComparison: "replay/status comparison rejected",
         restoreHistoryComparison: "restore/history comparison rejected",
       },
-      mismatches: ["replay_status_snapshot_mismatch", "restore_history_snapshot_mismatch", "trial_package_read_back_invalid"],
+      mismatches: [
+        "replay_status_snapshot_mismatch",
+        "restore_history_snapshot_mismatch",
+        "trial_package_read_back_invalid",
+      ],
     },
     controlledInternalTrialExecution: {
       ...base.controlledInternalTrialExecution,
@@ -5089,10 +5794,21 @@ function assertTrialEvidenceReviewBlockedAndMismatchRendering(): void {
         status: "trial_run_blocked",
         currentStep: "observe_stop_conditions",
         nextStep: null,
-        steps: [{ step: "observe_stop_conditions", status: "blocked", summary: "stop_condition_observed" }],
+        steps: [
+          {
+            step: "observe_stop_conditions",
+            status: "blocked",
+            summary: "stop_condition_observed",
+          },
+        ],
         currentBlocker: "stop_condition_observed",
         rejectionReasons: ["stop_condition_observed"],
-        stopConditionObservation: { status: "stop_condition_observed", observed: true, markers: ["operator_reports_stop_condition"], enforcementAutomated: false },
+        stopConditionObservation: {
+          status: "stop_condition_observed",
+          observed: true,
+          markers: ["operator_reports_stop_condition"],
+          enforcementAutomated: false,
+        },
         manualOperatorStepStatus: "manual_operator_step_missing",
         evidenceLinkage: base.controlledInternalTrialExecution.evidenceLinkage,
         summary: "Blocked evidence review fixture.",
@@ -5104,21 +5820,62 @@ function assertTrialEvidenceReviewBlockedAndMismatchRendering(): void {
     trialObservability: deriveTrialObservabilityProjection(state),
     trialErrorReport: deriveTrialErrorReportProjection(state),
   };
-  const projected: LocalOperatorShellState = { ...observed, trialEvidenceReview: deriveTrialEvidenceReviewProjection(observed) };
+  const projected: LocalOperatorShellState = {
+    ...observed,
+    trialEvidenceReview: deriveTrialEvidenceReviewProjection(observed),
+  };
   const rendered = renderLocalOperatorShellSnapshot(projected);
-  assertContains(rendered, "Review status: review_blocked", "blocked review status");
-  assertContains(rendered, "Category: stop_condition", "stop-condition finding");
-  assertContains(rendered, "Category: replay_status", "replay mismatch finding");
-  assertContains(rendered, "Category: restore_history", "restore mismatch finding");
-  assertContains(rendered, "trial_package_read_back_invalid", "package read-back failure finding");
-  assertContains(rendered, "Unresolved blocker count:", "unresolved blocker count rendered");
-  assertContains(rendered, "Target surface: replay_restore_verification", "hardening target surface rendered");
-  assertContains(rendered, "controlled_internal_trial_package:controlled_internal_trial_package", "source evidence linkage rendered");
-  assertEqual(JSON.stringify(deriveTrialEvidenceReviewProjection(projected)), JSON.stringify(deriveTrialEvidenceReviewProjection(projected)), "deterministic evidence review projection");
+  assertContains(
+    rendered,
+    "Review status: review_blocked",
+    "blocked review status",
+  );
+  assertContains(
+    rendered,
+    "Category: stop_condition",
+    "stop-condition finding",
+  );
+  assertContains(
+    rendered,
+    "Category: replay_status",
+    "replay mismatch finding",
+  );
+  assertContains(
+    rendered,
+    "Category: restore_history",
+    "restore mismatch finding",
+  );
+  assertContains(
+    rendered,
+    "trial_package_read_back_invalid",
+    "package read-back failure finding",
+  );
+  assertContains(
+    rendered,
+    "Unresolved blocker count:",
+    "unresolved blocker count rendered",
+  );
+  assertContains(
+    rendered,
+    "Target surface: replay_restore_verification",
+    "hardening target surface rendered",
+  );
+  assertContains(
+    rendered,
+    "controlled_internal_trial_package:controlled_internal_trial_package",
+    "source evidence linkage rendered",
+  );
+  assertEqual(
+    JSON.stringify(deriveTrialEvidenceReviewProjection(projected)),
+    JSON.stringify(deriveTrialEvidenceReviewProjection(projected)),
+    "deterministic evidence review projection",
+  );
 }
 
 function assertTrialEvidenceReviewForbiddenLabelsAbsent(): void {
-  const rendered = renderLocalOperatorShellSnapshot(initialLocalOperatorShellState());
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
   for (const label of [
     "review_approved",
     "trial_approved",
@@ -5142,7 +5899,204 @@ function assertTrialEvidenceReviewForbiddenLabelsAbsent(): void {
     "deploy_review",
     "sign_review",
     "release_review",
-  ]) assertDoesNotContain(rendered, label, `forbidden trial evidence review label ${label}`);
+  ])
+    assertDoesNotContain(
+      rendered,
+      label,
+      `forbidden trial evidence review label ${label}`,
+    );
+}
+
+function assertReleaseCandidatePreparationPanelRendersInitialState(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(
+    rendered,
+    "Release candidate preparation",
+    "preparation panel label",
+  );
+  assertContains(rendered, "Preparation status:", "preparation status");
+  assertContains(rendered, "Preparation ID:", "preparation id");
+  assertContains(rendered, "Evidence category count: 30", "category count");
+  assertContains(rendered, "Evidence category list", "category list");
+  assertContains(rendered, "local_beta_workflow:", "local beta category");
+  assertContains(rendered, "Missing evidence list", "missing evidence list");
+  assertContains(rendered, "Blocker list", "blocker list");
+  assertContains(rendered, "Source linkage summary", "source linkage summary");
+  assertContains(
+    rendered,
+    "release_readiness_not_approved",
+    "release-readiness boundary",
+  );
+  assertContains(
+    rendered,
+    "no_release_artifact",
+    "release artifact absence boundary",
+  );
+  assertContains(rendered, "no_signing", "signing absence boundary");
+  assertContains(rendered, "no_publishing", "publishing absence boundary");
+  assertContains(
+    rendered,
+    "no_installer_activation",
+    "installer absence boundary",
+  );
+  assertContains(
+    rendered,
+    "no_update_channel_activation",
+    "update-channel absence boundary",
+  );
+  assertContains(rendered, "no_provider_trust", "provider trust boundary");
+  assertContains(
+    rendered,
+    "no_action_authorization",
+    "action authorization boundary",
+  );
+  assertContains(rendered, "no_replay_repair", "replay repair boundary");
+  assertContains(
+    rendered,
+    "no_recovery_promotion",
+    "recovery promotion boundary",
+  );
+  assertContains(
+    rendered,
+    "Release-candidate preparation is not release readiness.",
+    "preparation boundary wording",
+  );
+  assertContains(
+    rendered,
+    "This contract does not create release artifacts.",
+    "artifact boundary wording",
+  );
+  assertContains(
+    rendered,
+    "This contract does not approve Release Candidate status.",
+    "candidate status boundary wording",
+  );
+  assertContains(
+    rendered,
+    "Provider output remains untrusted.",
+    "provider trust wording",
+  );
+  assertContains(
+    rendered,
+    "No action authorization is granted.",
+    "action wording",
+  );
+}
+
+function assertReleaseCandidatePreparationRendersBlockedAndRejectedState(): void {
+  const base = initialLocalOperatorShellState();
+  const blocked: LocalOperatorShellState = {
+    ...base,
+    releaseCandidatePreparation: {
+      ...base.releaseCandidatePreparation,
+      status: "preparation_blocked",
+      evidenceItems: base.releaseCandidatePreparation.evidenceItems.map(
+        (item) =>
+          item.category === "local_beta_workflow"
+            ? { ...item, status: "blocked" }
+            : item,
+      ),
+      blockers: [
+        {
+          category: "local_beta_workflow",
+          reason: "blocked test",
+          sourceSurface: "completeLocalOperatorWorkflow",
+        },
+      ],
+      blockedEvidenceCount: 1,
+    },
+  };
+  const rejected: LocalOperatorShellState = {
+    ...base,
+    releaseCandidatePreparation: {
+      ...base.releaseCandidatePreparation,
+      status: "preparation_rejected",
+      evidenceItems: base.releaseCandidatePreparation.evidenceItems.map(
+        (item) =>
+          item.category === "trial_evidence_review"
+            ? { ...item, status: "rejected" }
+            : item,
+      ),
+      blockers: [
+        {
+          category: "trial_evidence_review",
+          reason: "rejected test",
+          sourceSurface: "trialEvidenceReview",
+        },
+      ],
+      rejectedEvidenceCount: 1,
+    },
+  };
+  const blockedRendered = renderLocalOperatorShellSnapshot(blocked);
+  const rejectedRendered = renderLocalOperatorShellSnapshot(rejected);
+  assertContains(
+    blockedRendered,
+    "preparation_blocked",
+    "blocked status renders",
+  );
+  assertContains(
+    blockedRendered,
+    "local_beta_workflow: blocked",
+    "blocked category renders",
+  );
+  assertContains(
+    rejectedRendered,
+    "preparation_rejected",
+    "rejected status renders",
+  );
+  assertContains(
+    rejectedRendered,
+    "trial_evidence_review: rejected",
+    "rejected category renders",
+  );
+}
+
+function assertReleaseCandidatePreparationRenderingIsDeterministic(): void {
+  const state = initialLocalOperatorShellState();
+  assertEqual(
+    renderLocalOperatorShellSnapshot(state),
+    renderLocalOperatorShellSnapshot(state),
+    "deterministic preparation render",
+  );
+  assertEqual(
+    JSON.stringify(deriveReleaseCandidatePreparationProjection(state)),
+    JSON.stringify(deriveReleaseCandidatePreparationProjection(state)),
+    "deterministic preparation projection",
+  );
+  assertEqual(
+    releaseCandidatePreparationEvidenceCategories().length,
+    30,
+    "closed preparation categories",
+  );
+}
+
+function assertReleaseCandidatePreparationForbiddenLabelsAbsent(): void {
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
+  for (const label of [
+    "release_ready",
+    "release_candidate_ready",
+    "production_ready",
+    "production_candidate_approved",
+    "deployment_ready",
+    "public_use_ready",
+    "release_artifact_created",
+    "signed_release",
+    "published_release",
+    "installer_enabled",
+    "update_channel_enabled",
+    "provider_output_trusted",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+  ])
+    assertDoesNotContain(
+      rendered,
+      label,
+      `forbidden preparation label ${label}`,
+    );
 }
 
 export const behaviorTests: readonly BehaviorTest[] = [
@@ -5914,6 +6868,23 @@ payload_summary=authority before replay`),
   {
     name: "trial_evidence_review_forbidden_labels_absent",
     run: assertTrialEvidenceReviewForbiddenLabelsAbsent,
+  },
+
+  {
+    name: "release_candidate_preparation_panel_initial_state",
+    run: assertReleaseCandidatePreparationPanelRendersInitialState,
+  },
+  {
+    name: "release_candidate_preparation_blocked_and_rejected_state",
+    run: assertReleaseCandidatePreparationRendersBlockedAndRejectedState,
+  },
+  {
+    name: "release_candidate_preparation_rendering_is_deterministic",
+    run: assertReleaseCandidatePreparationRenderingIsDeterministic,
+  },
+  {
+    name: "release_candidate_preparation_forbidden_labels_absent",
+    run: assertReleaseCandidatePreparationForbiddenLabelsAbsent,
   },
 
   {

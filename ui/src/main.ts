@@ -183,9 +183,10 @@ function approveValidatedStagedProposal(): void {
 function materializeLocalCandidate(): void {
   const request = localCandidateMaterializationRequestFromState(shellState);
   if (!request) return;
-  applyTransportResponse(requestLocalCandidateMaterialization(transport, request));
+  applyTransportResponse(
+    requestLocalCandidateMaterialization(transport, request),
+  );
 }
-
 
 function renderList(items: readonly string[], emptyText: string): string {
   if (items.length === 0) return `<p class="muted">${emptyText}</p>`;
@@ -201,7 +202,9 @@ function renderCompleteLocalOperatorWorkflow(
   const rejectionReasons =
     workflow.rejectionReasons.length === 0
       ? "<li>none</li>"
-      : workflow.rejectionReasons.map((reason) => `<li>${reason}</li>`).join("");
+      : workflow.rejectionReasons
+          .map((reason) => `<li>${reason}</li>`)
+          .join("");
   const stepItems = workflow.steps
     .map(
       (step) =>
@@ -362,7 +365,6 @@ function renderConstrainedLocalProviderInvocation(
       <button id="reject-constrained-local-provider" type="button">Submit rejected local invocation request</button>
     </div>`;
 }
-
 
 function renderProviderOutputPipeline(state: LocalOperatorShellState): string {
   const pipeline = state.localProviderOutputPipeline;
@@ -565,11 +567,13 @@ function renderLocalSessionRestore(state: LocalOperatorShellState): string {
     <p class="muted">${restore.remoteBackgroundNote}</p>`;
 }
 
-
 function renderTrialOperatorRunbook(state: LocalOperatorShellState): string {
   const runbook = state.trialOperatorRunbook;
   const steps = runbook.steps
-    .map((step) => `<li><strong>${step.step}</strong>: ${step.status}<br /><span class="muted">${step.summary}</span></li>`)
+    .map(
+      (step) =>
+        `<li><strong>${step.step}</strong>: ${step.status}<br /><span class="muted">${step.summary}</span></li>`,
+    )
     .join("");
   return `
     <dl>
@@ -600,9 +604,10 @@ function renderTrialOperatorRunbook(state: LocalOperatorShellState): string {
 
 function renderTrialFailureDrill(state: LocalOperatorShellState): string {
   const drill = state.trialFailureDrill;
-  const categories = drill.categories.length === 0
-    ? `<p class="muted">No failure categories projected.</p>`
-    : `<ul>${drill.categories.map((entry) => `<li><strong>${entry.category}</strong>: ${entry.severity}<br /><span class="muted">${entry.summary}</span></li>`).join("")}</ul>`;
+  const categories =
+    drill.categories.length === 0
+      ? `<p class="muted">No failure categories projected.</p>`
+      : `<ul>${drill.categories.map((entry) => `<li><strong>${entry.category}</strong>: ${entry.severity}<br /><span class="muted">${entry.summary}</span></li>`).join("")}</ul>`;
   return `
     <dl>
       <div><dt>Failure drill status</dt><dd>${drill.status}</dd></div>
@@ -618,9 +623,10 @@ function renderTrialFailureDrill(state: LocalOperatorShellState): string {
 
 function renderStopConditionDrill(state: LocalOperatorShellState): string {
   const drills = state.trialFailureDrill.stopConditionDrills;
-  const entries = drills.length === 0
-    ? `<p class="muted">No stop-condition drill markers are projected.</p>`
-    : `<ul>${drills.map((entry) => `<li><strong>${entry.marker}</strong>: ${entry.status}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Automated enforcement: ${entry.enforcementAutomated}</span></li>`).join("")}</ul>`;
+  const entries =
+    drills.length === 0
+      ? `<p class="muted">No stop-condition drill markers are projected.</p>`
+      : `<ul>${drills.map((entry) => `<li><strong>${entry.marker}</strong>: ${entry.status}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Automated enforcement: ${entry.enforcementAutomated}</span></li>`).join("")}</ul>`;
   return `
     ${entries}
     <p class="muted">Stop conditions are guidance only; enforcement is not automated in Phase 162.</p>`;
@@ -628,9 +634,10 @@ function renderStopConditionDrill(state: LocalOperatorShellState): string {
 
 function renderEscalationGuidance(state: LocalOperatorShellState): string {
   const guidance = state.trialFailureDrill.escalationGuidance;
-  const entries = guidance.length === 0
-    ? `<p class="muted">No escalation guidance projected.</p>`
-    : `<ul>${guidance.map((entry) => `<li><strong>${entry.role}</strong>: ${entry.categories.join(", ")}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Descriptive only: ${entry.descriptiveOnly}</span></li>`).join("")}</ul>`;
+  const entries =
+    guidance.length === 0
+      ? `<p class="muted">No escalation guidance projected.</p>`
+      : `<ul>${guidance.map((entry) => `<li><strong>${entry.role}</strong>: ${entry.categories.join(", ")}<br /><span class="muted">${entry.guidance}</span><br /><span class="muted">Descriptive only: ${entry.descriptiveOnly}</span></li>`).join("")}</ul>`;
   return `
     ${entries}
     <p class="muted">Escalation guidance is descriptive only and does not activate authority.</p>`;
@@ -664,9 +671,10 @@ function renderTrialObservability(state: LocalOperatorShellState): string {
 
 function renderTrialErrorReporting(state: LocalOperatorShellState): string {
   const report = state.trialErrorReport;
-  const details = report.details.length === 0
-    ? `<p class="muted">No local trial errors are projected.</p>`
-    : `<ul>${report.details.map((detail) => `<li><strong>${detail.category}</strong> (${detail.severity})<br /><span class="muted">Source: ${detail.source}</span><br /><span class="muted">${detail.summary}</span><br /><span class="muted">Guidance: ${detail.operatorGuidance}</span><br /><span class="muted">Evidence: ${detail.evidenceLinkage.linkage}</span></li>`).join("")}</ul>`;
+  const details =
+    report.details.length === 0
+      ? `<p class="muted">No local trial errors are projected.</p>`
+      : `<ul>${report.details.map((detail) => `<li><strong>${detail.category}</strong> (${detail.severity})<br /><span class="muted">Source: ${detail.source}</span><br /><span class="muted">${detail.summary}</span><br /><span class="muted">Guidance: ${detail.operatorGuidance}</span><br /><span class="muted">Evidence: ${detail.evidenceLinkage.linkage}</span></li>`).join("")}</ul>`;
   return `
     <dl>
       <div><dt>Error report status</dt><dd>${report.status}</dd></div>
@@ -679,7 +687,9 @@ function renderTrialErrorReporting(state: LocalOperatorShellState): string {
     <p class="muted">${report.localDescriptiveOnlyNote}</p>`;
 }
 
-function renderTrialBlockedStateSummary(state: LocalOperatorShellState): string {
+function renderTrialBlockedStateSummary(
+  state: LocalOperatorShellState,
+): string {
   const summary = state.trialObservability.blockedStateSummary;
   return `
     <dl>
@@ -718,6 +728,57 @@ function renderValidation(state: LocalOperatorShellState): string {
     </dl>`;
 }
 
+function renderReleaseCandidatePreparation(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.releaseCandidatePreparation;
+  return `
+    <p><strong>Preparation status:</strong> ${projection.status}</p>
+    <p><strong>Preparation ID:</strong> ${projection.preparationId}</p>
+    <p><strong>Evidence category count:</strong> ${projection.categoryCount}</p>
+    <p><strong>Present evidence count:</strong> ${projection.presentEvidenceCount}</p>
+    <p><strong>Missing evidence count:</strong> ${projection.missingEvidenceCount}</p>
+    <p><strong>Blocked evidence count:</strong> ${projection.blockedEvidenceCount}</p>
+    <p><strong>Rejected evidence count:</strong> ${projection.rejectedEvidenceCount}</p>
+    <h3>Evidence category list</h3>
+    ${renderList(
+      projection.evidenceItems.map(
+        (item) =>
+          `${item.category}: ${item.status} (${item.sourceLinkage.sourceSummary})`,
+      ),
+      "No evidence categories projected.",
+    )}
+    <h3>Missing evidence list</h3>
+    ${renderList(
+      projection.missingEvidence.map(
+        (item) => `${item.category}: ${item.reason} (${item.sourceSurface})`,
+      ),
+      "No missing evidence.",
+    )}
+    <h3>Blocker list</h3>
+    ${renderList(
+      projection.blockers.map(
+        (item) => `${item.category}: ${item.reason} (${item.sourceSurface})`,
+      ),
+      "No blockers.",
+    )}
+    <h3>Source linkage summary</h3>
+    ${renderList(
+      projection.evidenceItems.map(
+        (item) =>
+          `${item.category} -> ${item.sourceLinkage.sourceSurface}:${item.sourceLinkage.sourceStatus}`,
+      ),
+      "No source linkage projected.",
+    )}
+    <p><strong>Boundary markers:</strong> ${projection.boundaryStatuses.join(", ")}</p>
+    <p class="muted">${projection.noReleaseReadinessNote}</p>
+    <p class="muted">${projection.noReleaseArtifactNote}</p>
+    <p class="muted">${projection.noReleaseCandidateStatusNote}</p>
+    <p class="muted">${projection.noProductionDeploymentPublicSigningPublishingInstallerUpdateNote}</p>
+    <p class="muted">${projection.noProviderTrustNote}</p>
+    <p class="muted">${projection.noActionAuthorizationNote}</p>`;
+}
+
 function render(): void {
   const app = document.querySelector<HTMLDivElement>("#app");
   if (!app) return;
@@ -739,6 +800,11 @@ function render(): void {
       </header>
 
       ${renderLocalHelpEntryHtml()}
+
+      <section class="panel" aria-label="Release candidate preparation">
+        <h2>Release candidate preparation</h2>
+        ${renderReleaseCandidatePreparation(shellState)}
+      </section>
 
       <section class="panel" aria-label="Local transport boundary status">
         <h2>Local transport boundary</h2>

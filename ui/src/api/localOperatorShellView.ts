@@ -9,6 +9,50 @@ import { renderProviderOutputReviewText } from "./providerOutputReview";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface";
 import { renderLocalHelpEntryText } from "../app/help";
 
+function renderReleaseCandidatePreparationText(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.releaseCandidatePreparation;
+  return [
+    `Preparation status: ${projection.status}`,
+    `Preparation ID: ${projection.preparationId}`,
+    `Evidence category count: ${projection.categoryCount}`,
+    `Present evidence count: ${projection.presentEvidenceCount}`,
+    `Missing evidence count: ${projection.missingEvidenceCount}`,
+    `Blocked evidence count: ${projection.blockedEvidenceCount}`,
+    `Rejected evidence count: ${projection.rejectedEvidenceCount}`,
+    "Evidence category list",
+    projection.evidenceItems
+      .map(
+        (item) =>
+          `${item.category}: ${item.status} (${item.sourceLinkage.sourceSummary})`,
+      )
+      .join("\n") || "none",
+    "Missing evidence list",
+    projection.missingEvidence
+      .map((item) => `${item.category}: ${item.reason} (${item.sourceSurface})`)
+      .join("\n") || "none",
+    "Blocker list",
+    projection.blockers
+      .map((item) => `${item.category}: ${item.reason} (${item.sourceSurface})`)
+      .join("\n") || "none",
+    "Source linkage summary",
+    projection.evidenceItems
+      .map(
+        (item) =>
+          `${item.category} -> ${item.sourceLinkage.sourceSurface}:${item.sourceLinkage.sourceStatus}`,
+      )
+      .join("\n"),
+    `Boundary markers: ${projection.boundaryStatuses.join(", ")}`,
+    projection.noReleaseReadinessNote,
+    projection.noReleaseArtifactNote,
+    projection.noReleaseCandidateStatusNote,
+    projection.noProductionDeploymentPublicSigningPublishingInstallerUpdateNote,
+    projection.noProviderTrustNote,
+    projection.noActionAuthorizationNote,
+  ].join("\n");
+}
+
 export function renderLocalOperatorShellSnapshot(
   state: LocalOperatorShellState,
 ): string {
@@ -49,7 +93,6 @@ export function renderLocalOperatorShellSnapshot(
     `Replay integrity: ${exportPreview.replayIntegrityStatus}`,
     `Absence markers summary: ${exportPreview.absenceMarkers.markerSummary.join(", ")}`,
   ].join("\n");
-
 
   const trialSessionEvidence = state.trialSessionEvidenceProjection;
   const trialSessionEvidenceLines = [
@@ -106,8 +149,6 @@ export function renderLocalOperatorShellSnapshot(
     trialPackage.stopConditionNote,
     "This package does not approve controlled human use.",
   ].join("\n");
-
-
 
   const verification = state.trialReplayRestoreVerification;
   const verificationLines = [
@@ -176,7 +217,8 @@ export function renderLocalOperatorShellSnapshot(
   ].join("\n");
 
   const trialExecution = state.controlledInternalTrialExecution;
-  const displayedTrialRun = trialExecution.activeRun ?? trialExecution.lastRejectedRun;
+  const displayedTrialRun =
+    trialExecution.activeRun ?? trialExecution.lastRejectedRun;
   const trialExecutionLines = [
     `Harness status: ${trialExecution.status}`,
     `Trial run status: ${displayedTrialRun?.status ?? trialExecution.status}`,
@@ -263,18 +305,48 @@ export function renderLocalOperatorShellSnapshot(
     trialReview.noReplayRepairNote,
     trialReview.hardeningCandidateNote,
   ].join("\n");
-  const trialReviewFindingsLines = trialReview.findings.length === 0
-    ? "No trial review findings."
-    : trialReview.findings.map((finding) => [`Finding ${finding.findingId}`, `Category: ${finding.category}`, `Severity: ${finding.severity}`, `Disposition: ${finding.disposition}`, `Source: ${finding.source}`, `Summary: ${finding.summary}`, `Evidence: ${finding.evidenceLinkage.surface} => ${finding.evidenceLinkage.summary}`].join("\n")).join("\n");
+  const trialReviewFindingsLines =
+    trialReview.findings.length === 0
+      ? "No trial review findings."
+      : trialReview.findings
+          .map((finding) =>
+            [
+              `Finding ${finding.findingId}`,
+              `Category: ${finding.category}`,
+              `Severity: ${finding.severity}`,
+              `Disposition: ${finding.disposition}`,
+              `Source: ${finding.source}`,
+              `Summary: ${finding.summary}`,
+              `Evidence: ${finding.evidenceLinkage.surface} => ${finding.evidenceLinkage.summary}`,
+            ].join("\n"),
+          )
+          .join("\n");
   const trialUnresolvedBlockersLines = [
     `Current blocker: ${trialReview.unresolvedBlockers.currentBlocker}`,
     `Unresolved blocker count: ${trialReview.unresolvedBlockers.unresolvedBlockerCount}`,
-    trialReview.unresolvedBlockers.blockers.join("\n") || "No unresolved blockers projected.",
+    trialReview.unresolvedBlockers.blockers.join("\n") ||
+      "No unresolved blockers projected.",
   ].join("\n");
-  const trialHardeningCandidateLines = trialReview.hardeningCandidates.length === 0
-    ? "No local beta hardening candidates projected."
-    : trialReview.hardeningCandidates.map((candidate) => [`Candidate ${candidate.candidateId}`, `Source finding: ${candidate.sourceFindingId}`, `Target surface: ${candidate.targetSurface}`, `Scope: ${candidate.localBetaScope}`, `Summary: ${candidate.summary}`].join("\n")).join("\n");
-  const trialEvidenceLinkageLines = trialReview.evidenceLinkage.map((linkage) => `${linkage.source}:${linkage.surface}:${linkage.summary}`).join("\n") || "No evidence linkage projected.";
+  const trialHardeningCandidateLines =
+    trialReview.hardeningCandidates.length === 0
+      ? "No local beta hardening candidates projected."
+      : trialReview.hardeningCandidates
+          .map((candidate) =>
+            [
+              `Candidate ${candidate.candidateId}`,
+              `Source finding: ${candidate.sourceFindingId}`,
+              `Target surface: ${candidate.targetSurface}`,
+              `Scope: ${candidate.localBetaScope}`,
+              `Summary: ${candidate.summary}`,
+            ].join("\n"),
+          )
+          .join("\n");
+  const trialEvidenceLinkageLines =
+    trialReview.evidenceLinkage
+      .map(
+        (linkage) => `${linkage.source}:${linkage.surface}:${linkage.summary}`,
+      )
+      .join("\n") || "No evidence linkage projected.";
 
   const workflow = state.completeLocalOperatorWorkflow;
   const workflowLines = [
@@ -551,11 +623,16 @@ export function renderLocalOperatorShellSnapshot(
   const materializationControl =
     state.localProviderOutputPipeline.status === "valid" &&
     state.providerOutputValidation.status === "reviewable_untrusted" &&
-    state.providerOutputValidation.reviewabilityStatus === "reviewable_untrusted" &&
-    state.stagedCandidateConversionProposal.status === "staged_proposal_created" &&
-    state.stagedCandidateConversionValidation.status === "staged_proposal_shape_valid" &&
-    state.localProviderOutputPipeline.candidateReviewStatus === "display_only" &&
-    state.operatorCandidateDecision.status === "approved_validated_staged_proposal"
+    state.providerOutputValidation.reviewabilityStatus ===
+      "reviewable_untrusted" &&
+    state.stagedCandidateConversionProposal.status ===
+      "staged_proposal_created" &&
+    state.stagedCandidateConversionValidation.status ===
+      "staged_proposal_shape_valid" &&
+    state.localProviderOutputPipeline.candidateReviewStatus ===
+      "display_only" &&
+    state.operatorCandidateDecision.status ===
+      "approved_validated_staged_proposal"
       ? "Materialize local candidate output"
       : "Materialization control disabled until provider validation, review, staged proposal, staged validation, candidate review, and approved operator decision preconditions pass";
   const localCandidateLines = [
@@ -600,6 +677,8 @@ export function renderLocalOperatorShellSnapshot(
     `Harness status: ${state.harnessStatus}`,
     `Run status: ${state.run.status}`,
     renderLocalHelpEntryText(),
+    "Release candidate preparation",
+    renderReleaseCandidatePreparationText(state),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
