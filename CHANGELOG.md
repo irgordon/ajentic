@@ -1,3 +1,40 @@
+## v0.0.174 - 2026-05-18
+**Status:** Phase 174 - Installer and Distribution Contract Surface
+
+### Added
+- Add Rust-owned installer/distribution contract derivation and validation from dry package and checksum/provenance evidence.
+- Add contract metadata, projection, status, classification, dry package linkage, checksum/provenance linkage, missing evidence, blockers, validation errors, capability surface, and boundary markers.
+- Add UI rendering for installer/distribution contract status, dry package linkage, checksum/provenance linkage, blocked/missing evidence, and no-installer/no-distribution/no-update-channel boundaries.
+- Add Rust and TypeScript tests for valid linkage, missing dry package rejection, missing checksum/provenance rejection, installer/update/public-distribution claim rejection, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with installer/distribution contract status using thin integration.
+- Update the local UI shell to display installer/distribution contract state and evidence linkage.
+- Update checklists/current-phase.md to Phase 174 procedural truth.
+
+### Notes
+- Code-production phase.
+- The installer/distribution contract describes constraints only.
+- The contract does not create an installer.
+- The contract does not activate an update channel.
+- The contract does not sign, publish, deploy, release, or distribute anything.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No public distribution.
+- No release readiness approval.
+- No Release Candidate status approval.
+- No Production Candidate approval.
+- No production-use approval.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 175 remains the next alignment checkpoint.
+
 ---
 truth_dimension: historical
 authority_level: authoritative

@@ -812,6 +812,23 @@ function renderReleaseArtifactDryPackage(
     <p class="muted">${projection.noDistributionNote}</p>
     <p class="muted">${projection.readBackValidationNote}</p>`;
 }
+function renderInstallerDistributionContract(state: LocalOperatorShellState): string {
+  const projection = state.installerDistributionContract;
+  return `
+    <p><strong>Contract status:</strong> ${projection.status}</p>
+    <p><strong>Contract ID:</strong> ${projection.contractId ?? "none"}</p>
+    <p><strong>Contract classification:</strong> ${projection.classification}</p>
+    <p><strong>Production classification:</strong> ${projection.productionClassification}</p>
+    <p><strong>Distribution classification:</strong> ${projection.distributionClassification}</p>
+    <p><strong>Authority classification:</strong> ${projection.authorityClassification}</p>
+    <p><strong>Release classification:</strong> ${projection.releaseClassification}</p>
+    <p><strong>Dry package linkage:</strong> ${projection.dryPackageLinkage}</p>
+    <p><strong>Checksum/provenance linkage:</strong> ${projection.checksumProvenanceLinkage}</p>
+    <p><strong>Validation status:</strong> ${projection.validationStatus}</p>
+    <p class="muted">The installer/distribution contract describes constraints only.</p>
+    <p class="muted">This contract does not create an installer.</p>
+    <p class="muted">This contract does not activate an update channel.</p>`;
+}
 
 function render(): void {
   const app = document.querySelector<HTMLDivElement>("#app");
@@ -843,6 +860,10 @@ function render(): void {
       <section class="panel" aria-label="Release artifact dry package">
         <h2>Release artifact dry package</h2>
         ${renderReleaseArtifactDryPackage(shellState)}
+      </section>
+      <section class="panel" aria-label="Installer and distribution contract">
+        <h2>Installer and distribution contract</h2>
+        ${renderInstallerDistributionContract(shellState)}
       </section>
 
       <section class="panel" aria-label="Local transport boundary status">

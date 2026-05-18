@@ -7,9 +7,12 @@ use crate::api::{
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
+    initial_installer_distribution_contract_projection,
     project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
+    project_installer_distribution_contract,
     ReleaseArtifactDryPackageProjection, ReleaseCandidatePreparationProjection,
     ReleaseDryPackageChecksumProvenanceProjection,
+    InstallerDistributionContractProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -79,6 +82,7 @@ pub struct LocalOperatorShellState {
     pub release_candidate_preparation: ReleaseCandidatePreparationProjection,
     pub release_artifact_dry_package: ReleaseArtifactDryPackageProjection,
     pub release_dry_package_checksum_provenance: ReleaseDryPackageChecksumProvenanceProjection,
+    pub installer_distribution_contract: InstallerDistributionContractProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -247,6 +251,10 @@ pub(crate) fn attach_local_session_evidence_export(
         derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
     state.release_dry_package_checksum_provenance =
         project_release_dry_package_checksum_provenance(dry_package.as_ref());
+    state.installer_distribution_contract = project_installer_distribution_contract(
+        dry_package.as_ref(),
+        Some(&state.release_dry_package_checksum_provenance),
+    );
     state
 }
 
@@ -338,6 +346,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         release_artifact_dry_package: initial_release_artifact_dry_package_projection(),
         release_dry_package_checksum_provenance:
             initial_release_dry_package_checksum_provenance_projection(),
+        installer_distribution_contract: initial_installer_distribution_contract_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -354,6 +363,10 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
     state.release_dry_package_checksum_provenance =
         project_release_dry_package_checksum_provenance(dry_package.as_ref());
+    state.installer_distribution_contract = project_installer_distribution_contract(
+        dry_package.as_ref(),
+        Some(&state.release_dry_package_checksum_provenance),
+    );
     state
 }
 
