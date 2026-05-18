@@ -22,6 +22,7 @@ mod read_projection;
 mod release_artifact_dry_package;
 mod release_candidate_preparation;
 mod release_dry_package_checksum_provenance;
+mod installer_distribution_contract;
 mod runtime_config;
 
 pub use application_state::*;
@@ -48,4 +49,5 @@ pub use read_projection::*;
 pub use release_artifact_dry_package::*;
 pub use release_candidate_preparation::*;
 pub use release_dry_package_checksum_provenance::*;
+pub use installer_distribution_contract::*;
 pub use runtime_config::*;

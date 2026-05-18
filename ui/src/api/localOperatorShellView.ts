@@ -114,6 +114,22 @@ function renderReleaseArtifactDryPackageText(
     projection.readBackValidationNote,
   ].join("\n");
 }
+function renderInstallerDistributionContractText(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.installerDistributionContract;
+  return [
+    `Contract status: ${projection.status}`,
+    `Contract ID: ${projection.contractId ?? "none"}`,
+    `Dry package linkage: ${projection.dryPackageLinkage}`,
+    `Checksum/provenance linkage: ${projection.checksumProvenanceLinkage}`,
+    `Validation status: ${projection.validationStatus}`,
+    "The installer/distribution contract describes constraints only.",
+    "This contract does not create an installer.",
+    "This contract does not activate an update channel.",
+    "This contract does not sign, publish, deploy, release, or distribute anything.",
+  ].join("\n");
+}
 
 export function renderLocalOperatorShellSnapshot(
   state: LocalOperatorShellState,
@@ -745,6 +761,8 @@ export function renderLocalOperatorShellSnapshot(
     renderReleaseArtifactDryPackageText(state),
     "Checksum and provenance evidence",
     renderReleaseDryPackageChecksumProvenanceText(state),
+    "Installer and distribution contract",
+    renderInstallerDistributionContractText(state),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
