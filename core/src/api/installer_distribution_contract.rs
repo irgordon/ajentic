@@ -2,24 +2,231 @@
 use super::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum InstallerDistributionContractStatus { NotDefined, ContractValidated, ContractRejected, InvalidContractInput }
-impl InstallerDistributionContractStatus { pub fn code(&self)->&'static str { match self {Self::NotDefined=>"not_defined",Self::ContractValidated=>"contract_validated",Self::ContractRejected=>"contract_rejected",Self::InvalidContractInput=>"invalid_contract_input"}}}
-#[derive(Debug, Clone, Copy, PartialEq, Eq)] pub enum InstallerDistributionContractValidationStatus{NotValidated,Valid,Invalid}
-impl InstallerDistributionContractValidationStatus{pub fn code(&self)->&'static str{match self{Self::NotValidated=>"not_validated",Self::Valid=>"valid",Self::Invalid=>"invalid"}}}
-#[derive(Debug, Clone, Copy, PartialEq, Eq)] pub enum InstallerDistributionContractValidationError{MissingDryPackage,DryPackageRejected,MissingChecksumProvenance,ChecksumProvenanceRejected,DryPackageLinkageMismatch,ChecksumProvenanceLinkageMismatch,InstallerCreationClaimDetected,UpdateChannelActivationClaimDetected,PublicDistributionClaimDetected,PublicDownloadClaimDetected,SigningClaimDetected,PublishingClaimDetected,ReleaseClaimDetected,DeploymentClaimDetected,ReadinessClaimDetected,PublicUseClaimDetected,ProductionUseClaimDetected,ProviderTrustClaimDetected,ActionAuthorizationClaimDetected,ReplayRepairClaimDetected,RecoveryPromotionClaimDetected}
-impl InstallerDistributionContractValidationError{pub fn code(&self)->&'static str{match self{Self::MissingDryPackage=>"missing_dry_package",Self::DryPackageRejected=>"dry_package_rejected",Self::MissingChecksumProvenance=>"missing_checksum_provenance",Self::ChecksumProvenanceRejected=>"checksum_provenance_rejected",Self::DryPackageLinkageMismatch=>"dry_package_linkage_mismatch",Self::ChecksumProvenanceLinkageMismatch=>"checksum_provenance_linkage_mismatch",Self::InstallerCreationClaimDetected=>"installer_creation_claim_detected",Self::UpdateChannelActivationClaimDetected=>"update_channel_activation_claim_detected",Self::PublicDistributionClaimDetected=>"public_distribution_claim_detected",Self::PublicDownloadClaimDetected=>"public_download_claim_detected",Self::SigningClaimDetected=>"signing_claim_detected",Self::PublishingClaimDetected=>"publishing_claim_detected",Self::ReleaseClaimDetected=>"release_claim_detected",Self::DeploymentClaimDetected=>"deployment_claim_detected",Self::ReadinessClaimDetected=>"readiness_claim_detected",Self::PublicUseClaimDetected=>"public_use_claim_detected",Self::ProductionUseClaimDetected=>"production_use_claim_detected",Self::ProviderTrustClaimDetected=>"provider_trust_claim_detected",Self::ActionAuthorizationClaimDetected=>"action_authorization_claim_detected",Self::ReplayRepairClaimDetected=>"replay_repair_claim_detected",Self::RecoveryPromotionClaimDetected=>"recovery_promotion_claim_detected"}}}
-#[derive(Debug, Clone, PartialEq, Eq)] pub struct InstallerDistributionDryPackageLinkage{pub dry_package_id:String,pub dry_package_status:String}
-#[derive(Debug, Clone, PartialEq, Eq)] pub struct InstallerDistributionChecksumProvenanceLinkage{pub dry_package_id:String,pub checksum_value:String,pub provenance_id:String,pub status:String}
-#[derive(Debug, Clone, PartialEq, Eq)] pub struct InstallerDistributionContractProjection{pub status:InstallerDistributionContractStatus,pub contract_id:Option<String>,pub classification:String,pub production_classification:String,pub distribution_classification:String,pub authority_classification:String,pub release_classification:String,pub dry_package_linkage:Option<InstallerDistributionDryPackageLinkage>,pub checksum_provenance_linkage:Option<InstallerDistributionChecksumProvenanceLinkage>,pub missing_evidence:Vec<String>,pub blockers:Vec<String>,pub validation_status:InstallerDistributionContractValidationStatus,pub validation_errors:Vec<InstallerDistributionContractValidationError>,pub boundary_statuses:Vec<String>}
+pub enum InstallerDistributionContractStatus {
+    NotDefined,
+    ContractValidated,
+    ContractRejected,
+    InvalidContractInput,
+}
+impl InstallerDistributionContractStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotDefined => "not_defined",
+            Self::ContractValidated => "contract_validated",
+            Self::ContractRejected => "contract_rejected",
+            Self::InvalidContractInput => "invalid_contract_input",
+        }
+    }
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InstallerDistributionContractValidationStatus {
+    NotValidated,
+    Valid,
+    Invalid,
+}
+impl InstallerDistributionContractValidationStatus {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::NotValidated => "not_validated",
+            Self::Valid => "valid",
+            Self::Invalid => "invalid",
+        }
+    }
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InstallerDistributionContractValidationError {
+    MissingDryPackage,
+    DryPackageRejected,
+    MissingChecksumProvenance,
+    ChecksumProvenanceRejected,
+    DryPackageLinkageMismatch,
+    ChecksumProvenanceLinkageMismatch,
+    InstallerCreationClaimDetected,
+    UpdateChannelActivationClaimDetected,
+    PublicDistributionClaimDetected,
+    PublicDownloadClaimDetected,
+    SigningClaimDetected,
+    PublishingClaimDetected,
+    ReleaseClaimDetected,
+    DeploymentClaimDetected,
+    ReadinessClaimDetected,
+    PublicUseClaimDetected,
+    ProductionUseClaimDetected,
+    ProviderTrustClaimDetected,
+    ActionAuthorizationClaimDetected,
+    ReplayRepairClaimDetected,
+    RecoveryPromotionClaimDetected,
+}
+impl InstallerDistributionContractValidationError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::MissingDryPackage => "missing_dry_package",
+            Self::DryPackageRejected => "dry_package_rejected",
+            Self::MissingChecksumProvenance => "missing_checksum_provenance",
+            Self::ChecksumProvenanceRejected => "checksum_provenance_rejected",
+            Self::DryPackageLinkageMismatch => "dry_package_linkage_mismatch",
+            Self::ChecksumProvenanceLinkageMismatch => "checksum_provenance_linkage_mismatch",
+            Self::InstallerCreationClaimDetected => "installer_creation_claim_detected",
+            Self::UpdateChannelActivationClaimDetected => {
+                "update_channel_activation_claim_detected"
+            }
+            Self::PublicDistributionClaimDetected => "public_distribution_claim_detected",
+            Self::PublicDownloadClaimDetected => "public_download_claim_detected",
+            Self::SigningClaimDetected => "signing_claim_detected",
+            Self::PublishingClaimDetected => "publishing_claim_detected",
+            Self::ReleaseClaimDetected => "release_claim_detected",
+            Self::DeploymentClaimDetected => "deployment_claim_detected",
+            Self::ReadinessClaimDetected => "readiness_claim_detected",
+            Self::PublicUseClaimDetected => "public_use_claim_detected",
+            Self::ProductionUseClaimDetected => "production_use_claim_detected",
+            Self::ProviderTrustClaimDetected => "provider_trust_claim_detected",
+            Self::ActionAuthorizationClaimDetected => "action_authorization_claim_detected",
+            Self::ReplayRepairClaimDetected => "replay_repair_claim_detected",
+            Self::RecoveryPromotionClaimDetected => "recovery_promotion_claim_detected",
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstallerDistributionDryPackageLinkage {
+    pub dry_package_id: String,
+    pub dry_package_status: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstallerDistributionChecksumProvenanceLinkage {
+    pub dry_package_id: String,
+    pub checksum_value: String,
+    pub provenance_id: String,
+    pub status: String,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InstallerDistributionContractProjection {
+    pub status: InstallerDistributionContractStatus,
+    pub contract_id: Option<String>,
+    pub classification: String,
+    pub production_classification: String,
+    pub distribution_classification: String,
+    pub authority_classification: String,
+    pub release_classification: String,
+    pub dry_package_linkage: Option<InstallerDistributionDryPackageLinkage>,
+    pub checksum_provenance_linkage: Option<InstallerDistributionChecksumProvenanceLinkage>,
+    pub missing_evidence: Vec<String>,
+    pub blockers: Vec<String>,
+    pub validation_status: InstallerDistributionContractValidationStatus,
+    pub validation_errors: Vec<InstallerDistributionContractValidationError>,
+    pub boundary_statuses: Vec<String>,
+}
 
-pub fn installer_distribution_contract_boundary_statuses()->Vec<String>{vec!["contract_only","installer_contract_only","distribution_contract_only","non_authoritative_contract","no_installer_created","no_update_channel_activation","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_signing","no_publishing","release_artifact_not_created","release_readiness_not_approved","release_candidate_status_not_approved","production_status_not_approved","no_deployment_artifact","no_provider_trust","no_action_authorization","no_replay_repair","no_recovery_promotion"].into_iter().map(ToString::to_string).collect()}
+pub fn installer_distribution_contract_boundary_statuses() -> Vec<String> {
+    vec![
+        "contract_only",
+        "installer_contract_only",
+        "distribution_contract_only",
+        "non_authoritative_contract",
+        "no_installer_created",
+        "no_update_channel_activation",
+        "no_public_distribution",
+        "no_public_download",
+        "no_github_release",
+        "no_release_tag",
+        "no_signing",
+        "no_publishing",
+        "release_artifact_not_created",
+        "release_readiness_not_approved",
+        "release_candidate_status_not_approved",
+        "production_status_not_approved",
+        "no_deployment_artifact",
+        "no_provider_trust",
+        "no_action_authorization",
+        "no_replay_repair",
+        "no_recovery_promotion",
+    ]
+    .into_iter()
+    .map(ToString::to_string)
+    .collect()
+}
 
-pub fn initial_installer_distribution_contract_projection()->InstallerDistributionContractProjection{InstallerDistributionContractProjection{status:InstallerDistributionContractStatus::NotDefined,contract_id:None,classification:"contract_only".into(),production_classification:"non_production".into(),distribution_classification:"no_public_distribution".into(),authority_classification:"non_authoritative_contract".into(),release_classification:"release_not_approved".into(),dry_package_linkage:None,checksum_provenance_linkage:None,missing_evidence:vec![],blockers:vec![],validation_status:InstallerDistributionContractValidationStatus::NotValidated,validation_errors:vec![],boundary_statuses:installer_distribution_contract_boundary_statuses()}}
+pub fn initial_installer_distribution_contract_projection(
+) -> InstallerDistributionContractProjection {
+    InstallerDistributionContractProjection {
+        status: InstallerDistributionContractStatus::NotDefined,
+        contract_id: None,
+        classification: "contract_only".into(),
+        production_classification: "non_production".into(),
+        distribution_classification: "no_public_distribution".into(),
+        authority_classification: "non_authoritative_contract".into(),
+        release_classification: "release_not_approved".into(),
+        dry_package_linkage: None,
+        checksum_provenance_linkage: None,
+        missing_evidence: vec![],
+        blockers: vec![],
+        validation_status: InstallerDistributionContractValidationStatus::NotValidated,
+        validation_errors: vec![],
+        boundary_statuses: installer_distribution_contract_boundary_statuses(),
+    }
+}
 
-fn stable_digest(input:&str)->String{let mut h:u64=0xcbf29ce484222325;for b in input.as_bytes(){h^=*b as u64;h=h.wrapping_mul(0x100000001b3);}format!("{h:016x}")}
+fn stable_digest(input: &str) -> String {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for b in input.as_bytes() {
+        h ^= *b as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    format!("{h:016x}")
+}
 
-pub fn project_installer_distribution_contract(dry: Option<&ReleaseArtifactDryPackageProjection>, c: Option<&ReleaseDryPackageChecksumProvenanceProjection>) -> InstallerDistributionContractProjection { let mut p=initial_installer_distribution_contract_projection(); let mut errs=Vec::new(); if dry.is_none(){errs.push(InstallerDistributionContractValidationError::MissingDryPackage);} if c.is_none(){errs.push(InstallerDistributionContractValidationError::MissingChecksumProvenance);} if let Some(d)=dry{ if d.status==ReleaseArtifactDryPackageStatus::DryPackageRejected {errs.push(InstallerDistributionContractValidationError::DryPackageRejected);} p.dry_package_linkage=Some(InstallerDistributionDryPackageLinkage{dry_package_id:d.dry_package_id.clone().unwrap_or_default(),dry_package_status:d.status.code().to_string()});}
-if let Some(cp)=c{ if cp.status==ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceRejected{errs.push(InstallerDistributionContractValidationError::ChecksumProvenanceRejected);} p.checksum_provenance_linkage=Some(InstallerDistributionChecksumProvenanceLinkage{dry_package_id:cp.dry_package_id.clone().unwrap_or_default(),checksum_value:cp.checksum_value.clone().unwrap_or_default(),provenance_id:cp.provenance_id.clone().unwrap_or_default(),status:cp.status.code().to_string()});}
-if let (Some(d),Some(cp))=(dry,c){ if d.dry_package_id!=cp.dry_package_id{errs.push(InstallerDistributionContractValidationError::DryPackageLinkageMismatch);} }
-if !errs.is_empty(){p.status=InstallerDistributionContractStatus::ContractRejected;p.validation_status=InstallerDistributionContractValidationStatus::Invalid;p.validation_errors=errs;return p;}
-let digest=stable_digest(&format!("{}|{}",p.dry_package_linkage.as_ref().map(|x|x.dry_package_id.as_str()).unwrap_or(""),p.boundary_statuses.join("|"))); p.contract_id=Some(format!("installer-distribution-contract-{digest}")); p.status=InstallerDistributionContractStatus::ContractValidated;p.validation_status=InstallerDistributionContractValidationStatus::Valid; p }
+pub fn project_installer_distribution_contract(
+    dry: Option<&ReleaseArtifactDryPackageProjection>,
+    c: Option<&ReleaseDryPackageChecksumProvenanceProjection>,
+) -> InstallerDistributionContractProjection {
+    let mut p = initial_installer_distribution_contract_projection();
+    let mut errs = Vec::new();
+    if dry.is_none() {
+        errs.push(InstallerDistributionContractValidationError::MissingDryPackage);
+    }
+    if c.is_none() {
+        errs.push(InstallerDistributionContractValidationError::MissingChecksumProvenance);
+    }
+    if let Some(d) = dry {
+        if d.status == ReleaseArtifactDryPackageStatus::DryPackageRejected {
+            errs.push(InstallerDistributionContractValidationError::DryPackageRejected);
+        }
+        p.dry_package_linkage = Some(InstallerDistributionDryPackageLinkage {
+            dry_package_id: d.dry_package_id.clone().unwrap_or_default(),
+            dry_package_status: d.status.code().to_string(),
+        });
+    }
+    if let Some(cp) = c {
+        if cp.status == ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceRejected {
+            errs.push(InstallerDistributionContractValidationError::ChecksumProvenanceRejected);
+        }
+        p.checksum_provenance_linkage = Some(InstallerDistributionChecksumProvenanceLinkage {
+            dry_package_id: cp.dry_package_id.clone().unwrap_or_default(),
+            checksum_value: cp.checksum_value.clone().unwrap_or_default(),
+            provenance_id: cp.provenance_id.clone().unwrap_or_default(),
+            status: cp.status.code().to_string(),
+        });
+    }
+    if let (Some(d), Some(cp)) = (dry, c) {
+        if d.dry_package_id != cp.dry_package_id {
+            errs.push(InstallerDistributionContractValidationError::DryPackageLinkageMismatch);
+        }
+    }
+    if !errs.is_empty() {
+        p.status = InstallerDistributionContractStatus::ContractRejected;
+        p.validation_status = InstallerDistributionContractValidationStatus::Invalid;
+        p.validation_errors = errs;
+        return p;
+    }
+    let digest = stable_digest(&format!(
+        "{}|{}",
+        p.dry_package_linkage
+            .as_ref()
+            .map(|x| x.dry_package_id.as_str())
+            .unwrap_or(""),
+        p.boundary_statuses.join("|")
+    ));
+    p.contract_id = Some(format!("installer-distribution-contract-{digest}"));
+    p.status = InstallerDistributionContractStatus::ContractValidated;
+    p.validation_status = InstallerDistributionContractValidationStatus::Valid;
+    p
+}
