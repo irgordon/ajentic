@@ -2,11 +2,14 @@
 
 use super::*;
 use crate::api::{
-    derive_release_candidate_preparation_input_snapshot,
+    derive_release_artifact_dry_package, derive_release_candidate_preparation_input_snapshot,
     derive_release_candidate_preparation_projection,
     initial_release_artifact_dry_package_projection,
-    initial_release_candidate_preparation_projection, ReleaseArtifactDryPackageProjection,
-    ReleaseCandidatePreparationProjection,
+    initial_release_candidate_preparation_projection,
+    initial_release_dry_package_checksum_provenance_projection,
+    project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
+    ReleaseArtifactDryPackageProjection, ReleaseCandidatePreparationProjection,
+    ReleaseDryPackageChecksumProvenanceProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,6 +78,7 @@ pub struct LocalOperatorShellState {
     pub trial_evidence_review: TrialEvidenceReviewProjection,
     pub release_candidate_preparation: ReleaseCandidatePreparationProjection,
     pub release_artifact_dry_package: ReleaseArtifactDryPackageProjection,
+    pub release_dry_package_checksum_provenance: ReleaseDryPackageChecksumProvenanceProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -237,6 +241,12 @@ pub(crate) fn attach_local_session_evidence_export(
     state.release_candidate_preparation = derive_release_candidate_preparation_projection(
         &derive_release_candidate_preparation_input_snapshot(&state),
     );
+    state.release_artifact_dry_package =
+        project_release_artifact_dry_package(Some(&state.release_candidate_preparation));
+    let dry_package =
+        derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
+    state.release_dry_package_checksum_provenance =
+        project_release_dry_package_checksum_provenance(dry_package.as_ref());
     state
 }
 
@@ -326,6 +336,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         trial_evidence_review: initial_trial_evidence_review_projection(),
         release_candidate_preparation: initial_release_candidate_preparation_projection(),
         release_artifact_dry_package: initial_release_artifact_dry_package_projection(),
+        release_dry_package_checksum_provenance:
+            initial_release_dry_package_checksum_provenance_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -336,6 +348,12 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
     state.release_candidate_preparation = derive_release_candidate_preparation_projection(
         &derive_release_candidate_preparation_input_snapshot(&state),
     );
+    state.release_artifact_dry_package =
+        project_release_artifact_dry_package(Some(&state.release_candidate_preparation));
+    let dry_package =
+        derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
+    state.release_dry_package_checksum_provenance =
+        project_release_dry_package_checksum_provenance(dry_package.as_ref());
     state
 }
 

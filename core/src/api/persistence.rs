@@ -73,6 +73,49 @@ pub fn read_trial_session_evidence_record(
     })
 }
 
+pub fn write_release_dry_package_checksum_provenance(
+    evidence: &ReleaseDryPackageChecksumProvenanceEvidence,
+    caller_provided_path: &std::path::Path,
+) -> Result<
+    ReleaseDryPackageChecksumProvenanceWriteResult,
+    Vec<ReleaseDryPackageChecksumProvenanceValidationError>,
+> {
+    validate_release_dry_package_checksum_provenance(evidence)?;
+    let serialized = serialize_release_dry_package_checksum_provenance(evidence)?;
+    std::fs::write(caller_provided_path, serialized.as_bytes()).map_err(|_| {
+        vec![ReleaseDryPackageChecksumProvenanceValidationError::MalformedChecksumProvenanceInput]
+    })?;
+    let mut written = evidence.clone();
+    written.metadata.checksum_provenance_status =
+        ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceWritten;
+    Ok(ReleaseDryPackageChecksumProvenanceWriteResult {
+        path: caller_provided_path.display().to_string(),
+        projection: checksum_provenance_projection_from_evidence(
+            &written,
+            ReleaseDryPackageChecksumProvenanceValidationStatus::NotValidated,
+            Vec::new(),
+        ),
+    })
+}
+
+pub fn read_release_dry_package_checksum_provenance(
+    caller_provided_path: &std::path::Path,
+) -> Result<
+    ReleaseDryPackageChecksumProvenanceReadResult,
+    Vec<ReleaseDryPackageChecksumProvenanceValidationError>,
+> {
+    let contents = std::fs::read_to_string(caller_provided_path).map_err(|_| {
+        vec![ReleaseDryPackageChecksumProvenanceValidationError::MalformedChecksumProvenanceInput]
+    })?;
+    let evidence = parse_release_dry_package_checksum_provenance(&contents)?;
+    let read_back = validate_release_dry_package_checksum_provenance_read_back(&contents);
+    Ok(ReleaseDryPackageChecksumProvenanceReadResult {
+        path: caller_provided_path.display().to_string(),
+        evidence,
+        read_back,
+    })
+}
+
 #[cfg(test)]
 mod phase_151_local_session_package_persistence_tests {
     use super::*;

@@ -21,6 +21,7 @@ mod provider_transport;
 mod read_projection;
 mod release_artifact_dry_package;
 mod release_candidate_preparation;
+mod release_dry_package_checksum_provenance;
 mod runtime_config;
 
 pub use application_state::*;
@@ -46,4 +47,5 @@ pub use provider_transport::*;
 pub use read_projection::*;
 pub use release_artifact_dry_package::*;
 pub use release_candidate_preparation::*;
+pub use release_dry_package_checksum_provenance::*;
 pub use runtime_config::*;

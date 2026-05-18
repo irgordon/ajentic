@@ -7973,7 +7973,6 @@ export function deriveReleaseCandidatePreparationProjection(
   };
 }
 
-
 export type ReleaseArtifactDryPackageStatus =
   | "not_assembled"
   | "dry_package_projected"
@@ -8110,14 +8109,16 @@ export function initialReleaseArtifactDryPackageProjection(): ReleaseArtifactDry
     includedEvidenceCount: 0,
     includedEvidence: [],
     boundaryStatuses: releaseArtifactDryPackageBoundaryStatuses(),
-    dryPackageOnlyNote: "A dry package is rehearsal evidence, not a release artifact.",
+    dryPackageOnlyNote:
+      "A dry package is rehearsal evidence, not a release artifact.",
     notReleaseArtifactNote: "This local dry package is not a release artifact.",
     noReadinessOrCandidateApprovalNote:
       "This package does not approve release readiness or Release Candidate status.",
     localOnlyNonPublicNote: "This package is local-only and non-public.",
     noDistributionNote:
       "No signing, publishing, installer, update-channel, public download, GitHub release, release tag, deployment, or public distribution occurs.",
-    readBackValidationNote: "Read-back validation checks dry package structure only.",
+    readBackValidationNote:
+      "Read-back validation checks dry package structure only.",
   };
 }
 
@@ -8134,11 +8135,15 @@ export function deriveReleaseArtifactDryPackageProjection(
   preparation: ReleaseCandidatePreparationProjection | null,
 ): ReleaseArtifactDryPackageProjection {
   if (!preparation) {
-    return rejectedReleaseArtifactDryPackageProjection(["missing_preparation_contract"]);
+    return rejectedReleaseArtifactDryPackageProjection([
+      "missing_preparation_contract",
+    ]);
   }
   const validationErrors: ReleaseArtifactDryPackageValidationError[] = [];
-  if (preparation.status === "preparation_blocked") validationErrors.push("preparation_blocked");
-  if (preparation.status === "preparation_rejected") validationErrors.push("preparation_rejected");
+  if (preparation.status === "preparation_blocked")
+    validationErrors.push("preparation_blocked");
+  if (preparation.status === "preparation_rejected")
+    validationErrors.push("preparation_rejected");
   if (
     preparation.status !== "preparation_validated" &&
     preparation.status !== "preparation_blocked" &&
@@ -8146,28 +8151,47 @@ export function deriveReleaseArtifactDryPackageProjection(
   ) {
     validationErrors.push("preparation_not_projected");
   }
-  if (preparation.validationStatus !== "valid" || preparation.missingEvidenceCount > 0) {
+  if (
+    preparation.validationStatus !== "valid" ||
+    preparation.missingEvidenceCount > 0
+  ) {
     validationErrors.push("preparation_missing_required_evidence");
   }
   for (const error of preparation.validationErrors) {
-    if (error === "evidence_category_blocked") validationErrors.push("preparation_blocked");
-    else if (error === "evidence_category_rejected") validationErrors.push("preparation_rejected");
-    else if (error === "readiness_claim_detected") validationErrors.push("readiness_claim_detected");
-    else if (error === "release_claim_detected") validationErrors.push("release_claim_detected");
-    else if (error === "deployment_claim_detected") validationErrors.push("deployment_claim_detected");
-    else if (error === "public_use_claim_detected") validationErrors.push("public_use_claim_detected");
-    else if (error === "production_use_claim_detected") validationErrors.push("production_use_claim_detected");
-    else if (error === "signing_claim_detected") validationErrors.push("signing_claim_detected");
-    else if (error === "publishing_claim_detected") validationErrors.push("publishing_claim_detected");
-    else if (error === "installer_claim_detected") validationErrors.push("installer_claim_detected");
-    else if (error === "update_channel_claim_detected") validationErrors.push("update_channel_claim_detected");
-    else if (error === "provider_trust_claim_detected") validationErrors.push("provider_trust_claim_detected");
-    else if (error === "action_authorization_claim_detected") validationErrors.push("action_authorization_claim_detected");
-    else if (error === "replay_repair_claim_detected") validationErrors.push("replay_repair_claim_detected");
-    else if (error === "recovery_promotion_claim_detected") validationErrors.push("recovery_promotion_claim_detected");
+    if (error === "evidence_category_blocked")
+      validationErrors.push("preparation_blocked");
+    else if (error === "evidence_category_rejected")
+      validationErrors.push("preparation_rejected");
+    else if (error === "readiness_claim_detected")
+      validationErrors.push("readiness_claim_detected");
+    else if (error === "release_claim_detected")
+      validationErrors.push("release_claim_detected");
+    else if (error === "deployment_claim_detected")
+      validationErrors.push("deployment_claim_detected");
+    else if (error === "public_use_claim_detected")
+      validationErrors.push("public_use_claim_detected");
+    else if (error === "production_use_claim_detected")
+      validationErrors.push("production_use_claim_detected");
+    else if (error === "signing_claim_detected")
+      validationErrors.push("signing_claim_detected");
+    else if (error === "publishing_claim_detected")
+      validationErrors.push("publishing_claim_detected");
+    else if (error === "installer_claim_detected")
+      validationErrors.push("installer_claim_detected");
+    else if (error === "update_channel_claim_detected")
+      validationErrors.push("update_channel_claim_detected");
+    else if (error === "provider_trust_claim_detected")
+      validationErrors.push("provider_trust_claim_detected");
+    else if (error === "action_authorization_claim_detected")
+      validationErrors.push("action_authorization_claim_detected");
+    else if (error === "replay_repair_claim_detected")
+      validationErrors.push("replay_repair_claim_detected");
+    else if (error === "recovery_promotion_claim_detected")
+      validationErrors.push("recovery_promotion_claim_detected");
   }
   const uniqueErrors = Array.from(new Set(validationErrors)).sort();
-  if (uniqueErrors.length > 0) return rejectedReleaseArtifactDryPackageProjection(uniqueErrors);
+  if (uniqueErrors.length > 0)
+    return rejectedReleaseArtifactDryPackageProjection(uniqueErrors);
 
   const includedEvidence = [...preparation.evidenceItems]
     .sort((left, right) => left.category.localeCompare(right.category))
@@ -8213,6 +8237,220 @@ function rejectedReleaseArtifactDryPackageProjection(
   };
 }
 
+export type ReleaseDryPackageChecksumProvenanceStatus =
+  | "not_generated"
+  | "checksum_provenance_projected"
+  | "checksum_provenance_validated"
+  | "checksum_provenance_written"
+  | "checksum_provenance_read_back_validated"
+  | "checksum_provenance_rejected"
+  | "invalid_checksum_provenance_input";
+export type ReleaseDryPackageChecksumProvenanceValidationStatus =
+  | "not_validated"
+  | "valid"
+  | "invalid";
+export type ReleaseDryPackageChecksumProvenanceValidationError =
+  | "missing_dry_package"
+  | "dry_package_not_projected"
+  | "dry_package_rejected"
+  | "dry_package_malformed"
+  | "dry_package_digest_mismatch"
+  | "dry_package_id_mismatch"
+  | "missing_preparation_linkage"
+  | "preparation_linkage_mismatch"
+  | "malformed_checksum_provenance_input"
+  | "deterministic_digest_mismatch";
+export type ReleaseDryPackageChecksumProvenanceBoundaryStatus =
+  | "checksum_evidence_only"
+  | "provenance_evidence_only"
+  | "local_checksum_provenance_only"
+  | "non_public_checksum_provenance"
+  | "non_authoritative_evidence"
+  | "no_signature_created"
+  | "no_signing"
+  | "no_publishing"
+  | "release_artifact_not_created"
+  | "release_readiness_not_approved"
+  | "release_candidate_status_not_approved"
+  | "production_status_not_approved"
+  | "no_public_distribution"
+  | "no_public_download"
+  | "no_github_release"
+  | "no_release_tag"
+  | "no_installer_activation"
+  | "no_update_channel_activation"
+  | "no_deployment_artifact"
+  | "no_provider_trust"
+  | "no_action_authorization"
+  | "no_replay_repair"
+  | "no_recovery_promotion";
+export type ReleaseDryPackageChecksumProvenanceProjection = Readonly<{
+  status: ReleaseDryPackageChecksumProvenanceStatus;
+  dryPackageId: string | null;
+  checksumValue: string | null;
+  checksumAlgorithm: "deterministic_fnv64_dry_package_payload";
+  provenanceId: string | null;
+  checksumClassification: "checksum_evidence_only";
+  provenanceClassification: "provenance_evidence_only";
+  productionClassification: "non_production";
+  distributionClassification: "local_only_non_public";
+  authorityClassification: "non_authoritative_evidence";
+  releaseClassification: "release_not_approved";
+  provenanceLinkageSummary: string;
+  validationStatus: ReleaseDryPackageChecksumProvenanceValidationStatus;
+  validationErrors: readonly ReleaseDryPackageChecksumProvenanceValidationError[];
+  readBackValidationStatus: ReleaseDryPackageChecksumProvenanceValidationStatus;
+  boundaryStatuses: readonly ReleaseDryPackageChecksumProvenanceBoundaryStatus[];
+  checksumProvesContentsNote: string;
+  noSignPublishReleaseDeployApproveNote: string;
+  localOnlyNonPublicNote: string;
+  noDistributionNote: string;
+  readBackValidationNote: string;
+}>;
+
+export function releaseDryPackageChecksumProvenanceBoundaryStatuses(): readonly ReleaseDryPackageChecksumProvenanceBoundaryStatus[] {
+  return [
+    "checksum_evidence_only",
+    "provenance_evidence_only",
+    "local_checksum_provenance_only",
+    "non_public_checksum_provenance",
+    "non_authoritative_evidence",
+    "no_signature_created",
+    "no_signing",
+    "no_publishing",
+    "release_artifact_not_created",
+    "release_readiness_not_approved",
+    "release_candidate_status_not_approved",
+    "production_status_not_approved",
+    "no_public_distribution",
+    "no_public_download",
+    "no_github_release",
+    "no_release_tag",
+    "no_installer_activation",
+    "no_update_channel_activation",
+    "no_deployment_artifact",
+    "no_provider_trust",
+    "no_action_authorization",
+    "no_replay_repair",
+    "no_recovery_promotion",
+  ];
+}
+
+export function initialReleaseDryPackageChecksumProvenanceProjection(): ReleaseDryPackageChecksumProvenanceProjection {
+  return {
+    status: "not_generated",
+    dryPackageId: null,
+    checksumValue: null,
+    checksumAlgorithm: "deterministic_fnv64_dry_package_payload",
+    provenanceId: null,
+    checksumClassification: "checksum_evidence_only",
+    provenanceClassification: "provenance_evidence_only",
+    productionClassification: "non_production",
+    distributionClassification: "local_only_non_public",
+    authorityClassification: "non_authoritative_evidence",
+    releaseClassification: "release_not_approved",
+    provenanceLinkageSummary: "No dry package checksum/provenance generated.",
+    validationStatus: "not_validated",
+    validationErrors: [],
+    readBackValidationStatus: "not_validated",
+    boundaryStatuses: releaseDryPackageChecksumProvenanceBoundaryStatuses(),
+    checksumProvesContentsNote:
+      "Checksum and provenance evidence proves what the dry package contains.",
+    noSignPublishReleaseDeployApproveNote:
+      "This evidence does not sign, publish, release, deploy, or approve the dry package.",
+    localOnlyNonPublicNote: "This evidence is local-only and non-public.",
+    noDistributionNote:
+      "No signing, publishing, installer, update-channel, public download, GitHub release, release tag, deployment, or public distribution occurs.",
+    readBackValidationNote:
+      "Read-back validation checks checksum/provenance structure only.",
+  };
+}
+
+function stableReleaseDryPackageChecksumProvenanceDigest(
+  input: string,
+): string {
+  let hash = 0xcbf29ce484222325n;
+  for (const char of new TextEncoder().encode(input)) {
+    hash ^= BigInt(char);
+    hash = BigInt.asUintN(64, hash * 0x100000001b3n);
+  }
+  return hash.toString(16).padStart(16, "0");
+}
+
+export function deriveReleaseDryPackageChecksumProvenanceProjection(
+  dryPackage: ReleaseArtifactDryPackageProjection | null,
+  preparation: ReleaseCandidatePreparationProjection | null,
+): ReleaseDryPackageChecksumProvenanceProjection {
+  if (!dryPackage || !dryPackage.dryPackageId) {
+    return rejectedReleaseDryPackageChecksumProvenanceProjection([
+      "missing_dry_package",
+    ]);
+  }
+  if (dryPackage.status === "dry_package_rejected") {
+    return rejectedReleaseDryPackageChecksumProvenanceProjection([
+      "dry_package_rejected",
+    ]);
+  }
+  if (dryPackage.status !== "dry_package_validated") {
+    return rejectedReleaseDryPackageChecksumProvenanceProjection([
+      "dry_package_not_projected",
+    ]);
+  }
+  if (!preparation || preparation.preparationId.length === 0) {
+    return rejectedReleaseDryPackageChecksumProvenanceProjection([
+      "missing_preparation_linkage",
+    ]);
+  }
+  const dryPackageBasis = [
+    dryPackage.dryPackageId,
+    dryPackage.dryPackageClassification,
+    dryPackage.productionClassification,
+    dryPackage.distributionClassification,
+    dryPackage.authorityClassification,
+    dryPackage.releaseClassification,
+    dryPackage.includedEvidenceCount,
+    dryPackage.includedEvidence
+      .map(
+        (item) =>
+          `${item.category}:${item.categoryStatus}:${item.sourceSurface}:${item.sourceStatus}:${item.sourceSummary}`,
+      )
+      .join("|"),
+    dryPackage.boundaryStatuses.join("|"),
+  ].join("|");
+  const checksumValue =
+    stableReleaseDryPackageChecksumProvenanceDigest(dryPackageBasis);
+  const provenanceBasis = [
+    checksumValue,
+    preparation.preparationId,
+    preparation.status,
+    dryPackage.dryPackageId,
+    dryPackage.includedEvidenceCount,
+    releaseDryPackageChecksumProvenanceBoundaryStatuses().join("|"),
+  ].join("|");
+  const provenanceDigest =
+    stableReleaseDryPackageChecksumProvenanceDigest(provenanceBasis);
+  return {
+    ...initialReleaseDryPackageChecksumProvenanceProjection(),
+    status: "checksum_provenance_validated",
+    dryPackageId: dryPackage.dryPackageId,
+    checksumValue,
+    provenanceId: `release-dry-package-provenance-${provenanceDigest}`,
+    provenanceLinkageSummary: `Phase 171 preparation ${preparation.preparationId} (${preparation.status}) -> Phase 172 dry package ${dryPackage.dryPackageId} with ${dryPackage.includedEvidenceCount} included evidence items`,
+    validationStatus: "valid",
+  };
+}
+
+function rejectedReleaseDryPackageChecksumProvenanceProjection(
+  validationErrors: readonly ReleaseDryPackageChecksumProvenanceValidationError[],
+): ReleaseDryPackageChecksumProvenanceProjection {
+  return {
+    ...initialReleaseDryPackageChecksumProvenanceProjection(),
+    status: "checksum_provenance_rejected",
+    validationStatus: "invalid",
+    validationErrors,
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8246,6 +8484,7 @@ export type LocalOperatorShellState = Readonly<{
   trialEvidenceReview: TrialEvidenceReviewProjection;
   releaseCandidatePreparation: ReleaseCandidatePreparationProjection;
   releaseArtifactDryPackage: ReleaseArtifactDryPackageProjection;
+  releaseDryPackageChecksumProvenance: ReleaseDryPackageChecksumProvenanceProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9526,6 +9765,7 @@ function attachLocalSessionEvidenceExport(
     | "trialEvidenceReview"
     | "releaseCandidatePreparation"
     | "releaseArtifactDryPackage"
+    | "releaseDryPackageChecksumProvenance"
   >,
 ): LocalOperatorShellState {
   const next = {
@@ -9555,6 +9795,8 @@ function attachLocalSessionEvidenceExport(
     trialErrorReport: initialTrialErrorReportProjection(),
     trialEvidenceReview: initialTrialEvidenceReviewProjection(),
     releaseArtifactDryPackage: initialReleaseArtifactDryPackageProjection(),
+    releaseDryPackageChecksumProvenance:
+      initialReleaseDryPackageChecksumProvenanceProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -9613,13 +9855,28 @@ function attachLocalSessionEvidenceExport(
     releaseArtifactDryPackage:
       (state as Partial<LocalOperatorShellState>).releaseArtifactDryPackage ??
       initialReleaseArtifactDryPackageProjection(),
+    releaseDryPackageChecksumProvenance:
+      (state as Partial<LocalOperatorShellState>)
+        .releaseDryPackageChecksumProvenance ??
+      initialReleaseDryPackageChecksumProvenanceProjection(),
   });
+  const releaseCandidatePreparation =
+    deriveReleaseCandidatePreparationProjection(refreshed);
+  const releaseArtifactDryPackage =
+    releaseCandidatePreparation.validationStatus === "valid"
+      ? deriveReleaseArtifactDryPackageProjection(releaseCandidatePreparation)
+      : initialReleaseArtifactDryPackageProjection();
   return {
     ...refreshed,
-    releaseCandidatePreparation:
-      deriveReleaseCandidatePreparationProjection(refreshed),
-    releaseArtifactDryPackage:
-      refreshed.releaseArtifactDryPackage ?? initialReleaseArtifactDryPackageProjection(),
+    releaseCandidatePreparation,
+    releaseArtifactDryPackage,
+    releaseDryPackageChecksumProvenance:
+      releaseCandidatePreparation.validationStatus === "valid"
+        ? deriveReleaseDryPackageChecksumProvenanceProjection(
+            releaseArtifactDryPackage,
+            releaseCandidatePreparation,
+          )
+        : initialReleaseDryPackageChecksumProvenanceProjection(),
   };
 }
 

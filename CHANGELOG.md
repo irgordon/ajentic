@@ -28,6 +28,47 @@ Archive guarantees:
 - Phase 135.2 does not change roadmap planned truth except narrow archive-reference clarification if required.
 - Phase 135.2 does not approve readiness, Release Candidate status, Production Candidate status, or public/general use.
 
+## v0.0.173 - 2026-05-16
+**Status:** Phase 173 - Checksum and Provenance Evidence for Dry Package
+
+### Added
+- Add Rust-owned checksum and provenance evidence derivation, validation, serialization, write, read, and read-back validation for the release artifact dry package.
+- Add deterministic checksum metadata, provenance metadata, checksum value, provenance ID, classifications, dry package linkage, Phase 171 preparation linkage, boundary markers, validation errors, and read-back projection.
+- Add explicit caller-provided path helpers for checksum/provenance evidence write/read.
+- Add UI rendering for checksum/provenance status, dry package ID, checksum value, provenance linkage summary, read-back validation status, and no-signing/no-release boundaries.
+- Add Rust and TypeScript tests for deterministic checksum generation, changed-dry-package checksum changes, missing/invalid dry package rejection, provenance linkage, explicit write/read behavior, malformed read-back rejection, digest mismatch rejection, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with checksum/provenance evidence status using thin integration.
+- Update the local UI shell to display checksum/provenance evidence state and provenance linkage.
+- Update checklists/current-phase.md to Phase 173 procedural truth.
+
+### Notes
+- Code-production phase.
+- Checksum and provenance evidence proves what the dry package contains.
+- Checksum and provenance evidence does not sign, publish, release, deploy, or approve the dry package.
+- Checksum/provenance classification is evidence-only.
+- Checksum/provenance evidence is local-only and non-public.
+- No signature creation.
+- No signing.
+- No publishing.
+- No release artifact creation.
+- No public artifact creation.
+- No installer activation.
+- No update-channel activation.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No deployment behavior.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 174 remains the next code-production phase for installer and distribution contract surface.
+
 ## v0.0.172 - 2026-05-16
 **Status:** Phase 172 - Release Artifact Dry Package Assembly
 
