@@ -8473,6 +8473,28 @@ export function initialInstallerDistributionContractProjection(): InstallerDistr
   return { status: "not_defined", contractId: null, classification: "contract_only", productionClassification: "non_production", distributionClassification: "no_public_distribution", authorityClassification: "non_authoritative_contract", releaseClassification: "release_not_approved", dryPackageLinkage: "none", checksumProvenanceLinkage: "none", missingEvidence: [], blockers: [], validationStatus: "not_validated", validationErrors: [], boundaryStatuses: ["contract_only","installer_contract_only","distribution_contract_only","non_authoritative_contract","no_installer_created","no_update_channel_activation","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_signing","no_publishing","release_artifact_not_created","release_readiness_not_approved","release_candidate_status_not_approved"] };
 }
 
+
+export type SigningKeyCustodyDryRunProjection = Readonly<{
+  status: string;
+  evidenceId: string | null;
+  classification: "dry_run_evidence_only";
+  productionClassification: "non_production";
+  distributionClassification: "local_only_non_public";
+  authorityClassification: "non_authoritative_dry_run_evidence";
+  releaseClassification: "release_not_approved";
+  upstreamEvidenceLinkage: string;
+  placeholderKeyMetadataSummary: string;
+  missingEvidence: readonly string[];
+  blockers: readonly string[];
+  validationStatus: "not_validated" | "valid" | "invalid";
+  validationErrors: readonly string[];
+  boundaryStatuses: readonly string[];
+}>;
+
+export function initialSigningKeyCustodyDryRunProjection(): SigningKeyCustodyDryRunProjection {
+  return { status: "not_generated", evidenceId: null, classification: "dry_run_evidence_only", productionClassification: "non_production", distributionClassification: "local_only_non_public", authorityClassification: "non_authoritative_dry_run_evidence", releaseClassification: "release_not_approved", upstreamEvidenceLinkage: "none", placeholderKeyMetadataSummary: "placeholder key metadata only; no real signing key, private key, certificate, KMS binding, or secret material is present", missingEvidence: [], blockers: [], validationStatus: "not_validated", validationErrors: [], boundaryStatuses: ["dry_run_evidence_only","placeholder_key_metadata_only","no_real_signing_keys","no_signature_created","no_signing","no_publishing","release_readiness_not_approved","release_candidate_status_not_approved"] };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8508,6 +8530,7 @@ export type LocalOperatorShellState = Readonly<{
   releaseArtifactDryPackage: ReleaseArtifactDryPackageProjection;
   releaseDryPackageChecksumProvenance: ReleaseDryPackageChecksumProvenanceProjection;
   installerDistributionContract: InstallerDistributionContractProjection;
+  signingKeyCustodyDryRun: SigningKeyCustodyDryRunProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9821,6 +9844,7 @@ function attachLocalSessionEvidenceExport(
     releaseDryPackageChecksumProvenance:
       initialReleaseDryPackageChecksumProvenanceProjection(),
     installerDistributionContract: initialInstallerDistributionContractProjection(),
+    signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10125,6 +10149,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       initialControlledInternalTrialPackageProjection(),
     installerDistributionContract:
       initialInstallerDistributionContractProjection(),
+    signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
   });
   return {
     ...state,

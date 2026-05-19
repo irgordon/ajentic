@@ -9,9 +9,9 @@ use crate::api::{
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
     project_installer_distribution_contract, project_release_artifact_dry_package,
-    project_release_dry_package_checksum_provenance, InstallerDistributionContractProjection,
+    project_release_dry_package_checksum_provenance, derive_signing_key_custody_dry_run, initial_signing_key_custody_dry_run_projection, InstallerDistributionContractProjection,
     ReleaseArtifactDryPackageProjection, ReleaseCandidatePreparationProjection,
-    ReleaseDryPackageChecksumProvenanceProjection,
+    ReleaseDryPackageChecksumProvenanceProjection, SigningKeyCustodyDryRunProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -82,6 +82,7 @@ pub struct LocalOperatorShellState {
     pub release_artifact_dry_package: ReleaseArtifactDryPackageProjection,
     pub release_dry_package_checksum_provenance: ReleaseDryPackageChecksumProvenanceProjection,
     pub installer_distribution_contract: InstallerDistributionContractProjection,
+    pub signing_key_custody_dry_run: SigningKeyCustodyDryRunProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -255,6 +256,12 @@ pub(crate) fn attach_local_session_evidence_export(
         dry_package_projection,
         Some(&state.release_dry_package_checksum_provenance),
     );
+    state.signing_key_custody_dry_run = derive_signing_key_custody_dry_run(
+        Some(&state.release_candidate_preparation),
+        Some(&state.release_artifact_dry_package),
+        Some(&state.release_dry_package_checksum_provenance),
+        Some(&state.installer_distribution_contract),
+    );
     state
 }
 
@@ -347,6 +354,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         release_dry_package_checksum_provenance:
             initial_release_dry_package_checksum_provenance_projection(),
         installer_distribution_contract: initial_installer_distribution_contract_projection(),
+        signing_key_custody_dry_run: initial_signing_key_custody_dry_run_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -367,6 +375,12 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
     state.installer_distribution_contract = project_installer_distribution_contract(
         dry_package_projection,
         Some(&state.release_dry_package_checksum_provenance),
+    );
+    state.signing_key_custody_dry_run = derive_signing_key_custody_dry_run(
+        Some(&state.release_candidate_preparation),
+        Some(&state.release_artifact_dry_package),
+        Some(&state.release_dry_package_checksum_provenance),
+        Some(&state.installer_distribution_contract),
     );
     state
 }

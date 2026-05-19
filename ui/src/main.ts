@@ -830,6 +830,27 @@ function renderInstallerDistributionContract(state: LocalOperatorShellState): st
     <p class="muted">This contract does not activate an update channel.</p>`;
 }
 
+
+function renderSigningKeyCustodyDryRun(state: LocalOperatorShellState): string {
+  const projection = state.signingKeyCustodyDryRun;
+  return `
+    <p><strong>Dry-run status:</strong> ${projection.status}</p>
+    <p><strong>Dry-run evidence ID:</strong> ${projection.evidenceId ?? "none"}</p>
+    <p><strong>Dry-run classification:</strong> ${projection.classification}</p>
+    <p><strong>Production classification:</strong> ${projection.productionClassification}</p>
+    <p><strong>Distribution classification:</strong> ${projection.distributionClassification}</p>
+    <p><strong>Authority classification:</strong> ${projection.authorityClassification}</p>
+    <p><strong>Release classification:</strong> ${projection.releaseClassification}</p>
+    <p><strong>Upstream evidence linkage:</strong> ${projection.upstreamEvidenceLinkage}</p>
+    <p><strong>Placeholder key metadata:</strong> ${projection.placeholderKeyMetadataSummary}</p>
+    <p><strong>Validation status:</strong> ${projection.validationStatus}</p>
+    <p class="muted">Signing/key-custody dry run uses placeholder key metadata only.</p>
+    <p class="muted">This dry run does not use real signing keys.</p>
+    <p class="muted">This dry run does not create signatures.</p>
+    <p class="muted">This dry run does not sign, publish, deploy, release, or distribute anything.</p>
+    <p class="muted">This dry run does not approve release readiness or Release Candidate status.</p>`;
+}
+
 function render(): void {
   const app = document.querySelector<HTMLDivElement>("#app");
   if (!app) return;
@@ -864,6 +885,11 @@ function render(): void {
       <section class="panel" aria-label="Installer and distribution contract">
         <h2>Installer and distribution contract</h2>
         ${renderInstallerDistributionContract(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Signing and key-custody dry run">
+        <h2>Signing and key-custody dry run</h2>
+        ${renderSigningKeyCustodyDryRun(shellState)}
       </section>
 
       <section class="panel" aria-label="Local transport boundary status">

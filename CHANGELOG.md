@@ -4,6 +4,49 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.176 - 2026-05-19
+**Status:** Phase 176 - Signing and Key-Custody Dry Run
+
+### Added
+- Add Rust-owned signing/key-custody dry-run evidence derivation and validation from release-candidate preparation, dry package, checksum/provenance, and installer/distribution contract evidence.
+- Add placeholder key metadata, upstream evidence linkage, missing evidence, blockers, validation errors, disabled capability surface, and no-real-signing/no-release boundary markers.
+- Add UI rendering for signing/key-custody dry-run status, upstream evidence linkage, placeholder key metadata, missing/blocked evidence, and no-real-signing/no-release boundaries.
+- Add Rust and TypeScript tests for valid upstream mapping, missing/rejected evidence, real-key/signature/public-signing claim rejection, deterministic dry-run evidence, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with signing/key-custody dry-run status using thin integration.
+- Update the local UI shell to display signing/key-custody dry-run evidence state.
+- Update checklists/current-phase.md to Phase 176 procedural truth.
+
+### Notes
+- Code-production phase.
+- Signing/key-custody dry run uses placeholder key metadata only.
+- No real signing keys.
+- No private keys.
+- No certificate material.
+- No KMS binding.
+- No secret material.
+- No signature creation.
+- No public signing.
+- No signing.
+- No publishing.
+- No release artifact creation.
+- No public artifact creation.
+- No installer activation.
+- No update-channel activation.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No deployment behavior.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 177 remains the next code-production phase for Release Candidate Evidence Assembly UI.
+
 ## v0.0.175.1 - 2026-05-19
 **Status:** Phase 175.1 - OOB Alignment Checkpoint Validation Closure
 
