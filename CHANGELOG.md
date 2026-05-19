@@ -4,6 +4,31 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.175.1 - 2026-05-19
+**Status:** Phase 175.1 - OOB Alignment Checkpoint Validation Closure
+
+### Fixed
+- Close the Phase 175 validation gap by rerunning the full repository check from a clean committed tree.
+- Record the successful clean-tree validation result in checklists/current-phase.md.
+
+### Notes
+- Out-of-band validation closure only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No signing behavior.
+- No publishing behavior.
+- No installer behavior.
+- No update-channel activation.
+- No deployment behavior.
+- No public distribution.
+- No release artifact creation.
+- No readiness approval.
+- No Release Candidate approval.
+- Phase 176 remains the next code-production phase.
+
 ## v0.0.175 - 2026-05-19
 **Status:** Phase 175 - Code-Production Alignment Checkpoint
 
