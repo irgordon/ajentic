@@ -6517,6 +6517,21 @@ function assertReleaseDryPackageChecksumProvenanceForbiddenLabelsAbsent(): void 
     );
 }
 
+function assertInstallerDistributionContractStateShapeAndPanel(): void {
+  const state = initialLocalOperatorShellState();
+  assertEqual(
+    state.installerDistributionContract !== undefined,
+    true,
+    "installerDistributionContract present",
+  );
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(
+    rendered,
+    "Installer and distribution contract",
+    "installer contract panel visible",
+  );
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
   {
     name: "phase_104_transport_startup_is_local_only",
@@ -7345,6 +7360,10 @@ payload_summary=authority before replay`),
   {
     name: "release_dry_package_checksum_provenance_forbidden_labels_absent",
     run: assertReleaseDryPackageChecksumProvenanceForbiddenLabelsAbsent,
+  },
+  {
+    name: "installer_distribution_contract_state_shape_and_panel",
+    run: assertInstallerDistributionContractStateShapeAndPanel,
   },
 
   {

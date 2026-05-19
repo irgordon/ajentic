@@ -2211,3 +2211,35 @@ Archive guarantees:
 - No release artifact creation.
 - No installer, update-channel, signing, publishing, deployment, public-use, or readiness approval behavior.
 - Phase 136 is expected to resume code production.
+
+## v0.0.174.1 - 2026-05-19
+**Status:** Phase 174.1 - OOB Installer and Distribution Contract Completion Fix
+
+### Fixed
+- Fix Rust installer/distribution contract integration so local shell state passes dry package projection data, not dry package payload data.
+- Fix TypeScript local shell state construction so installerDistributionContract is always present.
+- Complete Phase 174 installer/distribution contract validation and fail-closed claim rejection.
+- Populate deterministic missing evidence and blocker lists for installer/distribution contract rejection states.
+- Add Rust tests for valid linkage, missing/rejected evidence, linkage mismatch, installer/update/public-distribution/signing/publishing/release/deployment/readiness/public-use claim rejection, deterministic ordering, and no-authority boundaries.
+- Add TypeScript behavior tests for required state shape, visible contract panel, linkage summaries, missing evidence, blocker rendering, deterministic rendering, and no-authority wording.
+- Correct checklists/current-phase.md so completed items match implemented and tested behavior.
+
+### Notes
+- Out-of-band completion fix only.
+- No Phase 175 implementation.
+- No installer creation.
+- No update-channel activation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No public distribution.
+- No release readiness approval.
+- No Release Candidate status approval.
+- No Production Candidate approval.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.

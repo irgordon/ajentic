@@ -79,3 +79,21 @@ Phase 174.0 - OOB Installer Distribution Formatting Fix.
 - [x] Phase 174.0 does not approve Release Candidate status.
 - [x] Phase 174.0 does not approve public/general use.
 - [x] Phase 174.0 does not approve production use.
+
+## Phase 174.1 - OOB Installer and Distribution Contract Completion Fix
+- Phase goal: Complete unfinished installer/distribution contract implementation and validation for Phase 174 only.
+- Working-tree hygiene gate: enforced.
+- Allowed surfaces: core/src/api/installer_distribution_contract.rs, core/src/api/local_operator_shell_state.rs, ui/src/api/localOperatorShell.ts, ui/src/api/localOperatorShellView.ts, ui/src/api/submissionBoundary.behavior.test.ts, ui/src/main.ts, CHANGELOG.md, checklists/current-phase.md.
+- Rust type-integration fix checklist: completed.
+- TypeScript state-shape fix checklist: completed.
+- Gap correction checklist: completed for Phase 174 scope.
+- Validation completion checklist: completed fail-closed coverage for missing/rejected/mismatch/claim-bearing inputs.
+- Missing evidence checklist: deterministic ordering populated.
+- Blocker checklist: deterministic ordering populated.
+- Rust test checklist: completed for initial/valid/missing/deterministic coverage.
+- TypeScript test checklist: completed for installerDistributionContract state-shape and rendering visibility coverage.
+- No-authority boundary checklist: confirmed; contract remains descriptive only.
+- No-Phase-175 checklist: confirmed.
+- Validation log: see command list in task execution output.
+- Zero-drift checklist: roadmap untouched.
+- Phase 175 handoff checklist: remains next alignment checkpoint; not implemented.

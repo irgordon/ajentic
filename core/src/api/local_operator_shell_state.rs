@@ -246,12 +246,13 @@ pub(crate) fn attach_local_session_evidence_export(
     );
     state.release_artifact_dry_package =
         project_release_artifact_dry_package(Some(&state.release_candidate_preparation));
-    let dry_package =
+    let dry_package_payload =
         derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
+    let dry_package_projection = Some(&state.release_artifact_dry_package);
     state.release_dry_package_checksum_provenance =
-        project_release_dry_package_checksum_provenance(dry_package.as_ref());
+        project_release_dry_package_checksum_provenance(dry_package_payload.as_ref());
     state.installer_distribution_contract = project_installer_distribution_contract(
-        dry_package.as_ref(),
+        dry_package_projection,
         Some(&state.release_dry_package_checksum_provenance),
     );
     state
@@ -358,12 +359,13 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
     );
     state.release_artifact_dry_package =
         project_release_artifact_dry_package(Some(&state.release_candidate_preparation));
-    let dry_package =
+    let dry_package_payload =
         derive_release_artifact_dry_package(Some(&state.release_candidate_preparation)).ok();
+    let dry_package_projection = Some(&state.release_artifact_dry_package);
     state.release_dry_package_checksum_provenance =
-        project_release_dry_package_checksum_provenance(dry_package.as_ref());
+        project_release_dry_package_checksum_provenance(dry_package_payload.as_ref());
     state.installer_distribution_contract = project_installer_distribution_contract(
-        dry_package.as_ref(),
+        dry_package_projection,
         Some(&state.release_dry_package_checksum_provenance),
     );
     state

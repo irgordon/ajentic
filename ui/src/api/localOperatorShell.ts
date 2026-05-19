@@ -10123,6 +10123,8 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     localSessionRestoreProjection: initialLocalSessionRestoreProjection(),
     controlledInternalTrialPackageProjection:
       initialControlledInternalTrialPackageProjection(),
+    installerDistributionContract:
+      initialInstallerDistributionContractProjection(),
   });
   return {
     ...state,

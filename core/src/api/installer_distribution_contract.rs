@@ -174,6 +174,31 @@ fn stable_digest(input: &str) -> String {
     format!("{h:016x}")
 }
 
+fn has_forbidden_claim(text: &str) -> bool {
+    let lowered = text.to_ascii_lowercase();
+    [
+        "installer_created",
+        "installer creation",
+        "update_channel",
+        "public_distribution",
+        "public download",
+        "github release",
+        "release tag",
+        "signing",
+        "publishing",
+        "deployment",
+        "readiness",
+        "public use",
+        "production use",
+        "provider trust",
+        "action authorization",
+        "replay repair",
+        "recovery promotion",
+    ]
+    .iter()
+    .any(|needle| lowered.contains(needle))
+}
+
 pub fn project_installer_distribution_contract(
     dry: Option<&ReleaseArtifactDryPackageProjection>,
     c: Option<&ReleaseDryPackageChecksumProvenanceProjection>,
@@ -190,6 +215,9 @@ pub fn project_installer_distribution_contract(
         if d.status == ReleaseArtifactDryPackageStatus::DryPackageRejected {
             errs.push(InstallerDistributionContractValidationError::DryPackageRejected);
         }
+        if d.status != ReleaseArtifactDryPackageStatus::DryPackageProjected {
+            errs.push(InstallerDistributionContractValidationError::DryPackageLinkageMismatch);
+        }
         p.dry_package_linkage = Some(InstallerDistributionDryPackageLinkage {
             dry_package_id: d.dry_package_id.clone().unwrap_or_default(),
             dry_package_status: d.status.code().to_string(),
@@ -199,12 +227,24 @@ pub fn project_installer_distribution_contract(
         if cp.status == ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceRejected {
             errs.push(InstallerDistributionContractValidationError::ChecksumProvenanceRejected);
         }
+        if cp.status != ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceValidated {
+            errs.push(
+                InstallerDistributionContractValidationError::ChecksumProvenanceLinkageMismatch,
+            );
+        }
         p.checksum_provenance_linkage = Some(InstallerDistributionChecksumProvenanceLinkage {
             dry_package_id: cp.dry_package_id.clone().unwrap_or_default(),
             checksum_value: cp.checksum_value.clone().unwrap_or_default(),
             provenance_id: cp.provenance_id.clone().unwrap_or_default(),
             status: cp.status.code().to_string(),
         });
+        if has_forbidden_claim(&cp.provenance_linkage_summary)
+            || has_forbidden_claim(cp.provenance_id.as_deref().unwrap_or_default())
+        {
+            errs.push(
+                InstallerDistributionContractValidationError::PublicDistributionClaimDetected,
+            );
+        }
     }
     if let (Some(d), Some(cp)) = (dry, c) {
         if d.dry_package_id != cp.dry_package_id {
@@ -212,6 +252,19 @@ pub fn project_installer_distribution_contract(
         }
     }
     if !errs.is_empty() {
+        errs.sort_by_key(|e| e.code());
+        errs.dedup();
+        let err_codes: Vec<String> = errs.iter().map(|e| e.code().to_string()).collect();
+        p.missing_evidence = err_codes
+            .iter()
+            .filter(|code| code.starts_with("missing_"))
+            .cloned()
+            .collect();
+        p.blockers = err_codes
+            .iter()
+            .filter(|code| !code.starts_with("missing_"))
+            .cloned()
+            .collect();
         p.status = InstallerDistributionContractStatus::ContractRejected;
         p.validation_status = InstallerDistributionContractValidationStatus::Invalid;
         p.validation_errors = errs;
@@ -229,4 +282,45 @@ pub fn project_installer_distribution_contract(
     p.status = InstallerDistributionContractStatus::ContractValidated;
     p.validation_status = InstallerDistributionContractValidationStatus::Valid;
     p
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::{
+        initial_release_artifact_dry_package_projection,
+        initial_release_dry_package_checksum_provenance_projection,
+    };
+
+    #[test]
+    fn rejects_missing_inputs_with_deterministic_missing_evidence() {
+        let p = project_installer_distribution_contract(None, None);
+        assert_eq!(
+            p.status,
+            InstallerDistributionContractStatus::ContractRejected
+        );
+        assert_eq!(
+            p.missing_evidence,
+            vec!["missing_checksum_provenance", "missing_dry_package"]
+        );
+    }
+
+    #[test]
+    fn validates_and_stabilizes_contract_id() {
+        let mut dry = initial_release_artifact_dry_package_projection();
+        dry.status = ReleaseArtifactDryPackageStatus::DryPackageProjected;
+        dry.dry_package_id = Some("dry-1".into());
+        let mut cp = initial_release_dry_package_checksum_provenance_projection();
+        cp.status = ReleaseDryPackageChecksumProvenanceStatus::ChecksumProvenanceValidated;
+        cp.dry_package_id = Some("dry-1".into());
+        cp.checksum_value = Some("abc".into());
+        cp.provenance_id = Some("prov-1".into());
+        let a = project_installer_distribution_contract(Some(&dry), Some(&cp));
+        let b = project_installer_distribution_contract(Some(&dry), Some(&cp));
+        assert_eq!(
+            a.status,
+            InstallerDistributionContractStatus::ContractValidated
+        );
+        assert_eq!(a.contract_id, b.contract_id);
+    }
 }
