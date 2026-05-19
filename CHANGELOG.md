@@ -1,3 +1,25 @@
+## v0.0.174.0 - 2026-05-18
+**Status:** Phase 174.0 - OOB Installer Distribution Formatting Fix
+
+### Fixed
+- Apply rustfmt formatting to the Phase 174 installer/distribution contract Rust surfaces so cargo fmt --check passes.
+
+### Notes
+- Out-of-band formatting fix only.
+- No runtime behavior changes.
+- No validation behavior changes.
+- No TypeScript changes.
+- No schema changes.
+- No installer behavior.
+- No update-channel activation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No readiness approval.
+- No Release Candidate approval.
+- Phase 174.1 remains required to complete validation, missing evidence, blocker, Rust test, and TypeScript test coverage.
+
 ## v0.0.174 - 2026-05-18
 **Status:** Phase 174 - Installer and Distribution Contract Surface
 

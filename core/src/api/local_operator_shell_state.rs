@@ -4,15 +4,14 @@ use super::*;
 use crate::api::{
     derive_release_artifact_dry_package, derive_release_candidate_preparation_input_snapshot,
     derive_release_candidate_preparation_projection,
+    initial_installer_distribution_contract_projection,
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
-    initial_installer_distribution_contract_projection,
-    project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
-    project_installer_distribution_contract,
+    project_installer_distribution_contract, project_release_artifact_dry_package,
+    project_release_dry_package_checksum_provenance, InstallerDistributionContractProjection,
     ReleaseArtifactDryPackageProjection, ReleaseCandidatePreparationProjection,
     ReleaseDryPackageChecksumProvenanceProjection,
-    InstallerDistributionContractProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
