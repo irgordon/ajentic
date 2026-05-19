@@ -114,6 +114,24 @@ function renderReleaseArtifactDryPackageText(
     projection.readBackValidationNote,
   ].join("\n");
 }
+function renderSigningKeyCustodyDryRunText(
+  state: LocalOperatorShellState,
+): string {
+  const projection = state.signingKeyCustodyDryRun;
+  return [
+    `Dry-run status: ${projection.status}`,
+    `Dry-run evidence ID: ${projection.evidenceId ?? "none"}`,
+    `Upstream evidence linkage: ${projection.upstreamEvidenceLinkage}`,
+    `Placeholder key metadata: ${projection.placeholderKeyMetadataSummary}`,
+    `Validation status: ${projection.validationStatus}`,
+    "Signing/key-custody dry run uses placeholder key metadata only.",
+    "This dry run does not use real signing keys.",
+    "This dry run does not create signatures.",
+    "This dry run does not sign, publish, deploy, release, or distribute anything.",
+    "This dry run does not approve release readiness or Release Candidate status.",
+  ].join("\n");
+}
+
 function renderInstallerDistributionContractText(
   state: LocalOperatorShellState,
 ): string {
@@ -763,6 +781,7 @@ export function renderLocalOperatorShellSnapshot(
     renderReleaseDryPackageChecksumProvenanceText(state),
     "Installer and distribution contract",
     renderInstallerDistributionContractText(state),
+    renderSigningKeyCustodyDryRunText(state),
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",

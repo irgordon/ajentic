@@ -24,6 +24,7 @@ mod release_artifact_dry_package;
 mod release_candidate_preparation;
 mod release_dry_package_checksum_provenance;
 mod runtime_config;
+mod signing_key_custody_dry_run;
 
 pub use application_state::*;
 pub use authorization::*;
@@ -51,3 +52,4 @@ pub use release_artifact_dry_package::*;
 pub use release_candidate_preparation::*;
 pub use release_dry_package_checksum_provenance::*;
 pub use runtime_config::*;
+pub use signing_key_custody_dry_run::*;
