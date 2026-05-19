@@ -398,7 +398,8 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: no public distribution and no update-channel activation.
 
 75. **Phase 175 is a code-production alignment checkpoint**
-   - Phase 175 must reconcile Phases 171-174 and decide whether signing/key-custody dry-run work or another hardening block may proceed.
+   - Phase 175 must reconcile Phases 171-174.2 and decide whether Phase 176 may proceed to signing/key-custody dry-run work.
+   - Decision outcome: `proceed_with_caveats_to_signing_key_custody_dry_run`.
    - Boundary: alignment only; no release approval, readiness approval, signing activation, publishing, deployment, or public/general use approval.
 
 76. **Phase 176 performs signing and key-custody dry run work**
@@ -422,7 +423,7 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: decision gate only; no release, production, deployment, public/general use, signing, publishing, or provider-output trust approval by implication.
 
 
-Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements. Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
+Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements. Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release-evidence review UI, hardening code, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
 
 ## Ladder-Preservation sequencing invariants
 

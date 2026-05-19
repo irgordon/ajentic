@@ -545,7 +545,9 @@ Goal: Add local installer/distribution contract projection and UI visibility.
 Boundary: Code-production phase; contract surface only; no public distribution or update-channel activation.
 
 ### Phase 175 - Code-Production Alignment Checkpoint
-Goal: Reconcile Phases 171-174 and decide whether signing/key-custody dry-run work or another hardening block may proceed.
+Goal: Reconcile Phases 171-174.2 and decide whether Phase 176 may proceed to signing/key-custody dry-run work.
+
+Decision: `proceed_with_caveats_to_signing_key_custody_dry_run`.
 
 Boundary: Alignment checkpoint only; no release approval, readiness approval, signing activation, publishing, deployment, or public/general use approval.
 

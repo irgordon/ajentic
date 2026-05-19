@@ -4,6 +4,41 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.175 - 2026-05-19
+**Status:** Phase 175 - Code-Production Alignment Checkpoint
+
+### Changed
+- Reconcile the Phase 171-174.2 release-candidate-preparation block.
+- Confirm the current release-candidate-preparation path includes release-candidate preparation contract, dry package rehearsal evidence, checksum/provenance evidence, installer/distribution contract surface, and OOB validation closure fixes.
+- Decide whether Phase 176 may proceed toward signing and key-custody dry-run work.
+- Confirm Phase 176-180 toward signing/key-custody dry run, release-candidate evidence assembly UI, gap hardening, release-candidate dry-run rehearsal, and Release Candidate decision gate.
+- Preserve the post-Phase-175 rule that non-0/5 phases must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release evidence review UI, concrete hardening code, or deterministic validation improvements.
+- Update checklists/current-phase.md to Phase 175 procedural truth.
+
+### Notes
+- Alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No provider execution expansion.
+- No persistence implementation.
+- No signing behavior.
+- No publishing behavior.
+- No installer behavior.
+- No update-channel activation.
+- No public distribution.
+- No release artifact creation.
+- No deployment behavior.
+- No public-use or readiness approval.
+- Release-candidate preparation is not release readiness.
+- Dry package is rehearsal evidence, not a release artifact.
+- Checksum/provenance evidence is not signing.
+- Installer/distribution contract describes constraints only.
+- Phase 176 is expected to resume code production.
+
+
 ## v0.0.174.2 - 2026-05-19
 **Status:** Phase 174.2 - OOB Frontmatter Validation Fix
 
