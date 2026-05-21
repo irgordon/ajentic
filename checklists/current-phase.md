@@ -4,28 +4,27 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Current Phase Checklist - Phase 176
+# Current Phase Checklist - Phase 177
 
-Phase 176 - Signing and Key-Custody Dry Run.
-
-- Phase goal: add local-only signing/key-custody dry-run evidence and UI with fail-closed boundaries.
+- Phase name: Phase 177 - Release Candidate Evidence Assembly UI.
+- Phase goal: add Rust-owned release-candidate evidence assembly projection and visible review-only UI panel.
 - Working-tree hygiene gate: run pre/post `git status --short`.
+- File-size discipline checklist: new Rust/TypeScript files remain under 1,000 LOC.
 - Allowed surfaces: dedicated Rust module, thin shell integration, UI projection/panel, tests, changelog/checklist.
-- Code-production deliverables: Rust derivation + validation, deterministic evidence ID, visible UI panel.
-- Dedicated module checklist: signing/key-custody types, enums, helpers, derivation/validation in dedicated module.
-- Thin shell integration checklist: only add projection field and helper invocation wiring.
-- Signing/key-custody dry-run checklist: status, classification, linkage, placeholder metadata, boundaries rendered.
-- Placeholder key metadata checklist: deterministic placeholder-only, no real key/private/cert/KMS/secret material.
-- Upstream evidence linkage checklist: preparation, dry package, checksum/provenance, installer/distribution linked.
-- Missing evidence checklist: deterministic missing evidence list.
-- Blocker checklist: deterministic blocker list with fail-closed rejection.
-- Validation/fail-closed checklist: missing/rejected upstream and forbidden claims reject.
-- UI signing/key-custody panel checklist: panel with status, ID, linkage, metadata, validation, missing/blockers.
-- No-real-signing/no-release boundary checklist: explicit no-key/no-sign/no-publish/no-approval wording visible.
-- Rust test checklist: valid mapping + deterministic ID + missing evidence rejection covered.
-- TypeScript test checklist: panel text/state shape coverage and deterministic rendering checks.
-- Phase 177 handoff checklist: Phase 177 remains next code-production phase for Release Candidate Evidence Assembly UI.
-- Validation checklist: run check.sh + targeted UI/Rust/test/scans + diff/status guards.
-- Deferred items: real signing, publishing, deployment, release, approvals remain deferred.
-- Validation log: record executed commands and results below.
-- Zero-drift checklist: no roadmap/governance/architecture drift; changes limited to allowed files.
+- Code-production deliverable checklist: deterministic assembly projection + deterministic ordering + visible UI evidence assembly panel.
+- Dedicated module checklist: `core/src/api/release_candidate_evidence_assembly.rs` owns projection/types/derivation.
+- Thin shell integration checklist: state field + helper invocation only.
+- Evidence assembly checklist: status, ID, categories, linkage, missing evidence, blockers, validation summary, boundaries.
+- Category/status checklist: closed enums and deterministic status mapping.
+- Upstream linkage checklist: phase 171/172/173/174/176 linkages represented.
+- Missing evidence checklist: fail-closed missing status and deterministic ordering.
+- Blocker checklist: fail-closed blocked/rejected status and deterministic ordering.
+- UI evidence assembly panel checklist: status, ID, counts, category sections, linkage/missing/blocker/validation summaries.
+- No-approval/no-release-readiness boundary checklist: explicit no-approval/no-sign/no-publish/no-deploy/no-public-distribution wording.
+- Rust test checklist: complete/missing/rejected/deterministic/no-authority coverage.
+- TypeScript test checklist: panel/sections/linkage/missing-blocker/deterministic/forbidden-label checks.
+- Phase 178 handoff checklist: Phase 178 remains next code-production phase.
+- Validation checklist: check.sh + lint/typecheck/tests + scans + diff/status guards.
+- Deferred items: approval/signing/publishing/deployment/public distribution remain deferred.
+- Validation log: commands and outcomes captured in task report.
+- Zero-drift checklist: no roadmap/governance/architecture drift.

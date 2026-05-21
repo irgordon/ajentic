@@ -132,6 +132,25 @@ function renderSigningKeyCustodyDryRunText(
   ].join("\n");
 }
 
+
+function renderReleaseCandidateEvidenceAssemblyText(state: LocalOperatorShellState): string {
+  const p = state.releaseCandidateEvidenceAssembly;
+  return [
+    `Evidence assembly status: ${p.status}`,
+    `Assembly ID: ${p.assemblyId ?? "none"}`,
+    `Evidence category count: ${p.categoryCount}`,
+    `Present category count: ${p.presentCategoryCount}`,
+    `Missing category count: ${p.missingCategoryCount}`,
+    `Blocked category count: ${p.blockedCategoryCount}`,
+    `Rejected category count: ${p.rejectedCategoryCount}`,
+    "Evidence assembly organizes release-candidate evidence for review.",
+    "Evidence assembly does not approve Release Candidate status.",
+    "Evidence assembly does not approve release readiness.",
+    "Evidence assembly does not sign, publish, deploy, release, or distribute anything.",
+    "No public download, GitHub release, release tag, installer, or update channel is created.",
+  ].join("\n");
+}
+
 function renderInstallerDistributionContractText(
   state: LocalOperatorShellState,
 ): string {
@@ -755,6 +774,8 @@ export function renderLocalOperatorShellSnapshot(
     localCandidate.note,
   ].join("\n");
 
+  const releaseCandidateEvidenceAssembly = renderReleaseCandidateEvidenceAssemblyText(state);
+
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
     `Handoff ID: ${handoff.handoffId}`,
@@ -782,6 +803,7 @@ export function renderLocalOperatorShellSnapshot(
     "Installer and distribution contract",
     renderInstallerDistributionContractText(state),
     renderSigningKeyCustodyDryRunText(state),
+    releaseCandidateEvidenceAssembly,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",

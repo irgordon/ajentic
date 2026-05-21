@@ -190,3 +190,41 @@ mutation_path: changelog_entry
 - Phase 175 remains the next alignment checkpoint.
 
 ---
+
+
+## v0.0.177 - 2026-05-20
+**Status:** Phase 177 - Release Candidate Evidence Assembly UI
+
+### Added
+- Add Rust-owned release-candidate evidence assembly projection with deterministic evidence categories, source linkage, missing evidence, blockers, validation summary, and no-approval boundaries.
+- Add UI rendering for Release Candidate evidence assembly status, category sections, upstream linkage, missing evidence, blockers, validation summaries, and no-release-readiness/no-approval wording.
+- Add Rust and TypeScript tests for complete upstream evidence rendering, missing/rejected upstream evidence handling, deterministic ordering/rendering, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with release-candidate evidence assembly state using thin integration.
+- Update the local UI shell to display release-candidate evidence assembly review state.
+- Update checklists/current-phase.md to Phase 177 procedural truth.
+
+### Notes
+- Code-production phase.
+- Evidence assembly organizes release-candidate evidence for review.
+- Evidence assembly does not approve Release Candidate status.
+- Evidence assembly does not approve release readiness.
+- Evidence assembly does not sign.
+- Evidence assembly does not publish.
+- Evidence assembly does not deploy.
+- Evidence assembly does not release.
+- Evidence assembly does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 178 remains the next code-production phase for Release Candidate Gap Review and Hardening.

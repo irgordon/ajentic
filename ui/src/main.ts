@@ -831,6 +831,32 @@ function renderInstallerDistributionContract(state: LocalOperatorShellState): st
 }
 
 
+
+function renderReleaseCandidateEvidenceAssembly(state: LocalOperatorShellState): string {
+  const p = state.releaseCandidateEvidenceAssembly;
+  return `
+    <p><strong>Evidence assembly status:</strong> ${p.status}</p>
+    <p><strong>Assembly ID:</strong> ${p.assemblyId ?? "none"}</p>
+    <p><strong>Evidence category count:</strong> ${p.categoryCount}</p>
+    <p><strong>Present category count:</strong> ${p.presentCategoryCount}</p>
+    <p><strong>Missing category count:</strong> ${p.missingCategoryCount}</p>
+    <p><strong>Blocked category count:</strong> ${p.blockedCategoryCount}</p>
+    <p><strong>Rejected category count:</strong> ${p.rejectedCategoryCount}</p>
+    <h3>Upstream linkage summary</h3>
+    ${renderList(p.evidenceItems.map((item) => `${item.category}: ${item.status} (${item.sourceLinkage.sourceSurface}:${item.sourceLinkage.sourceStatus})`), "No evidence items projected.")}
+    <h3>Missing evidence summary</h3>
+    ${renderList(p.missingEvidence.map((item) => `${item.category}: ${item.reason}`), "No missing evidence.")}
+    <h3>Blocker summary</h3>
+    ${renderList(p.blockers.map((item) => `${item.category}: ${item.reason}`), "No blockers.")}
+    <h3>Validation status summary</h3>
+    ${renderList(p.validationSummaries.map((item) => `${item.sourceSurface}: ${item.validationStatus}`), "No validation summaries.")}
+    <p class="muted">Evidence assembly organizes release-candidate evidence for review.</p>
+    <p class="muted">Evidence assembly does not approve Release Candidate status.</p>
+    <p class="muted">Evidence assembly does not approve release readiness.</p>
+    <p class="muted">Evidence assembly does not sign, publish, deploy, release, or distribute anything.</p>
+    <p class="muted">No public download, GitHub release, release tag, installer, or update channel is created.</p>`;
+}
+
 function renderSigningKeyCustodyDryRun(state: LocalOperatorShellState): string {
   const projection = state.signingKeyCustodyDryRun;
   return `
@@ -890,6 +916,11 @@ function render(): void {
       <section class="panel" aria-label="Signing and key-custody dry run">
         <h2>Signing and key-custody dry run</h2>
         ${renderSigningKeyCustodyDryRun(shellState)}
+      </section>
+
+      <section class="panel" aria-label="Release Candidate evidence assembly">
+        <h2>Release Candidate evidence assembly</h2>
+        ${renderReleaseCandidateEvidenceAssembly(shellState)}
       </section>
 
       <section class="panel" aria-label="Local transport boundary status">
