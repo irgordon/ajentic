@@ -8495,6 +8495,26 @@ export function initialSigningKeyCustodyDryRunProjection(): SigningKeyCustodyDry
   return { status: "not_generated", evidenceId: null, classification: "dry_run_evidence_only", productionClassification: "non_production", distributionClassification: "local_only_non_public", authorityClassification: "non_authoritative_dry_run_evidence", releaseClassification: "release_not_approved", upstreamEvidenceLinkage: "none", placeholderKeyMetadataSummary: "placeholder key metadata only; no real signing key, private key, certificate, KMS binding, or secret material is present", missingEvidence: [], blockers: [], validationStatus: "not_validated", validationErrors: [], boundaryStatuses: ["dry_run_evidence_only","placeholder_key_metadata_only","no_real_signing_keys","no_signature_created","no_signing","no_publishing","release_readiness_not_approved","release_candidate_status_not_approved"] };
 }
 
+
+export type ReleaseCandidateEvidenceAssemblyProjection = Readonly<{
+  status: string;
+  assemblyId: string | null;
+  categoryCount: number;
+  presentCategoryCount: number;
+  missingCategoryCount: number;
+  blockedCategoryCount: number;
+  rejectedCategoryCount: number;
+  evidenceItems: readonly { category: string; status: string; sourceLinkage: { sourceSurface: string; sourceStatus: string; sourceSummary: string } }[];
+  missingEvidence: readonly { category: string; reason: string; sourceSurface: string }[];
+  blockers: readonly { category: string; reason: string; sourceSurface: string }[];
+  validationSummaries: readonly { sourceSurface: string; validationStatus: string }[];
+  boundaryStatuses: readonly string[];
+}>;
+
+export function initialReleaseCandidateEvidenceAssemblyProjection(): ReleaseCandidateEvidenceAssemblyProjection {
+  return { status: "not_assembled", assemblyId: null, categoryCount: 0, presentCategoryCount: 0, missingCategoryCount: 0, blockedCategoryCount: 0, rejectedCategoryCount: 0, evidenceItems: [], missingEvidence: [], blockers: [], validationSummaries: [], boundaryStatuses: ["evidence_assembly_only","review_surface_only","non_authoritative_review","local_only_non_public","release_readiness_not_approved","release_candidate_status_not_approved","no_signing","no_publishing","no_deployment_artifact","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_installer_activation","no_update_channel_activation"] };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8531,6 +8551,7 @@ export type LocalOperatorShellState = Readonly<{
   releaseDryPackageChecksumProvenance: ReleaseDryPackageChecksumProvenanceProjection;
   installerDistributionContract: InstallerDistributionContractProjection;
   signingKeyCustodyDryRun: SigningKeyCustodyDryRunProjection;
+  releaseCandidateEvidenceAssembly: ReleaseCandidateEvidenceAssemblyProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9845,6 +9866,7 @@ function attachLocalSessionEvidenceExport(
       initialReleaseDryPackageChecksumProvenanceProjection(),
     installerDistributionContract: initialInstallerDistributionContractProjection(),
     signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
+    releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10150,6 +10172,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     installerDistributionContract:
       initialInstallerDistributionContractProjection(),
     signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
+    releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
   });
   return {
     ...state,

@@ -3,16 +3,17 @@
 use super::*;
 use crate::api::{
     derive_release_artifact_dry_package, derive_release_candidate_preparation_input_snapshot,
-    derive_release_candidate_preparation_projection, derive_signing_key_custody_dry_run,
+    derive_release_candidate_preparation_projection, derive_release_candidate_evidence_assembly, derive_signing_key_custody_dry_run,
     initial_installer_distribution_contract_projection,
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
+    initial_release_candidate_evidence_assembly_projection,
     initial_signing_key_custody_dry_run_projection, project_installer_distribution_contract,
     project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
     InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
     ReleaseCandidatePreparationProjection, ReleaseDryPackageChecksumProvenanceProjection,
-    SigningKeyCustodyDryRunProjection,
+    SigningKeyCustodyDryRunProjection, ReleaseCandidateEvidenceAssemblyProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -84,6 +85,7 @@ pub struct LocalOperatorShellState {
     pub release_dry_package_checksum_provenance: ReleaseDryPackageChecksumProvenanceProjection,
     pub installer_distribution_contract: InstallerDistributionContractProjection,
     pub signing_key_custody_dry_run: SigningKeyCustodyDryRunProjection,
+    pub release_candidate_evidence_assembly: ReleaseCandidateEvidenceAssemblyProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -356,6 +358,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
             initial_release_dry_package_checksum_provenance_projection(),
         installer_distribution_contract: initial_installer_distribution_contract_projection(),
         signing_key_custody_dry_run: initial_signing_key_custody_dry_run_projection(),
+        release_candidate_evidence_assembly: initial_release_candidate_evidence_assembly_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
