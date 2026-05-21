@@ -4,6 +4,26 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.177.1 - 2026-05-21
+**Status:** Phase 177.1 - OOB Release Candidate Evidence Assembly Formatting Fix
+
+### Fixed
+- Apply rustfmt formatting to the Phase 177 release-candidate evidence assembly Rust surfaces so cargo fmt --check passes.
+
+### Notes
+- Out-of-band formatting fix only.
+- No runtime behavior changes.
+- No evidence assembly semantic changes.
+- No TypeScript behavior changes.
+- No schema changes.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No readiness approval.
+- No Release Candidate approval.
+- Phase 178 remains the next code-production phase after Phase 177 validation closure.
+
 ## v0.0.176 - 2026-05-19
 **Status:** Phase 176 - Signing and Key-Custody Dry Run
 
