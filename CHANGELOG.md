@@ -1,3 +1,36 @@
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
+## v0.0.178.1 - 2026-05-22
+**Status:** Phase 178.1 - OOB Release Candidate Gap Review Validation Closure
+
+### Fixed
+- Close Phase 178 validation by running the full repository check from a clean committed tree.
+- Fix only validation failures discovered in the Phase 178 release-candidate gap review surface.
+
+### Notes
+- Out-of-band validation closure only.
+- No Phase 179 implementation.
+- No Release Candidate approval.
+- No release readiness approval.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- Phase 179 remains the next code-production phase.
+
 ## v0.0.178 - 2026-05-22
 **Status:** Phase 178 - Release Candidate Gap Review and Hardening
 
