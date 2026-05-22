@@ -2,19 +2,20 @@
 
 use super::*;
 use crate::api::{
-    derive_release_artifact_dry_package, derive_release_candidate_gap_review,
+    derive_release_artifact_dry_package, derive_release_candidate_dry_run_rehearsal, derive_release_candidate_gap_review,
     derive_release_candidate_preparation_input_snapshot,
     derive_release_candidate_preparation_projection, derive_signing_key_custody_dry_run,
     initial_installer_distribution_contract_projection,
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_evidence_assembly_projection,
     initial_release_candidate_gap_review_projection,
+    initial_release_candidate_dry_run_rehearsal_projection,
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
     initial_signing_key_custody_dry_run_projection, project_installer_distribution_contract,
     project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
     InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
-    ReleaseCandidateEvidenceAssemblyProjection, ReleaseCandidateGapReviewProjection,
+    ReleaseCandidateDryRunRehearsalProjection, ReleaseCandidateEvidenceAssemblyProjection, ReleaseCandidateGapReviewProjection,
     ReleaseCandidatePreparationProjection, ReleaseDryPackageChecksumProvenanceProjection,
     SigningKeyCustodyDryRunProjection,
 };
@@ -90,6 +91,7 @@ pub struct LocalOperatorShellState {
     pub signing_key_custody_dry_run: SigningKeyCustodyDryRunProjection,
     pub release_candidate_evidence_assembly: ReleaseCandidateEvidenceAssemblyProjection,
     pub release_candidate_gap_review: ReleaseCandidateGapReviewProjection,
+    pub release_candidate_dry_run_rehearsal: ReleaseCandidateDryRunRehearsalProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -277,6 +279,15 @@ pub(crate) fn attach_local_session_evidence_export(
         &state.signing_key_custody_dry_run,
         &state.release_candidate_evidence_assembly,
     );
+    state.release_candidate_dry_run_rehearsal = derive_release_candidate_dry_run_rehearsal(
+        &state.release_candidate_preparation,
+        &state.release_artifact_dry_package,
+        &state.release_dry_package_checksum_provenance,
+        &state.installer_distribution_contract,
+        &state.signing_key_custody_dry_run,
+        &state.release_candidate_evidence_assembly,
+        &state.release_candidate_gap_review,
+    );
     state
 }
 
@@ -373,6 +384,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         release_candidate_evidence_assembly: initial_release_candidate_evidence_assembly_projection(
         ),
         release_candidate_gap_review: initial_release_candidate_gap_review_projection(),
+        release_candidate_dry_run_rehearsal: initial_release_candidate_dry_run_rehearsal_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -407,6 +419,15 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         &state.installer_distribution_contract,
         &state.signing_key_custody_dry_run,
         &state.release_candidate_evidence_assembly,
+    );
+    state.release_candidate_dry_run_rehearsal = derive_release_candidate_dry_run_rehearsal(
+        &state.release_candidate_preparation,
+        &state.release_artifact_dry_package,
+        &state.release_dry_package_checksum_provenance,
+        &state.installer_distribution_contract,
+        &state.signing_key_custody_dry_run,
+        &state.release_candidate_evidence_assembly,
+        &state.release_candidate_gap_review,
     );
     state
 }
