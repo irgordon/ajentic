@@ -1,3 +1,25 @@
+## v0.0.179.2 - 2026-05-22
+**Status:** Phase 179.2 - OOB Dry-Run Rehearsal UI Forbidden-Label Fix
+
+### Fixed
+- Fix the Phase 179.1 UI forbidden-label assertion so allowed denial markers such as no_signature_created do not collide with forbidden positive labels such as signature_created.
+- Preserve forbidden-label detection for signing, signature creation, publishing, deployment, release readiness, Release Candidate approval, public distribution, provider trust, action authorization, replay repair, and recovery promotion claims.
+
+### Notes
+- Out-of-band validation fix only.
+- No Phase 180 implementation.
+- No release-candidate dry-run rehearsal behavior expansion.
+- No signing behavior.
+- No signature creation.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No release artifact creation.
+- No public artifact creation.
+- No release readiness approval.
+- No Release Candidate approval.
+- Phase 180 remains the next decision gate.
+
 ## v0.0.179.1 - 2026-05-22
 **Status:** Phase 179.1 - OOB Release Candidate Dry-Run Rehearsal Completion Fix
 

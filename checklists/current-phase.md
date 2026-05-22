@@ -1,62 +1,52 @@
-# Phase 179.1 - OOB Release Candidate Dry-Run Rehearsal Completion Fix
+# Phase 179.2 - OOB Dry-Run Rehearsal UI Forbidden-Label Fix
 
-- Phase name: Phase 179.1 - OOB Release Candidate Dry-Run Rehearsal Completion Fix
-- Phase goal: Complete unfinished Phase 179 rehearsal validation without introducing Phase 180 decision behavior.
-- Working-tree hygiene gate: start from clean tree, run full validation, end with clean tracked outputs.
-- Allowed surfaces: rehearsal module/tests, local shell/view behavior tests, changelog, current-phase checklist.
+- Phase name: Phase 179.2 - OOB Dry-Run Rehearsal UI Forbidden-Label Fix
+- Phase goal: Repair the Phase 179.1 UI forbidden-label collision so denial markers remain allowed while forbidden positive labels remain blocked.
+- Working-tree hygiene gate: start from clean tree intent, run all required validation commands, and finish with no unintended drift.
+- Allowed surfaces: ui/src/api/submissionBoundary.behavior.test.ts, optional shell/view fixture touch only if needed, CHANGELOG.md, checklists/current-phase.md.
 
-## Heuristic replacement checklist
-- [x] Remove inline loose substring status inference from rehearsal derivation path.
-- [x] Add explicit upstream rehearsal classification helpers for preparation, dry package, checksum/provenance, installer/distribution, signing/key-custody, evidence assembly, and gap review.
-- [x] Keep any string-only upstream projection handling isolated to named helper functions with closed classifications.
+## Forbidden-label collision fix checklist
+- [x] Identify the exact forbidden-label assertion collision for no_signature_created vs signature_created.
+- [x] Replace naive substring matching with token-aware forbidden-label detection.
+- [x] Keep forbidden positive label detection for signature_created, artifact_signed, signed_release, signing_enabled, and public_signing_enabled.
+- [x] Explicitly allow denial markers: no_signature_created, no_signing, no_public_signing, release_artifact_not_created, public_artifact_not_created.
+- [x] Keep forbidden-label coverage active; do not remove the check.
 
-## Rust test completion checklist
-- [x] initial not_rehearsed projection.
-- [x] valid upstream evidence deterministic rehearsal projection.
-- [x] missing upstream evidence permutations block rehearsal (171/172/173/174/176/177/178).
-- [x] rejected upstream evidence permutations block/reject rehearsal (171/172/173/174/176/177).
-- [x] blocking gap review blocks rehearsal.
-- [x] informational-only gap review does not block rehearsal.
-- [x] deterministic rehearsal ID, linkage ordering, missing-ordering, blocker-ordering.
-- [x] no-authority boundary markers remain enforced.
-
-## TypeScript test completion checklist
-- [x] Release Candidate dry-run rehearsal panel visibility.
-- [x] rehearsal status and rehearsal ID rendering.
-- [x] upstream linkage, missing summary, blocker summary, gap review summary, artifact summary rendering.
-- [x] blocked/rejected rehearsal projection rendering.
-- [x] deterministic rendering for identical projection.
-- [x] no-authority wording and forbidden-label absence coverage.
+## UI test repair checklist
+- [x] Add or update behavior coverage proving no_signature_created is allowed.
+- [x] Add or update behavior coverage proving signature_created alone is rejected.
+- [x] Add or update behavior coverage proving signed_release is rejected.
+- [x] Add or update behavior coverage proving signing_enabled is rejected.
+- [x] Preserve required UI wording for no-authority rehearsal boundaries.
 
 ## No-authority boundary checklist
-- [x] no Release Candidate approval.
-- [x] no release readiness approval.
-- [x] no signing/publishing/deployment/release/distribution behavior.
-- [x] no release/public artifact creation.
-- [x] no GitHub release/tag/public download/installer/update channel behavior.
-- [x] no provider trust/action authorization/replay repair/recovery promotion.
+- [x] No Release Candidate approval behavior.
+- [x] No release readiness approval behavior.
+- [x] No signing or signature creation behavior.
+- [x] No publishing, deployment, release, or distribution behavior.
+- [x] No release artifact or public artifact creation behavior.
+- [x] No provider trust, action authorization, replay repair, or recovery promotion behavior.
 
 ## Validation checklist
-- [ ] cargo fmt --manifest-path core/Cargo.toml -- --check
-- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-1-target cargo test --manifest-path core/Cargo.toml --all-targets
-- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-1-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
+- [ ] cd ui && npm run test:api
 - [ ] cd ui && npm run typecheck
 - [ ] cd ui && npm run lint
 - [ ] cd ui && npm run build && rm -rf dist
-- [ ] cd ui && npm run test:api
+- [ ] cargo fmt --manifest-path core/Cargo.toml -- --check
+- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-2-target cargo test --manifest-path core/Cargo.toml --all-targets
+- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-2-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
 - [ ] cd ui && timeout 10 npm run dev
-- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-1-target ./scripts/check.sh
+- [ ] CARGO_TARGET_DIR=/tmp/ajentic-phase-179-2-target ./scripts/check.sh
 - [ ] git diff --check
 - [ ] git status --short
 
 ## Zero-drift checklist
-- [ ] heuristic scan clean for inline loose status inference in rehearsal derivation path.
-- [ ] rehearsal scan confirms coverage surfaces.
-- [ ] forbidden-label scan clean (outside explicit tests/checklist strings).
-- [ ] no-Phase-180 scan clean.
-- [ ] no-roadmap-drift guard clean.
+- [ ] forbidden-label scan run and reviewed.
+- [ ] no-Phase-180 scan run and reviewed.
+- [ ] no-roadmap-drift guard run and reviewed.
+- [ ] No changes outside allowed surfaces.
 
 ## Phase 180 handoff checklist
-- [x] Phase 179.1 is an out-of-band completion fix only.
-- [x] Phase 180 remains next decision gate.
-- [x] No decision-gate or approval behavior added in this phase.
+- [x] Phase 179.2 is an out-of-band validation fix only.
+- [x] No Phase 180 implementation introduced.
+- [x] Phase 180 remains the next decision gate.
