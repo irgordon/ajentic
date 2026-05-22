@@ -1,3 +1,41 @@
+## v0.0.178 - 2026-05-22
+**Status:** Phase 178 - Release Candidate Gap Review and Hardening
+
+### Added
+- Add Rust-owned release-candidate gap review projection with deterministic gap categories, severities, affected surfaces, upstream linkage, missing evidence, blockers, hardening candidates, and no-approval boundaries.
+- Add UI rendering for Release Candidate gap review status, gap list, severity, affected surface, hardening candidate summary, upstream linkage, missing evidence, blockers, and no-release-readiness/no-approval wording.
+- Add Rust and TypeScript tests for complete upstream evidence, missing/rejected upstream evidence, deterministic gap ordering, deterministic hardening candidate ordering, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with release-candidate gap review state using thin integration.
+- Update the local UI shell to display release-candidate gap review and hardening candidate state.
+- Split root CHANGELOG.md so it stays under 900 lines while preserving archived historical changelog entries.
+- Update checklists/current-phase.md to Phase 178 procedural truth.
+
+### Notes
+- Code-production phase.
+- Gap review turns assembled evidence into hardening work.
+- Gap review does not approve Release Candidate status.
+- Gap review does not approve release readiness.
+- Gap review does not sign.
+- Gap review does not publish.
+- Gap review does not deploy.
+- Gap review does not release.
+- Gap review does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 179 remains the next code-production phase for Release Candidate Dry-Run Rehearsal.
+
 ---
 truth_dimension: historical
 authority_level: authoritative

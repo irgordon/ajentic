@@ -8496,6 +8496,25 @@ export function initialSigningKeyCustodyDryRunProjection(): SigningKeyCustodyDry
 }
 
 
+
+export type ReleaseCandidateGapReviewProjection = Readonly<{
+  status: string;
+  gapReviewId: string | null;
+  gapCount: number;
+  blockingGapCount: number;
+  informationalGapCount: number;
+  hardeningCandidateCount: number;
+  gaps: ReadonlyArray<Readonly<{ category: string; severity: string; affectedSurface: string; finding: string }>>;
+  hardeningCandidates: ReadonlyArray<Readonly<{ summary: string; priority: string }>>;
+  sourceLinkage: ReadonlyArray<Readonly<{ sourceSurface: string; sourceStatus: string; sourceSummary: string }>>;
+  missingEvidence: ReadonlyArray<Readonly<{ sourceSurface: string; reason: string }>>;
+  blockers: ReadonlyArray<Readonly<{ sourceSurface: string; reason: string }>>;
+  boundaryStatuses: ReadonlyArray<string>;
+}>;
+
+export function initialReleaseCandidateGapReviewProjection(): ReleaseCandidateGapReviewProjection {
+  return { status: "not_reviewed", gapReviewId: null, gapCount: 0, blockingGapCount: 0, informationalGapCount: 0, hardeningCandidateCount: 0, gaps: [], hardeningCandidates: [], sourceLinkage: [], missingEvidence: [], blockers: [], boundaryStatuses: ["gap_review_only", "hardening_candidates_only", "non_authoritative_review", "local_only_non_public", "release_readiness_not_approved", "release_candidate_status_not_approved", "no_signing", "no_publishing", "no_deployment_artifact", "no_public_distribution", "no_public_download", "no_github_release", "no_release_tag", "no_installer_activation", "no_update_channel_activation"] };
+}
 export type ReleaseCandidateEvidenceAssemblyProjection = Readonly<{
   status: string;
   assemblyId: string | null;
@@ -8552,6 +8571,7 @@ export type LocalOperatorShellState = Readonly<{
   installerDistributionContract: InstallerDistributionContractProjection;
   signingKeyCustodyDryRun: SigningKeyCustodyDryRunProjection;
   releaseCandidateEvidenceAssembly: ReleaseCandidateEvidenceAssemblyProjection;
+  releaseCandidateGapReview: ReleaseCandidateGapReviewProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9867,6 +9887,7 @@ function attachLocalSessionEvidenceExport(
     installerDistributionContract: initialInstallerDistributionContractProjection(),
     signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
     releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
+    releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10173,6 +10194,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
       initialInstallerDistributionContractProjection(),
     signingKeyCustodyDryRun: initialSigningKeyCustodyDryRunProjection(),
     releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
+    releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
   });
   return {
     ...state,
