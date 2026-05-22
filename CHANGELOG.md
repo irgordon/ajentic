@@ -4,6 +4,31 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.178.3 - 2026-05-22
+**Status:** Phase 178.3 - OOB Core Purpose Audit Validation Closure
+
+### Fixed
+- Close the Phase 178.2 core-purpose drift audit validation gap by running the full repository check from a clean committed tree.
+- Preserve the Phase 178.2 audit recommendation: phase_179_can_proceed_with_caveats.
+- Confirm no rebuild trigger was found in the Phase 178.2 audit record.
+
+### Notes
+- Out-of-band validation closure only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No roadmap changes.
+- No signing behavior.
+- No publishing behavior.
+- No deployment behavior.
+- No public distribution.
+- No release approval.
+- No Release Candidate approval.
+- No production/public-use approval.
+- Phase 179 remains the next code-production phase.
+
 ## v0.0.178.2 - 2026-05-22
 **Status:** Phase 178.2 - OOB Core Purpose and Drift Audit
 
