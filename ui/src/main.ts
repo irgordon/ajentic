@@ -922,6 +922,10 @@ function render(): void {
         <h2>Release Candidate evidence assembly</h2>
         ${renderReleaseCandidateEvidenceAssembly(shellState)}
       </section>
+      <section class="panel" aria-label="Release Candidate gap review">
+        <h2>Release Candidate gap review</h2>
+        ${renderReleaseCandidateGapReview(shellState)}
+      </section>
 
       <section class="panel" aria-label="Local transport boundary status">
         <h2>Local transport boundary</h2>
@@ -1141,3 +1145,24 @@ function render(): void {
 }
 
 render();
+function renderReleaseCandidateGapReview(state: LocalOperatorShellState): string {
+  const g = state.releaseCandidateGapReview;
+  const gaps = g.gaps.map((x) => `<li><strong>${x.severity}</strong> · ${x.affectedSurface} · ${x.category}<br/>${x.finding}</li>`).join("");
+  const hardening = g.hardeningCandidates.map((x) => `<li>${x.summary} (${x.priority})</li>`).join("");
+  const linkage = g.sourceLinkage.map((x) => `<li>${x.sourceSurface}: ${x.sourceStatus}</li>`).join("");
+  const missing = g.missingEvidence.map((x) => `<li>${x.sourceSurface}: ${x.reason}</li>`).join("");
+  const blockers = g.blockers.map((x) => `<li>${x.sourceSurface}: ${x.reason}</li>`).join("");
+  return `<p class="muted">Gap review turns assembled evidence into hardening work.</p>
+  <p>Status: <code>${g.status}</code></p>
+  <p>Gap review ID: <code>${g.gapReviewId ?? "not_generated"}</code></p>
+  <p>Gaps: ${g.gapCount}; Blocking: ${g.blockingGapCount}; Informational: ${g.informationalGapCount}; Hardening candidates: ${g.hardeningCandidateCount}</p>
+  <h3>Gaps</h3><ul>${gaps}</ul>
+  <h3>Hardening candidates</h3><ul>${hardening}</ul>
+  <h3>Upstream evidence linkage</h3><ul>${linkage}</ul>
+  <h3>Missing evidence</h3><ul>${missing}</ul>
+  <h3>Blockers</h3><ul>${blockers}</ul>
+  <p class="muted">Gap review does not approve Release Candidate status.</p>
+  <p class="muted">Gap review does not approve release readiness.</p>
+  <p class="muted">Gap review does not sign, publish, deploy, release, or distribute anything.</p>
+  <p class="muted">No public download, GitHub release, release tag, installer, or update channel is created.</p>`;
+}

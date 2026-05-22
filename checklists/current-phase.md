@@ -1,18 +1,25 @@
----
-truth_dimension: procedural
-authority_level: authoritative
-mutation_path: checklist_revision
----
+# Phase 178 - Release Candidate Gap Review and Hardening
 
-# Current Phase Checklist - Phase 177.1
-
-- Phase name: Phase 177.1 - OOB Release Candidate Evidence Assembly Formatting Fix.
-- Phase goal: restore Rust formatting compliance for Phase 177 release-candidate evidence assembly surfaces without semantic changes.
-- Working-tree hygiene gate: run pre/post `git status --short`.
-- Formatting-only checklist: run `cargo fmt` and `cargo fmt --check`; apply only formatting/import-order repair needed to satisfy formatter and compile checks.
-- No-semantics-change checklist: no evidence assembly status/category/missing/blocker logic changes, no validation behavior changes, no UI behavior changes.
-- Validation checklist: `cargo fmt`, `cargo fmt --check`, Rust tests, clippy `-D warnings`, UI typecheck/lint/build/test, post-commit clean-tree `./scripts/check.sh`.
-- Zero-drift checklist: no roadmap/governance/architecture/schema/package/lockfile drift; verify explicit no-roadmap-drift diff guard.
-- Phase 178 handoff checklist: Phase 178 remains next code-production phase.
-- Deferred items: signing/publishing/deployment/public distribution/readiness/release-candidate approval remain deferred.
-- Validation log: commands and outcomes captured in task report.
+- Phase goal: add Rust-owned release-candidate gap review projection and visible UI panel that projects hardening candidates only.
+- Working-tree hygiene gate: run `git diff --check` and `git status --short` before completion.
+- File-size discipline checklist: all new Phase 178 `.rs/.ts/.tsx` files remain under 1,000 LOC.
+- Changelog split checklist: root `CHANGELOG.md` remains under 900 lines; archive preserved when needed.
+- Allowed surfaces: `core/src/api/release_candidate_gap_review*.rs`, thin shell integration, `ui/src/api/localOperatorShell.ts`, `ui/src/api/localOperatorShellView.ts`, `ui/src/main.ts`, `CHANGELOG.md`.
+- Code-production deliverables: deterministic gap review status/id/categories/severity/surface/findings/hardening candidates/linkage/missing evidence/blockers.
+- Dedicated module checklist: gap review derivation and boundary markers live in dedicated Rust module.
+- Thin shell integration checklist: local shell only carries projection and calls derivation.
+- Gap review checklist: panel renders status/id/counts/list/linkage/missing/blockers/hardening.
+- Gap category/severity checklist: closed deterministic category and severity codes.
+- Upstream linkage checklist: includes phases 171/172/173/174/176/177 linkage summary.
+- Missing evidence checklist: missing upstream evidence summarized deterministically.
+- Blocker checklist: blocking gaps summarized deterministically.
+- Hardening candidate checklist: blocking/high gaps derive local-only hardening candidates.
+- UI gap review panel checklist: visible "Release Candidate gap review" panel.
+- No-approval/no-release-readiness boundary checklist: explicit no-approval/no-readiness/no-sign/publish/deploy/distribute wording.
+- Rust test checklist: deterministic ID and gap derivation coverage.
+- TypeScript test checklist: snapshot/behavior coverage for gap review panel text.
+- Phase 179 handoff checklist: next code-production phase remains Release Candidate Dry-Run Rehearsal.
+- Validation checklist: run `./scripts/check.sh`, Rust tests, UI typecheck/lint/build/tests.
+- Deferred items: readiness approval, signing, publishing, deployment, release, distribution remain deferred.
+- Validation log: recorded in Phase 178 commit notes.
+- Zero-drift checklist: no roadmap/governance/architecture drift.

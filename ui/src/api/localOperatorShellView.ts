@@ -133,6 +133,26 @@ function renderSigningKeyCustodyDryRunText(
 }
 
 
+
+function renderReleaseCandidateGapReviewText(state: LocalOperatorShellState): string {
+  const g = state.releaseCandidateGapReview;
+  const gaps = g.gaps.map((x) => `- ${x.severity} ${x.affectedSurface} ${x.category}: ${x.finding}`).join("\n");
+  return [
+    "Release Candidate gap review",
+    "Gap review turns assembled evidence into hardening work.",
+    `Status: ${g.status}`,
+    `Gap review ID: ${g.gapReviewId ?? "not_generated"}`,
+    `Gap count: ${g.gapCount}`,
+    `Blocking gap count: ${g.blockingGapCount}`,
+    `Informational gap count: ${g.informationalGapCount}`,
+    `Hardening candidate count: ${g.hardeningCandidateCount}`,
+    gaps || "- none",
+    "Gap review does not approve Release Candidate status.",
+    "Gap review does not approve release readiness.",
+    "Gap review does not sign, publish, deploy, release, or distribute anything.",
+    "No public download, GitHub release, release tag, installer, or update channel is created.",
+  ].join("\n");
+}
 function renderReleaseCandidateEvidenceAssemblyText(state: LocalOperatorShellState): string {
   const p = state.releaseCandidateEvidenceAssembly;
   return [
@@ -775,6 +795,7 @@ export function renderLocalOperatorShellSnapshot(
   ].join("\n");
 
   const releaseCandidateEvidenceAssembly = renderReleaseCandidateEvidenceAssemblyText(state);
+  const releaseCandidateGapReview = renderReleaseCandidateGapReviewText(state);
 
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
@@ -804,6 +825,7 @@ export function renderLocalOperatorShellSnapshot(
     renderInstallerDistributionContractText(state),
     renderSigningKeyCustodyDryRunText(state),
     releaseCandidateEvidenceAssembly,
+    releaseCandidateGapReview,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
