@@ -1,3 +1,42 @@
+## v0.0.179 - 2026-05-22
+**Status:** Phase 179 - Release Candidate Dry-Run Rehearsal
+
+### Added
+- Add Rust-owned Release Candidate dry-run rehearsal projection with deterministic rehearsal ID, upstream evidence linkage, missing evidence, blockers, gap review summary, rehearsal evidence artifact summary, and no-approval boundaries.
+- Add UI rendering for Release Candidate dry-run rehearsal status, rehearsal ID, upstream linkage, missing evidence, blockers, gap review summary, rehearsal evidence artifact summary, and no-release/no-public-artifact wording.
+- Add Rust and TypeScript tests for valid upstream evidence, missing/rejected upstream evidence, blocking gaps, deterministic ordering, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with Release Candidate dry-run rehearsal state using thin integration.
+- Update the local UI shell to display Release Candidate dry-run rehearsal state.
+- Update checklists/current-phase.md to Phase 179 procedural truth.
+
+### Notes
+- Code-production phase.
+- Release Candidate dry-run rehearsal exercises the evidence chain.
+- Dry-run rehearsal does not create or approve a Release Candidate.
+- Dry-run rehearsal does not approve release readiness.
+- Dry-run rehearsal does not create release artifacts.
+- Dry-run rehearsal does not create public artifacts.
+- Dry-run rehearsal does not sign.
+- Dry-run rehearsal does not publish.
+- Dry-run rehearsal does not deploy.
+- Dry-run rehearsal does not release.
+- Dry-run rehearsal does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 180 remains the next Release Candidate decision gate.
+
 ---
 truth_dimension: historical
 authority_level: authoritative

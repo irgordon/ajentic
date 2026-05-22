@@ -171,6 +171,39 @@ function renderReleaseCandidateEvidenceAssemblyText(state: LocalOperatorShellSta
   ].join("\n");
 }
 
+
+function renderReleaseCandidateDryRunRehearsalText(state: LocalOperatorShellState): string {
+  const p = state.releaseCandidateDryRunRehearsal;
+  return [
+    "Release Candidate dry-run rehearsal",
+    "Release Candidate dry-run rehearsal exercises the evidence chain.",
+    `Rehearsal status: ${p.status}`,
+    `Rehearsal ID: ${p.rehearsalId ?? "none"}`,
+    `Upstream evidence linkage count: ${p.upstreamLinkage.length}`,
+    "Upstream evidence linkage summary",
+    p.upstreamLinkage.map((x) => `${x.category}: ${x.sourceId} (${x.sourceStatus})`).join("\n") || "none",
+    `Missing evidence count: ${p.missingEvidence.length}`,
+    "Missing evidence summary",
+    p.missingEvidence.map((x) => `${x.category}: ${x.reason}`).join("\n") || "none",
+    `Blocker count: ${p.blockers.length}`,
+    "Blocker summary",
+    p.blockers.map((x) => `${x.category}: ${x.reason}`).join("\n") || "none",
+    `Gap review summary: ${p.gapReviewSummary.status} / ${p.gapReviewSummary.gapReviewId} / blocking ${p.gapReviewSummary.blockingGapCount} / total ${p.gapReviewSummary.gapCount}`,
+    "Rehearsal evidence artifact summary",
+    p.rehearsalArtifactSummary.map((x) => `${x.artifactId}: ${x.artifactKind} (${x.summary})`).join("\n") || "none",
+    "Boundary note: dry-run rehearsal only",
+    "Boundary note: no Release Candidate approval",
+    "Boundary note: no release readiness approval",
+    "Boundary note: no release artifact or public artifact",
+    "Boundary note: no signing/publishing/deployment/public distribution authority",
+    "Dry-run rehearsal does not create or approve a Release Candidate.",
+    "Dry-run rehearsal does not approve release readiness.",
+    "Dry-run rehearsal does not create a release artifact or public artifact.",
+    "Dry-run rehearsal does not sign, publish, deploy, release, or distribute anything.",
+    "No public download, GitHub release, release tag, installer, or update channel is created.",
+  ].join("\n");
+}
+
 function renderInstallerDistributionContractText(
   state: LocalOperatorShellState,
 ): string {
@@ -796,6 +829,7 @@ export function renderLocalOperatorShellSnapshot(
 
   const releaseCandidateEvidenceAssembly = renderReleaseCandidateEvidenceAssemblyText(state);
   const releaseCandidateGapReview = renderReleaseCandidateGapReviewText(state);
+  const releaseCandidateDryRunRehearsal = renderReleaseCandidateDryRunRehearsalText(state);
 
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
@@ -826,6 +860,7 @@ export function renderLocalOperatorShellSnapshot(
     renderSigningKeyCustodyDryRunText(state),
     releaseCandidateEvidenceAssembly,
     releaseCandidateGapReview,
+    releaseCandidateDryRunRehearsal,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
