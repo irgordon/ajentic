@@ -3359,12 +3359,29 @@ function assertContains(text: string, expected: string, message: string): void {
   }
 }
 
+function extractBoundaryTokens(text: string): readonly string[] {
+  return text
+    .toLowerCase()
+    .split(/[^a-z0-9_]+/u)
+    .filter((token) => token.length > 0);
+}
+
 function assertDoesNotContain(
   text: string,
   unexpected: string,
   message: string,
+  allowedNegativeMarkers: readonly string[] = [],
 ): void {
-  if (text.includes(unexpected)) {
+  const normalizedUnexpected = unexpected.toLowerCase();
+  const allowedNegativeMarkerSet = new Set(
+    allowedNegativeMarkers.map((marker) => marker.toLowerCase()),
+  );
+
+  if (allowedNegativeMarkerSet.has(normalizedUnexpected)) {
+    return;
+  }
+
+  if (extractBoundaryTokens(text).includes(normalizedUnexpected)) {
     throw new Error(`${message}: expected text not to include ${unexpected}`);
   }
 }
@@ -5650,6 +5667,14 @@ function assertTrialObservabilityForbiddenLabelsAbsent(): void {
   const rendered = renderLocalOperatorShellSnapshot(
     initialLocalOperatorShellState(),
   );
+  const allowedNegativeRehearsalMarkers = [
+    "no_signature_created",
+    "no_signing",
+    "no_public_signing",
+    "release_artifact_not_created",
+    "public_artifact_not_created",
+  ] as const;
+
   for (const label of [
     "production_monitoring_enabled",
     "telemetry_sent",
@@ -6533,6 +6558,45 @@ function assertInstallerDistributionContractStateShapeAndPanel(): void {
 }
 
 
+function assertForbiddenLabelTokenMatchingRejectsPositiveMarkersOnly(): void {
+  const allowedNegativeOnly = [
+    "no_signature_created",
+    "no_signing",
+    "no_public_signing",
+    "release_artifact_not_created",
+    "public_artifact_not_created",
+  ].join(" ");
+
+  assertDoesNotContain(
+    allowedNegativeOnly,
+    "signature_created",
+    "negative marker no_signature_created allowed",
+    ["no_signature_created"],
+  );
+
+  for (const forbiddenPositive of [
+    "signature_created",
+    "signed_release",
+    "signing_enabled",
+  ]) {
+    let threw = false;
+    try {
+      assertDoesNotContain(
+        forbiddenPositive,
+        forbiddenPositive,
+        `forbidden positive marker rejected: ${forbiddenPositive}`,
+      );
+    } catch {
+      threw = true;
+    }
+    assertEqual(
+      threw,
+      true,
+      `forbidden positive marker rejected: ${forbiddenPositive}`,
+    );
+  }
+}
+
 function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWording(): void {
   const state = initialLocalOperatorShellState();
   const rendered = renderLocalOperatorShellSnapshot(state);
@@ -6552,6 +6616,14 @@ function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWordin
   assertContains(rendered, "Dry-run rehearsal does not create a release artifact or public artifact.", "no artifact wording");
   assertContains(rendered, "Dry-run rehearsal does not sign, publish, deploy, release, or distribute anything.", "no sign/publish/deploy/release/distribute wording");
   assertContains(rendered, "No public download, GitHub release, release tag, installer, or update channel is created.", "no public outputs wording");
+
+  const allowedNegativeRehearsalMarkers = [
+    "no_signature_created",
+    "no_signing",
+    "no_public_signing",
+    "release_artifact_not_created",
+    "public_artifact_not_created",
+  ] as const;
 
   for (const label of [
     "release_candidate_approved",
@@ -6583,11 +6655,20 @@ function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWordin
     "replay_repaired",
     "recovery_promoted",
   ]) {
-    assertDoesNotContain(rendered, label, `forbidden rehearsal label ${label}`);
+    assertDoesNotContain(
+      rendered,
+      label,
+      `forbidden rehearsal label ${label}`,
+      allowedNegativeRehearsalMarkers,
+    );
   }
 }
 
 export const behaviorTests: readonly BehaviorTest[] = [
+  {
+    name: "phase_179_2_forbidden_label_token_matching_rejects_positive_markers_only",
+    run: assertForbiddenLabelTokenMatchingRejectsPositiveMarkersOnly,
+  },
   {
     name: "phase_179_1_release_candidate_dry_run_rehearsal_panel_rendering_and_boundaries",
     run: assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWording,
