@@ -1,3 +1,32 @@
+## v0.0.179.1 - 2026-05-22
+**Status:** Phase 179.1 - OOB Release Candidate Dry-Run Rehearsal Completion Fix
+
+### Fixed
+- Complete Phase 179 dry-run rehearsal validation by replacing loose status-string inference with explicit upstream rehearsal classification helpers where practical.
+- Add Rust tests for missing/rejected upstream evidence, blocking/informational gap review states, deterministic ordering, deterministic rehearsal ID, and no-authority boundaries.
+- Add TypeScript behavior tests for the Release Candidate dry-run rehearsal panel, upstream linkage, missing/blocker summaries, gap review summary, artifact summary, deterministic rendering, and no-authority wording.
+
+### Notes
+- Out-of-band completion fix only.
+- No Phase 180 implementation.
+- No Release Candidate approval.
+- No release readiness approval.
+- No signing.
+- No publishing.
+- No deployment.
+- No release artifact creation.
+- No public artifact creation.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No public distribution.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+
 ## v0.0.179 - 2026-05-22
 **Status:** Phase 179 - Release Candidate Dry-Run Rehearsal
 

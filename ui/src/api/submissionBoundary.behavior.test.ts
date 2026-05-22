@@ -6532,7 +6532,66 @@ function assertInstallerDistributionContractStateShapeAndPanel(): void {
   );
 }
 
+
+function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWording(): void {
+  const state = initialLocalOperatorShellState();
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(rendered, "Release Candidate dry-run rehearsal", "panel visible");
+  assertContains(rendered, "Rehearsal status: ", "rehearsal status renders");
+  assertContains(rendered, "Rehearsal ID: ", "rehearsal id renders");
+  assertContains(rendered, "Upstream evidence linkage summary", "upstream linkage renders");
+  assertContains(rendered, "Missing evidence summary", "missing summary renders");
+  assertContains(rendered, "Blocker summary", "blocker summary renders");
+  assertContains(rendered, "Gap review summary:", "gap summary renders");
+  assertContains(rendered, "Rehearsal evidence artifact summary", "artifact summary renders");
+
+  assertEqual(rendered, renderLocalOperatorShellSnapshot(state), "deterministic rehearsal rendering");
+  assertContains(rendered, "Release Candidate dry-run rehearsal exercises the evidence chain.", "evidence chain wording");
+  assertContains(rendered, "Dry-run rehearsal does not create or approve a Release Candidate.", "no RC approval wording");
+  assertContains(rendered, "Dry-run rehearsal does not approve release readiness.", "no readiness wording");
+  assertContains(rendered, "Dry-run rehearsal does not create a release artifact or public artifact.", "no artifact wording");
+  assertContains(rendered, "Dry-run rehearsal does not sign, publish, deploy, release, or distribute anything.", "no sign/publish/deploy/release/distribute wording");
+  assertContains(rendered, "No public download, GitHub release, release tag, installer, or update channel is created.", "no public outputs wording");
+
+  for (const label of [
+    "release_candidate_approved",
+    "release_candidate_ready",
+    "release_ready",
+    "production_ready",
+    "production_candidate_approved",
+    "deployment_ready",
+    "public_use_ready",
+    "rehearsal_approved",
+    "release_artifact_created",
+    "public_artifact_created",
+    "evidence_approved",
+    "review_approved",
+    "approval_granted",
+    "signing_enabled",
+    "signature_created",
+    "artifact_signed",
+    "signed_release",
+    "published_release",
+    "installer_enabled",
+    "update_channel_enabled",
+    "public_distribution_enabled",
+    "public_download_created",
+    "github_release_created",
+    "release_tag_created",
+    "provider_output_trusted",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+  ]) {
+    assertDoesNotContain(rendered, label, `forbidden rehearsal label ${label}`);
+  }
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
+  {
+    name: "phase_179_1_release_candidate_dry_run_rehearsal_panel_rendering_and_boundaries",
+    run: assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWording,
+  },
   {
     name: "phase_104_transport_startup_is_local_only",
     run: () => {
