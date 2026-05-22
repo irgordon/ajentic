@@ -4,6 +4,28 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.178.2 - 2026-05-22
+**Status:** Phase 178.2 - OOB Core Purpose and Drift Audit
+
+### Added
+- Add a top-down core purpose and drift audit covering determinism, bounded control, non-authority boundaries, provider/execution guardrails, release-path guardrails, UI honesty, documentation truth dimensions, architecture/modularity, and validation integrity.
+
+### Notes
+- Out-of-band audit only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No runtime behavior changes.
+- No tests changed.
+- No schema changes.
+- No roadmap changes.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No release readiness approval.
+- No Release Candidate approval.
+- Phase 179 remains deferred until the audit recommendation is recorded.
+
 ## v0.0.178.1 - 2026-05-22
 **Status:** Phase 178.1 - OOB Release Candidate Gap Review Validation Closure
 
@@ -70,6 +92,29 @@ mutation_path: changelog_entry
 - Phase 179 remains the next code-production phase for Release Candidate Dry-Run Rehearsal.
 
 ---
+
+## v0.0.178.2 - 2026-05-22
+**Status:** Phase 178.2 - OOB Core Purpose and Drift Audit
+
+### Added
+- Add a top-down core purpose and drift audit covering determinism, bounded control, non-authority boundaries, provider/execution guardrails, release-path guardrails, UI honesty, documentation truth dimensions, architecture/modularity, and validation integrity.
+
+### Notes
+- Out-of-band audit only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No runtime behavior changes.
+- No tests changed.
+- No schema changes.
+- No roadmap changes.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No release readiness approval.
+- No Release Candidate approval.
+- Phase 179 remains deferred until the audit recommendation is recorded.
+
 truth_dimension: historical
 authority_level: authoritative
 mutation_path: changelog_entry

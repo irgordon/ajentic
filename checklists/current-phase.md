@@ -4,20 +4,22 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 178.1 - OOB Release Candidate Gap Review Validation Closure
+# Phase 178.2 - OOB Core Purpose and Drift Audit
 
-- Phase goal: close Phase 178 by completing the full validation set from a clean committed tree and fixing only validation failures.
-- Working-tree hygiene gate: confirm clean tree before and after validation (`git status --short`, `git diff --check`).
-- Validation closure checklist: `cargo fmt --check`, Rust tests, clippy `-D warnings`, UI typecheck/lint/build/test, local dev smoke, clean-tree `./scripts/check.sh`.
-- File-size discipline checklist: no newly created Phase 178 file exceeds 1,000 LOC.
-- Changelog size checklist: root `CHANGELOG.md` remains under 900 LOC.
-- No-authority checklist: no approval/readiness/signing/publishing/deployment/public-distribution behavior introduced.
-- Zero-drift checklist: no roadmap, governance, or architecture drift introduced.
-- Phase 179 handoff checklist: next code-production phase remains Phase 179 Release Candidate Dry-Run Rehearsal.
-- Validation log:
-  - `cargo fmt --manifest-path core/Cargo.toml -- --check`: initially failed due formatting in `core/src/api/release_candidate_gap_review.rs` and `core/src/api/local_operator_shell_state.rs`; fixed with rustfmt and clippy-targeted adjustment.
-  - `CARGO_TARGET_DIR=/tmp/ajentic-phase-178-1-target cargo test --manifest-path core/Cargo.toml --all-targets`: passed.
-  - `CARGO_TARGET_DIR=/tmp/ajentic-phase-178-1-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`: initially failed (`clippy::useless_vec` in gap review derivation), fixed by replacing `vec!` with array, then passed.
-  - `cd ui && npm run typecheck && npm run lint && npm run build && rm -rf dist && npm run test:api`: passed.
-  - `cd ui && timeout 10 npm run dev`: server started at `http://127.0.0.1:5173` before timeout.
-  - Required scan set executed (file-size, changelog line-count, gap review, dedicated module, boundary, forbidden labels, unsafe execution, release/deployment, changed-file guard, no-roadmap-drift guard).
+- Phase goal: determine whether AJENTIC has drifted from deterministic, bounded, auditable, non-authoritative operation before Phase 179.
+- Working-tree hygiene gate: run `git status --short` and `git diff --check` before and after audit edits.
+- Allowed surfaces: `docs/operations/core-purpose-drift-audit-phase-178-2.md`, `CHANGELOG.md`, `checklists/current-phase.md` only.
+- Audit scope checklist: root governance/roadmap/changelog/checklist, Rust API/shell/provider/replay/restore/release-path surfaces, UI state/render/help, tests, and validation scripts.
+- Determinism checklist: deterministic IDs/digests/orderings, replay/status derivation from recorded facts, no authoritative nondeterminism.
+- Bounded-control checklist: typed request/response boundaries, local operator shell control surface, dry-run vs authority separation.
+- Non-authority checklist: no readiness/release/public-use/production/provider-trust/action/replay-repair/recovery-promotion approval semantics.
+- Provider/execution guardrail checklist: arbitrary execution blocked; no shell/network/cloud/secrets authority expansion.
+- Release-path guardrail checklist: no real signing/publishing/deployment/distribution/release artifacts; dry-run evidence only.
+- UI honesty checklist: copy remains local-only/non-authoritative/untrusted where required; no authority-implying controls.
+- Documentation truth-dimension checklist: governance normative, roadmap planned, changelog historical, checklist procedural, code/tests executable truth.
+- Architecture/modularity checklist: identify monolith risk (>1,000 LOC) and boundary-marker duplication risk.
+- Test/validation integrity checklist: adversarial/fail-closed checks present; no failure masking; `scripts/check.sh` remains integration gate.
+- Rebuild trigger assessment checklist: explicitly assess unbounded execution, default trust, unauthorized action, release/public/prod authority, signing/publishing/deployment behavior, replay repair mutation, hidden validation failure, authoritative nondeterminism.
+- Phase 179 recommendation checklist: choose one required decision option and record caveats.
+- Validation checklist: run required `rg` scans, file-size scan, changelog-size scan, `CARGO_TARGET_DIR=/tmp/ajentic-phase-178-2-target ./scripts/check.sh`, `git diff --check`, and `git status --short`.
+- Zero-drift checklist: audit doc present, required finding sections complete, severity/disposition recorded, rebuild trigger explicit, recommendation explicit, changelog/checklist aligned with actual diff.
