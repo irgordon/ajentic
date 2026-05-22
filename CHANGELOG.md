@@ -1,3 +1,29 @@
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
+## v0.0.179.3 - 2026-05-22
+**Status:** Phase 179.3 - OOB Dry-Run Rehearsal Validation Closure
+
+### Fixed
+- Close the Phase 179.2 validation gap by running the full repository check from a clean committed tree.
+
+### Notes
+- Out-of-band validation closure only.
+- No Phase 180 implementation.
+- No signing.
+- No signature creation.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No release artifact creation.
+- No public artifact creation.
+- No release readiness approval.
+- No Release Candidate approval.
+- Phase 180 remains the next decision gate.
+
 ## v0.0.179.2 - 2026-05-22
 **Status:** Phase 179.2 - OOB Dry-Run Rehearsal UI Forbidden-Label Fix
 
