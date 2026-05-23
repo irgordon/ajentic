@@ -8,13 +8,14 @@ use crate::api::{
     initial_installer_distribution_contract_projection,
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_dry_run_rehearsal_projection,
+    initial_release_candidate_evidence_manifest_projection,
     initial_release_candidate_evidence_assembly_projection,
     initial_release_candidate_gap_review_projection,
     initial_release_candidate_preparation_projection,
     initial_release_dry_package_checksum_provenance_projection,
     initial_signing_key_custody_dry_run_projection, project_installer_distribution_contract,
     project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
-    InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
+    derive_release_candidate_evidence_manifest, InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
     ReleaseCandidateDryRunRehearsalProjection, ReleaseCandidateEvidenceAssemblyProjection,
     ReleaseCandidateGapReviewProjection, ReleaseCandidatePreparationProjection,
     ReleaseDryPackageChecksumProvenanceProjection, SigningKeyCustodyDryRunProjection,
@@ -92,6 +93,7 @@ pub struct LocalOperatorShellState {
     pub release_candidate_evidence_assembly: ReleaseCandidateEvidenceAssemblyProjection,
     pub release_candidate_gap_review: ReleaseCandidateGapReviewProjection,
     pub release_candidate_dry_run_rehearsal: ReleaseCandidateDryRunRehearsalProjection,
+    pub release_candidate_evidence_manifest: ReleaseCandidateEvidenceManifestProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -288,6 +290,8 @@ pub(crate) fn attach_local_session_evidence_export(
         &state.release_candidate_evidence_assembly,
         &state.release_candidate_gap_review,
     );
+    state.release_candidate_evidence_manifest =
+        derive_release_candidate_evidence_manifest(&state);
     state
 }
 
@@ -386,6 +390,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         release_candidate_gap_review: initial_release_candidate_gap_review_projection(),
         release_candidate_dry_run_rehearsal: initial_release_candidate_dry_run_rehearsal_projection(
         ),
+        release_candidate_evidence_manifest: initial_release_candidate_evidence_manifest_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -430,6 +435,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         &state.release_candidate_evidence_assembly,
         &state.release_candidate_gap_review,
     );
+    state.release_candidate_evidence_manifest =
+        derive_release_candidate_evidence_manifest(&state);
     state
 }
 

@@ -203,6 +203,35 @@ function renderReleaseCandidateDryRunRehearsalText(state: LocalOperatorShellStat
     "No public download, GitHub release, release tag, installer, or update channel is created.",
   ].join("\n");
 }
+function renderReleaseCandidateEvidenceManifestText(state: LocalOperatorShellState): string {
+  const m = state.releaseCandidateEvidenceManifest;
+  return [
+    "Release Candidate label and evidence manifest",
+    `Label status: ${m.labelStatus}`,
+    `Manifest status: ${m.manifestStatus}`,
+    `Manifest ID: ${m.manifestId ?? "none"}`,
+    `Evidence item count: ${m.validationSummary.itemCount}`,
+    `Present item count: ${m.validationSummary.presentCount}`,
+    `Missing item count: ${m.validationSummary.missingCount}`,
+    `Blocked item count: ${m.validationSummary.blockedCount}`,
+    `Caveat count: ${m.caveats.length}`,
+    "Evidence categories",
+    m.items.map((x) => `${x.category}: ${x.status}`).join("\n") || "none",
+    "Upstream linkage summary",
+    m.items.map((x) => `${x.category} -> ${x.linkage.sourceSurface}:${x.linkage.sourceStatus}`).join("\n") || "none",
+    "Blocker summary",
+    m.blockers.map((x) => `${x.category}: ${x.reason}`).join("\n") || "none",
+    "Caveat summary",
+    m.caveats.map((x) => `${x.category}: ${x.detail}`).join("\n") || "none",
+    `Validation summary: present ${m.validationSummary.presentCount}, missing ${m.validationSummary.missingCount}, blocked ${m.validationSummary.blockedCount}, rejected ${m.validationSummary.rejectedCount}`,
+    "Release Candidate evidence manifest records supportability evidence.",
+    "Release Candidate supportability is not release readiness.",
+    "Release Candidate supportability is not production readiness or public-use approval.",
+    "This manifest does not create release artifacts or public artifacts.",
+    "This manifest does not sign, publish, deploy, release, or distribute anything.",
+    "Targeted cleanup remains part of the Release Candidate stewardship path.",
+  ].join("\n");
+}
 
 function renderInstallerDistributionContractText(
   state: LocalOperatorShellState,
@@ -830,6 +859,7 @@ export function renderLocalOperatorShellSnapshot(
   const releaseCandidateEvidenceAssembly = renderReleaseCandidateEvidenceAssemblyText(state);
   const releaseCandidateGapReview = renderReleaseCandidateGapReviewText(state);
   const releaseCandidateDryRunRehearsal = renderReleaseCandidateDryRunRehearsalText(state);
+  const releaseCandidateEvidenceManifest = renderReleaseCandidateEvidenceManifestText(state);
 
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
@@ -861,6 +891,7 @@ export function renderLocalOperatorShellSnapshot(
     releaseCandidateEvidenceAssembly,
     releaseCandidateGapReview,
     releaseCandidateDryRunRehearsal,
+    releaseCandidateEvidenceManifest,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
