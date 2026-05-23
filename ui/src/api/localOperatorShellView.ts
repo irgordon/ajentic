@@ -203,6 +203,28 @@ function renderReleaseCandidateDryRunRehearsalText(state: LocalOperatorShellStat
     "No public download, GitHub release, release tag, installer, or update channel is created.",
   ].join("\n");
 }
+function renderReleaseCandidateReviewText(state: LocalOperatorShellState): string {
+  const r = state.releaseCandidateReview;
+  return [
+    "Release Candidate review",
+    `Review status: ${r.status}`,
+    `Review ID: ${r.reviewId ?? "none"}`,
+    `Manifest summary: ${r.manifestSummary.labelStatus} / ${r.manifestSummary.manifestStatus} / items ${r.manifestSummary.itemCount}`,
+    `Caveat count: ${r.caveats.length}`,
+    `Blocker count: ${r.blockers.length}`,
+    `Upstream linkage count: ${r.upstreamLinkage.length}`,
+    `Validation summary: present ${r.validationSummary.presentCount}, missing ${r.validationSummary.missingCount}, blocked ${r.validationSummary.blockedCount}, rejected ${r.validationSummary.rejectedCount}`,
+    "Review findings",
+    r.reviewFindings.map((x) => `${x.category}/${x.severity}: ${x.detail}`).join("\n") || "none",
+    "Release Candidate review UI makes the supportability evidence inspectable.",
+    "Review does not approve Release Candidate status.",
+    "Review does not approve release readiness.",
+    "Review does not approve production readiness or public use.",
+    "Review does not create release artifacts or public artifacts.",
+    "Review does not sign, publish, deploy, release, or distribute anything.",
+  ].join("\n");
+}
+
 function renderReleaseCandidateEvidenceManifestText(state: LocalOperatorShellState): string {
   const m = state.releaseCandidateEvidenceManifest;
   return [
@@ -860,6 +882,7 @@ export function renderLocalOperatorShellSnapshot(
   const releaseCandidateGapReview = renderReleaseCandidateGapReviewText(state);
   const releaseCandidateDryRunRehearsal = renderReleaseCandidateDryRunRehearsalText(state);
   const releaseCandidateEvidenceManifest = renderReleaseCandidateEvidenceManifestText(state);
+  const releaseCandidateReview = renderReleaseCandidateReviewText(state);
 
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
@@ -892,6 +915,7 @@ export function renderLocalOperatorShellSnapshot(
     releaseCandidateGapReview,
     releaseCandidateDryRunRehearsal,
     releaseCandidateEvidenceManifest,
+    releaseCandidateReview,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",
