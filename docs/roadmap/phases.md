@@ -576,6 +576,31 @@ Goal: Decide whether Release Candidate status is supportable or whether another 
 
 Boundary: Decision gate only; no release, production, deployment, public/general use, signing, publishing, or provider-output trust approval by implication.
 
+### Phase 181 - Release Candidate Label and Evidence Manifest
+Goal: Record controlled Release Candidate labeling metadata and evidence manifest structure from prior local evidence.
+
+Boundary: Stewardship phase only; no release artifact publication, signing, publishing, deployment, or public/general-use approval.
+
+### Phase 182 - Release Candidate Review UI
+Goal: Provide a bounded review surface for Release Candidate label/manifest evidence and caveat visibility.
+
+Boundary: Review-only UI phase; no approval authority, signing, publishing, deployment, or public/general-use approval.
+
+### Phase 183 - Release Candidate Hardening Closure
+Goal: Close confirmed Release Candidate stewardship hardening gaps before the next rehearsal checkpoint.
+
+Boundary: Hardening phase only; no release/public artifact creation, signing, publishing, deployment, or production/public approval.
+
+### Phase 184 - Release Candidate Local Package Rehearsal
+Goal: Rehearse local non-public Release Candidate package procedures using stewardship evidence.
+
+Boundary: Local rehearsal only; no public downloads, signing activation, publishing, deployment, or release approval.
+
+### Phase 185 - Release Candidate Alignment Checkpoint
+Goal: Reconcile Phases 181-184 evidence and determine whether the next bounded Release Candidate control phase may proceed.
+
+Boundary: Alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
+
 
 ## Phase 170 alignment note
 

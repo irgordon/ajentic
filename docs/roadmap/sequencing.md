@@ -423,7 +423,28 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: decision gate only; no release, production, deployment, public/general use, signing, publishing, or provider-output trust approval by implication.
 
 
-Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements. Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release-evidence review UI, hardening code, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
+81. **Phase 181 records the Release Candidate label and evidence manifest**
+   - Phase 181 must capture controlled label/manifest structure from the reconciled evidence chain.
+   - Boundary: stewardship only; no public artifact creation, signing, publishing, deployment, or approval authority.
+
+82. **Phase 182 provides a Release Candidate review UI for stewardship evidence**
+   - Phase 182 must expose label/manifest evidence and caveat visibility in a bounded review surface.
+   - Boundary: review-only UI; no approval authority or production/public-use implication.
+
+83. **Phase 183 closes confirmed Release Candidate hardening gaps**
+   - Phase 183 must resolve confirmed stewardship hardening gaps before local package rehearsal.
+   - Boundary: hardening only; no release/public artifact creation, signing, publishing, deployment, or approval authority.
+
+84. **Phase 184 rehearses local non-public Release Candidate packaging under stewardship controls**
+   - Phase 184 must run local package rehearsal procedures using stewardship evidence.
+   - Boundary: local rehearsal only; no public downloads, signing activation, publishing, deployment, or release approval.
+
+85. **Phase 185 is the Release Candidate alignment checkpoint for the stewardship block**
+   - Phase 185 must reconcile Phases 181-184 and decide whether the next bounded Release Candidate control phase may proceed.
+   - Boundary: alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
+
+
+Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements, and Phase 180 records `release_candidate_status_supportable_with_caveats` with explicit no-authority caveats before entering a controlled stewardship block (Phases 181-185). Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release-evidence review UI, hardening code, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
 
 ## Ladder-Preservation sequencing invariants
 

@@ -4,6 +4,42 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.180 - 2026-05-22
+**Status:** Phase 180 - Release Candidate Decision Gate
+
+### Changed
+- Reconcile the Phase 171-179.3 release-candidate evidence chain.
+- Record the Phase 180 Release Candidate decision.
+- Record blocker, evidence-gap, guardrail-drift, authority-boundary, and rebuild-trigger findings.
+- Update roadmap sequencing based on the Phase 180 decision.
+- Update checklists/current-phase.md to Phase 180 procedural truth.
+
+### Notes
+- Decision/alignment checkpoint only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No signing behavior.
+- No publishing behavior.
+- No installer behavior.
+- No update-channel activation.
+- No public distribution.
+- No deployment behavior.
+- No release artifact creation.
+- No public artifact creation.
+- No provider execution expansion.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- Release Candidate supportability is not production readiness.
+- Release Candidate supportability is not public/general-use approval.
+- Release Candidate supportability is not deployment approval.
+- Release Candidate supportability does not create artifacts.
+
+
 ## v0.0.179.3 - 2026-05-22
 **Status:** Phase 179.3 - OOB Dry-Run Rehearsal Validation Closure
 

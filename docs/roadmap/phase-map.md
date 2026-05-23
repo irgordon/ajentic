@@ -117,6 +117,11 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 178 | Release Candidate Gap Review and Hardening | Milestone 22 | Fix confirmed gaps from evidence assembly and missing local beta documentation or packaging surfaces. | Code-production phase; concrete code or validation hardening only; no release approval. |
 | 179 | Release Candidate Dry-Run Rehearsal | Milestone 22 | Run a deterministic release-candidate dry-run rehearsal using prior dry-package and evidence surfaces. | Code-production phase; local dry-run evidence artifact only; no release approval and no public artifact. |
 | 180 | Release Candidate Decision Gate | Milestone 22 | Decide whether Release Candidate status is supportable or another hardening block is required. | Decision gate only; no public/general use, deployment, production readiness, or production approval by implication. |
+| 181 | Release Candidate Label and Evidence Manifest | Milestone 23 | Record controlled Release Candidate labeling metadata and evidence manifest structure without creating public artifacts. | Stewardship phase only; no release artifact publication, signing, publishing, deployment, or public/general-use approval. |
+| 182 | Release Candidate Review UI | Milestone 23 | Provide a bounded review surface for Release Candidate label/manifest evidence and caveat visibility. | Review-only UI phase; no approval authority, signing, publishing, deployment, or public/general-use approval. |
+| 183 | Release Candidate Hardening Closure | Milestone 23 | Close confirmed Release Candidate stewardship hardening gaps prior to local package rehearsal. | Hardening phase only; no release/public artifact creation, signing, publishing, deployment, or production/public approval. |
+| 184 | Release Candidate Local Package Rehearsal | Milestone 23 | Rehearse local non-public Release Candidate package procedures using stewardship evidence. | Local rehearsal only; no public downloads, signing activation, publishing, deployment, or release approval. |
+| 185 | Release Candidate Alignment Checkpoint | Milestone 23 | Reconcile Phases 181-184 evidence and determine whether the next bounded Release Candidate control phase may proceed. | Alignment checkpoint only; no production readiness, deployment, or public/general-use approval. |
 
 
 ## Phase 170 alignment note
