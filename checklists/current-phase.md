@@ -1,25 +1,14 @@
-# Phase 182 - Release Candidate Review UI
+# Phase 182.1 - OOB Release Candidate Review UI Completion and Microcopy Pass
 
-- Goal: add deterministic, non-authoritative Release Candidate review projection and review UI.
-- Working-tree hygiene gate: required validations and clean diff checks run.
-- File-size discipline: new Rust/TypeScript files remain under 1,000 LOC.
-- Allowed surfaces: core/src/api/release_candidate_review*.rs, thin local shell/state wiring, UI review rendering/types, changelog/checklist.
-- Code-production deliverables: Rust projection + UI review panel + tests.
-- Dedicated module: review logic lives in release_candidate_review.rs.
-- Typed hardening: closed enums for review status/sections/findings/severity.
-- Thin shell integration: local shell state carries derived review projection only.
-- Review projection checklist: status, ID, deterministic ordering, findings, boundaries.
-- Manifest summary checklist: label/status/id/item count shown.
-- Caveat/blocker checklist: deterministic caveat and blocker summaries shown.
-- Upstream linkage checklist: deterministic linkage summary shown.
-- Validation summary checklist: manifest counts surfaced unchanged.
-- Review findings checklist: caveat/blocker/boundary findings rendered.
-- UI review panel checklist: visible Release Candidate review section rendered.
-- No-approval/no-readiness boundaries: explicit wording and boundary markers rendered.
-- Rust tests: deterministic projection test added.
-- TypeScript tests: review panel wording behavior test added.
-- Phase 183 handoff: remains next code-production phase.
-- Validation checklist: check.sh, diff/status/file-size/scans, ui/rust tests, dev smoke.
-- Deferred items: none beyond Phase 183 hardening closure scope.
-- Validation log: recorded in command output for this phase.
-- Zero-drift checklist: no roadmap/governance edits.
+- Phase name: Phase 182.1 - OOB Release Candidate Review UI Completion and Microcopy Pass.
+- Phase goal: complete the Phase 182 Release Candidate review UI as a plain-English, review-only inspection surface.
+- Working-tree hygiene gate: run required validation stack and finish with clean git diff checks.
+- UX/microcopy checklist: action-oriented CTA, plain-language labels, helpful empty state, review-only no-approval wording, concise tooltips.
+- Review UI completion checklist: panel visibility, manifest summary, caveat summary, blocker summary, upstream linkage summary, validation summary, review findings.
+- Rust test completion checklist: manifest states, blocker/incomplete handling, summary derivation, targeted cleanup finding, deterministic ID, deterministic ordering, no-authority boundaries.
+- TypeScript test completion checklist: visible panel, summaries, caveats/blockers, upstream linkage, findings, empty/blocker/normal copy, deterministic rendering, forbidden-label absence.
+- Typed-hardening checklist: no broad substring authority inference added in review logic.
+- No-authority checklist: review remains non-authoritative and does not approve/sign/publish/deploy/release/distribute.
+- Validation checklist: fmt, test, clippy, typecheck, lint, build, test:api, dev smoke, full scripts/check.sh, diff/status checks, required scans.
+- Zero-drift checklist: no docs/roadmap changes and no Phase 183 implementation surfaces.
+- Phase 183 handoff checklist: Phase 183 remains the next code-production phase.

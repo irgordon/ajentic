@@ -3488,7 +3488,7 @@ function buildSpoofedFlagTest(
 }
 
 function assertLocalSessionPackageProjectionInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const projection = state.localSessionPackageProjection;
   assertEqual(projection.status, "not_packaged", "initial package status");
   assertEqual(projection.packageId, null, "initial package id");
@@ -3555,7 +3555,7 @@ function assertLocalSessionPackageProjectionIsStableAcrossRenderingState(): void
 }
 
 function assertControlledInternalTrialPackageProjectionInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const projection = state.controlledInternalTrialPackageProjection;
   assertEqual(
     projection.status,
@@ -3738,7 +3738,7 @@ function phase162ProjectedState(
 }
 
 function assertTrialOperatorRunbookPanelRendersBlockedState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial operator runbook", "runbook panel label");
   assertContains(
@@ -3899,7 +3899,7 @@ function validPackageProjectionForPhase152() {
 }
 
 function assertLocalSessionHistoryAndRestoreInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   assertEqual(
     state.localSessionHistoryProjection.status,
     "no_session_history",
@@ -4762,7 +4762,7 @@ function assertConstrainedLocalProviderInvocationRejectsAndPreservesNoAuthority(
 }
 
 function assertCompleteLocalOperatorWorkflowPanelInitialBlocked(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(
     rendered,
@@ -4908,7 +4908,7 @@ function assertCompleteLocalOperatorWorkflowPanelHappyPathDeterministic(): void 
 }
 
 function assertTrialSessionEvidencePanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const projection = state.trialSessionEvidenceProjection;
   assertEqual(projection.status, "not_captured", "initial evidence status");
   assertEqual(
@@ -5080,7 +5080,7 @@ function assertTrialSessionEvidencePanelRendersProjectedReadBackState(): void {
 }
 
 function assertTrialReplayRestoreVerificationPanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const verification = state.trialReplayRestoreVerification;
   assertEqual(
     verification.status,
@@ -5293,7 +5293,7 @@ function assertTrialReplayRestoreVerificationPanelRendersRejectedDrilldown(): vo
 }
 
 function assertControlledInternalTrialExecutionPanelInitialBlockedState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(
     rendered,
@@ -5507,7 +5507,7 @@ function assertControlledInternalTrialExecutionForbiddenLabelsAbsent(): void {
 }
 
 function assertTrialObservabilityAndErrorPanelsRender(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial observability", "observability panel label");
   assertContains(
@@ -5701,7 +5701,7 @@ function assertTrialObservabilityForbiddenLabelsAbsent(): void {
 }
 
 function assertTrialEvidenceReviewPanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Trial evidence review", "review panel label");
   assertContains(rendered, "Trial review findings", "findings panel label");
@@ -5935,7 +5935,7 @@ function assertTrialEvidenceReviewForbiddenLabelsAbsent(): void {
 }
 
 function assertReleaseCandidatePreparationPanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(
     rendered,
@@ -6080,7 +6080,7 @@ function assertReleaseCandidatePreparationRendersBlockedAndRejectedState(): void
 }
 
 function assertReleaseCandidatePreparationRenderingIsDeterministic(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   assertEqual(
     renderLocalOperatorShellSnapshot(state),
     renderLocalOperatorShellSnapshot(state),
@@ -6156,7 +6156,7 @@ function completeReleaseCandidatePreparationForDryPackage(
 }
 
 function assertReleaseArtifactDryPackagePanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(
     rendered,
@@ -6359,7 +6359,7 @@ function assertReleaseArtifactDryPackageForbiddenLabelsAbsent(): void {
 }
 
 function assertReleaseDryPackageChecksumProvenancePanelRendersInitialState(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(
     rendered,
@@ -6543,7 +6543,7 @@ function assertReleaseDryPackageChecksumProvenanceForbiddenLabelsAbsent(): void 
 }
 
 function assertInstallerDistributionContractStateShapeAndPanel(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   assertEqual(
     state.installerDistributionContract !== undefined,
     true,
@@ -6598,7 +6598,7 @@ function assertForbiddenLabelTokenMatchingRejectsPositiveMarkersOnly(): void {
 }
 
 function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWording(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const rendered = renderLocalOperatorShellSnapshot(state);
   assertContains(rendered, "Release Candidate dry-run rehearsal", "panel visible");
   assertContains(rendered, "Rehearsal status: ", "rehearsal status renders");
@@ -6665,7 +6665,7 @@ function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWordin
 }
 
 function assertReleaseCandidateEvidenceManifestInitialStateShapeAndRendering(): void {
-  const state = initialLocalOperatorShellState();
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
   const manifest = state.releaseCandidateEvidenceManifest;
   assertEqual(manifest.labelStatus, "not_labeled", "initial label status");
   assertEqual(
@@ -6695,6 +6695,97 @@ function assertReleaseCandidateEvidenceManifestInitialStateShapeAndRendering(): 
   assertContains(rendered, "Blocker summary", "blocker rendering");
   assertContains(rendered, "Caveat summary", "caveat rendering");
   assertEqual(rendered, renderLocalOperatorShellSnapshot(state), "deterministic rendering");
+}
+
+
+function rcReviewRendered(state: LocalOperatorShellState): string {
+  return renderLocalOperatorShellSnapshot(state);
+}
+
+function buildRcReviewState(): LocalOperatorShellState {
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
+  (state.releaseCandidateReview as any).status = "reviewable_with_caveats";
+  (state.releaseCandidateReview as any).reviewId = "rc-review-abc";
+  (state.releaseCandidateReview as any).manifestSummary = {
+    labelStatus: "supportability_labeled",
+    manifestStatus: "manifest_complete_with_caveats",
+    manifestId: "manifest-abc",
+    itemCount: 2,
+  };
+  (state.releaseCandidateReview as any).caveats = [
+    { category: "operator_follow_up", detail: "Inspect missing evidence before handoff." },
+  ];
+  (state.releaseCandidateReview as any).blockers = [
+    { category: "missing_evidence", reason: "Evidence category is still missing." },
+  ];
+  (state.releaseCandidateReview as any).upstreamLinkage = [
+    { category: "trial_evidence", sourceSurface: "trial_evidence_review", sourceStatus: "present", sourceId: "trial-1" },
+  ];
+  (state.releaseCandidateReview as any).validationSummary = {
+    itemCount: 2,
+    presentCount: 1,
+    missingCount: 1,
+    blockedCount: 0,
+    rejectedCount: 0,
+  };
+  (state.releaseCandidateReview as any).reviewFindings = [
+    { category: "manifest_caveat", severity: "medium", detail: "Inspect caveat.", source: "operator_follow_up" },
+  ];
+  return state;
+}
+
+function assertReleaseCandidateReviewPanelAndCopy(): void {
+  const rendered = rcReviewRendered(buildRcReviewState());
+  assertContains(rendered, "Release Candidate review", "panel visible");
+  assertContains(rendered, "Review helps you inspect the evidence. It does not approve release readiness or public use.", "required boundary wording");
+  assertContains(rendered, "Open evidence review", "action-oriented CTA");
+  assertContains(rendered, "Release Candidate review UI makes the supportability evidence inspectable.", "required inspectable wording");
+}
+function assertReleaseCandidateReviewSummariesRender(): void {
+  const rendered = rcReviewRendered(buildRcReviewState());
+  assertContains(rendered, "Manifest summary: label supportability_labeled; manifest manifest_complete_with_caveats; manifest ID manifest-abc; evidence items 2", "manifest summary");
+  assertContains(rendered, "Caveat summary (1)", "caveat summary heading");
+  assertContains(rendered, "Blocker summary (1)", "blocker summary heading");
+  assertContains(rendered, "Upstream linkage summary (1)", "upstream summary heading");
+  assertContains(rendered, "Validation summary: evidence items 2; present 1; missing 1; blocked 0; rejected 0", "validation summary");
+  assertContains(rendered, "Review findings", "findings heading");
+}
+function assertReleaseCandidateReviewEmptyStateCopy(): void {
+  const state = JSON.parse(JSON.stringify(initialLocalOperatorShellState())) as LocalOperatorShellState;
+  const rendered = rcReviewRendered(state);
+  assertContains(rendered, "Missing evidence: this panel will list manifest summary", "empty state guidance");
+  assertContains(rendered, "Next step: Generate evidence in the Release Candidate evidence manifest panel.", "empty state next step");
+}
+function assertReleaseCandidateReviewBlockerAndNormalCopy(): void {
+  const rendered = rcReviewRendered(buildRcReviewState());
+  assertContains(rendered, "missing_evidence: Evidence category is still missing.", "blocker detail");
+  assertContains(rendered, "Tooltip: A blocker is missing or blocked evidence", "blocker tooltip");
+  assertContains(rendered, "Tooltip: A caveat is evidence you should inspect with extra care.", "caveat tooltip");
+}
+function assertReleaseCandidateReviewNoApprovalWordingAndDeterminism(): void {
+  const a = rcReviewRendered(buildRcReviewState());
+  const b = rcReviewRendered(buildRcReviewState());
+  assertEqual(a, b, "deterministic rendering");
+  assertContains(a, "Review does not approve Release Candidate status.", "no status approval");
+  assertContains(a, "Review does not approve production readiness or public use.", "no production approval");
+  assertContains(a, "Review does not create release artifacts or public artifacts.", "no artifact creation");
+  assertContains(a, "Review does not sign, publish, deploy, release, or distribute anything.", "no release actions");
+}
+function assertReleaseCandidateReviewForbiddenLabelsAbsent(): void {
+  const rendered = rcReviewRendered(buildRcReviewState());
+  for (const forbidden of [
+    "release_candidate_approved",
+    "release_ready",
+    "production_ready",
+    "deployment_ready",
+    "published_release",
+    "provider_output_trusted",
+    "action_authorized",
+    "replay_repaired",
+    "recovery_promoted",
+  ]) {
+    assertDoesNotContain(rendered, forbidden, `${forbidden} absent`);
+  }
 }
 
 export const behaviorTests: readonly BehaviorTest[] = [
@@ -7550,6 +7641,30 @@ payload_summary=authority before replay`),
   {
     name: "local_operator_shell_transport_capabilities_stay_disabled",
     run: assertLocalOperatorShellTransportCapabilitiesStayDisabled,
+  },
+  {
+    name: "release_candidate_review_panel_and_plain_language_copy",
+    run: assertReleaseCandidateReviewPanelAndCopy,
+  },
+  {
+    name: "release_candidate_review_summaries_render",
+    run: assertReleaseCandidateReviewSummariesRender,
+  },
+  {
+    name: "release_candidate_review_empty_state_copy",
+    run: assertReleaseCandidateReviewEmptyStateCopy,
+  },
+  {
+    name: "release_candidate_review_blocker_and_normal_state_copy",
+    run: assertReleaseCandidateReviewBlockerAndNormalCopy,
+  },
+  {
+    name: "release_candidate_review_no_approval_wording_and_determinism",
+    run: assertReleaseCandidateReviewNoApprovalWordingAndDeterminism,
+  },
+  {
+    name: "release_candidate_review_forbidden_labels_absent",
+    run: assertReleaseCandidateReviewForbiddenLabelsAbsent,
   },
   {
     name: "ui_behavioral_test_harness_fails_on_failed_assertion",
