@@ -4,6 +4,28 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.180.2 - 2026-05-23
+**Status:** Phase 180.2 - OOB Production Release Path and Stale Code Audit
+
+### Added
+- Add a production-release-path and stale-code audit covering Phase 181-185 readiness, stale code, brittle logic, unused or weak tests, module-size risk, release-boundary drift, documentation truth-dimension drift, and production-release blockers.
+
+### Notes
+- Out-of-band audit only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No roadmap changes.
+- No runtime behavior.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No production/public-use approval.
+- No Release Candidate decision change.
+- Phase 181 remains deferred until the audit recommendation is recorded.
+
 ## v0.0.180.1 - 2026-05-23
 **Status:** Phase 180.1 - OOB Release Candidate Decision Validation Closure
 
