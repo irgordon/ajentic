@@ -4,6 +4,31 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.180.1 - 2026-05-23
+**Status:** Phase 180.1 - OOB Release Candidate Decision Validation Closure
+
+### Fixed
+- Close the Phase 180 validation gap by running the full repository check from a clean committed tree.
+- Preserve the Phase 180 decision: release_candidate_status_supportable_with_caveats.
+- Preserve the Phase 181-185 stewardship block mapping.
+
+### Notes
+- Out-of-band validation closure only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No test changes.
+- No schema changes.
+- No runtime behavior.
+- No Phase 181 implementation.
+- No release artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No update-channel activation.
+- No production/public-use approval.
+- Phase 181 remains the next code-production phase.
+
 ## v0.0.180 - 2026-05-22
 **Status:** Phase 180 - Release Candidate Decision Gate
 
