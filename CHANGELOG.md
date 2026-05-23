@@ -1,3 +1,45 @@
+
+## v0.0.182 - 2026-05-23
+**Status:** Phase 182 - Release Candidate Review UI
+
+### Added
+- Add Rust-owned Release Candidate review projection with review sections, manifest summary, caveat summary, blocker summary, upstream linkage summary, validation summary, review findings, and no-authority boundaries.
+- Add UI rendering for Release Candidate review status, manifest summary, caveats, blockers, upstream linkage, validation summary, review findings, and no-approval/no-readiness wording.
+- Add Rust and TypeScript tests for valid manifest review state, blocked/incomplete manifest handling, deterministic review ordering, targeted-cleanup findings, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with Release Candidate review state using thin integration.
+- Update the local UI shell to display Release Candidate review state.
+- Update checklists/current-phase.md to Phase 182 procedural truth.
+
+### Notes
+- Code-production phase.
+- Release Candidate review UI makes the supportability evidence inspectable.
+- Review does not approve Release Candidate status.
+- Review does not approve release readiness.
+- Review does not approve production readiness.
+- Review does not approve public use.
+- Review does not create release artifacts.
+- Review does not create public artifacts.
+- Review does not sign.
+- Review does not publish.
+- Review does not deploy.
+- Review does not release.
+- Review does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 183 remains the next code-production phase for Release Candidate Hardening Closure.
+
 ---
 truth_dimension: historical
 authority_level: authoritative

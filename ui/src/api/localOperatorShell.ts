@@ -8628,6 +8628,24 @@ export function initialReleaseCandidateEvidenceManifestProjection(): ReleaseCand
   };
 }
 
+
+export type ReleaseCandidateReviewProjection = Readonly<{
+  status: string;
+  reviewId: string | null;
+  sections: readonly string[];
+  manifestSummary: { labelStatus: string; manifestStatus: string; manifestId: string | null; itemCount: number };
+  caveats: readonly { category: string; detail: string }[];
+  blockers: readonly { category: string; reason: string }[];
+  upstreamLinkage: readonly { category: string; sourceSurface: string; sourceStatus: string; sourceId: string }[];
+  validationSummary: { itemCount: number; presentCount: number; missingCount: number; blockedCount: number; rejectedCount: number };
+  reviewFindings: readonly { category: string; severity: string; detail: string; source: string }[];
+  boundaryStatuses: readonly string[];
+  capabilitySurface: { approvalEnabled: boolean; signingEnabled: boolean; publishingEnabled: boolean; deploymentEnabled: boolean; publicDistributionEnabled: boolean };
+}>;
+
+export function initialReleaseCandidateReviewProjection(): ReleaseCandidateReviewProjection {
+  return { status: "not_reviewed", reviewId: null, sections: ["authority_boundaries","blockers","caveats","manifest_summary","review_findings","upstream_linkage","validation_summary"], manifestSummary: { labelStatus: "not_labeled", manifestStatus: "not_generated", manifestId: null, itemCount: 0 }, caveats: [], blockers: [], upstreamLinkage: [], validationSummary: { itemCount: 0, presentCount: 0, missingCount: 0, blockedCount: 0, rejectedCount: 0 }, reviewFindings: [], boundaryStatuses: ["review_surface_only","non_authoritative_review","local_only_non_public","release_candidate_status_not_approved","release_readiness_not_approved","production_status_not_approved","public_use_not_approved","release_artifact_not_created","public_artifact_not_created","no_signing","no_publishing","no_deployment_artifact","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_installer_activation","no_update_channel_activation"], capabilitySurface: { approvalEnabled: false, signingEnabled: false, publishingEnabled: false, deploymentEnabled: false, publicDistributionEnabled: false } };
+}
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8668,6 +8686,7 @@ export type LocalOperatorShellState = Readonly<{
   releaseCandidateGapReview: ReleaseCandidateGapReviewProjection;
   releaseCandidateDryRunRehearsal: ReleaseCandidateDryRunRehearsalProjection;
   releaseCandidateEvidenceManifest: ReleaseCandidateEvidenceManifestProjection;
+  releaseCandidateReview: ReleaseCandidateReviewProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9986,6 +10005,7 @@ function attachLocalSessionEvidenceExport(
     releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
     releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
+    releaseCandidateReview: initialReleaseCandidateReviewProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10295,6 +10315,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
     releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
+    releaseCandidateReview: initialReleaseCandidateReviewProjection(),
   });
   return {
     ...state,

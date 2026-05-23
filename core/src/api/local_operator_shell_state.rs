@@ -5,7 +5,7 @@ use crate::api::{
     derive_release_artifact_dry_package, derive_release_candidate_dry_run_rehearsal,
     derive_release_candidate_evidence_manifest, derive_release_candidate_gap_review,
     derive_release_candidate_preparation_input_snapshot,
-    derive_release_candidate_preparation_projection, derive_signing_key_custody_dry_run,
+    derive_release_candidate_preparation_projection, derive_release_candidate_review, derive_signing_key_custody_dry_run,
     initial_installer_distribution_contract_projection,
     initial_release_artifact_dry_package_projection,
     initial_release_candidate_dry_run_rehearsal_projection,
@@ -13,13 +13,14 @@ use crate::api::{
     initial_release_candidate_evidence_manifest_projection,
     initial_release_candidate_gap_review_projection,
     initial_release_candidate_preparation_projection,
+    initial_release_candidate_review_projection,
     initial_release_dry_package_checksum_provenance_projection,
     initial_signing_key_custody_dry_run_projection, project_installer_distribution_contract,
     project_release_artifact_dry_package, project_release_dry_package_checksum_provenance,
     InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
     ReleaseCandidateDryRunRehearsalProjection, ReleaseCandidateEvidenceAssemblyProjection,
     ReleaseCandidateEvidenceManifestProjection, ReleaseCandidateGapReviewProjection,
-    ReleaseCandidatePreparationProjection, ReleaseDryPackageChecksumProvenanceProjection,
+    ReleaseCandidatePreparationProjection, ReleaseCandidateReviewProjection, ReleaseDryPackageChecksumProvenanceProjection,
     SigningKeyCustodyDryRunProjection,
 };
 
@@ -96,6 +97,7 @@ pub struct LocalOperatorShellState {
     pub release_candidate_gap_review: ReleaseCandidateGapReviewProjection,
     pub release_candidate_dry_run_rehearsal: ReleaseCandidateDryRunRehearsalProjection,
     pub release_candidate_evidence_manifest: ReleaseCandidateEvidenceManifestProjection,
+    pub release_candidate_review: ReleaseCandidateReviewProjection,
 }
 
 pub fn derive_local_session_evidence_export(
@@ -293,6 +295,7 @@ pub(crate) fn attach_local_session_evidence_export(
         &state.release_candidate_gap_review,
     );
     state.release_candidate_evidence_manifest = derive_release_candidate_evidence_manifest(&state);
+    state.release_candidate_review = derive_release_candidate_review(&state.release_candidate_evidence_manifest);
     state
 }
 
@@ -393,6 +396,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         ),
         release_candidate_evidence_manifest: initial_release_candidate_evidence_manifest_projection(
         ),
+        release_candidate_review: initial_release_candidate_review_projection(),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =
@@ -438,6 +442,7 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         &state.release_candidate_gap_review,
     );
     state.release_candidate_evidence_manifest = derive_release_candidate_evidence_manifest(&state);
+    state.release_candidate_review = derive_release_candidate_review(&state.release_candidate_evidence_manifest);
     state
 }
 
