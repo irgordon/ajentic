@@ -4,63 +4,48 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
+# Phase 181.3 - OOB Release Candidate Evidence Manifest Validation Closure
 
-- Phase name: Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
-- Phase goal: complete the Phase 181.1 Release Candidate label + evidence manifest contract without adding Phase 182 behavior.
-- Working-tree hygiene gate: start clean, edit only allowed files, run required validations, and finish with clean diff checks.
-- Phase 181.0 shape-map use checklist: `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md` reviewed and used for shape-safe wiring.
+- Phase name: Phase 181.3 - OOB Release Candidate Evidence Manifest Validation Closure
+- Phase goal: close the Phase 181.2 validation gap by running full repository validation from a clean committed tree without changing runtime behavior.
+- Working-tree hygiene gate: start clean, run validation from a clean tree, and finish with clean diff/status checks.
 
-## TypeScript missing-helper fix checklist
-- [x] Add `initialReleaseCandidateEvidenceManifestProjection` helper.
-- [x] Use helper in both local shell state construction paths.
-- [x] Add behavior coverage for initial state and rendering.
+## Validation closure checklist
+- [x] Confirm clean working tree before validation run.
+- [x] Run full repository validation with `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-3-target ./scripts/check.sh` from a clean tree.
+- [x] Preserve Phase 181.2 Release Candidate evidence manifest behavior and no-authority boundaries.
 
-## Manifest completion checklist
-- [x] Manifest projection remains deterministic and non-authoritative.
-- [x] Manifest panel remains visible with linkage/blocker/caveat summaries.
-- [x] Supportability label remains evidence-only and non-readiness.
+## Manifest helper preservation checklist
+- [x] `initialReleaseCandidateEvidenceManifestProjection` remains defined.
+- [x] Helper remains used consistently by local shell state construction paths.
+- [x] No unresolved Release Candidate evidence manifest references remain.
 
-## Rust test completion checklist
-- [x] Valid deterministic manifest projection test added.
-- [x] Missing/rejected evidence blocker tests added.
-- [x] Blocked rehearsal and blocking-gap blocker tests added.
-- [x] Deterministic manifest id/item/blocker/caveat ordering tests added.
-- [x] Targeted cleanup caveat coverage added.
-- [x] No-authority boundary coverage added.
-
-## TypeScript test completion checklist
-- [x] Initial state includes releaseCandidateEvidenceManifest.
-- [x] Manifest defaults to initial projection values.
-- [x] Manifest panel/supportability label/manifest id/linkage/blocker/caveat rendering checks added.
-- [x] Deterministic rendering and forbidden-label absence checks retained.
-
-## Typed-hardening checklist
+## Typed-hardening preservation checklist
 - [x] No broad substring authority inference in manifest readiness logic.
-- [x] String status conversion remains isolated in named manifest helper with exact matches.
+- [x] String status conversion remains isolated in named helpers with exact matching and test coverage.
 
 ## No-authority checklist
-- [x] evidence_manifest_only and release_candidate_label_only boundaries retained.
-- [x] No signing/publishing/deployment/public distribution/public-use/release-readiness approvals added.
-
-## Validation checklist
-- [ ] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target cargo test --manifest-path core/Cargo.toml --all-targets`
-- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-- [ ] `cd ui && npm run typecheck`
-- [ ] `cd ui && npm run lint`
-- [ ] `cd ui && npm run build && rm -rf dist`
-- [ ] `cd ui && npm run test:api`
-- [ ] `cd ui && timeout 10 npm run dev`
-- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target ./scripts/check.sh`
-- [ ] `git diff --check`
-- [ ] `git status --short`
+- [x] `evidence_manifest_only`, `release_candidate_label_only`, and `non_authoritative_manifest` boundaries retained.
+- [x] No release/public/deployment/signing/publishing/provider-trust/action-authorization/replay-repair/recovery-promotion behavior introduced.
+- [x] No release readiness or production/public-use approval introduced.
 
 ## Zero-drift checklist
-- [ ] No roadmap/governance/architecture/schema/package/lockfile drift.
-- [ ] No Phase 182 implementation introduced.
-- [ ] No release/public/deployment/signing/publishing/provider-trust/action-authorization/replay-repair/recovery-promotion behavior introduced.
+- [x] No roadmap drift in guarded roadmap files.
+- [x] No Phase 182 implementation introduced.
+- [x] No forbidden-label behavior introduced outside explicit prohibited-label tests.
 
 ## Phase 182 handoff checklist
-- [ ] Phase 182 remains next code-production phase.
-- [ ] No Release Candidate Review UI implementation added in Phase 181.2.
+- [x] Phase 182 remains the next code-production phase.
+- [x] No Release Candidate Review UI implementation added in Phase 181.3.
+
+## Validation log
+- [x] `git status --short`
+- [x] `rg -n "initialReleaseCandidateEvidenceManifestProjection|releaseCandidateEvidenceManifest" ui/src/api/localOperatorShell.ts ui/src/api/submissionBoundary.behavior.test.ts ui/src/api/localOperatorShellView.ts`
+- [x] `rg -n "ReleaseCandidateEvidenceManifest|Release Candidate evidence manifest|release-candidate evidence manifest|supportable_with_caveats|evidence_manifest_only|release_candidate_label_only|non_authoritative_manifest|targeted cleanup" core/src ui/src tests CHANGELOG.md checklists/current-phase.md`
+- [x] `rg -n "contains\(|to_lowercase\(|to_ascii_lowercase\(|status.*String|reason.*String|supportable_with_caveats" core/src/api/release_candidate_evidence_manifest*.rs`
+- [x] `rg -n "release_candidate_approved|release_candidate_ready|release_ready|production_ready|production_candidate_approved|deployment_ready|deployment_enabled|public_use_ready|manifest_approved|evidence_approved|approval_granted|release_artifact_created|public_artifact_created|signing_enabled|signature_created|artifact_signed|signed_release|published_release|installer_enabled|update_channel_enabled|public_distribution_enabled|public_download_created|github_release_created|release_tag_created|provider_output_trusted|action_authorized|replay_repaired|recovery_promoted" core/src ui/src tests CHANGELOG.md checklists/current-phase.md`
+- [x] `rg -n "Phase 182|Release Candidate Review UI|release candidate review|release_candidate_review" core/src ui/src tests`
+- [x] `git diff -- docs/roadmap/phase-map.md docs/roadmap/phases.md docs/roadmap/sequencing.md docs/roadmap/phase-170-production-path-alignment.md docs/roadmap/phase-180-release-candidate-decision.md`
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-3-target ./scripts/check.sh`
+- [x] `git diff --check`
+- [x] `git status --short`

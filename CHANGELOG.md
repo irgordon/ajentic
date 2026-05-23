@@ -4,6 +4,34 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.181.3 - 2026-05-23
+**Status:** Phase 181.3 - OOB Release Candidate Evidence Manifest Validation Closure
+
+### Fixed
+- Close the Phase 181.2 validation gap by running the full repository check from a clean committed tree.
+- Preserve the Phase 181.2 Release Candidate evidence manifest behavior and no-authority boundaries.
+
+### Notes
+- Out-of-band validation closure only.
+- No Phase 182 implementation.
+- No release artifact creation.
+- No public artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+- Phase 182 remains the next code-production phase.
+
 ## v0.0.181.2 - 2026-05-23
 **Status:** Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
 
