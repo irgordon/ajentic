@@ -4,57 +4,63 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 181.1 - Release Candidate Label and Evidence Manifest
+# Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
 
-- Phase name: Phase 181.1 - Release Candidate Label and Evidence Manifest
-- Phase goal: add Rust-owned Release Candidate supportability label + evidence manifest projection and visible UI panel with non-authority boundaries.
-- Working-tree hygiene gate: clean start, allowed-surface edits only, required validation before completion.
-- Phase 181.0 shape-map use checklist: read `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md`; wire only current Rust/TypeScript projection shapes.
-- File-size discipline checklist: all new `.rs/.ts/.tsx` files under 1,000 LOC.
-- Targeted cleanup carry-forward checklist: typed statuses, isolated adapters, deterministic ordering, stronger typed tests, no broad status substring heuristics.
-- Allowed surfaces: `core/src/api/release_candidate_evidence_manifest*.rs`, `core/src/api/mod.rs`, `core/src/api/local_operator_shell_state.rs`, `ui/src/api/localOperatorShell.ts`, `ui/src/api/localOperatorShellView.ts`, `ui/src/api/submissionBoundary.behavior.test.ts`, `CHANGELOG.md`, `checklists/current-phase.md`.
+- Phase name: Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
+- Phase goal: complete the Phase 181.1 Release Candidate label + evidence manifest contract without adding Phase 182 behavior.
+- Working-tree hygiene gate: start clean, edit only allowed files, run required validations, and finish with clean diff checks.
+- Phase 181.0 shape-map use checklist: `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md` reviewed and used for shape-safe wiring.
 
-## Code-production deliverable checklist
-- [x] Dedicated manifest module added.
-- [x] Typed supportability label status and manifest status added.
-- [x] Thin shell integration added.
-- [x] Evidence manifest projection carried into UI model.
-- [x] Visible UI manifest panel rendering added.
-- [x] No-release/no-production/no-public-use boundaries shown.
+## TypeScript missing-helper fix checklist
+- [x] Add `initialReleaseCandidateEvidenceManifestProjection` helper.
+- [x] Use helper in both local shell state construction paths.
+- [x] Add behavior coverage for initial state and rendering.
 
-## Evidence manifest checklist
-- [x] Deterministic manifest ordering for items/blockers/caveats.
-- [x] Deterministic manifest ID generation.
-- [x] Upstream linkage summary represented.
-- [x] Missing/rejected/blocked evidence converted into blockers.
-- [x] Phase 180.2 targeted-cleanup caveats included.
+## Manifest completion checklist
+- [x] Manifest projection remains deterministic and non-authoritative.
+- [x] Manifest panel remains visible with linkage/blocker/caveat summaries.
+- [x] Supportability label remains evidence-only and non-readiness.
+
+## Rust test completion checklist
+- [x] Valid deterministic manifest projection test added.
+- [x] Missing/rejected evidence blocker tests added.
+- [x] Blocked rehearsal and blocking-gap blocker tests added.
+- [x] Deterministic manifest id/item/blocker/caveat ordering tests added.
+- [x] Targeted cleanup caveat coverage added.
+- [x] No-authority boundary coverage added.
+
+## TypeScript test completion checklist
+- [x] Initial state includes releaseCandidateEvidenceManifest.
+- [x] Manifest defaults to initial projection values.
+- [x] Manifest panel/supportability label/manifest id/linkage/blocker/caveat rendering checks added.
+- [x] Deterministic rendering and forbidden-label absence checks retained.
+
+## Typed-hardening checklist
+- [x] No broad substring authority inference in manifest readiness logic.
+- [x] String status conversion remains isolated in named manifest helper with exact matches.
+
+## No-authority checklist
+- [x] evidence_manifest_only and release_candidate_label_only boundaries retained.
+- [x] No signing/publishing/deployment/public distribution/public-use/release-readiness approvals added.
 
 ## Validation checklist
-- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-1-target ./scripts/check.sh`
+- [ ] `cargo fmt --manifest-path core/Cargo.toml -- --check`
+- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target cargo test --manifest-path core/Cargo.toml --all-targets`
+- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+- [ ] `cd ui && npm run typecheck`
+- [ ] `cd ui && npm run lint`
+- [ ] `cd ui && npm run build && rm -rf dist`
+- [ ] `cd ui && npm run test:api`
+- [ ] `cd ui && timeout 10 npm run dev`
+- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-2-target ./scripts/check.sh`
 - [ ] `git diff --check`
 - [ ] `git status --short`
-- [ ] file-size scan
-- [ ] manifest scan
-- [ ] shape-map-use scan
-- [ ] typed-hardening scan
-- [ ] dedicated module scan
-- [ ] boundary scan
-- [ ] forbidden-label scan
-- [ ] unsafe execution scan
-- [ ] release/deployment scan
-- [ ] changed-file guard
-- [ ] no-roadmap-drift guard
-- [ ] UI typecheck/lint/build/test
-- [ ] Rust tests
-- [ ] UI dev smoke test
-
-## Deferred items
-- Phase 182 remains next code-production phase for Release Candidate Review UI.
-
-## Validation log
-- Pending final run.
 
 ## Zero-drift checklist
-- [ ] Roadmap files unchanged.
-- [ ] No signing/publishing/deployment/release/public-distribution behavior added.
-- [ ] Manifest remains local-only and non-authoritative.
+- [ ] No roadmap/governance/architecture/schema/package/lockfile drift.
+- [ ] No Phase 182 implementation introduced.
+- [ ] No release/public/deployment/signing/publishing/provider-trust/action-authorization/replay-repair/recovery-promotion behavior introduced.
+
+## Phase 182 handoff checklist
+- [ ] Phase 182 remains next code-production phase.
+- [ ] No Release Candidate Review UI implementation added in Phase 181.2.

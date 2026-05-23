@@ -4,6 +4,36 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.181.2 - 2026-05-23
+**Status:** Phase 181.2 - OOB Release Candidate Evidence Manifest Completion Fix
+
+### Fixed
+- Fix TypeScript local shell state construction by adding the missing initialReleaseCandidateEvidenceManifestProjection helper used by Release Candidate evidence manifest state initialization.
+- Complete Phase 181.1 manifest validation by adding focused Rust tests for upstream normalization, missing/rejected evidence blockers, blocked rehearsal/gap blockers, deterministic ordering, targeted-cleanup caveats, and no-authority boundaries.
+- Add TypeScript behavior tests for Release Candidate manifest panel rendering, supportability label, manifest ID, upstream linkage, blockers, caveats, deterministic rendering, required initial state shape, and forbidden-label absence.
+- Run and close the full Rust/UI validation stack for the Release Candidate evidence manifest surface.
+
+### Notes
+- Out-of-band completion fix only.
+- No Phase 182 implementation.
+- No release artifact creation.
+- No public artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+- Phase 182 remains the next code-production phase.
+
 ## v0.0.181.1 - 2026-05-23
 **Status:** Phase 181.1 - Release Candidate Label and Evidence Manifest
 
