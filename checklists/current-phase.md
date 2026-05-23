@@ -4,68 +4,69 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 180.2 - OOB Production Release Path and Stale Code Audit
+# Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
 
-- Phase name: Phase 180.2 - OOB Production Release Path and Stale Code Audit
-- Phase goal: Audit whether the Phase 181-185 production-release path remains valid and identify stale/brittle/test-debt surfaces that require targeted cleanup before or during the next block.
-- Working-tree hygiene gate: start clean, modify only allowed documentation surfaces, run required validation, and end with zero unintended drift.
-- Allowed surfaces: `docs/operations/production-release-path-and-stale-code-audit-phase-180-2.md`, `CHANGELOG.md`, `checklists/current-phase.md`.
+- Phase name: Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
+- Phase goal: map actual Rust/TypeScript projection shapes for Phase 181 manifest wiring before any code-production retry.
+- Working-tree hygiene gate: start clean, only touch allowed files, run required validation, end with zero unintended drift.
+- Allowed surfaces: `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md`, `CHANGELOG.md`, `checklists/current-phase.md`.
 
-## Audit scope checklist
-- [x] Scan roadmap, changelog, current checklist, operations docs, runtime/UI/test surfaces, scripts, and release-boundary text markers.
-- [x] Record repository-evidence-only findings in the Phase 180.2 audit document.
+## Shape inventory checklist
+- [x] Required reconnaissance commands executed against `core/src/api` and `ui/src/api`.
+- [x] Shape map document created with required sections.
 
-## Phase 181-185 path checklist
-- [x] Verify roadmap still maps Phase 181-185 as the next stewardship block.
-- [x] Assess whether pre-181 remap is required.
+## Rust projection inventory checklist
+- [x] `ReleaseCandidatePreparationProjection` mapped (status/id/linkage/missing/blocker/boundary/helpers).
+- [x] `ReleaseArtifactDryPackageProjection` mapped.
+- [x] `ReleaseDryPackageChecksumProvenanceProjection` mapped.
+- [x] `InstallerDistributionContractProjection` mapped.
+- [x] `SigningKeyCustodyDryRunProjection` mapped.
+- [x] `ReleaseCandidateEvidenceAssemblyProjection` mapped.
+- [x] `ReleaseCandidateGapReviewProjection` mapped.
+- [x] `ReleaseCandidateDryRunRehearsalProjection` mapped.
+- [x] `LocalOperatorShellState` RC linkage fields + initializer mapped.
 
-## Stale code checklist
-- [x] Review stale-phase markers, placeholder/stub markers, and potential orphaned helpers.
-- [x] Record stale-code/refactor candidates and dispositions.
+## TypeScript projection inventory checklist
+- [x] release candidate preparation projection mapped.
+- [x] release artifact dry package projection mapped.
+- [x] checksum/provenance projection mapped.
+- [x] installer/distribution contract projection mapped.
+- [x] signing/key-custody dry-run projection mapped.
+- [x] release candidate evidence assembly projection mapped.
+- [x] release candidate gap review projection mapped.
+- [x] release candidate dry-run rehearsal projection mapped.
+- [x] `LocalOperatorShellState` RC linkage fields + initializer mapped.
 
-## Brittle logic checklist
-- [x] Review string-heuristic usage in authority-sensitive surfaces.
-- [x] Record brittle-logic findings and required hardening candidates.
+## Local shell integration checklist
+- [x] Rust integration order documented.
+- [x] TypeScript projection composition path documented.
 
-## Test-debt checklist
-- [x] Inventory Rust/TypeScript test surfaces and identify weak/duplicate/string-mirror patterns.
-- [x] Record test-debt findings and dispositions.
+## Type-shape risk checklist
+- [x] Rust enum vs TypeScript literal/string status mismatch risk documented.
+- [x] ID/nullability and naming-shape mismatch risks documented.
+- [x] helper naming inconsistency risk (`derive_*` vs `project_*`) documented.
 
-## Module-size checklist
-- [x] Run file-size scan for `core/src`, `ui/src`, `tests`, and `core/tests` (if present).
-- [x] Record >1000 LOC risks and refactor candidates.
-
-## Release-boundary checklist
-- [x] Scan for production/release/public-approval drift markers.
-- [x] Confirm no runtime approval/signing/publishing/deployment/public-distribution activation in this phase.
-
-## Documentation truth-dimension checklist
-- [x] Confirm roadmap remains planning truth.
-- [x] Confirm CHANGELOG remains historical truth.
-- [x] Confirm checklist remains procedural truth.
-- [x] Confirm operations audit remains advisory/orientation truth.
-
-## Rebuild trigger assessment checklist
-- [x] Evaluate rebuild-threshold criteria against current implementation evidence.
-- [x] Record explicit rebuild-trigger result.
-
-## Phase 181 recommendation checklist
-- [x] Record one final recommendation option.
-- [x] Record whether Phase 181 proceeds, includes cleanup, or is deferred/blocked.
+## Phase 181 retry checklist
+- [x] Required adapter/helper function surfaces identified.
+- [x] Recommended implementation sequence documented.
+- [x] Phase 181 remains next code-production phase.
 
 ## Validation checklist
 - [x] `git status --short` run before edits.
-- [x] Required scans executed.
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-180-2-target ./scripts/check.sh` passed.
+- [x] Required `rg` commands run.
+- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-0-target ./scripts/check.sh` passed.
 - [x] `git diff --check` passed.
 - [x] `git status --short` run after edits.
 
 ## Zero-drift checklist
-- [x] Audit document created.
-- [x] Changelog entry added and matched actual diff.
-- [x] Checklist updated to Phase 180.2 procedural truth.
+- [x] Shape map document exists.
+- [x] All required Rust projection shapes documented.
+- [x] All required TypeScript projection shapes documented.
+- [x] Local shell integration points documented.
+- [x] Type-shape mismatch risks documented.
+- [x] Phase 181 retry strategy documented.
 - [x] No Rust source changes.
 - [x] No TypeScript source changes.
-- [x] No test changes.
+- [x] No tests changed.
 - [x] No schema changes.
-- [x] No roadmap/governance/architecture/script/package/lockfile/CI drift.
+- [x] No roadmap/governance/architecture/scripts/package/lockfile/CI drift.

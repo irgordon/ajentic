@@ -4,6 +4,28 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.181.0 - 2026-05-23
+**Status:** Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
+
+### Added
+- Add a shape reconnaissance document mapping the current Rust and TypeScript projection types needed for Phase 181 Release Candidate label and evidence manifest implementation.
+
+### Notes
+- Out-of-band reconnaissance only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No runtime behavior.
+- No tests changed.
+- No schema changes.
+- No roadmap changes.
+- No signing.
+- No publishing.
+- No deployment.
+- No release readiness approval.
+- No Release Candidate approval.
+- Phase 181 remains the next code-production phase.
+
+
 ## v0.0.180.2 - 2026-05-23
 **Status:** Phase 180.2 - OOB Production Release Path and Stale Code Audit
 
