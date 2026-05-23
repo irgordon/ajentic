@@ -4,69 +4,57 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
+# Phase 181.1 - Release Candidate Label and Evidence Manifest
 
-- Phase name: Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
-- Phase goal: map actual Rust/TypeScript projection shapes for Phase 181 manifest wiring before any code-production retry.
-- Working-tree hygiene gate: start clean, only touch allowed files, run required validation, end with zero unintended drift.
-- Allowed surfaces: `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md`, `CHANGELOG.md`, `checklists/current-phase.md`.
+- Phase name: Phase 181.1 - Release Candidate Label and Evidence Manifest
+- Phase goal: add Rust-owned Release Candidate supportability label + evidence manifest projection and visible UI panel with non-authority boundaries.
+- Working-tree hygiene gate: clean start, allowed-surface edits only, required validation before completion.
+- Phase 181.0 shape-map use checklist: read `docs/operations/release-candidate-manifest-shape-map-phase-181-0.md`; wire only current Rust/TypeScript projection shapes.
+- File-size discipline checklist: all new `.rs/.ts/.tsx` files under 1,000 LOC.
+- Targeted cleanup carry-forward checklist: typed statuses, isolated adapters, deterministic ordering, stronger typed tests, no broad status substring heuristics.
+- Allowed surfaces: `core/src/api/release_candidate_evidence_manifest*.rs`, `core/src/api/mod.rs`, `core/src/api/local_operator_shell_state.rs`, `ui/src/api/localOperatorShell.ts`, `ui/src/api/localOperatorShellView.ts`, `ui/src/api/submissionBoundary.behavior.test.ts`, `CHANGELOG.md`, `checklists/current-phase.md`.
 
-## Shape inventory checklist
-- [x] Required reconnaissance commands executed against `core/src/api` and `ui/src/api`.
-- [x] Shape map document created with required sections.
+## Code-production deliverable checklist
+- [x] Dedicated manifest module added.
+- [x] Typed supportability label status and manifest status added.
+- [x] Thin shell integration added.
+- [x] Evidence manifest projection carried into UI model.
+- [x] Visible UI manifest panel rendering added.
+- [x] No-release/no-production/no-public-use boundaries shown.
 
-## Rust projection inventory checklist
-- [x] `ReleaseCandidatePreparationProjection` mapped (status/id/linkage/missing/blocker/boundary/helpers).
-- [x] `ReleaseArtifactDryPackageProjection` mapped.
-- [x] `ReleaseDryPackageChecksumProvenanceProjection` mapped.
-- [x] `InstallerDistributionContractProjection` mapped.
-- [x] `SigningKeyCustodyDryRunProjection` mapped.
-- [x] `ReleaseCandidateEvidenceAssemblyProjection` mapped.
-- [x] `ReleaseCandidateGapReviewProjection` mapped.
-- [x] `ReleaseCandidateDryRunRehearsalProjection` mapped.
-- [x] `LocalOperatorShellState` RC linkage fields + initializer mapped.
-
-## TypeScript projection inventory checklist
-- [x] release candidate preparation projection mapped.
-- [x] release artifact dry package projection mapped.
-- [x] checksum/provenance projection mapped.
-- [x] installer/distribution contract projection mapped.
-- [x] signing/key-custody dry-run projection mapped.
-- [x] release candidate evidence assembly projection mapped.
-- [x] release candidate gap review projection mapped.
-- [x] release candidate dry-run rehearsal projection mapped.
-- [x] `LocalOperatorShellState` RC linkage fields + initializer mapped.
-
-## Local shell integration checklist
-- [x] Rust integration order documented.
-- [x] TypeScript projection composition path documented.
-
-## Type-shape risk checklist
-- [x] Rust enum vs TypeScript literal/string status mismatch risk documented.
-- [x] ID/nullability and naming-shape mismatch risks documented.
-- [x] helper naming inconsistency risk (`derive_*` vs `project_*`) documented.
-
-## Phase 181 retry checklist
-- [x] Required adapter/helper function surfaces identified.
-- [x] Recommended implementation sequence documented.
-- [x] Phase 181 remains next code-production phase.
+## Evidence manifest checklist
+- [x] Deterministic manifest ordering for items/blockers/caveats.
+- [x] Deterministic manifest ID generation.
+- [x] Upstream linkage summary represented.
+- [x] Missing/rejected/blocked evidence converted into blockers.
+- [x] Phase 180.2 targeted-cleanup caveats included.
 
 ## Validation checklist
-- [x] `git status --short` run before edits.
-- [x] Required `rg` commands run.
-- [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-0-target ./scripts/check.sh` passed.
-- [x] `git diff --check` passed.
-- [x] `git status --short` run after edits.
+- [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-181-1-target ./scripts/check.sh`
+- [ ] `git diff --check`
+- [ ] `git status --short`
+- [ ] file-size scan
+- [ ] manifest scan
+- [ ] shape-map-use scan
+- [ ] typed-hardening scan
+- [ ] dedicated module scan
+- [ ] boundary scan
+- [ ] forbidden-label scan
+- [ ] unsafe execution scan
+- [ ] release/deployment scan
+- [ ] changed-file guard
+- [ ] no-roadmap-drift guard
+- [ ] UI typecheck/lint/build/test
+- [ ] Rust tests
+- [ ] UI dev smoke test
+
+## Deferred items
+- Phase 182 remains next code-production phase for Release Candidate Review UI.
+
+## Validation log
+- Pending final run.
 
 ## Zero-drift checklist
-- [x] Shape map document exists.
-- [x] All required Rust projection shapes documented.
-- [x] All required TypeScript projection shapes documented.
-- [x] Local shell integration points documented.
-- [x] Type-shape mismatch risks documented.
-- [x] Phase 181 retry strategy documented.
-- [x] No Rust source changes.
-- [x] No TypeScript source changes.
-- [x] No tests changed.
-- [x] No schema changes.
-- [x] No roadmap/governance/architecture/scripts/package/lockfile/CI drift.
+- [ ] Roadmap files unchanged.
+- [ ] No signing/publishing/deployment/release/public-distribution behavior added.
+- [ ] Manifest remains local-only and non-authoritative.

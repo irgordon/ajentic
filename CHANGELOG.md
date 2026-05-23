@@ -4,6 +4,48 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.181.1 - 2026-05-23
+**Status:** Phase 181.1 - Release Candidate Label and Evidence Manifest
+
+### Added
+- Add Rust-owned Release Candidate label and evidence manifest projection with deterministic manifest ID, evidence item categories, source linkage, blockers, caveats, validation summaries, and no-authority boundaries.
+- Add manifest-specific normalization helpers based on the Phase 181.0 Rust projection shape map.
+- Add UI rendering for Release Candidate supportability label, evidence manifest status, upstream linkage, blockers, caveats, validation summary, and no-release/no-production/no-public-use wording.
+- Add Rust and TypeScript tests for valid upstream evidence, missing/rejected upstream evidence, deterministic manifest ordering, targeted-cleanup caveats, typed normalization helpers, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with Release Candidate evidence manifest state using thin integration.
+- Update the local UI shell to display Release Candidate label and evidence manifest state.
+- Carry Phase 180.2 targeted cleanup requirements into the Release Candidate stewardship path.
+- Update checklists/current-phase.md to Phase 181.1 procedural truth.
+
+### Notes
+- Code-production phase.
+- Release Candidate evidence manifest records supportability evidence.
+- Release Candidate supportability is not release readiness.
+- Release Candidate supportability is not production readiness.
+- Release Candidate supportability is not public-use approval.
+- This manifest does not create release artifacts.
+- This manifest does not create public artifacts.
+- This manifest does not sign.
+- This manifest does not publish.
+- This manifest does not deploy.
+- This manifest does not release.
+- This manifest does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 182 remains the next code-production phase for Release Candidate Review UI.
+
 ## v0.0.181.0 - 2026-05-23
 **Status:** Phase 181.0 - OOB Release Candidate Manifest Shape Reconnaissance
 

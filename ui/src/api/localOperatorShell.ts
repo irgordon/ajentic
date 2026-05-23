@@ -8549,6 +8549,19 @@ export type ReleaseCandidateDryRunRehearsalProjection = Readonly<{
 export function initialReleaseCandidateDryRunRehearsalProjection(): ReleaseCandidateDryRunRehearsalProjection {
   return { status: "not_rehearsed", rehearsalId: null, upstreamLinkage: [], missingEvidence: [], blockers: [], gapReviewSummary: { gapReviewId: "not_rehearsed", status: "not_reviewed", blockingGapCount: 0, gapCount: 0 }, rehearsalArtifactSummary: [], boundaryStatuses: ["dry_run_rehearsal_only", "local_rehearsal_only", "non_authoritative_rehearsal", "release_candidate_status_not_approved", "release_readiness_not_approved", "release_artifact_not_created", "public_artifact_not_created", "no_signing", "no_publishing", "no_deployment_artifact", "no_public_distribution", "no_public_download", "no_github_release", "no_release_tag", "no_installer_activation", "no_update_channel_activation"] };
 }
+
+export type ReleaseCandidateEvidenceManifestProjection = Readonly<{
+  labelStatus: string;
+  manifestStatus: string;
+  manifestId: string | null;
+  items: readonly { category: string; status: string; linkage: { sourceSurface: string; sourceStatus: string; sourceId: string; sourceSummary: string } }[];
+  blockers: readonly { category: string; reason: string }[];
+  caveats: readonly { category: string; detail: string }[];
+  validationSummary: { itemCount: number; presentCount: number; missingCount: number; blockedCount: number; rejectedCount: number };
+  boundaryStatuses: readonly string[];
+  capabilitySurface: { approvalEnabled: boolean; signingEnabled: boolean; publishingEnabled: boolean; deploymentEnabled: boolean; publicDistributionEnabled: boolean };
+}>;
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8588,6 +8601,7 @@ export type LocalOperatorShellState = Readonly<{
   releaseCandidateEvidenceAssembly: ReleaseCandidateEvidenceAssemblyProjection;
   releaseCandidateGapReview: ReleaseCandidateGapReviewProjection;
   releaseCandidateDryRunRehearsal: ReleaseCandidateDryRunRehearsalProjection;
+  releaseCandidateEvidenceManifest: ReleaseCandidateEvidenceManifestProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -9905,6 +9919,7 @@ function attachLocalSessionEvidenceExport(
     releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
     releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
+    releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10213,6 +10228,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     releaseCandidateEvidenceAssembly: initialReleaseCandidateEvidenceAssemblyProjection(),
     releaseCandidateGapReview: initialReleaseCandidateGapReviewProjection(),
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
+    releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
   });
   return {
     ...state,
