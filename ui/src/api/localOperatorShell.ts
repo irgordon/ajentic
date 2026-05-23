@@ -8562,6 +8562,72 @@ export type ReleaseCandidateEvidenceManifestProjection = Readonly<{
   capabilitySurface: { approvalEnabled: boolean; signingEnabled: boolean; publishingEnabled: boolean; deploymentEnabled: boolean; publicDistributionEnabled: boolean };
 }>;
 
+export function initialReleaseCandidateEvidenceManifestProjection(): ReleaseCandidateEvidenceManifestProjection {
+  return {
+    labelStatus: "not_labeled",
+    manifestStatus: "not_generated",
+    manifestId: null,
+    items: [],
+    blockers: [],
+    caveats: [
+      {
+        category: "targeted_cleanup_required",
+        detail:
+          "Targeted cleanup remains part of the Release Candidate stewardship path.",
+      },
+      {
+        category: "oversized_module_risk",
+        detail: "Oversized module risk remains under stewardship review.",
+      },
+      {
+        category: "string_heuristic_hardening_required",
+        detail:
+          "String/status heuristic hardening remains active for targeted adapters.",
+      },
+      {
+        category: "test_hardening_required",
+        detail:
+          "Test hardening remains active for release-path stewardship.",
+      },
+      {
+        category: "boundary_rule_duplication_risk",
+        detail:
+          "Boundary-rule duplication risk remains a stewardship caveat.",
+      },
+    ],
+    validationSummary: {
+      itemCount: 0,
+      presentCount: 0,
+      missingCount: 0,
+      blockedCount: 0,
+      rejectedCount: 0,
+    },
+    boundaryStatuses: [
+      "evidence_manifest_only",
+      "release_candidate_label_only",
+      "supportability_with_caveats_only",
+      "non_authoritative_manifest",
+      "local_only_non_public",
+      "release_readiness_not_approved",
+      "production_status_not_approved",
+      "public_use_not_approved",
+      "release_artifact_not_created",
+      "public_artifact_not_created",
+      "no_signing",
+      "no_publishing",
+      "no_deployment_artifact",
+      "no_public_distribution",
+    ],
+    capabilitySurface: {
+      approvalEnabled: false,
+      signingEnabled: false,
+      publishingEnabled: false,
+      deploymentEnabled: false,
+      publicDistributionEnabled: false,
+    },
+  };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;

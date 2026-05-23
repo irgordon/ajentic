@@ -6664,7 +6664,44 @@ function assertReleaseCandidateDryRunRehearsalPanelRenderingAndNoAuthorityWordin
   }
 }
 
+function assertReleaseCandidateEvidenceManifestInitialStateShapeAndRendering(): void {
+  const state = initialLocalOperatorShellState();
+  const manifest = state.releaseCandidateEvidenceManifest;
+  assertEqual(manifest.labelStatus, "not_labeled", "initial label status");
+  assertEqual(
+    manifest.manifestStatus,
+    "not_generated",
+    "initial manifest status",
+  );
+  assertEqual(manifest.manifestId, null, "initial manifest id");
+  assertEqual(manifest.items.length, 0, "initial item count");
+  assertEqual(manifest.blockers.length, 0, "initial blocker count");
+  assertEqual(manifest.validationSummary.itemCount, 0, "initial summary count");
+
+  const rendered = renderLocalOperatorShellSnapshot(state);
+  assertContains(
+    rendered,
+    "Release Candidate label and evidence manifest",
+    "manifest panel visible",
+  );
+  assertContains(rendered, "Label status: not_labeled", "label rendering");
+  assertContains(
+    rendered,
+    "Manifest status: not_generated",
+    "manifest status rendering",
+  );
+  assertContains(rendered, "Manifest ID: none", "manifest id rendering");
+  assertContains(rendered, "Upstream linkage summary", "linkage rendering");
+  assertContains(rendered, "Blocker summary", "blocker rendering");
+  assertContains(rendered, "Caveat summary", "caveat rendering");
+  assertEqual(rendered, renderLocalOperatorShellSnapshot(state), "deterministic rendering");
+}
+
 export const behaviorTests: readonly BehaviorTest[] = [
+  {
+    name: "phase_181_2_release_candidate_manifest_initial_state_shape_and_rendering",
+    run: assertReleaseCandidateEvidenceManifestInitialStateShapeAndRendering,
+  },
   {
     name: "phase_179_2_forbidden_label_token_matching_rejects_positive_markers_only",
     run: assertForbiddenLabelTokenMatchingRejectsPositiveMarkersOnly,
