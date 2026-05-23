@@ -205,24 +205,42 @@ function renderReleaseCandidateDryRunRehearsalText(state: LocalOperatorShellStat
 }
 function renderReleaseCandidateReviewText(state: LocalOperatorShellState): string {
   const r = state.releaseCandidateReview;
+  const caveats = r.caveats.map((x) => `${x.category}: ${x.detail}`).join("\n") || "No caveats recorded.";
+  const blockers = r.blockers.map((x) => `${x.category}: ${x.reason}`).join("\n") || "No blockers recorded.";
+  const upstream = r.upstreamLinkage.map((x) => `${x.category}: ${x.sourceSurface}/${x.sourceStatus} (${x.sourceId})`).join("\n") || "No upstream evidence linkage recorded.";
+  const findings = r.reviewFindings.map((x) => `${x.category}/${x.severity}: ${x.detail}`).join("\n") || "No review findings recorded yet.";
+  const emptyState =
+    r.manifestSummary.itemCount === 0
+      ? "Missing evidence: this panel will list manifest summary, caveats, blockers, upstream linkage, validation summary, and review findings after evidence is assembled. Next step: Generate evidence in the Release Candidate evidence manifest panel."
+      : "";
+
   return [
     "Release Candidate review",
+    "Review helps you inspect the evidence. It does not approve release readiness or public use.",
+    "Open evidence review",
     `Review status: ${r.status}`,
     `Review ID: ${r.reviewId ?? "none"}`,
-    `Manifest summary: ${r.manifestSummary.labelStatus} / ${r.manifestSummary.manifestStatus} / items ${r.manifestSummary.itemCount}`,
-    `Caveat count: ${r.caveats.length}`,
-    `Blocker count: ${r.blockers.length}`,
-    `Upstream linkage count: ${r.upstreamLinkage.length}`,
-    `Validation summary: present ${r.validationSummary.presentCount}, missing ${r.validationSummary.missingCount}, blocked ${r.validationSummary.blockedCount}, rejected ${r.validationSummary.rejectedCount}`,
+    `Manifest summary: label ${r.manifestSummary.labelStatus}; manifest ${r.manifestSummary.manifestStatus}; manifest ID ${r.manifestSummary.manifestId ?? "none"}; evidence items ${r.manifestSummary.itemCount}`,
+    `Validation summary: evidence items ${r.validationSummary.itemCount}; present ${r.validationSummary.presentCount}; missing ${r.validationSummary.missingCount}; blocked ${r.validationSummary.blockedCount}; rejected ${r.validationSummary.rejectedCount}`,
+    `Caveat summary (${r.caveats.length})`,
+    caveats,
+    `Blocker summary (${r.blockers.length})`,
+    blockers,
+    `Upstream linkage summary (${r.upstreamLinkage.length})`,
+    upstream,
     "Review findings",
-    r.reviewFindings.map((x) => `${x.category}/${x.severity}: ${x.detail}`).join("\n") || "none",
+    findings,
+    emptyState,
+    "Tooltip: A blocker is missing or blocked evidence that must be inspected before review can be complete.",
+    "Tooltip: A caveat is evidence you should inspect with extra care.",
     "Release Candidate review UI makes the supportability evidence inspectable.",
     "Review does not approve Release Candidate status.",
-    "Review does not approve release readiness.",
     "Review does not approve production readiness or public use.",
     "Review does not create release artifacts or public artifacts.",
     "Review does not sign, publish, deploy, release, or distribute anything.",
-  ].join("\n");
+  ]
+    .filter((line) => line.length > 0)
+    .join("\n");
 }
 
 function renderReleaseCandidateEvidenceManifestText(state: LocalOperatorShellState): string {

@@ -1,3 +1,33 @@
+## v0.0.182.1 - 2026-05-23
+**Status:** Phase 182.1 - OOB Release Candidate Review UI Completion and Microcopy Pass
+
+### Fixed
+- Complete Phase 182 Release Candidate review validation by adding focused Rust tests for manifest summary, caveat summary, blocker summary, upstream linkage, validation summary, review findings, deterministic ordering, and no-authority boundaries.
+- Add TypeScript behavior tests for the Release Candidate review panel, manifest summary, caveats, blockers, upstream linkage, validation summary, review findings, empty-state copy, blocker/error-state copy, normal review-state copy, deterministic rendering, and no-authority wording.
+- Add a plain-English microcopy pass for the Release Candidate review UI.
+- Run and close the full Rust/UI validation stack for the Release Candidate review surface.
+
+### Notes
+- Out-of-band completion fix only.
+- No Phase 183 implementation.
+- No release artifact creation.
+- No public artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+- Phase 183 remains the next code-production phase.
+
 
 ## v0.0.182 - 2026-05-23
 **Status:** Phase 182 - Release Candidate Review UI
