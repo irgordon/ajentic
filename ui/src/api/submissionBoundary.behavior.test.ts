@@ -6771,6 +6771,14 @@ function assertReleaseCandidateReviewNoApprovalWordingAndDeterminism(): void {
   assertContains(a, "Review does not create release artifacts or public artifacts.", "no artifact creation");
   assertContains(a, "Review does not sign, publish, deploy, release, or distribute anything.", "no release actions");
 }
+
+function assertReleaseCandidateHardeningClosurePanelAndCopy(): void {
+  const rendered = rcReviewRendered(initialLocalOperatorShellState());
+  assertContains(rendered, "Release Candidate hardening closure", "panel");
+  assertContains(rendered, "Hardening closure records which Release Candidate issues are closed or still open.", "records wording");
+  assertContains(rendered, "Hardening closure does not approve release readiness.", "no readiness");
+}
+
 function assertReleaseCandidateReviewForbiddenLabelsAbsent(): void {
   const rendered = rcReviewRendered(buildRcReviewState());
   for (const forbidden of [

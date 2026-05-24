@@ -4,6 +4,48 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.183 - 2026-05-23
+**Status:** Phase 183 - Release Candidate Hardening Closure
+
+### Added
+- Add Rust-owned Release Candidate hardening closure projection with hardening item status, severity, category, linked evidence/review finding, caveats, blockers, deterministic closure ID, and no-authority boundaries.
+- Add UI rendering for Release Candidate hardening closure status, hardening item list, severity, category, status, linked evidence/review finding, caveats, blockers, and no-approval/no-readiness wording.
+- Add Rust and TypeScript tests for review findings, manifest caveats/blockers, targeted cleanup caveats, deterministic ordering, closure status, and non-authority boundaries.
+
+### Changed
+- Extend the local operator shell projection with Release Candidate hardening closure state using thin integration.
+- Update the local UI shell to display Release Candidate hardening closure state.
+- Update checklists/current-phase.md to Phase 183 procedural truth.
+
+### Notes
+- Code-production phase.
+- Hardening closure records which Release Candidate issues are closed or still open.
+- Hardening closure does not approve Release Candidate status.
+- Hardening closure does not approve release readiness.
+- Hardening closure does not approve production readiness.
+- Hardening closure does not approve public use.
+- Hardening closure does not create release artifacts.
+- Hardening closure does not create public artifacts.
+- Hardening closure does not sign.
+- Hardening closure does not publish.
+- Hardening closure does not deploy.
+- Hardening closure does not release.
+- Hardening closure does not distribute.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust approval.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production persistence.
+- No public-use approval.
+- No readiness approval.
+- Phase 184 remains the next code-production phase for Release Candidate Local Package Rehearsal.
+
+
 ## v0.0.182.2 - 2026-05-23
 **Status:** Phase 182.2 - OOB Release Candidate Review UI Validation Closure
 
