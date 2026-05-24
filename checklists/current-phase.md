@@ -4,31 +4,43 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 183 - Release Candidate Hardening Closure
+# Phase 183.1 - OOB Release Candidate Hardening Closure Validation
 
-- Phase name: Phase 183 - Release Candidate Hardening Closure.
-- Phase goal: add deterministic Release Candidate hardening closure projection and UI surface with non-authoritative boundaries.
-- Working-tree hygiene gate: keep `git status --short` clean before/after validation.
-- File-size discipline checklist: keep each new `.rs/.ts/.tsx` file under 1,000 LOC.
-- Allowed surfaces: `core/src/api/release_candidate_hardening_closure.rs`, thin shell integration, UI shell projection/render/test surfaces, `CHANGELOG.md`, this checklist.
-- Code-production deliverables:
-  - [x] Rust hardening closure projection + derivation.
-  - [x] UI hardening closure panel and wording.
-  - [x] Rust + TypeScript behavior tests.
-- Dedicated module checklist: closure logic lives in `core/src/api/release_candidate_hardening_closure.rs`; shell integration remains thin.
-- Typed-hardening checklist: closed enums for closure status/category/severity/item status; no broad substring authority inference.
-- Thin shell integration checklist: shell state adds closure field and calls derive helper only.
-- Hardening closure projection checklist: status, closure ID, items, caveats, blockers, validation summary, boundaries, capability surface.
-- Hardening item checklist: includes manifest blockers/caveats and review findings (including targeted cleanup).
-- Linked evidence/review finding checklist: item linkage rendered in UI.
-- Caveat/blocker checklist: deterministic ordering and summary counts.
-- Closure status checklist: invalid when upstream missing; blocked with blockers; closed_with_caveats when non-blocking only.
-- UI hardening closure panel checklist: status, ID, counts, item list, caveats/blockers, boundary wording.
-- No-approval/no-readiness boundary checklist: explicit no-approval/no-readiness/no-artifact/no-signing wording present.
-- Rust test checklist: invalid, blocked, deterministic ID/order.
-- TypeScript test checklist: panel text + forbidden-label absence coverage.
-- Phase 184 handoff checklist: Phase 184 remains Release Candidate Local Package Rehearsal.
-- Validation checklist: run required command bundle and scans.
-- Deferred items: none.
-- Validation log: recorded in this phase commit output.
-- Zero-drift checklist: no roadmap edits.
+- Phase name: Phase 183.1 - OOB Release Candidate Hardening Closure Validation.
+- Phase goal: close Phase 183 by fixing rustfmt drift and proving full clean-tree repository validation.
+- Working-tree hygiene gate:
+  - [x] Run `git status --short` before work.
+  - [x] Require clean `git status --short` after commit and after final validation.
+- Formatting fix checklist:
+  - [x] Inspect `core/src/api/release_candidate_hardening_closure.rs` formatting failure surface.
+  - [x] Run `cargo fmt --manifest-path core/Cargo.toml`.
+  - [x] Run `cargo fmt --manifest-path core/Cargo.toml -- --check`.
+- Direct validation checklist:
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-183-1-target cargo test --manifest-path core/Cargo.toml --all-targets`.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-183-1-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`.
+  - [x] `cd ui && npm run typecheck`.
+  - [x] `cd ui && npm run lint`.
+  - [x] `cd ui && npm run build && rm -rf dist`.
+  - [x] `cd ui && npm run test:api`.
+  - [x] `cd ui && timeout 10 npm run dev` (server URL printed before timeout).
+  - [x] `git diff --check`.
+- Clean-tree validation gate checklist:
+  - [x] Commit with message `Phase 183.1: close hardening closure validation`.
+  - [x] From clean committed tree run `CARGO_TARGET_DIR=/tmp/ajentic-phase-183-1-target ./scripts/check.sh`.
+  - [x] Keep tree clean after final check.
+- Typed-hardening preservation checklist:
+  - [x] Keep exact typed hardening closure statuses/categories/severity boundaries.
+  - [x] Keep exact-match handling without broad substring authority inference.
+- No-authority checklist:
+  - [x] No release/public/prod approval behavior introduced.
+  - [x] No artifact/signing/publishing/deployment/public distribution behavior introduced.
+  - [x] No provider trust/action authorization/replay repair/recovery promotion behavior introduced.
+- Zero-drift checklist:
+  - [x] No roadmap drift in `docs/roadmap/**`.
+  - [x] No governance/architecture/schema drift.
+- Phase 184 handoff checklist:
+  - [x] Phase 184 remains next code-production phase.
+  - [x] No Phase 184 implementation introduced.
+- Validation log:
+  - [x] Direct validation stack passed.
+  - [x] Final clean-tree `./scripts/check.sh` passed.
