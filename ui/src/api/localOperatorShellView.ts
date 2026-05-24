@@ -243,6 +243,41 @@ function renderReleaseCandidateReviewText(state: LocalOperatorShellState): strin
     .join("\n");
 }
 
+
+function renderReleaseCandidateHardeningClosureText(state: LocalOperatorShellState): string {
+  const h = state.releaseCandidateHardeningClosure;
+  const items = h.hardeningItems.map((x) => `${x.itemId} ${x.category}/${x.severity}/${x.status}: ${x.detail} [${x.linkedEvidence.source}:${x.linkedEvidence.reference}]`).join("\n") || "No hardening items recorded.";
+  const caveats = h.caveats.map((x) => `${x.category}: ${x.detail}`).join("\n") || "No caveats recorded.";
+  const blockers = h.blockers.map((x) => `${x.category}: ${x.reason}`).join("\n") || "No blockers recorded.";
+  return [
+    "Release Candidate hardening closure",
+    "Hardening closure records which Release Candidate issues are closed or still open.",
+    `Closure status: ${h.status}`,
+    `Closure ID: ${h.closureId ?? "none"}`,
+    `Hardening item count: ${h.validationSummary.hardeningItemCount}`,
+    `Blocking item count: ${h.validationSummary.blockingItemCount}`,
+    `Caveat count: ${h.validationSummary.caveatCount}`,
+    `Blocker count: ${h.validationSummary.blockerCount}`,
+    "Hardening item list",
+    items,
+    "Caveat summary",
+    caveats,
+    "Blocker summary",
+    blockers,
+    "Boundary note: hardening closure only",
+    "Boundary note: no Release Candidate approval",
+    "Boundary note: no release readiness approval",
+    "Boundary note: no production/public-use approval",
+    "Boundary note: no artifact creation",
+    "Boundary note: no signing/publishing/deployment/public distribution authority",
+    "Hardening closure does not approve Release Candidate status.",
+    "Hardening closure does not approve release readiness.",
+    "Hardening closure does not approve production readiness or public use.",
+    "Hardening closure does not create release artifacts or public artifacts.",
+    "Hardening closure does not sign, publish, deploy, release, or distribute anything.",
+  ].join("\n");
+}
+
 function renderReleaseCandidateEvidenceManifestText(state: LocalOperatorShellState): string {
   const m = state.releaseCandidateEvidenceManifest;
   return [
@@ -901,6 +936,7 @@ export function renderLocalOperatorShellSnapshot(
   const releaseCandidateDryRunRehearsal = renderReleaseCandidateDryRunRehearsalText(state);
   const releaseCandidateEvidenceManifest = renderReleaseCandidateEvidenceManifestText(state);
   const releaseCandidateReview = renderReleaseCandidateReviewText(state);
+  const releaseCandidateHardeningClosure = renderReleaseCandidateHardeningClosureText(state);
 
   const handoff = state.phase150CodeProductionHandoff;
   const handoffLines = [
@@ -934,6 +970,7 @@ export function renderLocalOperatorShellSnapshot(
     releaseCandidateDryRunRehearsal,
     releaseCandidateEvidenceManifest,
     releaseCandidateReview,
+    releaseCandidateHardeningClosure,
     "Complete local operator workflow",
     workflowLines,
     "Trial operator runbook",

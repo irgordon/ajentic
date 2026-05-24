@@ -4,32 +4,31 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 182.2 - OOB Release Candidate Review UI Validation Closure
+# Phase 183 - Release Candidate Hardening Closure
 
-- Phase name: Phase 182.2 - OOB Release Candidate Review UI Validation Closure.
-- Phase goal: close the Phase 182.1 validation gap by running full repository validation from a clean committed tree without changing runtime behavior.
-- Working-tree hygiene gate: start with `git status --short` clean and keep tree clean through validation closure.
-- Validation closure checklist:
-  - [x] Run `CARGO_TARGET_DIR=/tmp/ajentic-phase-182-2-target ./scripts/check.sh` from a clean tree.
-  - [x] Run `git diff --check`.
-  - [x] Run `git status --short` before and after validation closure updates.
-- Microcopy preservation checklist:
-  - [x] Review text still states inspection-only behavior.
-  - [x] Review text still states no release readiness or public-use approval.
-- Typed-hardening preservation checklist:
-  - [x] No broad substring authority inference in review logic.
-  - [x] String status conversion remains isolated to named helpers with exact matching and tests.
-- No-authority checklist:
-  - [x] No release artifact/public artifact/signing/publishing/deployment/distribution behavior introduced.
-  - [x] No provider trust, action authorization, replay repair, or recovery promotion behavior introduced.
-- Zero-drift checklist:
-  - [x] No docs/roadmap drift.
-  - [x] No Phase 183 implementation introduced.
-- Phase 183 handoff checklist:
-  - [x] Phase 183 remains the next code-production phase.
-- Validation log:
-  - [x] `git status --short` (clean before validation).
-  - [x] `./scripts/check.sh` (pass from clean tree using phase target dir).
-  - [x] Required review/microcopy/hardening/forbidden-label/no-Phase-183 scans executed.
-  - [x] `git diff -- docs/roadmap/...` guard executed with no output.
-  - [x] `git diff --check` clean.
+- Phase name: Phase 183 - Release Candidate Hardening Closure.
+- Phase goal: add deterministic Release Candidate hardening closure projection and UI surface with non-authoritative boundaries.
+- Working-tree hygiene gate: keep `git status --short` clean before/after validation.
+- File-size discipline checklist: keep each new `.rs/.ts/.tsx` file under 1,000 LOC.
+- Allowed surfaces: `core/src/api/release_candidate_hardening_closure.rs`, thin shell integration, UI shell projection/render/test surfaces, `CHANGELOG.md`, this checklist.
+- Code-production deliverables:
+  - [x] Rust hardening closure projection + derivation.
+  - [x] UI hardening closure panel and wording.
+  - [x] Rust + TypeScript behavior tests.
+- Dedicated module checklist: closure logic lives in `core/src/api/release_candidate_hardening_closure.rs`; shell integration remains thin.
+- Typed-hardening checklist: closed enums for closure status/category/severity/item status; no broad substring authority inference.
+- Thin shell integration checklist: shell state adds closure field and calls derive helper only.
+- Hardening closure projection checklist: status, closure ID, items, caveats, blockers, validation summary, boundaries, capability surface.
+- Hardening item checklist: includes manifest blockers/caveats and review findings (including targeted cleanup).
+- Linked evidence/review finding checklist: item linkage rendered in UI.
+- Caveat/blocker checklist: deterministic ordering and summary counts.
+- Closure status checklist: invalid when upstream missing; blocked with blockers; closed_with_caveats when non-blocking only.
+- UI hardening closure panel checklist: status, ID, counts, item list, caveats/blockers, boundary wording.
+- No-approval/no-readiness boundary checklist: explicit no-approval/no-readiness/no-artifact/no-signing wording present.
+- Rust test checklist: invalid, blocked, deterministic ID/order.
+- TypeScript test checklist: panel text + forbidden-label absence coverage.
+- Phase 184 handoff checklist: Phase 184 remains Release Candidate Local Package Rehearsal.
+- Validation checklist: run required command bundle and scans.
+- Deferred items: none.
+- Validation log: recorded in this phase commit output.
+- Zero-drift checklist: no roadmap edits.

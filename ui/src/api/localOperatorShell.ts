@@ -8646,6 +8646,22 @@ export type ReleaseCandidateReviewProjection = Readonly<{
 export function initialReleaseCandidateReviewProjection(): ReleaseCandidateReviewProjection {
   return { status: "not_reviewed", reviewId: null, sections: ["authority_boundaries","blockers","caveats","manifest_summary","review_findings","upstream_linkage","validation_summary"], manifestSummary: { labelStatus: "not_labeled", manifestStatus: "not_generated", manifestId: null, itemCount: 0 }, caveats: [], blockers: [], upstreamLinkage: [], validationSummary: { itemCount: 0, presentCount: 0, missingCount: 0, blockedCount: 0, rejectedCount: 0 }, reviewFindings: [], boundaryStatuses: ["review_surface_only","non_authoritative_review","local_only_non_public","release_candidate_status_not_approved","release_readiness_not_approved","production_status_not_approved","public_use_not_approved","release_artifact_not_created","public_artifact_not_created","no_signing","no_publishing","no_deployment_artifact","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_installer_activation","no_update_channel_activation"], capabilitySurface: { approvalEnabled: false, signingEnabled: false, publishingEnabled: false, deploymentEnabled: false, publicDistributionEnabled: false } };
 }
+
+export type ReleaseCandidateHardeningClosureProjection = Readonly<{
+  status: string;
+  closureId: string | null;
+  hardeningItems: readonly { itemId: string; status: string; category: string; severity: string; detail: string; linkedEvidence: { source: string; reference: string }; linkedReviewFinding: { category: string; detail: string } | null }[];
+  caveats: readonly { category: string; detail: string }[];
+  blockers: readonly { category: string; reason: string }[];
+  validationSummary: { hardeningItemCount: number; blockingItemCount: number; caveatCount: number; blockerCount: number };
+  boundaryStatuses: readonly string[];
+  capabilitySurface: { approvalEnabled: boolean; signingEnabled: boolean; publishingEnabled: boolean; deploymentEnabled: boolean; publicDistributionEnabled: boolean };
+}>;
+
+export function initialReleaseCandidateHardeningClosureProjection(): ReleaseCandidateHardeningClosureProjection {
+  return { status: "not_started", closureId: null, hardeningItems: [], caveats: [], blockers: [], validationSummary: { hardeningItemCount: 0, blockingItemCount: 0, caveatCount: 0, blockerCount: 0 }, boundaryStatuses: ["hardening_closure_only","non_authoritative_closure","local_only_non_public","release_candidate_status_not_approved","release_readiness_not_approved","production_status_not_approved","public_use_not_approved","release_artifact_not_created","public_artifact_not_created","no_signing","no_publishing","no_deployment_artifact","no_public_distribution","no_public_download","no_github_release","no_release_tag","no_installer_activation","no_update_channel_activation","no_provider_trust","no_action_authorization","no_replay_repair","no_recovery_promotion"], capabilitySurface: { approvalEnabled: false, signingEnabled: false, publishingEnabled: false, deploymentEnabled: false, publicDistributionEnabled: false } };
+}
+
 export type LocalOperatorShellState = Readonly<{
   harnessStatus: string;
   nonProduction: true;
@@ -8687,6 +8703,7 @@ export type LocalOperatorShellState = Readonly<{
   releaseCandidateDryRunRehearsal: ReleaseCandidateDryRunRehearsalProjection;
   releaseCandidateEvidenceManifest: ReleaseCandidateEvidenceManifestProjection;
   releaseCandidateReview: ReleaseCandidateReviewProjection;
+  releaseCandidateHardeningClosure: ReleaseCandidateHardeningClosureProjection;
 }>;
 
 export function completeLocalOperatorWorkflowBoundaryStatuses(): readonly CompleteLocalOperatorWorkflowBoundaryStatus[] {
@@ -10006,6 +10023,7 @@ function attachLocalSessionEvidenceExport(
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
     releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
     releaseCandidateReview: initialReleaseCandidateReviewProjection(),
+    releaseCandidateHardeningClosure: initialReleaseCandidateHardeningClosureProjection(),
     releaseCandidatePreparation: deriveReleaseCandidatePreparationProjection({
       ...(state as LocalOperatorShellState),
       localSessionEvidenceExport: deriveLocalSessionEvidenceExport(
@@ -10316,6 +10334,7 @@ export function initialLocalOperatorShellState(): LocalOperatorShellState {
     releaseCandidateDryRunRehearsal: initialReleaseCandidateDryRunRehearsalProjection(),
     releaseCandidateEvidenceManifest: initialReleaseCandidateEvidenceManifestProjection(),
     releaseCandidateReview: initialReleaseCandidateReviewProjection(),
+    releaseCandidateHardeningClosure: initialReleaseCandidateHardeningClosureProjection(),
   });
   return {
     ...state,
