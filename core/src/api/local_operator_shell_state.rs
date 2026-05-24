@@ -21,8 +21,9 @@ use crate::api::{
     InstallerDistributionContractProjection, ReleaseArtifactDryPackageProjection,
     ReleaseCandidateDryRunRehearsalProjection, ReleaseCandidateEvidenceAssemblyProjection,
     ReleaseCandidateEvidenceManifestProjection, ReleaseCandidateGapReviewProjection,
-    ReleaseCandidateHardeningClosureProjection, ReleaseCandidatePreparationProjection, ReleaseCandidateReviewProjection,
-    ReleaseDryPackageChecksumProvenanceProjection, SigningKeyCustodyDryRunProjection,
+    ReleaseCandidateHardeningClosureProjection, ReleaseCandidatePreparationProjection,
+    ReleaseCandidateReviewProjection, ReleaseDryPackageChecksumProvenanceProjection,
+    SigningKeyCustodyDryRunProjection,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -404,7 +405,8 @@ pub fn initial_local_operator_shell_state() -> LocalOperatorShellState {
         release_candidate_evidence_manifest: initial_release_candidate_evidence_manifest_projection(
         ),
         release_candidate_review: initial_release_candidate_review_projection(),
-        release_candidate_hardening_closure: initial_release_candidate_hardening_closure_projection(),
+        release_candidate_hardening_closure: initial_release_candidate_hardening_closure_projection(
+        ),
     };
     state.phase_150_code_production_handoff = derive_phase_150_code_production_handoff(&state);
     state.complete_local_operator_workflow =

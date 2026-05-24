@@ -4,6 +4,36 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.183.1 - 2026-05-24
+**Status:** Phase 183.1 - OOB Release Candidate Hardening Closure Validation
+
+### Fixed
+- Apply rustfmt formatting to the Phase 183 hardening closure Rust surface so cargo fmt --check passes.
+- Close the Phase 183 validation gap by running the full repository check from a clean committed tree.
+- Preserve the Release Candidate hardening closure projection, UI panel, typed-hardening behavior, and no-authority boundaries.
+
+### Notes
+- Out-of-band validation closure only.
+- No Phase 184 implementation.
+- No release artifact creation.
+- No public artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+- Phase 184 remains the next code-production phase.
+
+
 ## v0.0.183 - 2026-05-23
 **Status:** Phase 183 - Release Candidate Hardening Closure
 
