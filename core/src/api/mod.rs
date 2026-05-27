@@ -1,4 +1,5 @@
 mod application_state;
+mod authority_classification;
 mod authorization;
 mod deployment_configuration;
 mod diagnostics;
@@ -33,6 +34,7 @@ mod runtime_config;
 mod signing_key_custody_dry_run;
 
 pub use application_state::*;
+pub use authority_classification::*;
 pub use authorization::*;
 pub use deployment_configuration::*;
 pub use diagnostics::*;

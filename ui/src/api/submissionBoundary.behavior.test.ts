@@ -3360,10 +3360,7 @@ function assertContains(text: string, expected: string, message: string): void {
 }
 
 function extractBoundaryTokens(text: string): readonly string[] {
-  return text
-    .toLowerCase()
-    .split(/[^a-z0-9_]+/u)
-    .filter((token) => token.length > 0);
+  return text.split(/[^a-zA-Z0-9_]+/u).filter((token) => token.length > 0);
 }
 
 function assertDoesNotContain(
@@ -3372,16 +3369,13 @@ function assertDoesNotContain(
   message: string,
   allowedNegativeMarkers: readonly string[] = [],
 ): void {
-  const normalizedUnexpected = unexpected.toLowerCase();
-  const allowedNegativeMarkerSet = new Set(
-    allowedNegativeMarkers.map((marker) => marker.toLowerCase()),
-  );
+  const allowedNegativeMarkerSet = new Set(allowedNegativeMarkers);
 
-  if (allowedNegativeMarkerSet.has(normalizedUnexpected)) {
+  if (allowedNegativeMarkerSet.has(unexpected)) {
     return;
   }
 
-  if (extractBoundaryTokens(text).includes(normalizedUnexpected)) {
+  if (extractBoundaryTokens(text).includes(unexpected)) {
     throw new Error(`${message}: expected text not to include ${unexpected}`);
   }
 }

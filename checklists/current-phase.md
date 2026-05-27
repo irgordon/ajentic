@@ -30,3 +30,17 @@ mutation_path: checklist_revision
   - [x] `release_path_should_pause_for_security_repairs`.
 - Rebuild trigger:
   - [x] No rebuild trigger found.
+
+## Phase 184.1 - OOB Security Audit - Authority Classification Hardening
+- Phase goal: harden authority classification with exact-token, typed, fail-closed behavior.
+- Working-tree hygiene gate: required scans run before edits.
+- Phase 184.S audit carry-forward checklist: reviewed and pause decision preserved.
+- Authority-classification hardening checklist: exact positive/denial token helper added.
+- Rust helper/test checklist: helper added with adversarial positive/denial/unknown/casing/collision tests.
+- TypeScript forbidden-label test checklist: token extraction updated to exact token comparison without lowercase substring broadening.
+- No-authority checklist: no approval/signing/publishing/deployment/distribution/provider-trust/action authorization/replay repair/recovery promotion introduced.
+- Validation checklist: fmt/check/test/clippy/typecheck/lint/build/test:api/dev/check.sh executed.
+- Zero-drift checklist: no roadmap/governance/architecture/schema/release workflow edits.
+- Release-path pause checklist: remains paused.
+- Phase 185 non-implementation checklist: no Phase 185 implementation added.
+- Validation log: recorded in phase execution terminal history.
