@@ -908,3 +908,34 @@ mutation_path: changelog_entry
 - No public distribution.
 - No production/public-use approval.
 - Phase 184 remains paused until this audit recommendation is reviewed.
+
+## v0.0.184.1 - 2026-05-27
+**Status:** Phase 184.1 - OOB Security Audit - Authority Classification Hardening
+
+### Fixed
+- Replace or isolate brittle authority-adjacent string/status heuristics with exact-match, typed, fail-closed authority classification helpers.
+- Add adversarial Rust and TypeScript tests for denial-marker handling, positive authority claims, token-boundary collisions, casing mutations, provider trust claims, action authorization claims, replay repair claims, and recovery promotion claims.
+- Preserve the Phase 184.S security-audit decision that the release path remains paused until security repairs are reviewed.
+
+### Notes
+- Out-of-band security-hardening phase.
+- No Phase 185 implementation.
+- No Release Candidate local package rehearsal feature continuation.
+- No release artifact creation.
+- No public artifact creation.
+- No public package creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+- Release path remains paused pending hardening review.
