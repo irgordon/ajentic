@@ -4,43 +4,54 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 184.S - OOB Security Audit and Release-Authority Boundary Review
+# Phase 184.2 - OOB Security Audit - Remaining Heuristic Triage
 
-- Phase name: Phase 184.S - OOB Security Audit and Release-Authority Boundary Review.
-- Phase goal: run an out-of-band top-down security audit from live repository truth without implementing features.
+- Phase name: Phase 184.2 - OOB Security Audit - Remaining Heuristic Triage.
+- Phase goal: classify all remaining heuristic scan hits by authority risk and narrowly repair any authority-sensitive heuristic exposure.
 - Working-tree hygiene gate:
   - [x] Run `git status --short` before work.
-- Required scan checklist:
-  - [x] `rg -n "trusted|approved|ready|release_ready|production_ready|candidate_approved|public_use|deployment_enabled|signing_enabled|publishing_enabled|action_authorized|replay_repaired|recovery_promoted" ...`
-  - [x] `rg -n "Command::new|std::process|TcpListener|UdpSocket|WebSocket|fetch\(|XMLHttpRequest|reqwest|hyper|axum|warp|rocket|std::env|env::var|private_key|certificate|kms|secret|token|API_KEY|CREDENTIAL" ...`
-  - [x] `rg -n "release_artifact_created|public_artifact_created|public_package_created|github_release_created|release_tag_created|public_download|installer_enabled|update_channel_enabled|signature_created|signed_release|published_release|deployment_enabled" ...`
-  - [x] `rg -n "contains\(|starts_with\(|ends_with\(|to_ascii_lowercase\(|to_lowercase\(|split\(|status.*String|reason.*String" ...`
-  - [x] `rg -n "allow\(dead_code\)|allow\(unused\)|unsafe|unwrap\(|expect\(" ...`
-  - [x] `rg -n "fs::write|File::create|OpenOptions|write_all|read_to_string|read\(" ...`
-  - [x] `rg -n "npm publish|cargo publish|gh release|git tag|docker push|curl |wget |scp |rsync |ssh " ...`
-  - [x] File-size scan for Rust/TypeScript files >1000 lines.
-- Audit output checklist:
-  - [x] Create `docs/operations/security-audit-phase-184-s.md` with required sections.
-  - [x] Record explicit recommendation and rebuild-trigger assessment.
+- Phase 184.S carry-forward checklist:
+  - [x] Review `docs/operations/security-audit-phase-184-s.md`.
+  - [x] Preserve pause-for-security-repairs context until triage decision is finalized.
+- Phase 184.1 carry-forward checklist:
+  - [x] Confirm exact-match authority classifier remains present.
+  - [x] Confirm positive authority markers remain rejected and denial markers remain exact-match allowed.
+  - [x] Confirm unknown authority-shaped tokens remain fail-closed in authority-sensitive contexts.
+- Remaining heuristic inventory checklist:
+  - [x] Run remaining-heuristic discovery scan.
+  - [x] Run authority-surface scan.
+  - [x] Run positive-authority marker scan.
+  - [x] Run denial-marker scan.
+- Triage classification checklist:
+  - [x] Classify each remaining hit into one required category.
+  - [x] Record classifications and rationale in `docs/operations/remaining-heuristic-triage-phase-184-2.md`.
+- Authority-sensitive repair checklist:
+  - [x] Evaluate whether any unrepaired authority-sensitive heuristics remain.
+  - [x] Apply only narrow/safe repairs where required.
+- Accepted-risk checklist:
+  - [x] Record non-authority accepted, test-only accepted, documentation/copy accepted, deferred refactor, and false-positive classifications.
+- Rebuild-trigger checklist:
+  - [x] Assess and record rebuild-trigger state.
+- Release-path decision checklist:
+  - [x] Select one required release-path decision and document it.
 - Validation checklist:
-  - [x] `git diff --check`.
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-security-audit-target ./scripts/check.sh`.
-  - [x] `git status --short` after validation.
-- Security decision:
-  - [x] `release_path_should_pause_for_security_repairs`.
-- Rebuild trigger:
-  - [x] No rebuild trigger found.
-
-## Phase 184.1 - OOB Security Audit - Authority Classification Hardening
-- Phase goal: harden authority classification with exact-token, typed, fail-closed behavior.
-- Working-tree hygiene gate: required scans run before edits.
-- Phase 184.S audit carry-forward checklist: reviewed and pause decision preserved.
-- Authority-classification hardening checklist: exact positive/denial token helper added.
-- Rust helper/test checklist: helper added with adversarial positive/denial/unknown/casing/collision tests.
-- TypeScript forbidden-label test checklist: token extraction updated to exact token comparison without lowercase substring broadening.
-- No-authority checklist: no approval/signing/publishing/deployment/distribution/provider-trust/action authorization/replay repair/recovery promotion introduced.
-- Validation checklist: fmt/check/test/clippy/typecheck/lint/build/test:api/dev/check.sh executed.
-- Zero-drift checklist: no roadmap/governance/architecture/schema/release workflow edits.
-- Release-path pause checklist: remains paused.
-- Phase 185 non-implementation checklist: no Phase 185 implementation added.
-- Validation log: recorded in phase execution terminal history.
+  - [x] `cargo fmt --manifest-path core/Cargo.toml`
+  - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-184-2-triage-target cargo test --manifest-path core/Cargo.toml --all-targets`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-184-2-triage-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+  - [x] `cd ui && npm run typecheck`
+  - [x] `cd ui && npm run lint`
+  - [x] `cd ui && npm run build && rm -rf dist`
+  - [x] `cd ui && npm run test:api`
+  - [x] `cd ui && timeout 10 npm run dev`
+  - [x] `git diff --check`
+- Zero-drift checklist:
+  - [x] No roadmap edits.
+  - [x] No governance edits.
+  - [x] No architecture edits.
+  - [x] No schema edits.
+  - [x] No release/publish/deploy workflow edits.
+- Phase 185 non-implementation checklist:
+  - [x] No Phase 185 code or UI implementation introduced.
+- Validation log:
+  - [x] Validation and scan commands executed in phase terminal history.

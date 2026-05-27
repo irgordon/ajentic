@@ -4,6 +4,43 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.184.2 - 2026-05-27
+**Status:** Phase 184.2 - OOB Security Audit - Remaining Heuristic Triage
+
+### Added
+- Add a remaining-heuristic triage document classifying residual string/status heuristic scan hits by authority sensitivity, accepted non-authority usage, test-only usage, documentation/copy usage, deferred refactor status, and false-positive status.
+
+### Fixed
+- Repair authority-sensitive heuristic cases found during triage where the fix is narrow and safe.
+
+### Notes
+- Out-of-band security triage and hardening only.
+- No Phase 185 implementation.
+- No Release Candidate local package rehearsal feature continuation.
+- No release artifact creation.
+- No public artifact creation.
+- No public package creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public download.
+- No GitHub release.
+- No release tag.
+- No installer activation.
+- No update-channel activation.
+- No provider trust.
+- No action authorization.
+- No replay repair.
+- No recovery promotion.
+- No production/public-use approval.
+- No release readiness approval.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.183.1 - 2026-05-24
 **Status:** Phase 183.1 - OOB Release Candidate Hardening Closure Validation
 
