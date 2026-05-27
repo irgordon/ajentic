@@ -889,3 +889,22 @@ mutation_path: changelog_entry
 - No public-use approval.
 - No readiness approval.
 - Phase 178 remains the next code-production phase for Release Candidate Gap Review and Hardening.
+
+## v0.0.184.S - 2026-05-27
+**Status:** Phase 184.S - OOB Security Audit and Release-Authority Boundary Review
+
+### Added
+- Add a security audit covering authority boundaries, execution boundaries, secret handling, release boundaries, replay/persistence behavior, UI honesty, brittle string/status heuristics, test integrity, documentation drift, and supply-chain surfaces.
+
+### Notes
+- Out-of-band audit only.
+- No Rust source changes.
+- No TypeScript source changes.
+- No runtime behavior changes.
+- No release artifact creation.
+- No signing.
+- No publishing.
+- No deployment.
+- No public distribution.
+- No production/public-use approval.
+- Phase 184 remains paused until this audit recommendation is reviewed.
