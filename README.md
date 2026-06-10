@@ -103,6 +103,7 @@ No GitHub Release or release tag has been created by the governed release proces
 
 Passing validation is necessary evidence, not release approval.
 GitHub Actions is the intended future release platform, but no release workflow or release execution authority is active yet.
+GitHub Actions includes internal reproducible artifact build validation; it does not publish public artifacts or approve release execution.
 
 License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).

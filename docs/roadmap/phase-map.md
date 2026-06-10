@@ -124,7 +124,7 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 185 | Release Candidate Alignment Checkpoint | Milestone 23 | Reconcile Phases 181-184 evidence and determine whether the next bounded Release Candidate control phase may proceed. | Alignment checkpoint only; no production readiness, deployment, or public/general-use approval. |
 | 186 | GitHub Actions Release Platform Contract | Milestone 24 | Define GitHub Actions as the intended future release platform, inspect validation workflows, require main-branch validation coverage where possible, and document prohibited release bypasses. | Contract only; no release workflow, release execution, tag, GitHub Release, public artifact, signing, publishing, installer, update channel, deployment, or v1.0 approval. |
 | 187 | Versioning, License, and Public Identity Alignment | Milestone 24 | Define the version taxonomy, record package metadata and license status, align public identity language, and keep release mechanics blocked. | Alignment only; no version bump to v1.0, license invention, tag, GitHub Release, artifact, signing, publishing, deployment, or production/public-use approval. |
-| 188 | Reproducible Artifact Build in Actions | Milestone 24 | Add reproducible build evidence through GitHub Actions under controlled non-release outputs. | Build evidence only; no public artifact, GitHub Release, release tag, signing, publishing, installer, or deployment activation. |
+| 188 | Reproducible Artifact Build in Actions | Milestone 24 | Add validation-only reproducible internal candidate artifact builds in GitHub Actions with two clean builds and normalized manifest comparison. | Build evidence only; no public artifact, formal checksum/SBOM/provenance publication, GitHub Release, release tag, signing, publishing, installer, update channel, deployment, or v1.0 approval. |
 | 189 | Checksums, SBOM, and Provenance Evidence | Milestone 24 | Add checksum, SBOM, and provenance evidence boundaries for release artifacts. | Evidence only; no signing, publishing, public distribution, deployment, or v1.0 approval. |
 | 190 | Release Platform Alignment Checkpoint | Milestone 24 | Reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed. | Alignment checkpoint only; no release execution, production readiness, or public/general-use approval. |
 | 191 | Signing and Key-Custody Activation Boundary | Milestone 25 | Define or activate bounded signing/key-custody behavior under release-platform controls. | Signing boundary only; no public release, publishing, deployment, installer/update-channel activation, or v1.0 approval. |
@@ -155,6 +155,10 @@ Phase 187 separates roadmap phase numbers, changelog evidence markers, package/c
 ## Phase 187.1 license-status closure note
 
 Phase 187.1 records the Owner-selected MIT license decision, adds the root `LICENSE`, and aligns package metadata with `MIT`. The no-license blocker from Phase 187 is closed. License activation does not approve production readiness, public-release readiness, v1.0 readiness, artifact publication, signing, publishing, installer/update-channel behavior, deployment, Git tag creation, or GitHub Release creation.
+
+## Phase 188 reproducible artifact build note
+
+Phase 188 adds internal reproducible artifact build validation in GitHub Actions. The workflow performs two clean builds from the same source and compares normalized manifests for internal Rust release executable candidates and UI build candidates. Manifest SHA-256 values are reproducibility comparison fields only, not formal release checksums. The workflow is validation-only and does not upload public artifacts, create release artifacts, create tags, create GitHub Releases, sign, publish, build installers, generate update channels, deploy, or approve v1.0 readiness. Phase 189 remains responsible for formal checksum, SBOM, and provenance evidence.
 
 ## Phase 170 alignment note
 

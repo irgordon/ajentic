@@ -466,8 +466,11 @@ Deployment configuration, policy/governance versioning, security audit, local de
 
 88. **Phase 188 adds reproducible build evidence in Actions**
    - Phase 188 must produce reproducible build evidence through GitHub Actions under controlled non-release outputs.
+   - License and public identity must be resolved before reproducible artifact work because artifact publication must not proceed while license status is ambiguous.
    - Artifact production follows platform authority definition and version/license alignment so build evidence has a governed execution context.
-   - Boundary: build evidence only; no public artifact, GitHub Release, release tag, signing, publishing, installer, update channel, or deployment.
+   - Deterministic candidate artifact generation must precede formal integrity evidence so checksums, SBOM, and provenance can attach to stable artifact definitions instead of speculative outputs.
+   - License activation and artifact reproducibility do not authorize artifact release.
+   - Boundary: build evidence only; no public artifact, formal checksum/SBOM/provenance publication, GitHub Release, release tag, signing, publishing, installer, update channel, or deployment.
 
 89. **Phase 189 adds checksum, SBOM, and provenance evidence**
    - Phase 189 must add checksum, SBOM, and provenance evidence boundaries for release artifacts.

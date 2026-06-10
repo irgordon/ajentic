@@ -37,6 +37,7 @@ echo "  bootstrap OK"
 echo "Running Python compile checks..."
 PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/bootstrap_repo.py \
+  scripts/reproducible_artifacts.py \
   scripts/validate_structure.py \
   scripts/validate_docs.py \
   scripts/check_help_pages.py
@@ -66,6 +67,10 @@ while IFS= read -r -d "" shell_file; do
   bash -n "$shell_file"
 done < <(find scripts -type f -name "*.sh" -print0)
 echo "  scripts OK"
+
+echo "Running reproducible internal candidate artifact validation..."
+python3 scripts/reproducible_artifacts.py --check
+echo "  reproducible artifacts OK"
 
 echo "Running Rust boundary lint self-tests..."
 node scripts/test_rust_boundary_lint.mjs

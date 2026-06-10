@@ -627,9 +627,11 @@ Boundary: License-status closure only; no package version change, release workfl
 Evidence gate: copyright holder source is documented, MIT license metadata is aligned, and release mechanics remain blocked.
 
 ### Phase 188 - Reproducible Artifact Build in Actions
-Goal: Add reproducible build evidence through GitHub Actions under controlled non-release outputs.
+Goal: Add validation-only reproducible internal candidate artifact builds in GitHub Actions with two clean builds and normalized manifest comparison.
 
-Boundary: Build-evidence phase only; no public artifact, release publication, GitHub Release, release tag, signing, publishing, installer, update-channel activation, deployment, or v1.0 approval.
+Boundary: Build-evidence phase only; no public artifact, release publication, formal checksum/SBOM/provenance publication, GitHub Release, release tag, signing, publishing, installer, update-channel activation, deployment, or v1.0 approval.
+
+Evidence gate: internal candidate artifact reproducibility is checked without upload or release mechanics; Phase 189 remains responsible for formal checksums, SBOM, and provenance.
 
 ### Phase 189 - Checksums, SBOM, and Provenance Evidence
 Goal: Add checksum, SBOM, and provenance evidence boundaries for release artifacts.

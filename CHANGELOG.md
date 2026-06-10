@@ -4,6 +4,40 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.188 - 2026-06-10
+**Status:** Phase 188 - Reproducible Artifact Build in Actions
+
+### Added
+- Add a validation-only GitHub Actions workflow for reproducible internal candidate artifact builds.
+- Add `scripts/reproducible_artifacts.py` to run two clean builds and compare normalized manifests.
+- Add Phase 188 reproducible artifact build documentation.
+
+### Changed
+- Extend aggregate local validation to include reproducible internal candidate artifact checks.
+- Align README, AGENTS, checklist, and roadmap surfaces with Phase 188 artifact reproducibility boundaries.
+
+### Notes
+- The reproducibility workflow uses least-privilege `contents: read` permissions.
+- The checker compares candidate category, normalized relative path, byte size, and SHA-256 digest across two clean builds.
+- Internal SHA-256 digests are reproducibility comparison fields only, not formal release checksums.
+- Formal checksums, SBOM, and provenance remain assigned to Phase 189.
+- Package versions remain pre-v1.0 and unchanged.
+- No package or crate version was changed to `1.0.0`.
+- No Git tag was created.
+- No GitHub Release was created.
+- No public artifact was created or uploaded.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.187.1 - 2026-06-10
 **Status:** Phase 187.1 - MIT License Activation and License-Status Closure
 

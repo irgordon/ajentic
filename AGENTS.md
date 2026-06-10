@@ -42,6 +42,9 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Do not create tags or GitHub Releases unless the active phase explicitly authorizes release execution.
 - Do not add signing, publishing, deployment, installer, or update-channel behavior unless explicitly scoped.
 - Validation workflows may produce evidence; they do not approve releases.
+- Reproducible build workflows are validation evidence only.
+- Do not convert internal candidate artifacts into public release artifacts.
+- Do not treat artifact reproducibility as production readiness, public-release readiness, or v1.0 approval.
 - Do not infer release readiness from passing tests, passing CI, or clean validation.
 - Do not claim production readiness unless a roadmap decision gate approves it.
 - Do not claim v1.0 readiness from package metadata.

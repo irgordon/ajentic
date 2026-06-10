@@ -4,68 +4,66 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 187.1 - MIT License Activation and License-Status Closure
+# Phase 188 - Reproducible Artifact Build in Actions
 
-- Phase name: Phase 187.1 - MIT License Activation and License-Status Closure.
-- Phase goal: activate the Owner-selected MIT license and close the license-status blocker without creating release mechanics.
+- Phase name: Phase 188 - Reproducible Artifact Build in Actions.
+- Phase goal: add validation-only reproducible internal candidate artifact builds in GitHub Actions without creating release mechanics.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-  - [x] Confirm starting commit is `6389357 docs(release): Align versioning license and public identity`.
-- Owner license decision:
-  - [x] Record Owner-selected license as MIT.
-  - [x] Record SPDX identifier as `MIT`.
-  - [x] Confirm license activation does not approve release execution.
-- Copyright holder:
-  - [x] Inspect tracked copyright notices.
-  - [x] Inspect package metadata.
-  - [x] Inspect repository documentation and remote identity.
-  - [x] Use `irgordon` as the explicit holder from the tracked README GitHub repository link and configured remote.
-- License activation:
-  - [x] Add root `LICENSE`.
-  - [x] Confirm `LICENSE` uses standard MIT text.
-  - [x] Confirm no extra restrictions added.
-  - [x] Confirm no dual licensing added.
-- Package metadata:
-  - [x] Add `license = "MIT"` to `core/Cargo.toml`.
-  - [x] Add `"license": "MIT"` to `ui/package.json`.
-  - [x] Align root package metadata in `ui/package-lock.json`.
-  - [x] Preserve `"private": true` in `ui/package.json`.
-  - [x] Do not change package names.
-  - [x] Do not change package versions.
-  - [x] Confirm no package/crate version is set to `1.0.0`.
-- Public identity alignment:
-  - [x] README license status aligned to MIT.
-  - [x] AGENTS license discipline aligned.
-  - [x] Phase 187 documentation updated with Phase 187.1 addendum.
-  - [x] CHANGELOG updated with `v0.0.187.1`.
-  - [x] Roadmap phase surfaces updated.
-- Workflow inspection:
-  - [x] Existing workflows remain validation-only.
-  - [x] No release/publish/deploy workflow exists.
-  - [x] Workflow permissions remain least-privilege `contents: read`.
-- Prohibited release mechanics:
-  - [x] No release workflow added.
-  - [x] No tag created.
-  - [x] No GitHub Release created.
+  - [x] Confirm starting commit is `71c74a6 docs(license): Activate MIT license decision`.
+  - [x] Confirm branch is `main`.
+- Workflow implementation:
+  - [x] Add `.github/workflows/reproducible-artifacts.yml`.
+  - [x] Run on `pull_request`.
+  - [x] Run on pushes to `main`.
+  - [x] Run on `workflow_dispatch`.
+  - [x] Use `permissions: contents: read`.
+  - [x] Avoid artifact upload.
+  - [x] Avoid release, publish, deploy, signing, installer, and update-channel steps.
+- Reproducibility checker:
+  - [x] Add `scripts/reproducible_artifacts.py`.
+  - [x] Build two clean source copies from the same source tree.
+  - [x] Build Rust release executable candidates from `core/Cargo.toml`.
+  - [x] Build UI candidate files from `ui/`.
+  - [x] Compare normalized manifest entries.
+  - [x] Treat SHA-256 values as internal reproducibility fields only.
+  - [x] Fail on manifest mismatch.
+  - [x] Add the checker to `scripts/check.sh`.
+- Documentation alignment:
+  - [x] Add Phase 188 operations documentation.
+  - [x] Update README release-status language.
+  - [x] Update AGENTS release discipline reminders.
+  - [x] Update CHANGELOG with `v0.0.188`.
+  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
+- Boundary confirmations:
+  - [x] Package versions remain unchanged.
+  - [x] No package/crate version is set to `1.0.0`.
+  - [x] No formal release checksum path added.
+  - [x] No SBOM path added.
+  - [x] No provenance publication path added.
   - [x] No public artifact path added.
   - [x] No signing path added.
   - [x] No publishing path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
-- Future gated phases:
-  - [x] Phase 188 remains responsible for reproducible artifact builds.
-  - [x] Phase 189 remains responsible for checksums, SBOM, and provenance evidence.
-  - [x] Phase 191 remains responsible for signing and key-custody activation.
-  - [x] Phase 200 remains responsible for the v1.0 release decision gate.
-  - [x] Phase 201 remains the first possible v1.0 release execution phase, only if Phase 200 approves.
+  - [x] No Git tag created.
+  - [x] No GitHub Release created.
+- Workflow inspection:
+  - [x] Existing workflows remain validation-only.
+  - [x] Reproducibility workflow is validation-only.
+  - [x] No `release.yml`, `publish.yml`, or `deploy.yml` workflow exists.
+  - [x] Workflow permissions remain least-privilege `contents: read`.
 - Remote evidence checklist:
   - [x] `git ls-remote --tags origin` returned no tags.
   - [x] `gh release list --repo irgordon/ajentic` checked as unknown because `gh` is not installed.
   - [x] `gh api repos/irgordon/ajentic/branches/main/protection` checked as unknown because `gh` is not installed.
+  - [x] Remote GitHub Actions evidence remains pending until GitHub Actions runs on GitHub.
 - Required local validation:
   - [x] `git status --short`
+  - [x] `python3 scripts/reproducible_artifacts.py --help`
+  - [x] `python3 scripts/reproducible_artifacts.py --check`
   - [x] `npm run build`
   - [x] `npm run typecheck`
   - [x] `npm run lint`
@@ -77,8 +75,9 @@ mutation_path: checklist_revision
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-187-1-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-188-target ./scripts/check.sh`
 - Optional validation if present:
+  - [x] `act` local workflow execution not run because `act` is not installed.
   - [x] `scripts/validate_boundary_lints.py` not present.
   - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
-  - [x] `./scripts/check.sh` present; covered by the Phase 187.1 target-dir invocation.
+  - [x] `./scripts/check.sh` present; covered by the Phase 188 target-dir invocation.
