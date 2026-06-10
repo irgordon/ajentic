@@ -81,6 +81,32 @@ Without an Owner-selected license file, public reuse rights are not granted by t
 
 License selection remains a v1.0/public-release blocker.
 
+## Phase 187.1 MIT license activation addendum
+
+The Owner selected the MIT License after the Phase 187 review.
+
+SPDX identifier: `MIT`.
+
+Copyright holder used in `LICENSE`: `irgordon`.
+
+Copyright holder source: the tracked README GitHub repository link and configured repository remote both identify the repository owner as `irgordon`.
+
+Root `LICENSE` was added using the standard MIT License text.
+
+Package metadata was aligned where appropriate:
+
+| Surface | Phase 187.1 license metadata |
+| --- | --- |
+| `core/Cargo.toml` | `license = "MIT"` |
+| `ui/package.json` | `"license": "MIT"` with `"private": true` preserved |
+| `ui/package-lock.json` | Root package lock metadata records `"license": "MIT"` |
+
+License absence is no longer a v1.0/public-release blocker.
+
+License presence does not approve release execution.
+
+Versioning, tags, GitHub Releases, artifacts, signing, publishing, installers, update channels, and deployment remain future-gated.
+
 ## Workflow inspection
 
 | Workflow | Trigger coverage | Permissions | Release authority |

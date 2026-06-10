@@ -458,6 +458,12 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Signing and provenance evidence must attach to a clearly identified release model.
    - Boundary: alignment only; no invented license, v1.0 version bump, tag, GitHub Release, public release, artifact, signing, publishing, deployment, or readiness approval.
 
+87.1. **Phase 187.1 activates the Owner-selected MIT license**
+   - Phase 187.1 closes the license-status blocker before Phase 188 artifact work begins.
+   - License and public identity must be resolved before reproducible artifact work because artifact publication must not proceed while license status is ambiguous.
+   - License activation does not itself authorize artifact release, signing, publishing, deployment, Git tags, GitHub Releases, or v1.0 readiness.
+   - Boundary: license-status closure only; no release mechanics or readiness approval.
+
 88. **Phase 188 adds reproducible build evidence in Actions**
    - Phase 188 must produce reproducible build evidence through GitHub Actions under controlled non-release outputs.
    - Artifact production follows platform authority definition and version/license alignment so build evidence has a governed execution context.

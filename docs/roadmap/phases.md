@@ -619,6 +619,13 @@ Non-goals: no artifact build work, checksum/SBOM/provenance work, signing/key-cu
 
 Evidence gate: README, AGENTS, changelog, checklist, roadmap, package metadata findings, and license absence/presence are aligned without changing package versions to `1.0.0` or creating release mechanics.
 
+### Phase 187.1 - MIT License Activation and License-Status Closure
+Goal: Record the Owner-selected MIT license decision, add the root MIT `LICENSE`, and align package metadata where appropriate.
+
+Boundary: License-status closure only; no package version change, release workflow, GitHub Release, release tag, public artifact, signing, publishing, installer/update-channel activation, deployment, production readiness, public-release readiness, or v1.0 approval.
+
+Evidence gate: copyright holder source is documented, MIT license metadata is aligned, and release mechanics remain blocked.
+
 ### Phase 188 - Reproducible Artifact Build in Actions
 Goal: Add reproducible build evidence through GitHub Actions under controlled non-release outputs.
 

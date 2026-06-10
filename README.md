@@ -14,7 +14,7 @@ mutation_path: readme_update
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-RC_Stewardship_Pre--v1.0-8B0000?style=for-the-badge)
-![License](https://img.shields.io/badge/License-Not_Selected-8B0000?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-28A745?style=for-the-badge)
 
 <br>
 
@@ -104,7 +104,7 @@ No GitHub Release or release tag has been created by the governed release proces
 Passing validation is necessary evidence, not release approval.
 GitHub Actions is the intended future release platform, but no release workflow or release execution authority is active yet.
 
-No license has been selected yet. Without an Owner-selected license file, public reuse rights are not granted by this repository.
+License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
 
 ## Technology Stack

@@ -4,43 +4,42 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 187 - Versioning, License, and Public Identity Alignment
+# Phase 187.1 - MIT License Activation and License-Status Closure
 
-- Phase name: Phase 187 - Versioning, License, and Public Identity Alignment.
-- Phase goal: align versioning language, license posture, and public identity without creating release mechanics.
+- Phase name: Phase 187.1 - MIT License Activation and License-Status Closure.
+- Phase goal: activate the Owner-selected MIT license and close the license-status blocker without creating release mechanics.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-  - [x] Confirm starting commit is `b0f30c8 ci(release): Define GitHub Actions release platform contract`.
-- Versioning policy:
-  - [x] Document phase IDs as roadmap governance units.
-  - [x] Document changelog markers as internal evidence markers unless explicitly tagged.
-  - [x] Document package/crate versions as metadata, not release approval.
-  - [x] Document Git tags as release-control objects.
-  - [x] Document GitHub Releases as public release/publication objects.
+  - [x] Confirm starting commit is `6389357 docs(release): Align versioning license and public identity`.
+- Owner license decision:
+  - [x] Record Owner-selected license as MIT.
+  - [x] Record SPDX identifier as `MIT`.
+  - [x] Confirm license activation does not approve release execution.
+- Copyright holder:
+  - [x] Inspect tracked copyright notices.
+  - [x] Inspect package metadata.
+  - [x] Inspect repository documentation and remote identity.
+  - [x] Use `irgordon` as the explicit holder from the tracked README GitHub repository link and configured remote.
+- License activation:
+  - [x] Add root `LICENSE`.
+  - [x] Confirm `LICENSE` uses standard MIT text.
+  - [x] Confirm no extra restrictions added.
+  - [x] Confirm no dual licensing added.
+- Package metadata:
+  - [x] Add `license = "MIT"` to `core/Cargo.toml`.
+  - [x] Add `"license": "MIT"` to `ui/package.json`.
+  - [x] Align root package metadata in `ui/package-lock.json`.
+  - [x] Preserve `"private": true` in `ui/package.json`.
+  - [x] Do not change package names.
+  - [x] Do not change package versions.
   - [x] Confirm no package/crate version is set to `1.0.0`.
-- Package version findings:
-  - [x] Root `Cargo.toml` not present.
-  - [x] `core/Cargo.toml` version is `0.1.0`.
-  - [x] `cli/Cargo.toml` not present.
-  - [x] Root `package.json` not present.
-  - [x] `ui/package.json` version is `0.1.0` and package is private.
-  - [x] Package versions left unchanged.
-- License status:
-  - [x] `LICENSE` not present.
-  - [x] `LICENSE.md` not present.
-  - [x] `COPYING` not present.
-  - [x] No Owner-selected license decision found in tracked project instructions inspected for this phase.
-  - [x] No license file added.
-  - [x] License absence remains a v1.0/public-release blocker.
 - Public identity alignment:
-  - [x] README status aligned to Release Candidate stewardship / pre-v1.0 hardening.
-  - [x] README states not production-ready, not public-release-ready, and not v1.0-ready.
-  - [x] README states no governed GitHub Release or release tag exists.
-  - [x] README states no license has been selected.
-  - [x] AGENTS release/version/license discipline aligned.
-  - [x] CHANGELOG updated with Phase 187.
-  - [x] Roadmap phase surfaces aligned.
+  - [x] README license status aligned to MIT.
+  - [x] AGENTS license discipline aligned.
+  - [x] Phase 187 documentation updated with Phase 187.1 addendum.
+  - [x] CHANGELOG updated with `v0.0.187.1`.
+  - [x] Roadmap phase surfaces updated.
 - Workflow inspection:
   - [x] Existing workflows remain validation-only.
   - [x] No release/publish/deploy workflow exists.
@@ -78,8 +77,8 @@ mutation_path: checklist_revision
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-187-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-187-1-target ./scripts/check.sh`
 - Optional validation if present:
   - [x] `scripts/validate_boundary_lints.py` not present.
   - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
-  - [x] `./scripts/check.sh` present; covered by the Phase 187 target-dir invocation.
+  - [x] `./scripts/check.sh` present; covered by the Phase 187.1 target-dir invocation.

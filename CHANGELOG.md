@@ -4,6 +4,41 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.187.1 - 2026-06-10
+**Status:** Phase 187.1 - MIT License Activation and License-Status Closure
+
+### Added
+- Record Owner-selected MIT license decision.
+- Add root `LICENSE` using the standard MIT License text.
+- Add MIT license metadata to package manifests where appropriate.
+- Align UI package-lock root metadata with MIT.
+
+### Changed
+- Update README license status to `License: MIT`.
+- Update Phase 187 public identity documentation to close the no-license blocker.
+- Align AGENTS and roadmap surfaces with MIT license discipline.
+
+### Notes
+- `core/Cargo.toml` remains at `0.1.0`.
+- `ui/package.json` remains at `0.1.0`.
+- `ui/package-lock.json` remains at `0.1.0`.
+- No package version was changed to `1.0.0`.
+- No Git tag was created.
+- No GitHub Release was created.
+- No release artifact was created.
+- No public artifact path was created.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.187 - 2026-06-10
 **Status:** Phase 187 - Versioning, License, and Public Identity Alignment
 
