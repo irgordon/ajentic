@@ -4,6 +4,37 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.194 - 2026-06-10
+**Status:** Phase 194 - Final Functional Acceptance and v1.0 Release Execution
+
+### Added
+- Add a manually dispatched `final-release` GitHub Actions workflow for the guarded `v1.0.0` final GitHub Release path.
+- Add GitHub REST API publication support for the final annotated tag, final release, and final asset uploads.
+- Add deterministic final asset staging for the final candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and final readme.
+- Add local final release preflight checks.
+- Add Phase 194 operation documentation and `v1.0.0` release notes.
+
+### Changed
+- Align README, AGENTS, checklist, and roadmap surfaces with the Phase 194 final-release execution boundary.
+- Extend aggregate local validation to cover final asset determinism and final release preflight checks.
+
+### Notes
+- `v1.0.0-rc.1` is the source release candidate.
+- Branch protection or ruleset status must be verified, or an explicit final-release Owner exception must be recorded before final workflow dispatch.
+- Package metadata remains separately governed and package versions remain unchanged.
+- No npm or Cargo package publication path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+- No OS signing or notarization path was created.
+- Rust, TypeScript, Python, and Bash authority boundaries remain unchanged.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.193 - 2026-06-10
 **Status:** Phase 193 - v1 Release Candidate Publication
 

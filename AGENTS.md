@@ -72,6 +72,15 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Phase 193 RC publication uses the GitHub REST API, not the `gh` CLI.
 - Phase 193 may create only the bounded `v1.0.0-rc.1` tag, prerelease, RC assets, and RC attestations after explicit confirmations.
 - Do not treat RC publication as final v1.0 approval, production readiness, package publishing, installer approval, update-channel approval, or deployment approval.
+- Phase 194 is the only final `v1.0.0` release execution phase.
+- Do not create final tags outside the final-release workflow.
+- Do not create final GitHub Releases outside the final-release workflow.
+- Do not push all tags or force-push release tags.
+- Verify the final tag before creating the final GitHub Release.
+- Scope `contents: write` only to release publication jobs.
+- Scope `id-token: write` and `attestations: write` only to attestation jobs.
+- Do not carry RC-only exceptions into final release without explicit final-release Owner exception.
+- Do not treat final release assets or attestations as governance authority.
 - Do not call `gh release create`; use the GitHub API path when an explicitly scoped release phase authorizes publication.
 - Do not create Git tags before the release phase explicitly authorizes tags.
 - Do not add `contents: write` without explicit release-execution authorization.

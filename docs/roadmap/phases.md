@@ -669,9 +669,11 @@ Scope: manually dispatched `rc-publication` workflow, explicit RC confirmations,
 Boundary: RC publication only; no final `v1.0.0`, package publishing, installer, update channel, deployment, broader product expansion, unsupported safety claims, or unrelated governance work.
 
 ### Phase 194 - v1 Final Functional Acceptance and Release Execution
-Goal: Complete final functional acceptance and execute the v1 release if acceptance passes.
+Goal: Run final functional acceptance and publish the `v1.0.0` GitHub Release through the guarded final-release workflow when gates are resolved.
 
-Boundary: Final v1 release execution only; no bypass of artifact, signing, UI/UX, license, and functional acceptance gates.
+Scope: final acceptance preflight, source `v1.0.0-rc.1` verification, branch protection or final-release exception resolution, deterministic final assets, final checksum/SBOM/provenance evidence, optional final artifact attestations, annotated `v1.0.0` tag creation, and final GitHub Release creation.
+
+Boundary: Final GitHub Release path only; no package publishing, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, unsupported safety claims, or bypass of artifact, signing, UI/UX, license, and functional acceptance gates.
 
 ### Superseded Previous v1 Runway
 

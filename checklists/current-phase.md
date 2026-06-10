@@ -4,69 +4,90 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 193 - v1 Release Candidate Publication
+# Phase 194 - Final Functional Acceptance and v1.0 Release Execution
 
-- Phase name: Phase 193 - v1 Release Candidate Publication.
-- Phase goal: publish a bounded `v1.0.0-rc.1` Release Candidate through the approved GitHub API-backed release path for final acceptance review.
+- Phase name: Phase 194 - Final Functional Acceptance and v1.0 Release Execution.
+- Phase goal: complete final acceptance and publish the `v1.0.0` GitHub Release through the approved GitHub API-backed final release path when final gates are resolved.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `b919da5d`.
+  - [x] Confirm starting commit is `c0578e0dc55cd5b0c3ac78854892ba4a0273a2b3`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- RC publication workflow:
-  - [x] Add `.github/workflows/rc-publication.yml`.
+  - [x] Confirm remote `v1.0.0-rc.1` tag exists.
+  - [x] Confirm remote final `v1.0.0` tag was absent at phase start.
+- Final release gates:
+  - [x] Verify RC evidence requirements are represented in final preflight.
+  - [ ] Resolve branch protection or ruleset status for final release.
+  - [ ] Record explicit final-release Owner exception if branch protection or rulesets remain disabled.
+- Final release workflow:
+  - [x] Add `.github/workflows/final-release.yml`.
   - [x] Make the workflow `workflow_dispatch` only.
-  - [x] Require `rc_tag`, `expected_commit`, `candidate_label`, and explicit confirmation inputs.
-  - [x] Fail closed on non-main branch, wrong commit, wrong confirmations, bad RC tag, final tag, existing tag/release, final package versions, missing notes/assets, and validation failure.
+  - [x] Enforce `expected_commit`.
+  - [x] Enforce `final_tag=v1.0.0`.
+  - [x] Enforce `source_rc_tag=v1.0.0-rc.1`.
+  - [x] Enforce `FINAL_V1_RELEASE`.
+  - [x] Enforce `NO_PACKAGE_PUBLICATION`.
+  - [x] Enforce `NO_INSTALLER_UPDATE_DEPLOY`.
+  - [x] Check source RC evidence before publishing.
+  - [x] Check final tag and final release absence before publishing.
   - [x] Use the GitHub REST API instead of `gh`.
   - [x] Scope `contents: write` to the publication job only.
   - [x] Scope `id-token: write` and `attestations: write` to the attestation job only.
   - [x] Do not add `packages: write`, `deployments: write`, `actions: write`, or `artifact-metadata: write`.
-- RC assets:
-  - [x] Add deterministic public RC asset staging.
-  - [x] Include candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and RC readme.
+- Final assets:
+  - [x] Add deterministic final asset staging.
+  - [x] Include final candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and final readme.
   - [x] Add local determinism checks.
-  - [x] Add local publication preflight checks.
+  - [x] Add local final release preflight checks.
 - Documentation alignment:
-  - [x] Add `docs/operations/rc-publication-phase-193.md`.
-  - [x] Add `docs/releases/v1.0.0-rc.1.md`.
-  - [x] Update README RC publication status.
-  - [x] Update AGENTS RC publication discipline.
-  - [x] Update CHANGELOG with `v0.0.193`.
+  - [x] Add `docs/operations/final-functional-acceptance-release-phase-194.md`.
+  - [x] Add `docs/releases/v1.0.0.md`.
+  - [x] Update README final release status.
+  - [x] Update AGENTS final release discipline.
+  - [x] Update CHANGELOG with `v0.0.194`.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Boundary confirmations:
-  - [x] Phase 193 is RC-only publication.
-  - [x] Final `v1.0.0` remains Phase 194.
-  - [x] No package version changed.
+  - [x] Package versions remain unchanged.
   - [x] No package or crate version changed to `1.0.0`.
   - [x] No package registry publication path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
+  - [x] No OS signing or notarization path added.
   - [x] TypeScript remains non-authoritative.
 - Validation:
   - [x] `git status --short`
-  - [x] `npm run build`
-  - [x] `npm run typecheck`
-  - [x] `npm run lint`
-  - [x] `npm run test:api`
+  - [x] `cd ui && npm run build`
+  - [x] `cd ui && npm run typecheck`
+  - [x] `cd ui && npm run lint`
+  - [x] `cd ui && npm run test:api`
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
   - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+  - [x] `python3 scripts/reproducible_artifacts.py --help`
   - [x] `python3 scripts/reproducible_artifacts.py --check`
   - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
+  - [x] `python3 scripts/release_candidate_bundle.py --help`
   - [x] `python3 scripts/release_candidate_bundle.py --check`
-  - [x] `python3 scripts/prepare_rc_release_assets.py --check-local --rc-tag v1.0.0-rc.1`
-  - [x] `python3 scripts/rc_publication_preflight.py --check-local --rc-tag v1.0.0-rc.1`
-  - [x] `scripts/validate_structure.py`
-  - [x] `scripts/validate_docs.py`
+  - [x] `python3 scripts/rc_publication_preflight.py --help`
+  - [x] `python3 scripts/rc_publication_preflight.py --check-local`
+  - [x] `python3 scripts/final_release_preflight.py --help`
+  - [x] `python3 scripts/final_release_preflight.py --check-local`
+  - [x] `python3 scripts/prepare_final_release_assets.py --help`
+  - [x] `python3 scripts/prepare_final_release_assets.py --check`
   - [x] `scripts/check_help_pages.py`
+  - [x] `python3 scripts/validate_structure.py`
+  - [x] `python3 scripts/validate_docs.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-193-target ./scripts/check.sh`
-- Remote publication:
-  - [ ] Push Phase 193 commit to `main`.
-  - [ ] Dispatch `rc-publication.yml` through the GitHub API if authenticated credentials are available.
+  - [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-194-target ./scripts/check.sh`
+- Remote final publication:
+  - [ ] Push Phase 194 commit to `main`.
+  - [ ] Dispatch `final-release.yml` after final branch protection or exception gate is resolved.
   - [ ] Verify workflow conclusion if dispatched.
-  - [ ] Verify `v1.0.0-rc.1` tag if dispatched.
-  - [ ] Verify `v1.0.0-rc.1` GitHub prerelease if dispatched.
-  - [ ] Verify final `v1.0.0` tag/release was not created.
+  - [ ] Verify `v1.0.0` tag if dispatched.
+  - [ ] Verify `v1.0.0` GitHub Release if dispatched.
+  - [ ] Verify final release is not prerelease.
+  - [ ] Verify final release is not draft.
+  - [ ] Verify final release is latest.
+  - [ ] Verify final assets, checksums, SBOM, provenance, and attestation evidence if dispatched.
+  - [ ] Verify `v1.0.0-rc.1` remains intact.

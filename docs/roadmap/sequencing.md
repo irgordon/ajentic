@@ -509,10 +509,12 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: RC publication only; no final `v1.0.0`, package publishing, installer, update channel, deployment, unsupported safety claims, or unrelated product expansion.
 
 94. **Phase 194 completes final acceptance and v1 release execution**
-   - Phase 194 must complete final functional acceptance and execute the v1 release if acceptance passes.
-   - Final release execution must wait until RC publication and final acceptance pass.
+   - Phase 194 must run final functional acceptance and publish the `v1.0.0` GitHub Release through the guarded final-release workflow when gates are resolved.
+   - Final release execution must verify `v1.0.0-rc.1` evidence and final tag/release absence before publication.
+   - Branch protection or ruleset status must be resolved before final dispatch; an RC-only exception does not apply to final release execution.
    - Final release execution follows RC publication and must not bypass artifact, signing, UI/UX, license, or functional acceptance gates.
-   - Boundary: final v1 release execution only within the compressed v1 track.
+   - Release assets and attestations remain evidence and do not make artifacts or the UI authoritative.
+   - Boundary: final GitHub Release path only within the compressed v1 track; package publication, installers, update channels, deployments, OS signing, and notarization remain separate future scopes unless explicitly authorized.
 
 Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 

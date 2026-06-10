@@ -1,0 +1,297 @@
+name: final-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      final_tag:
+        description: Final tag to publish. Must be v1.0.0.
+        required: true
+        default: v1.0.0
+      expected_commit:
+        description: Full Phase 194 commit SHA that must be published.
+        required: true
+      source_rc_tag:
+        description: Source release candidate tag. Must be v1.0.0-rc.1.
+        required: true
+        default: v1.0.0-rc.1
+      confirm_final_release:
+        description: Type FINAL_V1_RELEASE to confirm final v1.0.0 release execution.
+        required: true
+      confirm_no_package_publication:
+        description: Type NO_PACKAGE_PUBLICATION to confirm no npm or Cargo package publication.
+        required: true
+      confirm_no_installer_update_deploy:
+        description: Type NO_INSTALLER_UPDATE_DEPLOY to confirm no installer, update channel, or deployment.
+        required: true
+      attest_final_assets:
+        description: Generate GitHub artifact attestations for final assets.
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Final release preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate final release inputs
+        shell: bash
+        env:
+          FINAL_TAG: ${{ inputs.final_tag }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          SOURCE_RC_TAG: ${{ inputs.source_rc_tag }}
+          CONFIRM_FINAL_RELEASE: ${{ inputs.confirm_final_release }}
+          CONFIRM_NO_PACKAGE_PUBLICATION: ${{ inputs.confirm_no_package_publication }}
+          CONFIRM_NO_INSTALLER_UPDATE_DEPLOY: ${{ inputs.confirm_no_installer_update_deploy }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::final-release must run from refs/heads/main"
+            exit 1
+          fi
+          if [ "${GITHUB_SHA}" != "${EXPECTED_COMMIT}" ]; then
+            echo "::error::expected_commit does not match checked-out commit"
+            exit 1
+          fi
+          if [ "${FINAL_TAG}" != "v1.0.0" ]; then
+            echo "::error::final_tag must be v1.0.0"
+            exit 1
+          fi
+          if [ "${SOURCE_RC_TAG}" != "v1.0.0-rc.1" ]; then
+            echo "::error::source_rc_tag must be v1.0.0-rc.1"
+            exit 1
+          fi
+          if [ "${CONFIRM_FINAL_RELEASE}" != "FINAL_V1_RELEASE" ]; then
+            echo "::error::confirm_final_release must be FINAL_V1_RELEASE"
+            exit 1
+          fi
+          if [ "${CONFIRM_NO_PACKAGE_PUBLICATION}" != "NO_PACKAGE_PUBLICATION" ]; then
+            echo "::error::confirm_no_package_publication must be NO_PACKAGE_PUBLICATION"
+            exit 1
+          fi
+          if [ "${CONFIRM_NO_INSTALLER_UPDATE_DEPLOY}" != "NO_INSTALLER_UPDATE_DEPLOY" ]; then
+            echo "::error::confirm_no_installer_update_deploy must be NO_INSTALLER_UPDATE_DEPLOY"
+            exit 1
+          fi
+          python3 scripts/final_release_preflight.py \
+            --check-local \
+            --final-tag "${FINAL_TAG}" \
+            --source-rc-tag "${SOURCE_RC_TAG}" \
+            --expected-commit "${EXPECTED_COMMIT}"
+          python3 scripts/github_api_final_release.py \
+            --repository "${GITHUB_REPOSITORY}" \
+            --final-tag "${FINAL_TAG}" \
+            --source-rc-tag "${SOURCE_RC_TAG}" \
+            --preflight
+
+  validate:
+    name: Local validation
+    runs-on: ubuntu-latest
+    needs: preflight
+    permissions:
+      contents: read
+    env:
+      TZ: UTC
+      LC_ALL: C
+      CARGO_INCREMENTAL: "0"
+      CARGO_TARGET_DIR: /tmp/ajentic-phase-194-workflow-target
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run UI validation
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+          npm run typecheck
+          npm run lint
+          npm run test:api
+          rm -rf dist
+
+      - name: Run Rust validation
+        run: |
+          cargo fmt --manifest-path core/Cargo.toml -- --check
+          cargo test --manifest-path core/Cargo.toml --all-targets
+          cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
+
+      - name: Run artifact and documentation validation
+        run: |
+          python3 scripts/reproducible_artifacts.py --help
+          python3 scripts/reproducible_artifacts.py --check
+          python3 scripts/reproducible_artifacts.py --check-evidence
+          python3 scripts/release_candidate_bundle.py --help
+          python3 scripts/release_candidate_bundle.py --check
+          python3 scripts/rc_publication_preflight.py --help
+          python3 scripts/rc_publication_preflight.py --check-local
+          python3 scripts/final_release_preflight.py --help
+          python3 scripts/final_release_preflight.py --check-local
+          python3 scripts/prepare_final_release_assets.py --help
+          python3 scripts/prepare_final_release_assets.py --check
+          python3 scripts/validate_structure.py
+          python3 scripts/validate_docs.py
+          scripts/check_help_pages.py
+          git diff --check
+          rm -rf ui/dist
+          CARGO_TARGET_DIR=/tmp/ajentic-phase-194-check-target ./scripts/check.sh
+
+  build_final_assets:
+    name: Build final release assets
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+    env:
+      TZ: UTC
+      LC_ALL: C
+      CARGO_INCREMENTAL: "0"
+      CARGO_TARGET_DIR: /tmp/ajentic-phase-194-assets-target
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build deterministic final assets
+        run: >
+          python3 scripts/prepare_final_release_assets.py
+          --build
+          --final-tag "${{ inputs.final_tag }}"
+          --source-rc-tag "${{ inputs.source_rc_tag }}"
+          --output-dir /tmp/ajentic-phase-194-final-assets
+
+      - name: Verify expected final assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-candidate-bundle.tar.gz"
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-asset-manifest.json"
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-checksums.json"
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-sbom.json"
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-provenance.json"
+          test -f "/tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-release-notes.md"
+          test -f "/tmp/ajentic-phase-194-final-assets/README-FINAL-${{ inputs.final_tag }}.txt"
+
+      - name: Upload final asset staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajentic-${{ inputs.final_tag }}-final-assets
+          path: /tmp/ajentic-phase-194-final-assets/
+          retention-days: 5
+          if-no-files-found: error
+
+  attest_final_assets:
+    name: Attest final release assets
+    runs-on: ubuntu-latest
+    needs: build_final_assets
+    if: inputs.attest_final_assets
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download final assets
+        uses: actions/download-artifact@v4
+        with:
+          name: ajentic-${{ inputs.final_tag }}-final-assets
+          path: /tmp/ajentic-phase-194-final-assets
+
+      - name: Attest final candidate bundle
+        uses: actions/attest@v4
+        with:
+          subject-path: /tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-candidate-bundle.tar.gz
+
+      - name: Attest final SBOM evidence
+        uses: actions/attest@v4
+        with:
+          subject-path: /tmp/ajentic-phase-194-final-assets/ajentic-${{ inputs.final_tag }}-final-sbom.json
+
+  publish_final:
+    name: Publish final GitHub Release
+    runs-on: ubuntu-latest
+    needs: [preflight, validate, build_final_assets, attest_final_assets]
+    if: >
+      ${{
+        always() &&
+        needs.preflight.result == 'success' &&
+        needs.validate.result == 'success' &&
+        needs.build_final_assets.result == 'success' &&
+        (inputs.attest_final_assets == false || needs.attest_final_assets.result == 'success')
+      }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download final assets
+        uses: actions/download-artifact@v4
+        with:
+          name: ajentic-${{ inputs.final_tag }}-final-assets
+          path: /tmp/ajentic-phase-194-final-assets
+
+      - name: Publish final release through GitHub API
+        id: publish
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FINAL_TAG: ${{ inputs.final_tag }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          SOURCE_RC_TAG: ${{ inputs.source_rc_tag }}
+        run: |
+          set -euo pipefail
+          python3 scripts/github_api_final_release.py \
+            --repository "${GITHUB_REPOSITORY}" \
+            --final-tag "${FINAL_TAG}" \
+            --expected-commit "${EXPECTED_COMMIT}" \
+            --source-rc-tag "${SOURCE_RC_TAG}" \
+            --release-notes "docs/releases/${FINAL_TAG}.md" \
+            --asset-dir /tmp/ajentic-phase-194-final-assets \
+            --publish | tee /tmp/ajentic-phase-194-publication.json
+
+      - name: Write final release summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_url="$(python3 -c "import json; from pathlib import Path; data=json.loads(Path('/tmp/ajentic-phase-194-publication.json').read_text()); print(data['release_url'])")"
+          echo "## AJENTIC final release" >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo "- Final tag: ${{ inputs.final_tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source RC tag: ${{ inputs.source_rc_tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target commit: ${{ inputs.expected_commit }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GitHub Release: ${release_url}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Prerelease: false" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Latest: true" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Draft: false" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Package registries, installers, update channels, deployments, OS signing, and notarization were not used." >> "$GITHUB_STEP_SUMMARY"

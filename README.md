@@ -93,20 +93,17 @@ Clean output is what has passed through the AJENTIC boundary.
 
 ## Project Status
 
-Current status: v1 release-candidate publication.
+Current status: v1 final release execution prepared.
 
 AJENTIC is moving from release-platform preparation into direct v1 release execution.
-The remaining pre-v1 work is focused on functional correctness, release artifacts, signing/release workflow, and UI/UX quality.
-Phase 193 authorizes a bounded public GitHub prerelease for `v1.0.0-rc.1`.
-AJENTIC is not production-ready.
-AJENTIC is not final-v1.0-ready.
-No final v1.0 release has been approved.
+Phase 194 adds the final release workflow for `v1.0.0` after the bounded public GitHub prerelease `v1.0.0-rc.1`.
+Final workflow dispatch is gated by final acceptance, exact commit confirmation, source RC verification, and branch protection or explicit final-release Owner exception.
 
 Passing validation is necessary evidence, not release approval.
-GitHub Actions is the v1 release platform for the RC path.
-GitHub Actions includes internal reproducible artifact validation, checksum/SBOM/provenance evidence checks, an internal release-candidate workflow, and a manually triggered RC publication workflow.
-The RC publication workflow may create only the `v1.0.0-rc.1` tag, prerelease, public RC assets, and RC asset attestations after explicit confirmations.
-It must not create final `v1.0.0`, publish packages, create installers, activate update channels, deploy, or change package versions.
+GitHub Actions is the v1 release platform for the RC and final GitHub Release paths.
+GitHub Actions includes internal reproducible artifact validation, checksum/SBOM/provenance evidence checks, an internal release-candidate workflow, a manually triggered RC publication workflow, and a manually triggered final release workflow.
+The final release workflow may create only the `v1.0.0` tag, final GitHub Release, final release assets, and final asset attestations after explicit confirmations.
+It must not publish npm or Cargo packages, create installers, activate update channels, deploy, add OS signing, add notarization, or change package versions.
 
 The browser shell is a read-only local review page. It uses plain labels for simulated local checks, keeps technical evidence in details and raw sections, and does not approve releases or publish artifacts.
 
