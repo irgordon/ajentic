@@ -13,7 +13,7 @@ mutation_path: readme_update
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Status](https://img.shields.io/badge/Status-RC Pre-v1.0-8B0000?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-RC-Pre-v1.0-8B0000?style=for-the-badge)
 ![Open Source](https://img.shields.io/badge/Open_Source-Yes-28A745?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
 
 <br>
