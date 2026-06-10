@@ -45,6 +45,13 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Reproducible build workflows are validation evidence only.
 - Do not convert internal candidate artifacts into public release artifacts.
 - Do not treat artifact reproducibility as production readiness, public-release readiness, or v1.0 approval.
+- Internal checksum, SBOM, and provenance evidence are review evidence only.
+- Do not convert internal integrity evidence into release artifacts.
+- Do not add GitHub artifact attestations before an explicitly scoped signing/attestation phase.
+- Do not add `id-token: write` or `attestations: write` in Phase 189.
+- Do not treat checksums, SBOMs, or provenance files as release approval.
+- Do not add signing, publishing, deployment, installer, or update-channel behavior in Phase 189.
+- Do not treat evidence generation as production readiness or v1.0 approval.
 - Do not infer release readiness from passing tests, passing CI, or clean validation.
 - Do not claim production readiness unless a roadmap decision gate approves it.
 - Do not claim v1.0 readiness from package metadata.

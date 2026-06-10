@@ -40,3 +40,6 @@ jobs:
 
       - name: Validate internal candidate artifact reproducibility
         run: python3 scripts/reproducible_artifacts.py --check
+
+      - name: Validate internal checksum SBOM and provenance evidence
+        run: python3 scripts/reproducible_artifacts.py --check-evidence

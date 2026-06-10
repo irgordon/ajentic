@@ -72,6 +72,10 @@ echo "Running reproducible internal candidate artifact validation..."
 python3 scripts/reproducible_artifacts.py --check
 echo "  reproducible artifacts OK"
 
+echo "Running internal checksum SBOM and provenance evidence validation..."
+python3 scripts/reproducible_artifacts.py --check-evidence
+echo "  internal integrity evidence OK"
+
 echo "Running Rust boundary lint self-tests..."
 node scripts/test_rust_boundary_lint.mjs
 echo "  Rust boundary lint self-tests OK"

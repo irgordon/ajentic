@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
 
@@ -41,6 +42,9 @@ def main() -> int:
     if args.check:
         return check_reproducible_artifacts(repo_root)
 
+    if args.check_evidence:
+        return check_integrity_evidence(repo_root)
+
     return 0
 
 
@@ -58,11 +62,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run two clean builds and compare normalized manifests.",
     )
+    parser.add_argument(
+        "--check-evidence",
+        action="store_true",
+        help="Run two clean builds and compare internal integrity evidence.",
+    )
     return parser.parse_args()
 
 
 def check_reproducible_artifacts(repo_root: Path) -> int:
     require_file(repo_root / "core" / "Cargo.toml")
+    require_file(repo_root / "core" / "Cargo.lock")
     require_file(repo_root / "ui" / "package-lock.json")
     require_file(repo_root / "ui" / "package.json")
 
@@ -87,6 +97,34 @@ def check_reproducible_artifacts(repo_root: Path) -> int:
         return 0
 
 
+def check_integrity_evidence(repo_root: Path) -> int:
+    require_file(repo_root / "core" / "Cargo.toml")
+    require_file(repo_root / "core" / "Cargo.lock")
+    require_file(repo_root / "ui" / "package-lock.json")
+    require_file(repo_root / "ui" / "package.json")
+
+    build_context = build_evidence_context(repo_root)
+
+    with tempfile.TemporaryDirectory(prefix="ajentic-phase-189-evidence-") as temp_dir:
+        temp_root = Path(temp_dir)
+        first_root = temp_root / "build-a"
+        second_root = temp_root / "build-b"
+
+        copy_source_tree(repo_root, first_root)
+        copy_source_tree(repo_root, second_root)
+
+        first_evidence = build_and_evidence(first_root, build_context)
+        second_evidence = build_and_evidence(second_root, build_context)
+
+        if canonical_json(first_evidence) != canonical_json(second_evidence):
+            report_evidence_mismatch(first_evidence, second_evidence)
+            return 1
+
+        write_evidence(temp_root / "evidence", first_evidence)
+        print("Internal checksum, SBOM, and provenance evidence match.")
+        return 0
+
+
 def require_file(path: Path) -> None:
     if not path.is_file():
         raise SystemExit(f"required file missing: {path}")
@@ -99,6 +137,47 @@ def resolve_source_date_epoch(repo_root: Path) -> str:
 
     result = subprocess.run(
         ["git", "log", "-1", "--format=%ct"],
+        cwd=repo_root,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    return result.stdout.strip()
+
+
+def build_evidence_context(repo_root: Path) -> dict[str, object]:
+    return {
+        "repository": resolve_repository(repo_root),
+        "commit_sha": git_output(repo_root, ["rev-parse", "HEAD"]),
+        "branch": resolve_branch(repo_root),
+        "source_date_epoch": resolve_source_date_epoch(repo_root),
+        "workflow_name": os.environ.get("GITHUB_WORKFLOW") or None,
+        "workflow_ref": os.environ.get("GITHUB_WORKFLOW_REF") or None,
+        "runner_os": os.environ.get("RUNNER_OS") or None,
+    }
+
+
+def resolve_repository(repo_root: Path) -> str:
+    remote_url = git_output(repo_root, ["config", "--get", "remote.origin.url"])
+    if remote_url.endswith(".git"):
+        remote_url = remote_url[:-4]
+    if remote_url.startswith("https://github.com/"):
+        return remote_url.removeprefix("https://github.com/")
+    if remote_url.startswith("git@github.com:"):
+        return remote_url.removeprefix("git@github.com:")
+    return remote_url
+
+
+def resolve_branch(repo_root: Path) -> str:
+    branch = os.environ.get("GITHUB_REF_NAME")
+    if branch:
+        return branch
+    return git_output(repo_root, ["rev-parse", "--abbrev-ref", "HEAD"])
+
+
+def git_output(repo_root: Path, command: list[str]) -> str:
+    result = subprocess.run(
+        ["git", *command],
         cwd=repo_root,
         check=True,
         text=True,
@@ -147,6 +226,15 @@ def build_and_manifest(build_root: Path, source_date_epoch: str) -> list[dict[st
     return normalized_manifest(build_root)
 
 
+def build_and_evidence(
+    build_root: Path, build_context: dict[str, object]
+) -> dict[str, object]:
+    artifact_manifest = build_and_manifest(
+        build_root, str(build_context["source_date_epoch"])
+    )
+    return integrity_evidence(build_root, build_context, artifact_manifest)
+
+
 def deterministic_environment(build_root: Path, source_date_epoch: str) -> dict[str, str]:
     env = os.environ.copy()
     env.update(
@@ -175,6 +263,206 @@ def normalized_manifest(build_root: Path) -> list[dict[str, object]]:
         raise SystemExit("no internal candidate artifacts were produced")
 
     return sorted(entries, key=lambda entry: (str(entry["category"]), str(entry["path"])))
+
+
+def integrity_evidence(
+    build_root: Path,
+    build_context: dict[str, object],
+    artifact_manifest: list[dict[str, object]],
+) -> dict[str, object]:
+    return {
+        "checksums": checksum_evidence(build_context, artifact_manifest),
+        "sbom": sbom_evidence(build_root, build_context),
+        "provenance": provenance_evidence(build_root, build_context),
+    }
+
+
+def checksum_evidence(
+    build_context: dict[str, object],
+    artifact_manifest: list[dict[str, object]],
+) -> dict[str, object]:
+    return {
+        "evidence_version": "phase-189.1",
+        "repository": build_context["repository"],
+        "commit_sha": build_context["commit_sha"],
+        "source_date_epoch": build_context["source_date_epoch"],
+        "generated_by": "scripts/reproducible_artifacts.py --check-evidence",
+        "artifact_scope": "internal_candidate",
+        "release_status": "not_release_artifact",
+        "entries": [
+            {
+                "category": entry["category"],
+                "relative_path": entry["path"],
+                "size_bytes": entry["size"],
+                "sha256": entry["sha256"],
+            }
+            for entry in artifact_manifest
+        ],
+    }
+
+
+def sbom_evidence(build_root: Path, build_context: dict[str, object]) -> dict[str, object]:
+    ui_package = read_json(build_root / "ui" / "package.json")
+    core_package = read_toml(build_root / "core" / "Cargo.toml")["package"]
+
+    return {
+        "evidence_version": "phase-189.1",
+        "sbom_format": "ajentic-internal-sbom-json",
+        "sbom_format_status": "internal_not_standards_complete",
+        "repository": build_context["repository"],
+        "commit_sha": build_context["commit_sha"],
+        "package_name": "ajentic",
+        "package_version": None,
+        "license": "MIT",
+        "release_status": "not_release_artifact",
+        "components": sorted(
+            [
+                *cargo_components(build_root, core_package),
+                *npm_components(build_root, ui_package),
+            ],
+            key=lambda component: (
+                str(component["ecosystem"]),
+                str(component["name"]),
+                str(component["version"]),
+                str(component["source_manifest_path"]),
+            ),
+        ),
+    }
+
+
+def cargo_components(build_root: Path, core_package: dict[str, object]) -> list[dict[str, object]]:
+    lock = read_toml(build_root / "core" / "Cargo.lock")
+    packages = lock.get("package", [])
+    components = [
+        component_entry(
+            name=str(core_package["name"]),
+            version=str(core_package["version"]),
+            ecosystem="cargo",
+            source_manifest_path="core/Cargo.toml",
+            license_value=str(core_package.get("license") or "UNKNOWN"),
+            integrity_digest=sha256_digest(build_root / "core" / "Cargo.toml"),
+        )
+    ]
+
+    for package in packages:
+        components.append(
+            component_entry(
+                name=str(package.get("name") or "UNKNOWN"),
+                version=str(package.get("version") or "UNKNOWN"),
+                ecosystem="cargo",
+                source_manifest_path="core/Cargo.lock",
+                license_value="UNKNOWN",
+                integrity_digest=package.get("checksum"),
+            )
+        )
+
+    return components
+
+
+def npm_components(build_root: Path, ui_package: dict[str, object]) -> list[dict[str, object]]:
+    lock = read_json(build_root / "ui" / "package-lock.json")
+    packages = lock.get("packages", {})
+    components = [
+        component_entry(
+            name=str(ui_package["name"]),
+            version=str(ui_package["version"]),
+            ecosystem="npm",
+            source_manifest_path="ui/package.json",
+            license_value=str(ui_package.get("license") or "UNKNOWN"),
+            integrity_digest=sha256_digest(build_root / "ui" / "package.json"),
+        )
+    ]
+
+    for package_path, package in packages.items():
+        if package_path == "":
+            continue
+        components.append(
+            component_entry(
+                name=package_path.removeprefix("node_modules/") or "UNKNOWN",
+                version=str(package.get("version") or "UNKNOWN"),
+                ecosystem="npm",
+                source_manifest_path="ui/package-lock.json",
+                license_value=package.get("license") or "UNKNOWN",
+                integrity_digest=package.get("integrity"),
+            )
+        )
+
+    return components
+
+
+def component_entry(
+    name: str,
+    version: str,
+    ecosystem: str,
+    source_manifest_path: str,
+    license_value: object,
+    integrity_digest: object,
+) -> dict[str, object]:
+    return {
+        "name": name,
+        "version": version,
+        "ecosystem": ecosystem,
+        "source_manifest_path": source_manifest_path,
+        "license": license_value,
+        "integrity_digest": integrity_digest,
+    }
+
+
+def provenance_evidence(
+    build_root: Path, build_context: dict[str, object]
+) -> dict[str, object]:
+    return {
+        "evidence_version": "phase-189.1",
+        "provenance_format": "ajentic-internal-provenance",
+        "provenance_format_status": "internal_unsigned",
+        "repository": build_context["repository"],
+        "commit_sha": build_context["commit_sha"],
+        "branch": build_context["branch"],
+        "workflow_name": build_context["workflow_name"],
+        "workflow_ref": build_context["workflow_ref"],
+        "runner_os": build_context["runner_os"],
+        "build_command_summary": [
+            "npm ci",
+            "npm run build",
+            "cargo build --manifest-path core/Cargo.toml --release --locked",
+        ],
+        "artifact_surfaces": [
+            "rust release executable internal candidates",
+            "ui dist internal candidates",
+        ],
+        "source_manifests": source_manifest_entries(build_root),
+        "source_date_epoch": build_context["source_date_epoch"],
+        "release_status": "not_release_artifact",
+        "signing_status": "unsigned",
+        "attestation_status": "not_attested",
+        "publication_status": "not_published",
+    }
+
+
+def source_manifest_entries(build_root: Path) -> list[dict[str, object]]:
+    manifest_paths = [
+        Path("core/Cargo.toml"),
+        Path("core/Cargo.lock"),
+        Path("ui/package.json"),
+        Path("ui/package-lock.json"),
+    ]
+    return [
+        {
+            "path": path.as_posix(),
+            "sha256": sha256_digest(build_root / path),
+        }
+        for path in manifest_paths
+    ]
+
+
+def read_json(path: Path) -> dict[str, object]:
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def read_toml(path: Path) -> dict[str, object]:
+    with path.open("rb") as handle:
+        return tomllib.load(handle)
 
 
 def rust_artifact_entries(build_root: Path) -> list[dict[str, object]]:
@@ -256,6 +544,31 @@ def report_manifest_mismatch(
 
 def manifest_by_path(manifest: list[dict[str, object]]) -> dict[str, dict[str, object]]:
     return {f"{entry['category']}/{entry['path']}": entry for entry in manifest}
+
+
+def canonical_json(value: object) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def write_evidence(evidence_dir: Path, evidence: dict[str, object]) -> None:
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    for name, content in evidence.items():
+        path = evidence_dir / f"{name}.json"
+        path.write_bytes(canonical_json(content) + b"\n")
+
+
+def report_evidence_mismatch(
+    first_evidence: dict[str, object],
+    second_evidence: dict[str, object],
+) -> None:
+    print("::error::internal integrity evidence differs")
+    for name in sorted(set(first_evidence) | set(second_evidence)):
+        first_content = first_evidence.get(name)
+        second_content = second_evidence.get(name)
+        if canonical_json(first_content) != canonical_json(second_content):
+            print(f"mismatch: {name}")
+            print(f"  build-a: {json.dumps(first_content, sort_keys=True)}")
+            print(f"  build-b: {json.dumps(second_content, sort_keys=True)}")
 
 
 if __name__ == "__main__":

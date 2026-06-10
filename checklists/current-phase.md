@@ -4,55 +4,66 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 188 - Reproducible Artifact Build in Actions
+# Phase 189 - Checksums, SBOM, and Provenance Evidence
 
-- Phase name: Phase 188 - Reproducible Artifact Build in Actions.
-- Phase goal: add validation-only reproducible internal candidate artifact builds in GitHub Actions without creating release mechanics.
+- Phase name: Phase 189 - Checksums, SBOM, and Provenance Evidence.
+- Phase goal: add deterministic internal checksum, SBOM, and unsigned provenance evidence for Phase 188 internal candidate artifacts without creating release mechanics.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-  - [x] Confirm starting commit is `71c74a6 docs(license): Activate MIT license decision`.
+  - [x] Confirm starting commit is `33b65c965c7acecdfa7341741dfd7d1f48f0710b`.
   - [x] Confirm branch is `main`.
+  - [x] Confirm working tree started clean and aligned with `origin/main`.
+- Evidence generation:
+  - [x] Generate internal checksum evidence.
+  - [x] Generate internal SBOM evidence.
+  - [x] Generate internal unsigned provenance evidence.
+  - [x] Generate evidence for Rust release executable internal candidates.
+  - [x] Generate evidence for UI `dist` internal candidates.
+  - [x] Use temporary evidence directories only.
+  - [x] Avoid committing generated evidence files.
+- Determinism:
+  - [x] Build two clean source copies from the same commit.
+  - [x] Compare checksum evidence deterministically.
+  - [x] Compare SBOM evidence deterministically.
+  - [x] Compare provenance evidence deterministically.
+  - [x] Fail closed on evidence mismatch.
 - Workflow implementation:
-  - [x] Add `.github/workflows/reproducible-artifacts.yml`.
-  - [x] Run on `pull_request`.
-  - [x] Run on pushes to `main`.
-  - [x] Run on `workflow_dispatch`.
-  - [x] Use `permissions: contents: read`.
+  - [x] Extend `.github/workflows/reproducible-artifacts.yml`.
+  - [x] Keep workflow on `pull_request`.
+  - [x] Keep workflow on pushes to `main`.
+  - [x] Keep workflow on `workflow_dispatch`.
+  - [x] Keep `permissions: contents: read`.
+  - [x] Do not add `id-token: write`.
+  - [x] Do not add `attestations: write`.
+  - [x] Do not add `contents: write`.
+  - [x] Do not use GitHub artifact attestations.
   - [x] Avoid artifact upload.
-  - [x] Avoid release, publish, deploy, signing, installer, and update-channel steps.
-- Reproducibility checker:
-  - [x] Add `scripts/reproducible_artifacts.py`.
-  - [x] Build two clean source copies from the same source tree.
-  - [x] Build Rust release executable candidates from `core/Cargo.toml`.
-  - [x] Build UI candidate files from `ui/`.
-  - [x] Compare normalized manifest entries.
-  - [x] Treat SHA-256 values as internal reproducibility fields only.
-  - [x] Fail on manifest mismatch.
-  - [x] Add the checker to `scripts/check.sh`.
 - Documentation alignment:
-  - [x] Add Phase 188 operations documentation.
-  - [x] Update README release-status language.
-  - [x] Update AGENTS release discipline reminders.
-  - [x] Update CHANGELOG with `v0.0.188`.
+  - [x] Add Phase 189 operations documentation.
+  - [x] Update README status language.
+  - [x] Update AGENTS evidence discipline reminders.
+  - [x] Update CHANGELOG with `v0.0.189`.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Boundary confirmations:
+  - [x] Evidence files are internal review evidence only.
+  - [x] Checksums are not release checksums.
+  - [x] SBOM evidence is not public SBOM publication.
+  - [x] Provenance is unsigned and not an attestation.
   - [x] Package versions remain unchanged.
   - [x] No package/crate version is set to `1.0.0`.
-  - [x] No formal release checksum path added.
-  - [x] No SBOM path added.
-  - [x] No provenance publication path added.
-  - [x] No public artifact path added.
+  - [x] No GitHub attestation added.
   - [x] No signing path added.
   - [x] No publishing path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
+  - [x] No public artifact path added.
   - [x] No Git tag created.
   - [x] No GitHub Release created.
 - Workflow inspection:
   - [x] Existing workflows remain validation-only.
-  - [x] Reproducibility workflow is validation-only.
+  - [x] Reproducibility workflow remains validation-only.
   - [x] No `release.yml`, `publish.yml`, or `deploy.yml` workflow exists.
   - [x] Workflow permissions remain least-privilege `contents: read`.
 - Remote evidence checklist:
@@ -64,6 +75,7 @@ mutation_path: checklist_revision
   - [x] `git status --short`
   - [x] `python3 scripts/reproducible_artifacts.py --help`
   - [x] `python3 scripts/reproducible_artifacts.py --check`
+  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
   - [x] `npm run build`
   - [x] `npm run typecheck`
   - [x] `npm run lint`
@@ -75,9 +87,9 @@ mutation_path: checklist_revision
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-188-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-189-target ./scripts/check.sh`
 - Optional validation if present:
-  - [x] `act` local workflow execution not run because `act` is not installed.
+  - [x] `act -W .github/workflows/reproducible-artifacts.yml` not run because `act` is not installed.
   - [x] `scripts/validate_boundary_lints.py` not present.
   - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
-  - [x] `./scripts/check.sh` present; covered by the Phase 188 target-dir invocation.
+  - [x] `./scripts/check.sh` present; covered by the Phase 189 target-dir invocation.

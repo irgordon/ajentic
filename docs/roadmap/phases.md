@@ -634,9 +634,11 @@ Boundary: Build-evidence phase only; no public artifact, release publication, fo
 Evidence gate: internal candidate artifact reproducibility is checked without upload or release mechanics; Phase 189 remains responsible for formal checksums, SBOM, and provenance.
 
 ### Phase 189 - Checksums, SBOM, and Provenance Evidence
-Goal: Add checksum, SBOM, and provenance evidence boundaries for release artifacts.
+Goal: Add deterministic internal checksum, SBOM, and unsigned provenance evidence for Phase 188 internal candidate artifacts.
 
-Boundary: Evidence phase only; no signing, publishing, public distribution, deployment, GitHub Release, release tag, public download, or v1.0 approval.
+Boundary: Internal integrity-evidence phase only; no signed attestation, public artifact publication, signing, publishing, public distribution, deployment, GitHub Release, release tag, public download, or v1.0 approval.
+
+Evidence gate: checksum, SBOM, and unsigned provenance evidence compare deterministically across two clean builds without GitHub artifact attestations, `id-token: write`, `attestations: write`, upload, signing, or release mechanics.
 
 ### Phase 190 - Release Platform Alignment Checkpoint
 Goal: Reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.

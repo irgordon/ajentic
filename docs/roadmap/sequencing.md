@@ -473,9 +473,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: build evidence only; no public artifact, formal checksum/SBOM/provenance publication, GitHub Release, release tag, signing, publishing, installer, update channel, or deployment.
 
 89. **Phase 189 adds checksum, SBOM, and provenance evidence**
-   - Phase 189 must add checksum, SBOM, and provenance evidence boundaries for release artifacts.
-   - Checksums, SBOM, and provenance follow artifact production because evidence must describe concrete artifacts, not speculative outputs.
-   - Boundary: evidence only; no signing, publishing, public distribution, deployment, or v1.0 approval.
+   - Phase 189 must add deterministic internal checksum, SBOM, and unsigned provenance evidence for Phase 188 internal candidate artifacts.
+   - Deterministic artifact generation must exist before checksums are meaningful.
+   - SBOM and provenance evidence must attach to a stable internal artifact model.
+   - Integrity evidence must be deterministic before the Phase 190 release-platform alignment checkpoint.
+   - Signing and key custody must wait until evidence surfaces are stable.
+   - Draft release rehearsal must wait until artifact and evidence boundaries are clear.
+   - Boundary: internal integrity evidence only; no signed attestation, GitHub artifact attestation, public artifact, signing, publishing, public distribution, deployment, or v1.0 approval.
 
 90. **Phase 190 reconciles the release-platform foundation**
    - Phase 190 must reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.

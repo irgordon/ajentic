@@ -4,6 +4,43 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.189 - 2026-06-10
+**Status:** Phase 189 - Checksums, SBOM, and Provenance Evidence
+
+### Added
+- Add internal checksum evidence generation for internal candidate artifacts.
+- Add deterministic internal SBOM evidence generation from Cargo and npm manifests.
+- Add internal unsigned provenance evidence generation.
+- Add deterministic integrity-evidence comparison across two clean builds.
+
+### Changed
+- Extend the reproducible artifact workflow to validate internal checksum, SBOM, and provenance evidence.
+- Extend aggregate local validation to include Phase 189 internal integrity evidence checks.
+- Align README, AGENTS, checklist, operations, and roadmap surfaces with Phase 189 evidence boundaries.
+
+### Notes
+- Evidence files are internal review evidence, not release artifacts.
+- Checksums are internal integrity evidence, not release checksums.
+- Provenance is unsigned internal provenance and not a GitHub artifact attestation.
+- No `id-token: write` workflow permission was added.
+- No `attestations: write` workflow permission was added.
+- Package versions remain pre-v1.0 and unchanged.
+- No package or crate version was changed to `1.0.0`.
+- No Git tag was created.
+- No GitHub Release was created.
+- No public artifact was created or uploaded.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.188 - 2026-06-10
 **Status:** Phase 188 - Reproducible Artifact Build in Actions
 
