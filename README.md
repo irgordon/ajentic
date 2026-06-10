@@ -13,14 +13,14 @@ mutation_path: readme_update
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Status](https://img.shields.io/badge/Status-RC_Stewardship_Pre--v1.0-8B0000?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-RC Pre-v1.0-8B0000?style=for-the-badge)
 ![Open Source](https://img.shields.io/badge/Open_Source-Yes-28A745?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
 
 <br>
 
 <a href="https://ajentic.dev/#getting-started">
   <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket&logoColor=white" alt="Get Started" />
-</a>&nbsp;&nbsp;
+</a> &nbsp;&nbsp;
 <a href="https://github.com/irgordon/ajentic">
   <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repo" />
 </a>
@@ -250,7 +250,7 @@ This README is orientation only. It is not an authority source.
 
 ## Intended Users
 
-AJENTIC is for engineers and teams who need:
+AJENTIC is built for engineers and teams who need:
 
 • controlled model runs
 • reviewable context
