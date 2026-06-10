@@ -4,83 +4,83 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 190 - v1 Release Acceleration Plan and Functional Freeze
+# Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary
 
-- Phase name: Phase 190 - v1 Release Acceleration Plan and Functional Freeze.
-- Phase goal: compress the remaining pre-v1 roadmap into a short release-candidate track and freeze v1 scope without creating release mechanics.
+- Phase name: Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary.
+- Phase goal: activate internal release-candidate artifact packaging, the manual release-candidate workflow, and the internal attestation boundary without publishing a release.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `f45807c2d11d7c18b6a15cad3624efe909a82bc3`.
+  - [x] Confirm starting commit is `d5887ad`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- v1 acceleration decisions:
-  - [x] Mark Phase 190 as functional freeze and v1 acceleration start.
-  - [x] Collapse remaining pre-v1 release planning into Phases 190-194.
-  - [x] Mark previous Phase 190-201 sequence as superseded.
-  - [x] Stop adding governance-only phases before v1.
-  - [x] Stop adding audit-only phases before v1.
-  - [x] Preserve existing Rust/UI/evidence authority boundaries.
-- v1 must-have scope:
-  - [x] App builds cleanly.
-  - [x] Rust core tests pass.
-  - [x] UI builds cleanly.
-  - [x] UI typecheck/lint pass.
-  - [x] API tests pass.
-  - [x] Reproducible artifact checks pass.
-  - [x] Internal evidence checks pass.
-  - [x] MIT license remains present.
-  - [x] User-facing install/run/open path remains documented.
-  - [x] UI/UX acceptance checks are defined.
-  - [x] Package version consistency remains a pre-release strategy item.
-- v1 deferrals:
-  - [x] Advanced governance expansion deferred.
-  - [x] New evidence systems beyond Phase 189 deferred.
-  - [x] New audit-only milestones deferred.
-  - [x] New replay-only milestones deferred.
-  - [x] Cross-domain expansion deferred unless required by product behavior.
-  - [x] Provider expansion deferred unless required for the v1 product path.
-  - [x] Broad compliance/security programs deferred beyond release-blocking basics.
-  - [x] Additional roadmap theory and speculative architecture documents deferred.
-- Documentation alignment:
-  - [x] Add `docs/operations/v1-release-acceleration-phase-190.md`.
-  - [x] Update README status language.
-  - [x] Update AGENTS pre-v1 discipline.
-  - [x] Update CHANGELOG with `v0.0.190`.
-  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
+- Workflow activation:
+  - [x] Release-candidate workflow added.
+  - [x] Workflow is `workflow_dispatch` only.
+  - [x] `expected_commit` input enforced.
+  - [x] `confirm_no_public_release=NO_PUBLIC_RELEASE` enforced.
+  - [x] Short-retention internal artifact upload is optional and labeled internal candidate evidence.
+  - [x] Upload retention is 5 days.
+- Internal candidate bundle:
+  - [x] Deterministic bundle script added.
+  - [x] Rust release executable candidate included.
+  - [x] UI `dist` files included.
+  - [x] Internal checksum evidence included.
+  - [x] Internal SBOM evidence included.
+  - [x] Internal provenance evidence included.
+  - [x] Bundle manifest generated.
+  - [x] Bundle checksum evidence generated.
+  - [x] Bundle output compared across two builds.
+- Attestation boundary:
+  - [x] GitHub artifact attestation boundary added for internal candidate bundle.
+  - [x] GitHub artifact attestation boundary added for internal SBOM evidence.
+  - [x] Attestation permissions scoped to attestation job.
+  - [x] Top-level workflow permissions remain `contents: read`.
+  - [x] Build/package job permissions remain `contents: read`.
+  - [x] No `contents: write`.
+  - [x] No `packages: write`.
+  - [x] No `deployments: write`.
+  - [x] No `artifact-metadata: write`.
 - Boundary confirmations:
-  - [x] No release created.
   - [x] No Git tag created.
   - [x] No GitHub Release created.
-  - [x] No signing path added.
-  - [x] No publishing path added.
+  - [x] No package publishing added.
+  - [x] No npm publishing added.
+  - [x] No Cargo publishing added.
+  - [x] No public artifact path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
-  - [x] No public artifact path added.
   - [x] No deployment path added.
+  - [x] No OS signing or notarization added.
+  - [x] No private signing keys added.
   - [x] No package version changed.
-- Functional validation:
+- Documentation alignment:
+  - [x] Add `docs/operations/artifact-signing-release-workflow-phase-191.md`.
+  - [x] Update README status and workflow language.
+  - [x] Update AGENTS release/signing discipline.
+  - [x] Update CHANGELOG with `v0.0.191`.
+  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
+- Validation:
   - [x] `git status --short`
-  - [x] `npm run build` at the repository root reports no root `package.json`; `npm run build` in `ui/` passes.
-  - [x] `npm run typecheck` in `ui/`.
-  - [x] `npm run lint` in `ui/`.
-  - [x] `npm run test:api` in `ui/`.
+  - [x] `python3 scripts/reproducible_artifacts.py --help`
+  - [x] `python3 scripts/reproducible_artifacts.py --check`
+  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
+  - [x] `python3 scripts/release_candidate_bundle.py --help`
+  - [x] `python3 scripts/release_candidate_bundle.py --check`
+  - [x] `cd ui && npm run build`
+  - [x] `cd ui && npm run typecheck`
+  - [x] `cd ui && npm run lint`
+  - [x] `cd ui && npm run test:api`
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
   - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-  - [x] `python3 scripts/reproducible_artifacts.py --check`
-  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
   - [x] `scripts/validate_structure.py`
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-190-target ./scripts/check.sh`
-- UI/UX manual acceptance:
-  - [x] Open the UI locally.
-  - [x] Confirm primary navigation works.
-  - [x] Confirm main screens render without blank/error states.
-  - [x] Confirm release/status language is understandable.
-  - [x] Confirm evidence/artifact/release-status surfaces are understandable.
-  - [x] Confirm obvious empty placeholders are removed, filled, or labeled as post-v1.
-  - [x] Confirm first-run path is clear from README.
-  - [x] Confirm no UI screen claims authority that belongs to Rust.
-  - [x] Confirm no UI label implies production safety beyond the actual release scope.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-191-target ./scripts/check.sh`
+- Remote evidence:
+  - [x] `git ls-remote --tags origin`
+  - [x] GitHub Releases evidence is unknown from local tooling because `gh` is unavailable.
+  - [x] Branch protection evidence is unknown from local tooling because `gh` is unavailable.
+  - [x] Remote workflow evidence is unknown from local tooling because `gh` is unavailable.
+  - [x] Local workflow emulation with `act` was not run because `act` is unavailable.

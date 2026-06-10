@@ -69,6 +69,14 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Keep GitHub Actions release authority behind explicit release-platform phases.
 - Keep workflow permissions least-privilege unless a later release-execution phase explicitly requires broader permissions.
 - Keep release approval tied to explicit roadmap decision gates.
+- Do not call `gh release create` before Phase 193 or Phase 194 explicitly authorizes release creation.
+- Do not create Git tags before the release phase explicitly authorizes tags.
+- Do not add `contents: write` without explicit release-execution authorization.
+- Attestation permissions are allowed only in the Phase 191 release-candidate attestation job.
+- Do not add private signing keys without explicit Owner instruction.
+- Do not treat attestation evidence as release approval.
+- Do not treat a workflow artifact as a public distribution path.
+- Do not add installer, update-channel, deployment, npm publish, Cargo publish, or registry publishing behavior.
 
 ## Constraint reminder
 

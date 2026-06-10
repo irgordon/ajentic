@@ -37,6 +37,7 @@ echo "  bootstrap OK"
 echo "Running Python compile checks..."
 PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/bootstrap_repo.py \
+  scripts/release_candidate_bundle.py \
   scripts/reproducible_artifacts.py \
   scripts/validate_structure.py \
   scripts/validate_docs.py \
@@ -75,6 +76,10 @@ echo "  reproducible artifacts OK"
 echo "Running internal checksum SBOM and provenance evidence validation..."
 python3 scripts/reproducible_artifacts.py --check-evidence
 echo "  internal integrity evidence OK"
+
+echo "Running internal release-candidate bundle validation..."
+python3 scripts/release_candidate_bundle.py --check
+echo "  internal release-candidate bundle OK"
 
 echo "Running Rust boundary lint self-tests..."
 node scripts/test_rust_boundary_lint.mjs

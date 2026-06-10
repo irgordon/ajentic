@@ -487,23 +487,28 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Governance-only, audit-only, validation-only, speculative architecture, and roadmap-theory phases are no longer added before v1.
    - Boundary: planning/freeze only; no release, GitHub Release, tag, signing, publishing, installer, update-channel, public artifact, deployment, or package version change.
 
-91. **Phase 191 activates v1 artifact, signing, and release workflow mechanics**
-   - Phase 191 must turn the prepared artifact/evidence path into concrete v1 artifact, signing, and release workflow mechanics.
-   - This follows the functional freeze so release mechanics bind to the chosen v1 scope rather than expanding it.
-   - Boundary: release-mechanics activation only within explicit scope; no final v1 publication unless the phase explicitly completes it.
+91. **Phase 191 activates the internal artifact and attestation boundary**
+   - Phase 191 must turn the prepared artifact/evidence path into deterministic internal candidate bundle generation and a manual release-candidate workflow.
+   - Artifacts and the signing boundary must exist before UI/UX RC hardening can inspect the final release-relevant surfaces.
+   - RC publication must wait until bundle generation and attestation behavior are stable.
+   - Signing evidence does not itself approve release.
+   - Workflow activation does not itself publish release.
+   - Boundary: internal candidate activation only; no Git tag, GitHub Release, public artifact, package publication, installer, update channel, deployment, OS signing, notarization, or final v1 release execution.
 
 92. **Phase 192 hardens the UI/UX release-candidate path**
    - Phase 192 must fix user-facing release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
-   - UI/UX hardening follows release workflow activation so the real user path reflects the actual artifact/release mechanics.
+   - UI/UX hardening follows release workflow activation so the real user path can inspect actual internal bundle, evidence, artifact, and release-status surfaces.
    - Boundary: UI/UX hardening only; no unrelated governance expansion, audit-only work, or speculative architecture work.
 
 93. **Phase 193 publishes the v1 Release Candidate**
    - Phase 193 must publish a bounded v1 Release Candidate through the approved release path for final acceptance review.
+   - RC publication must wait until bundle generation and attestation behavior are stable.
    - RC publication follows UI/UX hardening so the published candidate reflects the usable first-run and review path.
    - Boundary: RC publication only; no unsupported safety claims or unrelated product expansion.
 
 94. **Phase 194 completes final acceptance and v1 release execution**
    - Phase 194 must complete final functional acceptance and execute the v1 release if acceptance passes.
+   - Final release execution must wait until RC publication and final acceptance pass.
    - Final release execution follows RC publication and must not bypass artifact, signing, UI/UX, license, or functional acceptance gates.
    - Boundary: final v1 release execution only within the compressed v1 track.
 

@@ -4,6 +4,40 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.191 - 2026-06-10
+**Status:** Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary
+
+### Added
+- Add internal release-candidate bundle generation.
+- Add manually triggered release-candidate GitHub Actions workflow.
+- Add internal bundle manifest and bundle checksum evidence.
+- Add GitHub artifact attestation boundary for internal candidate artifacts.
+- Add Phase 191 operation documentation for artifact, signing, and release workflow boundaries.
+
+### Changed
+- Extend aggregate local validation to include deterministic internal release-candidate bundle checks.
+- Align README, AGENTS, checklist, and roadmap surfaces with the Phase 191 internal-candidate workflow boundary.
+
+### Notes
+- Attestation permissions are scoped to the attestation job only.
+- No `contents: write` permission was added.
+- No Git tag was created.
+- No GitHub Release was created.
+- No package publication occurred.
+- No installer path was created.
+- No update-channel path was created.
+- No public artifact path was created.
+- No deployment path was created.
+- Package versions remain unchanged.
+- RC publication remains Phase 193.
+- Final release execution remains Phase 194.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.190 - 2026-06-10
 **Status:** Phase 190 - v1 Release Acceleration Plan and Functional Freeze
 

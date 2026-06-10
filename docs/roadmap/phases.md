@@ -647,10 +647,12 @@ Boundary: Planning/freeze phase only; no release, GitHub Release, tag, signing, 
 
 Evidence gate: v1 must-have scope, deferrals, functional acceptance checks, and UI/UX acceptance checks are recorded.
 
-### Phase 191 - v1 Artifact, Signing, and Release Workflow Activation
-Goal: Activate the concrete v1 artifact, signing, and release workflow mechanics needed for release execution.
+### Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary
+Goal: Activate internal release-candidate artifact packaging, a deterministic candidate manifest, internal bundle checksum evidence, a manually triggered release-candidate workflow, and a GitHub artifact attestation boundary for internal candidate artifacts.
 
-Boundary: Release-mechanics activation only within explicit scope; no final v1 publication unless the phase explicitly completes it.
+Boundary: Internal candidate workflow activation only; no publication, tags, GitHub Releases, public release artifacts, package publishing, installers, update channels, deployments, OS signing, notarization, production approval, or final v1 release execution.
+
+Evidence gate: the internal candidate bundle is deterministic, workflow dispatch inputs fail closed, upload is short-retention internal review evidence only, and attestation permissions are scoped to the attestation job.
 
 ### Phase 192 - UI/UX Release Candidate Hardening
 Goal: Fix functional UI/UX release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
