@@ -37,6 +37,9 @@ echo "  bootstrap OK"
 echo "Running Python compile checks..."
 PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/bootstrap_repo.py \
+  scripts/github_api_rc_publish.py \
+  scripts/prepare_rc_release_assets.py \
+  scripts/rc_publication_preflight.py \
   scripts/release_candidate_bundle.py \
   scripts/reproducible_artifacts.py \
   scripts/validate_structure.py \
@@ -80,6 +83,11 @@ echo "  internal integrity evidence OK"
 echo "Running internal release-candidate bundle validation..."
 python3 scripts/release_candidate_bundle.py --check
 echo "  internal release-candidate bundle OK"
+
+echo "Running RC publication local preflight..."
+python3 scripts/prepare_rc_release_assets.py --check-local --rc-tag v1.0.0-rc.1
+python3 scripts/rc_publication_preflight.py --check-local --rc-tag v1.0.0-rc.1
+echo "  RC publication local preflight OK"
 
 echo "Running Rust boundary lint self-tests..."
 node scripts/test_rust_boundary_lint.mjs

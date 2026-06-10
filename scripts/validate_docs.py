@@ -47,6 +47,7 @@ LOCATION_EXPECTED = [
     ("docs/changelog/", "historical", "authoritative", "changelog_entry"),
     ("docs/roadmap/", "planned", None, "roadmap_update"),
     ("docs/operations/", "orientation", "advisory", "readme_update"),
+    ("docs/releases/", "orientation", "advisory", "readme_update"),
     ("docs/examples/", "example", "non_authoritative", "example_update"),
     ("checklists/", "procedural", "authoritative", "checklist_revision"),
 ]

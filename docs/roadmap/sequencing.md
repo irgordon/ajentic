@@ -502,10 +502,11 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: UI/UX clarity only; no backend authority change, unrelated governance expansion, audit-only work, speculative architecture work, release approval, signing, publishing, installer, update channel, deployment, public artifact, or package version change.
 
 93. **Phase 193 publishes the v1 Release Candidate**
-   - Phase 193 must publish a bounded v1 Release Candidate through the approved release path for final acceptance review.
+   - Phase 193 must publish bounded `v1.0.0-rc.1` prerelease assets through the approved GitHub API-backed release path for final acceptance review.
    - RC publication must wait until bundle generation and attestation behavior are stable.
    - RC publication follows UI/UX hardening so the published candidate reflects the usable first-run and review path.
-   - Boundary: RC publication only; no unsupported safety claims or unrelated product expansion.
+   - Publication uses explicit confirmations, exact commit validation, deterministic public RC assets, and GitHub REST API tag/release creation.
+   - Boundary: RC publication only; no final `v1.0.0`, package publishing, installer, update channel, deployment, unsupported safety claims, or unrelated product expansion.
 
 94. **Phase 194 completes final acceptance and v1 release execution**
    - Phase 194 must complete final functional acceptance and execute the v1 release if acceptance passes.

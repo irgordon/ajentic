@@ -662,9 +662,11 @@ Scope: plain status labels, evidence summaries, help/reference copy, accessible 
 Boundary: UI/UX clarity only; no backend authority change, unrelated governance expansion, audit-only work, speculative architecture work, release approval, signing, publishing, installer, update channel, deployment, public artifact, or package version change.
 
 ### Phase 193 - v1 Release Candidate Publication
-Goal: Publish a bounded v1 Release Candidate through the approved release path for final acceptance review.
+Goal: Publish bounded `v1.0.0-rc.1` prerelease assets through the approved GitHub API-backed release path for final acceptance review.
 
-Boundary: RC publication only; no broader product expansion, unsupported safety claims, or unrelated governance work.
+Scope: manually dispatched `rc-publication` workflow, explicit RC confirmations, exact commit validation, deterministic public RC assets, GitHub REST API tag/release creation, GitHub prerelease asset upload, and RC asset attestations.
+
+Boundary: RC publication only; no final `v1.0.0`, package publishing, installer, update channel, deployment, broader product expansion, unsupported safety claims, or unrelated governance work.
 
 ### Phase 194 - v1 Final Functional Acceptance and Release Execution
 Goal: Complete final functional acceptance and execute the v1 release if acceptance passes.

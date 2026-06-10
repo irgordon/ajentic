@@ -69,10 +69,13 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Keep GitHub Actions release authority behind explicit release-platform phases.
 - Keep workflow permissions least-privilege unless a later release-execution phase explicitly requires broader permissions.
 - Keep release approval tied to explicit roadmap decision gates.
-- Do not call `gh release create` before Phase 193 or Phase 194 explicitly authorizes release creation.
+- Phase 193 RC publication uses the GitHub REST API, not the `gh` CLI.
+- Phase 193 may create only the bounded `v1.0.0-rc.1` tag, prerelease, RC assets, and RC attestations after explicit confirmations.
+- Do not treat RC publication as final v1.0 approval, production readiness, package publishing, installer approval, update-channel approval, or deployment approval.
+- Do not call `gh release create`; use the GitHub API path when an explicitly scoped release phase authorizes publication.
 - Do not create Git tags before the release phase explicitly authorizes tags.
 - Do not add `contents: write` without explicit release-execution authorization.
-- Attestation permissions are allowed only in the Phase 191 release-candidate attestation job.
+- Attestation permissions are allowed only in explicitly scoped release-candidate attestation jobs.
 - Do not add private signing keys without explicit Owner instruction.
 - Do not treat attestation evidence as release approval.
 - Do not treat a workflow artifact as a public distribution path.

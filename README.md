@@ -93,21 +93,20 @@ Clean output is what has passed through the AJENTIC boundary.
 
 ## Project Status
 
-Current status: Release Candidate stewardship / pre-v1.0 hardening.
+Current status: v1 release-candidate publication.
 
 AJENTIC is moving from release-platform preparation into direct v1 release execution.
 The remaining pre-v1 work is focused on functional correctness, release artifacts, signing/release workflow, and UI/UX quality.
-No GitHub Release or release tag has been created by the governed release process.
+Phase 193 authorizes a bounded public GitHub prerelease for `v1.0.0-rc.1`.
 AJENTIC is not production-ready.
-AJENTIC is not public-release-ready until Release Candidate publication.
+AJENTIC is not final-v1.0-ready.
 No final v1.0 release has been approved.
 
 Passing validation is necessary evidence, not release approval.
-GitHub Actions is the intended v1 release platform, but release execution is not active yet.
-GitHub Actions includes internal reproducible artifact validation and internal checksum/SBOM/provenance evidence checks; these checks do not publish release artifacts, sign artifacts, or approve release execution.
-GitHub Actions also contains a manually triggered internal release-candidate workflow.
-That workflow may create internal candidate bundles and internal attestation evidence.
-It does not create GitHub Releases, tags, public artifacts, installers, update channels, package publications, or deployments.
+GitHub Actions is the v1 release platform for the RC path.
+GitHub Actions includes internal reproducible artifact validation, checksum/SBOM/provenance evidence checks, an internal release-candidate workflow, and a manually triggered RC publication workflow.
+The RC publication workflow may create only the `v1.0.0-rc.1` tag, prerelease, public RC assets, and RC asset attestations after explicit confirmations.
+It must not create final `v1.0.0`, publish packages, create installers, activate update channels, deploy, or change package versions.
 
 The browser shell is a read-only local review page. It uses plain labels for simulated local checks, keeps technical evidence in details and raw sections, and does not approve releases or publish artifacts.
 

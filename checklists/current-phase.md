@@ -4,81 +4,69 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish
+# Phase 193 - v1 Release Candidate Publication
 
-- Phase name: Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish.
-- Phase goal: make the read-only browser UI clearer, more approachable, visually polished, and usable by novice/non-technical users.
+- Phase name: Phase 193 - v1 Release Candidate Publication.
+- Phase goal: publish a bounded `v1.0.0-rc.1` Release Candidate through the approved GitHub API-backed release path for final acceptance review.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `ff23c5f`.
+  - [x] Confirm starting commit is `b919da5d`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- UI clarity:
-  - [x] Header rewritten around local simulated testing.
-  - [x] Harness badge uses `Ready (simulated)` as primary copy.
-  - [x] Preparation status uses `Preparation blocked` as primary copy.
-  - [x] Evidence summary cards added.
-  - [x] Evidence verification rows use plain labels and one-line explanations.
-  - [x] Raw technical status values remain available in details.
-  - [x] Help and reference panel aligned.
-  - [x] Plain-English glossary added.
-- Visual and accessibility:
-  - [x] Typography tokens use system UI and code font stacks.
-  - [x] Semantic color tokens added for local ready, blocked, missing, rejected, and neutral states.
-  - [x] Status meaning is not color-only.
-  - [x] Details/tooltips are keyboard/click/tap accessible.
-  - [x] Focus styling remains visible.
-  - [x] Responsive behavior checked locally.
+- RC publication workflow:
+  - [x] Add `.github/workflows/rc-publication.yml`.
+  - [x] Make the workflow `workflow_dispatch` only.
+  - [x] Require `rc_tag`, `expected_commit`, `candidate_label`, and explicit confirmation inputs.
+  - [x] Fail closed on non-main branch, wrong commit, wrong confirmations, bad RC tag, final tag, existing tag/release, final package versions, missing notes/assets, and validation failure.
+  - [x] Use the GitHub REST API instead of `gh`.
+  - [x] Scope `contents: write` to the publication job only.
+  - [x] Scope `id-token: write` and `attestations: write` to the attestation job only.
+  - [x] Do not add `packages: write`, `deployments: write`, `actions: write`, or `artifact-metadata: write`.
+- RC assets:
+  - [x] Add deterministic public RC asset staging.
+  - [x] Include candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and RC readme.
+  - [x] Add local determinism checks.
+  - [x] Add local publication preflight checks.
+- Documentation alignment:
+  - [x] Add `docs/operations/rc-publication-phase-193.md`.
+  - [x] Add `docs/releases/v1.0.0-rc.1.md`.
+  - [x] Update README RC publication status.
+  - [x] Update AGENTS RC publication discipline.
+  - [x] Update CHANGELOG with `v0.0.193`.
+  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Boundary confirmations:
-  - [x] UI remains read-only and non-authoritative.
-  - [x] Rust authority unchanged.
-  - [x] No external fonts or font CDN added.
-  - [x] No external network/provider calls added.
-  - [x] No Git tag created.
-  - [x] No GitHub Release created.
-  - [x] No package publishing added.
-  - [x] No public artifact path added.
+  - [x] Phase 193 is RC-only publication.
+  - [x] Final `v1.0.0` remains Phase 194.
+  - [x] No package version changed.
+  - [x] No package or crate version changed to `1.0.0`.
+  - [x] No package registry publication path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
-  - [x] No package version changed.
-- Documentation alignment:
-  - [x] Add `docs/operations/read-only-browser-ui-ux-phase-192.md`.
-  - [x] Update README read-only browser UI status.
-  - [x] Update AGENTS UI copy and authority discipline.
-  - [x] Update CHANGELOG with `v0.0.192`.
-  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
+  - [x] TypeScript remains non-authoritative.
 - Validation:
   - [x] `git status --short`
-  - [x] `cd ui && npm run build`
-  - [x] `cd ui && npm run typecheck`
-  - [x] `cd ui && npm run lint`
-  - [x] `cd ui && npm run test:api`
+  - [x] `npm run build`
+  - [x] `npm run typecheck`
+  - [x] `npm run lint`
+  - [x] `npm run test:api`
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
   - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-  - [x] `python3 scripts/reproducible_artifacts.py --help`
   - [x] `python3 scripts/reproducible_artifacts.py --check`
   - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
-  - [x] `python3 scripts/release_candidate_bundle.py --help`
   - [x] `python3 scripts/release_candidate_bundle.py --check`
+  - [x] `python3 scripts/prepare_rc_release_assets.py --check-local --rc-tag v1.0.0-rc.1`
+  - [x] `python3 scripts/rc_publication_preflight.py --check-local --rc-tag v1.0.0-rc.1`
   - [x] `scripts/validate_structure.py`
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-192-target ./scripts/check.sh`
-- Manual browser validation:
-  - [x] Start UI with `cd ui && npm run dev`.
-  - [x] Open local browser page.
-  - [x] Confirm shell renders without blank/error state.
-  - [x] Confirm main labels are plain language.
-  - [x] Confirm raw technical values remain accessible.
-  - [x] Confirm help opens.
-  - [x] Confirm blocked and missing states are visible.
-  - [x] Confirm no production/public-release overclaim.
-  - [x] Confirm no external network calls are introduced.
-- Remote evidence:
-  - [x] `git ls-remote --tags origin`
-  - [x] GitHub Releases evidence is unknown from local tooling because `gh` is unavailable.
-  - [x] Branch protection evidence is unknown from local tooling because `gh` is unavailable.
-  - [x] Remote workflow evidence is unknown from local tooling because `gh` is unavailable.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-193-target ./scripts/check.sh`
+- Remote publication:
+  - [ ] Push Phase 193 commit to `main`.
+  - [ ] Dispatch `rc-publication.yml` through the GitHub API if authenticated credentials are available.
+  - [ ] Verify workflow conclusion if dispatched.
+  - [ ] Verify `v1.0.0-rc.1` tag if dispatched.
+  - [ ] Verify `v1.0.0-rc.1` GitHub prerelease if dispatched.
+  - [ ] Verify final `v1.0.0` tag/release was not created.

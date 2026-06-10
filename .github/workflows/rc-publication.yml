@@ -1,0 +1,290 @@
+name: rc-publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_tag:
+        description: RC tag to publish, for example v1.0.0-rc.1
+        required: true
+        default: v1.0.0-rc.1
+      expected_commit:
+        description: Full commit SHA that must be published
+        required: true
+      candidate_label:
+        description: Internal candidate label used in manifests
+        required: true
+        default: v1.0.0-rc.1
+      confirm_public_rc:
+        description: Type PUBLIC_RC_ONLY to confirm this is an RC prerelease, not final v1 release
+        required: true
+      confirm_no_final_release:
+        description: Type NO_FINAL_V1_RELEASE to confirm this workflow must not create v1.0.0 final release
+        required: true
+      upload_public_rc_assets:
+        description: Upload public RC assets to the GitHub prerelease
+        type: boolean
+        required: true
+        default: true
+      attest_public_rc_assets:
+        description: Generate GitHub artifact attestations for RC assets
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: RC publication preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate RC publication inputs
+        shell: bash
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          CONFIRM_PUBLIC_RC: ${{ inputs.confirm_public_rc }}
+          CONFIRM_NO_FINAL_RELEASE: ${{ inputs.confirm_no_final_release }}
+          UPLOAD_PUBLIC_RC_ASSETS: ${{ inputs.upload_public_rc_assets }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "::error::rc-publication must run from refs/heads/main"
+            exit 1
+          fi
+          if [ "${GITHUB_SHA}" != "${EXPECTED_COMMIT}" ]; then
+            echo "::error::expected_commit does not match checked-out commit"
+            exit 1
+          fi
+          if [ "${CONFIRM_PUBLIC_RC}" != "PUBLIC_RC_ONLY" ]; then
+            echo "::error::confirm_public_rc must be PUBLIC_RC_ONLY"
+            exit 1
+          fi
+          if [ "${CONFIRM_NO_FINAL_RELEASE}" != "NO_FINAL_V1_RELEASE" ]; then
+            echo "::error::confirm_no_final_release must be NO_FINAL_V1_RELEASE"
+            exit 1
+          fi
+          if [ "${UPLOAD_PUBLIC_RC_ASSETS}" != "true" ]; then
+            echo "::error::Phase 193 publication requires public RC asset upload"
+            exit 1
+          fi
+          python3 scripts/rc_publication_preflight.py \
+            --check-local \
+            --rc-tag "${RC_TAG}" \
+            --expected-commit "${EXPECTED_COMMIT}"
+          python3 scripts/github_api_rc_publish.py \
+            --repository "${GITHUB_REPOSITORY}" \
+            --rc-tag "${RC_TAG}" \
+            --preflight
+
+  validate:
+    name: Local validation
+    runs-on: ubuntu-latest
+    needs: preflight
+    permissions:
+      contents: read
+    env:
+      TZ: UTC
+      LC_ALL: C
+      CARGO_INCREMENTAL: "0"
+      CARGO_TARGET_DIR: /tmp/ajentic-phase-193-workflow-target
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run UI validation
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+          npm run typecheck
+          npm run lint
+          npm run test:api
+          rm -rf dist
+
+      - name: Run Rust validation
+        run: |
+          cargo fmt --manifest-path core/Cargo.toml -- --check
+          cargo test --manifest-path core/Cargo.toml --all-targets
+          cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings
+
+      - name: Run artifact and documentation validation
+        run: |
+          python3 scripts/reproducible_artifacts.py --help
+          python3 scripts/reproducible_artifacts.py --check
+          python3 scripts/reproducible_artifacts.py --check-evidence
+          python3 scripts/release_candidate_bundle.py --help
+          python3 scripts/release_candidate_bundle.py --check
+          python3 scripts/prepare_rc_release_assets.py --check-local --rc-tag "${{ inputs.rc_tag }}"
+          python3 scripts/rc_publication_preflight.py --check-local --rc-tag "${{ inputs.rc_tag }}" --expected-commit "${{ inputs.expected_commit }}"
+          python3 scripts/validate_structure.py
+          python3 scripts/validate_docs.py
+          scripts/check_help_pages.py
+          git diff --check
+          rm -rf ui/dist
+          CARGO_TARGET_DIR=/tmp/ajentic-phase-193-check-target ./scripts/check.sh
+
+  build_rc_assets:
+    name: Build public RC assets
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+    env:
+      TZ: UTC
+      LC_ALL: C
+      CARGO_INCREMENTAL: "0"
+      CARGO_TARGET_DIR: /tmp/ajentic-phase-193-assets-target
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build deterministic public RC assets
+        run: >
+          python3 scripts/prepare_rc_release_assets.py
+          --build
+          --rc-tag "${{ inputs.rc_tag }}"
+          --candidate-label "${{ inputs.candidate_label }}"
+          --output-dir /tmp/ajentic-phase-193-assets
+
+      - name: Verify expected RC assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-candidate-bundle.tar.gz"
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-asset-manifest.json"
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-checksums.json"
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-sbom.json"
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-provenance.json"
+          test -f "/tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-release-notes.md"
+          test -f "/tmp/ajentic-phase-193-assets/README-RC-${{ inputs.rc_tag }}.txt"
+
+      - name: Upload public RC asset staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajentic-${{ inputs.rc_tag }}-rc-assets
+          path: /tmp/ajentic-phase-193-assets/
+          retention-days: 5
+          if-no-files-found: error
+
+  attest_rc_assets:
+    name: Attest public RC assets
+    runs-on: ubuntu-latest
+    needs: build_rc_assets
+    if: inputs.attest_public_rc_assets
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download public RC assets
+        uses: actions/download-artifact@v4
+        with:
+          name: ajentic-${{ inputs.rc_tag }}-rc-assets
+          path: /tmp/ajentic-phase-193-assets
+
+      - name: Attest RC candidate bundle
+        uses: actions/attest@v4
+        with:
+          subject-path: /tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-candidate-bundle.tar.gz
+
+      - name: Attest RC SBOM evidence
+        uses: actions/attest@v4
+        with:
+          subject-path: /tmp/ajentic-phase-193-assets/ajentic-${{ inputs.rc_tag }}-rc-sbom.json
+
+  publish_rc:
+    name: Publish GitHub prerelease
+    runs-on: ubuntu-latest
+    needs: [preflight, validate, build_rc_assets, attest_rc_assets]
+    if: >
+      ${{
+        always() &&
+        needs.preflight.result == 'success' &&
+        needs.validate.result == 'success' &&
+        needs.build_rc_assets.result == 'success' &&
+        (inputs.attest_public_rc_assets == false || needs.attest_rc_assets.result == 'success')
+      }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download public RC assets
+        uses: actions/download-artifact@v4
+        with:
+          name: ajentic-${{ inputs.rc_tag }}-rc-assets
+          path: /tmp/ajentic-phase-193-assets
+
+      - name: Publish RC through GitHub API
+        id: publish
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RC_TAG: ${{ inputs.rc_tag }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          set -euo pipefail
+          python3 scripts/github_api_rc_publish.py \
+            --repository "${GITHUB_REPOSITORY}" \
+            --rc-tag "${RC_TAG}" \
+            --expected-commit "${EXPECTED_COMMIT}" \
+            --release-notes "docs/releases/${RC_TAG}.md" \
+            --asset-dir /tmp/ajentic-phase-193-assets \
+            --publish | tee /tmp/ajentic-phase-193-publication.json
+
+      - name: Write RC publication summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_url="$(python3 - <<'PY'
+import json
+from pathlib import Path
+data=json.loads(Path('/tmp/ajentic-phase-193-publication.json').read_text())
+print(data['release_url'])
+PY
+)"
+          {
+            echo "## AJENTIC RC publication"
+            echo
+            echo "- RC tag: ${{ inputs.rc_tag }}"
+            echo "- Target commit: ${{ inputs.expected_commit }}"
+            echo "- GitHub prerelease: ${release_url}"
+            echo "- Prerelease: true"
+            echo "- Latest: false"
+            echo "- Draft: false"
+            echo "- Final v1.0.0 release was not created."
+            echo "- Package registries, installers, update channels, and deployments were not used."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -46,6 +46,7 @@ ALLOWED_DOCS_DIRS = {
     "changelog",
     "roadmap",
     "operations",
+    "releases",
     "examples",
 }
 
@@ -140,6 +141,9 @@ def allowed_truth_dimensions_for_path(path: Path) -> set[str]:
     if is_under(path, Path("docs/operations")):
         if any(marker in name for marker in OPERATIONS_PROCEDURAL_NAME_MARKERS):
             return {"procedural"}
+        return {"orientation"}
+
+    if is_under(path, Path("docs/releases")):
         return {"orientation"}
 
     if is_under(path, Path("docs/examples")):

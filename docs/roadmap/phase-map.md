@@ -129,7 +129,7 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 190 | v1 Release Acceleration Plan and Functional Freeze | Milestone 24 | Freeze v1 scope, stop new governance-only pre-v1 phases, and start the direct v1 release-candidate track. | Planning/freeze only; no release, tag, GitHub Release, signing, publishing, installer, update channel, deployment, public artifact, or package version change. |
 | 191 | Artifact, Signing, and Release Workflow Activation Boundary | Milestone 24 | Activate internal release-candidate artifact packaging, internal attestation evidence, and the manual release-candidate workflow. | Internal candidate activation only; no Git tag, GitHub Release, public artifact, package publishing, installer, update channel, deployment, or final v1 publication. |
 | 192 | Read-Only Browser UI/UX Clarity and Visual Polish | Milestone 24 | Clarify the local read-only browser shell with plain status labels, evidence summaries, help, and accessible visual polish. | UI/UX clarity only; no backend authority, release mechanics, public artifact, signing, publishing, installer, update channel, deployment, or package version change. |
-| 193 | v1 Release Candidate Publication | Milestone 24 | Publish a bounded v1 Release Candidate through the approved release path for final acceptance review. | RC publication only; no broader product expansion or unsupported safety claims. |
+| 193 | v1 Release Candidate Publication | Milestone 24 | Publish bounded `v1.0.0-rc.1` prerelease assets through the approved GitHub API-backed release path for final acceptance review. | RC publication only; no final v1.0.0 release, package publishing, installer, update channel, deployment, broader product expansion, or unsupported safety claims. |
 | 194 | v1 Final Functional Acceptance and Release Execution | Milestone 24 | Complete final functional acceptance and execute the v1 release if acceptance passes. | Final v1 release execution only; no bypass of artifact, signing, UI/UX, license, and functional acceptance gates. |
 
 
@@ -168,6 +168,10 @@ Phase 191 activates internal release-candidate bundle generation, internal bundl
 ## Phase 192 read-only browser UI/UX note
 
 Phase 192 clarifies the local read-only browser shell with plain labels for simulated local review, visible blocked/missing/rejected/unknown states, evidence summary cards, accessible details for raw technical values, and local-only help. TypeScript remains a non-authoritative display surface and does not compute release or promotion authority. Phase 192 does not create a Git tag, GitHub Release, release artifact publication, public artifact path, signing path, package publication, installer, update channel, deployment, backend authority change, release workflow expansion, or package version change. Phase 193-194 remain the compressed sequence for RC publication and final functional acceptance/release execution.
+
+## Phase 193 RC publication note
+
+Phase 193 authorizes only the bounded `v1.0.0-rc.1` Release Candidate path. The `rc-publication` workflow is manually dispatched, fails closed on explicit confirmations and target commit checks, uses the GitHub REST API instead of the `gh` CLI, scopes `contents: write` to the publication job, and scopes attestation permissions to the attestation job. It may create the RC tag, GitHub prerelease, public RC assets, and RC attestations. It must not create final `v1.0.0`, publish packages, create installers, activate update channels, deploy, or change package versions. Phase 194 remains responsible for final acceptance and final v1 release execution.
 
 ## Phase 170 alignment note
 

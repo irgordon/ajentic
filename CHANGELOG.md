@@ -4,6 +4,36 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.193 - 2026-06-10
+**Status:** Phase 193 - v1 Release Candidate Publication
+
+### Added
+- Add a manually dispatched `rc-publication` GitHub Actions workflow for the bounded `v1.0.0-rc.1` public prerelease path.
+- Add GitHub REST API publication support for the RC tag, prerelease, and asset uploads.
+- Add deterministic public RC asset staging for the candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and RC readme.
+- Add local RC publication preflight checks.
+- Add Phase 193 operation documentation and `v1.0.0-rc.1` release notes.
+
+### Changed
+- Align README, AGENTS, checklist, and roadmap surfaces with the Phase 193 RC-only publication boundary.
+- Extend aggregate local validation to cover RC asset determinism and RC publication preflight checks.
+
+### Notes
+- Phase 193 authorizes public RC publication only.
+- Final `v1.0.0` release remains Phase 194.
+- Package versions remain unchanged.
+- No package or crate version was changed to `1.0.0`.
+- No npm or Cargo package publication path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.192 - 2026-06-10
 **Status:** Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish
 
