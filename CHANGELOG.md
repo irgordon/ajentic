@@ -4,6 +4,41 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.190 - 2026-06-10
+**Status:** Phase 190 - v1 Release Acceleration Plan and Functional Freeze
+
+### Added
+- Add a short v1 release acceleration and functional freeze plan.
+- Define v1 must-have scope, explicit deferrals, functional acceptance checks, and UI/UX acceptance checks.
+- Record that future pre-v1 work must directly support release execution, release artifacts, signing/release workflow, functional blockers, UI/UX quality, or the real user path.
+
+### Changed
+- Convert the release path into a v1 acceleration track.
+- Collapse remaining pre-v1 release planning into Phases 190-194.
+- Update README status language toward v1 release-candidate hardening.
+- Mark the previous Phase 190-201 runway as superseded by the compressed v1 track.
+
+### Notes
+- No new governance-only or audit-only pre-v1 phase was added.
+- Existing authority boundaries remain intact.
+- Package versions remain unchanged.
+- No release was created.
+- No Git tag was created.
+- No GitHub Release was created.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No public artifact path was created.
+- No deployment path was created.
+- No package version change was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.189 - 2026-06-10
 **Status:** Phase 189 - Checksums, SBOM, and Provenance Evidence
 

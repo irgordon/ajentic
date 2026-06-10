@@ -1,9 +1,9 @@
-import { renderLocalRuntimeReviewSurface } from "../api/localRuntimeReview";
-import { getUiReadModel } from "../api/readModel";
-import { navigationItems } from "./navigation";
-import { routeMetadata } from "./routes";
-import { OverviewScreen } from "../screens/OverviewScreen";
-import { renderLocalHelpEntryText } from "./help";
+import { renderLocalRuntimeReviewSurface } from "../api/localRuntimeReview.js";
+import { getUiReadModel } from "../api/readModel.js";
+import { navigationItems } from "./navigation.js";
+import { routeMetadata } from "./routes.js";
+import { OverviewScreen } from "../screens/OverviewScreen.js";
+import { renderLocalHelpEntryText } from "./help.js";
 
 export function AppShell(): string {
   const readModel = getUiReadModel();

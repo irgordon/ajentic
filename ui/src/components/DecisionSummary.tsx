@@ -1,5 +1,5 @@
-import type { DecisionDetailProjection } from "../api/projections";
-import { StatusPill } from "./StatusPill";
+import type { DecisionDetailProjection } from "../api/projections.js";
+import { StatusPill } from "./StatusPill.js";
 
 export type DecisionSummaryProps = Readonly<{
   decision: DecisionDetailProjection;

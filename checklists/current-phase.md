@@ -4,92 +4,83 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 189 - Checksums, SBOM, and Provenance Evidence
+# Phase 190 - v1 Release Acceleration Plan and Functional Freeze
 
-- Phase name: Phase 189 - Checksums, SBOM, and Provenance Evidence.
-- Phase goal: add deterministic internal checksum, SBOM, and unsigned provenance evidence for Phase 188 internal candidate artifacts without creating release mechanics.
+- Phase name: Phase 190 - v1 Release Acceleration Plan and Functional Freeze.
+- Phase goal: compress the remaining pre-v1 roadmap into a short release-candidate track and freeze v1 scope without creating release mechanics.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
-  - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-  - [x] Confirm starting commit is `33b65c965c7acecdfa7341741dfd7d1f48f0710b`.
   - [x] Confirm branch is `main`.
+  - [x] Confirm starting commit is `f45807c2d11d7c18b6a15cad3624efe909a82bc3`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- Evidence generation:
-  - [x] Generate internal checksum evidence.
-  - [x] Generate internal SBOM evidence.
-  - [x] Generate internal unsigned provenance evidence.
-  - [x] Generate evidence for Rust release executable internal candidates.
-  - [x] Generate evidence for UI `dist` internal candidates.
-  - [x] Use temporary evidence directories only.
-  - [x] Avoid committing generated evidence files.
-- Determinism:
-  - [x] Build two clean source copies from the same commit.
-  - [x] Compare checksum evidence deterministically.
-  - [x] Compare SBOM evidence deterministically.
-  - [x] Compare provenance evidence deterministically.
-  - [x] Fail closed on evidence mismatch.
-- Workflow implementation:
-  - [x] Extend `.github/workflows/reproducible-artifacts.yml`.
-  - [x] Keep workflow on `pull_request`.
-  - [x] Keep workflow on pushes to `main`.
-  - [x] Keep workflow on `workflow_dispatch`.
-  - [x] Keep `permissions: contents: read`.
-  - [x] Do not add `id-token: write`.
-  - [x] Do not add `attestations: write`.
-  - [x] Do not add `contents: write`.
-  - [x] Do not use GitHub artifact attestations.
-  - [x] Avoid artifact upload.
+- v1 acceleration decisions:
+  - [x] Mark Phase 190 as functional freeze and v1 acceleration start.
+  - [x] Collapse remaining pre-v1 release planning into Phases 190-194.
+  - [x] Mark previous Phase 190-201 sequence as superseded.
+  - [x] Stop adding governance-only phases before v1.
+  - [x] Stop adding audit-only phases before v1.
+  - [x] Preserve existing Rust/UI/evidence authority boundaries.
+- v1 must-have scope:
+  - [x] App builds cleanly.
+  - [x] Rust core tests pass.
+  - [x] UI builds cleanly.
+  - [x] UI typecheck/lint pass.
+  - [x] API tests pass.
+  - [x] Reproducible artifact checks pass.
+  - [x] Internal evidence checks pass.
+  - [x] MIT license remains present.
+  - [x] User-facing install/run/open path remains documented.
+  - [x] UI/UX acceptance checks are defined.
+  - [x] Package version consistency remains a pre-release strategy item.
+- v1 deferrals:
+  - [x] Advanced governance expansion deferred.
+  - [x] New evidence systems beyond Phase 189 deferred.
+  - [x] New audit-only milestones deferred.
+  - [x] New replay-only milestones deferred.
+  - [x] Cross-domain expansion deferred unless required by product behavior.
+  - [x] Provider expansion deferred unless required for the v1 product path.
+  - [x] Broad compliance/security programs deferred beyond release-blocking basics.
+  - [x] Additional roadmap theory and speculative architecture documents deferred.
 - Documentation alignment:
-  - [x] Add Phase 189 operations documentation.
+  - [x] Add `docs/operations/v1-release-acceleration-phase-190.md`.
   - [x] Update README status language.
-  - [x] Update AGENTS evidence discipline reminders.
-  - [x] Update CHANGELOG with `v0.0.189`.
+  - [x] Update AGENTS pre-v1 discipline.
+  - [x] Update CHANGELOG with `v0.0.190`.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Boundary confirmations:
-  - [x] Evidence files are internal review evidence only.
-  - [x] Checksums are not release checksums.
-  - [x] SBOM evidence is not public SBOM publication.
-  - [x] Provenance is unsigned and not an attestation.
-  - [x] Package versions remain unchanged.
-  - [x] No package/crate version is set to `1.0.0`.
-  - [x] No GitHub attestation added.
+  - [x] No release created.
+  - [x] No Git tag created.
+  - [x] No GitHub Release created.
   - [x] No signing path added.
   - [x] No publishing path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
-  - [x] No deployment path added.
   - [x] No public artifact path added.
-  - [x] No Git tag created.
-  - [x] No GitHub Release created.
-- Workflow inspection:
-  - [x] Existing workflows remain validation-only.
-  - [x] Reproducibility workflow remains validation-only.
-  - [x] No `release.yml`, `publish.yml`, or `deploy.yml` workflow exists.
-  - [x] Workflow permissions remain least-privilege `contents: read`.
-- Remote evidence checklist:
-  - [x] `git ls-remote --tags origin` returned no tags.
-  - [x] `gh release list --repo irgordon/ajentic` checked as unknown because `gh` is not installed.
-  - [x] `gh api repos/irgordon/ajentic/branches/main/protection` checked as unknown because `gh` is not installed.
-  - [x] Remote GitHub Actions evidence remains pending until GitHub Actions runs on GitHub.
-- Required local validation:
+  - [x] No deployment path added.
+  - [x] No package version changed.
+- Functional validation:
   - [x] `git status --short`
-  - [x] `python3 scripts/reproducible_artifacts.py --help`
-  - [x] `python3 scripts/reproducible_artifacts.py --check`
-  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
-  - [x] `npm run build`
-  - [x] `npm run typecheck`
-  - [x] `npm run lint`
-  - [x] `npm run test:api`
+  - [x] `npm run build` at the repository root reports no root `package.json`; `npm run build` in `ui/` passes.
+  - [x] `npm run typecheck` in `ui/`.
+  - [x] `npm run lint` in `ui/`.
+  - [x] `npm run test:api` in `ui/`.
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
   - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+  - [x] `python3 scripts/reproducible_artifacts.py --check`
+  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
   - [x] `scripts/validate_structure.py`
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-189-target ./scripts/check.sh`
-- Optional validation if present:
-  - [x] `act -W .github/workflows/reproducible-artifacts.yml` not run because `act` is not installed.
-  - [x] `scripts/validate_boundary_lints.py` not present.
-  - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
-  - [x] `./scripts/check.sh` present; covered by the Phase 189 target-dir invocation.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-190-target ./scripts/check.sh`
+- UI/UX manual acceptance:
+  - [x] Open the UI locally.
+  - [x] Confirm primary navigation works.
+  - [x] Confirm main screens render without blank/error states.
+  - [x] Confirm release/status language is understandable.
+  - [x] Confirm evidence/artifact/release-status surfaces are understandable.
+  - [x] Confirm obvious empty placeholders are removed, filled, or labeled as post-v1.
+  - [x] Confirm first-run path is clear from README.
+  - [x] Confirm no UI screen claims authority that belongs to Rust.
+  - [x] Confirm no UI label implies production safety beyond the actual release scope.

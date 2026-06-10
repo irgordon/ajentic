@@ -640,65 +640,36 @@ Boundary: Internal integrity-evidence phase only; no signed attestation, public 
 
 Evidence gate: checksum, SBOM, and unsigned provenance evidence compare deterministically across two clean builds without GitHub artifact attestations, `id-token: write`, `attestations: write`, upload, signing, or release mechanics.
 
-### Phase 190 - Release Platform Alignment Checkpoint
-Goal: Reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.
+### Phase 190 - v1 Release Acceleration Plan and Functional Freeze
+Goal: Freeze v1 scope, stop new governance-only pre-v1 phases, and start the direct v1 release-candidate track.
 
-Boundary: Alignment checkpoint only; no release execution, production readiness, public-release readiness, public/general-use approval, signing activation, publishing, or deployment.
+Boundary: Planning/freeze phase only; no release, GitHub Release, tag, signing, publishing, installer, update-channel activation, public artifact, deployment, or package version change.
 
-### Phase 191 - Signing and Key-Custody Activation Boundary
-Goal: Define or activate bounded signing/key-custody behavior under the release-platform contract and provenance requirements.
+Evidence gate: v1 must-have scope, deferrals, functional acceptance checks, and UI/UX acceptance checks are recorded.
 
-Boundary: Signing boundary only; no public release, publishing, deployment, installer/update-channel activation, public/general-use approval, or v1.0 approval.
+### Phase 191 - v1 Artifact, Signing, and Release Workflow Activation
+Goal: Activate the concrete v1 artifact, signing, and release workflow mechanics needed for release execution.
 
-### Phase 192 - GitHub Draft Release / RC Publication Rehearsal
-Goal: Rehearse GitHub draft Release or RC publication mechanics without final v1.0 public release.
+Boundary: Release-mechanics activation only within explicit scope; no final v1 publication unless the phase explicitly completes it.
 
-Boundary: Rehearsal only; no v1.0 release approval, public final release, production readiness, public/general-use approval, deployment, or broad distribution.
+### Phase 192 - UI/UX Release Candidate Hardening
+Goal: Fix functional UI/UX release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
 
-### Phase 193 - Support, Incident, Rollback, and Security Closure
-Goal: Close support, incident response, rollback, and security evidence required before production/public-use decisions.
+Boundary: UI/UX hardening only; no unrelated governance expansion, audit-only work, or speculative architecture work.
 
-Boundary: Closure-evidence phase only; no production/public-use approval, deployment activation, public final release, or v1.0 approval.
+### Phase 193 - v1 Release Candidate Publication
+Goal: Publish a bounded v1 Release Candidate through the approved release path for final acceptance review.
 
-### Phase 194 - Production/Public-Use Final Hardening
-Goal: Resolve confirmed production and public-use blockers before Production Candidate decision work.
+Boundary: RC publication only; no broader product expansion, unsupported safety claims, or unrelated governance work.
 
-Boundary: Hardening phase only; no Production Candidate approval, public/general-use approval, release execution, deployment approval, or v1.0 approval.
+### Phase 194 - v1 Final Functional Acceptance and Release Execution
+Goal: Complete final functional acceptance and execute the v1 release if acceptance passes.
 
-### Phase 195 - Production Candidate Decision Gate
-Goal: Decide whether Production Candidate status is supportable from committed release-platform, security, support, and public-use evidence.
+Boundary: Final v1 release execution only; no bypass of artifact, signing, UI/UX, license, and functional acceptance gates.
 
-Boundary: Decision gate only; no v1.0 release, public/general-use approval, deployment, release execution, or bypass of unresolved evidence categories.
+### Superseded Previous v1 Runway
 
-### Phase 196 - v1.0 Readiness Evidence Consolidation
-Goal: Consolidate v1.0 readiness evidence across platform, artifacts, provenance, security, support, documentation, versioning, and public-use boundaries.
-
-Boundary: Evidence consolidation only; no approval, release execution, signing bypass, publishing bypass, deployment, or public-use activation.
-
-### Phase 197 - v1.0 Documentation and Public Identity Closure
-Goal: Close public documentation, license/public identity, support, and user-facing release identity gaps.
-
-Boundary: Documentation and public identity closure only; no v1.0 approval, release execution, deployment, or public-use activation.
-
-### Phase 198 - Final Release Audit
-Goal: Audit release, security, support, provenance, versioning, workflow, branch-protection, and public-use evidence before final blocker work.
-
-Boundary: Audit only; no approval, release execution, signing, publishing, deployment, public-use activation, or v1.0 release.
-
-### Phase 199 - Final Release Blocker Resolution
-Goal: Resolve blockers identified by the final release audit.
-
-Boundary: Blocker resolution only; no v1.0 approval, release execution, public final release, deployment, or public-use activation.
-
-### Phase 200 - v1.0 Release Decision Gate
-Goal: Decide whether v1.0 GitHub Actions release execution is approved.
-
-Boundary: Decision gate only; approval is limited to explicit committed evidence and does not authorize unsafe bypasses.
-
-### Phase 201 - v1.0 GitHub Actions Release Execution
-Goal: Execute the v1.0 GitHub Actions release only if Phase 200 approves.
-
-Boundary: Release execution only after Phase 200 approval; no bypass of signing, provenance, support, incident, rollback, public-use, branch-protection, workflow, versioning, or license gates.
+The previous Phase 190-201 release-platform runway is superseded by Phase 190. Its topics are compressed into Phases 190-194 rather than carried forward as governance-only, audit-only, or validation-only phases.
 
 
 ## Phase 170 alignment note

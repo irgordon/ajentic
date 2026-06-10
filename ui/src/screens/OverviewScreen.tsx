@@ -1,7 +1,7 @@
-import { getUiReadModel } from "../api/readModel";
-import { SectionCard } from "../components/SectionCard";
-import { StatusPill } from "../components/StatusPill";
-import { IntentPreviewPanel } from "../components/IntentPreviewPanel";
+import { getUiReadModel } from "../api/readModel.js";
+import { SectionCard } from "../components/SectionCard.js";
+import { StatusPill } from "../components/StatusPill.js";
+import { IntentPreviewPanel } from "../components/IntentPreviewPanel.js";
 
 export function OverviewScreen(): string {
   const { application, operatorIntentPreviews } = getUiReadModel();

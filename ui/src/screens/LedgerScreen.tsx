@@ -1,6 +1,6 @@
-import { getUiReadModel } from "../api/readModel";
-import { SectionCard } from "../components/SectionCard";
-import { TimelineList } from "../components/TimelineList";
+import { getUiReadModel } from "../api/readModel.js";
+import { SectionCard } from "../components/SectionCard.js";
+import { TimelineList } from "../components/TimelineList.js";
 
 export function LedgerScreen(): string {
   const { application, ledgerTimeline } = getUiReadModel();

@@ -4,10 +4,10 @@ import {
   projectLocalProviderExecution,
   projectLocalProviderOutputValidation,
   type LocalOperatorShellState,
-} from "./localOperatorShell";
-import { renderProviderOutputReviewText } from "./providerOutputReview";
-import { renderCandidateReviewSurface } from "./candidateReviewSurface";
-import { renderLocalHelpEntryText } from "../app/help";
+} from "./localOperatorShell.js";
+import { renderProviderOutputReviewText } from "./providerOutputReview.js";
+import { renderCandidateReviewSurface } from "./candidateReviewSurface.js";
+import { renderLocalHelpEntryText } from "../app/help.js";
 
 function renderReleaseCandidatePreparationText(
   state: LocalOperatorShellState,

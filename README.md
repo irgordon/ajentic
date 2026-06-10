@@ -13,7 +13,7 @@ mutation_path: readme_update
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Status](https://img.shields.io/badge/Status-RC_Stewardship_Pre--v1.0-8B0000?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-v1_RC_Hardening-8B0000?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-28A745?style=for-the-badge)
 
 <br>
@@ -93,20 +93,36 @@ Clean output is what has passed through the AJENTIC boundary.
 
 ## Project Status
 
-Current status: Release Candidate stewardship / pre-v1.0 hardening.
+Current status: v1 release-candidate hardening.
 
-AJENTIC is not production-ready.
-AJENTIC is not public-release-ready.
-AJENTIC is not v1.0-ready.
-No v1.0 release has been approved.
+AJENTIC is moving from release-platform preparation into direct v1 release execution.
+The remaining pre-v1 work is focused on functional correctness, release artifacts, signing/release workflow, and UI/UX quality.
 No GitHub Release or release tag has been created by the governed release process.
 
 Passing validation is necessary evidence, not release approval.
-GitHub Actions is the intended future release platform, but no release workflow or release execution authority is active yet.
+GitHub Actions is the intended v1 release platform, but release execution is not active yet.
 GitHub Actions includes internal reproducible artifact validation and internal checksum/SBOM/provenance evidence checks; these checks do not publish release artifacts, sign artifacts, or approve release execution.
 
 License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
+
+## Getting Started
+
+From the repository root:
+
+```sh
+cd ui
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:5173` in a browser.
+
+For release-candidate validation from the repository root:
+
+```sh
+CARGO_TARGET_DIR=/tmp/ajentic-check-target ./scripts/check.sh
+```
 
 ## Technology Stack
 

@@ -1,7 +1,7 @@
-import { getUiReadModel } from "../api/readModel";
-import { DecisionSummary } from "../components/DecisionSummary";
-import { ProjectionList } from "../components/ProjectionList";
-import { SectionCard } from "../components/SectionCard";
+import { getUiReadModel } from "../api/readModel.js";
+import { DecisionSummary } from "../components/DecisionSummary.js";
+import { ProjectionList } from "../components/ProjectionList.js";
+import { SectionCard } from "../components/SectionCard.js";
 
 export function PolicyScreen(): string {
   const { policyDecisions } = getUiReadModel();

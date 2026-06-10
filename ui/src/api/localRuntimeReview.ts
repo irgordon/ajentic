@@ -1,7 +1,7 @@
-import { getUiReadModel } from "./readModel";
-import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest } from "./localOperatorShell";
-import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, submitLocalProviderConfiguration } from "./localOperatorShellTransport";
+import { getUiReadModel } from "./readModel.js";
+import { deterministicStubProviderConfigurationCandidate, deterministicStubProviderExecutionRequest } from "./localOperatorShell.js";
+import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView.js";
+import { createLocalOperatorShellTransport, createLocalStagedCandidateConversionProposal, executeLocalProvider, submitLocalProviderConfiguration } from "./localOperatorShellTransport.js";
 
 export function renderLocalRuntimeReviewSurface(): string {
   const runtimeReview = getUiReadModel().localRuntimeReview;

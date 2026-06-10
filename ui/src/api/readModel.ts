@@ -1,5 +1,5 @@
-import { applicationProjectionFixture, uiOperatorIntentSubmissionContractFixtures, uiOperatorIntentSubmissionEnvelopeFixture, uiReadModelFixture, uiRustIntentPreviewRequestFixture, uiRustReadProjectionResponseFixture, uiRustTransportCapabilityFixture } from "./fixtures";
-import type { ApplicationUiProjection, IntentSubmissionUiProjection, IntentTypeProjection, OperatorIntentPreviewProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiSubmissionBoundaryInput, UiSubmissionBoundaryReasonCode, UiSubmissionBoundaryResult } from "./projections";
+import { applicationProjectionFixture, uiOperatorIntentSubmissionContractFixtures, uiOperatorIntentSubmissionEnvelopeFixture, uiReadModelFixture, uiRustIntentPreviewRequestFixture, uiRustReadProjectionResponseFixture, uiRustTransportCapabilityFixture } from "./fixtures.js";
+import type { ApplicationUiProjection, IntentSubmissionUiProjection, IntentTypeProjection, OperatorIntentPreviewProjection, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiSubmissionBoundaryInput, UiSubmissionBoundaryReasonCode, UiSubmissionBoundaryResult } from "./projections.js";
 
 export const UI_READ_MODEL_IS_SYNC = true as const;
 export const UI_READ_MODEL_SOURCE = "fixture_or_supplied_projection" as const;

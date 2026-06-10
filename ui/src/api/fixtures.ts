@@ -1,4 +1,4 @@
-import type { ApplicationUiProjection, LocalRuntimeReviewSurface, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability, UiSubmissionBoundaryInput } from "./projections";
+import type { ApplicationUiProjection, LocalRuntimeReviewSurface, UiOperatorIntentSubmissionContract, UiOperatorIntentSubmissionEnvelope, UiOperatorIntentSubmissionCapability, UiReadModel, UiRustIntentPreviewRequest, UiRustReadProjectionResponse, UiRustTransportCapability, UiSubmissionBoundaryInput } from "./projections.js";
 
 export const applicationProjectionFixture: ApplicationUiProjection = {
   projectionId: "proj-fixture-0053",

@@ -41,6 +41,9 @@ These reminders point back to roadmap and governance authority; they are not sta
 
 - Do not create tags or GitHub Releases unless the active phase explicitly authorizes release execution.
 - Do not add signing, publishing, deployment, installer, or update-channel behavior unless explicitly scoped.
+- From Phase 190 onward, do not create new governance-only or audit-only phases before v1.
+- Prioritize functional release blockers, artifact production, signing/release workflow, and UI/UX quality.
+- Keep authority boundaries intact, but do not expand them into new documentation-only work.
 - Validation workflows may produce evidence; they do not approve releases.
 - Reproducible build workflows are validation evidence only.
 - Do not convert internal candidate artifacts into public release artifacts.

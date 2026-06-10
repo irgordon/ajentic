@@ -1,4 +1,4 @@
-import type { LocalOperatorShellState, StagedCandidateConversionValidationProjection } from "./localOperatorShell";
+import type { LocalOperatorShellState, StagedCandidateConversionValidationProjection } from "./localOperatorShell.js";
 
 type CandidateReviewSurfaceStatus =
   | "no_validated_staged_proposal"

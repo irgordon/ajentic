@@ -4,7 +4,7 @@ import {
   type LocalOperatorShellState,
   type LocalProviderExecutionProjection,
   type LocalProviderOutputValidationProjection
-} from "./localOperatorShell";
+} from "./localOperatorShell.js";
 
 export type ProviderOutputReviewProjection = Readonly<{
   execution: LocalProviderExecutionProjection;

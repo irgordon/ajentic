@@ -1,6 +1,6 @@
-import { getUiReadModel } from "../api/readModel";
-import { SectionCard } from "../components/SectionCard";
-import { StatusPill } from "../components/StatusPill";
+import { getUiReadModel } from "../api/readModel.js";
+import { SectionCard } from "../components/SectionCard.js";
+import { StatusPill } from "../components/StatusPill.js";
 
 export function StateScreen(): string {
   const { application } = getUiReadModel();

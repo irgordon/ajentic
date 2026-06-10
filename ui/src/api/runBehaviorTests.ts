@@ -1,4 +1,4 @@
-import { behaviorTests } from "./submissionBoundary.behavior.test";
+import { behaviorTests } from "./submissionBoundary.behavior.test.js";
 
 let passed = 0;
 

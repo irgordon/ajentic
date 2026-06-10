@@ -1,9 +1,9 @@
-import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview";
+import { renderLocalRuntimeReviewSurface } from "./localRuntimeReview.js";
 import {
   projectProviderOutputReview,
   renderProviderOutputReviewProjectionText,
   renderProviderOutputReviewText,
-} from "./providerOutputReview";
+} from "./providerOutputReview.js";
 import {
   applyForbiddenUiAction,
   applyLocalOperatorIntent,
@@ -50,10 +50,10 @@ import {
   releaseCandidatePreparationEvidenceCategories,
   initialControlledInternalTrialExecutionProjection,
   type LocalOperatorShellState,
-} from "./localOperatorShell";
-import { renderCandidateReviewSurface } from "./candidateReviewSurface";
-import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView";
-import { renderLocalHelpEntryText } from "../app/help";
+} from "./localOperatorShell.js";
+import { renderCandidateReviewSurface } from "./candidateReviewSurface.js";
+import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView.js";
+import { renderLocalHelpEntryText } from "../app/help.js";
 import {
   createLocalOperatorShellTransport,
   createLocalStagedCandidateConversionProposal,
@@ -69,22 +69,22 @@ import {
   invokeConstrainedLocalProvider,
   runLocalProviderAdapterDryRun,
   requestLocalCandidateMaterialization,
-} from "./localOperatorShellTransport";
+} from "./localOperatorShellTransport.js";
 import {
   encodeLocalUiRustTransportRequest,
   handleLocalUiRustTransportPayload,
   handleLocalUiRustTransportRequest,
   startBoundedLocalUiRustTransport,
-} from "./localTransport";
-import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel";
+} from "./localTransport.js";
+import { buildUiSubmissionBoundaryResult, getUiReadModel } from "./readModel.js";
 import type {
   LocalUiRustTransportRequest,
   LocalUiRustTransportResponse,
-} from "./localTransport";
+} from "./localTransport.js";
 import type {
   UiSubmissionBoundaryInput,
   UiSubmissionBoundaryResult,
-} from "./projections";
+} from "./projections.js";
 
 type BehaviorTest = Readonly<{
   name: string;

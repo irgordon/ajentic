@@ -1,6 +1,6 @@
-import { getUiReadModel } from "../api/readModel";
-import { ProjectionList } from "../components/ProjectionList";
-import { SectionCard } from "../components/SectionCard";
+import { getUiReadModel } from "../api/readModel.js";
+import { ProjectionList } from "../components/ProjectionList.js";
+import { SectionCard } from "../components/SectionCard.js";
 
 export function ContextScreen(): string {
   const { application } = getUiReadModel();

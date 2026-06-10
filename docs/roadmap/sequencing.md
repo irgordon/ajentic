@@ -481,55 +481,33 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Draft release rehearsal must wait until artifact and evidence boundaries are clear.
    - Boundary: internal integrity evidence only; no signed attestation, GitHub artifact attestation, public artifact, signing, publishing, public distribution, deployment, or v1.0 approval.
 
-90. **Phase 190 reconciles the release-platform foundation**
-   - Phase 190 must reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.
-   - Boundary: alignment only; no release execution, production readiness, public-release readiness, signing activation, publishing, or deployment.
+90. **Phase 190 freezes v1 scope and starts release acceleration**
+   - Phase 190 must compress the remaining pre-v1 work into the direct v1 release-candidate track.
+   - Future pre-v1 phases must directly support building or running the app, producing release artifacts, signing/release workflow, UI/UX quality, functional blockers, or the real user path.
+   - Governance-only, audit-only, validation-only, speculative architecture, and roadmap-theory phases are no longer added before v1.
+   - Boundary: planning/freeze only; no release, GitHub Release, tag, signing, publishing, installer, update-channel, public artifact, deployment, or package version change.
 
-91. **Phase 191 defines bounded signing and key custody**
-   - Phase 191 must define or activate signing/key-custody behavior under the release-platform contract and provenance requirements.
-   - Signing follows provenance because key custody must bind to known artifacts and evidence rather than replace missing evidence.
-   - Boundary: no public release, publishing, deployment, installer/update-channel activation, or v1.0 approval.
+91. **Phase 191 activates v1 artifact, signing, and release workflow mechanics**
+   - Phase 191 must turn the prepared artifact/evidence path into concrete v1 artifact, signing, and release workflow mechanics.
+   - This follows the functional freeze so release mechanics bind to the chosen v1 scope rather than expanding it.
+   - Boundary: release-mechanics activation only within explicit scope; no final v1 publication unless the phase explicitly completes it.
 
-92. **Phase 192 rehearses GitHub draft Release or RC publication mechanics**
-   - Phase 192 must rehearse draft release mechanics without final v1.0 public release.
-   - Draft release rehearsal follows signing/provenance sequencing and remains separate from v1.0 decision gates.
-   - Boundary: rehearsal only; no v1.0 release approval, production readiness, public/general-use approval, deployment, or broad distribution.
+92. **Phase 192 hardens the UI/UX release-candidate path**
+   - Phase 192 must fix user-facing release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
+   - UI/UX hardening follows release workflow activation so the real user path reflects the actual artifact/release mechanics.
+   - Boundary: UI/UX hardening only; no unrelated governance expansion, audit-only work, or speculative architecture work.
 
-93. **Phase 193 closes support, incident, rollback, and security evidence**
-   - Phase 193 must close support, incident response, rollback, and security evidence needed before production/public-use decisions.
-   - Boundary: closure evidence only; no production/public-use approval, deployment activation, or public final release.
+93. **Phase 193 publishes the v1 Release Candidate**
+   - Phase 193 must publish a bounded v1 Release Candidate through the approved release path for final acceptance review.
+   - RC publication follows UI/UX hardening so the published candidate reflects the usable first-run and review path.
+   - Boundary: RC publication only; no unsupported safety claims or unrelated product expansion.
 
-94. **Phase 194 resolves production/public-use hardening blockers**
-   - Phase 194 must resolve confirmed production and public-use blockers before Production Candidate decision work.
-   - Boundary: hardening only; no Production Candidate approval, public/general-use approval, release execution, or deployment approval.
+94. **Phase 194 completes final acceptance and v1 release execution**
+   - Phase 194 must complete final functional acceptance and execute the v1 release if acceptance passes.
+   - Final release execution follows RC publication and must not bypass artifact, signing, UI/UX, license, or functional acceptance gates.
+   - Boundary: final v1 release execution only within the compressed v1 track.
 
-95. **Phase 195 decides Production Candidate status**
-   - Phase 195 must decide whether Production Candidate status is supportable from committed release-platform, security, support, and public-use evidence.
-   - Boundary: decision gate only; no v1.0 release, public/general-use approval, deployment, or release execution.
-
-96. **Phase 196 consolidates v1.0 readiness evidence**
-   - Phase 196 must consolidate platform, artifacts, provenance, security, support, documentation, versioning, and public-use evidence.
-   - Boundary: evidence consolidation only; no approval or release execution.
-
-97. **Phase 197 closes v1.0 documentation and public identity**
-   - Phase 197 must close public documentation, license/public identity, support, and user-facing release identity gaps.
-   - Boundary: documentation and public identity closure only; no release execution or public-use activation.
-
-98. **Phase 198 audits final release evidence**
-   - Phase 198 must audit release, security, support, provenance, versioning, workflow, branch-protection, and public-use evidence.
-   - Boundary: audit only; no approval, release execution, signing, publishing, deployment, or public-use activation.
-
-99. **Phase 199 resolves final release blockers**
-   - Phase 199 must resolve blockers identified by the final release audit.
-   - Boundary: blocker resolution only; no v1.0 approval or release execution.
-
-100. **Phase 200 decides v1.0 release execution**
-   - Phase 200 must decide whether v1.0 GitHub Actions release execution is approved.
-   - Boundary: decision gate only; approval is limited to explicit committed evidence and does not authorize unsafe bypasses.
-
-101. **Phase 201 executes the v1.0 GitHub Actions release only after approval**
-   - Phase 201 may execute the v1.0 GitHub Actions release only if Phase 200 approves.
-   - Boundary: release execution only after Phase 200 approval; no bypass of signing, provenance, support, incident, rollback, public-use, branch-protection, workflow, versioning, or license gates.
+Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 
 
 Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements, and Phase 180 records `release_candidate_status_supportable_with_caveats` with explicit no-authority caveats before entering a controlled stewardship block (Phases 181-185). Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release-evidence review UI, hardening code, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.

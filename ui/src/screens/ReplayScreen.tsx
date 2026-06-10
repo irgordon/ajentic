@@ -1,5 +1,5 @@
-import { getUiReadModel } from "../api/readModel";
-import { SectionCard } from "../components/SectionCard";
+import { getUiReadModel } from "../api/readModel.js";
+import { SectionCard } from "../components/SectionCard.js";
 
 export function ReplayScreen(): string {
   const { application, replayDetail } = getUiReadModel();

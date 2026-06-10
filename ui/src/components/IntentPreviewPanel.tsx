@@ -1,5 +1,5 @@
-import type { OperatorIntentPreviewProjection } from "../api/projections";
-import { ProjectionList } from "./ProjectionList";
+import type { OperatorIntentPreviewProjection } from "../api/projections.js";
+import { ProjectionList } from "./ProjectionList.js";
 
 export type IntentPreviewPanelProps = Readonly<{
   intents: readonly OperatorIntentPreviewProjection[];

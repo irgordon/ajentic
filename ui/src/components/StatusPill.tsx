@@ -1,4 +1,4 @@
-import type { ProjectionStatus } from "../api/projections";
+import type { ProjectionStatus } from "../api/projections.js";
 
 export type StatusPillProps = Readonly<{
   label: string;

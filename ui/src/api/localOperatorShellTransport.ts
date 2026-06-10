@@ -26,7 +26,7 @@ import {
   type LocalCandidateMaterializationRequest,
   type LocalOperatorShellState,
   type LocalSessionEvidenceExport,
-} from "./localOperatorShell";
+} from "./localOperatorShell.js";
 
 export type LocalOperatorShellTransportStatus = "accepted" | "rejected";
 
