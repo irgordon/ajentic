@@ -41,9 +41,12 @@ These reminders point back to roadmap and governance authority; they are not sta
 
 - Do not create tags or GitHub Releases unless the active phase explicitly authorizes release execution.
 - Do not add signing, publishing, deployment, installer, or update-channel behavior unless explicitly scoped.
-- Do not infer release readiness from passing tests or clean validation.
+- Validation workflows may produce evidence; they do not approve releases.
+- Do not infer release readiness from passing tests, passing CI, or clean validation.
 - Do not claim production readiness unless a roadmap decision gate approves it.
 - Keep GitHub Actions release authority behind explicit release-platform phases.
+- Keep workflow permissions least-privilege unless a later release-execution phase explicitly requires broader permissions.
+- Keep release approval tied to explicit roadmap decision gates.
 
 ## Constraint reminder
 

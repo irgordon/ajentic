@@ -4,89 +4,68 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 185 - Release Stewardship Checkpoint and v1.0 Gap Registration
+# Phase 186 - GitHub Actions Release Platform Contract
 
-- Phase name: Phase 185 - Release Stewardship Checkpoint and v1.0 Gap Registration.
-- Phase goal: record that Release Candidate stewardship may continue with caveats while production readiness, public-release readiness, and v1.0 readiness remain blocked pending an explicit Phase 186-201 release-platform block.
-- Working-tree hygiene gate:
-  - [x] Run `git status --short` before work.
+- Phase name: Phase 186 - GitHub Actions Release Platform Contract.
+- Phase goal: define GitHub Actions as AJENTIC's intended future release platform while keeping release execution blocked.
+- Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-- Release-stewardship decision checklist:
-  - [x] Record that AJENTIC is aligned through Phase 184.2.
-  - [x] Record that Release Candidate stewardship may continue with caveats.
-  - [x] Record that AJENTIC is not production-ready.
-  - [x] Record that AJENTIC is not public-release-ready.
-  - [x] Record that AJENTIC is not v1.0-ready.
-  - [x] Record that passing validation is necessary evidence, not release approval.
-- v1.0 blocker registration checklist:
-  - [x] Document absence of GitHub Releases and tags.
-  - [x] Document that main branch protection is a repository settings requirement.
-  - [x] Document that current CI runs on pull request and workflow dispatch, not push to main.
-  - [x] Document absence of a release workflow in `.github/workflows`.
-  - [x] Document README status update.
-  - [x] Document Rust/UI package version and changelog phase-version mismatch.
-  - [x] Document license absence.
-  - [x] Document inactive signing, publishing, installer, update-channel, public-artifact, and deployment release paths.
-  - [x] Carry forward oversized release-adjacent module and string-heuristic maintainability risk.
-- v1.0 release-platform roadmap checklist:
-  - [x] Add Phase 186 - GitHub Actions Release Platform Contract.
-  - [x] Add Phase 187 - Versioning, License, and Public Identity Alignment.
-  - [x] Add Phase 188 - Reproducible Artifact Build in Actions.
-  - [x] Add Phase 189 - Checksums, SBOM, and Provenance Evidence.
-  - [x] Add Phase 190 - Release Platform Alignment Checkpoint.
-  - [x] Add Phase 191 - Signing and Key-Custody Activation Boundary.
-  - [x] Add Phase 192 - GitHub Draft Release / RC Publication Rehearsal.
-  - [x] Add Phase 193 - Support, Incident, Rollback, and Security Closure.
-  - [x] Add Phase 194 - Production/Public-Use Final Hardening.
-  - [x] Add Phase 195 - Production Candidate Decision Gate.
-  - [x] Add Phase 196 - v1.0 Readiness Evidence Consolidation.
-  - [x] Add Phase 197 - v1.0 Documentation and Public Identity Closure.
-  - [x] Add Phase 198 - Final Release Audit.
-  - [x] Add Phase 199 - Final Release Blocker Resolution.
-  - [x] Add Phase 200 - v1.0 Release Decision Gate.
-  - [x] Add Phase 201 - v1.0 GitHub Actions Release Execution, only if Phase 200 approves.
-- Prohibited action checklist:
-  - [x] No GitHub tag created.
-  - [x] No GitHub Release created.
-  - [x] No release artifact created.
-  - [x] No public artifact created.
-  - [x] No signing keys added.
-  - [x] No real signing behavior added.
-  - [x] No publishing behavior added.
-  - [x] No installer generation added.
-  - [x] No update-channel behavior added.
-  - [x] No package deployment added.
-  - [x] No branch protection simulated in code.
+  - [x] Confirm starting commit is `4f9ab5e docs(release): Register v1.0 gaps`.
+- Workflow validation evidence:
+  - [x] Inspect `.github/workflows/ci.yml`.
+  - [x] Inspect `.github/workflows/memory-lint.yml`.
+  - [x] Confirm validation workflows preserve `pull_request` triggers.
+  - [x] Confirm validation workflows preserve `workflow_dispatch` triggers.
+  - [x] Add `push` to `main` triggers to validation workflows.
+  - [x] Confirm validation workflows use least-privilege `contents: read` permissions.
+- Release authority contract:
+  - [x] Document GitHub Actions as the intended future release platform.
+  - [x] Document that GitHub Actions release execution is not active yet.
+  - [x] Document local machines as validation/evidence producers, not authoritative release publishers.
+  - [x] Document that release execution requires future explicit phase approval.
+  - [x] Document branch protection as a repository settings requirement.
+  - [x] Document fail-closed future release workflow expectations.
+  - [x] Document that generated output, adapters, UI, scripts, and infrastructure do not become governance authority.
+- Prohibited release mechanics:
   - [x] No release workflow added.
-  - [x] No workflow trigger changed.
-  - [x] No production readiness claimed.
-  - [x] No public-release readiness claimed.
-  - [x] No v1.0 readiness claimed.
-- Validation checklist:
+  - [x] No tag created.
+  - [x] No GitHub Release created.
+  - [x] No public artifact path added.
+  - [x] No signing path added.
+  - [x] No publishing path added.
+  - [x] No installer path added.
+  - [x] No update-channel path added.
+  - [x] No deployment path added.
+  - [x] No secrets added.
+  - [x] No environment approvals added.
+  - [x] No license or versioning normalization attempted.
+- Future gated phases:
+  - [x] Phase 187 remains responsible for versioning, license, and public identity alignment.
+  - [x] Phase 188 remains responsible for reproducible artifact builds.
+  - [x] Phase 189 remains responsible for checksums, SBOM, and provenance evidence.
+  - [x] Phase 191 remains responsible for signing and key-custody activation.
+  - [x] Phase 200 remains responsible for the v1.0 release decision gate.
+  - [x] Phase 201 remains the first possible v1.0 release execution phase, only if Phase 200 approves.
+- Remote evidence checklist:
+  - [x] `gh release list --repo irgordon/ajentic` checked as unknown because `gh` is not installed.
+  - [x] `git ls-remote --tags origin` returned no tags.
+  - [x] `gh api repos/irgordon/ajentic/branches/main/protection` checked as unknown because `gh` is not installed.
+- Required local validation:
   - [x] `git status --short`
-  - [x] `cd ui && npm run build`
-  - [x] `cd ui && rm -rf dist`
-  - [x] `cd ui && npm run typecheck`
-  - [x] `cd ui && npm run lint`
-  - [x] `cd ui && npm run test:api`
+  - [x] `npm run build`
+  - [x] `npm run typecheck`
+  - [x] `npm run lint`
+  - [x] `npm run test:api`
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-185-target cargo test --manifest-path core/Cargo.toml --all-targets`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-185-target cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-  - [x] `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_structure.py`
-  - [x] `PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_docs.py`
-  - [x] `node scripts/test_rust_boundary_lint.mjs`
-  - [x] `node scripts/rust_boundary_lint.mjs`
-  - [x] `PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_help_pages.py`
+  - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
+  - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+  - [x] `scripts/validate_structure.py`
+  - [x] `scripts/validate_docs.py`
+  - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-185-target ./scripts/check.sh`
-- Zero-drift checklist:
-  - [x] No governance edits.
-  - [x] No architecture edits.
-  - [x] No schema edits.
-  - [x] No runtime behavior edits.
-  - [x] No UI behavior edits.
-  - [x] No workflow edits.
-  - [x] No release execution performed.
-- Validation log:
-  - [x] Validation and scan commands executed in phase terminal history.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-186-target ./scripts/check.sh`
+- Optional validation if present:
+  - [x] `scripts/validate_boundary_lints.py` not present.
+  - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
+  - [x] `./scripts/check.sh` present; covered by the Phase 186 target-dir invocation.

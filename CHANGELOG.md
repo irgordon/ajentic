@@ -4,6 +4,37 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.186 - 2026-06-10
+**Status:** Phase 186 - GitHub Actions Release Platform Contract
+
+### Added
+- Add GitHub Actions release-platform contract documentation.
+- Confirm GitHub Actions is the intended future release platform.
+- Document that release execution remains blocked pending later roadmap gates.
+
+### Changed
+- Add push-to-main validation triggers to existing validation workflows.
+- Confirm validation workflows use least-privilege `contents: read` permissions.
+- Align README, AGENTS, checklist, and roadmap surfaces with Phase 186 release-platform authority boundaries.
+
+### Notes
+- No release workflow was added.
+- No tag was created.
+- No GitHub Release was created.
+- No public artifact path was created.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+- No license or versioning normalization was attempted.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.185 - 2026-06-10
 **Status:** Phase 185 - Release Stewardship Checkpoint and v1.0 Gap Registration
 

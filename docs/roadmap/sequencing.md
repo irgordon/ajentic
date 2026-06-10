@@ -444,19 +444,24 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
 
 86. **Phase 186 defines the GitHub Actions release platform contract**
-   - Phase 186 must define release authority, trigger policy, permissions, environments, artifact retention, and prohibited bypasses for GitHub Actions.
-   - Boundary: contract only; no release workflow execution, tag, GitHub Release, signing, publishing, deployment, or v1.0 approval.
+   - Phase 186 must define GitHub Actions as the intended future release platform before release identity is normalized.
+   - Validation evidence must cover pull requests, manual dispatch, and pushes to `main` where possible before artifacts can be trusted.
+   - Branch protection is a required repository setting before production/public release, but it is not simulated in code.
+   - Boundary: contract only; no release workflow, release execution, tag, GitHub Release, public artifact, signing, publishing, installer, update channel, deployment, or v1.0 approval.
 
 87. **Phase 187 aligns versioning, license, and public identity**
    - Phase 187 must decide package version policy, changelog version posture, owner-selected license status, README status, and public identity requirements.
+   - Release authority is defined first so versioning and public identity cannot imply local-machine release authority.
    - Boundary: alignment only; no invented license, v1.0 version bump, public release, or readiness approval.
 
 88. **Phase 188 adds reproducible build evidence in Actions**
    - Phase 188 must produce reproducible build evidence through GitHub Actions under controlled non-release outputs.
+   - Artifact production follows platform authority definition and version/license alignment so build evidence has a governed execution context.
    - Boundary: build evidence only; no public artifact, GitHub Release, release tag, signing, publishing, installer, update channel, or deployment.
 
 89. **Phase 189 adds checksum, SBOM, and provenance evidence**
    - Phase 189 must add checksum, SBOM, and provenance evidence boundaries for release artifacts.
+   - Checksums, SBOM, and provenance follow artifact production because evidence must describe concrete artifacts, not speculative outputs.
    - Boundary: evidence only; no signing, publishing, public distribution, deployment, or v1.0 approval.
 
 90. **Phase 190 reconciles the release-platform foundation**
@@ -465,10 +470,12 @@ Deployment configuration, policy/governance versioning, security audit, local de
 
 91. **Phase 191 defines bounded signing and key custody**
    - Phase 191 must define or activate signing/key-custody behavior under the release-platform contract and provenance requirements.
+   - Signing follows provenance because key custody must bind to known artifacts and evidence rather than replace missing evidence.
    - Boundary: no public release, publishing, deployment, installer/update-channel activation, or v1.0 approval.
 
 92. **Phase 192 rehearses GitHub draft Release or RC publication mechanics**
    - Phase 192 must rehearse draft release mechanics without final v1.0 public release.
+   - Draft release rehearsal follows signing/provenance sequencing and remains separate from v1.0 decision gates.
    - Boundary: rehearsal only; no v1.0 release approval, production readiness, public/general-use approval, deployment, or broad distribution.
 
 93. **Phase 193 closes support, incident, rollback, and security evidence**

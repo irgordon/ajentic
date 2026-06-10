@@ -100,7 +100,7 @@ AJENTIC is not public-release-ready.
 No v1.0 release has been approved.
 
 Passing validation is necessary evidence, not release approval.
-GitHub Actions is the intended release platform, but release authority is not yet formalized.
+GitHub Actions is the intended future release platform, but no release workflow or release execution authority is active yet.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
 
 ## Technology Stack

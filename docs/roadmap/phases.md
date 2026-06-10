@@ -602,9 +602,13 @@ Goal: Reconcile Phases 181-184 evidence and determine whether the next bounded R
 Boundary: Alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
 
 ### Phase 186 - GitHub Actions Release Platform Contract
-Goal: Define GitHub Actions release-platform authority, trigger policy, permissions, environments, artifact retention, and prohibited release bypasses.
+Goal: Define GitHub Actions as the intended future release platform, inspect validation workflows, require validation coverage for pull requests, manual dispatch, and pushes to `main` where possible, document least-privilege workflow permissions, and record prohibited release bypasses.
 
-Boundary: Contract phase only; no release workflow execution, GitHub Release, tag, signing, publishing, deployment, installer/update-channel activation, production readiness, public-release readiness, or v1.0 approval.
+Boundary: Contract phase only; no release workflow, release execution, GitHub Release, tag, public artifact, signing, publishing, deployment, installer/update-channel activation, production readiness, public-release readiness, or v1.0 approval.
+
+Non-goals: no `release.yml`, no `publish.yml`, no `deploy.yml`, no public artifact upload, no `gh release create`, no tag creation, no package publishing, no signing, no notarization, no secrets, no environment approvals, no branch-protection simulation, and no inference that passing validation approves release readiness.
+
+Evidence gate: existing validation workflows are inspected, trigger coverage and permissions are recorded honestly, and GitHub Actions release execution remains blocked until later roadmap gates approve it.
 
 ### Phase 187 - Versioning, License, and Public Identity Alignment
 Goal: Align package version policy, changelog version posture, owner-selected license status, README status, public identity, and v1.0 naming requirements.
