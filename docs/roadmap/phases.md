@@ -675,6 +675,13 @@ Scope: final acceptance preflight, source `v1.0.0-rc.1` verification, branch pro
 
 Boundary: Final GitHub Release path only; no package publishing, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, unsupported safety claims, or bypass of artifact, signing, UI/UX, license, and functional acceptance gates.
 
+### Phase 195 - Post-v1 Release Closure and Evidence Preservation
+Goal: Preserve completed `v1.0.0` final release evidence, align repository status surfaces, and record post-v1 restrictions.
+
+Scope: final workflow evidence, final release evidence, annotated tag target, source RC integrity, final asset list, attestation evidence, branch protection closure, deployment absence, package metadata policy, and post-v1 restriction recording.
+
+Boundary: Closure/evidence phase only; no feature expansion, new release execution, tag creation, GitHub Release creation, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, unsupported safety claims, or unrelated governance expansion.
+
 ### Superseded Previous v1 Runway
 
 The previous Phase 190-201 release-platform runway is superseded by Phase 190. Its topics are compressed into Phases 190-194 rather than carried forward as governance-only, audit-only, or validation-only phases.

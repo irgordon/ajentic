@@ -4,59 +4,47 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 194 - Final Functional Acceptance and v1.0 Release Execution
+# Phase 195 - Post-v1 Release Closure and Evidence Preservation
 
-- Phase name: Phase 194 - Final Functional Acceptance and v1.0 Release Execution.
-- Phase goal: complete final acceptance and publish the `v1.0.0` GitHub Release through the approved GitHub API-backed final release path when final gates are resolved.
+- Phase name: Phase 195 - Post-v1 Release Closure and Evidence Preservation.
+- Phase goal: preserve final v1.0.0 release evidence, align repository status surfaces, and record post-v1 restrictions without expanding runtime behavior or distribution channels.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `c0578e0dc55cd5b0c3ac78854892ba4a0273a2b3`.
+  - [x] Confirm starting commit is `6734a5b3cc223c41288b14575ad40f6fcf23fb6f`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-  - [x] Confirm remote `v1.0.0-rc.1` tag exists.
-  - [x] Confirm remote final `v1.0.0` tag was absent at phase start.
-- Final release gates:
-  - [x] Verify RC evidence requirements are represented in final preflight.
-  - [ ] Resolve branch protection or ruleset status for final release.
-  - [ ] Record explicit final-release Owner exception if branch protection or rulesets remain disabled.
-- Final release workflow:
-  - [x] Add `.github/workflows/final-release.yml`.
-  - [x] Make the workflow `workflow_dispatch` only.
-  - [x] Enforce `expected_commit`.
-  - [x] Enforce `final_tag=v1.0.0`.
-  - [x] Enforce `source_rc_tag=v1.0.0-rc.1`.
-  - [x] Enforce `FINAL_V1_RELEASE`.
-  - [x] Enforce `NO_PACKAGE_PUBLICATION`.
-  - [x] Enforce `NO_INSTALLER_UPDATE_DEPLOY`.
-  - [x] Check source RC evidence before publishing.
-  - [x] Check final tag and final release absence before publishing.
-  - [x] Use the GitHub REST API instead of `gh`.
-  - [x] Scope `contents: write` to the publication job only.
-  - [x] Scope `id-token: write` and `attestations: write` to the attestation job only.
-  - [x] Do not add `packages: write`, `deployments: write`, `actions: write`, or `artifact-metadata: write`.
-- Final assets:
-  - [x] Add deterministic final asset staging.
-  - [x] Include final candidate bundle, checksums, SBOM, provenance, asset manifest, release notes, and final readme.
-  - [x] Add local determinism checks.
-  - [x] Add local final release preflight checks.
+- Evidence preservation:
+  - [x] Final release evidence recorded.
+  - [x] Final workflow evidence recorded.
+  - [x] Final tag target recorded.
+  - [x] Source RC integrity recorded.
+  - [x] Final assets listed.
+  - [x] Attestation evidence recorded.
+  - [x] Attestation re-verification limitation recorded.
+  - [x] Branch protection closure recorded.
+  - [x] Deployments absence recorded.
+- Post-v1 restrictions:
+  - [x] Package publication absence recorded.
+  - [x] Installer absence recorded.
+  - [x] Update-channel absence recorded.
+  - [x] Deployment absence recorded.
+  - [x] OS signing/notarization absence recorded.
+  - [x] Backend authority unchanged.
+  - [x] UI authority unchanged.
+  - [x] Package metadata policy recorded.
 - Documentation alignment:
-  - [x] Add `docs/operations/final-functional-acceptance-release-phase-194.md`.
-  - [x] Add `docs/releases/v1.0.0.md`.
+  - [x] Add `docs/operations/post-v1-release-closure-phase-195.md`.
   - [x] Update README final release status.
-  - [x] Update AGENTS final release discipline.
-  - [x] Update CHANGELOG with `v0.0.194`.
+  - [x] Update AGENTS post-v1 discipline.
+  - [x] Update CHANGELOG with `v0.0.195`.
+  - [x] Update `docs/releases/v1.0.0.md`.
+  - [x] Update Phase 194 completion evidence.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
-- Boundary confirmations:
-  - [x] Package versions remain unchanged.
-  - [x] No package or crate version changed to `1.0.0`.
-  - [x] No package registry publication path added.
-  - [x] No installer path added.
-  - [x] No update-channel path added.
-  - [x] No deployment path added.
-  - [x] No OS signing or notarization path added.
-  - [x] TypeScript remains non-authoritative.
 - Validation:
   - [x] `git status --short`
+  - [x] `git rev-parse HEAD`
+  - [x] `git ls-remote origin main`
+  - [x] `git ls-remote --tags origin`
   - [x] `cd ui && npm run build`
   - [x] `cd ui && npm run typecheck`
   - [x] `cd ui && npm run lint`
@@ -79,15 +67,16 @@ mutation_path: checklist_revision
   - [x] `python3 scripts/validate_structure.py`
   - [x] `python3 scripts/validate_docs.py`
   - [x] `git diff --check`
-  - [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-194-target ./scripts/check.sh`
-- Remote final publication:
-  - [ ] Push Phase 194 commit to `main`.
-  - [ ] Dispatch `final-release.yml` after final branch protection or exception gate is resolved.
-  - [ ] Verify workflow conclusion if dispatched.
-  - [ ] Verify `v1.0.0` tag if dispatched.
-  - [ ] Verify `v1.0.0` GitHub Release if dispatched.
-  - [ ] Verify final release is not prerelease.
-  - [ ] Verify final release is not draft.
-  - [ ] Verify final release is latest.
-  - [ ] Verify final assets, checksums, SBOM, provenance, and attestation evidence if dispatched.
-  - [ ] Verify `v1.0.0-rc.1` remains intact.
+  - [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-195-target ./scripts/check.sh`
+- Boundary confirmations:
+  - [x] No new tag created.
+  - [x] No new GitHub Release created.
+  - [x] No npm package publication created.
+  - [x] No Cargo package publication created.
+  - [x] No package registry publication created.
+  - [x] No installer path created.
+  - [x] No update-channel path created.
+  - [x] No deployment path created.
+  - [x] No OS signing or notarization added.
+  - [x] No backend authority change created.
+  - [x] No UI authority change created.

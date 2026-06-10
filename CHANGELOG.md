@@ -4,6 +4,43 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.195 - 2026-06-10
+**Status:** Phase 195 - Post-v1 Release Closure and Evidence Preservation
+
+### Added
+- Add post-v1 release closure documentation for the completed `v1.0.0` GitHub Release.
+- Record final workflow, final release, final tag, final asset, source RC, branch protection, deployment, and attestation evidence.
+- Record post-v1 package metadata policy and future-scope restrictions.
+
+### Changed
+- Update README status to reflect that the final `v1.0.0` GitHub Release is published.
+- Align AGENTS, checklist, and roadmap surfaces with the post-v1 release closure boundary.
+- Update the `v1.0.0` release note and Phase 194 operation note with final remote evidence.
+
+### Notes
+- Final GitHub Release `v1.0.0` is published.
+- Final tag `v1.0.0` targets `6734a5b3cc223c41288b14575ad40f6fcf23fb6f`.
+- Source RC `v1.0.0-rc.1` remains intact.
+- Final workflow `27307966684` concluded successfully.
+- Branch protection gate was closed before final dispatch.
+- Final attestation evidence was recorded from the supplied link.
+- Package metadata remains separate from GitHub Release identity: `core` and `ajentic-ui` remain `0.1.0` with `MIT`.
+- No npm package publication occurred.
+- No Cargo package publication occurred.
+- No package registry publication occurred.
+- No installer was created.
+- No update channel was created.
+- No deployment occurred.
+- No OS signing or notarization occurred.
+- No backend authority change occurred.
+- No UI authority change occurred.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.194 - 2026-06-10
 **Status:** Phase 194 - Final Functional Acceptance and v1.0 Release Execution
 

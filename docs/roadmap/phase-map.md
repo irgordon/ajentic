@@ -131,6 +131,7 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 192 | Read-Only Browser UI/UX Clarity and Visual Polish | Milestone 24 | Clarify the local read-only browser shell with plain status labels, evidence summaries, help, and accessible visual polish. | UI/UX clarity only; no backend authority, release mechanics, public artifact, signing, publishing, installer, update channel, deployment, or package version change. |
 | 193 | v1 Release Candidate Publication | Milestone 24 | Publish bounded `v1.0.0-rc.1` prerelease assets through the approved GitHub API-backed release path for final acceptance review. | RC publication only; no final v1.0.0 release, package publishing, installer, update channel, deployment, broader product expansion, or unsupported safety claims. |
 | 194 | v1 Final Functional Acceptance and Release Execution | Milestone 24 | Run final functional acceptance and publish the v1.0.0 GitHub Release through the guarded final-release workflow when gates are resolved. | Final GitHub Release path only; no package publishing, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
+| 195 | Post-v1 Release Closure and Evidence Preservation | Milestone 24 | Preserve final v1.0.0 release evidence, align status surfaces, and record post-v1 restrictions. | Closure/evidence phase only; no feature expansion, new release execution, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
 
 
 ## Phase 185 release-stewardship note
@@ -175,7 +176,11 @@ Phase 193 authorizes only the bounded `v1.0.0-rc.1` Release Candidate path. The 
 
 ## Phase 194 final release note
 
-Phase 194 defines the guarded final `v1.0.0` GitHub Release path. The `final-release` workflow is manually dispatched, fails closed on exact commit checks, `v1.0.0` final tag enforcement, `v1.0.0-rc.1` source RC verification, explicit final-release confirmations, and final tag/release absence. It uses deterministic final assets and the GitHub REST API, scopes `contents: write` to the publication job, and scopes attestation permissions to the attestation job. Branch protection or ruleset status must be verified, or an explicit final-release Owner exception must be recorded, before dispatch. Package metadata remains separately governed. Phase 194 must not publish npm or Cargo packages, create installers, activate update channels, deploy, add OS signing or notarization, change backend authority, or make the UI authoritative.
+Phase 194 completed the guarded final `v1.0.0` GitHub Release path. The `final-release` workflow was manually dispatched after branch protection closure, verified the exact commit, `v1.0.0` final tag, `v1.0.0-rc.1` source RC, explicit final-release confirmations, and final tag/release absence, then published the annotated final tag, GitHub Release, final assets, and attestation evidence. Package metadata remains separately governed. Phase 194 did not publish npm or Cargo packages, create installers, activate update channels, deploy, add OS signing or notarization, change backend authority, or make the UI authoritative.
+
+## Phase 195 post-v1 closure note
+
+Phase 195 preserves final v1.0.0 release evidence and aligns repository status surfaces after publication. It records the final workflow, final release, annotated tag target, source RC integrity, final assets, attestation link, branch protection closure, deployments absence, package metadata policy, and post-v1 restrictions. Phase 195 creates no feature expansion, new tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. Future post-v1 work must be explicitly scoped.
 
 ## Phase 170 alignment note
 
