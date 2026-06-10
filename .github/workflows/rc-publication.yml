@@ -269,13 +269,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          release_url="$(python3 - <<'PY'
-import json
-from pathlib import Path
-data=json.loads(Path('/tmp/ajentic-phase-193-publication.json').read_text())
-print(data['release_url'])
-PY
-)"
+          release_url="$(python3 -c "import json; from pathlib import Path; data=json.loads(Path('/tmp/ajentic-phase-193-publication.json').read_text()); print(data['release_url'])")"
           {
             echo "## AJENTIC RC publication"
             echo
