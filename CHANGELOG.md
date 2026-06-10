@@ -4,6 +4,41 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.187 - 2026-06-10
+**Status:** Phase 187 - Versioning, License, and Public Identity Alignment
+
+### Added
+- Add versioning, license, and public identity alignment documentation.
+- Clarify the distinction between roadmap phase numbers, changelog evidence markers, package/crate metadata, Git tags, and GitHub Releases.
+- Document license absence as a v1.0/public-release blocker.
+
+### Changed
+- Align README public status language with Release Candidate stewardship / pre-v1.0 hardening caveats.
+- Remove implied open-source licensing language from README because no license file exists.
+- Align AGENTS and roadmap surfaces with version/license/public-identity discipline.
+
+### Notes
+- `core/Cargo.toml` remains at `0.1.0`.
+- `ui/package.json` remains at `0.1.0`.
+- Package versions were left unchanged.
+- No `LICENSE`, `LICENSE.md`, or `COPYING` file is present.
+- No license file was added because no Owner-selected license decision was found.
+- No Git tag was created.
+- No GitHub Release was created.
+- No release artifact was created.
+- No public artifact path was created.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No deployment path was created.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.186 - 2026-06-10
 **Status:** Phase 186 - GitHub Actions Release Platform Contract
 

@@ -450,9 +450,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Boundary: contract only; no release workflow, release execution, tag, GitHub Release, public artifact, signing, publishing, installer, update channel, deployment, or v1.0 approval.
 
 87. **Phase 187 aligns versioning, license, and public identity**
-   - Phase 187 must decide package version policy, changelog version posture, owner-selected license status, README status, and public identity requirements.
+   - Phase 187 must define the version taxonomy for roadmap phases, changelog evidence markers, package metadata, Git tags, GitHub Releases, and public product claims.
    - Release authority is defined first so versioning and public identity cannot imply local-machine release authority.
-   - Boundary: alignment only; no invented license, v1.0 version bump, public release, or readiness approval.
+   - Public identity must be clear before artifacts exist, because package metadata must not imply release approval.
+   - License posture must be known before public publication, and absent licensing remains a blocker until an Owner-selected license is committed.
+   - Release tags and GitHub Releases must wait for later gates.
+   - Signing and provenance evidence must attach to a clearly identified release model.
+   - Boundary: alignment only; no invented license, v1.0 version bump, tag, GitHub Release, public release, artifact, signing, publishing, deployment, or readiness approval.
 
 88. **Phase 188 adds reproducible build evidence in Actions**
    - Phase 188 must produce reproducible build evidence through GitHub Actions under controlled non-release outputs.

@@ -4,29 +4,47 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 186 - GitHub Actions Release Platform Contract
+# Phase 187 - Versioning, License, and Public Identity Alignment
 
-- Phase name: Phase 186 - GitHub Actions Release Platform Contract.
-- Phase goal: define GitHub Actions as AJENTIC's intended future release platform while keeping release execution blocked.
+- Phase name: Phase 187 - Versioning, License, and Public Identity Alignment.
+- Phase goal: align versioning language, license posture, and public identity without creating release mechanics.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm remote is `https://github.com/irgordon/ajentic.git`.
-  - [x] Confirm starting commit is `4f9ab5e docs(release): Register v1.0 gaps`.
-- Workflow validation evidence:
-  - [x] Inspect `.github/workflows/ci.yml`.
-  - [x] Inspect `.github/workflows/memory-lint.yml`.
-  - [x] Confirm validation workflows preserve `pull_request` triggers.
-  - [x] Confirm validation workflows preserve `workflow_dispatch` triggers.
-  - [x] Add `push` to `main` triggers to validation workflows.
-  - [x] Confirm validation workflows use least-privilege `contents: read` permissions.
-- Release authority contract:
-  - [x] Document GitHub Actions as the intended future release platform.
-  - [x] Document that GitHub Actions release execution is not active yet.
-  - [x] Document local machines as validation/evidence producers, not authoritative release publishers.
-  - [x] Document that release execution requires future explicit phase approval.
-  - [x] Document branch protection as a repository settings requirement.
-  - [x] Document fail-closed future release workflow expectations.
-  - [x] Document that generated output, adapters, UI, scripts, and infrastructure do not become governance authority.
+  - [x] Confirm starting commit is `b0f30c8 ci(release): Define GitHub Actions release platform contract`.
+- Versioning policy:
+  - [x] Document phase IDs as roadmap governance units.
+  - [x] Document changelog markers as internal evidence markers unless explicitly tagged.
+  - [x] Document package/crate versions as metadata, not release approval.
+  - [x] Document Git tags as release-control objects.
+  - [x] Document GitHub Releases as public release/publication objects.
+  - [x] Confirm no package/crate version is set to `1.0.0`.
+- Package version findings:
+  - [x] Root `Cargo.toml` not present.
+  - [x] `core/Cargo.toml` version is `0.1.0`.
+  - [x] `cli/Cargo.toml` not present.
+  - [x] Root `package.json` not present.
+  - [x] `ui/package.json` version is `0.1.0` and package is private.
+  - [x] Package versions left unchanged.
+- License status:
+  - [x] `LICENSE` not present.
+  - [x] `LICENSE.md` not present.
+  - [x] `COPYING` not present.
+  - [x] No Owner-selected license decision found in tracked project instructions inspected for this phase.
+  - [x] No license file added.
+  - [x] License absence remains a v1.0/public-release blocker.
+- Public identity alignment:
+  - [x] README status aligned to Release Candidate stewardship / pre-v1.0 hardening.
+  - [x] README states not production-ready, not public-release-ready, and not v1.0-ready.
+  - [x] README states no governed GitHub Release or release tag exists.
+  - [x] README states no license has been selected.
+  - [x] AGENTS release/version/license discipline aligned.
+  - [x] CHANGELOG updated with Phase 187.
+  - [x] Roadmap phase surfaces aligned.
+- Workflow inspection:
+  - [x] Existing workflows remain validation-only.
+  - [x] No release/publish/deploy workflow exists.
+  - [x] Workflow permissions remain least-privilege `contents: read`.
 - Prohibited release mechanics:
   - [x] No release workflow added.
   - [x] No tag created.
@@ -37,19 +55,15 @@ mutation_path: checklist_revision
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
-  - [x] No secrets added.
-  - [x] No environment approvals added.
-  - [x] No license or versioning normalization attempted.
 - Future gated phases:
-  - [x] Phase 187 remains responsible for versioning, license, and public identity alignment.
   - [x] Phase 188 remains responsible for reproducible artifact builds.
   - [x] Phase 189 remains responsible for checksums, SBOM, and provenance evidence.
   - [x] Phase 191 remains responsible for signing and key-custody activation.
   - [x] Phase 200 remains responsible for the v1.0 release decision gate.
   - [x] Phase 201 remains the first possible v1.0 release execution phase, only if Phase 200 approves.
 - Remote evidence checklist:
-  - [x] `gh release list --repo irgordon/ajentic` checked as unknown because `gh` is not installed.
   - [x] `git ls-remote --tags origin` returned no tags.
+  - [x] `gh release list --repo irgordon/ajentic` checked as unknown because `gh` is not installed.
   - [x] `gh api repos/irgordon/ajentic/branches/main/protection` checked as unknown because `gh` is not installed.
 - Required local validation:
   - [x] `git status --short`
@@ -64,8 +78,8 @@ mutation_path: checklist_revision
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-186-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-187-target ./scripts/check.sh`
 - Optional validation if present:
   - [x] `scripts/validate_boundary_lints.py` not present.
   - [x] `cargo test --workspace` not applicable; no root `Cargo.toml` is present.
-  - [x] `./scripts/check.sh` present; covered by the Phase 186 target-dir invocation.
+  - [x] `./scripts/check.sh` present; covered by the Phase 187 target-dir invocation.

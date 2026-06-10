@@ -13,8 +13,8 @@ mutation_path: readme_update
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Status](https://img.shields.io/badge/Status-RC-Pre-v1.0-8B0000?style=for-the-badge)
-![Open Source](https://img.shields.io/badge/Open_Source-Yes-28A745?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
+![Status](https://img.shields.io/badge/Status-RC_Stewardship_Pre--v1.0-8B0000?style=for-the-badge)
+![License](https://img.shields.io/badge/License-Not_Selected-8B0000?style=for-the-badge)
 
 <br>
 
@@ -97,10 +97,14 @@ Current status: Release Candidate stewardship / pre-v1.0 hardening.
 
 AJENTIC is not production-ready.
 AJENTIC is not public-release-ready.
+AJENTIC is not v1.0-ready.
 No v1.0 release has been approved.
+No GitHub Release or release tag has been created by the governed release process.
 
 Passing validation is necessary evidence, not release approval.
 GitHub Actions is the intended future release platform, but no release workflow or release execution authority is active yet.
+
+No license has been selected yet. Without an Owner-selected license file, public reuse rights are not granted by this repository.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
 
 ## Technology Stack

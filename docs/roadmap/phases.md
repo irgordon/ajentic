@@ -611,9 +611,13 @@ Non-goals: no `release.yml`, no `publish.yml`, no `deploy.yml`, no public artifa
 Evidence gate: existing validation workflows are inspected, trigger coverage and permissions are recorded honestly, and GitHub Actions release execution remains blocked until later roadmap gates approve it.
 
 ### Phase 187 - Versioning, License, and Public Identity Alignment
-Goal: Align package version policy, changelog version posture, owner-selected license status, README status, public identity, and v1.0 naming requirements.
+Goal: Define the version taxonomy, record package/crate metadata findings, record license status, align public identity language, and keep phase markers separate from Git tags, GitHub Releases, package versions, and public release claims.
 
 Boundary: Alignment phase only; no invented license, v1.0 version bump, GitHub Release, release tag, public artifact, production readiness, public-release readiness, or v1.0 approval.
+
+Non-goals: no artifact build work, checksum/SBOM/provenance work, signing/key-custody work, publishing, installer generation, update-channel behavior, deployment behavior, public-use approval, or license selection without an Owner decision.
+
+Evidence gate: README, AGENTS, changelog, checklist, roadmap, package metadata findings, and license absence/presence are aligned without changing package versions to `1.0.0` or creating release mechanics.
 
 ### Phase 188 - Reproducible Artifact Build in Actions
 Goal: Add reproducible build evidence through GitHub Actions under controlled non-release outputs.
