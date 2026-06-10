@@ -4,6 +4,43 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.185 - 2026-06-10
+**Status:** Phase 185 - Release Stewardship Checkpoint and v1.0 Gap Registration
+
+### Added
+- Add a Phase 185 release-readiness operations document recording that Release Candidate stewardship may continue with caveats while production readiness, public-release readiness, and v1.0 readiness remain blocked.
+- Add an explicit post-185 v1.0 release-platform block covering Phases 186-201, with GitHub Actions kept as the intended release platform.
+- Update the active checklist to Phase 185 procedural truth and add v1.0 release execution gates.
+- Add release-discipline reminders to `AGENTS.md`.
+
+### Changed
+- Update README status language from Pre-Alpha to Release Candidate stewardship / pre-v1.0 hardening without claiming production, public-release, or v1.0 readiness.
+- Keep `_old/` ignored as a local archive path.
+
+### Notes
+- Confirmed local validation passed for the Phase 185 documentation and release-readiness surfaces.
+- Confirmed GitHub PR checks passed for the Phase 184.2 PR head commit.
+- Confirmed the current main merge commit has no push-triggered Actions run because existing workflows do not trigger on push to main.
+- Recorded release-platform blockers: no GitHub Releases or tags, unprotected main branch, no push-to-main CI trigger, no release workflow, no license file, package-version/changelog-version mismatch, inactive signing/publishing/installer/update-channel/public-artifact/deployment paths, and prior oversized-module/string-heuristic maintainability risks.
+- No GitHub Release created.
+- No release tag created.
+- No release artifact created.
+- No public artifact created.
+- No signing path activated.
+- No publishing path activated.
+- No installer behavior added.
+- No update-channel behavior added.
+- No deployment path added.
+- No production readiness claimed.
+- No public-release readiness claimed.
+- No v1.0 readiness claimed.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.184.2 - 2026-05-27
 **Status:** Phase 184.2 - OOB Security Audit - Remaining Heuristic Triage
 

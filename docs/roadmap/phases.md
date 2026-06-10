@@ -601,6 +601,86 @@ Goal: Reconcile Phases 181-184 evidence and determine whether the next bounded R
 
 Boundary: Alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
 
+### Phase 186 - GitHub Actions Release Platform Contract
+Goal: Define GitHub Actions release-platform authority, trigger policy, permissions, environments, artifact retention, and prohibited release bypasses.
+
+Boundary: Contract phase only; no release workflow execution, GitHub Release, tag, signing, publishing, deployment, installer/update-channel activation, production readiness, public-release readiness, or v1.0 approval.
+
+### Phase 187 - Versioning, License, and Public Identity Alignment
+Goal: Align package version policy, changelog version posture, owner-selected license status, README status, public identity, and v1.0 naming requirements.
+
+Boundary: Alignment phase only; no invented license, v1.0 version bump, GitHub Release, release tag, public artifact, production readiness, public-release readiness, or v1.0 approval.
+
+### Phase 188 - Reproducible Artifact Build in Actions
+Goal: Add reproducible build evidence through GitHub Actions under controlled non-release outputs.
+
+Boundary: Build-evidence phase only; no public artifact, release publication, GitHub Release, release tag, signing, publishing, installer, update-channel activation, deployment, or v1.0 approval.
+
+### Phase 189 - Checksums, SBOM, and Provenance Evidence
+Goal: Add checksum, SBOM, and provenance evidence boundaries for release artifacts.
+
+Boundary: Evidence phase only; no signing, publishing, public distribution, deployment, GitHub Release, release tag, public download, or v1.0 approval.
+
+### Phase 190 - Release Platform Alignment Checkpoint
+Goal: Reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.
+
+Boundary: Alignment checkpoint only; no release execution, production readiness, public-release readiness, public/general-use approval, signing activation, publishing, or deployment.
+
+### Phase 191 - Signing and Key-Custody Activation Boundary
+Goal: Define or activate bounded signing/key-custody behavior under the release-platform contract and provenance requirements.
+
+Boundary: Signing boundary only; no public release, publishing, deployment, installer/update-channel activation, public/general-use approval, or v1.0 approval.
+
+### Phase 192 - GitHub Draft Release / RC Publication Rehearsal
+Goal: Rehearse GitHub draft Release or RC publication mechanics without final v1.0 public release.
+
+Boundary: Rehearsal only; no v1.0 release approval, public final release, production readiness, public/general-use approval, deployment, or broad distribution.
+
+### Phase 193 - Support, Incident, Rollback, and Security Closure
+Goal: Close support, incident response, rollback, and security evidence required before production/public-use decisions.
+
+Boundary: Closure-evidence phase only; no production/public-use approval, deployment activation, public final release, or v1.0 approval.
+
+### Phase 194 - Production/Public-Use Final Hardening
+Goal: Resolve confirmed production and public-use blockers before Production Candidate decision work.
+
+Boundary: Hardening phase only; no Production Candidate approval, public/general-use approval, release execution, deployment approval, or v1.0 approval.
+
+### Phase 195 - Production Candidate Decision Gate
+Goal: Decide whether Production Candidate status is supportable from committed release-platform, security, support, and public-use evidence.
+
+Boundary: Decision gate only; no v1.0 release, public/general-use approval, deployment, release execution, or bypass of unresolved evidence categories.
+
+### Phase 196 - v1.0 Readiness Evidence Consolidation
+Goal: Consolidate v1.0 readiness evidence across platform, artifacts, provenance, security, support, documentation, versioning, and public-use boundaries.
+
+Boundary: Evidence consolidation only; no approval, release execution, signing bypass, publishing bypass, deployment, or public-use activation.
+
+### Phase 197 - v1.0 Documentation and Public Identity Closure
+Goal: Close public documentation, license/public identity, support, and user-facing release identity gaps.
+
+Boundary: Documentation and public identity closure only; no v1.0 approval, release execution, deployment, or public-use activation.
+
+### Phase 198 - Final Release Audit
+Goal: Audit release, security, support, provenance, versioning, workflow, branch-protection, and public-use evidence before final blocker work.
+
+Boundary: Audit only; no approval, release execution, signing, publishing, deployment, public-use activation, or v1.0 release.
+
+### Phase 199 - Final Release Blocker Resolution
+Goal: Resolve blockers identified by the final release audit.
+
+Boundary: Blocker resolution only; no v1.0 approval, release execution, public final release, deployment, or public-use activation.
+
+### Phase 200 - v1.0 Release Decision Gate
+Goal: Decide whether v1.0 GitHub Actions release execution is approved.
+
+Boundary: Decision gate only; approval is limited to explicit committed evidence and does not authorize unsafe bypasses.
+
+### Phase 201 - v1.0 GitHub Actions Release Execution
+Goal: Execute the v1.0 GitHub Actions release only if Phase 200 approves.
+
+Boundary: Release execution only after Phase 200 approval; no bypass of signing, provenance, support, incident, rollback, public-use, branch-protection, workflow, versioning, or license gates.
+
 
 ## Phase 170 alignment note
 

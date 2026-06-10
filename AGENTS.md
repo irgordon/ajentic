@@ -35,6 +35,16 @@ It does not define governance rules, architecture authority, roadmap commitments
 - **Browser UI source**: `ui/`
 - **Operator scripts**: `scripts/`
 
+## Release discipline reminders
+
+These reminders point back to roadmap and governance authority; they are not standalone release authority.
+
+- Do not create tags or GitHub Releases unless the active phase explicitly authorizes release execution.
+- Do not add signing, publishing, deployment, installer, or update-channel behavior unless explicitly scoped.
+- Do not infer release readiness from passing tests or clean validation.
+- Do not claim production readiness unless a roadmap decision gate approves it.
+- Keep GitHub Actions release authority behind explicit release-platform phases.
+
 ## Constraint reminder
 
 Rust owns runtime authority.

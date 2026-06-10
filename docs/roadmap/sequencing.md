@@ -443,6 +443,70 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Phase 185 must reconcile Phases 181-184 and decide whether the next bounded Release Candidate control phase may proceed.
    - Boundary: alignment checkpoint only; no production readiness, deployment, or public/general-use approval.
 
+86. **Phase 186 defines the GitHub Actions release platform contract**
+   - Phase 186 must define release authority, trigger policy, permissions, environments, artifact retention, and prohibited bypasses for GitHub Actions.
+   - Boundary: contract only; no release workflow execution, tag, GitHub Release, signing, publishing, deployment, or v1.0 approval.
+
+87. **Phase 187 aligns versioning, license, and public identity**
+   - Phase 187 must decide package version policy, changelog version posture, owner-selected license status, README status, and public identity requirements.
+   - Boundary: alignment only; no invented license, v1.0 version bump, public release, or readiness approval.
+
+88. **Phase 188 adds reproducible build evidence in Actions**
+   - Phase 188 must produce reproducible build evidence through GitHub Actions under controlled non-release outputs.
+   - Boundary: build evidence only; no public artifact, GitHub Release, release tag, signing, publishing, installer, update channel, or deployment.
+
+89. **Phase 189 adds checksum, SBOM, and provenance evidence**
+   - Phase 189 must add checksum, SBOM, and provenance evidence boundaries for release artifacts.
+   - Boundary: evidence only; no signing, publishing, public distribution, deployment, or v1.0 approval.
+
+90. **Phase 190 reconciles the release-platform foundation**
+   - Phase 190 must reconcile Phases 186-189 and decide whether signing/key-custody activation work may proceed.
+   - Boundary: alignment only; no release execution, production readiness, public-release readiness, signing activation, publishing, or deployment.
+
+91. **Phase 191 defines bounded signing and key custody**
+   - Phase 191 must define or activate signing/key-custody behavior under the release-platform contract and provenance requirements.
+   - Boundary: no public release, publishing, deployment, installer/update-channel activation, or v1.0 approval.
+
+92. **Phase 192 rehearses GitHub draft Release or RC publication mechanics**
+   - Phase 192 must rehearse draft release mechanics without final v1.0 public release.
+   - Boundary: rehearsal only; no v1.0 release approval, production readiness, public/general-use approval, deployment, or broad distribution.
+
+93. **Phase 193 closes support, incident, rollback, and security evidence**
+   - Phase 193 must close support, incident response, rollback, and security evidence needed before production/public-use decisions.
+   - Boundary: closure evidence only; no production/public-use approval, deployment activation, or public final release.
+
+94. **Phase 194 resolves production/public-use hardening blockers**
+   - Phase 194 must resolve confirmed production and public-use blockers before Production Candidate decision work.
+   - Boundary: hardening only; no Production Candidate approval, public/general-use approval, release execution, or deployment approval.
+
+95. **Phase 195 decides Production Candidate status**
+   - Phase 195 must decide whether Production Candidate status is supportable from committed release-platform, security, support, and public-use evidence.
+   - Boundary: decision gate only; no v1.0 release, public/general-use approval, deployment, or release execution.
+
+96. **Phase 196 consolidates v1.0 readiness evidence**
+   - Phase 196 must consolidate platform, artifacts, provenance, security, support, documentation, versioning, and public-use evidence.
+   - Boundary: evidence consolidation only; no approval or release execution.
+
+97. **Phase 197 closes v1.0 documentation and public identity**
+   - Phase 197 must close public documentation, license/public identity, support, and user-facing release identity gaps.
+   - Boundary: documentation and public identity closure only; no release execution or public-use activation.
+
+98. **Phase 198 audits final release evidence**
+   - Phase 198 must audit release, security, support, provenance, versioning, workflow, branch-protection, and public-use evidence.
+   - Boundary: audit only; no approval, release execution, signing, publishing, deployment, or public-use activation.
+
+99. **Phase 199 resolves final release blockers**
+   - Phase 199 must resolve blockers identified by the final release audit.
+   - Boundary: blocker resolution only; no v1.0 approval or release execution.
+
+100. **Phase 200 decides v1.0 release execution**
+   - Phase 200 must decide whether v1.0 GitHub Actions release execution is approved.
+   - Boundary: decision gate only; approval is limited to explicit committed evidence and does not authorize unsafe bypasses.
+
+101. **Phase 201 executes the v1.0 GitHub Actions release only after approval**
+   - Phase 201 may execute the v1.0 GitHub Actions release only if Phase 200 approves.
+   - Boundary: release execution only after Phase 200 approval; no bypass of signing, provenance, support, incident, rollback, public-use, branch-protection, workflow, versioning, or license gates.
+
 
 Phase 170 remaps Phases 171-180 toward release-candidate preparation while preserving code-production requirements, and Phase 180 records `release_candidate_status_supportable_with_caveats` with explicit no-authority caveats before entering a controlled stewardship block (Phases 181-185). Phases 171-174 and 176-179 must produce product-facing code, executable artifacts, release-candidate preparation artifacts, signing/key-custody dry-run surfaces, release-evidence review UI, hardening code, or deterministic validation improvements. Phase 175 remains alignment-only and Phase 180 remains a decision gate. User help is explanatory only, not authority, and not release documentation approval. Local HTML help pages are not production readiness evidence. Local beta workflow completion is not production readiness. Provider output remains untrusted, session package is not a release artifact, restore projection is not recovery promotion, replay/status projection is not replay repair, and absence of blockers is not approval.
 
