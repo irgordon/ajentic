@@ -4,6 +4,41 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.192 - 2026-06-10
+**Status:** Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish
+
+### Added
+- Add display-only status copy mapping for plain browser UI labels.
+- Add read-only browser UI glossary, evidence summary cards, accessible status badges, and technical details disclosures.
+- Add Phase 192 operation documentation for UI/UX clarity and visual polish boundaries.
+
+### Changed
+- Polish the local browser shell header, help surface, release-candidate preparation panel, evidence log, and visual tokens.
+- Align README, AGENTS, checklist, and roadmap surfaces with the Phase 192 read-only UI/UX boundary.
+- Preserve raw technical status values in details and text snapshots while showing novice-facing labels first.
+
+### Notes
+- The UI remains local, read-only, and non-authoritative.
+- Simulated local data remains predictable test data, not cloud or live database behavior.
+- Blocked, missing, rejected, and unknown statuses remain visible.
+- No backend or Rust authority change was created.
+- No release was created.
+- No Git tag was created.
+- No GitHub Release was created.
+- No signing path was created.
+- No publishing path was created.
+- No installer path was created.
+- No update-channel path was created.
+- No public artifact path was created.
+- No deployment path was created.
+- Package versions remain unchanged.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.191 - 2026-06-10
 **Status:** Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary
 

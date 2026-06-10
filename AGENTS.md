@@ -77,6 +77,12 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Do not treat attestation evidence as release approval.
 - Do not treat a workflow artifact as a public distribution path.
 - Do not add installer, update-channel, deployment, npm publish, Cargo publish, or registry publishing behavior.
+- Keep browser UI primary copy in plain language for non-technical users.
+- Keep raw technical statuses available in details or raw sections.
+- Do not let TypeScript compute or claim release, promotion, or production authority.
+- Do not hide blocked, failed, unknown, malformed, missing, or rejected states.
+- Do not add external fonts, network font loading, or heavy UI dependencies without explicit scope.
+- Do not convert read-only UI controls into release, publish, sign, deploy, or credential-changing actions.
 
 ## Constraint reminder
 

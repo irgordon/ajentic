@@ -4,68 +4,52 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary
+# Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish
 
-- Phase name: Phase 191 - Artifact, Signing, and Release Workflow Activation Boundary.
-- Phase goal: activate internal release-candidate artifact packaging, the manual release-candidate workflow, and the internal attestation boundary without publishing a release.
+- Phase name: Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish.
+- Phase goal: make the read-only browser UI clearer, more approachable, visually polished, and usable by novice/non-technical users.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
   - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `d5887ad`.
+  - [x] Confirm starting commit is `ff23c5f`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- Workflow activation:
-  - [x] Release-candidate workflow added.
-  - [x] Workflow is `workflow_dispatch` only.
-  - [x] `expected_commit` input enforced.
-  - [x] `confirm_no_public_release=NO_PUBLIC_RELEASE` enforced.
-  - [x] Short-retention internal artifact upload is optional and labeled internal candidate evidence.
-  - [x] Upload retention is 5 days.
-- Internal candidate bundle:
-  - [x] Deterministic bundle script added.
-  - [x] Rust release executable candidate included.
-  - [x] UI `dist` files included.
-  - [x] Internal checksum evidence included.
-  - [x] Internal SBOM evidence included.
-  - [x] Internal provenance evidence included.
-  - [x] Bundle manifest generated.
-  - [x] Bundle checksum evidence generated.
-  - [x] Bundle output compared across two builds.
-- Attestation boundary:
-  - [x] GitHub artifact attestation boundary added for internal candidate bundle.
-  - [x] GitHub artifact attestation boundary added for internal SBOM evidence.
-  - [x] Attestation permissions scoped to attestation job.
-  - [x] Top-level workflow permissions remain `contents: read`.
-  - [x] Build/package job permissions remain `contents: read`.
-  - [x] No `contents: write`.
-  - [x] No `packages: write`.
-  - [x] No `deployments: write`.
-  - [x] No `artifact-metadata: write`.
+- UI clarity:
+  - [x] Header rewritten around local simulated testing.
+  - [x] Harness badge uses `Ready (simulated)` as primary copy.
+  - [x] Preparation status uses `Preparation blocked` as primary copy.
+  - [x] Evidence summary cards added.
+  - [x] Evidence verification rows use plain labels and one-line explanations.
+  - [x] Raw technical status values remain available in details.
+  - [x] Help and reference panel aligned.
+  - [x] Plain-English glossary added.
+- Visual and accessibility:
+  - [x] Typography tokens use system UI and code font stacks.
+  - [x] Semantic color tokens added for local ready, blocked, missing, rejected, and neutral states.
+  - [x] Status meaning is not color-only.
+  - [x] Details/tooltips are keyboard/click/tap accessible.
+  - [x] Focus styling remains visible.
+  - [x] Responsive behavior checked locally.
 - Boundary confirmations:
+  - [x] UI remains read-only and non-authoritative.
+  - [x] Rust authority unchanged.
+  - [x] No external fonts or font CDN added.
+  - [x] No external network/provider calls added.
   - [x] No Git tag created.
   - [x] No GitHub Release created.
   - [x] No package publishing added.
-  - [x] No npm publishing added.
-  - [x] No Cargo publishing added.
   - [x] No public artifact path added.
   - [x] No installer path added.
   - [x] No update-channel path added.
   - [x] No deployment path added.
-  - [x] No OS signing or notarization added.
-  - [x] No private signing keys added.
   - [x] No package version changed.
 - Documentation alignment:
-  - [x] Add `docs/operations/artifact-signing-release-workflow-phase-191.md`.
-  - [x] Update README status and workflow language.
-  - [x] Update AGENTS release/signing discipline.
-  - [x] Update CHANGELOG with `v0.0.191`.
+  - [x] Add `docs/operations/read-only-browser-ui-ux-phase-192.md`.
+  - [x] Update README read-only browser UI status.
+  - [x] Update AGENTS UI copy and authority discipline.
+  - [x] Update CHANGELOG with `v0.0.192`.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Validation:
   - [x] `git status --short`
-  - [x] `python3 scripts/reproducible_artifacts.py --help`
-  - [x] `python3 scripts/reproducible_artifacts.py --check`
-  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
-  - [x] `python3 scripts/release_candidate_bundle.py --help`
-  - [x] `python3 scripts/release_candidate_bundle.py --check`
   - [x] `cd ui && npm run build`
   - [x] `cd ui && npm run typecheck`
   - [x] `cd ui && npm run lint`
@@ -73,14 +57,28 @@ mutation_path: checklist_revision
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
   - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
+  - [x] `python3 scripts/reproducible_artifacts.py --help`
+  - [x] `python3 scripts/reproducible_artifacts.py --check`
+  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
+  - [x] `python3 scripts/release_candidate_bundle.py --help`
+  - [x] `python3 scripts/release_candidate_bundle.py --check`
   - [x] `scripts/validate_structure.py`
   - [x] `scripts/validate_docs.py`
   - [x] `scripts/check_help_pages.py`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-191-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-192-target ./scripts/check.sh`
+- Manual browser validation:
+  - [x] Start UI with `cd ui && npm run dev`.
+  - [x] Open local browser page.
+  - [x] Confirm shell renders without blank/error state.
+  - [x] Confirm main labels are plain language.
+  - [x] Confirm raw technical values remain accessible.
+  - [x] Confirm help opens.
+  - [x] Confirm blocked and missing states are visible.
+  - [x] Confirm no production/public-release overclaim.
+  - [x] Confirm no external network calls are introduced.
 - Remote evidence:
   - [x] `git ls-remote --tags origin`
   - [x] GitHub Releases evidence is unknown from local tooling because `gh` is unavailable.
   - [x] Branch protection evidence is unknown from local tooling because `gh` is unavailable.
   - [x] Remote workflow evidence is unknown from local tooling because `gh` is unavailable.
-  - [x] Local workflow emulation with `act` was not run because `act` is unavailable.

@@ -8,19 +8,34 @@ import {
 import { renderProviderOutputReviewText } from "./providerOutputReview.js";
 import { renderCandidateReviewSurface } from "./candidateReviewSurface.js";
 import { renderLocalHelpEntryText } from "../app/help.js";
+import { displayStatus, plainCategoryLabel } from "../display/statusCopy.js";
 
 function renderReleaseCandidatePreparationText(
   state: LocalOperatorShellState,
 ): string {
   const projection = state.releaseCandidatePreparation;
   return [
-    `Preparation status: ${projection.status}`,
+    `Preparation status: ${displayStatus(projection.status).label}`,
+    `Raw preparation status: ${projection.status}`,
     `Preparation ID: ${projection.preparationId}`,
+    "Evidence summary",
+    `Total checks: ${projection.categoryCount}`,
+    `Available: ${projection.presentEvidenceCount}`,
+    `Needs attention: ${projection.blockedEvidenceCount}`,
+    `Not started: ${projection.missingEvidenceCount}`,
+    `Rejected: ${projection.rejectedEvidenceCount}`,
     `Evidence category count: ${projection.categoryCount}`,
     `Present evidence count: ${projection.presentEvidenceCount}`,
     `Missing evidence count: ${projection.missingEvidenceCount}`,
     `Blocked evidence count: ${projection.blockedEvidenceCount}`,
     `Rejected evidence count: ${projection.rejectedEvidenceCount}`,
+    "Evidence verification log",
+    projection.evidenceItems
+      .map(
+        (item) =>
+          `${plainCategoryLabel(item.category)}: ${displayStatus(item.status).label} (${item.sourceLinkage.sourceSummary}; raw ${item.category}: ${item.status})`,
+      )
+      .join("\n") || "none",
     "Evidence category list",
     projection.evidenceItems
       .map(
@@ -30,9 +45,19 @@ function renderReleaseCandidatePreparationText(
       .join("\n") || "none",
     "Missing evidence list",
     projection.missingEvidence
-      .map((item) => `${item.category}: ${item.reason} (${item.sourceSurface})`)
+      .map(
+        (item) =>
+          `${plainCategoryLabel(item.category)}: Not started - ${item.reason} (raw ${item.category}; ${item.sourceSurface})`,
+      )
       .join("\n") || "none",
     "Blocker list",
+    projection.blockers
+      .map(
+        (item) =>
+          `${plainCategoryLabel(item.category)}: Needs attention - ${item.reason} (raw ${item.category}; ${item.sourceSurface})`,
+      )
+      .join("\n") || "none",
+    "Raw blocker list",
     projection.blockers
       .map((item) => `${item.category}: ${item.reason} (${item.sourceSurface})`)
       .join("\n") || "none",
@@ -87,6 +112,7 @@ function renderReleaseArtifactDryPackageText(
 ): string {
   const projection = state.releaseArtifactDryPackage;
   return [
+    "Internal candidate bundle",
     `Package status: ${projection.status}`,
     `Dry package ID: ${projection.dryPackageId ?? "none"}`,
     `Dry package classification: ${projection.dryPackageClassification}`,
@@ -119,6 +145,7 @@ function renderSigningKeyCustodyDryRunText(
 ): string {
   const projection = state.signingKeyCustodyDryRun;
   return [
+    "Internal attestation evidence",
     `Dry-run status: ${projection.status}`,
     `Dry-run evidence ID: ${projection.evidenceId ?? "none"}`,
     `Upstream evidence linkage: ${projection.upstreamEvidenceLinkage}`,
@@ -156,6 +183,7 @@ function renderReleaseCandidateGapReviewText(state: LocalOperatorShellState): st
 function renderReleaseCandidateEvidenceAssemblyText(state: LocalOperatorShellState): string {
   const p = state.releaseCandidateEvidenceAssembly;
   return [
+    "Internal evidence",
     `Evidence assembly status: ${p.status}`,
     `Assembly ID: ${p.assemblyId ?? "none"}`,
     `Evidence category count: ${p.categoryCount}`,

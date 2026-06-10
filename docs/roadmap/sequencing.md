@@ -495,10 +495,11 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Workflow activation does not itself publish release.
    - Boundary: internal candidate activation only; no Git tag, GitHub Release, public artifact, package publication, installer, update channel, deployment, OS signing, notarization, or final v1 release execution.
 
-92. **Phase 192 hardens the UI/UX release-candidate path**
-   - Phase 192 must fix user-facing release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
-   - UI/UX hardening follows release workflow activation so the real user path can inspect actual internal bundle, evidence, artifact, and release-status surfaces.
-   - Boundary: UI/UX hardening only; no unrelated governance expansion, audit-only work, or speculative architecture work.
+92. **Phase 192 clarifies and polishes the read-only browser shell**
+   - Phase 192 must make the local read-only browser review surface understandable for novice and non-technical users.
+   - Plain labels, evidence summaries, local-only help, blocked/missing/rejected visibility, and raw technical details must be available before RC publication.
+   - UI/UX clarity follows release workflow activation so the real user path can inspect actual internal bundle, evidence, artifact, and release-status surfaces.
+   - Boundary: UI/UX clarity only; no backend authority change, unrelated governance expansion, audit-only work, speculative architecture work, release approval, signing, publishing, installer, update channel, deployment, public artifact, or package version change.
 
 93. **Phase 193 publishes the v1 Release Candidate**
    - Phase 193 must publish a bounded v1 Release Candidate through the approved release path for final acceptance review.

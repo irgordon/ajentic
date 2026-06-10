@@ -54,6 +54,7 @@ import {
 import { renderCandidateReviewSurface } from "./candidateReviewSurface.js";
 import { renderLocalOperatorShellSnapshot } from "./localOperatorShellView.js";
 import { renderLocalHelpEntryText } from "../app/help.js";
+import { displayStatus } from "../display/statusCopy.js";
 import {
   createLocalOperatorShellTransport,
   createLocalStagedCandidateConversionProposal,
@@ -242,15 +243,19 @@ function assertLocalHelpEntryPointVisibleAndNoAuthority(): void {
   const after = JSON.stringify(response.state);
 
   assertEqual(after, before, "help rendering does not mutate shell state");
-  assertContains(snapshot, "Local help", "snapshot help entry point visible");
   assertContains(
     snapshot,
-    "Operator help pages are explanatory only.",
+    "Help and reference",
+    "snapshot help entry point visible",
+  );
+  assertContains(
+    snapshot,
+    "Learn what each check means and how to read this local review page.",
     "explanatory help wording visible",
   );
   assertContains(
     help,
-    "local-only and non-production",
+    "local and read-only",
     "help boundary wording",
   );
   assertContains(
@@ -266,6 +271,57 @@ function assertLocalHelpEntryPointVisibleAndNoAuthority(): void {
     "help no publish/deploy/sign/release wording",
   );
   assertContains(help, "approve actions", "help no action approval wording");
+}
+
+function assertReadOnlyBrowserStatusCopyIsPlainAndPreservesRaw(): void {
+  const rendered = renderLocalOperatorShellSnapshot(
+    initialLocalOperatorShellState(),
+  );
+  const unknown = displayStatus("unexpected_future_status");
+
+  assertEqual(
+    displayStatus("simulation_ready").label,
+    "Ready (simulated)",
+    "simulated harness status is plain",
+  );
+  assertEqual(
+    displayStatus("preparation_blocked").label,
+    "Preparation blocked",
+    "preparation blocked status is plain",
+  );
+  assertEqual(
+    displayStatus("missing").label,
+    "Not started",
+    "missing status is plain",
+  );
+  assertEqual(
+    displayStatus("present").label,
+    "Available",
+    "present status is plain",
+  );
+  assertEqual(
+    displayStatus("rejected").label,
+    "Rejected",
+    "rejected status is plain",
+  );
+  assertEqual(unknown.label, "Unknown status", "unknown is not success");
+  assertEqual(unknown.tone, "neutral", "unknown is neutral");
+  assertContains(
+    rendered,
+    "Preparation status: Preparation blocked",
+    "plain preparation status visible",
+  );
+  assertContains(
+    rendered,
+    "Raw preparation status: preparation_blocked",
+    "raw preparation status preserved",
+  );
+  assertContains(rendered, "Evidence summary", "evidence summary visible");
+  assertContains(rendered, "Total checks: 30", "total checks card label");
+  assertContains(rendered, "Available:", "available summary label");
+  assertContains(rendered, "Needs attention:", "attention summary label");
+  assertContains(rendered, "Not started:", "not started summary label");
+  assertContains(rendered, "Rejected:", "rejected summary label");
 }
 
 function assertLocalOperatorShellRendersCandidateAfterStubRun(): void {
@@ -7559,6 +7615,10 @@ payload_summary=authority before replay`),
   {
     name: "local_help_entry_point_visible_and_no_authority",
     run: assertLocalHelpEntryPointVisibleAndNoAuthority,
+  },
+  {
+    name: "read_only_browser_status_copy_plain_and_raw_preserved",
+    run: assertReadOnlyBrowserStatusCopyIsPlainAndPreservesRaw,
   },
   {
     name: "trial_evidence_review_panel_initial_state",

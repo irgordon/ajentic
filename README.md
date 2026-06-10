@@ -109,6 +109,8 @@ GitHub Actions also contains a manually triggered internal release-candidate wor
 That workflow may create internal candidate bundles and internal attestation evidence.
 It does not create GitHub Releases, tags, public artifacts, installers, update channels, package publications, or deployments.
 
+The browser shell is a read-only local review page. It uses plain labels for simulated local checks, keeps technical evidence in details and raw sections, and does not approve releases or publish artifacts.
+
 License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
 

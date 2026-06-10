@@ -654,10 +654,12 @@ Boundary: Internal candidate workflow activation only; no publication, tags, Git
 
 Evidence gate: the internal candidate bundle is deterministic, workflow dispatch inputs fail closed, upload is short-retention internal review evidence only, and attestation permissions are scoped to the attestation job.
 
-### Phase 192 - UI/UX Release Candidate Hardening
-Goal: Fix functional UI/UX release-candidate blockers in first-run, review, evidence, status, and navigation surfaces.
+### Phase 192 - Read-Only Browser UI/UX Clarity and Visual Polish
+Goal: Clarify and polish the read-only browser shell for local release-candidate review.
 
-Boundary: UI/UX hardening only; no unrelated governance expansion, audit-only work, or speculative architecture work.
+Scope: plain status labels, evidence summaries, help/reference copy, accessible details for raw technical values, visible blocked/missing/rejected states, responsive polish, and local-only safety messaging.
+
+Boundary: UI/UX clarity only; no backend authority change, unrelated governance expansion, audit-only work, speculative architecture work, release approval, signing, publishing, installer, update channel, deployment, public artifact, or package version change.
 
 ### Phase 193 - v1 Release Candidate Publication
 Goal: Publish a bounded v1 Release Candidate through the approved release path for final acceptance review.

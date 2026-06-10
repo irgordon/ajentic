@@ -7,7 +7,10 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-sans: var(--font-ui);
   --font-size-xs: 0.8125rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -16,14 +19,26 @@
 
   --border-width: 1px;
   --border-radius: 0.5rem;
-  --border-radius-lg: 0.75rem;
-  --border-color: #c9d1dd;
+  --border-radius-lg: 0.5rem;
+  --border-color: #c8ced6;
 
-  --color-bg: #f5f7fb;
+  --color-bg: #f7f1e7;
+  --color-soft-panel: #fffaf0;
   --color-surface: #ffffff;
-  --color-text: #1f2430;
-  --color-muted-text: #4b5565;
-  --color-focus: #1d4ed8;
+  --color-text: #102a43;
+  --color-muted-text: #53606d;
+  --color-focus: #b42318;
+  --color-ready: #6f8f72;
+  --color-ready-bg: #edf5ee;
+  --color-attention: #d92d20;
+  --color-attention-text: #7f1d1d;
+  --color-attention-bg: #fff1f0;
+  --color-missing: #f2b84b;
+  --color-missing-bg: #fff6df;
+  --color-rejected: #7f1d1d;
+  --color-rejected-bg: #fce7e7;
+  --color-slate: #64748b;
+  --shadow-panel: 0 0.75rem 2rem rgba(16, 42, 67, 0.08);
 
   --content-max-width: 74rem;
 }

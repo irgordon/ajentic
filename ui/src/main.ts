@@ -13,6 +13,7 @@ import {
   type CompleteLocalOperatorWorkflowProjection,
 } from "./api/localOperatorShell.js";
 import { renderProviderOutputReviewHtml } from "./api/providerOutputReview.js";
+import { displayStatus, plainCategoryLabel } from "./display/statusCopy.js";
 import {
   createLocalOperatorShellTransport,
   getInitialLocalOperatorShellState,
@@ -193,6 +194,144 @@ function renderList(items: readonly string[], emptyText: string): string {
   return `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
 }
 
+function renderStatusBadge(raw: string, rawLabel = "Raw status"): string {
+  const status = displayStatus(raw);
+  return `<span class="status-badge-group"><span class="status-badge status-badge--${status.tone}" tabindex="0" title="${status.description}" aria-label="${status.label}. ${status.description} ${rawLabel}: ${status.raw}."><span class="status-dot" aria-hidden="true"></span>${status.label}</span><span class="status-badge-help">${status.description}</span></span>`;
+}
+
+function renderTechnicalDetails(
+  summary: string,
+  rows: readonly [string, string][],
+): string {
+  const terms = rows
+    .map(
+      ([term, value]) =>
+        `<div><dt>${term}</dt><dd><code>${value}</code></dd></div>`,
+    )
+    .join("");
+  return `<details class="technical-details"><summary>${summary}</summary><dl>${terms}</dl></details>`;
+}
+
+function renderEvidenceSummaryCards(
+  projection: LocalOperatorShellState["releaseCandidatePreparation"],
+): string {
+  const cards = [
+    {
+      label: "Total checks",
+      value: projection.categoryCount,
+      helper: "Local review checks tracked here.",
+      tone: "neutral",
+    },
+    {
+      label: "Available",
+      value: projection.presentEvidenceCount,
+      helper: "Evidence exists.",
+      tone: "ready",
+    },
+    {
+      label: "Needs attention",
+      value: projection.blockedEvidenceCount,
+      helper: "Action needed before continuing.",
+      tone: "attention",
+    },
+    {
+      label: "Not started",
+      value: projection.missingEvidenceCount,
+      helper: "Not supplied yet.",
+      tone: "missing",
+    },
+    {
+      label: "Rejected",
+      value: projection.rejectedEvidenceCount,
+      helper: "Explicitly rejected evidence.",
+      tone: "rejected",
+    },
+  ];
+
+  return `<div class="evidence-summary" aria-label="Evidence summary">${cards
+    .map(
+      (card) => `
+        <article class="summary-card summary-card--${card.tone}" tabindex="0" title="${card.helper}">
+          <span>${card.label}</span>
+          <strong>${card.value}</strong>
+          <p>${card.helper}</p>
+        </article>`,
+    )
+    .join("")}</div>`;
+}
+
+function renderEvidenceVerificationLog(
+  projection: LocalOperatorShellState["releaseCandidatePreparation"],
+): string {
+  if (projection.evidenceItems.length === 0) {
+    return `<p class="muted">No evidence checks are projected.</p>`;
+  }
+
+  return `<div class="evidence-log">${projection.evidenceItems
+    .map((item) => {
+      const status = displayStatus(item.status);
+      return `
+        <article class="evidence-row evidence-row--${status.tone}">
+          <div class="evidence-row__main">
+            <span class="status-dot" aria-hidden="true"></span>
+            <div>
+              <h4>${plainCategoryLabel(item.category)}</h4>
+              <p>${item.sourceLinkage.sourceSummary}</p>
+            </div>
+          </div>
+          ${renderStatusBadge(item.status, "Raw evidence status")}
+          ${renderTechnicalDetails("Raw details", [
+            ["Raw category", item.category],
+            ["Raw status", item.status],
+            ["Source surface", item.sourceLinkage.sourceSurface],
+            ["Source status", item.sourceLinkage.sourceStatus],
+          ])}
+        </article>`;
+    })
+    .join("")}</div>`;
+}
+
+function renderEvidenceIssueList(
+  title: string,
+  items: LocalOperatorShellState["releaseCandidatePreparation"]["missingEvidence"],
+  emptyText: string,
+): string {
+  if (items.length === 0) return `<p class="muted">${emptyText}</p>`;
+  return `<ul class="issue-list" aria-label="${title}">${items
+    .map(
+      (item) =>
+        `<li><strong>${plainCategoryLabel(item.category)}</strong><span>${item.reason}</span>${renderTechnicalDetails("Raw details", [["Raw category", item.category], ["Source surface", item.sourceSurface]])}</li>`,
+    )
+    .join("")}</ul>`;
+}
+
+function renderPlainEnglishGlossary(): string {
+  return `
+    <section class="panel glossary-panel" aria-label="Plain-English glossary">
+      <h2>Plain-English glossary</h2>
+      <details open>
+        <summary>What does simulated mean?</summary>
+        <p>The page uses predictable local test data instead of a live database or cloud service.</p>
+      </details>
+      <details>
+        <summary>What does blocked mean?</summary>
+        <p>Blocked means action is needed before local release-candidate work can continue.</p>
+      </details>
+      <details>
+        <summary>What does evidence mean?</summary>
+        <p>Evidence is local information used to inspect checks, artifacts, checksums, SBOM data, provenance, or review status.</p>
+      </details>
+      <details>
+        <summary>What does local-only mean?</summary>
+        <p>Local-only means this page does not contact cloud services, publish, sign, deploy, or create public releases.</p>
+      </details>
+      <details>
+        <summary>What happens next?</summary>
+        <p>Review the checks, fix blocked or missing items, and continue release-candidate work through the governed Rust-owned path.</p>
+      </details>
+    </section>`;
+}
+
 function renderCompleteLocalOperatorWorkflow(
   workflow: CompleteLocalOperatorWorkflowProjection,
 ): string {
@@ -246,7 +385,7 @@ function renderCompleteLocalOperatorWorkflow(
 
 function renderCandidate(state: LocalOperatorShellState): string {
   if (!state.run.candidate)
-    return `<p class="muted">Start a deterministic stub run to display candidate output.</p>`;
+    return `<p class="muted">Run the local simulation to display candidate output.</p>`;
   const candidate = state.run.candidate;
   return `
     <h3>${candidate.title}</h3>
@@ -287,7 +426,7 @@ function renderAdapterRegistry(state: LocalOperatorShellState): string {
     ${declarations}
     <p class="muted">${registry.note}</p>
     <div class="button-row">
-      <button id="submit-adapter-declaration" type="button">Declare deterministic fake adapter contract</button>
+      <button id="submit-adapter-declaration" type="button">Declare local test adapter contract</button>
       <button id="reject-adapter-declaration" type="button">Submit rejected network adapter declaration</button>
     </div>`;
 }
@@ -420,7 +559,7 @@ function renderProviderConfiguration(state: LocalOperatorShellState): string {
     </dl>
     <p class="muted">${providerConfiguration.note}</p>
     <div class="button-row">
-      <button id="submit-provider-config" type="button">Submit deterministic_stub configuration</button>
+      <button id="submit-provider-config" type="button">Submit local test provider configuration</button>
       <button id="reject-provider-config" type="button">Submit forbidden endpoint candidate</button>
     </div>`;
 }
@@ -733,50 +872,40 @@ function renderReleaseCandidatePreparation(
 ): string {
   const projection = state.releaseCandidatePreparation;
   return `
-    <p><strong>Preparation status:</strong> ${projection.status}</p>
-    <p><strong>Preparation ID:</strong> ${projection.preparationId}</p>
-    <p><strong>Evidence category count:</strong> ${projection.categoryCount}</p>
-    <p><strong>Present evidence count:</strong> ${projection.presentEvidenceCount}</p>
-    <p><strong>Missing evidence count:</strong> ${projection.missingEvidenceCount}</p>
-    <p><strong>Blocked evidence count:</strong> ${projection.blockedEvidenceCount}</p>
-    <p><strong>Rejected evidence count:</strong> ${projection.rejectedEvidenceCount}</p>
-    <h3>Evidence category list</h3>
-    ${renderList(
-      projection.evidenceItems.map(
-        (item) =>
-          `${item.category}: ${item.status} (${item.sourceLinkage.sourceSummary})`,
-      ),
-      "No evidence categories projected.",
+    <div class="panel__header">
+      <div>
+        <p class="muted">Review local release-candidate checks before work continues.</p>
+        ${renderStatusBadge(projection.status, "Raw preparation status")}
+      </div>
+      ${renderTechnicalDetails("Preparation details", [
+        ["Preparation ID", projection.preparationId],
+        ["Raw preparation status", projection.status],
+        ["Boundary markers", projection.boundaryStatuses.join(", ")],
+      ])}
+    </div>
+    ${renderEvidenceSummaryCards(projection)}
+    <h3>Evidence verification log</h3>
+    ${renderEvidenceVerificationLog(projection)}
+    <h3>Checks needing action</h3>
+    ${renderEvidenceIssueList(
+      "Blocked evidence",
+      projection.blockers,
+      "No blocked checks.",
     )}
-    <h3>Missing evidence list</h3>
-    ${renderList(
-      projection.missingEvidence.map(
-        (item) => `${item.category}: ${item.reason} (${item.sourceSurface})`,
-      ),
-      "No missing evidence.",
+    <h3>Checks not started</h3>
+    ${renderEvidenceIssueList(
+      "Missing evidence",
+      projection.missingEvidence,
+      "No missing checks.",
     )}
-    <h3>Blocker list</h3>
-    ${renderList(
-      projection.blockers.map(
-        (item) => `${item.category}: ${item.reason} (${item.sourceSurface})`,
-      ),
-      "No blockers.",
-    )}
-    <h3>Source linkage summary</h3>
-    ${renderList(
-      projection.evidenceItems.map(
-        (item) =>
-          `${item.category} -> ${item.sourceLinkage.sourceSurface}:${item.sourceLinkage.sourceStatus}`,
-      ),
-      "No source linkage projected.",
-    )}
-    <p><strong>Boundary markers:</strong> ${projection.boundaryStatuses.join(", ")}</p>
-    <p class="muted">${projection.noReleaseReadinessNote}</p>
-    <p class="muted">${projection.noReleaseArtifactNote}</p>
-    <p class="muted">${projection.noReleaseCandidateStatusNote}</p>
-    <p class="muted">${projection.noProductionDeploymentPublicSigningPublishingInstallerUpdateNote}</p>
-    <p class="muted">${projection.noProviderTrustNote}</p>
-    <p class="muted">${projection.noActionAuthorizationNote}</p>`;
+    <div class="boundary-note">
+      <p>${projection.noReleaseReadinessNote}</p>
+      <p>${projection.noReleaseArtifactNote}</p>
+      <p>${projection.noReleaseCandidateStatusNote}</p>
+      <p>${projection.noProductionDeploymentPublicSigningPublishingInstallerUpdateNote}</p>
+      <p>${projection.noProviderTrustNote}</p>
+      <p>${projection.noActionAuthorizationNote}</p>
+    </div>`;
 }
 
 
@@ -785,7 +914,7 @@ function renderReleaseArtifactDryPackage(
 ): string {
   const projection = state.releaseArtifactDryPackage;
   return `
-    <p><strong>Package status:</strong> ${projection.status}</p>
+    <p><strong>Internal candidate bundle status:</strong> ${projection.status}</p>
     <p><strong>Dry package ID:</strong> ${projection.dryPackageId ?? "none"}</p>
     <p><strong>Dry package classification:</strong> ${projection.dryPackageClassification}</p>
     <p><strong>Production classification:</strong> ${projection.productionClassification}</p>
@@ -835,7 +964,7 @@ function renderInstallerDistributionContract(state: LocalOperatorShellState): st
 function renderReleaseCandidateEvidenceAssembly(state: LocalOperatorShellState): string {
   const p = state.releaseCandidateEvidenceAssembly;
   return `
-    <p><strong>Evidence assembly status:</strong> ${p.status}</p>
+    <p><strong>Internal evidence status:</strong> ${p.status}</p>
     <p><strong>Assembly ID:</strong> ${p.assemblyId ?? "none"}</p>
     <p><strong>Evidence category count:</strong> ${p.categoryCount}</p>
     <p><strong>Present category count:</strong> ${p.presentCategoryCount}</p>
@@ -860,7 +989,7 @@ function renderReleaseCandidateEvidenceAssembly(state: LocalOperatorShellState):
 function renderSigningKeyCustodyDryRun(state: LocalOperatorShellState): string {
   const projection = state.signingKeyCustodyDryRun;
   return `
-    <p><strong>Dry-run status:</strong> ${projection.status}</p>
+    <p><strong>Internal attestation evidence status:</strong> ${projection.status}</p>
     <p><strong>Dry-run evidence ID:</strong> ${projection.evidenceId ?? "none"}</p>
     <p><strong>Dry-run classification:</strong> ${projection.classification}</p>
     <p><strong>Production classification:</strong> ${projection.productionClassification}</p>
@@ -885,27 +1014,40 @@ function render(): void {
     <main class="local-shell">
       <header class="local-shell__banner">
         <div>
-          <p class="eyebrow">AJENTIC local operator shell - non-production</p>
-          <h1>Usable Local Operator UI Shell</h1>
-          <p>Rust-owned typed projection fixture with deterministic local stub behavior. No provider, cloud, release, signing, or deployment behavior is enabled.</p>
+          <p class="eyebrow">AJENTIC local read-only review</p>
+          <h1>Local testing environment running simulated behaviors.</h1>
+          <p>External network connections, cloud deployments, and release signing are disabled by default.</p>
+          <p>Use this page to review local readiness checks before release-candidate work continues.</p>
+          <div class="boundary-strip" aria-label="Local safety boundaries">
+            <span>Local</span>
+            <span>Safe for offline testing</span>
+            <span>Simulated predictable data</span>
+            <span>No cloud contact</span>
+            <span>No publishing, signing, or deploying</span>
+          </div>
         </div>
         <div class="status-box">
           <span>Harness status</span>
-          <strong>${shellState.harnessStatus}</strong>
+          ${renderStatusBadge("simulation_ready", "Raw harness status")}
+          ${renderTechnicalDetails("Raw harness details", [
+            ["Harness status", shellState.harnessStatus],
+            ["Run status", shellState.run.status],
+          ])}
           <span>Run status</span>
-          <strong>${shellState.run.status}</strong>
+          ${renderStatusBadge(shellState.run.status, "Raw run status")}
         </div>
       </header>
 
       ${renderLocalHelpEntryHtml()}
+      ${renderPlainEnglishGlossary()}
 
       <section class="panel" aria-label="Release candidate preparation">
         <h2>Release candidate preparation</h2>
         ${renderReleaseCandidatePreparation(shellState)}
       </section>
 
-      <section class="panel" aria-label="Release artifact dry package">
-        <h2>Release artifact dry package</h2>
+      <section class="panel" aria-label="Internal candidate bundle">
+        <h2>Internal candidate bundle</h2>
         ${renderReleaseArtifactDryPackage(shellState)}
       </section>
       <section class="panel" aria-label="Installer and distribution contract">
@@ -913,13 +1055,13 @@ function render(): void {
         ${renderInstallerDistributionContract(shellState)}
       </section>
 
-      <section class="panel" aria-label="Signing and key-custody dry run">
-        <h2>Signing and key-custody dry run</h2>
+      <section class="panel" aria-label="Internal attestation evidence">
+        <h2>Internal attestation evidence</h2>
         ${renderSigningKeyCustodyDryRun(shellState)}
       </section>
 
-      <section class="panel" aria-label="Release Candidate evidence assembly">
-        <h2>Release Candidate evidence assembly</h2>
+      <section class="panel" aria-label="Internal evidence">
+        <h2>Internal evidence</h2>
         ${renderReleaseCandidateEvidenceAssembly(shellState)}
       </section>
       <section class="panel" aria-label="Release Candidate gap review">
@@ -982,9 +1124,9 @@ function render(): void {
         <section class="panel center-panel">
           <div class="panel__header">
             <h2>Bounded context</h2>
-            <button id="start-run" type="button">Start deterministic stub run</button>
+            <button id="start-run" type="button">Run local simulation</button>
           </div>
-          ${renderList(shellState.run.boundedContext, "Idle local harness state. Start the stub run to load bounded context.")}
+          ${renderList(shellState.run.boundedContext, "Idle local harness state. Run the local simulation to load bounded context.")}
           <hr />
           <h2>Candidate output</h2>
           ${renderCandidate(shellState)}
