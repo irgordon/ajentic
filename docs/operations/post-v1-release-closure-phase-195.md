@@ -120,3 +120,15 @@ Python remains adaptation.
 Bash remains glue.
 
 Post-v1 work must be scoped through explicit future phases. Allowed next-phase categories include maintenance, defect repair, package-publication planning, installer planning, update-channel planning, deployment planning, signing/notarization planning, documentation correction, and evidence verification.
+
+## Phase 195.1 Addendum
+
+Phase 195 was merged through PR #297.
+
+The final mainline closure commit is `d154e06789e46bb6485323ef9b02020c31a992b8`.
+
+The PR was squash-merged from head `9496866300cc3e8b1c881076c3d5e8c059b320c2`.
+
+Admin bypass was used due to a solo-maintainer approval deadlock.
+
+See `docs/operations/protected-branch-pr-closure-phase-195-1.md`.

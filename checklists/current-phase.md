@@ -4,47 +4,41 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 195 - Post-v1 Release Closure and Evidence Preservation
+# Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence
 
-- Phase name: Phase 195 - Post-v1 Release Closure and Evidence Preservation.
-- Phase goal: preserve final v1.0.0 release evidence, align repository status surfaces, and record post-v1 restrictions without expanding runtime behavior or distribution channels.
+- Phase name: Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence.
+- Phase goal: record PR #297 protected-branch closure, solo-maintainer approval-gate deadlock, and admin-bypass squash merge exception without changing release mechanics or authority boundaries.
 - Starting baseline:
   - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
-  - [x] Confirm branch is `main`.
-  - [x] Confirm starting commit is `6734a5b3cc223c41288b14575ad40f6fcf23fb6f`.
+  - [x] Confirm branch started from `main`.
+  - [x] Confirm starting commit is `d154e06789e46bb6485323ef9b02020c31a992b8`.
   - [x] Confirm working tree started clean and aligned with `origin/main`.
-- Evidence preservation:
-  - [x] Final release evidence recorded.
-  - [x] Final workflow evidence recorded.
-  - [x] Final tag target recorded.
-  - [x] Source RC integrity recorded.
-  - [x] Final assets listed.
-  - [x] Attestation evidence recorded.
-  - [x] Attestation re-verification limitation recorded.
-  - [x] Branch protection closure recorded.
-  - [x] Deployments absence recorded.
-- Post-v1 restrictions:
-  - [x] Package publication absence recorded.
-  - [x] Installer absence recorded.
-  - [x] Update-channel absence recorded.
-  - [x] Deployment absence recorded.
-  - [x] OS signing/notarization absence recorded.
-  - [x] Backend authority unchanged.
-  - [x] UI authority unchanged.
-  - [x] Package metadata policy recorded.
+- Protected-branch closure evidence:
+  - [x] PR #297 closure recorded.
+  - [x] Squash merge commit recorded.
+  - [x] PR branch head recorded.
+  - [x] Required checks recorded.
+  - [x] Branch protection active state recorded.
+  - [x] Admin-bypass exception recorded.
+  - [x] Solo-maintainer approval-gate deadlock recorded.
+  - [x] Remote tag/release state recorded.
+  - [x] Post-v1 restrictions preserved.
+  - [x] No release mechanics created.
 - Documentation alignment:
-  - [x] Add `docs/operations/post-v1-release-closure-phase-195.md`.
-  - [x] Update README final release status.
-  - [x] Update AGENTS post-v1 discipline.
-  - [x] Update CHANGELOG with `v0.0.195`.
-  - [x] Update `docs/releases/v1.0.0.md`.
-  - [x] Update Phase 194 completion evidence.
+  - [x] Add `docs/operations/protected-branch-pr-closure-phase-195-1.md`.
+  - [x] Update README process evidence pointer.
+  - [x] Update AGENTS solo-maintainer branch-protection discipline.
+  - [x] Update CHANGELOG with `v0.0.195.1`.
+  - [x] Update `docs/operations/post-v1-release-closure-phase-195.md`.
   - [x] Update roadmap phase-map, phases, and sequencing surfaces.
 - Validation:
   - [x] `git status --short`
   - [x] `git rev-parse HEAD`
+  - [x] `git log --oneline -8`
   - [x] `git ls-remote origin main`
   - [x] `git ls-remote --tags origin`
+  - [x] workflow and release-mechanic grep checks
+  - [x] post-v1 restriction grep checks
   - [x] `cd ui && npm run build`
   - [x] `cd ui && npm run typecheck`
   - [x] `cd ui && npm run lint`
@@ -67,8 +61,10 @@ mutation_path: checklist_revision
   - [x] `python3 scripts/validate_structure.py`
   - [x] `python3 scripts/validate_docs.py`
   - [x] `git diff --check`
-  - [ ] `CARGO_TARGET_DIR=/tmp/ajentic-phase-195-target ./scripts/check.sh`
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-195-1-target ./scripts/check.sh`
 - Boundary confirmations:
+  - [x] No workflow behavior changed.
+  - [x] No package version changed.
   - [x] No new tag created.
   - [x] No new GitHub Release created.
   - [x] No npm package publication created.

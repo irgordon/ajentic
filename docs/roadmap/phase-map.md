@@ -132,6 +132,7 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 193 | v1 Release Candidate Publication | Milestone 24 | Publish bounded `v1.0.0-rc.1` prerelease assets through the approved GitHub API-backed release path for final acceptance review. | RC publication only; no final v1.0.0 release, package publishing, installer, update channel, deployment, broader product expansion, or unsupported safety claims. |
 | 194 | v1 Final Functional Acceptance and Release Execution | Milestone 24 | Run final functional acceptance and publish the v1.0.0 GitHub Release through the guarded final-release workflow when gates are resolved. | Final GitHub Release path only; no package publishing, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
 | 195 | Post-v1 Release Closure and Evidence Preservation | Milestone 24 | Preserve final v1.0.0 release evidence, align status surfaces, and record post-v1 restrictions. | Closure/evidence phase only; no feature expansion, new release execution, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
+| 195.1 | Protected-Branch PR Closure and Solo-Maintainer Merge Evidence | Milestone 24 | Record PR #297 protected-branch closure, squash merge evidence, and solo-maintainer admin-bypass exception. | Process evidence only; no release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
 
 
 ## Phase 185 release-stewardship note
@@ -181,6 +182,10 @@ Phase 194 completed the guarded final `v1.0.0` GitHub Release path. The `final-r
 ## Phase 195 post-v1 closure note
 
 Phase 195 preserves final v1.0.0 release evidence and aligns repository status surfaces after publication. It records the final workflow, final release, annotated tag target, source RC integrity, final assets, attestation link, branch protection closure, deployments absence, package metadata policy, and post-v1 restrictions. Phase 195 creates no feature expansion, new tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. Future post-v1 work must be explicitly scoped.
+
+## Phase 195.1 protected-branch closure note
+
+Phase 195.1 records that Phase 195 was squash-merged through PR #297 as mainline commit `d154e06789e46bb6485323ef9b02020c31a992b8` from PR head `9496866300cc3e8b1c881076c3d5e8c059b320c2`. The required checks passed, direct push protection worked, and branch protection remains active. The required-review rule created a solo-maintainer approval deadlock, so admin bypass was used as a documented process exception for docs/status closure only. Phase 195.1 creates no release mechanics, new tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change.
 
 ## Phase 170 alignment note
 
