@@ -7,7 +7,7 @@ mutation_path: readme_update
 <div align="center">
 
 # AJENTIC
-### You, In Control
+### AI work, under your control
 
 ![Rust](https://img.shields.io/badge/Rust-B7410E?style=for-the-badge&logo=rust&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
@@ -21,278 +21,193 @@ mutation_path: readme_update
 <a href="https://ajentic.dev/#getting-started">
   <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket&logoColor=white" alt="Get Started" />
 </a> &nbsp;&nbsp;
-<a href="https://github.com/irgordon/ajentic">
-  <img src="https://img.shields.io/badge/GitHub_Repo-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repo" />
+<a href="https://github.com/irgordon/ajentic/releases/tag/v1.0.0">
+  <img src="https://img.shields.io/badge/v1.0.0_Release-28A745?style=for-the-badge&logo=github&logoColor=white" alt="v1.0.0 Release" />
 </a>
 
 </div>
 
 ---
 
-AJENTIC helps teams use AI confidently **without giving the model control over the work**.
+AJENTIC helps people use AI without handing control over to the model.
 
-Instead of letting an AI system act on its own, AJENTIC creates a **safe, governed workspace** where every step is visible, reviewable, and repeatable. You see what the model produced, how it was handled, and what changed along the way — with a full record you can replay at any time.
+It gives you a clear place to review AI-generated work, see what happened, and keep a record of each step. Instead of letting an AI system act on its own, AJENTIC keeps the work visible, checkable, and repeatable.
 
-The goal is simple:  
-**Move faster with AI while keeping humans in charge of decisions, outcomes, and accountability.**
+The goal is simple:
 
-## Why Use AJENTIC?
+**Use AI faster, while keeping people in charge.**
 
-AI can produce convincing work, but convincing is not the same as correct.
+## Why AJENTIC Exists
 
-AJENTIC adds a controlled review boundary around model output:
+AI can sound confident even when it is wrong.
 
-- clear inputs  
-- bounded context  
-- typed requests  
-- validation checks  
-- recorded events  
-- replayable runs  
-- audit‑friendly results  
-- human review  
+AJENTIC helps reduce that risk by putting a review layer around AI work. It lets you see what the AI produced, what checks were run, what was blocked, and what still needs attention.
 
-The goal is not autonomy.  
+AJENTIC is not about replacing human judgment. It is about making AI-assisted work easier to inspect, easier to explain, and easier to trust.
 
-The goal is **inspectable, repeatable, controlled AI‑assisted work**.
+## What You Can Do
 
-## Uses
+AJENTIC is designed to help you:
 
-AJENTIC is designed to support:
+- review AI-generated drafts before anyone relies on them
+- see what checks passed, failed, or still need attention
+- keep a record of what happened
+- inspect the history of a run
+- compare AI output with the task and rules it was supposed to follow
+- avoid hidden or automatic decisions
+- keep people responsible for final outcomes
 
-- a Rust‑governed core  
-- a browser‑based TypeScript UI  
-- local and cloud model workflows  
-- context review  
-- memory and provenance inspection  
-- policy and validation results  
-- run history  
-- replay visualization  
-- clean output surfaces  
-- operator intent controls  
-- audit and export paths  
+In plain language:
 
----
+**The AI can suggest. AJENTIC helps you review. People decide.**
 
-## Core Idea
+## How It Works
 
-```text
-User intent + model output
-  → AJENTIC intake
-  → context review
-  → policy and validation
-  → candidate output
-  → controlled action boundary
-  → recorded evidence
-  → replay
-  → audit
-  → clean human-readable output
-```
+AJENTIC follows a simple control model:
 
-Raw model output is not clean output.
-Clean output is what has passed through the AJENTIC boundary.
+1. You define the task.
+2. You define the rules.
+3. The AI produces a draft.
+4. AJENTIC records and checks the work.
+5. A person reviews the result.
+6. The run can be reviewed again later.
 
-## Project Status
+The AI-generated draft is treated as untrusted until it is reviewed. The browser interface helps you see status, evidence, errors, and history, but it does not make final decisions.
 
-Current status: v1.0.0 GitHub Release published.
+## What Makes AJENTIC Different
 
-AJENTIC v1.0.0 is published as a final GitHub Release:
+Many AI tools focus on speed.
+
+AJENTIC focuses on controlled speed:
+
+- clear inputs
+- clear rules
+- visible checks
+- reviewable results
+- repeatable runs
+- human approval controls
+- records that are easy to review later
+
+AJENTIC is built for situations where "the AI said so" is not good enough.
+
+## Who It Is For
+
+AJENTIC is useful for:
+
+- students learning how to use AI responsibly
+- researchers reviewing AI-assisted work
+- builders testing AI workflows
+- teams that need records and review steps
+- developers creating safer AI-assisted systems
+- organizations that want AI help without hidden automation
+
+You do not need to think of AJENTIC as a complex developer tool. Think of it as a workspace for checking AI work before trusting it.
+
+## Current Release Status
+
+**Current status: v1.0.0 GitHub Release published.**
+
+AJENTIC v1.0.0 is available through GitHub Releases:
 [https://github.com/irgordon/ajentic/releases/tag/v1.0.0](https://github.com/irgordon/ajentic/releases/tag/v1.0.0).
-Final GitHub Release assets are available for review, including the final candidate bundle,
-checksums, SBOM, provenance, asset manifest, release notes, and final README asset.
-The source release candidate `v1.0.0-rc.1` remains intact.
 
-No npm, Cargo, or package registry publication is active.
-No installer is active.
-No update channel is active.
-No deployment path is active.
-No OS signing or notarization is active.
-The local browser UI remains read-only and non-authoritative.
-Release evidence does not replace Rust-owned governance authority.
+The release includes review assets such as the final candidate bundle, checksums, SBOM evidence, provenance evidence, asset manifest, release notes, and final README asset. The source release candidate `v1.0.0-rc.1` remains intact.
 
-GitHub Actions remains the release evidence platform for the RC and final GitHub Release paths.
-Release assets, checksums, SBOM/provenance files, attestations, workflows, scripts, and UI surfaces are evidence or visibility surfaces only.
-They do not approve package publication, installers, update channels, deployments, OS signing, notarization, backend authority changes, or UI authority changes.
-Post-v1 release closure evidence is recorded in `docs/operations/`.
+Important limits:
 
-License: MIT.
-See the latest updates in [CHANGELOG](CHANGELOG.md).
+- no npm package publication
+- no Cargo package publication
+- no package registry publication
+- no app-store installer
+- no automatic update channel
+- no deployment service
+- no OS signing or notarization
+- no automatic production approval
 
-## Getting Started
+The browser interface is read-only and used for review. It does not make final decisions.
 
-From the repository root:
+## What AJENTIC Does Not Do
+
+AJENTIC does not:
+
+- make the AI automatically correct
+- replace human review
+- approve work on its own
+- deploy anything automatically
+- publish packages automatically
+- turn AI output into truth
+- give the browser interface final decision power
+
+AJENTIC helps you review AI work more clearly. It does not remove your responsibility to decide whether the work is good enough.
+
+## Running Locally
+
+Clone the repository:
 
 ```sh
-cd ui
-npm install
-npm run dev
+git clone https://github.com/irgordon/ajentic.git
+cd ajentic
 ```
 
-Open `http://127.0.0.1:5173` in a browser.
-
-For local validation from the repository root:
+Run the project checks:
 
 ```sh
 CARGO_TARGET_DIR=/tmp/ajentic-check-target ./scripts/check.sh
 ```
 
-## Technology Stack
+Run the local browser interface:
 
-AJENTIC separates technology by responsibility:
-
-| Layer            | Role                                                             |
-|------------------|------------------------------------------------------------------|
-| **Rust**         | authoritative core, validation, governance, replay, persistence  |
-| **TypeScript**   | browser UI, non‑authoritative display surfaces                   |
-| **Python**       | repository validation, support scripts                           |
-| **Bash**         | local command orchestration                                      |
-| **GitHub Actions** | CI validation gates, schema/policy enforcement                 |
-
-## Architecture Overview
-
-```mermaid
-flowchart TB
-
-    %% Interaction and operator surfaces (Top Layer)
-    subgraph InteractionLayer ["Interaction Layer (Non-Authoritative)"]
-        direction LR
-        
-        subgraph BashLayer ["Bash / Local Ops"]
-            direction TB
-            CLI1[Local Commands]:::bash
-            CLI2[Validation Runner]:::bash
-        end
-
-        subgraph TSUILayer ["TypeScript UI"]
-            direction TB
-            UI1[Browser Review Surface]:::ts
-            UI2[Context and Evidence Review]:::ts
-            UI3[Output and Replay Display]:::ts
-        end
-    end
-
-    %% Authoritative engine (Middle Layer)
-    subgraph CoreLayer ["Authoritative Core"]
-        direction TB
-        
-        subgraph RustCore ["Rust Core Engine"]
-            direction LR
-            %% Grouping the core into left-to-right columns to keep it compact
-            R1[Typed Requests]:::rust
-            R2[Bounded Context Assembly]:::rust
-            R3[Provider Boundary]:::rust
-            R4[Validation Gates]:::rust
-            R5[Governance Rules]:::rust
-            R6[Ledger and Replay]:::rust
-            R7[Persistence Boundaries]:::rust
-            R8[Audit Evidence]:::rust
-        end
-    end
-
-    %% External model/provider surface & Repo Gates (Bottom Layer)
-    subgraph ExternalAndGates ["External Integrations & Static Gates"]
-        direction LR
-        
-        subgraph ProviderLayer ["Model Provider (Untrusted)"]
-            direction TB
-            M1[Local LLM]:::llm
-            M2[Cloud LLM]:::llm
-            M3[Candidate Model Output]:::llm
-        end
-
-        subgraph SupportLayer ["Repository Validation Gates"]
-            direction LR
-            
-            subgraph PythonLayer ["Python Scripts"]
-                direction TB
-                P1[Repo Structure]:::python
-                P2[Docs & Schema]:::python
-            end
-
-            subgraph CILayer ["GitHub Actions / CI"]
-                direction TB
-                G1[Boundary Lints]:::ci
-                G2[Contract Checks]:::ci
-                G3[Regression Tests]:::ci
-            end
-        end
-    end
-
-    %% === FLOW RELATIONSHIPS ===
-
-    %% Operator and core flow
-    BashLayer == "invokes bounded local workflow" ==> RustCore
-    RustCore == "returns report, evidence, and clean output" ==> BashLayer
-
-    %% Provider/model flow
-    R2 == "bounded context" ==> R3
-    
-    %% Provider paths explicitly acting as the controlled boundary
-    R3 == "provider request (controlled boundary)" ==> M1
-    R3 == "provider request (controlled boundary)" ==> M2
-    
-    M1 --> M3
-    M2 --> M3
-    
-    %% Output path clearly labeled as untrusted material routing straight to validation
-    M3 == "returned model output (untrusted candidate material)" ==> R4
-
-    %% Validation/governance internal flow (Guides the eye left-to-right inside the core)
-    R4 --> R5 --> R6 --> R8
-
-    %% UI projection flow
-    RustCore == "read-only projections and evidence" ==> TSUILayer
-    TSUILayer -. "reviews only; no authority" .-> RustCore
-
-    %% Repository validation flow
-    SupportLayer -. "checks repository changes" .-> RustCore
-    SupportLayer -. "checks UI and docs boundaries" .-> InteractionLayer
-
-    %% === STYLING ===
-    classDef rust fill:#B7410E,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef ts fill:#3178C6,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef python fill:#FFD43B,stroke:#333,stroke-width:2px,color:#111;
-    classDef bash fill:#4EAA25,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef ci fill:#24292E,stroke:#fff,stroke-width:2px,color:#fff;
-    classDef llm fill:#6B46C1,stroke:#fff,stroke-width:2px,color:#fff;
-
-    style InteractionLayer fill:none,stroke:#888,stroke-dasharray: 4 4,color:#ddd
-    style CoreLayer fill:none,stroke:#B7410E,stroke-width:2px,color:#ddd
-    style ExternalAndGates fill:none,stroke:none,color:#fff
-    style ProviderLayer fill:none,stroke:#6B46C1,stroke-dasharray: 4 4,color:#ddd
-    style SupportLayer fill:none,stroke:#888,stroke-dasharray: 4 4,color:#ddd
+```sh
+cd ui
+npm ci
+npm run dev
 ```
 
-## Repository Model
+Then open the local address shown in your terminal, usually `http://127.0.0.1:5173`.
 
-The repository separates different kinds of truth:
+The browser interface is local and read-only. It is for reviewing status, evidence, and help text. It does not publish releases, deploy systems, or approve AI output.
 
-| Artifact        | Definition                                |
-|-----------------|--------------------------------------------|
-| Governance      | what must always be true                   |
-| Architecture    | how the system is organized                |
-| Roadmap         | what may be attempted next                 |
-| Changelog       | what has been completed                    |
-| Checklists      | bounded execution steps                    |
-| Tests & Code    | executable behavior                        |
-| Schemas         | data contracts                             |
-| Memory          | governed data                              |
-| README          | human‑level orientation                    |
+## For Developers
+
+AJENTIC keeps its internal responsibilities separated:
+
+```text
+Rust       = protected decision engine
+Python     = AI/model adapters and support scripts
+TypeScript = browser interface
+Bash       = local setup and check scripts
+```
+
+The main rule:
+
+**The model does not decide. The browser does not decide. Scripts do not decide. The protected core decides what is valid.**
+
+This keeps the system easier to inspect, test, and explain.
+
+## Release Evidence
+
+AJENTIC v1.0.0 includes GitHub Release assets for review:
+
+- final release bundle
+- asset manifest
+- checksums
+- SBOM evidence
+- provenance evidence
+- release notes
+
+These files help reviewers understand what was released. They are evidence, not decision authority.
+
+GitHub Actions remains the release evidence platform for the release candidate and final GitHub Release paths. Release assets, checksums, SBOM/provenance files, attestations, workflows, scripts, and UI surfaces are evidence or visibility surfaces only. They do not approve package publication, installers, update channels, deployments, OS signing, notarization, backend authority changes, or UI authority changes.
+
+Post-v1 release closure evidence is recorded in `docs/operations/`.
+
+## License
+
+MIT
+
+## Short Version
+
+AJENTIC helps you use AI with a review process.
+
+It keeps AI work visible, checkable, and under human control.
 
 This README is orientation only. It is not an authority source.
-
-## Intended Users
-
-AJENTIC is built for engineers and teams who need:
-
-• controlled model runs
-• reviewable context
-• traceable decisions
-• replayable execution
-• clear operator controls
-• evidence that model output was not silently trusted
-
-## Project Boundary
-
-AJENTIC is not an autonomous coding agent.
-
-It is a control interface for reviewing, validating, recording, and replaying AI‑assisted work.
