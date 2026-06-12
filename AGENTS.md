@@ -104,6 +104,11 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Do not treat release assets, checksums, SBOM/provenance, attestations, UI, or scripts as governance authority.
 - Preserve branch protection and ruleset settings unless the Owner explicitly changes them.
 - Preserve Rust authority, TypeScript visibility, Python adaptation, and Bash glue boundaries.
+- Do not bypass branch protection casually.
+- Required checks must pass before any admin-bypass merge.
+- Admin-bypass merges must be recorded when used.
+- Solo-maintainer approval deadlocks must be documented rather than hidden.
+- Do not use admin bypass to create releases, tags, package publications, installers, update channels, deployments, OS signing, notarization, or authority changes.
 
 ## Constraint reminder
 

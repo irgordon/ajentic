@@ -523,6 +523,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Post-v1 work must be explicitly scoped before it changes distribution channels, authority boundaries, runtime behavior, or release mechanics.
    - Boundary: closure/evidence only; no feature expansion, new release execution, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change.
 
+95.1. **Phase 195.1 records protected-branch PR closure**
+   - Phase 195.1 follows Phase 195 because the release closure PR was merged through protected-branch flow.
+   - The subphase records the solo-maintainer merge exception and prevents process ambiguity.
+   - The required checks passed and branch protection remains active, but the approval rule created a solo-maintainer deadlock.
+   - Admin bypass is recorded as a documentation/status closure process exception, not a release execution exception.
+   - Boundary: process evidence only; no product behavior, release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change.
+
 Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 
 

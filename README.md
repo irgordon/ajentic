@@ -112,6 +112,7 @@ Release evidence does not replace Rust-owned governance authority.
 GitHub Actions remains the release evidence platform for the RC and final GitHub Release paths.
 Release assets, checksums, SBOM/provenance files, attestations, workflows, scripts, and UI surfaces are evidence or visibility surfaces only.
 They do not approve package publication, installers, update channels, deployments, OS signing, notarization, backend authority changes, or UI authority changes.
+Post-v1 release closure evidence is recorded in `docs/operations/`.
 
 License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).

@@ -4,6 +4,29 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.195.1 - 2026-06-11
+**Status:** Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence
+
+### Added
+- Add protected-branch PR closure evidence for PR #297.
+- Record the solo-maintainer approval-gate deadlock and admin-bypass squash merge exception.
+- Record the mainline squash merge commit and original PR branch head.
+
+### Notes
+- Mainline squash merge commit: `d154e06789e46bb6485323ef9b02020c31a992b8`.
+- PR branch head before merge: `9496866300cc3e8b1c881076c3d5e8c059b320c2`.
+- All required checks passed before merge.
+- Branch protection remains active.
+- Remote tags and releases remain limited to `v1.0.0` and `v1.0.0-rc.1`.
+- No new tag or GitHub Release was created.
+- No package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change occurred.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.195 - 2026-06-10
 **Status:** Phase 195 - Post-v1 Release Closure and Evidence Preservation
 

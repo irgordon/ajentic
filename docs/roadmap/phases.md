@@ -682,6 +682,13 @@ Scope: final workflow evidence, final release evidence, annotated tag target, so
 
 Boundary: Closure/evidence phase only; no feature expansion, new release execution, tag creation, GitHub Release creation, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, unsupported safety claims, or unrelated governance expansion.
 
+### Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence
+Goal: Record PR #297 protected-branch closure, mainline squash merge evidence, and the solo-maintainer approval-gate deadlock.
+
+Scope: PR closure evidence, squash merge commit, PR branch head, required checks, branch protection active state, admin-bypass exception, remote tag/release state, and preserved post-v1 restrictions.
+
+Boundary: Process evidence only; no product behavior, workflow behavior, release mechanics, package version changes, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, or unrelated governance expansion.
+
 ### Superseded Previous v1 Runway
 
 The previous Phase 190-201 release-platform runway is superseded by Phase 190. Its topics are compressed into Phases 190-194 rather than carried forward as governance-only, audit-only, or validation-only phases.
