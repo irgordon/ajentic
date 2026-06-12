@@ -516,6 +516,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Release assets and attestations remain evidence and do not make artifacts or the UI authoritative.
    - Boundary: final GitHub Release path only within the compressed v1 track; package publication, installers, update channels, deployments, OS signing, and notarization remain separate future scopes unless explicitly authorized.
 
+95. **Phase 195 preserves post-v1 release evidence**
+   - Phase 195 follows final v1.0.0 release execution so repository status surfaces reflect the completed GitHub Release rather than the prepared release path.
+   - Evidence preservation follows publication to prevent release assets, workflows, UI, scripts, checksums, SBOM/provenance files, or attestations from drifting into governance authority.
+   - Package publication, installers, update channels, deployments, OS signing, and notarization remain separate future work.
+   - Post-v1 work must be explicitly scoped before it changes distribution channels, authority boundaries, runtime behavior, or release mechanics.
+   - Boundary: closure/evidence only; no feature expansion, new release execution, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change.
+
 Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 
 

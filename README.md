@@ -13,7 +13,7 @@ mutation_path: readme_update
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Status](https://img.shields.io/badge/Status-v1_RC_Hardening-8B0000?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-v1.0.0_Published-28A745?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-28A745?style=for-the-badge)
 
 <br>
@@ -93,19 +93,25 @@ Clean output is what has passed through the AJENTIC boundary.
 
 ## Project Status
 
-Current status: v1 final release execution prepared.
+Current status: v1.0.0 GitHub Release published.
 
-AJENTIC is moving from release-platform preparation into direct v1 release execution.
-Phase 194 adds the final release workflow for `v1.0.0` after the bounded public GitHub prerelease `v1.0.0-rc.1`.
-Final workflow dispatch is gated by final acceptance, exact commit confirmation, source RC verification, and branch protection or explicit final-release Owner exception.
+AJENTIC v1.0.0 is published as a final GitHub Release:
+[https://github.com/irgordon/ajentic/releases/tag/v1.0.0](https://github.com/irgordon/ajentic/releases/tag/v1.0.0).
+Final GitHub Release assets are available for review, including the final candidate bundle,
+checksums, SBOM, provenance, asset manifest, release notes, and final README asset.
+The source release candidate `v1.0.0-rc.1` remains intact.
 
-Passing validation is necessary evidence, not release approval.
-GitHub Actions is the v1 release platform for the RC and final GitHub Release paths.
-GitHub Actions includes internal reproducible artifact validation, checksum/SBOM/provenance evidence checks, an internal release-candidate workflow, a manually triggered RC publication workflow, and a manually triggered final release workflow.
-The final release workflow may create only the `v1.0.0` tag, final GitHub Release, final release assets, and final asset attestations after explicit confirmations.
-It must not publish npm or Cargo packages, create installers, activate update channels, deploy, add OS signing, add notarization, or change package versions.
+No npm, Cargo, or package registry publication is active.
+No installer is active.
+No update channel is active.
+No deployment path is active.
+No OS signing or notarization is active.
+The local browser UI remains read-only and non-authoritative.
+Release evidence does not replace Rust-owned governance authority.
 
-The browser shell is a read-only local review page. It uses plain labels for simulated local checks, keeps technical evidence in details and raw sections, and does not approve releases or publish artifacts.
+GitHub Actions remains the release evidence platform for the RC and final GitHub Release paths.
+Release assets, checksums, SBOM/provenance files, attestations, workflows, scripts, and UI surfaces are evidence or visibility surfaces only.
+They do not approve package publication, installers, update channels, deployments, OS signing, notarization, backend authority changes, or UI authority changes.
 
 License: MIT.
 See the latest updates in [CHANGELOG](CHANGELOG.md).
@@ -122,7 +128,7 @@ npm run dev
 
 Open `http://127.0.0.1:5173` in a browser.
 
-For release-candidate validation from the repository root:
+For local validation from the repository root:
 
 ```sh
 CARGO_TARGET_DIR=/tmp/ajentic-check-target ./scripts/check.sh

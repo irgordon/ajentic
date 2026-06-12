@@ -95,6 +95,15 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Do not hide blocked, failed, unknown, malformed, missing, or rejected states.
 - Do not add external fonts, network font loading, or heavy UI dependencies without explicit scope.
 - Do not convert read-only UI controls into release, publish, sign, deploy, or credential-changing actions.
+- Post-v1, do not create new release tags without an explicit release phase.
+- Post-v1, do not publish npm or Cargo packages without an explicit package-publication phase.
+- Post-v1, do not create installers without an explicit installer phase.
+- Post-v1, do not create update channels without an explicit update-channel phase.
+- Post-v1, do not deploy without an explicit deployment phase.
+- Post-v1, do not add OS signing or notarization without an explicit signing/notarization phase.
+- Do not treat release assets, checksums, SBOM/provenance, attestations, UI, or scripts as governance authority.
+- Preserve branch protection and ruleset settings unless the Owner explicitly changes them.
+- Preserve Rust authority, TypeScript visibility, Python adaptation, and Bash glue boundaries.
 
 ## Constraint reminder
 
