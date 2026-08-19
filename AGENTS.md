@@ -120,4 +120,14 @@ Bash scripts are operator wrappers only.
 
 Model output is untrusted until validated through Rust-owned paths.
 
+## Audit-remediation standing rules
+
+- Stale scaffold generators must not remain runnable.
+- Duplicated schema/Rust/TypeScript contract surfaces require explicit mapping or validation.
+- TypeScript projection names must not imply Rust-owned authority.
+- Do not add UI execution authority.
+- Do not treat schemas as runtime authority outside Rust validation.
+- Do not implement full CLI, ledger, replay, provider, package publishing, installer, update-channel, or deployment behavior inside audit-remediation phases.
+- Future prompts that reference functions or types must include exact file paths.
+
 This file must remain short, stable, and non-authoritative.

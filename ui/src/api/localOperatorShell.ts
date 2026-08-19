@@ -1,3 +1,7 @@
+// TypeScript provider projection code is descriptive only.
+// It is not provider execution authority, Rust validation, candidate promotion,
+// provider IO, ledger/audit writing, or authoritative lifecycle transition logic.
+
 export type LocalRunStatus = "idle" | "stub_completed" | "intent_recorded";
 export type LocalOperatorIntentKind = "approve" | "reject";
 export type LocalDecisionRecordStatus = "recorded";
@@ -4483,7 +4487,7 @@ export function validateLocalProviderExecutionRequest(
       providerKind,
       errorCodes: [],
       reason:
-        "deterministic_stub execution accepted inside Rust-owned sandboxed deterministic boundary",
+        "deterministic_stub projection shape accepted for display only; Rust remains execution authority",
     };
   }
   const status: LocalProviderExecutionStatus = errors.has(
@@ -4512,7 +4516,7 @@ function deterministicProviderInputChecksum(input: string): number {
   return accumulator;
 }
 
-export function executeSandboxedDeterministicProvider(
+export function buildSandboxedDeterministicProviderProjection(
   request: LocalProviderExecutionRequest,
 ): LocalProviderExecutionResult {
   const checksum = deterministicProviderInputChecksum(request.inputSummary);
@@ -4535,6 +4539,18 @@ export function executeSandboxedDeterministicProvider(
   };
 }
 
+
+/**
+ * @deprecated Compatibility wrapper for older UI tests/imports. This returns a
+ * projection-only description and must not be treated as provider execution
+ * authority.
+ */
+export function executeSandboxedDeterministicProvider(
+  request: LocalProviderExecutionRequest,
+): LocalProviderExecutionResult {
+  return buildSandboxedDeterministicProviderProjection(request);
+}
+
 export function applyLocalProviderExecution(
   state: LocalOperatorShellState,
   request: LocalProviderExecutionRequest,
@@ -4545,7 +4561,7 @@ export function applyLocalProviderExecution(
   );
   if (validation.status !== "executed")
     return { status: "rejected", reason: validation.reason, state };
-  const result = executeSandboxedDeterministicProvider(request);
+  const result = buildSandboxedDeterministicProviderProjection(request);
   const providerExecution = withProviderExecutionProjectionValidation({
     status: "executed",
     projectionStatus: "execution_projected",

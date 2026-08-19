@@ -1,0 +1,54 @@
+{
+  "artifact": "operator_intent_contract_map",
+  "truth_dimension": "review_evidence",
+  "authority_level": "non_authoritative",
+  "schema_file": "schemas/intents/operator-intent.schema.json",
+  "rust_file": "core/src/api/operator_intent.rs",
+  "typescript_file": "ui/src/api/projections.ts",
+  "rules": {
+    "review_evidence_only": true,
+    "not_runtime_authority": true,
+    "does_not_replace_rust_validation": true,
+    "does_not_generate_code": true,
+    "unknown_unmapped_values_must_not_render_as_success": true,
+    "fully_aligned_claim": false
+  },
+  "allowed_statuses": [
+    "lossless",
+    "lossy_projection",
+    "unsupported",
+    "intentionally_unknown_projection"
+  ],
+  "intent_type_mappings": [
+    {"schema_value":"approve","rust_value":"OperatorIntentType::Approve","typescript_value":"approve","status":"lossless"},
+    {"schema_value":"reject","rust_value":"OperatorIntentType::Reject","typescript_value":"reject","status":"lossless"},
+    {"schema_value":"retry","rust_value":"OperatorIntentType::Retry","typescript_value":"retry","status":"lossless"},
+    {"schema_value":"memory_write","rust_value":"OperatorIntentType::MemoryWrite","typescript_value":"memory_write","status":"lossless"},
+    {"schema_value":"memory_delete","rust_value":"OperatorIntentType::MemoryDelete","typescript_value":"memory_delete","status":"lossless"},
+    {"schema_value":"run_start","rust_value":"OperatorIntentType::RunStart","typescript_value":"run_start","status":"lossless"},
+    {"schema_value":"run_stop","rust_value":"OperatorIntentType::RunStop","typescript_value":"run_stop","status":"lossless"},
+    {"schema_value":"tool_request","rust_value":"OperatorIntentType::ToolRequest","typescript_value":"tool_request","status":"lossless"},
+    {"schema_value":"policy_check","rust_value":"OperatorIntentType::PolicyCheck","typescript_value":"policy_check","status":"lossless"},
+    {"schema_value":"state_transition_request","rust_value":"OperatorIntentType::StateTransitionRequest","typescript_value":"state_transition_request","status":"lossless"},
+    {"schema_value":"context_rebuild_request","rust_value":"OperatorIntentType::ContextRebuildRequest","typescript_value":"context_rebuild_request","status":"lossless"},
+    {"schema_value":"replay_request","rust_value":"OperatorIntentType::ReplayRequest","typescript_value":"replay_request","status":"lossless"},
+    {"schema_value":"memory_snapshot_request","rust_value":"OperatorIntentType::MemorySnapshotRequest","typescript_value":"memory_snapshot_request","status":"lossless"},
+    {"schema_value":"memory_disable_request","rust_value":"OperatorIntentType::MemoryDisableRequest","typescript_value":"memory_disable_request","status":"lossless"}
+  ],
+  "target_type_mappings": [
+    {"schema_value":"run","rust_value":"OperatorIntentTargetKind::Run","typescript_value":"run","status":"lossless"},
+    {"schema_value":"candidate","rust_value":"OperatorIntentTargetKind::Candidate","typescript_value":"candidate","status":"lossless"},
+    {"schema_value":"memory_entry","rust_value":"OperatorIntentTargetKind::Memory","typescript_value":"memory","status":"lossy_projection","explanation":"Schema distinguishes a memory_entry target; Rust and TypeScript currently project it to the broader memory target kind for local operator surfaces."},
+    {"schema_value":"context_packet","rust_value":"OperatorIntentTargetKind::Context","typescript_value":"context","status":"lossy_projection","explanation":"Schema distinguishes a context_packet target; Rust and TypeScript currently project it to the broader context target kind for local operator surfaces."},
+    {"schema_value":"ledger_event","rust_value":null,"typescript_value":null,"status":"unsupported","explanation":"Current Rust and TypeScript operator projection surfaces do not expose a ledger_event target kind. Unmapped ledger targets must fail closed rather than render as success."},
+    {"schema_value":"replay_report","rust_value":"OperatorIntentTargetKind::Replay","typescript_value":"replay","status":"lossy_projection","explanation":"Schema distinguishes a replay_report target; Rust and TypeScript currently project it to the broader replay target kind for local operator surfaces."},
+    {"schema_value":"validation_report","rust_value":null,"typescript_value":null,"status":"unsupported","explanation":"Current Rust and TypeScript operator projection surfaces do not expose a validation_report target kind. Unmapped validation targets must fail closed rather than render as success."},
+    {"schema_value":"policy_check","rust_value":null,"typescript_value":null,"status":"unsupported","explanation":"Current Rust and TypeScript operator projection surfaces model policy_check as an intent type, not as a target kind. A schema target of policy_check must not be silently treated as an accepted UI projection."},
+    {"schema_value":"state","rust_value":null,"typescript_value":null,"status":"unsupported","explanation":"Current Rust and TypeScript operator projection surfaces do not expose a state target kind. State-targeted intents require future scoped mapping before acceptance."},
+    {"schema_value":"tool","rust_value":null,"typescript_value":null,"status":"unsupported","explanation":"Current Rust and TypeScript operator projection surfaces model tool_request as an intent type, not tool as a target kind. Tool targets require future scoped mapping before acceptance."}
+  ],
+  "projection_only_values": [
+    {"projection_value":"OperatorIntentTargetKind::Unknown","surface":"rust","status":"intentionally_unknown_projection","explanation":"Rust uses Unknown as a fail-closed local projection value; OperatorIntentSubmission::new rejects it."},
+    {"projection_value":"unknown","surface":"typescript","status":"intentionally_unknown_projection","explanation":"TypeScript uses unknown as display-safe projection state only; it must not render as accepted or schema-valid."}
+  ]
+}

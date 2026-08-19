@@ -4,6 +4,35 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.196 - 2026-06-19
+**Status:** Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
+
+### Added
+- Add post-v1 audit remediation operation evidence for Phase 196.
+- Add a non-authoritative operator intent contract map covering schema intent types, schema target types, Rust operator intent mappings, and TypeScript projection mappings.
+- Add `scripts/validate_operator_intent_contract_map.py` and wire it into `scripts/check.sh`.
+
+### Changed
+- Retire the obsolete `scripts/bootstrap_repo.py` scaffold rather than preserving a runnable stale alternate tree.
+- Replace stale Phase-0 audit and migration checklist placeholder language with current bounded procedures.
+- Reframe the TypeScript deterministic provider mirror as projection-only with a projection-named implementation and compatibility wrapper.
+- Mark TypeScript intent projection types as non-authoritative projection surfaces.
+- Mark Rust operator intent types as Rust-local surfaces that do not claim unproven lossless schema equivalence.
+- Document the bounded CLI completeness gap without implementing full CLI behavior.
+- Update README, AGENTS, current checklist, and roadmap surfaces for Phase 196.
+
+### Notes
+- The operator intent contract map records lossy target projections for `memory_entry`, `context_packet`, and `replay_report`.
+- The operator intent contract map records unsupported current mappings for `ledger_event`, `validation_report`, `policy_check`, `state`, and `tool` target values.
+- Unknown or unmapped values must not render as success.
+- No release, tag, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, workflow behavior change, or package version change occurred.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.195.1 - 2026-06-11
 **Status:** Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence
 

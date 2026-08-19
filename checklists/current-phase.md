@@ -4,41 +4,46 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence
+# Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
 
-- Phase name: Phase 195.1 - Protected-Branch PR Closure and Solo-Maintainer Merge Evidence.
-- Phase goal: record PR #297 protected-branch closure, solo-maintainer approval-gate deadlock, and admin-bypass squash merge exception without changing release mechanics or authority boundaries.
+- Phase name: Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard.
+- Phase goal: address post-v1 audit findings without changing release state, runtime authority, package versions, workflow behavior, or public distribution paths.
 - Starting baseline:
-  - [x] Confirm local work is in `/Users/godzilla/Documents/Projects/ajentic`.
-  - [x] Confirm branch started from `main`.
-  - [x] Confirm starting commit is `d154e06789e46bb6485323ef9b02020c31a992b8`.
-  - [x] Confirm working tree started clean and aligned with `origin/main`.
-- Protected-branch closure evidence:
-  - [x] PR #297 closure recorded.
-  - [x] Squash merge commit recorded.
-  - [x] PR branch head recorded.
-  - [x] Required checks recorded.
-  - [x] Branch protection active state recorded.
-  - [x] Admin-bypass exception recorded.
-  - [x] Solo-maintainer approval-gate deadlock recorded.
-  - [x] Remote tag/release state recorded.
-  - [x] Post-v1 restrictions preserved.
-  - [x] No release mechanics created.
-- Documentation alignment:
-  - [x] Add `docs/operations/protected-branch-pr-closure-phase-195-1.md`.
-  - [x] Update README process evidence pointer.
-  - [x] Update AGENTS solo-maintainer branch-protection discipline.
-  - [x] Update CHANGELOG with `v0.0.195.1`.
-  - [x] Update `docs/operations/post-v1-release-closure-phase-195.md`.
-  - [x] Update roadmap phase-map, phases, and sequencing surfaces.
+  - [x] Confirm Phase 195.1 mainline evidence is present in branch history.
+  - [x] Branch from the mainline baseline.
+  - [x] Confirm working tree started clean.
+- Audit remediation:
+  - [x] Decide bootstrap scaffold fate.
+  - [x] Retire stale bootstrap scaffold.
+  - [x] Replace stale audit checklist placeholder language.
+  - [x] Replace stale migration checklist placeholder language.
+  - [x] Add operator intent contract map.
+  - [x] Add operator intent contract map validation.
+  - [x] Wire contract map validation into `scripts/check.sh`.
+  - [x] Reframe TypeScript provider mirror as projection-only.
+  - [x] Preserve raw technical values where compatibility requires them.
+  - [x] Record unknown/unmapped values as display-safe and not success.
+  - [x] Document Rust operator intent schema-drift boundary.
+  - [x] Document CLI completeness gap without implementing full CLI behavior.
+- Boundary confirmations:
+  - [x] No runtime authority change.
+  - [x] No UI authority change.
+  - [x] No backend authority change.
+  - [x] No workflow behavior change.
+  - [x] No package version change.
+  - [x] No new tag created.
+  - [x] No new GitHub Release created.
+  - [x] No npm package publication created.
+  - [x] No Cargo package publication created.
+  - [x] No installer path created.
+  - [x] No update-channel path created.
+  - [x] No deployment path created.
+  - [x] No OS signing or notarization added.
 - Validation:
   - [x] `git status --short`
   - [x] `git rev-parse HEAD`
   - [x] `git log --oneline -8`
-  - [x] `git ls-remote origin main`
-  - [x] `git ls-remote --tags origin`
-  - [x] workflow and release-mechanic grep checks
-  - [x] post-v1 restriction grep checks
+  - [x] `python3 scripts/validate_operator_intent_contract_map.py`
   - [x] `cd ui && npm run build`
   - [x] `cd ui && npm run typecheck`
   - [x] `cd ui && npm run lint`
@@ -60,19 +65,7 @@ mutation_path: checklist_revision
   - [x] `scripts/check_help_pages.py`
   - [x] `python3 scripts/validate_structure.py`
   - [x] `python3 scripts/validate_docs.py`
+  - [x] `node scripts/rust_boundary_lint.mjs`
+  - [x] `node scripts/lint_ui_boundaries.mjs`
   - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-195-1-target ./scripts/check.sh`
-- Boundary confirmations:
-  - [x] No workflow behavior changed.
-  - [x] No package version changed.
-  - [x] No new tag created.
-  - [x] No new GitHub Release created.
-  - [x] No npm package publication created.
-  - [x] No Cargo package publication created.
-  - [x] No package registry publication created.
-  - [x] No installer path created.
-  - [x] No update-channel path created.
-  - [x] No deployment path created.
-  - [x] No OS signing or notarization added.
-  - [x] No backend authority change created.
-  - [x] No UI authority change created.
+  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-196-target ./scripts/check.sh`

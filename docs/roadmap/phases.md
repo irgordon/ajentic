@@ -689,6 +689,13 @@ Scope: PR closure evidence, squash merge commit, PR branch head, required checks
 
 Boundary: Process evidence only; no product behavior, workflow behavior, release mechanics, package version changes, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, or unrelated governance expansion.
 
+### Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
+Goal: Address post-v1 repository audit findings without changing release state, runtime authority, package versions, workflow behavior, or public distribution paths.
+
+Scope: retire stale bootstrap scaffold risk, update audit and migration checklists, add operator-intent contract drift map and validation, clarify TypeScript provider mirror behavior as projection-only, document Rust operator intent drift boundaries, and document the bounded CLI completeness gap.
+
+Boundary: Audit remediation only; no full CLI implementation, real provider/model call, governance promotion behavior, ledger behavior, replay behavior, release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, workflow behavior change, or package version change.
+
 ### Superseded Previous v1 Runway
 
 The previous Phase 190-201 release-platform runway is superseded by Phase 190. Its topics are compressed into Phases 190-194 rather than carried forward as governance-only, audit-only, or validation-only phases.

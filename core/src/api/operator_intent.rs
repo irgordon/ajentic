@@ -1,3 +1,8 @@
+//! Rust-local operator intent intake and routing types.
+//!
+//! Shared schema drift is tracked in docs/contracts/operator-intent-contract-map.json.
+//! These types do not claim lossless schema equivalence unless validation evidence proves it.
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ApiSurface {
     Cli,

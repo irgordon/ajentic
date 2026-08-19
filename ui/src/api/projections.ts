@@ -74,6 +74,9 @@ export type AuditDetailProjection = Readonly<{ id: string; projectionType: strin
 export type OutputProjection = Readonly<{ cleanOutputAvailable: boolean; rawOutputTrusted: boolean; authority: AuthoritySurface; summary: string; }>;
 export type CleanOutputProjection = Readonly<{ id: string; cleanOutputAvailable: boolean; rawOutputTrusted: boolean; cleanOutputTrusted: boolean; authority: AuthoritySurface; summary: string; rawOutputSummary: string; cleanOutputSummary: string; }>;
 
+// UI intent projections mirror schema vocabulary for display and operator-intent shaping only.
+// The review map at docs/contracts/operator-intent-contract-map.json records
+// lossy and unsupported schema/Rust/TypeScript mappings; these types are not schema authority.
 export type IntentTypeProjection =
   | "approve"
   | "reject"
@@ -90,6 +93,7 @@ export type IntentTypeProjection =
   | "memory_snapshot_request"
   | "memory_disable_request";
 
+// "unknown" is a display-safe projection value only and must never be rendered as success.
 export type IntentTargetKindProjection = "run" | "candidate" | "replay" | "context" | "memory" | "output" | "unknown";
 
 export type IntentSubmissionUiProjection = Readonly<{ submissionId: string; operatorId: string; intentType: IntentTypeProjection; targetKind: IntentTargetKindProjection; targetId: string; reason: string; requestPreviewEnabled: boolean; submissionEnabled: boolean; authority: AuthoritySurface; summary: string; }>;
