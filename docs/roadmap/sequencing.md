@@ -530,6 +530,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Admin bypass is recorded as a documentation/status closure process exception, not a release execution exception.
    - Boundary: process evidence only; no product behavior, release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change.
 
+96. **Phase 196 guards post-v1 audit and contract drift risks**
+   - Phase 196 follows Phase 195.1 because post-v1 release evidence and protected-branch closure evidence must be closed before audit-remediation cleanup starts.
+   - The audit found maintainability and semantic-drift risks in stale scaffolding, placeholder checklists, duplicated operator-intent contracts, and TypeScript provider mirror wording.
+   - Cleanup must precede further provider, CLI, UI, or schema expansion so drift is visible before new feature work.
+   - Contract drift is made explicit through review evidence and validation only; it does not replace Rust validation or generate authority.
+   - Boundary: audit remediation and validation guard only; no release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, runtime authority change, UI authority change, workflow behavior change, package version change, full CLI implementation, ledger behavior, replay behavior, or provider/model call.
+
 Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 
 

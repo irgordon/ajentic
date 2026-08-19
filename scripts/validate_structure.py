@@ -44,6 +44,7 @@ ALLOWED_DOCS_DIRS = {
     "governance",
     "architecture",
     "changelog",
+    "contracts",
     "roadmap",
     "operations",
     "releases",

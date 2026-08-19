@@ -1,3 +1,9 @@
+//! Bounded local CLI fixture entry point.
+//!
+//! Phase 196 documents but does not complete the full typed CLI boundary. Unknown
+//! commands fail safe with usage, and dry-run output does not imply release,
+//! production, provider, persistence, ledger, replay, or audit authority.
+
 use ajentic_core::api::{
     integration_output_to_provider_output, integration_request_to_provider_request,
     local_runtime_config_allows_authority_bypass, IntegrationOutput, IntegrationOutputStatus,

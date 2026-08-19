@@ -125,6 +125,8 @@ Important limits:
 
 The browser interface is read-only and used for review. It does not make final decisions.
 
+Developer validation includes contract and boundary drift checks for duplicated schema/Rust/TypeScript surfaces. Release assets, evidence, scripts, and UI projections remain review surfaces; they do not become runtime authority.
+
 ## What AJENTIC Does Not Do
 
 AJENTIC does not:

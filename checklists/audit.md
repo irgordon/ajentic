@@ -6,24 +6,38 @@ mutation_path: checklist_revision
 
 # Audit checklist
 
-This checklist defines audit steps for AJENTIC harness runs.
+This checklist defines bounded repository and harness audit steps for AJENTIC.
 
 This document does not define governance rules or architecture authority.
 
-This checklist is a placeholder for Phase 0. Audit steps will be defined when ledger and replay behavior is implemented.
+Audits collect review evidence only. They do not approve releases, promote model output, mutate runtime state, or replace Rust-owned validation.
 
-## Audit scope
+## Audit setup
 
-- [ ] Audit scope identified and bounded
-- [ ] Ledger entries retrieved
+- [ ] Confirm working tree state with `git status --short`.
+- [ ] Confirm current branch and base commit.
+- [ ] Confirm the audit scope and excluded surfaces.
+- [ ] Confirm active phase and roadmap boundary.
 
-## Audit steps
+## Boundary inspection
 
-- [ ] Replay from ledger
-- [ ] Validate replay output against recorded state
-- [ ] Generate audit projection
+- [ ] Inspect Rust authority boundaries for unintended delegation.
+- [ ] Inspect TypeScript surfaces for projection-only behavior.
+- [ ] Inspect Python scripts for adaptation-only behavior.
+- [ ] Inspect Bash scripts for glue-only behavior.
+- [ ] Inspect stale scaffold or generator surfaces.
 
-## Audit output
+## Contract and release inspection
 
-- [ ] Audit report reviewed by operator
-- [ ] Any findings recorded through appropriate mutation path
+- [ ] Inspect schema/Rust/TypeScript contract drift evidence.
+- [ ] Run operator-intent contract map validation when operator intent contracts are in scope.
+- [ ] Inspect workflow release permissions and release-mechanic changes.
+- [ ] Inspect package versions and package-publication state.
+- [ ] Inspect remote tag/release state when release boundaries are in scope.
+
+## Validation and reporting
+
+- [ ] Run phase-required validation commands.
+- [ ] Record pass/fail status for each validation command.
+- [ ] Report changed files, or explicitly report no file changes for audit-only work.
+- [ ] Record findings through the appropriate mutation path.

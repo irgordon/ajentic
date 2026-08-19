@@ -29,14 +29,8 @@ echo "Checking initial repository cleanliness..."
 require_clean_worktree "initial validation setup"
 echo "  repository clean"
 
-echo "Running bootstrap idempotence check..."
-PYTHONDONTWRITEBYTECODE=1 python3 scripts/bootstrap_repo.py > /dev/null
-require_clean_worktree "bootstrap idempotence check"
-echo "  bootstrap OK"
-
 echo "Running Python compile checks..."
 PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
-  scripts/bootstrap_repo.py \
   scripts/final_release_preflight.py \
   scripts/github_api_final_release.py \
   scripts/github_api_rc_publish.py \
@@ -47,6 +41,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/reproducible_artifacts.py \
   scripts/validate_structure.py \
   scripts/validate_docs.py \
+  scripts/validate_operator_intent_contract_map.py \
   scripts/check_help_pages.py
 require_clean_worktree "Python compile checks"
 echo "  Python OK"
@@ -68,6 +63,10 @@ while IFS= read -r -d "" schema_file; do
   python3 -m json.tool "$schema_file" > /dev/null
 done < <(find schemas -type f -name "*.json" -print0)
 echo "  schemas OK"
+
+echo "Running operator intent contract map validation..."
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_operator_intent_contract_map.py
+echo "  operator intent contract map OK"
 
 echo "Running shell script parse check..."
 while IFS= read -r -d "" shell_file; do
