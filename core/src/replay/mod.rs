@@ -117,6 +117,163 @@ impl ReplayReport {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReplayReceipt {
+    binding: crate::authority::AuthorityBinding,
+    report: ReplayReport,
+    final_state: crate::state::LifecycleState,
+    receipt_digest: crate::integrity::Digest,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReplayReceiptError {
+    EvidenceManifestMismatch,
+    IntegrityMismatch,
+    LedgerNotReplayable,
+    ReconstructionFailed,
+    LifecycleNotPassed,
+    RevisionMismatch,
+}
+
+impl ReplayReceiptError {
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::EvidenceManifestMismatch => "evidence_manifest_mismatch",
+            Self::IntegrityMismatch => "integrity_mismatch",
+            Self::LedgerNotReplayable => "ledger_not_replayable",
+            Self::ReconstructionFailed => "reconstruction_failed",
+            Self::LifecycleNotPassed => "lifecycle_not_passed",
+            Self::RevisionMismatch => "revision_mismatch",
+        }
+    }
+}
+
+impl ReplayReceipt {
+    pub fn binding(&self) -> &crate::authority::AuthorityBinding {
+        &self.binding
+    }
+
+    pub fn report(&self) -> &ReplayReport {
+        &self.report
+    }
+
+    pub fn final_state(&self) -> crate::state::LifecycleState {
+        self.final_state
+    }
+
+    pub fn digest(&self) -> &crate::integrity::Digest {
+        &self.receipt_digest
+    }
+
+    pub fn ready(&self) -> bool {
+        self.report.readiness == ReplayReadiness::Ready
+    }
+}
+
+pub fn verify_replay_receipt(
+    binding: crate::authority::AuthorityBinding,
+    ledger: &crate::ledger::Ledger,
+    manifest: &crate::authority::EvidenceManifest,
+) -> Result<ReplayReceipt, ReplayReceiptError> {
+    verify_replay_inputs(&binding, ledger, manifest)?;
+    issue_replay_receipt(binding, ledger)
+}
+
+#[cfg(test)]
+pub(crate) fn record_unknown_replay(binding: crate::authority::AuthorityBinding) -> ReplayReceipt {
+    let report = ReplayReport::unknown();
+    let final_state = crate::state::LifecycleState::Passed;
+    let receipt_digest = replay_receipt_digest(&binding, &report, final_state);
+    ReplayReceipt {
+        binding,
+        report,
+        final_state,
+        receipt_digest,
+    }
+}
+
+fn verify_replay_inputs(
+    binding: &crate::authority::AuthorityBinding,
+    ledger: &crate::ledger::Ledger,
+    manifest: &crate::authority::EvidenceManifest,
+) -> Result<(), ReplayReceiptError> {
+    manifest
+        .verify_binding(binding)
+        .map_err(|_| ReplayReceiptError::EvidenceManifestMismatch)?;
+    ledger
+        .verify_integrity(binding, manifest)
+        .map_err(|_| ReplayReceiptError::IntegrityMismatch)?;
+    verify_replay_revision(binding, ledger)
+}
+
+fn verify_replay_revision(
+    binding: &crate::authority::AuthorityBinding,
+    ledger: &crate::ledger::Ledger,
+) -> Result<(), ReplayReceiptError> {
+    if ledger.last_revision() == Some(binding.valid_through_revision()) {
+        return Ok(());
+    }
+    Err(ReplayReceiptError::RevisionMismatch)
+}
+
+fn issue_replay_receipt(
+    binding: crate::authority::AuthorityBinding,
+    ledger: &crate::ledger::Ledger,
+) -> Result<ReplayReceipt, ReplayReceiptError> {
+    let report = classify_replay_readiness(ledger.events())
+        .map_err(|_| ReplayReceiptError::LedgerNotReplayable)?;
+    let reconstruction = reconstruct_harness_state(ledger.events())
+        .map_err(|_| ReplayReceiptError::ReconstructionFailed)?;
+    ensure_passed_lifecycle(reconstruction.final_state.lifecycle)?;
+    Ok(build_replay_receipt(binding, report, reconstruction))
+}
+
+fn ensure_passed_lifecycle(
+    lifecycle: crate::state::LifecycleState,
+) -> Result<(), ReplayReceiptError> {
+    if lifecycle == crate::state::LifecycleState::Passed {
+        return Ok(());
+    }
+    Err(ReplayReceiptError::LifecycleNotPassed)
+}
+
+fn build_replay_receipt(
+    binding: crate::authority::AuthorityBinding,
+    report: ReplayReport,
+    reconstruction: ReplayReconstruction,
+) -> ReplayReceipt {
+    let final_state = reconstruction.final_state.lifecycle;
+    let receipt_digest = replay_receipt_digest(&binding, &report, final_state);
+    ReplayReceipt {
+        binding,
+        report,
+        final_state,
+        receipt_digest,
+    }
+}
+
+fn replay_receipt_digest(
+    binding: &crate::authority::AuthorityBinding,
+    report: &ReplayReport,
+    final_state: crate::state::LifecycleState,
+) -> crate::integrity::Digest {
+    crate::integrity::Digest::of_text(&format!(
+        "replay|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{:?}|{}",
+        binding.run_id(),
+        binding.task_digest().as_str(),
+        binding.operator_intent_digest().as_str(),
+        binding.context_packet_digest().as_str(),
+        binding.candidate_digest().as_str(),
+        binding.policy_bundle_digest().as_str(),
+        binding.evidence_manifest_digest().as_str(),
+        binding.verifier_id(),
+        binding.verifier_version(),
+        binding.valid_through_revision(),
+        final_state,
+        report.events_replayed
+    ))
+}
+
 pub fn classify_replay_readiness(
     events: &[crate::ledger::LedgerEvent],
 ) -> Result<ReplayReport, ReplayError> {
@@ -213,7 +370,7 @@ pub fn reconstruct_harness_state(
             .ok_or(ReplayReconstructionError::UnsupportedStateTransitionPayload)?;
 
         state = state
-            .transition_to(next)
+            .replay_transition_to(next)
             .map_err(|_| ReplayReconstructionError::LifecycleTransitionFailed)?;
         state_transitions_applied += 1;
     }

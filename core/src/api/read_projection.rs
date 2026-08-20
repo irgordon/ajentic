@@ -45,7 +45,7 @@ pub struct RunReadProjection {
     pub run_id: String,
     pub status: crate::execution::ControlledRunStatus,
     pub reason: crate::execution::ControlledRunReason,
-    pub clean_output_available: bool,
+    pub reviewable_candidate_available: bool,
     pub authority: ReadProjectionAuthority,
     pub summary: String,
 }
@@ -112,9 +112,9 @@ pub struct MemoryReadProjection {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OutputReadProjection {
-    pub clean_output_available: bool,
+    pub reviewable_candidate_available: bool,
     pub raw_output_trusted: bool,
-    pub clean_output_summary: Option<String>,
+    pub reviewable_candidate_summary: Option<String>,
     pub authority: ReadProjectionAuthority,
     pub summary: String,
 }

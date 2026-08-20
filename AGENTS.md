@@ -129,5 +129,8 @@ Model output is untrusted until validated through Rust-owned paths.
 - Do not treat schemas as runtime authority outside Rust validation.
 - Do not implement full CLI, ledger, replay, provider, package publishing, installer, update-channel, or deployment behavior inside audit-remediation phases.
 - Future prompts that reference functions or types must include exact file paths.
+- Positive validation, policy, replay, approval, and promotion authority must use opaque bound Rust receipts.
+- Reviewable candidate availability must not be represented as verified task completion.
+- Material errors, partial side effects, and unresolved uncertainty must remain visible in authoritative results.
 
 This file must remain short, stable, and non-authoritative.

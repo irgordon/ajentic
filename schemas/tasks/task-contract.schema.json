@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/tasks/task-contract.schema.json",
+  "title": "Task Contract",
+  "description": "Authoritative bounded task objective, completion, approval, side-effect, and stopping contract.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "task_id",
+    "objective",
+    "success_criteria",
+    "forbidden_outcomes",
+    "permitted_actions",
+    "permitted_tools",
+    "non_goals",
+    "required_approval_points",
+    "side_effect_budget",
+    "retry_policy",
+    "stop_conditions",
+    "expected_postconditions",
+    "evidence_requirements"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "success_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "description", "required"],
+        "properties": {
+          "criterion_id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "forbidden_outcomes": { "$ref": "#/$defs/nonempty_strings" },
+    "permitted_actions": { "$ref": "#/$defs/nonempty_strings" },
+    "permitted_tools": { "$ref": "#/$defs/nonempty_strings" },
+    "non_goals": { "$ref": "#/$defs/nonempty_strings" },
+    "required_approval_points": { "$ref": "#/$defs/nonempty_strings" },
+    "side_effect_budget": { "type": "integer", "minimum": 1 },
+    "retry_policy": {
+      "type": "object",
+      "required": ["max_attempts", "require_idempotency_after_possible_side_effect"],
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "require_idempotency_after_possible_side_effect": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "stop_conditions": { "$ref": "#/$defs/nonempty_strings" },
+    "expected_postconditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["postcondition_id", "description", "required"],
+        "properties": {
+          "postcondition_id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_requirements": { "$ref": "#/$defs/nonempty_strings" }
+  },
+  "$defs": {
+    "nonempty_strings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": false
+}

@@ -11,7 +11,19 @@
     "truth_dimension",
     "source_path",
     "content",
-    "provenance"
+    "provenance",
+    "content_role",
+    "authority_level",
+    "trust_classification",
+    "source_digest",
+    "source_revision",
+    "selector_authorization",
+    "selection_reason",
+    "sensitivity",
+    "conflict_refs",
+    "superseded_by",
+    "quarantine_status",
+    "injection_detection_findings"
   ],
   "properties": {
     "schema_version": {
@@ -59,6 +71,40 @@
     },
     "content": {
       "type": "string"
+    },
+    "content_role": {
+      "type": "string",
+      "enum": ["INSTRUCTION", "DATA", "EVIDENCE", "EXAMPLE"]
+    },
+    "authority_level": {
+      "type": "string",
+      "enum": ["AUTHORITATIVE", "DELEGATED", "NON_AUTHORITATIVE"]
+    },
+    "trust_classification": {
+      "type": "string",
+      "enum": ["TRUSTED", "UNTRUSTED", "QUARANTINED"]
+    },
+    "source_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_revision": { "type": "string", "minLength": 1 },
+    "selector_authorization": { "type": "string", "minLength": 1 },
+    "selection_reason": { "type": "string", "minLength": 1 },
+    "sensitivity": {
+      "type": "string",
+      "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]
+    },
+    "conflict_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "superseded_by": { "type": ["string", "null"] },
+    "quarantine_status": { "type": "boolean" },
+    "injection_detection_findings": {
+      "description": "Advisory findings only; absence does not grant authority.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
     },
     "provenance": {
       "type": "object",

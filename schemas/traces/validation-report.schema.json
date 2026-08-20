@@ -8,6 +8,16 @@
     "schema_version",
     "validation_report_id",
     "run_id",
+    "task_digest",
+    "operator_intent_digest",
+    "context_packet_digest",
+    "candidate_digest",
+    "policy_bundle_digest",
+    "evidence_manifest_digest",
+    "verifier_id",
+    "verifier_version",
+    "valid_through_revision",
+    "receipt_digest",
     "status",
     "checks",
     "summary"
@@ -25,6 +35,16 @@
       "type": "string",
       "minLength": 1
     },
+    "task_digest": { "$ref": "#/$defs/digest" },
+    "operator_intent_digest": { "$ref": "#/$defs/digest" },
+    "context_packet_digest": { "$ref": "#/$defs/digest" },
+    "candidate_digest": { "$ref": "#/$defs/digest" },
+    "policy_bundle_digest": { "$ref": "#/$defs/digest" },
+    "evidence_manifest_digest": { "$ref": "#/$defs/digest" },
+    "verifier_id": { "type": "string", "minLength": 1 },
+    "verifier_version": { "type": "string", "minLength": 1 },
+    "valid_through_revision": { "type": "integer", "minimum": 1 },
+    "receipt_digest": { "$ref": "#/$defs/digest" },
     "status": {
       "type": "string",
       "enum": [
@@ -69,6 +89,9 @@
       "type": "string",
       "minLength": 1
     }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
   },
   "additionalProperties": false
 }

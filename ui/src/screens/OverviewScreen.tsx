@@ -18,7 +18,7 @@ export function OverviewScreen(): string {
       `Execution decision: ${run.executionDecision}`,
       `Promotion decision: ${run.promotionDecision}`,
       `Replay readiness: ${run.replayReadiness}`,
-      `Clean output available: ${run.cleanOutputAvailable}`,
+      `Reviewable candidate available: ${run.reviewableCandidateAvailable}`,
       `Authority: ${run.authority}`,
       `Run summary: ${run.summary}`,
       `Runtime safety level: ${safety.safetyLevel}`,

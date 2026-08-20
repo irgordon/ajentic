@@ -13,3 +13,47 @@ path = "../tests/integration_smoke.rs"
 [[test]]
 name = "adversarial_corpus"
 path = "../tests/adversarial_corpus.rs"
+
+[[test]]
+name = "promotion_unforgeability"
+path = "../tests/promotion_unforgeability.rs"
+
+[[test]]
+name = "receipt_binding"
+path = "../tests/receipt_binding.rs"
+
+[[test]]
+name = "error_honesty"
+path = "../tests/error_honesty.rs"
+
+[[test]]
+name = "completion_postconditions"
+path = "../tests/completion_postconditions.rs"
+
+[[test]]
+name = "sycophancy_invariance"
+path = "../tests/sycophancy_invariance.rs"
+
+[[test]]
+name = "goal_integrity"
+path = "../tests/goal_integrity.rs"
+
+[[test]]
+name = "run_budget"
+path = "../tests/run_budget.rs"
+
+[[test]]
+name = "context_poisoning"
+path = "../tests/context_poisoning.rs"
+
+[[test]]
+name = "memory_poisoning"
+path = "../tests/memory_poisoning.rs"
+
+[[test]]
+name = "human_approval_binding"
+path = "../tests/human_approval_binding.rs"
+
+[[test]]
+name = "replay_proof"
+path = "../tests/replay_proof.rs"

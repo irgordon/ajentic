@@ -58,8 +58,9 @@ Model output must not directly mutate:
 - schemas
 - tests
 - repository files
-Model output becomes usable only after validation.
-Model output becomes authoritative only when accepted through Rust-owned authority paths and recorded where required.
+Model output becomes reviewable candidate material only after applicable validation.
+Model output does not become evidence merely because it passed a candidate boundary.
+Any authoritative decision or verified factual claim must be derived from independently recorded evidence through Rust-owned authority paths.
 ## 4. Intent rule
 External surfaces submit typed intents only.
 An intent is a request.
@@ -336,23 +337,27 @@ Audit must not mutate:
 
 Audit output may be displayed by the UI or exported for human review.
 
-## 19. Clean output rule
+## 19. Reviewable candidate and verified outcome rule
 
-Raw model output is not clean output.
+Raw model output is not a reviewable candidate.
 
-Clean output is output that has passed through the harness boundary.
+A reviewable candidate has passed the bounded validation, policy, replay, and receipt checks applicable to candidate review.
 
-Clean output must have, where applicable:
+A reviewable candidate is not task completion, verified truth, or proof of an external effect.
+
+A verified outcome additionally requires, where applicable:
 
 * originating task or intent
 * bounded context provenance
-* validation result
-* policy result
-* ledger event
-* replay support
+* bound validation and policy receipts
+* action-outcome records
+* independently observed required postconditions
+* claim-level evidence status
+* hash-chained ledger events
+* replay re-derivation
 * audit projection
 
-The UI must visually distinguish raw model output from clean output.
+The UI must visually distinguish raw model output, reviewable candidate material, and verified outcomes.
 
 ## 20. Truth-dimension rule
 
@@ -706,3 +711,23 @@ Truth-dimension collapse is an audit failure.
 Authority leakage is a system failure.
 
 A document, workflow, script, UI surface, memory entry, or model output that violates these rules must be corrected before it becomes authoritative or operationally relied upon.
+
+## 37. Completion-integrity invariants
+
+The following invariants are permanent:
+
+1. No self-attestation. A model, adapter, tool, or caller cannot validate its own claims.
+2. A verdict is not evidence. Passing status must be derived from recorded evidence.
+3. Completion requires independently observed postconditions.
+4. Every material claim is supported, contradicted, or explicitly unverified.
+5. Partial success is not success.
+6. Material errors and side effects cannot be omitted from the authoritative result.
+7. Approval is exact-action-bound, one-time, and expiring where appropriate.
+8. Untrusted content cannot become instruction without explicit authority delegation.
+9. Model-generated memory cannot activate itself.
+10. Replay re-derives decisions from recorded facts and bound receipts.
+11. Model agreement and evaluator consensus are advisory, not proof.
+12. Unknown or unresolved state returns control to a human.
+13. A changed objective requires a new typed intent and task contract.
+14. A retry cannot assume the preceding attempt had no side effects.
+15. Simulation output cannot share verified production-outcome classifications.

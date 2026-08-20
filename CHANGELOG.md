@@ -4,6 +4,42 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.197 - 2026-08-19
+**Status:** Phase 197 - Authority and Completion Integrity
+
+### Added
+- Add dependency-free SHA-256 digests and complete authority bindings.
+- Add opaque validation, policy, replay, exact-action approval, and promotion receipts.
+- Add task-contract, action-outcome, and claim-report Rust contracts and JSON Schemas.
+- Add deterministic authoritative run summaries that retain errors, partial side effects, unmet criteria, and uncertainty.
+- Add integrated run budgets and unsafe side-effect retry escalation.
+- Add separate zero-tolerance security failure metrics and behavioral quality ratios.
+- Add classified context rendering, independently verified memory activation, hash-chained ledger events, and authorization-bound replay verification.
+- Add focused regression suites for promotion unforgeability, receipt binding, completion postconditions, error honesty, sycophancy invariance, goal integrity, run budgets, context poisoning, memory poisoning, human approval binding, and replay proof.
+
+### Changed
+- Replace caller-constructible positive validation and policy result objects with opaque receipts.
+- Require governance authorization for `Passed -> PromotedTier1`.
+- Separate simulation completion and provider-envelope production from verified completion vocabulary.
+- Rename clean-output availability projections to reviewable-candidate availability and keep candidate verification false unless postconditions prove otherwise.
+- Extend context, memory, intent, ledger, validation, replay, and run-trace contracts with integrity and evidence bindings.
+- Add permanent completion-integrity invariants to governance.
+
+### Validation
+- Rust all-target tests pass (`1,230` tests).
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Schema parsing, structure validation, documentation validation, Rust/UI boundary lints, help pages, artifact reproducibility, evidence reproducibility, release-candidate bundle reproducibility, RC preflight, final-release preflight, and final-asset preparation checks pass.
+
+### Notes
+- No real provider, external action execution, tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, workflow behavior change, or package version change was added.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.196 - 2026-06-19
 **Status:** Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
 

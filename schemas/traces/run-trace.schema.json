@@ -8,9 +8,16 @@
     "schema_version",
     "trace_id",
     "run_id",
+    "task_contract",
     "events",
     "validation_reports",
     "replay_reports",
+    "action_outcomes",
+    "claim_reports",
+    "validation_receipt_refs",
+    "policy_receipt_refs",
+    "replay_receipt_refs",
+    "authoritative_result",
     "summary"
   ],
   "properties": {
@@ -25,6 +32,9 @@
     "run_id": {
       "type": "string",
       "minLength": 1
+    },
+    "task_contract": {
+      "$ref": "../tasks/task-contract.schema.json"
     },
     "events": {
       "type": "array",
@@ -161,6 +171,38 @@
         },
         "additionalProperties": false
       }
+    },
+    "action_outcomes": {
+      "type": "array",
+      "items": { "$ref": "action-outcome.schema.json" }
+    },
+    "claim_reports": {
+      "type": "array",
+      "items": { "$ref": "claim-report.schema.json" }
+    },
+    "validation_receipt_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+    },
+    "policy_receipt_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+    },
+    "replay_receipt_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+    },
+    "authoritative_result": {
+      "type": "object",
+      "required": ["status", "material_errors", "partial_side_effects", "unmet_success_criteria", "unresolved_uncertainty"],
+      "properties": {
+        "status": { "type": "string", "enum": ["SUCCEEDED", "PARTIAL", "FAILED", "BLOCKED", "UNKNOWN", "NOT_ATTEMPTED"] },
+        "material_errors": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "partial_side_effects": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "unmet_success_criteria": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "unresolved_uncertainty": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
     },
     "summary": {
       "type": "string",

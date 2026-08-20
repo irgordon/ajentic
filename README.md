@@ -74,6 +74,8 @@ AJENTIC follows a simple control model:
 
 The AI-generated draft is treated as untrusted until it is reviewed. The browser interface helps you see status, evidence, errors, and history, but it does not make final decisions.
 
+A reviewable candidate is still not proof that a task succeeded. AJENTIC records observed postconditions, material claim support, errors, partial side effects, and unresolved uncertainty separately so a convincing draft cannot be mistaken for verified completion.
+
 ## What Makes AJENTIC Different
 
 Many AI tools focus on speed.

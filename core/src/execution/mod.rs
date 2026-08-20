@@ -2,6 +2,8 @@ pub mod provider_failure;
 pub use provider_failure::*;
 pub mod provider_execution;
 pub use provider_execution::*;
+pub mod run_budget;
+pub use run_budget::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderKind {
@@ -442,6 +444,7 @@ pub enum ExecutionDecision {
 pub enum ExecutionDecisionReason {
     ReadyForExecution,
     LifecycleNotPassed,
+    ReceiptBindingMismatch,
     PolicyNotAllowed,
     ValidationNotPassed,
     ReplayNotReady,
@@ -452,6 +455,7 @@ impl ExecutionDecisionReason {
         match self {
             Self::ReadyForExecution => "ready_for_execution",
             Self::LifecycleNotPassed => "lifecycle_not_passed",
+            Self::ReceiptBindingMismatch => "receipt_binding_mismatch",
             Self::PolicyNotAllowed => "policy_not_allowed",
             Self::ValidationNotPassed => "validation_not_passed",
             Self::ReplayNotReady => "replay_not_ready",
@@ -490,27 +494,41 @@ impl ExecutionDecisionReport {
 
 pub fn decide_execution(
     lifecycle: crate::state::LifecycleState,
-    policy: &crate::policy::PolicyResult,
-    validation: &crate::validation::ValidationResult,
-    replay: &crate::replay::ReplayReport,
+    policy: &crate::policy::PolicyReceipt,
+    validation: &crate::validation::ValidationReceipt,
+    replay: &crate::replay::ReplayReceipt,
 ) -> ExecutionDecisionReport {
     if lifecycle != crate::state::LifecycleState::Passed {
         return ExecutionDecisionReport::rejected(ExecutionDecisionReason::LifecycleNotPassed);
     }
 
-    if policy.decision != crate::policy::PolicyDecision::Allowed {
-        return ExecutionDecisionReport::blocked(ExecutionDecisionReason::PolicyNotAllowed);
+    if !execution_receipts_match(policy, validation, replay) {
+        return ExecutionDecisionReport::blocked(ExecutionDecisionReason::ReceiptBindingMismatch);
     }
 
-    if validation.status != crate::validation::ValidationStatus::Pass {
+    if validation.status() != crate::validation::ValidationStatus::Pass {
         return ExecutionDecisionReport::blocked(ExecutionDecisionReason::ValidationNotPassed);
     }
 
-    if replay.readiness != crate::replay::ReplayReadiness::Ready {
+    if policy.decision() != crate::policy::PolicyDecision::Allowed {
+        return ExecutionDecisionReport::blocked(ExecutionDecisionReason::PolicyNotAllowed);
+    }
+
+    if !replay.ready() {
         return ExecutionDecisionReport::blocked(ExecutionDecisionReason::ReplayNotReady);
     }
 
     ExecutionDecisionReport::allowed()
+}
+
+fn execution_receipts_match(
+    policy: &crate::policy::PolicyReceipt,
+    validation: &crate::validation::ValidationReceipt,
+    replay: &crate::replay::ReplayReceipt,
+) -> bool {
+    policy.binding() == validation.binding()
+        && replay.binding() == validation.binding()
+        && policy.validation_receipt_digest() == validation.digest()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -544,21 +562,21 @@ pub struct PromotionDecisionReport {
 }
 
 impl PromotionDecisionReport {
-    pub fn allowed() -> Self {
+    fn allowed() -> Self {
         Self {
             decision: PromotionDecision::Allowed,
             reason: PromotionDecisionReason::ReadyForTier1Promotion,
         }
     }
 
-    pub fn blocked(reason: PromotionDecisionReason) -> Self {
+    fn blocked(reason: PromotionDecisionReason) -> Self {
         Self {
             decision: PromotionDecision::Blocked,
             reason,
         }
     }
 
-    pub fn rejected(reason: PromotionDecisionReason) -> Self {
+    fn rejected(reason: PromotionDecisionReason) -> Self {
         Self {
             decision: PromotionDecision::Rejected,
             reason,
@@ -566,7 +584,7 @@ impl PromotionDecisionReport {
     }
 }
 
-pub fn decide_promotion(
+fn decide_promotion(
     lifecycle: crate::state::LifecycleState,
     execution: &ExecutionDecisionReport,
 ) -> PromotionDecisionReport {
@@ -598,10 +616,11 @@ impl PromotionRecordError {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PromotionRecord {
-    pub event: crate::ledger::LedgerEvent,
+    event: crate::ledger::LedgerEvent,
 }
 
-pub fn build_promotion_record(
+#[cfg(test)]
+fn build_promotion_record(
     event_id: impl Into<String>,
     revision: u64,
     actor: crate::ledger::LedgerActor,
@@ -630,6 +649,81 @@ pub fn build_promotion_record(
     .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
 
     Ok(PromotionRecord { event })
+}
+
+pub fn build_authorized_promotion_record(
+    authorization: &crate::state::PromotionAuthorization,
+    manifest: &crate::authority::EvidenceManifest,
+    actor: crate::ledger::LedgerActor,
+    ledger: &crate::ledger::Ledger,
+) -> Result<PromotionRecord, PromotionRecordError> {
+    manifest
+        .verify_binding(authorization.binding())
+        .map_err(|_| PromotionRecordError::PromotionNotAllowed)?;
+    let evidence_refs = authorized_evidence_refs(authorization, manifest);
+    build_authorized_record(authorization, actor, ledger, evidence_refs)
+}
+
+fn authorized_evidence_refs(
+    authorization: &crate::state::PromotionAuthorization,
+    manifest: &crate::authority::EvidenceManifest,
+) -> Vec<String> {
+    let mut references = manifest.reference_ids();
+    references.push(format!(
+        "promotion_authorization:{}",
+        authorization.digest().as_str()
+    ));
+    references
+}
+
+fn build_authorized_record(
+    authorization: &crate::state::PromotionAuthorization,
+    actor: crate::ledger::LedgerActor,
+    ledger: &crate::ledger::Ledger,
+    evidence_refs: Vec<String>,
+) -> Result<PromotionRecord, PromotionRecordError> {
+    let run_id = authorization.binding().run_id();
+    let revision = ledger.last_revision().unwrap_or(0) + 1;
+    let payload = crate::ledger::LedgerPayload::with_lifecycle_transition(
+        format!("controlled_run:{run_id}:promotion"),
+        crate::state::LifecycleState::PromotedTier1,
+    )
+    .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
+    let event = crate::ledger::LedgerEvent::new(
+        format!("promotion:{run_id}"),
+        revision,
+        crate::ledger::LedgerEventType::StateTransition,
+        actor,
+        evidence_refs,
+        payload,
+    )
+    .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
+    let previous_hash = ledger
+        .last_event_hash()
+        .cloned()
+        .unwrap_or_else(|| crate::integrity::Digest::of_text("AJENTIC_LEDGER_GENESIS"));
+    let parents = ledger
+        .events()
+        .last()
+        .map(|event| vec![event.id.clone()])
+        .unwrap_or_default();
+    let seal = promotion_ledger_seal(authorization);
+    let event = crate::ledger::LedgerEvent::new_bound(event, &seal, previous_hash, parents)
+        .map_err(|_| PromotionRecordError::LedgerEventInvalid)?;
+    Ok(PromotionRecord { event })
+}
+
+fn promotion_ledger_seal(
+    authorization: &crate::state::PromotionAuthorization,
+) -> crate::ledger::LedgerSeal {
+    crate::ledger::LedgerSeal {
+        binding: authorization.binding().clone(),
+        actor_authorization_ref: authorization.digest().as_str().into(),
+        validation_receipt_ref: authorization.validation_receipt_digest().as_str().into(),
+        policy_receipt_ref: authorization.policy_receipt_digest().as_str().into(),
+        schema_version: "v1.0.0".into(),
+        verifier_version: authorization.binding().verifier_version().into(),
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -664,6 +758,8 @@ pub enum PromotionReplayVerificationStatus {
 pub enum PromotionReplayVerificationReason {
     PromotionReplayVerified,
     LedgerNotReplayReady,
+    LedgerIntegrityMismatch,
+    PromotionAuthorizationMismatch,
     ReconstructionFailed,
     FinalStateNotPromotedTier1,
 }
@@ -673,6 +769,8 @@ impl PromotionReplayVerificationReason {
         match self {
             Self::PromotionReplayVerified => "promotion_replay_verified",
             Self::LedgerNotReplayReady => "ledger_not_replay_ready",
+            Self::LedgerIntegrityMismatch => "ledger_integrity_mismatch",
+            Self::PromotionAuthorizationMismatch => "promotion_authorization_mismatch",
             Self::ReconstructionFailed => "reconstruction_failed",
             Self::FinalStateNotPromotedTier1 => "final_state_not_promoted_tier_1",
         }
@@ -710,9 +808,76 @@ impl PromotionReplayVerificationReport {
     }
 }
 
-pub fn verify_promotion_replay(
+pub fn verify_authorized_promotion_replay(
     ledger: &crate::ledger::Ledger,
+    authorization: &crate::state::PromotionAuthorization,
+    manifest: &crate::authority::EvidenceManifest,
+    evidence: PromotionReplayEvidence<'_>,
 ) -> PromotionReplayVerificationReport {
+    if ledger
+        .verify_integrity(authorization.binding(), manifest)
+        .is_err()
+    {
+        return PromotionReplayVerificationReport::not_verified(
+            PromotionReplayVerificationReason::LedgerIntegrityMismatch,
+        );
+    }
+    if !promotion_event_matches_authorization(ledger, authorization) {
+        return PromotionReplayVerificationReport::not_verified(
+            PromotionReplayVerificationReason::PromotionAuthorizationMismatch,
+        );
+    }
+    if !promotion_decision_rederives(authorization, evidence) {
+        return PromotionReplayVerificationReport::not_verified(
+            PromotionReplayVerificationReason::PromotionAuthorizationMismatch,
+        );
+    }
+    verify_promotion_replay(ledger)
+}
+
+fn promotion_decision_rederives(
+    authorization: &crate::state::PromotionAuthorization,
+    evidence: PromotionReplayEvidence<'_>,
+) -> bool {
+    let binding = authorization.binding().clone();
+    let validation =
+        crate::validation::evaluate_validation(binding.clone(), evidence.evaluations.validation());
+    let policy =
+        crate::policy::evaluate_policy(binding.clone(), evidence.evaluations.policy(), &validation);
+    let rederived =
+        crate::state::authorize_promotion(binding, &validation, &policy, evidence.replay);
+    receipt_derivation_matches(evidence, &validation, &policy, rederived.as_ref().ok())
+}
+
+fn receipt_derivation_matches(
+    evidence: PromotionReplayEvidence<'_>,
+    validation: &crate::validation::ValidationReceipt,
+    policy: &crate::policy::PolicyReceipt,
+    authorization: Option<&crate::state::PromotionAuthorization>,
+) -> bool {
+    validation.digest() == evidence.validation.digest()
+        && policy.digest() == evidence.policy.digest()
+        && authorization.map(|item| item.digest()) == Some(evidence.authorization_digest)
+}
+
+fn promotion_event_matches_authorization(
+    ledger: &crate::ledger::Ledger,
+    authorization: &crate::state::PromotionAuthorization,
+) -> bool {
+    ledger
+        .events()
+        .last()
+        .and_then(|event| event.integrity.as_ref())
+        .map(|integrity| {
+            integrity.actor_authorization_ref == authorization.digest().as_str()
+                && integrity.validation_receipt_ref
+                    == authorization.validation_receipt_digest().as_str()
+                && integrity.policy_receipt_ref == authorization.policy_receipt_digest().as_str()
+        })
+        .unwrap_or(false)
+}
+
+fn verify_promotion_replay(ledger: &crate::ledger::Ledger) -> PromotionReplayVerificationReport {
     let events = ledger.events();
 
     if crate::replay::classify_replay_readiness(events).is_err() {
@@ -782,17 +947,32 @@ impl ControlledRunReason {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuthorityEvaluationEvidence {
+    validation: crate::validation::ValidationEvidence,
+    policy: crate::policy::PolicyEvidence,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PromotionReplayEvidence<'a> {
+    pub evaluations: &'a AuthorityEvaluationEvidence,
+    pub validation: &'a crate::validation::ValidationReceipt,
+    pub policy: &'a crate::policy::PolicyReceipt,
+    pub replay: &'a crate::replay::ReplayReceipt,
+    pub authorization_digest: &'a crate::integrity::Digest,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ControlledRunRequest {
-    pub run_id: String,
-    pub context_packet_id: String,
-    pub provider_output: ProviderOutput,
-    pub lifecycle: crate::state::LifecycleState,
-    pub policy: crate::policy::PolicyResult,
-    pub validation: crate::validation::ValidationResult,
-    pub replay: crate::replay::ReplayReport,
-    pub ledger: crate::ledger::Ledger,
-    pub actor: crate::ledger::LedgerActor,
-    pub evidence_refs: Vec<String>,
+    binding: crate::authority::AuthorityBinding,
+    context_packet_id: String,
+    provider_output: ProviderOutput,
+    policy: crate::policy::PolicyReceipt,
+    validation: crate::validation::ValidationReceipt,
+    replay: crate::replay::ReplayReceipt,
+    ledger: crate::ledger::Ledger,
+    actor: crate::ledger::LedgerActor,
+    evidence_manifest: crate::authority::EvidenceManifest,
+    evaluation_evidence: AuthorityEvaluationEvidence,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -803,7 +983,7 @@ pub struct ControlledRunResult {
     pub promotion_decision: PromotionDecisionReport,
     pub ledger: crate::ledger::Ledger,
     pub promotion_replay: PromotionReplayVerificationReport,
-    pub clean_output_summary: Option<String>,
+    pub reviewable_candidate_summary: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -811,6 +991,11 @@ pub enum ControlledRunError {
     EmptyRunId,
     EmptyContextPacketId,
     MissingEvidenceRefs,
+    ReceiptBindingMismatch,
+    CandidateDigestMismatch,
+    EvidenceManifestMismatch,
+    RevisionMismatch,
+    ReceiptDerivationMismatch,
 }
 
 impl ControlledRunError {
@@ -819,49 +1004,132 @@ impl ControlledRunError {
             Self::EmptyRunId => "empty_run_id",
             Self::EmptyContextPacketId => "empty_context_packet_id",
             Self::MissingEvidenceRefs => "missing_evidence_refs",
+            Self::ReceiptBindingMismatch => "receipt_binding_mismatch",
+            Self::CandidateDigestMismatch => "candidate_digest_mismatch",
+            Self::EvidenceManifestMismatch => "evidence_manifest_mismatch",
+            Self::RevisionMismatch => "revision_mismatch",
+            Self::ReceiptDerivationMismatch => "receipt_derivation_mismatch",
         }
+    }
+}
+
+impl AuthorityEvaluationEvidence {
+    pub fn new(
+        validation: crate::validation::ValidationEvidence,
+        policy: crate::policy::PolicyEvidence,
+    ) -> Self {
+        Self { validation, policy }
+    }
+
+    pub fn validation(&self) -> &crate::validation::ValidationEvidence {
+        &self.validation
+    }
+
+    pub fn policy(&self) -> &crate::policy::PolicyEvidence {
+        &self.policy
     }
 }
 
 impl ControlledRunRequest {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        run_id: impl Into<String>,
         context_packet_id: impl Into<String>,
         provider_output: ProviderOutput,
-        lifecycle: crate::state::LifecycleState,
-        policy: crate::policy::PolicyResult,
-        validation: crate::validation::ValidationResult,
-        replay: crate::replay::ReplayReport,
+        policy: crate::policy::PolicyReceipt,
+        validation: crate::validation::ValidationReceipt,
+        replay: crate::replay::ReplayReceipt,
         ledger: crate::ledger::Ledger,
         actor: crate::ledger::LedgerActor,
-        evidence_refs: Vec<String>,
+        evidence_manifest: crate::authority::EvidenceManifest,
+        evaluation_evidence: AuthorityEvaluationEvidence,
     ) -> Result<Self, ControlledRunError> {
-        let run_id = run_id.into();
-        if run_id.is_empty() {
-            return Err(ControlledRunError::EmptyRunId);
-        }
         let context_packet_id = context_packet_id.into();
         if context_packet_id.is_empty() {
             return Err(ControlledRunError::EmptyContextPacketId);
         }
-        if evidence_refs.is_empty() {
-            return Err(ControlledRunError::MissingEvidenceRefs);
-        }
-
+        let binding = validation.binding().clone();
+        validate_controlled_receipts(&binding, &policy, &validation, &replay)?;
+        validate_controlled_evidence(&binding, &provider_output, &evidence_manifest)?;
+        validate_receipt_derivation(&binding, &validation, &policy, &evaluation_evidence)?;
+        validate_controlled_revision(&binding, &ledger)?;
         Ok(Self {
-            run_id,
+            binding,
             context_packet_id,
             provider_output,
-            lifecycle,
             policy,
             validation,
             replay,
             ledger,
             actor,
-            evidence_refs,
+            evidence_manifest,
+            evaluation_evidence,
         })
     }
+}
+
+fn validate_receipt_derivation(
+    binding: &crate::authority::AuthorityBinding,
+    validation: &crate::validation::ValidationReceipt,
+    policy: &crate::policy::PolicyReceipt,
+    evidence: &AuthorityEvaluationEvidence,
+) -> Result<(), ControlledRunError> {
+    let rederived_validation =
+        crate::validation::evaluate_validation(binding.clone(), evidence.validation());
+    let rederived_policy =
+        crate::policy::evaluate_policy(binding.clone(), evidence.policy(), &rederived_validation);
+    if rederived_validation.digest() == validation.digest()
+        && rederived_policy.digest() == policy.digest()
+    {
+        return Ok(());
+    }
+    Err(ControlledRunError::ReceiptDerivationMismatch)
+}
+
+fn validate_controlled_receipts(
+    binding: &crate::authority::AuthorityBinding,
+    policy: &crate::policy::PolicyReceipt,
+    validation: &crate::validation::ValidationReceipt,
+    replay: &crate::replay::ReplayReceipt,
+) -> Result<(), ControlledRunError> {
+    if policy.binding() == binding
+        && replay.binding() == binding
+        && policy.validation_receipt_digest() == validation.digest()
+    {
+        return Ok(());
+    }
+    Err(ControlledRunError::ReceiptBindingMismatch)
+}
+
+fn validate_controlled_evidence(
+    binding: &crate::authority::AuthorityBinding,
+    output: &ProviderOutput,
+    manifest: &crate::authority::EvidenceManifest,
+) -> Result<(), ControlledRunError> {
+    manifest
+        .verify_binding(binding)
+        .map_err(|_| ControlledRunError::EvidenceManifestMismatch)?;
+    validate_candidate_digest(binding, output)
+}
+
+fn validate_candidate_digest(
+    binding: &crate::authority::AuthorityBinding,
+    output: &ProviderOutput,
+) -> Result<(), ControlledRunError> {
+    let observed = crate::integrity::Digest::of_text(&output.content);
+    if &observed == binding.candidate_digest() {
+        return Ok(());
+    }
+    Err(ControlledRunError::CandidateDigestMismatch)
+}
+
+fn validate_controlled_revision(
+    binding: &crate::authority::AuthorityBinding,
+    ledger: &crate::ledger::Ledger,
+) -> Result<(), ControlledRunError> {
+    if ledger.last_revision() == Some(binding.valid_through_revision()) {
+        return Ok(());
+    }
+    Err(ControlledRunError::RevisionMismatch)
 }
 
 pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRunResult {
@@ -873,7 +1141,7 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
             promotion_decision,
             ledger: request.ledger.clone(),
             promotion_replay,
-            clean_output_summary: None,
+            reviewable_candidate_summary: None,
         }
     };
 
@@ -889,8 +1157,9 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
         );
     }
 
+    let lifecycle = request.replay.final_state();
     let execution = decide_execution(
-        request.lifecycle,
+        lifecycle,
         &request.policy,
         &request.validation,
         &request.replay,
@@ -954,7 +1223,7 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
         _ => {}
     }
 
-    let promotion = decide_promotion(request.lifecycle, &execution);
+    let promotion = decide_promotion(lifecycle, &execution);
     match (promotion.decision, promotion.reason) {
         (PromotionDecision::Rejected, PromotionDecisionReason::LifecycleNotPassed) => {
             return failed(
@@ -992,13 +1261,31 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
         _ => {}
     }
 
-    let record = match build_promotion_record(
-        format!("promotion:{}", request.run_id),
-        request.ledger.last_revision().unwrap_or(0) + 1,
+    let authorization = match crate::state::authorize_promotion(
+        request.binding.clone(),
+        &request.validation,
+        &request.policy,
+        &request.replay,
+    ) {
+        Ok(authorization) => authorization,
+        Err(_) => {
+            return failed(
+                ControlledRunStatus::Blocked,
+                ControlledRunReason::PromotionNotAllowed,
+                execution,
+                promotion,
+                PromotionReplayVerificationReport::not_verified(
+                    PromotionReplayVerificationReason::LedgerNotReplayReady,
+                ),
+            );
+        }
+    };
+
+    let record = match build_authorized_promotion_record(
+        &authorization,
+        &request.evidence_manifest,
         request.actor,
-        request.evidence_refs,
-        format!("controlled_run:{}:promotion", request.run_id),
-        &promotion,
+        &request.ledger,
     ) {
         Ok(record) => record,
         Err(PromotionRecordError::PromotionNotAllowed) => {
@@ -1040,7 +1327,18 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
         }
     };
 
-    let replay_verification = verify_promotion_replay(&next_ledger);
+    let replay_verification = verify_authorized_promotion_replay(
+        &next_ledger,
+        &authorization,
+        &request.evidence_manifest,
+        PromotionReplayEvidence {
+            evaluations: &request.evaluation_evidence,
+            validation: &request.validation,
+            policy: &request.policy,
+            replay: &request.replay,
+            authorization_digest: authorization.digest(),
+        },
+    );
     if replay_verification.status != PromotionReplayVerificationStatus::Verified {
         return failed(
             ControlledRunStatus::Blocked,
@@ -1052,9 +1350,9 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
     }
 
     let _audit_timeline = crate::audit::project_ledger_timeline(next_ledger.events());
-    let clean_output_summary = Some(format!(
-        "run_id={} context_packet_id={} provider_output_id={} raw provider output remains untrusted; clean output is based on accepted controlled flow",
-        request.run_id, request.context_packet_id, request.provider_output.id
+    let reviewable_candidate_summary = Some(format!(
+        "run_id={} context_packet_id={} provider_output_id={} raw provider output remains untrusted; a reviewable candidate was produced by the controlled flow; task completion is not proved",
+        request.binding.run_id(), request.context_packet_id, request.provider_output.id
     ));
 
     ControlledRunResult {
@@ -1064,28 +1362,118 @@ pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRun
         promotion_decision: promotion,
         ledger: next_ledger,
         promotion_replay: replay_verification,
-        clean_output_summary,
+        reviewable_candidate_summary,
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::policy::{PolicyDecision, PolicyResult};
-    use crate::replay::{ReplayIntegrity, ReplayReadiness, ReplayReport, ReplayStatus};
+    use crate::authority::{
+        AuthorityBinding, AuthorityBindingInput, EvidenceManifest, EvidenceReference,
+    };
+    use crate::policy::PolicyReceipt;
+    use crate::replay::ReplayReceipt;
     use crate::state::LifecycleState;
-    use crate::validation::{ValidationResult, ValidationStatus};
+    use crate::validation::ValidationReceipt;
 
-    fn ready_policy() -> PolicyResult {
-        PolicyResult::allowed("required_policy_evidence_present")
+    fn ready_policy() -> PolicyReceipt {
+        let validation = ready_validation();
+        policy_for_validation(&validation)
     }
 
-    fn ready_validation() -> ValidationResult {
-        ValidationResult::pass("validation_evidence_passed")
+    fn policy_for_validation(validation: &ValidationReceipt) -> PolicyReceipt {
+        let binding = validation.binding().clone();
+        crate::policy::evaluate_policy(
+            binding,
+            &crate::policy::PolicyEvidence::new(true, true, false),
+            validation,
+        )
     }
 
-    fn ready_replay() -> ReplayReport {
-        ReplayReport::replayable(2)
+    fn ready_validation() -> ValidationReceipt {
+        let manifest = receipt_manifest();
+        crate::validation::evaluate_validation(
+            receipt_binding(&manifest),
+            &crate::validation::ValidationEvidence::new(true, true, true, false, manifest),
+        )
+    }
+
+    fn ready_replay() -> ReplayReceipt {
+        let manifest = receipt_manifest();
+        crate::replay::verify_replay_receipt(
+            receipt_binding(&manifest),
+            &ready_receipt_ledger(),
+            &manifest,
+        )
+        .unwrap()
+    }
+
+    fn unknown_policy() -> PolicyReceipt {
+        let manifest = receipt_manifest();
+        let validation = ready_validation();
+        crate::policy::record_unknown_policy(receipt_binding(&manifest), &validation)
+    }
+
+    fn unknown_validation() -> ValidationReceipt {
+        let manifest = receipt_manifest();
+        crate::validation::record_unknown_validation(receipt_binding(&manifest))
+    }
+
+    fn unknown_replay() -> ReplayReceipt {
+        let manifest = receipt_manifest();
+        crate::replay::record_unknown_replay(receipt_binding(&manifest))
+    }
+
+    fn ready_evaluation_evidence() -> AuthorityEvaluationEvidence {
+        AuthorityEvaluationEvidence::new(
+            crate::validation::ValidationEvidence::new(true, true, true, false, receipt_manifest()),
+            crate::policy::PolicyEvidence::new(true, true, false),
+        )
+    }
+
+    fn receipt_manifest() -> EvidenceManifest {
+        EvidenceManifest::new(vec![
+            EvidenceReference::new("evidence-1", crate::integrity::Digest::of_text("one")).unwrap(),
+            EvidenceReference::new("evidence-2", crate::integrity::Digest::of_text("two")).unwrap(),
+        ])
+        .unwrap()
+    }
+
+    fn receipt_binding(manifest: &EvidenceManifest) -> AuthorityBinding {
+        AuthorityBinding::new(AuthorityBindingInput {
+            run_id: "run-1".into(),
+            task_digest: crate::integrity::Digest::of_text("task"),
+            operator_intent_digest: crate::integrity::Digest::of_text("intent"),
+            context_packet_digest: crate::integrity::Digest::of_text("context-1"),
+            candidate_digest: crate::integrity::Digest::of_text("candidate content"),
+            policy_bundle_digest: crate::integrity::Digest::of_text("policy"),
+            evidence_manifest_digest: manifest.digest().clone(),
+            verifier_id: "test-verifier".into(),
+            verifier_version: "1.0.0".into(),
+            valid_through_revision: 2,
+        })
+        .unwrap()
+    }
+
+    fn ready_receipt_ledger() -> crate::ledger::Ledger {
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .unwrap()
+            .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
+            .unwrap();
+        let validation = ready_validation();
+        let policy = policy_for_validation(&validation);
+        ledger
+            .seal(&crate::ledger::LedgerSeal {
+                binding: validation.binding().clone(),
+                actor_authorization_ref: "test-actor-authorization".into(),
+                validation_receipt_ref: validation.digest().as_str().into(),
+                policy_receipt_ref: policy.digest().as_str().into(),
+                schema_version: "v1.0.0".into(),
+                verifier_version: "1.0.0".into(),
+            })
+            .unwrap()
     }
 
     #[test]
@@ -1790,7 +2178,7 @@ mod tests {
     fn execution_blocks_when_policy_not_allowed() {
         let report = decide_execution(
             LifecycleState::Passed,
-            &PolicyResult::unknown(),
+            &unknown_policy(),
             &ready_validation(),
             &ready_replay(),
         );
@@ -1803,10 +2191,12 @@ mod tests {
 
     #[test]
     fn execution_blocks_when_validation_not_passed() {
+        let validation = unknown_validation();
+        let policy = policy_for_validation(&validation);
         let report = decide_execution(
             LifecycleState::Passed,
-            &ready_policy(),
-            &ValidationResult::unknown(),
+            &policy,
+            &validation,
             &ready_replay(),
         );
 
@@ -1822,7 +2212,7 @@ mod tests {
             LifecycleState::Passed,
             &ready_policy(),
             &ready_validation(),
-            &ReplayReport::unknown(),
+            &unknown_replay(),
         );
 
         assert_eq!(
@@ -1835,7 +2225,7 @@ mod tests {
     fn execution_priority_lifecycle_before_policy() {
         let report = decide_execution(
             LifecycleState::Created,
-            &PolicyResult::unknown(),
+            &unknown_policy(),
             &ready_validation(),
             &ready_replay(),
         );
@@ -1847,27 +2237,14 @@ mod tests {
     }
 
     #[test]
-    fn execution_priority_policy_before_validation() {
+    fn execution_priority_validation_before_policy() {
+        let validation = unknown_validation();
+        let policy = policy_for_validation(&validation);
         let report = decide_execution(
             LifecycleState::Passed,
-            &PolicyResult::unknown(),
-            &ValidationResult::unknown(),
+            &policy,
+            &validation,
             &ready_replay(),
-        );
-
-        assert_eq!(
-            report,
-            ExecutionDecisionReport::blocked(ExecutionDecisionReason::PolicyNotAllowed)
-        );
-    }
-
-    #[test]
-    fn execution_priority_validation_before_replay() {
-        let report = decide_execution(
-            LifecycleState::Passed,
-            &ready_policy(),
-            &ValidationResult::unknown(),
-            &ReplayReport::unknown(),
         );
 
         assert_eq!(
@@ -1877,44 +2254,36 @@ mod tests {
     }
 
     #[test]
-    fn execution_does_not_require_reason_strings_for_decision() {
-        let policy_a = PolicyResult {
-            decision: PolicyDecision::Allowed,
-            reason: "policy_reason_a",
-        };
-        let policy_b = PolicyResult {
-            decision: PolicyDecision::Allowed,
-            reason: "policy_reason_b",
-        };
+    fn execution_priority_validation_before_replay() {
+        let validation = unknown_validation();
+        let policy = policy_for_validation(&validation);
+        let report = decide_execution(
+            LifecycleState::Passed,
+            &policy,
+            &validation,
+            &unknown_replay(),
+        );
 
-        let validation_a = ValidationResult {
-            status: ValidationStatus::Pass,
-            message: "validation_message_a",
-        };
-        let validation_b = ValidationResult {
-            status: ValidationStatus::Pass,
-            message: "validation_message_b",
-        };
+        assert_eq!(
+            report,
+            ExecutionDecisionReport::blocked(ExecutionDecisionReason::ValidationNotPassed)
+        );
+    }
 
-        let replay_a = ReplayReport {
-            status: ReplayStatus::Replayable,
-            integrity: ReplayIntegrity::Valid,
-            readiness: ReplayReadiness::Ready,
-            events_replayed: 1,
-            reason: "replay_reason_a",
-        };
-        let replay_b = ReplayReport {
-            status: ReplayStatus::Replayable,
-            integrity: ReplayIntegrity::Valid,
-            readiness: ReplayReadiness::Ready,
-            events_replayed: 99,
-            reason: "replay_reason_b",
-        };
-
-        let report_a =
-            decide_execution(LifecycleState::Passed, &policy_a, &validation_a, &replay_a);
-        let report_b =
-            decide_execution(LifecycleState::Passed, &policy_b, &validation_b, &replay_b);
+    #[test]
+    fn execution_is_deterministic_for_equivalent_receipts() {
+        let report_a = decide_execution(
+            LifecycleState::Passed,
+            &ready_policy(),
+            &ready_validation(),
+            &ready_replay(),
+        );
+        let report_b = decide_execution(
+            LifecycleState::Passed,
+            &ready_policy(),
+            &ready_validation(),
+            &ready_replay(),
+        );
 
         assert_eq!(report_a, ExecutionDecisionReport::allowed());
         assert_eq!(report_b, ExecutionDecisionReport::allowed());
@@ -2711,20 +3080,15 @@ mod tests {
 
     fn phase_32_request() -> ControlledRunRequest {
         ControlledRunRequest::new(
-            "run-1",
             "context-1",
             untrusted_provider_output(),
-            LifecycleState::Passed,
             ready_policy(),
             ready_validation(),
             ready_replay(),
-            crate::ledger::Ledger::empty()
-                .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
-                .expect("append should succeed")
-                .append(replay_event("evt-2", 2, Some(LifecycleState::Passed)))
-                .expect("append should succeed"),
+            ready_receipt_ledger(),
             ledger_actor(),
-            vec!["evidence-1".to_string()],
+            receipt_manifest(),
+            ready_evaluation_evidence(),
         )
         .expect("request should be valid")
     }
@@ -2756,21 +3120,22 @@ mod tests {
     }
 
     #[test]
-    fn controlled_run_request_requires_run_id() {
+    fn controlled_run_request_rejects_candidate_digest_mismatch() {
+        let mut output = untrusted_provider_output();
+        output.content = "different candidate".to_string();
         assert_eq!(
             ControlledRunRequest::new(
-                "",
                 "context-1",
-                untrusted_provider_output(),
-                LifecycleState::Passed,
+                output,
                 ready_policy(),
                 ready_validation(),
                 ready_replay(),
-                crate::ledger::Ledger::empty(),
+                ready_receipt_ledger(),
                 ledger_actor(),
-                vec!["evidence-1".to_string()],
+                receipt_manifest(),
+                ready_evaluation_evidence(),
             ),
-            Err(ControlledRunError::EmptyRunId)
+            Err(ControlledRunError::CandidateDigestMismatch)
         );
     }
 
@@ -2778,37 +3143,41 @@ mod tests {
     fn controlled_run_request_requires_context_packet_id() {
         assert_eq!(
             ControlledRunRequest::new(
-                "run-1",
                 "",
                 untrusted_provider_output(),
-                LifecycleState::Passed,
                 ready_policy(),
                 ready_validation(),
                 ready_replay(),
-                crate::ledger::Ledger::empty(),
+                ready_receipt_ledger(),
                 ledger_actor(),
-                vec!["evidence-1".to_string()],
+                receipt_manifest(),
+                ready_evaluation_evidence(),
             ),
             Err(ControlledRunError::EmptyContextPacketId)
         );
     }
 
     #[test]
-    fn controlled_run_request_requires_evidence_refs() {
+    fn controlled_run_request_rejects_evidence_manifest_mismatch() {
+        let mismatched = EvidenceManifest::new(vec![EvidenceReference::new(
+            "other",
+            crate::integrity::Digest::of_text("other"),
+        )
+        .unwrap()])
+        .unwrap();
         assert_eq!(
             ControlledRunRequest::new(
-                "run-1",
                 "context-1",
                 untrusted_provider_output(),
-                LifecycleState::Passed,
                 ready_policy(),
                 ready_validation(),
                 ready_replay(),
-                crate::ledger::Ledger::empty(),
+                ready_receipt_ledger(),
                 ledger_actor(),
-                vec![],
+                mismatched,
+                ready_evaluation_evidence(),
             ),
-            Err(ControlledRunError::MissingEvidenceRefs)
+            Err(ControlledRunError::EvidenceManifestMismatch)
         );
     }
 
@@ -2824,7 +3193,7 @@ mod tests {
     #[test]
     fn controlled_flow_blocks_when_policy_not_allowed() {
         let mut request = phase_32_request();
-        request.policy = PolicyResult::unknown();
+        request.policy = unknown_policy();
         let result = run_controlled_model_flow(request);
         assert_eq!(result.status, ControlledRunStatus::Blocked);
         assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
@@ -2833,37 +3202,64 @@ mod tests {
     #[test]
     fn controlled_flow_blocks_when_validation_not_passed() {
         let mut request = phase_32_request();
-        request.validation = ValidationResult::unknown();
+        let validation = unknown_validation();
+        request.policy = policy_for_validation(&validation);
+        request.validation = validation;
         let result = run_controlled_model_flow(request);
         assert_eq!(result.status, ControlledRunStatus::Blocked);
         assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
     }
 
     #[test]
-    fn controlled_flow_rejects_when_lifecycle_not_passed() {
-        let mut request = phase_32_request();
-        request.lifecycle = LifecycleState::Created;
-        let result = run_controlled_model_flow(request);
-        assert_eq!(result.status, ControlledRunStatus::Rejected);
-        assert_eq!(result.reason, ControlledRunReason::LifecycleNotPassed);
+    fn replay_receipt_rejects_when_lifecycle_not_passed() {
+        let manifest = receipt_manifest();
+        let binding = AuthorityBinding::new(AuthorityBindingInput {
+            run_id: "run-1".into(),
+            task_digest: crate::integrity::Digest::of_text("task"),
+            operator_intent_digest: crate::integrity::Digest::of_text("intent"),
+            context_packet_digest: crate::integrity::Digest::of_text("context-1"),
+            candidate_digest: crate::integrity::Digest::of_text("candidate content"),
+            policy_bundle_digest: crate::integrity::Digest::of_text("policy"),
+            evidence_manifest_digest: manifest.digest().clone(),
+            verifier_id: "test-verifier".into(),
+            verifier_version: "1.0.0".into(),
+            valid_through_revision: 1,
+        })
+        .unwrap();
+        let ledger = crate::ledger::Ledger::empty()
+            .append(replay_event("evt-1", 1, Some(LifecycleState::Evaluating)))
+            .unwrap()
+            .seal(&crate::ledger::LedgerSeal {
+                binding: binding.clone(),
+                actor_authorization_ref: "test-actor-authorization".into(),
+                validation_receipt_ref: "validation-receipt".into(),
+                policy_receipt_ref: "policy-receipt".into(),
+                schema_version: "v1.0.0".into(),
+                verifier_version: "1.0.0".into(),
+            })
+            .unwrap();
+        let result = crate::replay::verify_replay_receipt(binding, &ledger, &manifest);
+        assert_eq!(
+            result,
+            Err(crate::replay::ReplayReceiptError::LifecycleNotPassed)
+        );
     }
 
     #[test]
     fn controlled_flow_blocks_when_replay_not_ready() {
         let mut request = phase_32_request();
-        request.replay = ReplayReport::unknown();
+        request.replay = unknown_replay();
         let result = run_controlled_model_flow(request);
         assert_eq!(result.status, ControlledRunStatus::Blocked);
         assert_eq!(result.reason, ControlledRunReason::ExecutionNotAllowed);
     }
 
     #[test]
-    fn controlled_flow_blocks_when_promotion_not_allowed() {
-        let mut request = phase_32_request();
-        request.lifecycle = LifecycleState::PromotedTier1;
-        let result = run_controlled_model_flow(request);
-        assert_eq!(result.status, ControlledRunStatus::Rejected);
-        assert_eq!(result.reason, ControlledRunReason::LifecycleNotPassed);
+    fn generic_passed_lifecycle_cannot_promote_without_authorization() {
+        assert_eq!(
+            LifecycleState::Passed.transition_to(LifecycleState::PromotedTier1),
+            Err(crate::state::LifecycleError::PromotionAuthorizationRequired)
+        );
     }
 
     #[test]
@@ -2886,16 +3282,16 @@ mod tests {
     }
 
     #[test]
-    fn controlled_flow_returns_clean_output_summary_on_success() {
+    fn controlled_flow_returns_reviewable_candidate_summary_on_success() {
         let result = run_controlled_model_flow(phase_32_request());
         let summary = result
-            .clean_output_summary
-            .expect("accepted result should include clean output summary");
+            .reviewable_candidate_summary
+            .expect("accepted result should include a reviewable candidate summary");
         assert!(summary.contains("run_id=run-1"));
         assert!(summary.contains("context_packet_id=context-1"));
         assert!(summary.contains("provider_output_id=output-1"));
         assert!(summary.contains("remains untrusted"));
-        assert!(summary.contains("accepted controlled flow"));
+        assert!(summary.contains("task completion is not proved"));
     }
 
     #[test]
@@ -2910,18 +3306,18 @@ mod tests {
     }
 
     #[test]
-    fn controlled_flow_returns_no_clean_output_on_failure() {
+    fn controlled_flow_returns_no_reviewable_candidate_on_failure() {
         let mut request = phase_32_request();
-        request.policy = PolicyResult::unknown();
+        request.policy = unknown_policy();
         let result = run_controlled_model_flow(request);
-        assert!(result.clean_output_summary.is_none());
+        assert!(result.reviewable_candidate_summary.is_none());
     }
 
     #[test]
     fn controlled_flow_failure_does_not_append_ledger() {
         let mut request = phase_32_request();
         let original = request.ledger.clone();
-        request.policy = PolicyResult::unknown();
+        request.policy = unknown_policy();
         let result = run_controlled_model_flow(request);
         assert_eq!(result.ledger, original);
     }
@@ -2937,7 +3333,9 @@ mod tests {
             ProviderOutputStatus::Received,
         )
         .expect("provider output should be valid");
-        request.validation = ValidationResult::unknown();
+        let validation = unknown_validation();
+        request.policy = policy_for_validation(&validation);
+        request.validation = validation;
         let result = run_controlled_model_flow(request);
         assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
     }
@@ -2953,7 +3351,7 @@ mod tests {
             ProviderOutputStatus::Received,
         )
         .expect("provider output should be valid");
-        request.policy = PolicyResult::unknown();
+        request.policy = unknown_policy();
         let result = run_controlled_model_flow(request);
         assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
     }
@@ -3021,11 +3419,11 @@ mod tests {
             ProviderOutputStatus::Received,
         )
         .expect("provider output should be valid");
-        request.policy = PolicyResult::unknown();
+        request.policy = unknown_policy();
         let result = run_controlled_model_flow(request);
         assert_eq!(result.status, ControlledRunStatus::Blocked);
         assert_eq!(result.reason, ControlledRunReason::PolicyNotAllowed);
-        assert!(result.clean_output_summary.is_none());
+        assert!(result.reviewable_candidate_summary.is_none());
     }
 
     #[test]
@@ -3039,11 +3437,13 @@ mod tests {
             ProviderOutputStatus::Received,
         )
         .expect("provider output should be valid");
-        request.validation = ValidationResult::unknown();
+        let validation = unknown_validation();
+        request.policy = policy_for_validation(&validation);
+        request.validation = validation;
         let result = run_controlled_model_flow(request);
         assert_eq!(result.status, ControlledRunStatus::Blocked);
         assert_eq!(result.reason, ControlledRunReason::ValidationNotPassed);
-        assert!(result.clean_output_summary.is_none());
+        assert!(result.reviewable_candidate_summary.is_none());
     }
 
     #[test]

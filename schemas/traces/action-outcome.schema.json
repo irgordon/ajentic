@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/traces/action-outcome.schema.json",
+  "title": "Action Outcome",
+  "description": "Authoritative action record whose success requires independently observed postconditions.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "action_id",
+    "task_id",
+    "run_id",
+    "tool",
+    "canonical_argument_digest",
+    "target",
+    "action_status",
+    "tool_return_status",
+    "observed_environmental_effect",
+    "postconditions_checked",
+    "exact_error_chain",
+    "partial_side_effects",
+    "retries",
+    "compensation",
+    "remaining_uncertainty",
+    "evidence_refs",
+    "evidence_digests"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "action_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "tool": { "type": "string", "minLength": 1 },
+    "canonical_argument_digest": { "$ref": "#/$defs/digest" },
+    "target": { "type": "string", "minLength": 1 },
+    "recipient": { "type": ["string", "null"] },
+    "action_status": {
+      "type": "string",
+      "enum": ["SUCCEEDED", "PARTIAL", "FAILED", "BLOCKED", "UNKNOWN", "NOT_ATTEMPTED"]
+    },
+    "tool_return_status": {
+      "type": "string",
+      "enum": ["SUCCEEDED", "FAILED", "TIMED_OUT", "BLOCKED", "UNKNOWN", "NOT_ATTEMPTED"]
+    },
+    "observed_environmental_effect": { "type": ["string", "null"] },
+    "postconditions_checked": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["postcondition_id", "required", "status", "evidence_refs"],
+        "properties": {
+          "postcondition_id": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["PASSED", "FAILED", "UNKNOWN", "NOT_CHECKED"] },
+          "observed_value": { "type": ["string", "null"] },
+          "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exact_error_chain": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "partial_side_effects": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "retries": { "type": "integer", "minimum": 0 },
+    "compensation": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "remaining_uncertainty": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "evidence_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "evidence_digests": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/digest" } }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

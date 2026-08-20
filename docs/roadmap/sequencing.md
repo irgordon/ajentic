@@ -537,6 +537,13 @@ Deployment configuration, policy/governance versioning, security audit, local de
    - Contract drift is made explicit through review evidence and validation only; it does not replace Rust validation or generate authority.
    - Boundary: audit remediation and validation guard only; no release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, runtime authority change, UI authority change, workflow behavior change, package version change, full CLI implementation, ledger behavior, replay behavior, or provider/model call.
 
+97. **Phase 197 makes authority and completion evidence-binding executable**
+   - Phase 197 follows the Phase 196 mainline merge so runtime hardening uses the current contract-drift baseline.
+   - Positive verdicts become opaque receipts bound to the exact run, task, intent, context, candidate, policy bundle, evidence manifest, verifier, and revision.
+   - Completion depends on independently observed postconditions and claim-level evidence; simulations and provider envelopes do not share verified outcome vocabulary.
+   - Context, memory, approval, ledger, replay, and retry controls fail closed on untrusted instructions, self-verification, changed action arguments, missing integrity, cross-binding reuse, and unsafe repeated side effects.
+   - Boundary: Rust authority and contract hardening only; no real provider activation, external action execution, release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, workflow behavior change, or package version change.
+
 Superseded sequence note: the prior Phase 190-201 release-platform runway is superseded by Phase 190. Its release-platform, signing, rehearsal, support, audit, blocker, decision, and execution topics are compressed into Phases 190-194 rather than carried forward as separate governance-only or audit-only phases.
 
 

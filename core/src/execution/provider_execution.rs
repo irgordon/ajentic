@@ -6,13 +6,13 @@ pub enum ProviderExecutionMode {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderExecutionStatus {
-    Completed,
+    ProviderEnvelopeProduced,
     Rejected,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProviderExecutionRejectionReason {
-    Completed,
+    EnvelopeProduced,
     EmptyExecutionId,
     EmptyProviderId,
     EmptyRequestId,
@@ -26,7 +26,7 @@ pub enum ProviderExecutionRejectionReason {
 impl ProviderExecutionRejectionReason {
     pub fn code(&self) -> &'static str {
         match self {
-            Self::Completed => "completed",
+            Self::EnvelopeProduced => "provider_envelope_produced",
             Self::EmptyExecutionId => "empty_execution_id",
             Self::EmptyProviderId => "empty_provider_id",
             Self::EmptyRequestId => "empty_request_id",
@@ -130,8 +130,8 @@ pub fn execute_provider_adapter(
     }
 
     ProviderExecutionResult {
-        status: ProviderExecutionStatus::Completed,
-        reason: ProviderExecutionRejectionReason::Completed,
+        status: ProviderExecutionStatus::ProviderEnvelopeProduced,
+        reason: ProviderExecutionRejectionReason::EnvelopeProduced,
         execution_id: request.execution_id,
         provider_id: request.provider_id,
         request_id: request.request_id,
@@ -185,8 +185,8 @@ mod tests {
     #[test]
     fn provider_execution_reason_codes_are_stable() {
         assert_eq!(
-            ProviderExecutionRejectionReason::Completed.code(),
-            "completed"
+            ProviderExecutionRejectionReason::EnvelopeProduced.code(),
+            "provider_envelope_produced"
         );
         assert_eq!(
             ProviderExecutionRejectionReason::EmptyExecutionId.code(),
@@ -405,7 +405,10 @@ mod tests {
             request,
             &crate::api::ProviderTransportCursor::new(None, vec![]),
         );
-        assert_eq!(result.status, ProviderExecutionStatus::Completed);
+        assert_eq!(
+            result.status,
+            ProviderExecutionStatus::ProviderEnvelopeProduced
+        );
         assert!(!result.provider_output_authoritative);
         assert!(!result.mutates_authority);
     }

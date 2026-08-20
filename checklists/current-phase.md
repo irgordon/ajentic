@@ -4,68 +4,62 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
+# Phase 197 - Authority and Completion Integrity
 
-- Phase name: Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard.
-- Phase goal: address post-v1 audit findings without changing release state, runtime authority, package versions, workflow behavior, or public distribution paths.
+- Phase goal: make positive authority receipts non-forgeable, define completion through observed postconditions, preserve error truth, and bind replay, context, memory, approvals, and retries to deterministic evidence.
 - Starting baseline:
-  - [x] Confirm Phase 195.1 mainline evidence is present in branch history.
-  - [x] Branch from the mainline baseline.
-  - [x] Confirm working tree started clean.
-- Audit remediation:
-  - [x] Decide bootstrap scaffold fate.
-  - [x] Retire stale bootstrap scaffold.
-  - [x] Replace stale audit checklist placeholder language.
-  - [x] Replace stale migration checklist placeholder language.
-  - [x] Add operator intent contract map.
-  - [x] Add operator intent contract map validation.
-  - [x] Wire contract map validation into `scripts/check.sh`.
-  - [x] Reframe TypeScript provider mirror as projection-only.
-  - [x] Preserve raw technical values where compatibility requires them.
-  - [x] Record unknown/unmapped values as display-safe and not success.
-  - [x] Document Rust operator intent schema-drift boundary.
-  - [x] Document CLI completeness gap without implementing full CLI behavior.
-- Boundary confirmations:
-  - [x] No runtime authority change.
-  - [x] No UI authority change.
-  - [x] No backend authority change.
-  - [x] No workflow behavior change.
-  - [x] No package version change.
-  - [x] No new tag created.
-  - [x] No new GitHub Release created.
-  - [x] No npm package publication created.
-  - [x] No Cargo package publication created.
-  - [x] No installer path created.
-  - [x] No update-channel path created.
-  - [x] No deployment path created.
-  - [x] No OS signing or notarization added.
+  - [x] Confirm Phase 196 mainline squash merge `84d6b43884b6919420d9ae42fea7a3014be0ab85`.
+  - [x] Move the Phase 197 branch onto the merged mainline baseline.
+  - [x] Preserve Phase 196 release and authority boundaries.
+- Gate A - authority receipts:
+  - [x] Add dependency-free SHA-256 digests.
+  - [x] Add complete run/task/intent/context/candidate/policy/evidence/verifier bindings.
+  - [x] Replace caller-constructible positive validation and policy results with opaque receipts.
+  - [x] Add bound replay receipts.
+  - [x] Require opaque promotion authorization.
+  - [x] Reject generic `Passed -> PromotedTier1` transitions.
+  - [x] Reject cross-run and cross-candidate receipt reuse.
+- Gate B - outcome proof:
+  - [x] Add authoritative task-contract schema and Rust contract.
+  - [x] Add action-outcome and claim-report schemas and Rust contracts.
+  - [x] Require observed mandatory postconditions for `SUCCEEDED`.
+  - [x] Separate simulation and provider-envelope statuses from completion vocabulary.
+  - [x] Rename clean-output availability to reviewable-candidate availability.
+- Gate C - error honesty:
+  - [x] Add deterministic authoritative run-result assembly.
+  - [x] Preserve prior errors, retries, partial side effects, unmet criteria, and uncertainty.
+  - [x] Add error-honesty and completion-postcondition regression tests.
+- Gate D - pressure, drift, and budgets:
+  - [x] Add stance-invariance regression tests.
+  - [x] Add goal-integrity regression tests.
+  - [x] Add integrated run-budget and unsafe-retry escalation.
+  - [x] Add separate zero-tolerance security counts and behavioral quality ratios.
+- Gate E - context, memory, approval, ledger, and replay:
+  - [x] Add instruction/data/evidence/example context roles and trust metadata.
+  - [x] Render untrusted context as structured data.
+  - [x] Add memory proposal, independent verification, and activation lifecycle.
+  - [x] Add exact-action, recipient, disclosure, expiry, and nonce approval binding.
+  - [x] Add SHA-256 ledger event chaining and receipt-bound replay proof.
+  - [x] Require promotion replay to match the exact promotion authorization.
+- Governance and contract alignment:
+  - [x] Add permanent completion-integrity invariants.
+  - [x] Update context, memory, intent, ledger, validation, replay, and run-trace schemas.
+  - [x] Add quality-metrics executable and schema surfaces.
+  - [x] Add Phase 197 roadmap and operation surfaces.
+  - [x] Record Phase 197 completion in changelog after focused validation.
 - Validation:
-  - [x] `git status --short`
-  - [x] `git rev-parse HEAD`
-  - [x] `git log --oneline -8`
-  - [x] `python3 scripts/validate_operator_intent_contract_map.py`
-  - [x] `cd ui && npm run build`
-  - [x] `cd ui && npm run typecheck`
-  - [x] `cd ui && npm run lint`
-  - [x] `cd ui && npm run test:api`
-  - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`
-  - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`
-  - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`
-  - [x] `python3 scripts/reproducible_artifacts.py --help`
-  - [x] `python3 scripts/reproducible_artifacts.py --check`
-  - [x] `python3 scripts/reproducible_artifacts.py --check-evidence`
-  - [x] `python3 scripts/release_candidate_bundle.py --help`
-  - [x] `python3 scripts/release_candidate_bundle.py --check`
-  - [x] `python3 scripts/rc_publication_preflight.py --help`
-  - [x] `python3 scripts/rc_publication_preflight.py --check-local`
-  - [x] `python3 scripts/final_release_preflight.py --help`
-  - [x] `python3 scripts/final_release_preflight.py --check-local`
-  - [x] `python3 scripts/prepare_final_release_assets.py --help`
-  - [x] `python3 scripts/prepare_final_release_assets.py --check`
-  - [x] `scripts/check_help_pages.py`
-  - [x] `python3 scripts/validate_structure.py`
-  - [x] `python3 scripts/validate_docs.py`
-  - [x] `node scripts/rust_boundary_lint.mjs`
-  - [x] `node scripts/lint_ui_boundaries.mjs`
-  - [x] `git diff --check`
-  - [x] `CARGO_TARGET_DIR=/tmp/ajentic-phase-196-target ./scripts/check.sh`
+  - [x] JSON schema parse checks.
+  - [x] `python3 scripts/validate_structure.py`.
+  - [x] `python3 scripts/validate_operator_intent_contract_map.py`.
+  - [x] `cd ui && npm run typecheck`.
+  - [x] `cd ui && npm run test:api` (`141/141`).
+  - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`.
+  - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`.
+  - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`.
+  - [x] `python3 scripts/validate_docs.py`.
+  - [x] `node scripts/rust_boundary_lint.mjs`.
+  - [x] `node scripts/lint_ui_boundaries.mjs`.
+  - [x] Reproducible artifact, integrity-evidence, and release-candidate bundle checks.
+  - [x] RC, final-release, and final-asset local preflight checks.
+  - [x] `git diff --check`.
+  - [x] Full clean-tree `./scripts/check.sh` after commit (`All checks passed.`).

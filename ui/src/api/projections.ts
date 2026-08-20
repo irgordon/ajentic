@@ -58,7 +58,7 @@ export type RuntimeSafetyUiProjection = Readonly<{ safetyLevel: string; requireP
 export type LifecycleProjection = Readonly<{ lifecycle: string; revision: number; status: ProjectionStatus; authority: AuthoritySurface; summary: string; }>;
 export type DecisionProjection = Readonly<{ label: string; decision: string; reason: string; status: ProjectionStatus; authority: AuthoritySurface; }>;
 export type DecisionDetailProjection = Readonly<{ id: string; label: string; decision: string; reason: string; status: ProjectionStatus; authority: AuthoritySurface; summary: string; evidenceSummary: string; }>;
-export type RunOverviewProjection = Readonly<{ runId: string; title: string; status: ProjectionStatus; currentLifecycle: string; executionDecision: string; promotionDecision: string; replayReadiness: string; cleanOutputAvailable: boolean; authority: AuthoritySurface; summary: string; }>;
+export type RunOverviewProjection = Readonly<{ runId: string; title: string; status: ProjectionStatus; currentLifecycle: string; executionDecision: string; promotionDecision: string; replayReadiness: string; reviewableCandidateAvailable: boolean; authority: AuthoritySurface; summary: string; }>;
 export type ProviderTrustProjection = Readonly<{ providerKind: string; outputStatus: string; outputTrust: string; authoritative: boolean; authority: AuthoritySurface; summary: string; }>;
 export type IntegrationTrustProjection = Readonly<{ sourceKind: string; outputStatus: string; outputTrust: string; authoritative: boolean; authority: AuthoritySurface; summary: string; }>;
 export type ContextSliceProjection = Readonly<{ id: string; viewType: string; truthDimension: string; sourcePath: string; authority: AuthoritySurface; summary: string; provenance: string; }>;
@@ -71,8 +71,8 @@ export type ReplayProjection = Readonly<{ readiness: string; integrity: string; 
 export type ReplayDetailProjection = Readonly<{ readiness: string; integrity: string; reconstructionStatus: string; finalLifecycle: string; finalRevision: number; eventsSeen: number; stateTransitionsApplied: number; authority: AuthoritySurface; summary: string; }>;
 export type AuditProjectionSummary = Readonly<{ projections: number; latestSummary: string; authority: AuthoritySurface; summary: string; }>;
 export type AuditDetailProjection = Readonly<{ id: string; projectionType: string; source: string; authority: AuthoritySurface; summary: string; details: readonly string[]; }>;
-export type OutputProjection = Readonly<{ cleanOutputAvailable: boolean; rawOutputTrusted: boolean; authority: AuthoritySurface; summary: string; }>;
-export type CleanOutputProjection = Readonly<{ id: string; cleanOutputAvailable: boolean; rawOutputTrusted: boolean; cleanOutputTrusted: boolean; authority: AuthoritySurface; summary: string; rawOutputSummary: string; cleanOutputSummary: string; }>;
+export type OutputProjection = Readonly<{ reviewableCandidateAvailable: boolean; rawOutputTrusted: boolean; authority: AuthoritySurface; summary: string; }>;
+export type ReviewableCandidateProjection = Readonly<{ id: string; reviewableCandidateAvailable: boolean; rawOutputTrusted: boolean; candidateVerified: boolean; authority: AuthoritySurface; summary: string; rawOutputSummary: string; reviewableCandidateSummary: string; }>;
 
 // UI intent projections mirror schema vocabulary for display and operator-intent shaping only.
 // The review map at docs/contracts/operator-intent-contract-map.json records
@@ -252,7 +252,7 @@ export type ProviderConfigurationValidationProjection = Readonly<{
 
 export type ApplicationUiProjection = Readonly<{ projectionId: string; runtimeConfigId: string; safety: RuntimeSafetyUiProjection; lifecycle: LifecycleProjection; run: RunOverviewProjection; provider: ProviderTrustProjection; integration: IntegrationTrustProjection; ledger: LedgerProjection; replay: ReplayProjection; audit: AuditProjectionSummary; context: ContextProjection; memory: MemoryProjection; output: OutputProjection; }>;
 
-export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; cleanOutput: CleanOutputProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; localRuntimeReview: LocalRuntimeReviewSurface; }>;
+export type UiReadModel = Readonly<{ source: "fixture" | "supplied_projection"; application: ApplicationUiProjection; decisions: readonly DecisionProjection[]; policyDecisions: readonly DecisionDetailProjection[]; validationDecisions: readonly DecisionDetailProjection[]; executionDecisions: readonly DecisionDetailProjection[]; ledgerTimeline: readonly LedgerTimelineEntryProjection[]; replayDetail: ReplayDetailProjection; auditDetails: readonly AuditDetailProjection[]; reviewableCandidate: ReviewableCandidateProjection; operatorIntentPreviews: readonly OperatorIntentPreviewProjection[]; persistedRecordVerification: PersistedRecordVerificationProjection; diagnostics: readonly ErrorDiagnosticProjection[]; localRuntimeReview: LocalRuntimeReviewSurface; }>;
 
 
 
