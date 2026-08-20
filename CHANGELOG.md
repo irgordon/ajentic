@@ -24,6 +24,7 @@ mutation_path: changelog_entry
 - Rename clean-output availability projections to reviewable-candidate availability and keep candidate verification false unless postconditions prove otherwise.
 - Extend context, memory, intent, ledger, validation, replay, and run-trace contracts with integrity and evidence bindings.
 - Add permanent completion-integrity invariants to governance.
+- Refactor controlled-run and local-harness orchestration into step-down policy pipelines with isolated gate, append, replay, and projection helpers.
 
 ### Validation
 - Rust all-target tests pass (`1,230` tests).

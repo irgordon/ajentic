@@ -1133,239 +1133,273 @@ fn validate_controlled_revision(
 }
 
 pub fn run_controlled_model_flow(request: ControlledRunRequest) -> ControlledRunResult {
-    let failed = |status, reason, execution_decision, promotion_decision, promotion_replay| {
-        ControlledRunResult {
-            status,
-            reason,
-            execution_decision,
-            promotion_decision,
-            ledger: request.ledger.clone(),
-            promotion_replay,
-            reviewable_candidate_summary: None,
-        }
-    };
+    ControlledRunPipeline::new(request).execute()
+}
 
-    if provider_output_is_authoritative(&request.provider_output) {
-        return failed(
+struct ControlledRunPipeline {
+    request: ControlledRunRequest,
+}
+
+type ControlledRunStep<T> = Result<T, ControlledRunResult>;
+
+impl ControlledRunPipeline {
+    fn new(request: ControlledRunRequest) -> Self {
+        Self { request }
+    }
+
+    fn execute(self) -> ControlledRunResult {
+        self.execute_policy().unwrap_or_else(|failure| failure)
+    }
+
+    fn execute_policy(&self) -> ControlledRunStep<ControlledRunResult> {
+        self.validate_provider_output()?;
+        let execution = self.authorize_execution()?;
+        let (promotion, authorization) = self.authorize_promotion(&execution)?;
+        let ledger = self.append_promotion(&authorization, execution, promotion)?;
+        let replay = self.verify_promotion(&ledger, &authorization, execution, promotion)?;
+        Ok(self.accepted_result(execution, promotion, ledger, replay))
+    }
+
+    fn validate_provider_output(&self) -> ControlledRunStep<()> {
+        if !provider_output_is_authoritative(&self.request.provider_output) {
+            return Ok(());
+        }
+        Err(self.failure(
             ControlledRunStatus::Rejected,
             ControlledRunReason::ProviderOutputInvalid,
-            ExecutionDecisionReport::blocked(ExecutionDecisionReason::ReplayNotReady),
-            PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-            PromotionReplayVerificationReport::not_verified(
-                PromotionReplayVerificationReason::LedgerNotReplayReady,
-            ),
+            blocked_execution(),
+            blocked_promotion(),
+            unverified_promotion_replay(),
+        ))
+    }
+
+    fn authorize_execution(&self) -> ControlledRunStep<ExecutionDecisionReport> {
+        let execution = decide_execution(
+            self.request.replay.final_state(),
+            &self.request.policy,
+            &self.request.validation,
+            &self.request.replay,
         );
+        if execution.decision == ExecutionDecision::Allowed {
+            return Ok(execution);
+        }
+        let (status, reason) = controlled_execution_failure(execution);
+        Err(self.failure(
+            status,
+            reason,
+            execution,
+            blocked_promotion(),
+            unverified_promotion_replay(),
+        ))
     }
 
-    let lifecycle = request.replay.final_state();
-    let execution = decide_execution(
-        lifecycle,
-        &request.policy,
-        &request.validation,
-        &request.replay,
-    );
-    match (execution.decision, execution.reason) {
-        (ExecutionDecision::Rejected, ExecutionDecisionReason::LifecycleNotPassed) => {
-            return failed(
-                ControlledRunStatus::Rejected,
-                ControlledRunReason::LifecycleNotPassed,
-                execution,
-                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
+    fn authorize_promotion(
+        &self,
+        execution: &ExecutionDecisionReport,
+    ) -> ControlledRunStep<(
+        PromotionDecisionReport,
+        crate::state::PromotionAuthorization,
+    )> {
+        let promotion = decide_promotion(self.request.replay.final_state(), execution);
+        if promotion.decision != PromotionDecision::Allowed {
+            return Err(self.promotion_failure(*execution, promotion));
         }
-        (ExecutionDecision::Blocked, ExecutionDecisionReason::PolicyNotAllowed) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PolicyNotAllowed,
-                execution,
-                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        (ExecutionDecision::Blocked, ExecutionDecisionReason::ValidationNotPassed) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::ValidationNotPassed,
-                execution,
-                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        (ExecutionDecision::Blocked, ExecutionDecisionReason::ReplayNotReady) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::ExecutionNotAllowed,
-                execution,
-                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        _ if execution.decision != ExecutionDecision::Allowed => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::ExecutionNotAllowed,
-                execution,
-                PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed),
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        _ => {}
+        let authorization = crate::state::authorize_promotion(
+            self.request.binding.clone(),
+            &self.request.validation,
+            &self.request.policy,
+            &self.request.replay,
+        )
+        .map_err(|_| self.promotion_failure(*execution, promotion))?;
+        Ok((promotion, authorization))
     }
 
-    let promotion = decide_promotion(lifecycle, &execution);
-    match (promotion.decision, promotion.reason) {
-        (PromotionDecision::Rejected, PromotionDecisionReason::LifecycleNotPassed) => {
-            return failed(
-                ControlledRunStatus::Rejected,
-                ControlledRunReason::LifecycleNotPassed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        (PromotionDecision::Blocked, PromotionDecisionReason::ExecutionNotAllowed) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PromotionNotAllowed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        _ if promotion.decision != PromotionDecision::Allowed => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PromotionNotAllowed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        _ => {}
+    fn append_promotion(
+        &self,
+        authorization: &crate::state::PromotionAuthorization,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+    ) -> ControlledRunStep<crate::ledger::Ledger> {
+        let record = build_authorized_promotion_record(
+            authorization,
+            &self.request.evidence_manifest,
+            self.request.actor.clone(),
+            &self.request.ledger,
+        )
+        .map_err(|error| self.promotion_record_failure(error, execution, promotion))?;
+        append_promotion_record(&self.request.ledger, record)
+            .map_err(|_| self.ledger_append_failure(execution, promotion))
     }
 
-    let authorization = match crate::state::authorize_promotion(
-        request.binding.clone(),
-        &request.validation,
-        &request.policy,
-        &request.replay,
-    ) {
-        Ok(authorization) => authorization,
-        Err(_) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PromotionNotAllowed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
+    fn verify_promotion(
+        &self,
+        ledger: &crate::ledger::Ledger,
+        authorization: &crate::state::PromotionAuthorization,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+    ) -> ControlledRunStep<PromotionReplayVerificationReport> {
+        let replay = verify_authorized_promotion_replay(
+            ledger,
+            authorization,
+            &self.request.evidence_manifest,
+            self.replay_evidence(authorization),
+        );
+        if replay.status == PromotionReplayVerificationStatus::Verified {
+            return Ok(replay);
         }
-    };
-
-    let record = match build_authorized_promotion_record(
-        &authorization,
-        &request.evidence_manifest,
-        request.actor,
-        &request.ledger,
-    ) {
-        Ok(record) => record,
-        Err(PromotionRecordError::PromotionNotAllowed) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PromotionNotAllowed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-        Err(PromotionRecordError::LedgerEventInvalid) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::PromotionRecordInvalid,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-    };
-
-    let next_ledger = match append_promotion_record(&request.ledger, record) {
-        Ok(next) => next,
-        Err(_) => {
-            return failed(
-                ControlledRunStatus::Blocked,
-                ControlledRunReason::LedgerAppendFailed,
-                execution,
-                promotion,
-                PromotionReplayVerificationReport::not_verified(
-                    PromotionReplayVerificationReason::LedgerNotReplayReady,
-                ),
-            );
-        }
-    };
-
-    let replay_verification = verify_authorized_promotion_replay(
-        &next_ledger,
-        &authorization,
-        &request.evidence_manifest,
-        PromotionReplayEvidence {
-            evaluations: &request.evaluation_evidence,
-            validation: &request.validation,
-            policy: &request.policy,
-            replay: &request.replay,
-            authorization_digest: authorization.digest(),
-        },
-    );
-    if replay_verification.status != PromotionReplayVerificationStatus::Verified {
-        return failed(
+        Err(self.failure(
             ControlledRunStatus::Blocked,
             ControlledRunReason::PromotionReplayNotVerified,
             execution,
             promotion,
-            replay_verification,
-        );
+            replay,
+        ))
     }
 
-    let _audit_timeline = crate::audit::project_ledger_timeline(next_ledger.events());
-    let reviewable_candidate_summary = Some(format!(
-        "run_id={} context_packet_id={} provider_output_id={} raw provider output remains untrusted; a reviewable candidate was produced by the controlled flow; task completion is not proved",
-        request.binding.run_id(), request.context_packet_id, request.provider_output.id
-    ));
+    fn replay_evidence<'a>(
+        &'a self,
+        authorization: &'a crate::state::PromotionAuthorization,
+    ) -> PromotionReplayEvidence<'a> {
+        PromotionReplayEvidence {
+            evaluations: &self.request.evaluation_evidence,
+            validation: &self.request.validation,
+            policy: &self.request.policy,
+            replay: &self.request.replay,
+            authorization_digest: authorization.digest(),
+        }
+    }
 
-    ControlledRunResult {
-        status: ControlledRunStatus::Accepted,
-        reason: ControlledRunReason::RunAccepted,
-        execution_decision: execution,
-        promotion_decision: promotion,
-        ledger: next_ledger,
-        promotion_replay: replay_verification,
-        reviewable_candidate_summary,
+    fn accepted_result(
+        &self,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+        ledger: crate::ledger::Ledger,
+        replay: PromotionReplayVerificationReport,
+    ) -> ControlledRunResult {
+        let _audit_timeline = crate::audit::project_ledger_timeline(ledger.events());
+        ControlledRunResult {
+            status: ControlledRunStatus::Accepted,
+            reason: ControlledRunReason::RunAccepted,
+            execution_decision: execution,
+            promotion_decision: promotion,
+            ledger,
+            promotion_replay: replay,
+            reviewable_candidate_summary: Some(self.reviewable_candidate_summary()),
+        }
+    }
+
+    fn reviewable_candidate_summary(&self) -> String {
+        format!(
+            "run_id={} context_packet_id={} provider_output_id={} raw provider output remains untrusted; a reviewable candidate was produced by the controlled flow; task completion is not proved",
+            self.request.binding.run_id(),
+            self.request.context_packet_id,
+            self.request.provider_output.id
+        )
+    }
+
+    fn promotion_failure(
+        &self,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+    ) -> ControlledRunResult {
+        self.failure(
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::PromotionNotAllowed,
+            execution,
+            promotion,
+            unverified_promotion_replay(),
+        )
+    }
+
+    fn promotion_record_failure(
+        &self,
+        error: PromotionRecordError,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+    ) -> ControlledRunResult {
+        let reason = match error {
+            PromotionRecordError::PromotionNotAllowed => ControlledRunReason::PromotionNotAllowed,
+            PromotionRecordError::LedgerEventInvalid => ControlledRunReason::PromotionRecordInvalid,
+        };
+        self.failure(
+            ControlledRunStatus::Blocked,
+            reason,
+            execution,
+            promotion,
+            unverified_promotion_replay(),
+        )
+    }
+
+    fn ledger_append_failure(
+        &self,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+    ) -> ControlledRunResult {
+        self.failure(
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::LedgerAppendFailed,
+            execution,
+            promotion,
+            unverified_promotion_replay(),
+        )
+    }
+
+    fn failure(
+        &self,
+        status: ControlledRunStatus,
+        reason: ControlledRunReason,
+        execution: ExecutionDecisionReport,
+        promotion: PromotionDecisionReport,
+        replay: PromotionReplayVerificationReport,
+    ) -> ControlledRunResult {
+        ControlledRunResult {
+            status,
+            reason,
+            execution_decision: execution,
+            promotion_decision: promotion,
+            ledger: self.request.ledger.clone(),
+            promotion_replay: replay,
+            reviewable_candidate_summary: None,
+        }
     }
 }
 
+fn controlled_execution_failure(
+    execution: ExecutionDecisionReport,
+) -> (ControlledRunStatus, ControlledRunReason) {
+    match (execution.decision, execution.reason) {
+        (ExecutionDecision::Rejected, ExecutionDecisionReason::LifecycleNotPassed) => (
+            ControlledRunStatus::Rejected,
+            ControlledRunReason::LifecycleNotPassed,
+        ),
+        (ExecutionDecision::Blocked, ExecutionDecisionReason::PolicyNotAllowed) => (
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::PolicyNotAllowed,
+        ),
+        (ExecutionDecision::Blocked, ExecutionDecisionReason::ValidationNotPassed) => (
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::ValidationNotPassed,
+        ),
+        _ => (
+            ControlledRunStatus::Blocked,
+            ControlledRunReason::ExecutionNotAllowed,
+        ),
+    }
+}
+
+fn blocked_execution() -> ExecutionDecisionReport {
+    ExecutionDecisionReport::blocked(ExecutionDecisionReason::ReplayNotReady)
+}
+
+fn blocked_promotion() -> PromotionDecisionReport {
+    PromotionDecisionReport::blocked(PromotionDecisionReason::ExecutionNotAllowed)
+}
+
+fn unverified_promotion_replay() -> PromotionReplayVerificationReport {
+    PromotionReplayVerificationReport::not_verified(
+        PromotionReplayVerificationReason::LedgerNotReplayReady,
+    )
+}
 #[cfg(test)]
 mod tests {
     use super::*;
