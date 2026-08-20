@@ -4,19 +4,19 @@ use ajentic_core::execution::{
     ControlledRunError, ControlledRunRequest, ProviderKind, ProviderOutput, ProviderOutputStatus,
 };
 use ajentic_core::ledger::{LedgerActor, LedgerActorType};
-use ajentic_core::policy::{evaluate_policy, PolicyDecision, PolicyEvidence};
+use ajentic_core::policy::{evaluate_policy, PolicyDecision};
 
 #[test]
 fn validation_receipt_from_run_one_cannot_allow_run_two_policy() {
     let first = common::receipt_bundle("run-1", "candidate");
     let second = common::receipt_bundle("run-2", "candidate");
     let receipt = evaluate_policy(
-        second.binding,
-        &PolicyEvidence::new(true, true, false),
+        second.binding.clone(),
+        &common::policy_evidence(&second.binding, Some("context"), Some("intent")),
         &first.validation,
     );
     assert_eq!(receipt.decision(), PolicyDecision::Denied);
-    assert_eq!(receipt.reason(), "validation_binding_mismatch");
+    assert_eq!(receipt.reason(), "verification_binding_mismatch");
 }
 
 #[test]

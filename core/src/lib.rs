@@ -14,6 +14,7 @@ pub mod replay;
 pub mod state;
 pub mod task;
 pub mod validation;
+pub mod verification;
 
 #[cfg(test)]
 mod tests {

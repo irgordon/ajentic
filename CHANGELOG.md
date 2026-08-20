@@ -4,6 +4,38 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.197.1 - 2026-08-19
+**Status:** Phase 197.1 - Verifier-Derived Validation and Policy Evidence
+
+### Added
+- Add opaque Rust verifier receipts for authority-bearing validation and policy prerequisites.
+- Replace caller-asserted positive validation and policy evidence with deterministic verifier-derived evidence.
+- Add negative regression coverage for mismatched, failed, unknown, cross-run, cross-candidate, and cross-revision verifier evidence.
+- Route the bounded local simulation and controlled receipt re-derivation through the verifier-receipt path.
+- Add a narrow Rust source-lint tripwire against positive-boolean evidence constructor regressions.
+
+### Validation
+- Rust all-target tests pass (`1,240` tests).
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Structure, contract-map, documentation, Rust/UI boundary, artifact reproducibility, integrity-evidence, release-candidate bundle, RC-preflight, final-release preflight, and final-asset checks pass.
+
+### Notes
+- Model, adapter, UI, script, and caller assertions remain non-authoritative.
+- No lifecycle authority expansion occurred.
+- No promotion semantics changed.
+- No provider capability changed.
+- No persistence authority changed.
+- No replay repair or recovery promotion was added.
+- No package publication, installer, update channel, deployment, OS signing, notarization, tag, or GitHub Release was created.
+- Phase 197.2 postcondition-to-success-criterion binding remains separate.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.197 - 2026-08-19
 **Status:** Phase 197 - Authority and Completion Integrity
 

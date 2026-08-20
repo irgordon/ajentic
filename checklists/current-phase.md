@@ -4,62 +4,57 @@ authority_level: authoritative
 mutation_path: checklist_revision
 ---
 
-# Phase 197 - Authority and Completion Integrity
+# Phase 197.1 - Verifier-Derived Validation and Policy Evidence
 
-- Phase goal: make positive authority receipts non-forgeable, define completion through observed postconditions, preserve error truth, and bind replay, context, memory, approvals, and retries to deterministic evidence.
 - Starting baseline:
-  - [x] Confirm Phase 196 mainline squash merge `84d6b43884b6919420d9ae42fea7a3014be0ab85`.
-  - [x] Move the Phase 197 branch onto the merged mainline baseline.
-  - [x] Preserve Phase 196 release and authority boundaries.
-- Gate A - authority receipts:
-  - [x] Add dependency-free SHA-256 digests.
-  - [x] Add complete run/task/intent/context/candidate/policy/evidence/verifier bindings.
-  - [x] Replace caller-constructible positive validation and policy results with opaque receipts.
-  - [x] Add bound replay receipts.
-  - [x] Require opaque promotion authorization.
-  - [x] Reject generic `Passed -> PromotedTier1` transitions.
-  - [x] Reject cross-run and cross-candidate receipt reuse.
-- Gate B - outcome proof:
-  - [x] Add authoritative task-contract schema and Rust contract.
-  - [x] Add action-outcome and claim-report schemas and Rust contracts.
-  - [x] Require observed mandatory postconditions for `SUCCEEDED`.
-  - [x] Separate simulation and provider-envelope statuses from completion vocabulary.
-  - [x] Rename clean-output availability to reviewable-candidate availability.
-- Gate C - error honesty:
-  - [x] Add deterministic authoritative run-result assembly.
-  - [x] Preserve prior errors, retries, partial side effects, unmet criteria, and uncertainty.
-  - [x] Add error-honesty and completion-postcondition regression tests.
-- Gate D - pressure, drift, and budgets:
-  - [x] Add stance-invariance regression tests.
-  - [x] Add goal-integrity regression tests.
-  - [x] Add integrated run-budget and unsafe-retry escalation.
-  - [x] Add separate zero-tolerance security counts and behavioral quality ratios.
-- Gate E - context, memory, approval, ledger, and replay:
-  - [x] Add instruction/data/evidence/example context roles and trust metadata.
-  - [x] Render untrusted context as structured data.
-  - [x] Add memory proposal, independent verification, and activation lifecycle.
-  - [x] Add exact-action, recipient, disclosure, expiry, and nonce approval binding.
-  - [x] Add SHA-256 ledger event chaining and receipt-bound replay proof.
-  - [x] Require promotion replay to match the exact promotion authorization.
-- Governance and contract alignment:
-  - [x] Add permanent completion-integrity invariants.
-  - [x] Update context, memory, intent, ledger, validation, replay, and run-trace schemas.
-  - [x] Add quality-metrics executable and schema surfaces.
-  - [x] Add Phase 197 roadmap and operation surfaces.
-  - [x] Record Phase 197 completion in changelog after focused validation.
+  - [x] Verify Phase 197 head `ac26996537258360e4380ab87b36e9ef71bb06a0`.
+  - [x] Branch `mothra/phase-197-1-verifier-receipts` from that exact head.
+  - [x] Confirm the starting worktree was clean.
+- Positive predicate inventory:
+  - [x] Map manifest well-formedness to `EvidenceManifest` construction and binding verification.
+  - [x] Map candidate shape to the actual typed `ProviderOutput` fields.
+  - [x] Map deterministic candidate/evidence checks to candidate and manifest SHA-256 digests.
+  - [x] Map required context to the recorded context packet identifier digest.
+  - [x] Map required operator intent to the current bounded intent-source digest.
+  - [x] Record that no richer cross-schema equivalence proof exists in the bounded simulation.
+- Verifier receipts:
+  - [x] Add opaque `ValidationVerifierReceipt` and `PolicyVerifierReceipt` types.
+  - [x] Bind kind, authority binding, source digests, verifier identity/version, status, reason, and receipt digest.
+  - [x] Keep positive receipt construction private to deterministic Rust verifier functions.
+  - [x] Return `UNKNOWN` when required structured input is absent.
+- Validation and policy migration:
+  - [x] Remove public authority-bearing validation boolean parameters.
+  - [x] Remove public authority-bearing policy boolean parameters.
+  - [x] Remove advisory model claims from authority evidence bundles.
+  - [x] Make validation evidence construction verify receipt kind, binding, source, and digest alignment.
+  - [x] Make policy evidence construction verify receipt kind, binding, and digest alignment.
+  - [x] Bind `ValidationReceipt` and `PolicyReceipt` digests to verifier evidence digests.
+- Authority pipeline migration:
+  - [x] Make `AuthorityEvaluationEvidence::new` fallible on mixed bindings.
+  - [x] Preserve controlled validation and policy re-derivation.
+  - [x] Verify underlying verifier-evidence digests before accepting substituted receipts.
+  - [x] Route the local simulation through the same verifier functions.
+  - [x] Preserve promotion and replay fail-closed behavior.
+- Regression coverage:
+  - [x] Add matching, failed, unknown, manifest-mismatch, model-text, cross-run, cross-candidate, and cross-revision tests.
+  - [x] Add controlled receipt-substitution and missing-proof tests.
+  - [x] Extend the Rust boundary lint with positive-boolean constructor tripwires.
+  - [x] Confirm Rust boundary lint self-tests pass (`26/26`).
+- Scope boundaries:
+  - [x] No governance theory or architecture ownership change.
+  - [x] No shared schema change.
+  - [x] No Phase 197.2 postcondition-to-success-criterion implementation.
+  - [x] No real provider, external action, persistence, replay-repair, release, or package authority expansion.
 - Validation:
-  - [x] JSON schema parse checks.
-  - [x] `python3 scripts/validate_structure.py`.
-  - [x] `python3 scripts/validate_operator_intent_contract_map.py`.
-  - [x] `cd ui && npm run typecheck`.
-  - [x] `cd ui && npm run test:api` (`141/141`).
-  - [x] `cargo test --manifest-path core/Cargo.toml --all-targets`.
   - [x] `cargo fmt --manifest-path core/Cargo.toml -- --check`.
   - [x] `cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings`.
+  - [x] `cargo test --manifest-path core/Cargo.toml --all-targets` (`1,240` tests).
+  - [x] `python3 scripts/validate_structure.py`.
+  - [x] `python3 scripts/validate_operator_intent_contract_map.py`.
   - [x] `python3 scripts/validate_docs.py`.
   - [x] `node scripts/rust_boundary_lint.mjs`.
   - [x] `node scripts/lint_ui_boundaries.mjs`.
-  - [x] Reproducible artifact, integrity-evidence, and release-candidate bundle checks.
-  - [x] RC, final-release, and final-asset local preflight checks.
+  - [x] `cd ui && npm run typecheck && npm run test:api` (`141/141`).
+  - [x] Deterministic artifact and release-preflight checks.
   - [x] `git diff --check`.
   - [x] Full clean-tree `./scripts/check.sh` after commit (`All checks passed.`).

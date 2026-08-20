@@ -3,7 +3,9 @@
 use ajentic_core::authority::{
     AuthorityBinding, AuthorityBindingInput, EvidenceManifest, EvidenceReference,
 };
-use ajentic_core::execution::AuthorityEvaluationEvidence;
+use ajentic_core::execution::{
+    AuthorityEvaluationEvidence, ProviderKind, ProviderOutput, ProviderOutputStatus,
+};
 use ajentic_core::integrity::Digest;
 use ajentic_core::ledger::{
     Ledger, LedgerActor, LedgerActorType, LedgerEvent, LedgerEventType, LedgerPayload, LedgerSeal,
@@ -18,6 +20,10 @@ use ajentic_core::task::{
     PostconditionRequirement, RetryPolicy, SuccessCriterion, TaskContract, TaskContractInput,
 };
 use ajentic_core::validation::{evaluate_validation, ValidationEvidence, ValidationReceipt};
+use ajentic_core::verification::{
+    verify_candidate_evidence_binding, verify_candidate_shape, verify_evidence_manifest,
+    verify_required_context, verify_required_operator_intent,
+};
 
 pub struct ReceiptBundle {
     pub binding: AuthorityBinding,
@@ -32,10 +38,8 @@ pub struct ReceiptBundle {
 pub fn receipt_bundle(run_id: &str, candidate: &str) -> ReceiptBundle {
     let manifest = evidence_manifest();
     let binding = authority_binding(run_id, candidate, &manifest, 2);
-    let evaluation_evidence = AuthorityEvaluationEvidence::new(
-        ValidationEvidence::new(true, true, true, false, manifest.clone()),
-        PolicyEvidence::new(true, true, false),
-    );
+    let output = provider_output(candidate);
+    let evaluation_evidence = evaluation_evidence(&binding, &manifest, &output);
     let validation = evaluate_validation(binding.clone(), evaluation_evidence.validation());
     let policy = evaluate_policy(binding.clone(), evaluation_evidence.policy(), &validation);
     let ledger = sealed_passed_ledger(&binding, &validation, &policy);
@@ -84,14 +88,63 @@ pub fn passing_validation(
     binding: AuthorityBinding,
     manifest: EvidenceManifest,
 ) -> ValidationReceipt {
-    evaluate_validation(
-        binding,
-        &ValidationEvidence::new(true, true, true, false, manifest),
-    )
+    let output = provider_output("candidate");
+    let evidence = validation_evidence(&binding, &manifest, &output);
+    evaluate_validation(binding, &evidence)
 }
 
 pub fn passing_policy(binding: AuthorityBinding, validation: &ValidationReceipt) -> PolicyReceipt {
-    evaluate_policy(binding, &PolicyEvidence::new(true, true, false), validation)
+    let evidence = policy_evidence(&binding, Some("context"), Some("intent"));
+    evaluate_policy(binding, &evidence, validation)
+}
+
+pub fn provider_output(content: &str) -> ProviderOutput {
+    ProviderOutput::new_untrusted(
+        "output-1",
+        "request-1",
+        ProviderKind::Local,
+        content,
+        ProviderOutputStatus::Received,
+    )
+    .unwrap()
+}
+
+pub fn evaluation_evidence(
+    binding: &AuthorityBinding,
+    manifest: &EvidenceManifest,
+    output: &ProviderOutput,
+) -> AuthorityEvaluationEvidence {
+    AuthorityEvaluationEvidence::new(
+        validation_evidence(binding, manifest, output),
+        policy_evidence(binding, Some("context"), Some("intent")),
+    )
+    .unwrap()
+}
+
+pub fn validation_evidence(
+    binding: &AuthorityBinding,
+    manifest: &EvidenceManifest,
+    output: &ProviderOutput,
+) -> ValidationEvidence {
+    ValidationEvidence::new(
+        manifest.clone(),
+        verify_evidence_manifest(binding, Some(manifest)),
+        verify_candidate_shape(binding, Some(output)),
+        verify_candidate_evidence_binding(binding, Some(output), Some(manifest)),
+    )
+    .unwrap()
+}
+
+pub fn policy_evidence(
+    binding: &AuthorityBinding,
+    context: Option<&str>,
+    intent: Option<&str>,
+) -> PolicyEvidence {
+    PolicyEvidence::new(
+        verify_required_context(binding, context),
+        verify_required_operator_intent(binding, intent),
+    )
+    .unwrap()
 }
 
 pub fn raw_passed_ledger() -> Ledger {

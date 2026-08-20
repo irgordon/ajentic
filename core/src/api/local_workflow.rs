@@ -488,7 +488,8 @@ fn build_controlled_authority_artifacts(
 ) -> ControlledAuthorityArtifacts {
     let manifest = local_harness_evidence_manifest();
     let binding = local_harness_authority_binding(request, output, &manifest);
-    let evaluation_evidence = local_harness_evaluation_evidence(manifest.clone());
+    let evaluation_evidence =
+        local_harness_evaluation_evidence(request, output, &binding, manifest.clone());
     let validation =
         crate::validation::evaluate_validation(binding.clone(), evaluation_evidence.validation());
     let policy =
@@ -543,12 +544,29 @@ fn local_harness_authority_binding(
 }
 
 fn local_harness_evaluation_evidence(
+    request: &LocalHarnessWorkflowRequest,
+    output: &crate::execution::ProviderOutput,
+    binding: &crate::authority::AuthorityBinding,
     manifest: crate::authority::EvidenceManifest,
 ) -> crate::execution::AuthorityEvaluationEvidence {
-    crate::execution::AuthorityEvaluationEvidence::new(
-        crate::validation::ValidationEvidence::new(true, true, true, false, manifest),
-        crate::policy::PolicyEvidence::new(true, true, false),
+    let validation = crate::validation::ValidationEvidence::new(
+        manifest.clone(),
+        crate::verification::verify_evidence_manifest(binding, Some(&manifest)),
+        crate::verification::verify_candidate_shape(binding, Some(output)),
+        crate::verification::verify_candidate_evidence_binding(
+            binding,
+            Some(output),
+            Some(&manifest),
+        ),
     )
+    .expect("local validation verifier receipts should align");
+    let policy = crate::policy::PolicyEvidence::new(
+        crate::verification::verify_required_context(binding, Some(&request.context_packet_id)),
+        crate::verification::verify_required_operator_intent(binding, Some(&request.operator_id)),
+    )
+    .expect("local policy verifier receipts should align");
+    crate::execution::AuthorityEvaluationEvidence::new(validation, policy)
+        .expect("local authority evaluation evidence should share one binding")
 }
 
 fn seal_local_harness_ledger(

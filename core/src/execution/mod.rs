@@ -952,6 +952,17 @@ pub struct AuthorityEvaluationEvidence {
     policy: crate::policy::PolicyEvidence,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AuthorityEvaluationEvidenceError {
+    VerificationBindingMismatch,
+}
+
+impl AuthorityEvaluationEvidenceError {
+    pub fn code(self) -> &'static str {
+        "verification_binding_mismatch"
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct PromotionReplayEvidence<'a> {
     pub evaluations: &'a AuthorityEvaluationEvidence,
@@ -1017,8 +1028,11 @@ impl AuthorityEvaluationEvidence {
     pub fn new(
         validation: crate::validation::ValidationEvidence,
         policy: crate::policy::PolicyEvidence,
-    ) -> Self {
-        Self { validation, policy }
+    ) -> Result<Self, AuthorityEvaluationEvidenceError> {
+        if validation.binding() != policy.binding() {
+            return Err(AuthorityEvaluationEvidenceError::VerificationBindingMismatch);
+        }
+        Ok(Self { validation, policy })
     }
 
     pub fn validation(&self) -> &crate::validation::ValidationEvidence {
@@ -1073,12 +1087,37 @@ fn validate_receipt_derivation(
     policy: &crate::policy::PolicyReceipt,
     evidence: &AuthorityEvaluationEvidence,
 ) -> Result<(), ControlledRunError> {
+    validate_evaluation_evidence_binding(binding, evidence)?;
+    validate_evaluation_evidence_digests(validation, policy, evidence)?;
     let rederived_validation =
         crate::validation::evaluate_validation(binding.clone(), evidence.validation());
     let rederived_policy =
         crate::policy::evaluate_policy(binding.clone(), evidence.policy(), &rederived_validation);
     if rederived_validation.digest() == validation.digest()
         && rederived_policy.digest() == policy.digest()
+    {
+        return Ok(());
+    }
+    Err(ControlledRunError::ReceiptDerivationMismatch)
+}
+
+fn validate_evaluation_evidence_binding(
+    binding: &crate::authority::AuthorityBinding,
+    evidence: &AuthorityEvaluationEvidence,
+) -> Result<(), ControlledRunError> {
+    if evidence.validation().binding() == binding && evidence.policy().binding() == binding {
+        return Ok(());
+    }
+    Err(ControlledRunError::ReceiptDerivationMismatch)
+}
+
+fn validate_evaluation_evidence_digests(
+    validation: &crate::validation::ValidationReceipt,
+    policy: &crate::policy::PolicyReceipt,
+    evidence: &AuthorityEvaluationEvidence,
+) -> Result<(), ControlledRunError> {
+    if validation.verifier_evidence_digest() == &evidence.validation().verifier_evidence_digest()
+        && policy.verifier_evidence_digest() == &evidence.policy().verifier_evidence_digest()
     {
         return Ok(());
     }
@@ -1419,17 +1458,19 @@ mod tests {
     fn policy_for_validation(validation: &ValidationReceipt) -> PolicyReceipt {
         let binding = validation.binding().clone();
         crate::policy::evaluate_policy(
-            binding,
-            &crate::policy::PolicyEvidence::new(true, true, false),
+            binding.clone(),
+            &policy_evidence_for(&binding, Some("context-1"), Some("intent")),
             validation,
         )
     }
 
     fn ready_validation() -> ValidationReceipt {
         let manifest = receipt_manifest();
+        let binding = receipt_binding(&manifest);
+        let output = untrusted_provider_output();
         crate::validation::evaluate_validation(
-            receipt_binding(&manifest),
-            &crate::validation::ValidationEvidence::new(true, true, true, false, manifest),
+            binding.clone(),
+            &validation_evidence_for(&binding, manifest, Some(&output)),
         )
     }
 
@@ -1460,10 +1501,44 @@ mod tests {
     }
 
     fn ready_evaluation_evidence() -> AuthorityEvaluationEvidence {
+        let manifest = receipt_manifest();
+        let binding = receipt_binding(&manifest);
+        let output = untrusted_provider_output();
         AuthorityEvaluationEvidence::new(
-            crate::validation::ValidationEvidence::new(true, true, true, false, receipt_manifest()),
-            crate::policy::PolicyEvidence::new(true, true, false),
+            validation_evidence_for(&binding, manifest, Some(&output)),
+            policy_evidence_for(&binding, Some("context-1"), Some("intent")),
         )
+        .unwrap()
+    }
+
+    fn validation_evidence_for(
+        binding: &AuthorityBinding,
+        manifest: EvidenceManifest,
+        output: Option<&ProviderOutput>,
+    ) -> crate::validation::ValidationEvidence {
+        crate::validation::ValidationEvidence::new(
+            manifest.clone(),
+            crate::verification::verify_evidence_manifest(binding, Some(&manifest)),
+            crate::verification::verify_candidate_shape(binding, output),
+            crate::verification::verify_candidate_evidence_binding(
+                binding,
+                output,
+                Some(&manifest),
+            ),
+        )
+        .unwrap()
+    }
+
+    fn policy_evidence_for(
+        binding: &AuthorityBinding,
+        context: Option<&str>,
+        intent: Option<&str>,
+    ) -> crate::policy::PolicyEvidence {
+        crate::policy::PolicyEvidence::new(
+            crate::verification::verify_required_context(binding, context),
+            crate::verification::verify_required_operator_intent(binding, intent),
+        )
+        .unwrap()
     }
 
     fn receipt_manifest() -> EvidenceManifest {

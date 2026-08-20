@@ -266,6 +266,28 @@ const tests = [
     },
   },
   {
+    name: 'expected-fail: positive validation evidence boolean is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn x(){ ValidationEvidence::new(true, proof); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, 'caller-asserted positive authority evidence', 'validation bool');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: positive policy evidence boolean is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'fn x(){ PolicyEvidence::new(true, proof); }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, 'caller-asserted positive authority evidence', 'policy bool');
+      });
+    },
+  },
+  {
     name: 'expected-pass: forbidden tokens in strings and comments are ignored',
     run: async () => {
       const files = makeBaseFiles();
