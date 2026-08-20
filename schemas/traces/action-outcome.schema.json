@@ -15,7 +15,7 @@
     "action_status",
     "tool_return_status",
     "observed_environmental_effect",
-    "postconditions_checked",
+    "postcondition_observations",
     "exact_error_chain",
     "partial_side_effects",
     "retries",
@@ -42,19 +42,31 @@
       "enum": ["SUCCEEDED", "FAILED", "TIMED_OUT", "BLOCKED", "UNKNOWN", "NOT_ATTEMPTED"]
     },
     "observed_environmental_effect": { "type": ["string", "null"] },
-    "postconditions_checked": {
+    "postcondition_observations": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["postcondition_id", "required", "status", "evidence_refs"],
+        "required": ["postcondition_id", "observation_state", "observed_value", "evidence_refs", "evidence_digests"],
         "properties": {
           "postcondition_id": { "type": "string", "minLength": 1 },
-          "required": { "type": "boolean" },
-          "status": { "type": "string", "enum": ["PASSED", "FAILED", "UNKNOWN", "NOT_CHECKED"] },
+          "observation_state": { "type": "string", "enum": ["OBSERVED", "FAILED", "UNKNOWN", "NOT_CHECKED"] },
           "observed_value": { "type": ["string", "null"] },
-          "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "evidence_digests": { "type": "array", "items": { "$ref": "#/$defs/digest" } }
         },
+        "allOf": [
+          {
+            "if": { "properties": { "observation_state": { "const": "OBSERVED" } } },
+            "then": {
+              "properties": {
+                "observed_value": { "type": "string", "minLength": 1 },
+                "evidence_refs": { "minItems": 1 },
+                "evidence_digests": { "minItems": 1 }
+              }
+            }
+          }
+        ],
         "additionalProperties": false
       }
     },

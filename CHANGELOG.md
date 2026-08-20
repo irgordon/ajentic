@@ -4,6 +4,38 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## v0.0.197.2 - 2026-08-19
+**Status:** Phase 197.2 - Task Outcome Evidence Binding
+
+### Added
+- Bind each required success criterion to explicit TaskContract postconditions.
+- Derive postcondition requiredness exclusively from TaskContract.
+- Derive success-criterion satisfaction from evidence-bearing observed postconditions rather than caller-supplied criterion IDs.
+- Reject missing, duplicate, substituted, unknown, and unresolved required postcondition evidence.
+- Add deterministic completion-integrity regression coverage across task, action-outcome, and authoritative run-result surfaces.
+- Add source-lint tripwires against caller-authored criterion satisfaction and postcondition requiredness.
+
+### Validation
+- Rust all-target tests pass (`1,264` tests), including `7/7` focused outcome evidence-binding integration tests.
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Shared-schema parsing, structure, contract-map, documentation, Rust/UI boundary, help, artifact reproducibility, integrity-evidence, release-candidate bundle, RC-preflight, final-release preflight, and final-asset checks pass.
+
+### Notes
+- Action/tool success does not independently prove task completion.
+- Requiredness remains TaskContract-owned.
+- Success-criterion satisfaction remains Rust-derived.
+- UNKNOWN, missing, malformed, or unresolved evidence does not satisfy a required criterion.
+- Prior failures and partial side effects remain visible after later success.
+- No provider, promotion, persistence, replay, UI, workflow, deployment, package, installer, signing, or release authority changed.
+- This phase does not claim arbitrary external factual truth beyond the recorded observation/evidence boundary.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.197.1 - 2026-08-19
 **Status:** Phase 197.1 - Verifier-Derived Validation and Policy Evidence
 

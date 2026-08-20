@@ -2,7 +2,7 @@ mod common;
 
 use ajentic_core::outcome::{
     assemble_authoritative_run_result, evaluate_action_outcome, evaluate_claim, ActionStatus,
-    PostconditionStatus, ToolReturnStatus,
+    PostconditionObservationState, ToolReturnStatus,
 };
 
 #[test]
@@ -10,7 +10,10 @@ fn tool_success_without_read_back_is_not_completion() {
     let task = common::task_contract();
     let outcome = evaluate_action_outcome(
         &task,
-        common::action_input(ToolReturnStatus::Succeeded, PostconditionStatus::NotChecked),
+        common::action_input(
+            ToolReturnStatus::Succeeded,
+            PostconditionObservationState::NotChecked,
+        ),
     )
     .unwrap();
     assert_eq!(outcome.status(), ActionStatus::Unknown);
@@ -21,7 +24,10 @@ fn failed_mandatory_postcondition_prevents_completion() {
     let task = common::task_contract();
     let outcome = evaluate_action_outcome(
         &task,
-        common::action_input(ToolReturnStatus::Succeeded, PostconditionStatus::Failed),
+        common::action_input(
+            ToolReturnStatus::Succeeded,
+            PostconditionObservationState::Failed,
+        ),
     )
     .unwrap();
     let claim = evaluate_claim(

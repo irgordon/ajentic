@@ -1,13 +1,16 @@
 mod common;
 
 use ajentic_core::outcome::{
-    evaluate_action_outcome, OutcomeError, PostconditionStatus, ToolReturnStatus,
+    evaluate_action_outcome, OutcomeError, PostconditionObservationState, ToolReturnStatus,
 };
 
 #[test]
 fn external_content_cannot_add_a_new_permitted_action() {
     let task = common::task_contract();
-    let mut input = common::action_input(ToolReturnStatus::Succeeded, PostconditionStatus::Passed);
+    let mut input = common::action_input(
+        ToolReturnStatus::Succeeded,
+        PostconditionObservationState::Observed,
+    );
     input.action = "deploy".into();
     assert_eq!(
         evaluate_action_outcome(&task, input),

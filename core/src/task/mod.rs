@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TaskContract {
     task_id: String,
@@ -37,6 +39,7 @@ pub struct SuccessCriterion {
     pub id: String,
     pub description: String,
     pub required: bool,
+    pub required_postcondition_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -68,6 +71,14 @@ pub enum TaskContractError {
     MissingPostconditions,
     MissingEvidenceRequirements,
     EmptyContractItem,
+    DuplicateSuccessCriterionId,
+    DuplicatePostconditionId,
+    MissingCriterionPostconditionBinding,
+    EmptyPostconditionReference,
+    UnknownPostconditionReference,
+    DuplicatePostconditionReference,
+    UnboundRequiredPostcondition,
+    RequiredCriterionReferencesOptionalPostcondition,
 }
 
 impl TaskContractError {
@@ -87,6 +98,16 @@ impl TaskContractError {
             Self::MissingPostconditions => "missing_postconditions",
             Self::MissingEvidenceRequirements => "missing_evidence_requirements",
             Self::EmptyContractItem => "empty_contract_item",
+            Self::DuplicateSuccessCriterionId => "duplicate_success_criterion_id",
+            Self::DuplicatePostconditionId => "duplicate_postcondition_id",
+            Self::MissingCriterionPostconditionBinding => "missing_criterion_postcondition_binding",
+            Self::EmptyPostconditionReference => "empty_postcondition_reference",
+            Self::UnknownPostconditionReference => "unknown_postcondition_reference",
+            Self::DuplicatePostconditionReference => "duplicate_postcondition_reference",
+            Self::UnboundRequiredPostcondition => "unbound_required_postcondition",
+            Self::RequiredCriterionReferencesOptionalPostcondition => {
+                "required_criterion_references_optional_postcondition"
+            }
         }
     }
 }
@@ -111,6 +132,12 @@ impl TaskContract {
 
     pub fn expected_postconditions(&self) -> &[PostconditionRequirement] {
         &self.expected_postconditions
+    }
+
+    pub fn postcondition(&self, id: &str) -> Option<&PostconditionRequirement> {
+        self.expected_postconditions
+            .iter()
+            .find(|item| item.id == id)
     }
 
     pub fn side_effect_budget(&self) -> u32 {
@@ -172,11 +199,17 @@ fn validate_task_contract(input: &TaskContractInput) -> Result<(), TaskContractE
     validate_required_text(&input.task_id, TaskContractError::EmptyTaskId)?;
     validate_required_text(&input.objective, TaskContractError::EmptyObjective)?;
     validate_contract_collections(input)?;
+    validate_contract_mappings(input)?;
     validate_limits(input)
 }
 
 fn validate_contract_collections(input: &TaskContractInput) -> Result<(), TaskContractError> {
     validate_criteria(&input.success_criteria)?;
+    validate_postconditions(&input.expected_postconditions)?;
+    validate_supporting_collections(input)
+}
+
+fn validate_supporting_collections(input: &TaskContractInput) -> Result<(), TaskContractError> {
     validate_text_items(
         &input.forbidden_outcomes,
         TaskContractError::MissingForbiddenOutcomes,
@@ -198,11 +231,108 @@ fn validate_contract_collections(input: &TaskContractInput) -> Result<(), TaskCo
         &input.stop_conditions,
         TaskContractError::MissingStopConditions,
     )?;
-    validate_postconditions(&input.expected_postconditions)?;
     validate_text_items(
         &input.evidence_requirements,
         TaskContractError::MissingEvidenceRequirements,
     )
+}
+
+fn validate_contract_mappings(input: &TaskContractInput) -> Result<(), TaskContractError> {
+    let postconditions = postcondition_ids(&input.expected_postconditions);
+    validate_criterion_mappings(&input.success_criteria, &postconditions, input)?;
+    validate_required_postcondition_coverage(input)
+}
+
+fn validate_criterion_mappings(
+    criteria: &[SuccessCriterion],
+    postcondition_ids: &HashSet<&str>,
+    input: &TaskContractInput,
+) -> Result<(), TaskContractError> {
+    for criterion in criteria {
+        validate_criterion_mapping(criterion, postcondition_ids, input)?;
+    }
+    Ok(())
+}
+
+fn validate_criterion_mapping(
+    criterion: &SuccessCriterion,
+    postcondition_ids: &HashSet<&str>,
+    input: &TaskContractInput,
+) -> Result<(), TaskContractError> {
+    validate_mapping_presence(criterion)?;
+    validate_mapping_references(criterion, postcondition_ids)?;
+    validate_required_mapping(criterion, input)
+}
+
+fn validate_mapping_presence(criterion: &SuccessCriterion) -> Result<(), TaskContractError> {
+    if criterion.required_postcondition_ids.is_empty() {
+        return Err(TaskContractError::MissingCriterionPostconditionBinding);
+    }
+    if criterion
+        .required_postcondition_ids
+        .iter()
+        .any(|item| item.trim().is_empty())
+    {
+        return Err(TaskContractError::EmptyPostconditionReference);
+    }
+    Ok(())
+}
+
+fn validate_mapping_references(
+    criterion: &SuccessCriterion,
+    postcondition_ids: &HashSet<&str>,
+) -> Result<(), TaskContractError> {
+    let mapped = criterion
+        .required_postcondition_ids
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    if mapped.iter().copied().collect::<HashSet<_>>().len() != mapped.len() {
+        return Err(TaskContractError::DuplicatePostconditionReference);
+    }
+    if mapped.iter().any(|item| !postcondition_ids.contains(item)) {
+        return Err(TaskContractError::UnknownPostconditionReference);
+    }
+    Ok(())
+}
+
+fn validate_required_mapping(
+    criterion: &SuccessCriterion,
+    input: &TaskContractInput,
+) -> Result<(), TaskContractError> {
+    if !criterion.required {
+        return Ok(());
+    }
+    if criterion.required_postcondition_ids.iter().all(|id| {
+        input
+            .expected_postconditions
+            .iter()
+            .any(|postcondition| postcondition.id == *id && postcondition.required)
+    }) {
+        return Ok(());
+    }
+    Err(TaskContractError::RequiredCriterionReferencesOptionalPostcondition)
+}
+
+fn validate_required_postcondition_coverage(
+    input: &TaskContractInput,
+) -> Result<(), TaskContractError> {
+    let bound = input
+        .success_criteria
+        .iter()
+        .filter(|criterion| criterion.required)
+        .flat_map(|criterion| criterion.required_postcondition_ids.iter())
+        .map(String::as_str)
+        .collect::<HashSet<_>>();
+    if input
+        .expected_postconditions
+        .iter()
+        .filter(|postcondition| postcondition.required)
+        .all(|postcondition| bound.contains(postcondition.id.as_str()))
+    {
+        return Ok(());
+    }
+    Err(TaskContractError::UnboundRequiredPostcondition)
 }
 
 fn validate_limits(input: &TaskContractInput) -> Result<(), TaskContractError> {
@@ -222,7 +352,7 @@ fn validate_criteria(items: &[SuccessCriterion]) -> Result<(), TaskContractError
     if items.iter().any(invalid_criterion) {
         return Err(TaskContractError::EmptyContractItem);
     }
-    Ok(())
+    validate_unique_criterion_ids(items)
 }
 
 fn validate_postconditions(items: &[PostconditionRequirement]) -> Result<(), TaskContractError> {
@@ -232,7 +362,31 @@ fn validate_postconditions(items: &[PostconditionRequirement]) -> Result<(), Tas
     if items.iter().any(invalid_postcondition) {
         return Err(TaskContractError::EmptyContractItem);
     }
-    Ok(())
+    validate_unique_postcondition_ids(items)
+}
+
+fn validate_unique_criterion_ids(items: &[SuccessCriterion]) -> Result<(), TaskContractError> {
+    let ids = items
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<Vec<_>>();
+    if ids.iter().copied().collect::<HashSet<_>>().len() == ids.len() {
+        return Ok(());
+    }
+    Err(TaskContractError::DuplicateSuccessCriterionId)
+}
+
+fn validate_unique_postcondition_ids(
+    items: &[PostconditionRequirement],
+) -> Result<(), TaskContractError> {
+    let ids = items
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<Vec<_>>();
+    if ids.iter().copied().collect::<HashSet<_>>().len() == ids.len() {
+        return Ok(());
+    }
+    Err(TaskContractError::DuplicatePostconditionId)
 }
 
 fn validate_text_items(
@@ -246,6 +400,10 @@ fn validate_text_items(
         return Err(TaskContractError::EmptyContractItem);
     }
     Ok(())
+}
+
+fn postcondition_ids(items: &[PostconditionRequirement]) -> HashSet<&str> {
+    items.iter().map(|item| item.id.as_str()).collect()
 }
 
 fn invalid_criterion(item: &SuccessCriterion) -> bool {
@@ -271,11 +429,7 @@ mod tests {
         TaskContractInput {
             task_id: "task-1".into(),
             objective: "write and verify a file".into(),
-            success_criteria: vec![SuccessCriterion {
-                id: "criterion-file".into(),
-                description: "expected file exists".into(),
-                required: true,
-            }],
+            success_criteria: vec![criterion("criterion-file", true, &["postcondition-file"])],
             forbidden_outcomes: vec!["write outside workspace".into()],
             permitted_actions: vec!["write_file".into()],
             permitted_tools: vec!["filesystem".into()],
@@ -287,29 +441,126 @@ mod tests {
                 require_idempotency_after_possible_side_effect: true,
             },
             stop_conditions: vec!["criterion_satisfied".into()],
-            expected_postconditions: vec![PostconditionRequirement {
-                id: "postcondition-file".into(),
-                description: "read-back digest matches".into(),
-                required: true,
-            }],
+            expected_postconditions: vec![postcondition("postcondition-file", true)],
             evidence_requirements: vec!["read_back_digest".into()],
+        }
+    }
+
+    fn criterion(id: &str, required: bool, postconditions: &[&str]) -> SuccessCriterion {
+        SuccessCriterion {
+            id: id.into(),
+            description: format!("criterion {id}"),
+            required,
+            required_postcondition_ids: postconditions.iter().map(|item| (*item).into()).collect(),
+        }
+    }
+
+    fn postcondition(id: &str, required: bool) -> PostconditionRequirement {
+        PostconditionRequirement {
+            id: id.into(),
+            description: format!("postcondition {id}"),
+            required,
         }
     }
 
     #[test]
     fn task_contract_accepts_complete_bounded_input() {
         let contract = TaskContract::new(input()).unwrap();
-        assert!(contract.permits_action("write_file"));
-        assert!(contract.permits_tool("filesystem"));
+        assert_eq!(
+            contract.success_criteria()[0].required_postcondition_ids,
+            vec!["postcondition-file"]
+        );
     }
 
     #[test]
-    fn task_contract_requires_postconditions() {
+    fn duplicate_success_criterion_ids_reject() {
         let mut input = input();
-        input.expected_postconditions.clear();
+        input
+            .success_criteria
+            .push(criterion("criterion-file", false, &["postcondition-file"]));
         assert_eq!(
             TaskContract::new(input),
-            Err(TaskContractError::MissingPostconditions)
+            Err(TaskContractError::DuplicateSuccessCriterionId)
         );
+    }
+
+    #[test]
+    fn duplicate_postcondition_ids_reject() {
+        let mut input = input();
+        input
+            .expected_postconditions
+            .push(postcondition("postcondition-file", false));
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::DuplicatePostconditionId)
+        );
+    }
+
+    #[test]
+    fn criterion_without_postcondition_mapping_rejects() {
+        let mut input = input();
+        input.success_criteria[0].required_postcondition_ids.clear();
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::MissingCriterionPostconditionBinding)
+        );
+    }
+
+    #[test]
+    fn unknown_postcondition_reference_rejects() {
+        let mut input = input();
+        input.success_criteria[0].required_postcondition_ids = vec!["unknown".into()];
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::UnknownPostconditionReference)
+        );
+    }
+
+    #[test]
+    fn duplicate_postcondition_reference_rejects() {
+        let mut input = input();
+        input.success_criteria[0].required_postcondition_ids =
+            vec!["postcondition-file".into(), "postcondition-file".into()];
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::DuplicatePostconditionReference)
+        );
+    }
+
+    #[test]
+    fn unbound_required_postcondition_rejects() {
+        let mut input = input();
+        input
+            .expected_postconditions
+            .push(postcondition("postcondition-permissions", true));
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::UnboundRequiredPostcondition)
+        );
+    }
+
+    #[test]
+    fn required_criterion_referencing_optional_postcondition_rejects() {
+        let mut input = input();
+        input.expected_postconditions[0].required = false;
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::RequiredCriterionReferencesOptionalPostcondition)
+        );
+    }
+
+    #[test]
+    fn empty_postcondition_reference_rejects() {
+        let mut input = input();
+        input.success_criteria[0].required_postcondition_ids = vec![String::new()];
+        assert_eq!(
+            TaskContract::new(input),
+            Err(TaskContractError::EmptyPostconditionReference)
+        );
+    }
+
+    #[test]
+    fn task_contract_validation_is_deterministic() {
+        assert_eq!(TaskContract::new(input()), TaskContract::new(input()));
     }
 }

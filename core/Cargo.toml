@@ -61,3 +61,7 @@ path = "../tests/replay_proof.rs"
 [[test]]
 name = "verifier_receipt_integrity"
 path = "../tests/verifier_receipt_integrity.rs"
+
+[[test]]
+name = "outcome_evidence_binding"
+path = "../tests/outcome_evidence_binding.rs"

@@ -29,11 +29,17 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["criterion_id", "description", "required"],
+        "required": ["criterion_id", "description", "required", "required_postcondition_ids"],
         "properties": {
           "criterion_id": { "type": "string", "minLength": 1 },
           "description": { "type": "string", "minLength": 1 },
-          "required": { "type": "boolean" }
+          "required": { "type": "boolean" },
+          "required_postcondition_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          }
         },
         "additionalProperties": false
       }

@@ -64,6 +64,11 @@ const AUTHORITY_BOOLEAN_REGEX = [
   /\bPolicyEvidence::new\s*\(\s*true\b/g,
 ];
 
+const OUTCOME_SELF_ATTESTATION_REGEX = [
+  /\bsatisfied_criterion_ids\b/g,
+  /\bPostconditionCheck\b/g,
+];
+
 export function collectRustFiles(rootDir) {
   const files = [];
 
@@ -355,6 +360,18 @@ export function lintRustBoundaries(rootDirArg) {
           relPath,
           match,
           `caller-asserted positive authority evidence is forbidden: '${match.snippet}'`,
+        );
+      }
+    }
+
+    for (const regex of OUTCOME_SELF_ATTESTATION_REGEX) {
+      for (const match of matchesRegex(scanned, regex)) {
+        pushIssue(
+          issues,
+          'error',
+          relPath,
+          match,
+          `caller-authored completion authority is forbidden: '${match.snippet}'`,
         );
       }
     }

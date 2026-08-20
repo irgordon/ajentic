@@ -2,22 +2,25 @@ mod common;
 
 use ajentic_core::outcome::{
     assemble_authoritative_run_result, evaluate_action_outcome, evaluate_claim, ActionStatus,
-    PostconditionStatus, ToolReturnStatus,
+    PostconditionObservationState, ToolReturnStatus,
 };
 
 #[test]
 fn later_success_does_not_erase_earlier_error() {
     let task = common::task_contract();
-    let mut first = common::action_input(ToolReturnStatus::Failed, PostconditionStatus::NotChecked);
+    let mut first = common::action_input(
+        ToolReturnStatus::Failed,
+        PostconditionObservationState::NotChecked,
+    );
     first.observed_effect = None;
     first.exact_errors = vec!["write failed: permission denied".into()];
-    first.satisfied_criterion_ids.clear();
     let failed = evaluate_action_outcome(&task, first).unwrap();
-    let succeeded = evaluate_action_outcome(
-        &task,
-        common::action_input(ToolReturnStatus::Succeeded, PostconditionStatus::Passed),
-    )
-    .unwrap();
+    let mut retry = common::action_input(
+        ToolReturnStatus::Succeeded,
+        PostconditionObservationState::Observed,
+    );
+    retry.retries = 1;
+    let succeeded = evaluate_action_outcome(&task, retry).unwrap();
     let claim = evaluate_claim(
         "claim-1",
         "file verified",
@@ -34,7 +37,10 @@ fn later_success_does_not_erase_earlier_error() {
 #[test]
 fn timeout_after_possible_side_effect_remains_unknown() {
     let task = common::task_contract();
-    let mut input = common::action_input(ToolReturnStatus::TimedOut, PostconditionStatus::Unknown);
+    let mut input = common::action_input(
+        ToolReturnStatus::TimedOut,
+        PostconditionObservationState::Unknown,
+    );
     input.exact_errors = vec!["request timed out after transmission".into()];
     input.remaining_uncertainty = vec!["remote side effect may have occurred".into()];
     let outcome = evaluate_action_outcome(&task, input).unwrap();

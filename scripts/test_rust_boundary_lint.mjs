@@ -288,6 +288,28 @@ const tests = [
     },
   },
   {
+    name: 'expected-fail: caller-authored satisfied criterion ids are rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'struct Input { satisfied_criterion_ids: Vec<String> }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, 'caller-authored completion authority', 'criterion ids');
+      });
+    },
+  },
+  {
+    name: 'expected-fail: caller-controlled postcondition check type is rejected',
+    run: async () => {
+      const files = makeBaseFiles();
+      files['core/src/execution/mod.rs'] += 'struct PostconditionCheck { required: bool }\n';
+
+      await withCase(files, async (_root, issues) => {
+        expectFailContains(issues, 'caller-authored completion authority', 'postcondition check');
+      });
+    },
+  },
+  {
     name: 'expected-pass: forbidden tokens in strings and comments are ignored',
     run: async () => {
       const files = makeBaseFiles();

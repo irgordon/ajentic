@@ -11,7 +11,8 @@ use ajentic_core::ledger::{
     Ledger, LedgerActor, LedgerActorType, LedgerEvent, LedgerEventType, LedgerPayload, LedgerSeal,
 };
 use ajentic_core::outcome::{
-    ActionOutcomeInput, ClaimEvidence, PostconditionCheck, PostconditionStatus, ToolReturnStatus,
+    ActionOutcomeInput, ClaimEvidence, PostconditionObservation, PostconditionObservationState,
+    ToolReturnStatus,
 };
 use ajentic_core::policy::{evaluate_policy, PolicyEvidence, PolicyReceipt};
 use ajentic_core::replay::{verify_replay_receipt, ReplayReceipt};
@@ -192,6 +193,7 @@ pub fn task_contract() -> TaskContract {
             id: "criterion-file".into(),
             description: "file digest matches".into(),
             required: true,
+            required_postcondition_ids: vec!["postcondition-file".into()],
         }],
         forbidden_outcomes: vec!["write outside workspace".into()],
         permitted_actions: vec!["write_file".into()],
@@ -216,8 +218,10 @@ pub fn task_contract() -> TaskContract {
 
 pub fn action_input(
     tool_status: ToolReturnStatus,
-    postcondition_status: PostconditionStatus,
+    observation_state: PostconditionObservationState,
 ) -> ActionOutcomeInput {
+    let observed_value = "sha256:expected".to_string();
+    let evidence_digest = Digest::of_text(&observed_value);
     ActionOutcomeInput {
         action_id: "action-1".into(),
         task_id: "task-1".into(),
@@ -229,12 +233,12 @@ pub fn action_input(
         recipient: None,
         tool_return_status: tool_status,
         observed_effect: Some("file exists".into()),
-        postconditions: vec![PostconditionCheck {
+        postcondition_observations: vec![PostconditionObservation {
             id: "postcondition-file".into(),
-            required: true,
-            status: postcondition_status,
-            observed_value: Some("sha256:expected".into()),
+            state: observation_state,
+            observed_value: Some(observed_value),
             evidence_refs: vec!["read-back-1".into()],
+            evidence_digests: vec![evidence_digest.clone()],
         }],
         exact_errors: Vec::new(),
         partial_side_effects: Vec::new(),
@@ -242,7 +246,7 @@ pub fn action_input(
         compensation: Vec::new(),
         remaining_uncertainty: Vec::new(),
         evidence_refs: vec!["read-back-1".into()],
-        satisfied_criterion_ids: vec!["criterion-file".into()],
+        evidence_digests: vec![evidence_digest],
     }
 }
 
