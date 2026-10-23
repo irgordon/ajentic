@@ -183,6 +183,11 @@ jobs:
       - name: Test schema validator failure handling
         run: node scripts/test_validate_schemas.mjs
 
+      - name: Audit reviewed dependency licenses
+        run: |
+          node scripts/test_audit_dependency_licenses.mjs
+          node scripts/audit_dependency_licenses.mjs
+
       - name: Validate metaschemas, references, formats, and payload fixtures
         run: node scripts/validate_schemas.mjs
 
@@ -200,9 +205,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run validation infrastructure regression tests
-        run: python3 -m unittest discover -s scripts -p 'test_validation_*.py'
-
       - name: Install checksum-verified actionlint
         env:
           ACTIONLINT_VERSION: "1.7.12"
@@ -219,6 +221,9 @@ jobs:
 
       - name: Lint GitHub Actions workflows and embedded shell scripts
         run: actionlint -color
+
+      - name: Run validation infrastructure and workflow-condition regression tests
+        run: python3 -m unittest discover -s scripts -p 'test_validation_*.py'
 
       - name: Check shell scripts parse
         shell: bash

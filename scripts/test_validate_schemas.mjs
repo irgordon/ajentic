@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
-import { compileSchemaCatalog, validatePayloadFixture, validateRepositorySchemas } from './validate_schemas.mjs';
+import { compileSchemaCatalog, validateCoverageManifest, validatePayloadFixture, validateRepositorySchemas } from './validate_schemas.mjs';
 
 const DIALECT = 'https://json-schema.org/draft/2020-12/schema';
 const ID = 'https://example.invalid/review.schema.json';
@@ -22,6 +22,32 @@ test('all repository schemas compile and payload fixtures match their expected r
 
 test('invalid metaschema keywords fail validation despite being valid JSON', () => {
   assert.throws(() => compileSchemaCatalog(catalog({ type: 'not-a-json-type' })));
+});
+
+test('strict type-context validation remains enabled', () => {
+  assert.throws(() => compileSchemaCatalog(catalog({ minItems: 1 })), /strictTypes/);
+});
+
+test('strict required-property validation remains enabled', () => {
+  assert.throws(() => compileSchemaCatalog(catalog({ type: 'object', required: ['missing'] })), /strictRequired/);
+});
+
+test('a new schema without a coverage decision fails the gate', () => {
+  assert.throws(() => validateCoverageManifest(catalog(), [], []), /Missing schema coverage/);
+});
+
+test('payload coverage requires both acceptance and rejection cases', () => {
+  const manifest = [{ schema: ID, status: 'payload-cases' }];
+  const fixtures = [{ schema: ID, valid: true, data: {} }];
+  assert.throws(() => validateCoverageManifest(catalog(), fixtures, manifest), /valid and invalid/);
+});
+
+test('compile-only coverage requires an explicit reason', () => {
+  assert.throws(() => validateCoverageManifest(catalog(), [], [{ schema: ID, status: 'compile-only' }]), /reason/);
+});
+
+test('stale coverage entries cannot hide deleted schemas', () => {
+  assert.throws(() => validateCoverageManifest([], [], [{ schema: ID, status: 'compile-only', reason: 'gap' }]), /Unknown coverage/);
 });
 
 test('missing references fail closed without network retrieval', () => {

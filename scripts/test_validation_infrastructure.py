@@ -1,6 +1,7 @@
 """Regression checks for validation infrastructure, without release operations."""
 
 import subprocess
+import shutil
 import sys
 import tempfile
 import unittest
@@ -10,6 +11,30 @@ from unittest.mock import patch
 import reproducible_artifacts as artifacts
 
 STRUCTURE_SCRIPT = Path(__file__).with_name("validate_structure.py").resolve()
+ACTIONLINT = shutil.which("actionlint")
+WORKFLOW_FIXTURE = """name: condition regression
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  validation:
+    if: __CONDITION__
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo validation
+"""
+
+
+@unittest.skipUnless(ACTIONLINT, "actionlint is installed by the Actions Scripts job")
+class WorkflowConditionTests(unittest.TestCase):
+    def test_folded_expression_with_trailing_newline_is_rejected(self):
+        result = lint_workflow(">\n      ${{ always() }}")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("if-cond", result.stdout + result.stderr)
+
+    def test_stripped_folded_expression_is_accepted(self):
+        result = lint_workflow(">-\n      ${{ always() }}")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class StructureValidationTests(unittest.TestCase):
@@ -19,6 +44,7 @@ class StructureValidationTests(unittest.TestCase):
             seed_repository(root)
             (root / ".DS_Store").write_bytes(b"finder metadata")
             (root / "docs/.DS_Store").write_bytes(b"finder metadata")
+            (root / "docs/architecture/.DS_Store").write_bytes(b"finder metadata")
             result = validate_structure(root)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
@@ -73,6 +99,16 @@ def frontmatter(dimension):
 
 def validate_structure(root):
     return subprocess.run([sys.executable, str(STRUCTURE_SCRIPT)], cwd=root, capture_output=True, text=True, timeout=15)
+
+
+def lint_workflow(condition):
+    with tempfile.TemporaryDirectory() as directory:
+        workflow = Path(directory) / "fixture.yml"
+        workflow.write_text(WORKFLOW_FIXTURE.replace("__CONDITION__", condition), encoding="utf-8")
+        return subprocess.run(
+            [ACTIONLINT, "-shellcheck=", "-pyflakes=", str(workflow)],
+            capture_output=True, text=True, timeout=15,
+        )
 
 
 if __name__ == "__main__":

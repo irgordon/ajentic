@@ -10,12 +10,15 @@ const addFormats = require('ajv-formats');
 const DIALECT = 'https://json-schema.org/draft/2020-12/schema';
 const SCHEMA_SUFFIX = '.schema.json';
 const DEFAULT_FIXTURES = 'tests/schema-fixtures.json';
+const COVERAGE_MANIFEST = 'tests/schema-coverage.json';
 
 export function validateRepositorySchemas(root = process.cwd()) {
   const catalog = loadSchemaCatalog(root);
   const validator = compileSchemaCatalog(catalog);
-  const fixtureCount = validatePayloadFixtures(validator, root);
-  return { schemaCount: catalog.length, fixtureCount };
+  const fixtures = loadPayloadFixtures(root);
+  const coverage = validateCoverageManifest(catalog, fixtures, loadCoverageManifest(root));
+  validatePayloadCases(validator, fixtures);
+  return validationSummary(catalog, fixtures, coverage);
 }
 
 export function compileSchemaCatalog(catalog) {
@@ -32,7 +35,7 @@ function loadSchemaCatalog(root) {
 }
 
 function createSchemaValidator() {
-  const validator = new Ajv2020({ allErrors: true, strictTypes: false, strictRequired: false });
+  const validator = new Ajv2020({ allErrors: true, strict: true });
   addFormats(validator);
   return validator;
 }
@@ -47,11 +50,50 @@ function compileRegisteredSchema(validator, { file, schema }) {
   if (!validator.getSchema(schema.$id)) throw new Error(`${file}: schema did not compile`);
 }
 
-function validatePayloadFixtures(validator, root) {
+function loadPayloadFixtures(root) {
   const fixtures = readJson(path.join(root, DEFAULT_FIXTURES));
   if (!Array.isArray(fixtures) || fixtures.length === 0) throw new Error('No schema fixtures found');
+  return fixtures;
+}
+
+function loadCoverageManifest(root) {
+  return readJson(path.join(root, COVERAGE_MANIFEST));
+}
+
+function validatePayloadCases(validator, fixtures) {
   for (const fixture of fixtures) validatePayloadFixture(validator, fixture);
-  return fixtures.length;
+}
+
+function validationSummary(catalog, fixtures, coverage) {
+  return { schemaCount: catalog.length, fixtureCount: fixtures.length, ...coverage };
+}
+
+export function validateCoverageManifest(catalog, fixtures, manifest) {
+  if (!Array.isArray(manifest)) throw new Error('Schema coverage manifest must be an array');
+  const entries = new Map();
+  for (const entry of manifest) {
+    if (!entry || entries.has(entry.schema)) throw new Error('Duplicate or malformed schema coverage entry');
+    entries.set(entry.schema, entry);
+  }
+  const known = new Set(catalog.map(entry => entry.schema.$id));
+  for (const id of entries.keys()) if (!known.has(id)) throw new Error(`Unknown coverage schema: ${id}`);
+  for (const { schema } of catalog) validateSchemaCoverage(schema.$id, entries.get(schema.$id), fixtures);
+  const payloadSchemaCount = manifest.filter(entry => entry.status === 'payload-cases').length;
+  return { payloadSchemaCount, compileOnlySchemaCount: manifest.length - payloadSchemaCount };
+}
+
+function validateSchemaCoverage(id, entry, fixtures) {
+  if (!entry) throw new Error(`Missing schema coverage entry: ${id}`);
+  const cases = fixtures.filter(fixture => fixture.schema === id);
+  if (entry.status === 'payload-cases') {
+    if (!cases.some(fixture => fixture.valid === true) || !cases.some(fixture => fixture.valid === false)) {
+      throw new Error(`${id}: payload coverage requires valid and invalid cases`);
+    }
+    return;
+  }
+  if (entry.status !== 'compile-only' || typeof entry.reason !== 'string' || !entry.reason.trim() || cases.length) {
+    throw new Error(`${id}: compile-only coverage requires a reason and no payload cases`);
+  }
 }
 
 export function validatePayloadFixture(validator, fixture) {
@@ -88,7 +130,7 @@ function readJson(file) {
 function runCli() {
   try {
     const result = validateRepositorySchemas(process.argv[2]);
-    console.log(`Schema validation passed (${result.schemaCount} schemas, ${result.fixtureCount} payload cases).`);
+    console.log(`Schema validation passed (${result.schemaCount} schemas, ${result.fixtureCount} payload cases; ${result.payloadSchemaCount} payload-tested, ${result.compileOnlySchemaCount} compile-only).`);
   } catch (error) {
     console.error(`Schema validation failed: ${error.message}`);
     process.exitCode = 1;

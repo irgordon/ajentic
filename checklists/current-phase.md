@@ -18,6 +18,11 @@ mutation_path: checklist_revision
 - [x] Document setup order, prerequisites, and development-tool licenses.
 - [x] Run full local validation from clean commit `e893d8f` (`All checks passed.`).
 - [x] Record tooling rationale, alternatives, and limits in ADR 001.
+- [x] Verify exact tool versions and actionlint asset checksum against upstream metadata/downloads.
+- [x] Audit all seven locked package notices and record the fast-uri metadata discrepancy.
+- [x] Enable strictTypes and strictRequired with no waivers.
+- [x] Add a fail-closed per-schema coverage manifest and actionlint condition regression fixtures.
+- [x] Document required-check names, admin enforcement limits, provisional timeouts, and floating Actions/toolchains.
 - [ ] Verify independent GitHub Actions results for the committed change.
 
 ## Completed Phase 197.2 Work

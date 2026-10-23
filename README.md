@@ -179,17 +179,25 @@ Then open the local address shown in your terminal, usually `http://127.0.0.1:51
 The browser interface is local and read-only. It is for reviewing status, evidence, and help text. It does not publish releases, deploy systems, or approve AI output.
 
 `npm run lint --prefix ui` runs the browser boundary AST linter; typechecking is
-a separate command. Repository checks also compile every JSON Schema and test
+a separate command. Lint checks boundary rules, not formatting or general style.
+Repository checks also compile every JSON Schema and test
 valid and invalid payloads. These checks validate contracts and boundaries;
 they do not independently establish the factual truth of observations.
+`tests/schema-coverage.json` records payload coverage for 5 of 22 schemas and
+explicit compile-only gaps for the other 17; new schemas require a coverage entry.
 
 GitHub Actions also runs actionlint 1.7.12 against workflows and their embedded
 shell scripts. Run `actionlint` locally when changing workflows. Artifact checks
 limit dependency installation to 90 seconds and individual build commands to
 10 minutes; a timeout fails validation with a diagnostic.
+These deadlines are provisional pending cold-runner timing evidence.
 
 Schema tooling is development-only: Ajv 8.20.0 and ajv-formats 3.0.1 are
-MIT-licensed. Their locked transitive dependencies are also MIT-licensed.
+MIT-licensed. The shipped `fast-uri@3.0.1` LICENSE uses BSD-3-Clause terms despite
+MIT package metadata; TypeScript uses Apache-2.0. Run
+`node scripts/audit_dependency_licenses.mjs` for the reviewed inventory and
+license-file hash checks. This is separate from vulnerability scanning; no
+dedicated dependency vulnerability-audit gate is currently configured.
 Actionlint is MIT-licensed and its CI download is verified against a pinned SHA-256.
 The rationale and tradeoffs are recorded in
 [ADR 001: Independently Executable Validation Gates](docs/architecture/adr-001-independent-validation.md).

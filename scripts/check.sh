@@ -64,6 +64,11 @@ node scripts/test_validate_schemas.mjs
 node scripts/validate_schemas.mjs
 echo "  schemas OK"
 
+echo "Auditing reviewed development dependency licenses..."
+node scripts/test_audit_dependency_licenses.mjs
+node scripts/audit_dependency_licenses.mjs
+echo "  dependency license inventory OK"
+
 echo "Running validation infrastructure regression tests..."
 python3 -m unittest discover -s scripts -p 'test_validation_*.py'
 echo "  validation infrastructure OK"

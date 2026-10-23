@@ -15,6 +15,11 @@ mutation_path: changelog_entry
 - Ignore Finder metadata during structure checks while rejecting unexpected repository files.
 - Document dependency installation before checks and record validation-tool licenses.
 - Record validation design choices, alternatives, and limits in ADR 001.
+- Enable full Ajv2020 strictness after adding redundant inherited array annotations.
+- Require a coverage-manifest decision for every schema, including explicit compile-only gaps.
+- Audit dependency declarations against reviewed shipped-license files; record fast-uri's MIT/BSD-3-Clause discrepancy.
+- Exercise the publication-condition whitespace regression through actionlint fixtures.
+- Document provisional timeout values, floating toolchain/Action references, enforcement limits, and the absence of a vulnerability-audit gate.
 
 ### Scope
 - Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.
