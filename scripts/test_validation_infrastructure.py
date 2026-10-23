@@ -39,6 +39,25 @@ class WorkflowConditionTests(unittest.TestCase):
 
 
 class StructureValidationTests(unittest.TestCase):
+    def test_wiki_orientation_is_allowed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            seed_repository(root)
+            (root / "docs/wiki").mkdir()
+            (root / "docs/wiki/README.md").write_text(frontmatter("orientation"), encoding="utf-8")
+            result = validate_structure(root)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_wiki_cannot_become_a_governance_surface(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            seed_repository(root)
+            (root / "docs/wiki").mkdir()
+            (root / "docs/wiki/README.md").write_text(frontmatter("normative"), encoding="utf-8")
+            result = validate_structure(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("is not allowed in this location", result.stdout)
+
     def test_os_metadata_does_not_block_structure_validation(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

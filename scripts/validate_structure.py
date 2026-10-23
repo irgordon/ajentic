@@ -49,6 +49,7 @@ ALLOWED_DOCS_DIRS = {
     "operations",
     "releases",
     "examples",
+    "wiki",
 }
 
 IGNORED_DIR_NAMES = {
@@ -149,6 +150,9 @@ def allowed_truth_dimensions_for_path(path: Path) -> set[str]:
         return {"orientation"}
 
     if is_under(path, Path("docs/releases")):
+        return {"orientation"}
+
+    if is_under(path, Path("docs/wiki")):
         return {"orientation"}
 
     if is_under(path, Path("docs/examples")):

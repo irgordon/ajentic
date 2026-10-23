@@ -9,16 +9,12 @@ mutation_path: readme_update
 # AJENTIC
 ### AI work, under your control
 
-![Rust](https://img.shields.io/badge/Rust-B7410E?style=for-the-badge&logo=rust&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-v1.0.0_Published-28A745?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-28A745?style=for-the-badge)
 
 <br>
 
-<a href="https://ajentic.dev/#getting-started">
+<a href="docs/wiki/README.md">
   <img src="https://img.shields.io/badge/Get_Started-000000?style=for-the-badge&logo=rocket&logoColor=white" alt="Get Started" />
 </a> &nbsp;&nbsp;
 <a href="https://github.com/irgordon/ajentic/releases/tag/v1.0.0">
@@ -29,225 +25,34 @@ mutation_path: readme_update
 
 ---
 
-AJENTIC helps people use AI without handing control over to the model.
-
-It gives you a clear place to review AI-generated work, see what happened, and keep a record of each step. Instead of letting an AI system act on its own, AJENTIC keeps the work visible, checkable, and repeatable.
-
-The goal is simple:
-
-**Use AI faster, while keeping people in charge.**
-
-## Why AJENTIC Exists
-
-AI can sound confident even when it is wrong.
-
-AJENTIC helps reduce that risk by putting a review layer around AI work. It lets you see what the AI produced, what checks were run, what was blocked, and what still needs attention.
-
-AJENTIC is not about replacing human judgment. It is about making AI-assisted work easier to inspect, easier to explain, and easier to trust.
-
-## What You Can Do
-
-AJENTIC is designed to help you:
-
-- review AI-generated drafts before anyone relies on them
-- see what checks passed, failed, or still need attention
-- keep a record of what happened
-- inspect the history of a run
-- compare AI output with the task and rules it was supposed to follow
-- avoid hidden or automatic decisions
-- keep people responsible for final outcomes
-
-In plain language:
+AJENTIC helps you review AI-generated work without handing control over to the model.
+See what was produced, which checks ran, and what still needs attention, with a record you can return to later.
 
 **The AI can suggest. AJENTIC helps you review. People decide.**
 
+## A Clearer Way to Work With AI
+
+- **Review before relying on it.** Inspect drafts alongside the task and rules they were meant to follow.
+- **See what needs attention.** Keep recorded checks, errors, and uncertainty in view.
+- **Keep the story of the work.** Follow a run's history instead of relying on the final answer alone.
+
+For builders, researchers, and teams who want AI-assisted work to be easier to inspect and explain.
+
 ## How It Works
 
-AJENTIC follows a simple control model:
+1. Define the task and its rules.
+2. Inspect the AI's work and the recorded checks.
+3. Review the result and decide what to trust.
 
-1. You define the task.
-2. You define the rules.
-3. The AI produces a draft.
-4. AJENTIC records and checks the work.
-5. A person reviews the result.
-6. The run can be reviewed again later.
+## Get Started
 
-The AI-generated draft is treated as untrusted until it is reviewed. The browser interface helps you see status, evidence, errors, and history, but it does not make final decisions.
-
-A reviewable candidate is still not proof that a task succeeded. AJENTIC records observed postconditions, material claim support, errors, partial side effects, and unresolved uncertainty separately so a convincing draft cannot be mistaken for verified completion.
-
-## What Makes AJENTIC Different
-
-Many AI tools focus on speed.
-
-AJENTIC focuses on controlled speed:
-
-- clear inputs
-- clear rules
-- visible checks
-- reviewable results
-- repeatable runs
-- human approval controls
-- records that are easy to review later
-
-AJENTIC is built for situations where "the AI said so" is not good enough.
-
-## Who It Is For
-
-AJENTIC is useful for:
-
-- students learning how to use AI responsibly
-- researchers reviewing AI-assisted work
-- builders testing AI workflows
-- teams that need records and review steps
-- developers creating safer AI-assisted systems
-- organizations that want AI help without hidden automation
-
-You do not need to think of AJENTIC as a complex developer tool. Think of it as a workspace for checking AI work before trusting it.
+Visit the [wiki](docs/wiki/README.md) for installation, local setup, and developer guides.
 
 ## Current Release Status
 
-**Current status: v1.0.0 GitHub Release published.**
-
-AJENTIC v1.0.0 is available through GitHub Releases:
-[https://github.com/irgordon/ajentic/releases/tag/v1.0.0](https://github.com/irgordon/ajentic/releases/tag/v1.0.0).
-
-The release includes review assets such as the final candidate bundle, checksums, SBOM evidence, provenance evidence, asset manifest, release notes, and final README asset. The source release candidate `v1.0.0-rc.1` remains intact.
-
-Important limits:
-
-- no npm package publication
-- no Cargo package publication
-- no package registry publication
-- no app-store installer
-- no automatic update channel
-- no deployment service
-- no OS signing or notarization
-- no automatic production approval
-
-The browser interface is read-only and used for review. It does not make final decisions.
-
-Developer validation includes contract and boundary drift checks for duplicated schema/Rust/TypeScript surfaces. Release assets, evidence, scripts, and UI projections remain review surfaces; they do not become runtime authority.
-
-## What AJENTIC Does Not Do
-
-AJENTIC does not:
-
-- make the AI automatically correct
-- replace human review
-- approve work on its own
-- deploy anything automatically
-- publish packages automatically
-- turn AI output into truth
-- give the browser interface final decision power
-
-AJENTIC helps you review AI work more clearly. It does not remove your responsibility to decide whether the work is good enough.
-
-## Running Locally
-
-Developer prerequisites: Node.js **22.23.4 or newer within 22.x**, or
-**24.22.1 or newer within 24.x**, npm, Python 3.11 or newer, and Rust with
-`rustfmt` and `clippy`. These are the two supported LTS lines; older patches,
-prereleases, and unlisted major versions fail the development preflight.
-GitHub Actions pins builds to 22.23.4, tests compatibility on 24.22.1, and uses
-Python 3.12 in the explicitly configured Python jobs.
-
-Clone the repository:
-
-```sh
-git clone https://github.com/irgordon/ajentic.git
-cd ajentic
-```
-
-Install the locked development dependencies:
-
-```sh
-npm ci --prefix ui --no-audit --no-fund --fetch-retries=1 --fetch-timeout=15000
-```
-
-Run the project checks:
-
-```sh
-CARGO_TARGET_DIR=/tmp/ajentic-check-target ./scripts/check.sh
-```
-
-Run the local browser interface:
-
-```sh
-cd ui
-npm run dev
-```
-
-Then open the local address shown in your terminal, usually `http://127.0.0.1:5173`.
-
-The browser interface is local and read-only. It is for reviewing status, evidence, and help text. It does not publish releases, deploy systems, or approve AI output.
-
-`npm run lint --prefix ui` runs the browser boundary AST linter; typechecking is
-a separate command. Lint checks boundary rules, not formatting or general style.
-Repository checks also compile every JSON Schema and test
-valid and invalid payloads. These checks validate contracts and boundaries;
-they do not independently establish the factual truth of observations.
-`tests/schema-coverage.json` records payload coverage for 5 of 22 schemas and
-explicit compile-only gaps for the other 17; new schemas require a coverage entry.
-
-GitHub Actions also runs actionlint 1.7.12 against workflows and their embedded
-shell scripts. Run `actionlint` locally when changing workflows. Artifact checks
-limit dependency installation to 90 seconds and individual build commands to
-10 minutes; a timeout fails validation with a diagnostic.
-These deadlines are provisional pending cold-runner timing evidence.
-
-Schema tooling is development-only: Ajv 8.20.0 and ajv-formats 3.0.1 are
-MIT-licensed. The shipped `fast-uri@3.0.1` LICENSE uses BSD-3-Clause terms despite
-MIT package metadata; TypeScript uses Apache-2.0. Run
-`node scripts/audit_dependency_licenses.mjs` for the reviewed inventory and
-license-file hash checks. This is separate from vulnerability scanning; no
-dedicated dependency vulnerability-audit gate is currently configured.
-Actionlint is MIT-licensed and its CI download is verified against a pinned SHA-256.
-The rationale and tradeoffs are recorded in
-[ADR 001: Independently Executable Validation Gates](docs/architecture/adr-001-independent-validation.md).
-
-## For Developers
-
-AJENTIC keeps its internal responsibilities separated:
-
-```text
-Rust       = protected decision engine
-Python     = AI/model adapters and support scripts
-TypeScript = browser interface
-Bash       = local setup and check scripts
-```
-
-The main rule:
-
-**The model does not decide. The browser does not decide. Scripts do not decide. The protected core decides what is valid.**
-
-This keeps the system easier to inspect, test, and explain.
-
-## Release Evidence
-
-AJENTIC v1.0.0 includes GitHub Release assets for review:
-
-- final release bundle
-- asset manifest
-- checksums
-- SBOM evidence
-- provenance evidence
-- release notes
-
-These files help reviewers understand what was released. They are evidence, not decision authority.
-
-GitHub Actions remains the release evidence platform for the release candidate and final GitHub Release paths. Release assets, checksums, SBOM/provenance files, attestations, workflows, scripts, and UI surfaces are evidence or visibility surfaces only. They do not approve package publication, installers, update channels, deployments, OS signing, notarization, backend authority changes, or UI authority changes.
-
-Post-v1 release closure evidence is recorded in `docs/operations/`.
+[AJENTIC v1.0.0 is available on GitHub Releases](https://github.com/irgordon/ajentic/releases/tag/v1.0.0).<br>
+Start from source with the [wiki setup guide](docs/wiki/README.md) and explore the local browser interface.
 
 ## License
 
 MIT
-
-## Short Version
-
-AJENTIC helps you use AI with a review process.
-
-It keeps AI work visible, checkable, and under human control.
-
-This README is orientation only. It is not an authority source.

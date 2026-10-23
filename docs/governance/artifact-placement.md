@@ -22,7 +22,7 @@ This document is subordinate to `docs/governance/GOVERNANCE.md`.
 | Executable truth | `core/`, `tests/` |
 | Contract truth | `schemas/` |
 | Data truth | `memory/` |
-| Orientation truth | `README.md`, `docs/operations/` |
+| Orientation truth | `README.md`, `docs/operations/`, `docs/wiki/` |
 | Navigation truth | `AGENTS.md` |
 | Illustrative truth | `docs/examples/` |
 
