@@ -109,14 +109,14 @@ the workflows. The license-inventory gate below is not its replacement and does
 not assert that dependencies are vulnerability-free. A vulnerability-audit gate
 remains a separate follow-up decision.
 
-Node.js 22 and Python 3.12 are selected in the relevant Actions jobs. Rust remains
+Node.js 22.23.4 and Python 3.12 are selected in the relevant Actions jobs. Rust remains
 on the existing stable toolchain. The two-build comparison establishes repeatability
 within that environment, not across changing compiler versions or operating systems.
 
 | Input | Pinning level and remaining variability |
 | --- | --- |
 | npm dependencies | Exact resolved versions and integrity hashes in `ui/package-lock.json`. |
-| Node.js | Major version 22; minor/patch and bundled npm can change. |
+| Node.js | Exact 22.23.4 primary/build pin and exact 24.22.1 compatibility pin; updates require an explicit change. |
 | Python | Minor version 3.12 where setup-python is used; patch can change. Other jobs use runner Python. |
 | Rust | Moving `stable` channel; no exact compiler release pin. |
 | Runner | Moving `ubuntu-latest` image. |
@@ -128,6 +128,26 @@ comparison does not promise identical output across workflow runs with different
 toolchains. The binary checksum protects that download's content; it does not
 make mutable `uses:` references or the entire supply chain immutable. Pinning
 third-party Actions to reviewed commit SHAs is recorded follow-up work.
+
+### Enforce the supported Node security floors
+
+The minimum supported LTS releases are 22.23.4 within Node 22 and 24.22.1 within
+Node 24, based on the Node.js security releases dated 2026-10-21. Package engines
+declare `^22.23.4 || ^24.22.1`; the runtime-policy self-tests require the lockfile
+and every explicit workflow Node pin to agree with that policy.
+
+Dependency installation has a preinstall hook; UI commands invoke the preflight
+directly so disabling npm lifecycle hooks cannot bypass their check. The full
+wrapper also invokes `scripts/check_node_version.mjs`. Older patches, prereleases, and
+unlisted major lines are rejected. Rejecting an unlisted major denotes absence
+of a supported project policy, not a claim that every such major is vulnerable.
+This is a development prerequisite check, not runtime execution authority.
+
+Primary CI, artifact, RC, and final workflow build steps pin 22.23.4. The separate
+Node 24 compatibility job uses 24.22.1 for UI and contract checks. The existing
+required Full deterministic check depends on that job, so its failure cannot be
+ignored by that aggregate gate. Python, Rust, runner images, and Action references
+retain the variability recorded above.
 
 ### Keep repository checks usable without broad exclusions
 
@@ -241,6 +261,8 @@ and checksums file and compare `shasum -a 256` output with the committed CI valu
 - [ajv-formats 3.0.1 npm metadata](https://registry.npmjs.org/ajv-formats/3.0.1)
 - [actionlint upstream checksums](https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt)
 - [main branch protection evidence endpoint](https://api.github.com/repos/irgordon/ajentic/branches/main)
+- [Node.js 22.23.4 security release](https://nodejs.org/en/blog/release/v22.23.4)
+- [Node.js 24.22.1 security release](https://nodejs.org/en/blog/release/v24.22.1)
 - `docs/contracts/development-license-review.json`
 - `tests/schema-coverage.json`
 - `scripts/validate_schemas.mjs`

@@ -9,6 +9,10 @@ set -euo pipefail
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-/tmp/ajentic-check-target}"
 
+echo "Checking Node.js security floor..."
+node scripts/check_node_version.mjs
+node scripts/test_check_node_version.mjs
+
 require_clean_worktree() {
   local label="$1"
 

@@ -20,6 +20,8 @@ mutation_path: changelog_entry
 - Audit dependency declarations against reviewed shipped-license files; record fast-uri's MIT/BSD-3-Clause discrepancy.
 - Exercise the publication-condition whitespace regression through actionlint fixtures.
 - Document provisional timeout values, floating toolchain/Action references, enforcement limits, and the absence of a vulnerability-audit gate.
+- Require supported Node LTS security floors 22.23.4 and 24.22.1 in engines and command preflights.
+- Pin workflow build runtimes to 22.23.4 and gate the full check on a 24.22.1 compatibility job.
 
 ### Scope
 - Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.

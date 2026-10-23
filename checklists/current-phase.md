@@ -23,6 +23,8 @@ mutation_path: checklist_revision
 - [x] Enable strictTypes and strictRequired with no waivers.
 - [x] Add a fail-closed per-schema coverage manifest and actionlint condition regression fixtures.
 - [x] Document required-check names, admin enforcement limits, provisional timeouts, and floating Actions/toolchains.
+- [x] Enforce supported Node LTS security floors and exact workflow runtime pins.
+- [ ] Validate the updated baseline on checksum-verified Node 22.23.4 and 24.22.1.
 - [ ] Verify independent GitHub Actions results for the committed change.
 
 ## Completed Phase 197.2 Work

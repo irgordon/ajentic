@@ -145,8 +145,12 @@ AJENTIC helps you review AI work more clearly. It does not remove your responsib
 
 ## Running Locally
 
-Developer prerequisites: Node.js 22, npm, Python 3.11 or newer, and Rust with
-`rustfmt` and `clippy`. GitHub Actions uses Node.js 22 and Python 3.12.
+Developer prerequisites: Node.js **22.23.4 or newer within 22.x**, or
+**24.22.1 or newer within 24.x**, npm, Python 3.11 or newer, and Rust with
+`rustfmt` and `clippy`. These are the two supported LTS lines; older patches,
+prereleases, and unlisted major versions fail the development preflight.
+GitHub Actions pins builds to 22.23.4, tests compatibility on 24.22.1, and uses
+Python 3.12 in the explicitly configured Python jobs.
 
 Clone the repository:
 
