@@ -129,6 +129,13 @@ toolchains. The binary checksum protects that download's content; it does not
 make mutable `uses:` references or the entire supply chain immutable. Pinning
 third-party Actions to reviewed commit SHAs is recorded follow-up work.
 
+The Actions Rust 1.99 Clippy run identified `chunks_exact_to_as_chunks` diagnostics
+in the SHA-256 infrastructure helpers, while local Rust 1.96 did not report them.
+Use equivalent fixed-array chunk iteration rather than suppressing warnings or
+downgrading CI. Both forms discard incomplete trailing chunks and preserve the
+same word/block order; existing SHA-256 vectors and the Rust suites validate the
+behavior-preserving update. This is toolchain compatibility, not an authority change.
+
 ### Enforce the supported Node security floors
 
 The minimum supported LTS releases are 22.23.4 within Node 22 and 24.22.1 within

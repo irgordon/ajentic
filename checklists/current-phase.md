@@ -26,6 +26,9 @@ mutation_path: checklist_revision
 - [x] Enforce supported Node LTS security floors and exact workflow runtime pins.
 - [x] Run full local validation on checksum-verified Node 22.23.4 and UI/contract compatibility on 24.22.1.
 - [x] Reject failed/skipped/cancelled/missing prerequisite evidence in the required aggregate gate.
+- [x] Authenticate repository Git/CLI as Owner `irgordon` and push the validation branch.
+- [x] Open stacked draft PR #300 and inspect independent Actions results.
+- [x] Address the concrete Rust 1.99 Clippy chunk-iteration diagnostics without weakening lint rules.
 - [ ] Verify independent GitHub Actions results for the committed change.
 
 ## Completed Phase 197.2 Work

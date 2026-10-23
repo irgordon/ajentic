@@ -60,7 +60,7 @@ fn padded_words(input: &[u8]) -> Vec<u32> {
 
 fn process_blocks(words: &[u32]) -> [u32; 8] {
     let mut state = INITIAL_STATE;
-    for block in words.chunks_exact(16) {
+    for block in words.as_chunks::<16>().0 {
         compress_block(&mut state, block);
     }
     state
@@ -103,8 +103,10 @@ fn bit_length(input: &[u8]) -> u64 {
 
 fn bytes_to_words(bytes: &[u8]) -> Vec<u32> {
     bytes
-        .chunks_exact(4)
-        .map(|chunk| u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .map(|chunk| u32::from_be_bytes(*chunk))
         .collect()
 }
 
