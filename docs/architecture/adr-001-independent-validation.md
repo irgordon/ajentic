@@ -234,6 +234,10 @@ coverage manifest and license inventory.
 
 ### Merge Enforcement
 
+The historical settings below are superseded by the Owner-selected
+solo-maintainer policy in `docs/governance/GOVERNANCE.md` and ADR 002:
+required CI applies to administrators, with zero required approving reviews.
+
 Workflow definitions alone do not make jobs mandatory. The public branch API for
 `irgordon/ajentic` on 2026-10-23 reported protected `main` with these required check
 names: Full deterministic check, TypeScript UI, Schemas, Scripts, Rust, Repository
