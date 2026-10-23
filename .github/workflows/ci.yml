@@ -279,6 +279,7 @@ jobs:
 
   full-check:
     name: Full deterministic check
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
@@ -294,6 +295,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Require successful prerequisite gates
+        env:
+          AJENTIC_CI_PREREQUISITES: ${{ toJSON(needs) }}
+        run: python3 scripts/check_ci_prerequisites.py
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

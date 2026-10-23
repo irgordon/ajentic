@@ -145,8 +145,10 @@ This is a development prerequisite check, not runtime execution authority.
 
 Primary CI, artifact, RC, and final workflow build steps pin 22.23.4. The separate
 Node 24 compatibility job uses 24.22.1 for UI and contract checks. The existing
-required Full deterministic check depends on that job, so its failure cannot be
-ignored by that aggregate gate. Python, Rust, runner images, and Action references
+required Full deterministic check depends on that job and uses `always()` plus
+an explicit prerequisite-status check. Failed, skipped, cancelled, missing, and
+unknown results fail the aggregate instead of allowing it to be skipped. Fixtures
+exercise those status decisions. Python, Rust, runner images, and Action references
 retain the variability recorded above.
 
 ### Keep repository checks usable without broad exclusions
@@ -263,6 +265,7 @@ and checksums file and compare `shasum -a 256` output with the committed CI valu
 - [main branch protection evidence endpoint](https://api.github.com/repos/irgordon/ajentic/branches/main)
 - [Node.js 22.23.4 security release](https://nodejs.org/en/blog/release/v22.23.4)
 - [Node.js 24.22.1 security release](https://nodejs.org/en/blog/release/v24.22.1)
+- [GitHub skipped-job status behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)
 - `docs/contracts/development-license-review.json`
 - `tests/schema-coverage.json`
 - `scripts/validate_schemas.mjs`

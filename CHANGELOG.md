@@ -22,6 +22,7 @@ mutation_path: changelog_entry
 - Document provisional timeout values, floating toolchain/Action references, enforcement limits, and the absence of a vulnerability-audit gate.
 - Require supported Node LTS security floors 22.23.4 and 24.22.1 in engines and command preflights.
 - Pin workflow build runtimes to 22.23.4 and gate the full check on a 24.22.1 compatibility job.
+- Fail the always-scheduled aggregate check when any prerequisite is failed, skipped, cancelled, missing, or unknown.
 
 ### Scope
 - Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.

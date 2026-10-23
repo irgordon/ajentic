@@ -24,7 +24,8 @@ mutation_path: checklist_revision
 - [x] Add a fail-closed per-schema coverage manifest and actionlint condition regression fixtures.
 - [x] Document required-check names, admin enforcement limits, provisional timeouts, and floating Actions/toolchains.
 - [x] Enforce supported Node LTS security floors and exact workflow runtime pins.
-- [ ] Validate the updated baseline on checksum-verified Node 22.23.4 and 24.22.1.
+- [x] Run full local validation on checksum-verified Node 22.23.4 and UI/contract compatibility on 24.22.1.
+- [x] Reject failed/skipped/cancelled/missing prerequisite evidence in the required aggregate gate.
 - [ ] Verify independent GitHub Actions results for the committed change.
 
 ## Completed Phase 197.2 Work

@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import reproducible_artifacts as artifacts
+import check_ci_prerequisites as prerequisites
 
 STRUCTURE_SCRIPT = Path(__file__).with_name("validate_structure.py").resolve()
 ACTIONLINT = shutil.which("actionlint")
@@ -79,6 +80,21 @@ class ArtifactProcessTests(unittest.TestCase):
         with patch.object(artifacts.subprocess, "run", side_effect=failure):
             with self.assertRaises(subprocess.CalledProcessError):
                 artifacts.run(["npm", "ci"], Path("/tmp"), {})
+
+
+class CiPrerequisiteTests(unittest.TestCase):
+    def test_explicit_success_is_required_for_every_dependency(self):
+        self.assertEqual(prerequisites.failed_prerequisites({"node24": {"result": "success"}}), [])
+
+    def test_failed_skipped_cancelled_and_missing_results_block_the_gate(self):
+        for result in ["failure", "skipped", "cancelled", "unknown", None]:
+            with self.subTest(result=result):
+                self.assertEqual(prerequisites.failed_prerequisites({"node24": {"result": result}}), ["node24"])
+
+    def test_empty_or_malformed_dependency_evidence_fails_closed(self):
+        for results in [{}, [], None]:
+            with self.subTest(results=results), self.assertRaises(ValueError):
+                prerequisites.failed_prerequisites(results)
 
 
 def seed_repository(root):

@@ -46,6 +46,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/validate_structure.py \
   scripts/validate_docs.py \
   scripts/validate_operator_intent_contract_map.py \
+  scripts/check_ci_prerequisites.py \
   scripts/test_validation_infrastructure.py \
   scripts/check_help_pages.py
 require_clean_worktree "Python compile checks"
