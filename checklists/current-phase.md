@@ -6,6 +6,12 @@ mutation_path: checklist_revision
 
 # Phase 197.2 - Task Outcome Evidence Binding
 
+## Solo-Maintainer Merge Policy Follow-up
+
+- [x] Configure and verify required CI for administrators with zero required reviewer approvals.
+- [x] Record the standing governance rule, agent reminder, and rationale in ADR 002.
+- [x] Run documentation, structure, help-page, and whitespace validation.
+
 ## Validation Infrastructure Follow-up
 
 - Scope: independently executable local/Actions validation; Rust authority fixes remain separate.

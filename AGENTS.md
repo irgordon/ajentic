@@ -103,6 +103,8 @@ These reminders point back to roadmap and governance authority; they are not sta
 - Post-v1, do not add OS signing or notarization without an explicit signing/notarization phase.
 - Do not treat release assets, checksums, SBOM/provenance, attestations, UI, or scripts as governance authority.
 - Preserve branch protection and ruleset settings unless the Owner explicitly changes them.
+- Follow the solo-maintainer merge policy in `docs/governance/GOVERNANCE.md`: PRs and required CI apply to administrators, with zero required reviewer approvals.
+- Do not add a second-person approval gate or disable required CI to work around self-approval restrictions.
 - Preserve Rust authority, TypeScript visibility, Python adaptation, and Bash glue boundaries.
 - Do not bypass branch protection casually.
 - Required checks must pass before any admin-bypass merge.

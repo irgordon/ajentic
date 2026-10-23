@@ -4,6 +4,12 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - Solo-Maintainer Merge Policy
+
+### Changed
+- Require all nine CI checks on up-to-date pull requests to `main`, including for administrators, without requiring another reviewer's approval.
+- Preserve linear history, resolved conversations, and protection against force-pushes and deletion; record the Owner-selected rationale in ADR 002.
+
 ## Unreleased - Validation Infrastructure
 
 ### Changed

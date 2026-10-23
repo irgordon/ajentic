@@ -199,6 +199,25 @@ Workflows must not:
 
 If a workflow enforces a rule, the rule must be traceable to an authoritative source.
 
+### Solo-maintainer merge policy
+
+Changes to `main` must use pull requests with passing required GitHub Actions
+checks on an up-to-date branch. These requirements apply to administrators too.
+The required checks are Full deterministic check, TypeScript UI, Node 24
+compatibility, Schemas, Scripts, Rust, Repository validation, Internal candidate
+artifact reproducibility, and Memory Placement Gate.
+
+While the project has a solo maintainer, the required approving-review count is
+zero. Code-owner approval and approval of the latest push must not introduce a
+second-person approval gate. Optional reviews remain welcome; unresolved review
+conversations must be resolved before merge.
+
+Use squash or rebase merging to preserve linear history. Force-pushes and branch
+deletion on `main` remain prohibited. Do not disable protection or bypass CI to
+avoid a review deadlock. Only explicit Owner instruction may change this policy.
+Passing CI permits the repository merge path; it grants no runtime or release
+authority.
+
 ## 11. Contract rule
 
 Contract truth lives in schemas/.
