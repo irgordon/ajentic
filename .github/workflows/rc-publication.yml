@@ -226,7 +226,7 @@ jobs:
     name: Publish GitHub prerelease
     runs-on: ubuntu-latest
     needs: [preflight, validate, build_rc_assets, attest_rc_assets]
-    if: >
+    if: >-
       ${{
         always() &&
         needs.preflight.result == 'success' &&

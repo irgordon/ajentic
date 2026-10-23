@@ -1,0 +1,79 @@
+"""Regression checks for validation infrastructure, without release operations."""
+
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import reproducible_artifacts as artifacts
+
+STRUCTURE_SCRIPT = Path(__file__).with_name("validate_structure.py").resolve()
+
+
+class StructureValidationTests(unittest.TestCase):
+    def test_os_metadata_does_not_block_structure_validation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            seed_repository(root)
+            (root / ".DS_Store").write_bytes(b"finder metadata")
+            (root / "docs/.DS_Store").write_bytes(b"finder metadata")
+            result = validate_structure(root)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unexpected_repository_files_still_fail(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            seed_repository(root)
+            (root / "unexpected.txt").write_text("not OS metadata", encoding="utf-8")
+            result = validate_structure(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unexpected.txt", result.stdout)
+
+
+class ArtifactProcessTests(unittest.TestCase):
+    def test_build_environment_bounds_dependency_fetches(self):
+        env = artifacts.deterministic_environment(Path("/tmp/fixture"), "1")
+        self.assertEqual(env["npm_config_fetch_timeout"], "15000")
+        self.assertEqual(env["npm_config_fetch_retries"], "1")
+        self.assertEqual(env["npm_config_audit"], "false")
+
+    def test_build_timeout_fails_with_actionable_diagnostic(self):
+        timeout = subprocess.TimeoutExpired(["npm", "ci"], artifacts.NPM_INSTALL_TIMEOUT_SECONDS)
+        with patch.object(artifacts.subprocess, "run", side_effect=timeout):
+            with self.assertRaisesRegex(SystemExit, "command timed out"):
+                artifacts.run(["npm", "ci"], Path("/tmp"), {})
+
+    def test_dependency_install_has_a_shorter_timeout_than_compilation(self):
+        self.assertLess(artifacts.command_timeout(["npm", "ci"]), artifacts.command_timeout(["cargo", "build"]))
+
+    def test_failed_commands_propagate_failure(self):
+        failure = subprocess.CalledProcessError(1, ["npm", "ci"])
+        with patch.object(artifacts.subprocess, "run", side_effect=failure):
+            with self.assertRaises(subprocess.CalledProcessError):
+                artifacts.run(["npm", "ci"], Path("/tmp"), {})
+
+
+def seed_repository(root):
+    files = {
+        "README.md": "orientation", "AGENTS.md": "navigation", "CHANGELOG.md": "historical",
+        "docs/governance/GOVERNANCE.md": "normative",
+        "docs/architecture/ARCHITECTURE.md": "structural",
+    }
+    for filename, dimension in files.items():
+        target = root / filename
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(frontmatter(dimension), encoding="utf-8")
+
+
+def frontmatter(dimension):
+    return f"---\ntruth_dimension: {dimension}\nauthority_level: non_authoritative\nmutation_path: test\n---\n"
+
+
+def validate_structure(root):
+    return subprocess.run([sys.executable, str(STRUCTURE_SCRIPT)], cwd=root, capture_output=True, text=True, timeout=15)
+
+
+if __name__ == "__main__":
+    unittest.main()

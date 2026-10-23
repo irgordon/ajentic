@@ -145,11 +145,20 @@ AJENTIC helps you review AI work more clearly. It does not remove your responsib
 
 ## Running Locally
 
+Developer prerequisites: Node.js 22, npm, Python 3.11 or newer, and Rust with
+`rustfmt` and `clippy`. GitHub Actions uses Node.js 22 and Python 3.12.
+
 Clone the repository:
 
 ```sh
 git clone https://github.com/irgordon/ajentic.git
 cd ajentic
+```
+
+Install the locked development dependencies:
+
+```sh
+npm ci --prefix ui --no-audit --no-fund --fetch-retries=1 --fetch-timeout=15000
 ```
 
 Run the project checks:
@@ -162,13 +171,26 @@ Run the local browser interface:
 
 ```sh
 cd ui
-npm ci
 npm run dev
 ```
 
 Then open the local address shown in your terminal, usually `http://127.0.0.1:5173`.
 
 The browser interface is local and read-only. It is for reviewing status, evidence, and help text. It does not publish releases, deploy systems, or approve AI output.
+
+`npm run lint --prefix ui` runs the browser boundary AST linter; typechecking is
+a separate command. Repository checks also compile every JSON Schema and test
+valid and invalid payloads. These checks validate contracts and boundaries;
+they do not independently establish the factual truth of observations.
+
+GitHub Actions also runs actionlint 1.7.12 against workflows and their embedded
+shell scripts. Run `actionlint` locally when changing workflows. Artifact checks
+limit dependency installation to 90 seconds and individual build commands to
+10 minutes; a timeout fails validation with a diagnostic.
+
+Schema tooling is development-only: Ajv 8.20.0 and ajv-formats 3.0.1 are
+MIT-licensed. Their locked transitive dependencies are also MIT-licensed.
+Actionlint is MIT-licensed and its CI download is verified against a pinned SHA-256.
 
 ## For Developers
 

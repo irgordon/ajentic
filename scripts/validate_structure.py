@@ -64,6 +64,8 @@ IGNORED_DIR_NAMES = {
     ".ruff_cache",
 }
 
+IGNORED_FILE_NAMES = {".DS_Store"}
+
 OPERATIONS_PROCEDURAL_NAME_MARKERS = (
     "template",
     "checklist",
@@ -77,7 +79,9 @@ def fail(message: str) -> None:
 
 
 def should_ignore(path: Path) -> bool:
-    return any(part in IGNORED_DIR_NAMES for part in path.parts)
+    return path.name in IGNORED_FILE_NAMES or any(
+        part in IGNORED_DIR_NAMES for part in path.parts
+    )
 
 
 def iter_files(root: Path, pattern: str = "*"):
@@ -206,6 +210,8 @@ for filename in ["GOVERNANCE.md", "ARCHITECTURE.md", "PHASE_MAP.md"]:
         fail(f"{filename} must live under docs/, not repository root")
 
 for child in ROOT.iterdir():
+    if child.name in IGNORED_FILE_NAMES:
+        continue
     name = child.name
 
     if child.is_dir():

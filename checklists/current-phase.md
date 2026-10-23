@@ -6,6 +6,21 @@ mutation_path: checklist_revision
 
 # Phase 197.2 - Task Outcome Evidence Binding
 
+## Validation Infrastructure Follow-up
+
+- Scope: independently executable local/Actions validation; Rust authority fixes remain separate.
+- [x] Ignore OS metadata without accepting unexpected repository content.
+- [x] Compile every schema and check references, formats, and valid/invalid payload cases.
+- [x] Make UI lint distinct from typechecking using the existing boundary AST linter.
+- [x] Add validation-infrastructure regression tests.
+- [x] Add checksum-pinned actionlint to Actions and correct existing workflow diagnostics.
+- [x] Bound dependency installation and build subprocesses.
+- [x] Document setup order, prerequisites, and development-tool licenses.
+- [ ] Run full local validation from a clean committed tree.
+- [ ] Verify independent GitHub Actions results for the committed change.
+
+## Completed Phase 197.2 Work
+
 - Starting baseline:
   - [x] Verify Phase 197.1 head `73315721ce4986dfb93c0673c174cfdb6dcfd0de`.
   - [x] Branch `mothra/phase-197-2-outcome-evidence-binding` from that exact head.

@@ -4,6 +4,21 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - Validation Infrastructure
+
+### Changed
+- Compile all Draft 2020-12 schemas with Ajv and exercise valid/invalid payload fixtures.
+- Run UI boundary AST lint through `npm run lint`, separately from typechecking.
+- Run validation-infrastructure regression tests and checksum-pinned actionlint in GitHub Actions.
+- Correct trailing-newline publication conditions identified by actionlint without dispatching release workflows.
+- Bound artifact dependency installation and build subprocesses with explicit timeouts and flushed diagnostics.
+- Ignore Finder metadata during structure checks while rejecting unexpected repository files.
+- Document dependency installation before checks and record validation-tool licenses.
+
+### Scope
+- Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.
+- No package version, runtime authority, tag, release, publishing, signing, installer, update-channel, or deployment activation.
+
 ## v0.0.197.2 - 2026-08-19
 **Status:** Phase 197.2 - Task Outcome Evidence Binding
 
