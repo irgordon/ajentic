@@ -16,7 +16,8 @@ mutation_path: checklist_revision
 - [x] Add checksum-pinned actionlint to Actions and correct existing workflow diagnostics.
 - [x] Bound dependency installation and build subprocesses.
 - [x] Document setup order, prerequisites, and development-tool licenses.
-- [ ] Run full local validation from a clean committed tree.
+- [x] Run full local validation from clean commit `e893d8f` (`All checks passed.`).
+- [x] Record tooling rationale, alternatives, and limits in ADR 001.
 - [ ] Verify independent GitHub Actions results for the committed change.
 
 ## Completed Phase 197.2 Work

@@ -14,6 +14,7 @@ mutation_path: changelog_entry
 - Bound artifact dependency installation and build subprocesses with explicit timeouts and flushed diagnostics.
 - Ignore Finder metadata during structure checks while rejecting unexpected repository files.
 - Document dependency installation before checks and record validation-tool licenses.
+- Record validation design choices, alternatives, and limits in ADR 001.
 
 ### Scope
 - Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.

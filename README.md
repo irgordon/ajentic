@@ -191,6 +191,8 @@ limit dependency installation to 90 seconds and individual build commands to
 Schema tooling is development-only: Ajv 8.20.0 and ajv-formats 3.0.1 are
 MIT-licensed. Their locked transitive dependencies are also MIT-licensed.
 Actionlint is MIT-licensed and its CI download is verified against a pinned SHA-256.
+The rationale and tradeoffs are recorded in
+[ADR 001: Independently Executable Validation Gates](docs/architecture/adr-001-independent-validation.md).
 
 ## For Developers
 
