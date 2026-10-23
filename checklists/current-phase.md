@@ -6,6 +6,13 @@ mutation_path: checklist_revision
 
 # Phase 197.2 - Task Outcome Evidence Binding
 
+## README and Setup Wiki Follow-up
+
+- [x] Compact the README, retain MIT, and reduce release status to two lines.
+- [x] Move detailed setup and developer guidance into the wiki.
+- [x] Map wiki orientation in placement rules and validators, with positive/negative structure regressions.
+- [x] Run documentation, structure, help-page, infrastructure, and whitespace checks.
+
 ## Solo-Maintainer Merge Policy Follow-up
 
 - [x] Configure and verify required CI for administrators with zero required reviewer approvals.

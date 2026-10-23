@@ -4,6 +4,13 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - README and Setup Wiki
+
+### Changed
+- Keep the README focused on the product, a two-line release summary, and the MIT license.
+- Move detailed installation, validation, troubleshooting, and release-boundary guidance to `docs/wiki/README.md`.
+- Validate wiki documentation as advisory orientation and reject governance content in that location.
+
 ## Unreleased - Solo-Maintainer Merge Policy
 
 ### Changed
