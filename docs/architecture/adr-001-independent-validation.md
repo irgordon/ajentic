@@ -96,7 +96,11 @@ All three deadlines are provisional engineering defaults, not measured cold-runn
 percentiles. They trade bounded failure during registry outages against tolerance
 for a small dependency set. Local cached installs took roughly 0.17 seconds and
 release builds roughly 4 seconds, but those are warm developer-machine observations,
-not evidence that a cold Actions install fits 90 seconds. Cold-runner timing and
+not evidence that a cold Actions install fits 90 seconds. In Actions run
+`40015237376`, the UI dependency-install step took about one second and the full
+validation step took 219 seconds. Cache provenance was not established, so these
+observations are not a cold-install percentile or a reason to treat the defaults
+as calibrated. Cold-runner timing and
 false-timeout frequency must be reviewed after remote execution becomes available;
 increase the versioned limits if that evidence warrants it.
 
@@ -238,9 +242,16 @@ The change preserves these names and places the new checks inside those required
 
 The reported enforcement level was `non_admins`. This evidence does not establish
 that administrators cannot bypass checks, nor verify every approval/ruleset setting.
-No protection settings are changed by this decision. This local branch has not run
-on Actions while the available account lacks push access; remote execution remains
-an acceptance gate, not a recorded success.
+No protection settings are changed by this decision. Remote execution is an
+acceptance gate and must be verified against the relevant source head.
+
+PR #300 records nine successful Actions checks for source head
+`becc111f2aee2c8d854a79d6dc8a1992813d3f6b`: CI run `40015237376`, internal artifact
+reproducibility run `40015237309`, and memory-placement run `40015237314`.
+The preceding run exposed the floating-toolchain Clippy difference described
+above; the failed aggregate remained blocking until that concrete lint defect
+was fixed. Passing checks do not accept or merge the draft PR, resolve the
+separate Rust authority findings, or approve a release.
 
 ## Tool Pin Verification
 
@@ -270,6 +281,9 @@ and checksums file and compare `shasum -a 256` output with the committed CI valu
 - [ajv-formats 3.0.1 npm metadata](https://registry.npmjs.org/ajv-formats/3.0.1)
 - [actionlint upstream checksums](https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_checksums.txt)
 - [main branch protection evidence endpoint](https://api.github.com/repos/irgordon/ajentic/branches/main)
+- [PR #300](https://github.com/irgordon/ajentic/pull/300)
+- [Independent CI evidence](https://github.com/irgordon/ajentic/actions/runs/40015237376)
+- [Independent reproducibility evidence](https://github.com/irgordon/ajentic/actions/runs/40015237309)
 - [Node.js 22.23.4 security release](https://nodejs.org/en/blog/release/v22.23.4)
 - [Node.js 24.22.1 security release](https://nodejs.org/en/blog/release/v24.22.1)
 - [GitHub skipped-job status behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions)
