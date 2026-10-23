@@ -4,6 +4,132 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - Validation Infrastructure
+
+### Changed
+- Compile all Draft 2020-12 schemas with Ajv and exercise valid/invalid payload fixtures.
+- Run UI boundary AST lint through `npm run lint`, separately from typechecking.
+- Run validation-infrastructure regression tests and checksum-pinned actionlint in GitHub Actions.
+- Correct trailing-newline publication conditions identified by actionlint without dispatching release workflows.
+- Bound artifact dependency installation and build subprocesses with explicit timeouts and flushed diagnostics.
+- Ignore Finder metadata during structure checks while rejecting unexpected repository files.
+- Document dependency installation before checks and record validation-tool licenses.
+- Record validation design choices, alternatives, and limits in ADR 001.
+- Enable full Ajv2020 strictness after adding redundant inherited array annotations.
+- Require a coverage-manifest decision for every schema, including explicit compile-only gaps.
+- Audit dependency declarations against reviewed shipped-license files; record fast-uri's MIT/BSD-3-Clause discrepancy.
+- Exercise the publication-condition whitespace regression through actionlint fixtures.
+- Document provisional timeout values, floating toolchain/Action references, enforcement limits, and the absence of a vulnerability-audit gate.
+- Require supported Node LTS security floors 22.23.4 and 24.22.1 in engines and command preflights.
+- Pin workflow build runtimes to 22.23.4 and gate the full check on a 24.22.1 compatibility job.
+- Fail the always-scheduled aggregate check when any prerequisite is failed, skipped, cancelled, missing, or unknown.
+- Use equivalent fixed-array chunk iteration in SHA-256 helpers to satisfy the newer Actions Clippy toolchain without suppressing warnings.
+
+### Scope
+- Validation infrastructure only; the reviewed Rust outcome and claim authority defects remain separate work.
+- No package version, runtime authority, tag, release, publishing, signing, installer, update-channel, or deployment activation.
+
+## v0.0.197.2 - 2026-08-19
+**Status:** Phase 197.2 - Task Outcome Evidence Binding
+
+### Added
+- Bind each required success criterion to explicit TaskContract postconditions.
+- Derive postcondition requiredness exclusively from TaskContract.
+- Derive success-criterion satisfaction from evidence-bearing observed postconditions rather than caller-supplied criterion IDs.
+- Reject missing, duplicate, substituted, unknown, and unresolved required postcondition evidence.
+- Add deterministic completion-integrity regression coverage across task, action-outcome, and authoritative run-result surfaces.
+- Add source-lint tripwires against caller-authored criterion satisfaction and postcondition requiredness.
+
+### Validation
+- Rust all-target tests pass (`1,264` tests), including `7/7` focused outcome evidence-binding integration tests.
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Shared-schema parsing, structure, contract-map, documentation, Rust/UI boundary, help, artifact reproducibility, integrity-evidence, release-candidate bundle, RC-preflight, final-release preflight, and final-asset checks pass.
+
+### Notes
+- Action/tool success does not independently prove task completion.
+- Requiredness remains TaskContract-owned.
+- Success-criterion satisfaction remains Rust-derived.
+- UNKNOWN, missing, malformed, or unresolved evidence does not satisfy a required criterion.
+- Prior failures and partial side effects remain visible after later success.
+- No provider, promotion, persistence, replay, UI, workflow, deployment, package, installer, signing, or release authority changed.
+- This phase does not claim arbitrary external factual truth beyond the recorded observation/evidence boundary.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
+## v0.0.197.1 - 2026-08-19
+**Status:** Phase 197.1 - Verifier-Derived Validation and Policy Evidence
+
+### Added
+- Add opaque Rust verifier receipts for authority-bearing validation and policy prerequisites.
+- Replace caller-asserted positive validation and policy evidence with deterministic verifier-derived evidence.
+- Add negative regression coverage for mismatched, failed, unknown, cross-run, cross-candidate, and cross-revision verifier evidence.
+- Route the bounded local simulation and controlled receipt re-derivation through the verifier-receipt path.
+- Add a narrow Rust source-lint tripwire against positive-boolean evidence constructor regressions.
+
+### Validation
+- Rust all-target tests pass (`1,240` tests).
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Structure, contract-map, documentation, Rust/UI boundary, artifact reproducibility, integrity-evidence, release-candidate bundle, RC-preflight, final-release preflight, and final-asset checks pass.
+
+### Notes
+- Model, adapter, UI, script, and caller assertions remain non-authoritative.
+- No lifecycle authority expansion occurred.
+- No promotion semantics changed.
+- No provider capability changed.
+- No persistence authority changed.
+- No replay repair or recovery promotion was added.
+- No package publication, installer, update channel, deployment, OS signing, notarization, tag, or GitHub Release was created.
+- Phase 197.2 postcondition-to-success-criterion binding remains separate.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
+## v0.0.197 - 2026-08-19
+**Status:** Phase 197 - Authority and Completion Integrity
+
+### Added
+- Add dependency-free SHA-256 digests and complete authority bindings.
+- Add opaque validation, policy, replay, exact-action approval, and promotion receipts.
+- Add task-contract, action-outcome, and claim-report Rust contracts and JSON Schemas.
+- Add deterministic authoritative run summaries that retain errors, partial side effects, unmet criteria, and uncertainty.
+- Add integrated run budgets and unsafe side-effect retry escalation.
+- Add separate zero-tolerance security failure metrics and behavioral quality ratios.
+- Add classified context rendering, independently verified memory activation, hash-chained ledger events, and authorization-bound replay verification.
+- Add focused regression suites for promotion unforgeability, receipt binding, completion postconditions, error honesty, sycophancy invariance, goal integrity, run budgets, context poisoning, memory poisoning, human approval binding, and replay proof.
+
+### Changed
+- Replace caller-constructible positive validation and policy result objects with opaque receipts.
+- Require governance authorization for `Passed -> PromotedTier1`.
+- Separate simulation completion and provider-envelope production from verified completion vocabulary.
+- Rename clean-output availability projections to reviewable-candidate availability and keep candidate verification false unless postconditions prove otherwise.
+- Extend context, memory, intent, ledger, validation, replay, and run-trace contracts with integrity and evidence bindings.
+- Add permanent completion-integrity invariants to governance.
+- Refactor controlled-run and local-harness orchestration into step-down policy pipelines with isolated gate, append, replay, and projection helpers.
+
+### Validation
+- Rust all-target tests pass (`1,230` tests).
+- TypeScript API behavior tests pass (`141/141`).
+- Rust formatting and clippy pass with warnings denied.
+- Schema parsing, structure validation, documentation validation, Rust/UI boundary lints, help pages, artifact reproducibility, evidence reproducibility, release-candidate bundle reproducibility, RC preflight, final-release preflight, and final-asset preparation checks pass.
+
+### Notes
+- No real provider, external action execution, tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, workflow behavior change, or package version change was added.
+
+---
+truth_dimension: historical
+authority_level: authoritative
+mutation_path: changelog_entry
+---
+
 ## v0.0.196 - 2026-06-19
 **Status:** Phase 196 - Post-v1 Audit Remediation and Contract Drift Guard
 

@@ -696,6 +696,13 @@ Scope: retire stale bootstrap scaffold risk, update audit and migration checklis
 
 Boundary: Audit remediation only; no full CLI implementation, real provider/model call, governance promotion behavior, ledger behavior, replay behavior, release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, workflow behavior change, or package version change.
 
+### Phase 197 - Authority and Completion Integrity
+Goal: Make Rust authority receipts and completion claims mechanically dependent on bound evidence and observed postconditions.
+
+Scope: SHA-256 authority bindings; opaque validation, policy, replay, and promotion receipts; task contracts; action outcomes; claim reports; deterministic error-honest summaries; simulation/candidate vocabulary separation; stance and goal-integrity regression tests; integrated run budgets; classified context; verified memory activation; exact-action approvals; hash-chained ledger events; and receipt-bound replay re-derivation.
+
+Boundary: Rust authority and contract hardening only; no real provider activation, arbitrary tool execution, external side effect, package publication, installer, update channel, deployment, OS signing, notarization, new tag, GitHub Release, workflow behavior change, or package version change.
+
 ### Superseded Previous v1 Runway
 
 The previous Phase 190-201 release-platform runway is superseded by Phase 190. Its topics are compressed into Phases 190-194 rather than carried forward as governance-only, audit-only, or validation-only phases.

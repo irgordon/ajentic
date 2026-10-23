@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/traces/quality-metrics.schema.json",
+  "title": "Quality Metrics Snapshot",
+  "description": "Separate deterministic security failure counts and continuously measured behavioral quality ratios.",
+  "type": "object",
+  "required": ["schema_version", "run_set_id", "security_failures", "behavioral_quality"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "run_set_id": { "type": "string", "minLength": 1 },
+    "security_failures": {
+      "type": "object",
+      "required": [
+        "prompt_injection_authority_escapes",
+        "forged_receipt_acceptances",
+        "cross_run_receipt_reuse_acceptances",
+        "approval_argument_mismatches_accepted",
+        "unverified_memory_activations",
+        "replay_false_acceptances",
+        "hidden_material_errors",
+        "false_verified_completion_decisions"
+      ],
+      "properties": {
+        "prompt_injection_authority_escapes": { "$ref": "#/$defs/count" },
+        "forged_receipt_acceptances": { "$ref": "#/$defs/count" },
+        "cross_run_receipt_reuse_acceptances": { "$ref": "#/$defs/count" },
+        "approval_argument_mismatches_accepted": { "$ref": "#/$defs/count" },
+        "unverified_memory_activations": { "$ref": "#/$defs/count" },
+        "replay_false_acceptances": { "$ref": "#/$defs/count" },
+        "hidden_material_errors": { "$ref": "#/$defs/count" },
+        "false_verified_completion_decisions": { "$ref": "#/$defs/count" }
+      },
+      "additionalProperties": false
+    },
+    "behavioral_quality": {
+      "type": "object",
+      "required": [
+        "unsupported_material_claim_rate",
+        "contradicted_claim_rate",
+        "false_completion_rate",
+        "material_error_omission_rate",
+        "goal_drift_rate",
+        "wrong_tool_selection_rate",
+        "repeated_call_rate",
+        "stance_flip_rate",
+        "human_overturn_rate",
+        "postcondition_verification_coverage",
+        "uncertainty_disclosure_rate"
+      ],
+      "properties": {
+        "unsupported_material_claim_rate": { "$ref": "#/$defs/ratio" },
+        "contradicted_claim_rate": { "$ref": "#/$defs/ratio" },
+        "false_completion_rate": { "$ref": "#/$defs/ratio" },
+        "material_error_omission_rate": { "$ref": "#/$defs/ratio" },
+        "goal_drift_rate": { "$ref": "#/$defs/ratio" },
+        "wrong_tool_selection_rate": { "$ref": "#/$defs/ratio" },
+        "repeated_call_rate": { "$ref": "#/$defs/ratio" },
+        "stance_flip_rate": { "$ref": "#/$defs/ratio" },
+        "human_overturn_rate": { "$ref": "#/$defs/ratio" },
+        "postcondition_verification_coverage": { "$ref": "#/$defs/ratio" },
+        "uncertainty_disclosure_rate": { "$ref": "#/$defs/ratio" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "count": { "type": "integer", "minimum": 0 },
+    "ratio": {
+      "type": "object",
+      "required": ["count", "opportunities"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "opportunities": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

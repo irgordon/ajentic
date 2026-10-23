@@ -74,6 +74,8 @@ AJENTIC follows a simple control model:
 
 The AI-generated draft is treated as untrusted until it is reviewed. The browser interface helps you see status, evidence, errors, and history, but it does not make final decisions.
 
+A reviewable candidate is still not proof that a task succeeded. AJENTIC records observed postconditions, material claim support, errors, partial side effects, and unresolved uncertainty separately so a convincing draft cannot be mistaken for verified completion.
+
 ## What Makes AJENTIC Different
 
 Many AI tools focus on speed.
@@ -143,11 +145,24 @@ AJENTIC helps you review AI work more clearly. It does not remove your responsib
 
 ## Running Locally
 
+Developer prerequisites: Node.js **22.23.4 or newer within 22.x**, or
+**24.22.1 or newer within 24.x**, npm, Python 3.11 or newer, and Rust with
+`rustfmt` and `clippy`. These are the two supported LTS lines; older patches,
+prereleases, and unlisted major versions fail the development preflight.
+GitHub Actions pins builds to 22.23.4, tests compatibility on 24.22.1, and uses
+Python 3.12 in the explicitly configured Python jobs.
+
 Clone the repository:
 
 ```sh
 git clone https://github.com/irgordon/ajentic.git
 cd ajentic
+```
+
+Install the locked development dependencies:
+
+```sh
+npm ci --prefix ui --no-audit --no-fund --fetch-retries=1 --fetch-timeout=15000
 ```
 
 Run the project checks:
@@ -160,13 +175,36 @@ Run the local browser interface:
 
 ```sh
 cd ui
-npm ci
 npm run dev
 ```
 
 Then open the local address shown in your terminal, usually `http://127.0.0.1:5173`.
 
 The browser interface is local and read-only. It is for reviewing status, evidence, and help text. It does not publish releases, deploy systems, or approve AI output.
+
+`npm run lint --prefix ui` runs the browser boundary AST linter; typechecking is
+a separate command. Lint checks boundary rules, not formatting or general style.
+Repository checks also compile every JSON Schema and test
+valid and invalid payloads. These checks validate contracts and boundaries;
+they do not independently establish the factual truth of observations.
+`tests/schema-coverage.json` records payload coverage for 5 of 22 schemas and
+explicit compile-only gaps for the other 17; new schemas require a coverage entry.
+
+GitHub Actions also runs actionlint 1.7.12 against workflows and their embedded
+shell scripts. Run `actionlint` locally when changing workflows. Artifact checks
+limit dependency installation to 90 seconds and individual build commands to
+10 minutes; a timeout fails validation with a diagnostic.
+These deadlines are provisional pending cold-runner timing evidence.
+
+Schema tooling is development-only: Ajv 8.20.0 and ajv-formats 3.0.1 are
+MIT-licensed. The shipped `fast-uri@3.0.1` LICENSE uses BSD-3-Clause terms despite
+MIT package metadata; TypeScript uses Apache-2.0. Run
+`node scripts/audit_dependency_licenses.mjs` for the reviewed inventory and
+license-file hash checks. This is separate from vulnerability scanning; no
+dedicated dependency vulnerability-audit gate is currently configured.
+Actionlint is MIT-licensed and its CI download is verified against a pinned SHA-256.
+The rationale and tradeoffs are recorded in
+[ADR 001: Independently Executable Validation Gates](docs/architecture/adr-001-independent-validation.md).
 
 ## For Developers
 

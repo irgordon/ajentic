@@ -146,9 +146,9 @@ export function buildUiReadModelFromApplicationProjection(projection: Applicatio
       integration: { ...projection.integration, outputTrust: "untrusted", authoritative: false, summary: "Integration output remains untrusted and non-authoritative." },
       output: { ...projection.output, rawOutputTrusted: false }
     },
-    cleanOutput: {
-      ...uiReadModelFixture.cleanOutput,
-      cleanOutputAvailable: projection.output.cleanOutputAvailable,
+    reviewableCandidate: {
+      ...uiReadModelFixture.reviewableCandidate,
+      reviewableCandidateAvailable: projection.output.reviewableCandidateAvailable,
       rawOutputTrusted: false
     },
     operatorIntentPreviews: uiReadModelFixture.operatorIntentPreviews.map((preview) => ({

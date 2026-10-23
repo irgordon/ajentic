@@ -14,6 +14,20 @@
     "state_before",
     "state_after",
     "evidence_refs",
+    "run_id",
+    "task_digest",
+    "candidate_digest",
+    "context_digest",
+    "policy_bundle_digest",
+    "previous_event_hash",
+    "event_hash",
+    "payload_hash",
+    "causal_parent_refs",
+    "actor_authorization_ref",
+    "validation_receipt_ref",
+    "policy_receipt_ref",
+    "verifier_version",
+    "evidence_manifest_digest",
     "payload"
   ],
   "properties": {
@@ -89,9 +103,29 @@
         "minLength": 1
       }
     },
+    "run_id": { "type": "string", "minLength": 1 },
+    "task_digest": { "$ref": "#/$defs/digest" },
+    "candidate_digest": { "$ref": "#/$defs/digest" },
+    "context_digest": { "$ref": "#/$defs/digest" },
+    "policy_bundle_digest": { "$ref": "#/$defs/digest" },
+    "previous_event_hash": { "$ref": "#/$defs/digest" },
+    "event_hash": { "$ref": "#/$defs/digest" },
+    "payload_hash": { "$ref": "#/$defs/digest" },
+    "causal_parent_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "actor_authorization_ref": { "type": "string", "minLength": 1 },
+    "validation_receipt_ref": { "type": "string", "minLength": 1 },
+    "policy_receipt_ref": { "type": "string", "minLength": 1 },
+    "verifier_version": { "type": "string", "minLength": 1 },
+    "evidence_manifest_digest": { "$ref": "#/$defs/digest" },
     "payload": {
       "type": "object"
     }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
   },
   "additionalProperties": false
 }

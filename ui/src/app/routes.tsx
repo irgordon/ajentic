@@ -14,5 +14,5 @@ export const routeMetadata: readonly RouteMetadata[] = [
   { id: "ledger", label: "Ledger", description: "Read-only accepted event history area." },
   { id: "replay", label: "Replay", description: "Read-only replay result inspection area." },
   { id: "audit", label: "Audit", description: "Read-only audit projection and timeline area." },
-  { id: "output", label: "Output", description: "Read-only clean output review area." }
+  { id: "output", label: "Output", description: "Read-only reviewable candidate review area." }
 ] as const;

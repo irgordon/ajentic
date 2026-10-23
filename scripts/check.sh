@@ -9,6 +9,10 @@ set -euo pipefail
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-/tmp/ajentic-check-target}"
 
+echo "Checking Node.js security floor..."
+node scripts/check_node_version.mjs
+node scripts/test_check_node_version.mjs
+
 require_clean_worktree() {
   local label="$1"
 
@@ -42,6 +46,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile \
   scripts/validate_structure.py \
   scripts/validate_docs.py \
   scripts/validate_operator_intent_contract_map.py \
+  scripts/check_ci_prerequisites.py \
+  scripts/test_validation_infrastructure.py \
   scripts/check_help_pages.py
 require_clean_worktree "Python compile checks"
 echo "  Python OK"
@@ -59,10 +65,18 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/check_help_pages.py
 echo "  help pages OK"
 
 echo "Running schema validation..."
-while IFS= read -r -d "" schema_file; do
-  python3 -m json.tool "$schema_file" > /dev/null
-done < <(find schemas -type f -name "*.json" -print0)
+node scripts/test_validate_schemas.mjs
+node scripts/validate_schemas.mjs
 echo "  schemas OK"
+
+echo "Auditing reviewed development dependency licenses..."
+node scripts/test_audit_dependency_licenses.mjs
+node scripts/audit_dependency_licenses.mjs
+echo "  dependency license inventory OK"
+
+echo "Running validation infrastructure regression tests..."
+python3 -m unittest discover -s scripts -p 'test_validation_*.py'
+echo "  validation infrastructure OK"
 
 echo "Running operator intent contract map validation..."
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate_operator_intent_contract_map.py
@@ -103,14 +117,6 @@ echo "  Rust boundary lint self-tests OK"
 echo "Running Rust boundary lint..."
 node scripts/rust_boundary_lint.mjs
 echo "  Rust boundary lint OK"
-
-echo "Running UI boundary AST lint self-tests..."
-node scripts/test_lint_ui_boundaries.mjs
-echo "  UI boundary lint self-tests OK"
-
-echo "Running UI boundary AST lint..."
-node scripts/lint_ui_boundaries.mjs
-echo "  UI boundary lint OK"
 
 echo "Running UI validation..."
 (

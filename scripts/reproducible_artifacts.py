@@ -18,6 +18,11 @@ import tempfile
 import tomllib
 from pathlib import Path
 
+COMMAND_TIMEOUT_SECONDS = 600
+NPM_INSTALL_TIMEOUT_SECONDS = 90
+NPM_FETCH_TIMEOUT_MILLIS = "15000"
+NPM_FETCH_RETRIES = "1"
+
 
 EXCLUDED_DIRS = {
     ".git",
@@ -244,14 +249,32 @@ def deterministic_environment(build_root: Path, source_date_epoch: str) -> dict[
             "CARGO_INCREMENTAL": "0",
             "SOURCE_DATE_EPOCH": source_date_epoch,
             "CARGO_TARGET_DIR": str(build_root / ".phase188-target"),
+            "npm_config_audit": "false",
+            "npm_config_fund": "false",
+            "npm_config_progress": "false",
+            "npm_config_prefer_offline": "true",
+            "npm_config_fetch_timeout": NPM_FETCH_TIMEOUT_MILLIS,
+            "npm_config_fetch_retries": NPM_FETCH_RETRIES,
+            "npm_config_fetch_retry_mintimeout": "1000",
+            "npm_config_fetch_retry_maxtimeout": "5000",
         }
     )
     return env
 
 
 def run(command: list[str], cwd: Path, env: dict[str, str]) -> None:
-    print(f"running: {' '.join(command)}")
-    subprocess.run(command, cwd=cwd, env=env, check=True)
+    timeout = command_timeout(command)
+    print(f"running: {' '.join(command)}", flush=True)
+    try:
+        subprocess.run(command, cwd=cwd, env=env, check=True, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        raise SystemExit(f"::error::command timed out after {timeout}s: {command[0]}") from error
+
+
+def command_timeout(command: list[str]) -> int:
+    if command[:2] == ["npm", "ci"]:
+        return NPM_INSTALL_TIMEOUT_SECONDS
+    return COMMAND_TIMEOUT_SECONDS
 
 
 def normalized_manifest(build_root: Path) -> list[dict[str, object]]:

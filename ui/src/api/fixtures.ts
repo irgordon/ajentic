@@ -15,7 +15,7 @@ export const applicationProjectionFixture: ApplicationUiProjection = {
     summary: "Runtime safety defaults are closed; provider network, file IO, and UI mutation are disallowed."
   },
   lifecycle: { lifecycle: "Evaluating", revision: 53, status: "ready", authority: "rust", summary: "Lifecycle read projection from Rust-owned boundary." },
-  run: { runId: "run-fixture-0053", title: "Phase 53 Typed Intent Submission Preview Fixture", status: "ready", currentLifecycle: "Evaluating", executionDecision: "allow", promotionDecision: "hold", replayReadiness: "replayable", cleanOutputAvailable: true, authority: "rust", summary: "Run projection is display-only and non-authoritative in UI." },
+  run: { runId: "run-fixture-0053", title: "Phase 53 Typed Intent Submission Preview Fixture", status: "ready", currentLifecycle: "Evaluating", executionDecision: "allow", promotionDecision: "hold", replayReadiness: "replayable", reviewableCandidateAvailable: true, authority: "rust", summary: "Run projection is display-only and non-authoritative in UI." },
   provider: { providerKind: "deterministic_stub", outputStatus: "received", outputTrust: "untrusted", authoritative: false, authority: "provider", summary: "Provider output remains untrusted and non-authoritative." },
   integration: { sourceKind: "local_llm", outputStatus: "received", outputTrust: "untrusted", authoritative: false, authority: "integration", summary: "Integration output remains untrusted and non-authoritative." },
   ledger: { events: 3, lastRevision: 3, status: "ready", authority: "rust", summary: "Ledger summary is projection-only and does not append events from UI." },
@@ -23,7 +23,7 @@ export const applicationProjectionFixture: ApplicationUiProjection = {
   audit: { projections: 2, latestSummary: "Audit projection summary from supplied read projection data.", authority: "rust", summary: "Audit projection is read-only and non-authoritative in UI." },
   context: { packetId: "ctx-fixture-0053", slices: 4, sources: 3, budgetUsed: 412, budgetMax: 1024, authority: "rust", summary: "Context summary from typed read projection metadata.", slicesPreview: [] },
   memory: { snapshotId: "mem-fixture-0053", activeEntries: 8, disabledEntries: 1, rejectedEntries: 2, authority: "rust", summary: "Memory summary from typed read projection metadata.", entriesPreview: [] },
-  output: { cleanOutputAvailable: true, rawOutputTrusted: false, authority: "rust", summary: "Raw provider/model output remains untrusted and distinct from clean output." }
+  output: { reviewableCandidateAvailable: true, rawOutputTrusted: false, authority: "rust", summary: "Raw provider/model output remains untrusted and distinct from reviewable candidate." }
 };
 
 const previewBase = {
@@ -124,7 +124,7 @@ export const uiReadModelFixture: UiReadModel = {
   ledgerTimeline: [],
   replayDetail: { readiness: "ready_for_replay", integrity: "integrity_verified", reconstructionStatus: "reported_by_projection", finalLifecycle: "Validated", finalRevision: 3, eventsSeen: 3, stateTransitionsApplied: 3, authority: "rust", summary: "Replay detail remains non-executing UI text." },
   auditDetails: [],
-  cleanOutput: { id: "clean-output-0053", cleanOutputAvailable: true, rawOutputTrusted: false, cleanOutputTrusted: true, authority: "rust", summary: "Clean output projection is read-only text.", rawOutputSummary: "Raw provider/model output remains untrusted and non-authoritative.", cleanOutputSummary: "Clean output preview is distinct display data and does not grant authority." },
+  reviewableCandidate: { id: "reviewable-candidate-0053", reviewableCandidateAvailable: true, rawOutputTrusted: false, candidateVerified: false, authority: "rust", summary: "Reviewable candidate projection is read-only and does not prove task completion.", rawOutputSummary: "Raw provider/model output remains untrusted and non-authoritative.", reviewableCandidateSummary: "Reviewable candidate preview is unverified display data and does not grant authority." },
   persistedRecordVerification: { status: "checksum_mismatch", recoveryAction: "manual_review_required", recordId: "record-0053", payloadKind: "run_record", revision: 3, checksum: "deadbeefdeadbeef", payloadLen: 144, summary: "Persisted record verification reports a checksum mismatch and remains read-only.", diagnostic: { family: "persistence_recovery", code: "checksum_mismatch", summary: "Persisted record envelope verification failed.", key: "persistence_recovery.checksum_mismatch" } },
   diagnostics: [
     { family: "operator_intent", code: "accepted_for_routing", summary: "Operator intent ingress accepted for routing preview.", key: "operator_intent.accepted_for_routing" },

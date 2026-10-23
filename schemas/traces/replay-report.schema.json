@@ -8,6 +8,15 @@
     "schema_version",
     "replay_report_id",
     "run_id",
+    "task_digest",
+    "candidate_digest",
+    "context_digest",
+    "policy_bundle_digest",
+    "evidence_manifest_digest",
+    "ledger_head_hash",
+    "verifier_id",
+    "verifier_version",
+    "receipt_digest",
     "status",
     "integrity",
     "events_replayed",
@@ -26,6 +35,15 @@
       "type": "string",
       "minLength": 1
     },
+    "task_digest": { "$ref": "#/$defs/digest" },
+    "candidate_digest": { "$ref": "#/$defs/digest" },
+    "context_digest": { "$ref": "#/$defs/digest" },
+    "policy_bundle_digest": { "$ref": "#/$defs/digest" },
+    "evidence_manifest_digest": { "$ref": "#/$defs/digest" },
+    "ledger_head_hash": { "$ref": "#/$defs/digest" },
+    "verifier_id": { "type": "string", "minLength": 1 },
+    "verifier_version": { "type": "string", "minLength": 1 },
+    "receipt_digest": { "$ref": "#/$defs/digest" },
     "status": {
       "type": "string",
       "enum": [
@@ -53,6 +71,9 @@
       "type": "string",
       "minLength": 1
     }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
   },
   "additionalProperties": false
 }

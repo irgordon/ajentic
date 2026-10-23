@@ -1,0 +1,94 @@
+[
+  {
+    "name": "valid context budget",
+    "schema": "https://ajentic.dev/schemas/context/context-budget.schema.json",
+    "valid": true,
+    "data": { "schema_version": "v1.0.0", "max_units": 100, "used_units": 25, "unit": "tokens" }
+  },
+  {
+    "name": "negative context budget is rejected",
+    "schema": "https://ajentic.dev/schemas/context/context-budget.schema.json",
+    "valid": false,
+    "data": { "schema_version": "v1.0.0", "max_units": -1, "used_units": 25, "unit": "tokens" }
+  },
+  {
+    "name": "valid memory provenance",
+    "schema": "https://ajentic.dev/schemas/memory/memory-provenance.schema.json",
+    "valid": true,
+    "data": { "schema_version": "v1.0.0", "source": "fixture", "created_by": "reviewer", "created_at": "2026-10-23T12:00:00Z", "reason": "schema test" }
+  },
+  {
+    "name": "invalid date-time is rejected",
+    "schema": "https://ajentic.dev/schemas/memory/memory-provenance.schema.json",
+    "valid": false,
+    "data": { "schema_version": "v1.0.0", "source": "fixture", "created_by": "reviewer", "created_at": "yesterday", "reason": "schema test" }
+  },
+  {
+    "name": "valid operator intent",
+    "schema": "https://ajentic.dev/schemas/intents/operator-intent.schema.json",
+    "valid": true,
+    "data": {
+      "schema_version": "v1.0.0", "intent_id": "intent-1", "intent_type": "approve",
+      "timestamp": "2026-10-23T12:00:00Z", "actor": { "type": "human", "id": "operator-1" },
+      "target": { "type": "candidate", "id": "candidate-1" }, "reason": "review fixture", "payload": {}
+    }
+  },
+  {
+    "name": "unknown intent type is rejected",
+    "schema": "https://ajentic.dev/schemas/intents/operator-intent.schema.json",
+    "valid": false,
+    "data": {
+      "schema_version": "v1.0.0", "intent_id": "intent-1", "intent_type": "grant_all_authority",
+      "timestamp": "2026-10-23T12:00:00Z", "actor": { "type": "human", "id": "operator-1" },
+      "target": { "type": "candidate", "id": "candidate-1" }, "reason": "review fixture", "payload": {}
+    }
+  },
+  {
+    "name": "valid task contract shape",
+    "schema": "https://ajentic.dev/schemas/tasks/task-contract.schema.json",
+    "valid": true,
+    "data": {
+      "schema_version": "v1.0.0", "task_id": "task-1", "objective": "observe a fixture",
+      "success_criteria": [{ "criterion_id": "criterion-1", "description": "observation recorded", "required": true, "required_postcondition_ids": ["post-1"] }],
+      "forbidden_outcomes": ["unbounded work"], "permitted_actions": ["observe"], "permitted_tools": ["observer"],
+      "non_goals": ["external execution"], "required_approval_points": ["before execution"], "side_effect_budget": 1,
+      "retry_policy": { "max_attempts": 1, "require_idempotency_after_possible_side_effect": true },
+      "stop_conditions": ["observation complete"],
+      "expected_postconditions": [{ "postcondition_id": "post-1", "description": "fixture observed", "required": true }],
+      "evidence_requirements": ["observation digest"]
+    }
+  },
+  {
+    "name": "incomplete task contract is rejected",
+    "schema": "https://ajentic.dev/schemas/tasks/task-contract.schema.json",
+    "valid": false,
+    "data": { "schema_version": "v1.0.0", "task_id": "task-1", "objective": "observe a fixture" }
+  },
+  {
+    "name": "valid observed action shape",
+    "schema": "https://ajentic.dev/schemas/traces/action-outcome.schema.json",
+    "valid": true,
+    "data": {
+      "schema_version": "v1.0.0", "action_id": "action-1", "task_id": "task-1", "run_id": "run-1", "tool": "observer",
+      "canonical_argument_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "target": "fixture", "action_status": "SUCCEEDED", "tool_return_status": "SUCCEEDED", "observed_environmental_effect": "recorded",
+      "postcondition_observations": [{ "postcondition_id": "post-1", "observation_state": "OBSERVED", "observed_value": "fixture",
+        "evidence_refs": ["evidence-1"], "evidence_digests": ["sha256:0000000000000000000000000000000000000000000000000000000000000000"] }],
+      "exact_error_chain": [], "partial_side_effects": [], "retries": 0, "compensation": [], "remaining_uncertainty": [],
+      "evidence_refs": ["evidence-1"], "evidence_digests": ["sha256:0000000000000000000000000000000000000000000000000000000000000000"]
+    }
+  },
+  {
+    "name": "observed action without observation evidence is rejected",
+    "schema": "https://ajentic.dev/schemas/traces/action-outcome.schema.json",
+    "valid": false,
+    "data": {
+      "schema_version": "v1.0.0", "action_id": "action-1", "task_id": "task-1", "run_id": "run-1", "tool": "observer",
+      "canonical_argument_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "target": "fixture", "action_status": "SUCCEEDED", "tool_return_status": "SUCCEEDED", "observed_environmental_effect": "recorded",
+      "postcondition_observations": [{ "postcondition_id": "post-1", "observation_state": "OBSERVED", "observed_value": "fixture", "evidence_refs": [], "evidence_digests": [] }],
+      "exact_error_chain": [], "partial_side_effects": [], "retries": 0, "compensation": [], "remaining_uncertainty": [],
+      "evidence_refs": ["evidence-1"], "evidence_digests": ["sha256:0000000000000000000000000000000000000000000000000000000000000000"]
+    }
+  }
+]

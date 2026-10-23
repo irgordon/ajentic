@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ajentic.dev/schemas/traces/claim-report.schema.json",
+  "title": "Claim Report",
+  "description": "Claim-level evidence, contradiction, assumption, and uncertainty report.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "claim_id",
+    "material_claim",
+    "claim_type",
+    "material",
+    "support_status",
+    "evidence_refs",
+    "source_identity",
+    "source_version",
+    "verifier_id",
+    "verifier_version",
+    "assumptions",
+    "contradictions",
+    "uncertainty_reason"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "claim_id": { "type": "string", "minLength": 1 },
+    "material_claim": { "type": "string", "minLength": 1 },
+    "claim_type": { "type": "string", "minLength": 1 },
+    "material": { "type": "boolean" },
+    "support_status": { "type": "string", "enum": ["SUPPORTED", "CONTRADICTED", "UNVERIFIED", "NOT_APPLICABLE"] },
+    "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "source_identity": { "type": "string", "minLength": 1 },
+    "source_version": { "type": "string", "minLength": 1 },
+    "verifier_id": { "type": "string", "minLength": 1 },
+    "verifier_version": { "type": "string", "minLength": 1 },
+    "assumptions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "contradictions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "uncertainty_reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

@@ -59,6 +59,16 @@ const GLOBAL_FORBIDDEN_REGEX = [
   /\bspawn\s*\(/g,
 ];
 
+const AUTHORITY_BOOLEAN_REGEX = [
+  /\bValidationEvidence::new\s*\(\s*true\b/g,
+  /\bPolicyEvidence::new\s*\(\s*true\b/g,
+];
+
+const OUTCOME_SELF_ATTESTATION_REGEX = [
+  /\bsatisfied_criterion_ids\b/g,
+  /\bPostconditionCheck\b/g,
+];
+
 export function collectRustFiles(rootDir) {
   const files = [];
 
@@ -338,6 +348,30 @@ export function lintRustBoundaries(rootDirArg) {
           relPath,
           match,
           `forbidden Rust boundary token '${match.snippet}'`,
+        );
+      }
+    }
+
+    for (const regex of AUTHORITY_BOOLEAN_REGEX) {
+      for (const match of matchesRegex(scanned, regex)) {
+        pushIssue(
+          issues,
+          'error',
+          relPath,
+          match,
+          `caller-asserted positive authority evidence is forbidden: '${match.snippet}'`,
+        );
+      }
+    }
+
+    for (const regex of OUTCOME_SELF_ATTESTATION_REGEX) {
+      for (const match of matchesRegex(scanned, regex)) {
+        pushIssue(
+          issues,
+          'error',
+          relPath,
+          match,
+          `caller-authored completion authority is forbidden: '${match.snippet}'`,
         );
       }
     }

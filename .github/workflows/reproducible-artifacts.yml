@@ -15,6 +15,7 @@ jobs:
   reproducible-artifacts:
     name: Internal candidate artifact reproducibility
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       TZ: UTC
       LC_ALL: C
@@ -36,7 +37,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "22.23.4"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Validate internal candidate artifact reproducibility
         run: python3 scripts/reproducible_artifacts.py --check

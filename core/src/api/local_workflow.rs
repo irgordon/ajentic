@@ -2,14 +2,14 @@ use super::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalHarnessWorkflowStatus {
-    Completed,
+    SimulationCompleted,
     Blocked,
     Rejected,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LocalHarnessWorkflowReason {
-    CompletedInMemory,
+    SimulationCompletedInMemory,
     RuntimeConfigInvalid,
     ProviderInvocationFailed,
     ControlledFlowBlocked,
@@ -21,7 +21,7 @@ pub enum LocalHarnessWorkflowReason {
 impl LocalHarnessWorkflowReason {
     pub fn code(&self) -> &'static str {
         match self {
-            Self::CompletedInMemory => "completed_in_memory",
+            Self::SimulationCompletedInMemory => "simulation_completed_in_memory",
             Self::RuntimeConfigInvalid => "runtime_config_invalid",
             Self::ProviderInvocationFailed => "provider_invocation_failed",
             Self::ControlledFlowBlocked => "controlled_flow_blocked",
@@ -127,7 +127,7 @@ pub struct LocalHarnessWorkflowResult {
     pub provider_output_trusted: bool,
     pub provider_output_authoritative: bool,
     pub controlled_run_status: crate::execution::ControlledRunStatus,
-    pub clean_output_available: bool,
+    pub reviewable_candidate_available: bool,
     pub read_projection: Option<ApplicationReadProjection>,
     pub summary: String,
 }
@@ -135,244 +135,456 @@ pub struct LocalHarnessWorkflowResult {
 pub fn run_local_harness_workflow(
     request: LocalHarnessWorkflowRequest,
 ) -> LocalHarnessWorkflowResult {
-    let summary = "workflow completed in memory; provider output remains untrusted; no real provider/model was called; no files were read or written; no persistence occurred; no UI or API transport was used; release-candidate readiness is not claimed; production readiness is not claimed".to_string();
-    let runtime_config = match LocalRuntimeConfig::new(
-        format!("{}-config", request.workflow_id),
-        LocalRuntimeMode::DryRun,
-        LocalProviderMode::Stub,
-        RuntimeSafetyLevel::Strict,
-        LocalWorkspaceMetadata::new(
-            format!("{}-workspace", request.workflow_id),
-            format!("opaque://workspace/{}", request.workflow_id),
-            request.operator_id.clone(),
-        )
-        .expect("local harness workspace metadata should be valid"),
-        RuntimeSafetyDefaults::strict(),
-    ) {
-        Ok(config) => config,
-        Err(_) => {
-            return LocalHarnessWorkflowResult {
-                workflow_id: request.workflow_id,
-                status: LocalHarnessWorkflowStatus::Blocked,
-                reason: LocalHarnessWorkflowReason::RuntimeConfigInvalid,
-                provider_output_trusted: false,
-                provider_output_authoritative: false,
-                controlled_run_status: crate::execution::ControlledRunStatus::Blocked,
-                clean_output_available: false,
-                read_projection: None,
-                summary,
-            };
+    LocalHarnessPipeline::new(request).execute()
+}
+
+struct LocalHarnessPipeline {
+    request: LocalHarnessWorkflowRequest,
+    summary: String,
+}
+
+struct ProviderWorkflowArtifacts {
+    provider: crate::execution::ProviderAdapterResult,
+    integration: IntegrationOutput,
+}
+
+type LocalHarnessStep<T> = Result<T, Box<LocalHarnessWorkflowResult>>;
+
+impl LocalHarnessPipeline {
+    fn new(request: LocalHarnessWorkflowRequest) -> Self {
+        Self {
+            request,
+            summary: local_harness_summary(),
         }
-    };
-    let integration_request = IntegrationRequest::new(
-        format!("{}-integration-request", request.workflow_id),
-        IntegrationSourceKind::LocalLlm,
-        request.prompt_summary.clone(),
-        format!("workflow {}", request.workflow_id),
-    )
-    .expect("local harness integration request should be valid");
-    let provider_request = integration_request_to_provider_request(&integration_request)
-        .expect("provider request mapping should be valid");
-    let provider_invocation = crate::execution::ProviderAdapterInvocation::new(
+    }
+
+    fn execute(self) -> LocalHarnessWorkflowResult {
+        self.execute_policy().unwrap_or_else(|failure| *failure)
+    }
+
+    fn execute_policy(&self) -> LocalHarnessStep<LocalHarnessWorkflowResult> {
+        let runtime = self.runtime_config()?;
+        let provider = self.provider_artifacts()?;
+        let controlled = self.controlled_run(&provider.provider.output)?;
+        self.require_controlled_acceptance(&controlled)?;
+        let state = self.application_state(runtime, &provider, &controlled)?;
+        let projection = self.read_projection(&state, controlled.status)?;
+        Ok(self.completed_result(projection, controlled.status))
+    }
+
+    fn runtime_config(&self) -> LocalHarnessStep<LocalRuntimeConfig> {
+        let workspace = LocalWorkspaceMetadata::new(
+            format!("{}-workspace", self.request.workflow_id),
+            format!("opaque://workspace/{}", self.request.workflow_id),
+            self.request.operator_id.clone(),
+        )
+        .map_err(|_| self.blocked(LocalHarnessWorkflowReason::RuntimeConfigInvalid))?;
+        LocalRuntimeConfig::new(
+            format!("{}-config", self.request.workflow_id),
+            LocalRuntimeMode::DryRun,
+            LocalProviderMode::Stub,
+            RuntimeSafetyLevel::Strict,
+            workspace,
+            RuntimeSafetyDefaults::strict(),
+        )
+        .map_err(|_| self.blocked(LocalHarnessWorkflowReason::RuntimeConfigInvalid))
+    }
+
+    fn provider_artifacts(&self) -> LocalHarnessStep<ProviderWorkflowArtifacts> {
+        let integration_request = self.integration_request();
+        let provider_request = integration_request_to_provider_request(&integration_request)
+            .expect("provider request mapping should be valid");
+        let invocation = local_stub_invocation(provider_request);
+        let provider = local_stub_provider();
+        let provider = crate::execution::ProviderAdapter::invoke(&provider, &invocation)
+            .map_err(|_| self.blocked(LocalHarnessWorkflowReason::ProviderInvocationFailed))?;
+        let integration = local_integration_output(&self.request, &integration_request, &provider);
+        Ok(ProviderWorkflowArtifacts {
+            provider,
+            integration,
+        })
+    }
+
+    fn integration_request(&self) -> IntegrationRequest {
+        IntegrationRequest::new(
+            format!("{}-integration-request", self.request.workflow_id),
+            IntegrationSourceKind::LocalLlm,
+            self.request.prompt_summary.clone(),
+            format!("workflow {}", self.request.workflow_id),
+        )
+        .expect("local harness integration request should be valid")
+    }
+
+    fn controlled_run(
+        &self,
+        output: &crate::execution::ProviderOutput,
+    ) -> LocalHarnessStep<crate::execution::ControlledRunResult> {
+        let ledger = local_harness_raw_ledger();
+        let authority = build_controlled_authority_artifacts(&self.request, output, &ledger);
+        let request = local_controlled_run_request(&self.request, output, authority);
+        Ok(crate::execution::run_controlled_model_flow(request))
+    }
+
+    fn require_controlled_acceptance(
+        &self,
+        controlled: &crate::execution::ControlledRunResult,
+    ) -> LocalHarnessStep<()> {
+        match controlled.status {
+            crate::execution::ControlledRunStatus::Accepted => Ok(()),
+            crate::execution::ControlledRunStatus::Blocked => Err(self.controlled_failure(
+                LocalHarnessWorkflowStatus::Blocked,
+                LocalHarnessWorkflowReason::ControlledFlowBlocked,
+                controlled.status,
+            )),
+            crate::execution::ControlledRunStatus::Rejected => Err(self.controlled_failure(
+                LocalHarnessWorkflowStatus::Rejected,
+                LocalHarnessWorkflowReason::ControlledFlowRejected,
+                controlled.status,
+            )),
+        }
+    }
+
+    fn application_state(
+        &self,
+        runtime: LocalRuntimeConfig,
+        provider: &ProviderWorkflowArtifacts,
+        controlled: &crate::execution::ControlledRunResult,
+    ) -> LocalHarnessStep<LocalApplicationState> {
+        LocalApplicationState::new(
+            format!("{}-state", self.request.workflow_id),
+            self.request.projection_id.clone(),
+            self.request.run_id.clone(),
+            runtime,
+            passed_harness_state(),
+            controlled.clone(),
+            provider.provider.output.clone(),
+            provider.integration.clone(),
+            controlled.ledger.clone(),
+            local_replay_report(controlled),
+            vec![local_audit_projection()],
+            local_context_metadata(&self.request),
+            local_memory_metadata(&self.request),
+        )
+        .map_err(|_| {
+            self.controlled_failure(
+                LocalHarnessWorkflowStatus::Blocked,
+                LocalHarnessWorkflowReason::ApplicationStateInvalid,
+                controlled.status,
+            )
+        })
+    }
+
+    fn read_projection(
+        &self,
+        state: &LocalApplicationState,
+        controlled_status: crate::execution::ControlledRunStatus,
+    ) -> LocalHarnessStep<ApplicationReadProjection> {
+        state.derive_read_projection().map_err(|_| {
+            self.controlled_failure(
+                LocalHarnessWorkflowStatus::Blocked,
+                LocalHarnessWorkflowReason::ReadProjectionFailed,
+                controlled_status,
+            )
+        })
+    }
+
+    fn completed_result(
+        &self,
+        projection: ApplicationReadProjection,
+        controlled_status: crate::execution::ControlledRunStatus,
+    ) -> LocalHarnessWorkflowResult {
+        LocalHarnessWorkflowResult {
+            workflow_id: self.request.workflow_id.clone(),
+            status: LocalHarnessWorkflowStatus::SimulationCompleted,
+            reason: LocalHarnessWorkflowReason::SimulationCompletedInMemory,
+            provider_output_trusted: false,
+            provider_output_authoritative: false,
+            controlled_run_status: controlled_status,
+            reviewable_candidate_available: true,
+            read_projection: Some(projection),
+            summary: self.summary.clone(),
+        }
+    }
+
+    fn blocked(&self, reason: LocalHarnessWorkflowReason) -> Box<LocalHarnessWorkflowResult> {
+        self.controlled_failure(
+            LocalHarnessWorkflowStatus::Blocked,
+            reason,
+            crate::execution::ControlledRunStatus::Blocked,
+        )
+    }
+
+    fn controlled_failure(
+        &self,
+        status: LocalHarnessWorkflowStatus,
+        reason: LocalHarnessWorkflowReason,
+        controlled_status: crate::execution::ControlledRunStatus,
+    ) -> Box<LocalHarnessWorkflowResult> {
+        Box::new(LocalHarnessWorkflowResult {
+            workflow_id: self.request.workflow_id.clone(),
+            status,
+            reason,
+            provider_output_trusted: false,
+            provider_output_authoritative: false,
+            controlled_run_status: controlled_status,
+            reviewable_candidate_available: false,
+            read_projection: None,
+            summary: self.summary.clone(),
+        })
+    }
+}
+
+fn local_harness_summary() -> String {
+    "simulation completed in memory; a reviewable candidate was produced; no task completion or external outcome is claimed; provider output remains untrusted; no real provider/model was called; no files were read or written; no persistence occurred; no UI or API transport was used; release-candidate readiness is not claimed; production readiness is not claimed".to_string()
+}
+
+fn local_stub_invocation(
+    provider_request: crate::execution::ProviderRequest,
+) -> crate::execution::ProviderAdapterInvocation {
+    crate::execution::ProviderAdapterInvocation::new(
         "phase-54-deterministic-stub",
         provider_request,
     )
-    .expect("stub invocation should be valid");
-    let provider = crate::execution::DeterministicStubProvider::new(
+    .expect("stub invocation should be valid")
+}
+
+fn local_stub_provider() -> crate::execution::DeterministicStubProvider {
+    crate::execution::DeterministicStubProvider::new(
         "phase-54-deterministic-stub",
         "phase-54-stub-output:",
     )
-    .expect("stub provider should be valid");
-    let provider_result =
-        match crate::execution::ProviderAdapter::invoke(&provider, &provider_invocation) {
-            Ok(result) => result,
-            Err(_) => {
-                return LocalHarnessWorkflowResult {
-                    workflow_id: request.workflow_id,
-                    status: LocalHarnessWorkflowStatus::Blocked,
-                    reason: LocalHarnessWorkflowReason::ProviderInvocationFailed,
-                    provider_output_trusted: false,
-                    provider_output_authoritative: false,
-                    controlled_run_status: crate::execution::ControlledRunStatus::Blocked,
-                    clean_output_available: false,
-                    read_projection: None,
-                    summary,
-                };
-            }
-        };
-    let integration_output = IntegrationOutput::new_untrusted(
+    .expect("stub provider should be valid")
+}
+
+fn local_integration_output(
+    request: &LocalHarnessWorkflowRequest,
+    integration: &IntegrationRequest,
+    provider: &crate::execution::ProviderAdapterResult,
+) -> IntegrationOutput {
+    IntegrationOutput::new_untrusted(
         format!("{}-integration-output", request.workflow_id),
-        integration_request.id.clone(),
-        integration_request.source_kind,
-        provider_result.output.content.clone(),
+        integration.id.clone(),
+        integration.source_kind,
+        provider.output.content.clone(),
         IntegrationOutputStatus::Received,
     )
-    .expect("integration output should be valid");
-    let ledger = crate::ledger::Ledger::empty()
-        .append(
-            crate::ledger::LedgerEvent::new(
-                "phase-54-event-1",
-                1,
-                crate::ledger::LedgerEventType::StateTransition,
-                crate::ledger::LedgerActor::new(
-                    crate::ledger::LedgerActorType::System,
-                    "phase-54-system",
-                )
-                .expect("actor must be valid"),
-                vec!["phase-54-evidence-1".to_string()],
-                crate::ledger::LedgerPayload::with_lifecycle_transition(
-                    "created_to_evaluating",
-                    crate::state::LifecycleState::Evaluating,
-                )
-                .expect("payload should be valid"),
-            )
-            .expect("event should be valid"),
-        )
-        .expect("append should succeed")
-        .append(
-            crate::ledger::LedgerEvent::new(
-                "phase-54-event-2",
-                2,
-                crate::ledger::LedgerEventType::StateTransition,
-                crate::ledger::LedgerActor::new(
-                    crate::ledger::LedgerActorType::System,
-                    "phase-54-system",
-                )
-                .expect("actor must be valid"),
-                vec!["phase-54-evidence-2".to_string()],
-                crate::ledger::LedgerPayload::with_lifecycle_transition(
-                    "evaluating_to_passed",
-                    crate::state::LifecycleState::Passed,
-                )
-                .expect("payload should be valid"),
-            )
-            .expect("event should be valid"),
-        )
-        .expect("append should succeed");
-    let controlled = crate::execution::run_controlled_model_flow(
-        crate::execution::ControlledRunRequest::new(
-            request.run_id.clone(),
-            request.context_packet_id.clone(),
-            provider_result.output.clone(),
+    .expect("integration output should be valid")
+}
+
+fn local_harness_raw_ledger() -> crate::ledger::Ledger {
+    crate::ledger::Ledger::empty()
+        .append(local_harness_state_event(
+            "phase-54-event-1",
+            1,
+            "created_to_evaluating",
+            crate::state::LifecycleState::Evaluating,
+        ))
+        .expect("first append should succeed")
+        .append(local_harness_state_event(
+            "phase-54-event-2",
+            2,
+            "evaluating_to_passed",
             crate::state::LifecycleState::Passed,
-            crate::policy::PolicyResult::allowed("phase_54_policy_allowed"),
-            crate::validation::ValidationResult::pass("phase_54_validation_pass"),
-            crate::replay::classify_replay_readiness(ledger.events())
-                .expect("ledger should be replayable"),
-            ledger,
-            crate::ledger::LedgerActor::new(
-                crate::ledger::LedgerActorType::System,
-                "local_harness",
-            )
+        ))
+        .expect("second append should succeed")
+}
+
+fn local_harness_state_event(
+    event_id: &str,
+    revision: u64,
+    summary: &str,
+    lifecycle: crate::state::LifecycleState,
+) -> crate::ledger::LedgerEvent {
+    crate::ledger::LedgerEvent::new(
+        event_id,
+        revision,
+        crate::ledger::LedgerEventType::StateTransition,
+        local_harness_ledger_actor(),
+        vec![format!("phase-54-evidence-{revision}")],
+        crate::ledger::LedgerPayload::with_lifecycle_transition(summary, lifecycle)
+            .expect("payload should be valid"),
+    )
+    .expect("event should be valid")
+}
+
+fn local_harness_ledger_actor() -> crate::ledger::LedgerActor {
+    crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::System, "phase-54-system")
+        .expect("actor must be valid")
+}
+
+fn local_controlled_run_request(
+    request: &LocalHarnessWorkflowRequest,
+    output: &crate::execution::ProviderOutput,
+    authority: ControlledAuthorityArtifacts,
+) -> crate::execution::ControlledRunRequest {
+    crate::execution::ControlledRunRequest::new(
+        request.context_packet_id.clone(),
+        output.clone(),
+        authority.policy,
+        authority.validation,
+        authority.replay,
+        authority.ledger,
+        crate::ledger::LedgerActor::new(crate::ledger::LedgerActorType::System, "local_harness")
             .expect("actor must be valid"),
-            vec![format!("{}-evidence", request.workflow_id)],
-        )
-        .expect("controlled request should be valid"),
-    );
-    if controlled.status == crate::execution::ControlledRunStatus::Blocked {
-        return LocalHarnessWorkflowResult {
-            workflow_id: request.workflow_id,
-            status: LocalHarnessWorkflowStatus::Blocked,
-            reason: LocalHarnessWorkflowReason::ControlledFlowBlocked,
-            provider_output_trusted: false,
-            provider_output_authoritative: false,
-            controlled_run_status: controlled.status,
-            clean_output_available: false,
-            read_projection: None,
-            summary,
-        };
-    }
-    if controlled.status == crate::execution::ControlledRunStatus::Rejected {
-        return LocalHarnessWorkflowResult {
-            workflow_id: request.workflow_id,
-            status: LocalHarnessWorkflowStatus::Rejected,
-            reason: LocalHarnessWorkflowReason::ControlledFlowRejected,
-            provider_output_trusted: false,
-            provider_output_authoritative: false,
-            controlled_run_status: controlled.status,
-            clean_output_available: false,
-            read_projection: None,
-            summary,
-        };
-    }
-    let mut harness_state = crate::state::HarnessState::genesis();
-    harness_state = harness_state
+        authority.manifest,
+        authority.evaluation_evidence,
+    )
+    .expect("controlled request should be valid")
+}
+
+fn passed_harness_state() -> crate::state::HarnessState {
+    let evaluating = crate::state::HarnessState::genesis()
         .transition_to(crate::state::LifecycleState::Evaluating)
         .expect("transition");
-    harness_state = harness_state
+    evaluating
         .transition_to(crate::state::LifecycleState::Passed)
-        .expect("transition");
-    let replay_report =
-        crate::replay::classify_replay_readiness(controlled.ledger.events()).expect("replayable");
-    let app_state = match LocalApplicationState::new(
-        format!("{}-state", request.workflow_id),
-        request.projection_id.clone(),
-        request.run_id.clone(),
-        runtime_config,
-        harness_state,
-        controlled.clone(),
-        provider_result.output,
-        integration_output,
-        controlled.ledger.clone(),
-        replay_report,
-        vec![crate::audit::AuditProjection::new(
-            crate::audit::AuditProjectionType::OutputSummary,
-            vec![crate::audit::AuditSourceRef::new(
-                crate::audit::AuditSourceType::LedgerEvent,
-                "phase-54-event-2",
-            )
-            .expect("source ref")],
-            "phase_54_audit_projection",
-            vec!["deterministic local harness run".to_string()],
+        .expect("transition")
+}
+
+fn local_replay_report(
+    controlled: &crate::execution::ControlledRunResult,
+) -> crate::replay::ReplayReport {
+    crate::replay::classify_replay_readiness(controlled.ledger.events())
+        .expect("controlled ledger should be replayable")
+}
+
+fn local_audit_projection() -> crate::audit::AuditProjection {
+    crate::audit::AuditProjection::new(
+        crate::audit::AuditProjectionType::OutputSummary,
+        vec![crate::audit::AuditSourceRef::new(
+            crate::audit::AuditSourceType::LedgerEvent,
+            "phase-54-event-2",
         )
-        .expect("audit projection should be valid")],
-        ApplicationContextMetadata::new(request.context_packet_id.clone(), 2, 2, 128, 2048)
-            .expect("context metadata should be valid"),
-        ApplicationMemoryMetadata::new(request.memory_snapshot_id.clone(), 1, 0, 0)
-            .expect("memory metadata should be valid"),
-    ) {
-        Ok(state) => state,
-        Err(_) => {
-            return LocalHarnessWorkflowResult {
-                workflow_id: request.workflow_id,
-                status: LocalHarnessWorkflowStatus::Blocked,
-                reason: LocalHarnessWorkflowReason::ApplicationStateInvalid,
-                provider_output_trusted: false,
-                provider_output_authoritative: false,
-                controlled_run_status: controlled.status,
-                clean_output_available: false,
-                read_projection: None,
-                summary,
-            }
-        }
-    };
-    let read_projection = match app_state.derive_read_projection() {
-        Ok(p) => p,
-        Err(_) => {
-            return LocalHarnessWorkflowResult {
-                workflow_id: request.workflow_id,
-                status: LocalHarnessWorkflowStatus::Blocked,
-                reason: LocalHarnessWorkflowReason::ReadProjectionFailed,
-                provider_output_trusted: false,
-                provider_output_authoritative: false,
-                controlled_run_status: controlled.status,
-                clean_output_available: false,
-                read_projection: None,
-                summary,
-            }
-        }
-    };
-    LocalHarnessWorkflowResult {
-        workflow_id: request.workflow_id,
-        status: LocalHarnessWorkflowStatus::Completed,
-        reason: LocalHarnessWorkflowReason::CompletedInMemory,
-        provider_output_trusted: false,
-        provider_output_authoritative: false,
-        controlled_run_status: controlled.status,
-        clean_output_available: controlled.clean_output_summary.is_some(),
-        read_projection: Some(read_projection),
-        summary,
+        .expect("source ref")],
+        "phase_54_audit_projection",
+        vec!["deterministic local harness run".to_string()],
+    )
+    .expect("audit projection should be valid")
+}
+
+fn local_context_metadata(request: &LocalHarnessWorkflowRequest) -> ApplicationContextMetadata {
+    ApplicationContextMetadata::new(request.context_packet_id.clone(), 2, 2, 128, 2048)
+        .expect("context metadata should be valid")
+}
+
+fn local_memory_metadata(request: &LocalHarnessWorkflowRequest) -> ApplicationMemoryMetadata {
+    ApplicationMemoryMetadata::new(request.memory_snapshot_id.clone(), 1, 0, 0)
+        .expect("memory metadata should be valid")
+}
+
+struct ControlledAuthorityArtifacts {
+    policy: crate::policy::PolicyReceipt,
+    validation: crate::validation::ValidationReceipt,
+    replay: crate::replay::ReplayReceipt,
+    manifest: crate::authority::EvidenceManifest,
+    ledger: crate::ledger::Ledger,
+    evaluation_evidence: crate::execution::AuthorityEvaluationEvidence,
+}
+
+fn build_controlled_authority_artifacts(
+    request: &LocalHarnessWorkflowRequest,
+    output: &crate::execution::ProviderOutput,
+    ledger: &crate::ledger::Ledger,
+) -> ControlledAuthorityArtifacts {
+    let manifest = local_harness_evidence_manifest();
+    let binding = local_harness_authority_binding(request, output, &manifest);
+    let evaluation_evidence =
+        local_harness_evaluation_evidence(request, output, &binding, manifest.clone());
+    let validation =
+        crate::validation::evaluate_validation(binding.clone(), evaluation_evidence.validation());
+    let policy =
+        crate::policy::evaluate_policy(binding.clone(), evaluation_evidence.policy(), &validation);
+    let sealed_ledger = seal_local_harness_ledger(ledger, &binding, &validation, &policy);
+    let replay = crate::replay::verify_replay_receipt(binding, &sealed_ledger, &manifest)
+        .expect("local harness replay evidence should be bound");
+    ControlledAuthorityArtifacts {
+        policy,
+        validation,
+        replay,
+        manifest,
+        ledger: sealed_ledger,
+        evaluation_evidence,
     }
+}
+
+fn local_harness_evidence_manifest() -> crate::authority::EvidenceManifest {
+    crate::authority::EvidenceManifest::new(vec![
+        crate::authority::EvidenceReference::new(
+            "phase-54-evidence-1",
+            crate::integrity::Digest::of_text("created_to_evaluating"),
+        )
+        .expect("first evidence reference should be valid"),
+        crate::authority::EvidenceReference::new(
+            "phase-54-evidence-2",
+            crate::integrity::Digest::of_text("evaluating_to_passed"),
+        )
+        .expect("second evidence reference should be valid"),
+    ])
+    .expect("local harness evidence manifest should be valid")
+}
+
+fn local_harness_authority_binding(
+    request: &LocalHarnessWorkflowRequest,
+    output: &crate::execution::ProviderOutput,
+    manifest: &crate::authority::EvidenceManifest,
+) -> crate::authority::AuthorityBinding {
+    crate::authority::AuthorityBinding::new(crate::authority::AuthorityBindingInput {
+        run_id: request.run_id.clone(),
+        task_digest: crate::integrity::Digest::of_text(&request.prompt_summary),
+        operator_intent_digest: crate::integrity::Digest::of_text(&request.operator_id),
+        context_packet_digest: crate::integrity::Digest::of_text(&request.context_packet_id),
+        candidate_digest: crate::integrity::Digest::of_text(&output.content),
+        policy_bundle_digest: crate::integrity::Digest::of_text("phase-54-policy-bundle"),
+        evidence_manifest_digest: manifest.digest().clone(),
+        verifier_id: "phase-54-local-harness".into(),
+        verifier_version: "1.0.0".into(),
+        valid_through_revision: 2,
+    })
+    .expect("local harness authority binding should be valid")
+}
+
+fn local_harness_evaluation_evidence(
+    request: &LocalHarnessWorkflowRequest,
+    output: &crate::execution::ProviderOutput,
+    binding: &crate::authority::AuthorityBinding,
+    manifest: crate::authority::EvidenceManifest,
+) -> crate::execution::AuthorityEvaluationEvidence {
+    let validation = crate::validation::ValidationEvidence::new(
+        manifest.clone(),
+        crate::verification::verify_evidence_manifest(binding, Some(&manifest)),
+        crate::verification::verify_candidate_shape(binding, Some(output)),
+        crate::verification::verify_candidate_evidence_binding(
+            binding,
+            Some(output),
+            Some(&manifest),
+        ),
+    )
+    .expect("local validation verifier receipts should align");
+    let policy = crate::policy::PolicyEvidence::new(
+        crate::verification::verify_required_context(binding, Some(&request.context_packet_id)),
+        crate::verification::verify_required_operator_intent(binding, Some(&request.operator_id)),
+    )
+    .expect("local policy verifier receipts should align");
+    crate::execution::AuthorityEvaluationEvidence::new(validation, policy)
+        .expect("local authority evaluation evidence should share one binding")
+}
+
+fn seal_local_harness_ledger(
+    ledger: &crate::ledger::Ledger,
+    binding: &crate::authority::AuthorityBinding,
+    validation: &crate::validation::ValidationReceipt,
+    policy: &crate::policy::PolicyReceipt,
+) -> crate::ledger::Ledger {
+    ledger
+        .seal(&crate::ledger::LedgerSeal {
+            binding: binding.clone(),
+            actor_authorization_ref: "phase-54-system-authority".into(),
+            validation_receipt_ref: validation.digest().as_str().to_string(),
+            policy_receipt_ref: policy.digest().as_str().to_string(),
+            schema_version: "v1.0.0".into(),
+            verifier_version: binding.verifier_version().to_string(),
+        })
+        .expect("local harness ledger should seal")
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -471,7 +683,7 @@ impl ApplicationReadProjection {
             run_id,
             status: controlled_run.status,
             reason: controlled_run.reason,
-            clean_output_available: controlled_run.clean_output_summary.is_some(),
+            reviewable_candidate_available: controlled_run.reviewable_candidate_summary.is_some(),
             authority: ReadProjectionAuthority::Rust,
             summary: format!(
                 "controlled run {:?} ({:?})",
@@ -546,9 +758,9 @@ impl ApplicationReadProjection {
             summary: "memory metadata from supplied typed inputs".to_string(),
         };
         let output = OutputReadProjection {
-            clean_output_available: controlled_run.clean_output_summary.is_some(),
+            reviewable_candidate_available: controlled_run.reviewable_candidate_summary.is_some(),
             raw_output_trusted: false,
-            clean_output_summary: controlled_run.clean_output_summary.clone(),
+            reviewable_candidate_summary: controlled_run.reviewable_candidate_summary.clone(),
             authority: ReadProjectionAuthority::Rust,
             summary: "raw provider output remains untrusted".to_string(),
         };
@@ -2074,7 +2286,7 @@ mod diagnostic_tests {
 
     #[test]
     fn local_harness_workflow_reason_diagnostic_preserves_code() {
-        let reason = LocalHarnessWorkflowReason::CompletedInMemory;
+        let reason = LocalHarnessWorkflowReason::SimulationCompletedInMemory;
         let diagnostic = crate::api::local_harness_workflow_reason_diagnostic(reason);
         assert_eq!(diagnostic.code, reason.code());
     }

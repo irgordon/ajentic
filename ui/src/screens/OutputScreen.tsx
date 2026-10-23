@@ -2,28 +2,28 @@ import { getUiReadModel } from "../api/readModel.js";
 import { SectionCard } from "../components/SectionCard.js";
 
 export function OutputScreen(): string {
-  const { application, cleanOutput } = getUiReadModel();
+  const { application, reviewableCandidate } = getUiReadModel();
   const { output } = application;
 
   return SectionCard({
     title: "Output",
     description: "Read-only output projection surface.",
     children: [
-      `Clean output available: ${output.cleanOutputAvailable}`,
+      `Reviewable candidate available: ${output.reviewableCandidateAvailable}`,
       `Raw output trusted: ${output.rawOutputTrusted}`,
       `Authority: ${output.authority}`,
       `Summary: ${output.summary}`,
-      "Clean output detail",
-      `Projection id: ${cleanOutput.id}`,
-      `Clean output available (detail): ${cleanOutput.cleanOutputAvailable}`,
-      `Raw output trusted (detail): ${cleanOutput.rawOutputTrusted}`,
-      `Clean output trusted (detail): ${cleanOutput.cleanOutputTrusted}`,
-      `Detail authority: ${cleanOutput.authority}`,
-      `Detail summary: ${cleanOutput.summary}`,
-      `Raw output summary: ${cleanOutput.rawOutputSummary}`,
-      `Clean output summary: ${cleanOutput.cleanOutputSummary}`,
+      "Reviewable candidate detail",
+      `Projection id: ${reviewableCandidate.id}`,
+      `Reviewable candidate available (detail): ${reviewableCandidate.reviewableCandidateAvailable}`,
+      `Raw output trusted (detail): ${reviewableCandidate.rawOutputTrusted}`,
+      `Reviewable candidate verified (detail): ${reviewableCandidate.candidateVerified}`,
+      `Detail authority: ${reviewableCandidate.authority}`,
+      `Detail summary: ${reviewableCandidate.summary}`,
+      `Raw output summary: ${reviewableCandidate.rawOutputSummary}`,
+      `Reviewable candidate summary: ${reviewableCandidate.reviewableCandidateSummary}`,
       "Trust boundary: raw model output remains untrusted.",
-      "Read-only boundary: clean output is display-only in this phase."
+      "Read-only boundary: reviewable candidate is display-only in this phase."
     ]
   });
 }

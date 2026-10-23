@@ -267,6 +267,338 @@ pub fn operator_authorization_executes_actions(_decision: &OperatorAuthorization
     false
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ActionRiskClass {
+    ReadOnly,
+    ReversibleMutation,
+    IrreversibleMutation,
+    ExternalCommunication,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ActionReversibility {
+    Reversible,
+    Compensatable,
+    Irreversible,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExactActionApprovalRequest {
+    pub binding: crate::authority::AuthorityBinding,
+    pub tool: String,
+    pub argument_digest: crate::integrity::Digest,
+    pub target: String,
+    pub recipient: Option<String>,
+    pub disclosed_data_digest: crate::integrity::Digest,
+    pub risk_class: ActionRiskClass,
+    pub reversibility: ActionReversibility,
+    pub expected_cost_microunits: u64,
+    pub operator_id: String,
+    pub expires_after_revision: u64,
+    pub nonce: String,
+    pub previous_approval_id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExactActionApprovalReceipt {
+    binding: crate::authority::AuthorityBinding,
+    approval_id: String,
+    tool: String,
+    argument_digest: crate::integrity::Digest,
+    target: String,
+    recipient: Option<String>,
+    disclosed_data_digest: crate::integrity::Digest,
+    risk_class: ActionRiskClass,
+    reversibility: ActionReversibility,
+    expected_cost_microunits: u64,
+    operator_id: String,
+    expires_after_revision: u64,
+    nonce: String,
+    previous_approval_id: Option<String>,
+    receipt_digest: crate::integrity::Digest,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExactActionApprovalError {
+    AuthorizationDenied,
+    ExecutionFlagInvalid,
+    OperatorMismatch,
+    EmptyTool,
+    EmptyTarget,
+    EmptyNonce,
+    InvalidExpiry,
+    BindingMismatch,
+    ToolMismatch,
+    ArgumentMismatch,
+    TargetMismatch,
+    RecipientMismatch,
+    DisclosureMismatch,
+    ApprovalExpired,
+    NonceAlreadyConsumed,
+}
+
+impl ExactActionApprovalError {
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::AuthorizationDenied => "authorization_denied",
+            Self::ExecutionFlagInvalid => "execution_flag_invalid",
+            Self::OperatorMismatch => "operator_mismatch",
+            Self::EmptyTool => "empty_tool",
+            Self::EmptyTarget => "empty_target",
+            Self::EmptyNonce => "empty_nonce",
+            Self::InvalidExpiry => "invalid_expiry",
+            Self::BindingMismatch => "binding_mismatch",
+            Self::ToolMismatch => "tool_mismatch",
+            Self::ArgumentMismatch => "argument_mismatch",
+            Self::TargetMismatch => "target_mismatch",
+            Self::RecipientMismatch => "recipient_mismatch",
+            Self::DisclosureMismatch => "disclosure_mismatch",
+            Self::ApprovalExpired => "approval_expired",
+            Self::NonceAlreadyConsumed => "nonce_already_consumed",
+        }
+    }
+}
+
+impl ExactActionApprovalReceipt {
+    pub fn binding(&self) -> &crate::authority::AuthorityBinding {
+        &self.binding
+    }
+
+    pub fn approval_id(&self) -> &str {
+        &self.approval_id
+    }
+
+    pub fn nonce(&self) -> &str {
+        &self.nonce
+    }
+
+    pub fn digest(&self) -> &crate::integrity::Digest {
+        &self.receipt_digest
+    }
+}
+
+pub fn authorize_exact_action(
+    decision: &OperatorAuthorizationDecision,
+    request: ExactActionApprovalRequest,
+    current_revision: u64,
+) -> Result<ExactActionApprovalReceipt, ExactActionApprovalError> {
+    validate_approval_request(decision, &request, current_revision)?;
+    Ok(issue_exact_action_receipt(decision, request))
+}
+
+pub fn verify_exact_action_approval(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+    current_revision: u64,
+    consumed_nonces: &std::collections::HashSet<String>,
+) -> Result<(), ExactActionApprovalError> {
+    verify_action_binding(receipt, proposed)?;
+    verify_action_shape(receipt, proposed)?;
+    verify_action_liveness(receipt, current_revision, consumed_nonces)
+}
+
+fn validate_approval_request(
+    decision: &OperatorAuthorizationDecision,
+    request: &ExactActionApprovalRequest,
+    current_revision: u64,
+) -> Result<(), ExactActionApprovalError> {
+    validate_authorization_decision(decision, request)?;
+    validate_exact_action_fields(request)?;
+    validate_approval_expiry(request, current_revision)
+}
+
+fn validate_authorization_decision(
+    decision: &OperatorAuthorizationDecision,
+    request: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if decision.status != OperatorAuthorizationStatus::Authorized {
+        return Err(ExactActionApprovalError::AuthorizationDenied);
+    }
+    if decision.execution_enabled {
+        return Err(ExactActionApprovalError::ExecutionFlagInvalid);
+    }
+    if decision.target_kind != OperatorIntentTargetKind::Run
+        || decision.target_id != request.binding.run_id()
+    {
+        return Err(ExactActionApprovalError::BindingMismatch);
+    }
+    if decision.operator_id == request.operator_id {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::OperatorMismatch)
+}
+
+fn validate_exact_action_fields(
+    request: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    validate_action_text(&request.tool, ExactActionApprovalError::EmptyTool)?;
+    validate_action_text(&request.target, ExactActionApprovalError::EmptyTarget)?;
+    validate_action_text(&request.nonce, ExactActionApprovalError::EmptyNonce)
+}
+
+fn validate_approval_expiry(
+    request: &ExactActionApprovalRequest,
+    current_revision: u64,
+) -> Result<(), ExactActionApprovalError> {
+    if request.expires_after_revision >= current_revision
+        && request.binding.valid_through_revision() >= current_revision
+    {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::InvalidExpiry)
+}
+
+fn issue_exact_action_receipt(
+    decision: &OperatorAuthorizationDecision,
+    request: ExactActionApprovalRequest,
+) -> ExactActionApprovalReceipt {
+    let approval_id = format!(
+        "exact-action:{}:{}",
+        decision.authorization_id, request.nonce
+    );
+    let receipt_digest = exact_action_receipt_digest(&approval_id, &request);
+    ExactActionApprovalReceipt {
+        binding: request.binding,
+        approval_id,
+        tool: request.tool,
+        argument_digest: request.argument_digest,
+        target: request.target,
+        recipient: request.recipient,
+        disclosed_data_digest: request.disclosed_data_digest,
+        risk_class: request.risk_class,
+        reversibility: request.reversibility,
+        expected_cost_microunits: request.expected_cost_microunits,
+        operator_id: request.operator_id,
+        expires_after_revision: request.expires_after_revision,
+        nonce: request.nonce,
+        previous_approval_id: request.previous_approval_id,
+        receipt_digest,
+    }
+}
+
+fn exact_action_receipt_digest(
+    approval_id: &str,
+    request: &ExactActionApprovalRequest,
+) -> crate::integrity::Digest {
+    crate::integrity::Digest::of_text(&format!(
+        "approval|{}|{}|{}|{}|{:?}|{}|{}|{:?}|{:?}|{}|{}|{}|{}|{:?}",
+        approval_id,
+        request.binding.run_id(),
+        request.binding.task_digest().as_str(),
+        request.tool,
+        request.argument_digest,
+        request.target,
+        request.recipient.as_deref().unwrap_or(""),
+        request.risk_class,
+        request.reversibility,
+        request.disclosed_data_digest.as_str(),
+        request.expected_cost_microunits,
+        request.operator_id,
+        request.expires_after_revision,
+        request.previous_approval_id
+    ))
+}
+
+fn verify_action_binding(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.binding == proposed.binding && receipt.operator_id == proposed.operator_id {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::BindingMismatch)
+}
+
+fn verify_action_shape(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    verify_tool(receipt, proposed)?;
+    verify_arguments(receipt, proposed)?;
+    verify_target(receipt, proposed)?;
+    verify_recipient(receipt, proposed)?;
+    verify_disclosure(receipt, proposed)
+}
+
+fn verify_tool(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.tool == proposed.tool {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::ToolMismatch)
+}
+
+fn verify_arguments(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.argument_digest == proposed.argument_digest {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::ArgumentMismatch)
+}
+
+fn verify_target(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.target == proposed.target {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::TargetMismatch)
+}
+
+fn verify_recipient(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.recipient == proposed.recipient {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::RecipientMismatch)
+}
+
+fn verify_disclosure(
+    receipt: &ExactActionApprovalReceipt,
+    proposed: &ExactActionApprovalRequest,
+) -> Result<(), ExactActionApprovalError> {
+    if receipt.disclosed_data_digest == proposed.disclosed_data_digest
+        && receipt.risk_class == proposed.risk_class
+        && receipt.reversibility == proposed.reversibility
+        && receipt.expected_cost_microunits == proposed.expected_cost_microunits
+        && receipt.previous_approval_id == proposed.previous_approval_id
+    {
+        return Ok(());
+    }
+    Err(ExactActionApprovalError::DisclosureMismatch)
+}
+
+fn verify_action_liveness(
+    receipt: &ExactActionApprovalReceipt,
+    current_revision: u64,
+    consumed_nonces: &std::collections::HashSet<String>,
+) -> Result<(), ExactActionApprovalError> {
+    if current_revision > receipt.expires_after_revision {
+        return Err(ExactActionApprovalError::ApprovalExpired);
+    }
+    if consumed_nonces.contains(receipt.nonce()) {
+        return Err(ExactActionApprovalError::NonceAlreadyConsumed);
+    }
+    Ok(())
+}
+
+fn validate_action_text(
+    value: &str,
+    error: ExactActionApprovalError,
+) -> Result<(), ExactActionApprovalError> {
+    if !value.trim().is_empty() {
+        return Ok(());
+    }
+    Err(error)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -504,5 +836,61 @@ mod tests {
         assert!(!operator_intent_ingress_executes_actions(&ingress));
         let d = authorize_operator_intent(req);
         assert!(!operator_authorization_executes_actions(&d));
+    }
+
+    fn exact_action_request() -> ExactActionApprovalRequest {
+        ExactActionApprovalRequest {
+            binding: crate::authority::AuthorityBinding::new(
+                crate::authority::AuthorityBindingInput {
+                    run_id: "run-1".into(),
+                    task_digest: crate::integrity::Digest::of_text("task"),
+                    operator_intent_digest: crate::integrity::Digest::of_text("intent"),
+                    context_packet_digest: crate::integrity::Digest::of_text("context"),
+                    candidate_digest: crate::integrity::Digest::of_text("candidate"),
+                    policy_bundle_digest: crate::integrity::Digest::of_text("policy"),
+                    evidence_manifest_digest: crate::integrity::Digest::of_text("evidence"),
+                    verifier_id: "approval-verifier".into(),
+                    verifier_version: "1.0.0".into(),
+                    valid_through_revision: 3,
+                },
+            )
+            .unwrap(),
+            tool: "send_email".into(),
+            argument_digest: crate::integrity::Digest::of_text("to=A;body=X"),
+            target: "mailbox".into(),
+            recipient: Some("A".into()),
+            disclosed_data_digest: crate::integrity::Digest::of_text("body=X"),
+            risk_class: ActionRiskClass::ExternalCommunication,
+            reversibility: ActionReversibility::Irreversible,
+            expected_cost_microunits: 1,
+            operator_id: "op-1".into(),
+            expires_after_revision: 3,
+            nonce: "nonce-1".into(),
+            previous_approval_id: None,
+        }
+    }
+
+    #[test]
+    fn exact_action_approval_matches_unchanged_action() {
+        let decision = authorize_operator_intent(fixture_request());
+        let request = exact_action_request();
+        let receipt = authorize_exact_action(&decision, request.clone(), 2).unwrap();
+        assert_eq!(
+            verify_exact_action_approval(&receipt, &request, 2, &std::collections::HashSet::new(),),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn edited_arguments_invalidate_exact_action_approval() {
+        let decision = authorize_operator_intent(fixture_request());
+        let request = exact_action_request();
+        let receipt = authorize_exact_action(&decision, request.clone(), 2).unwrap();
+        let mut edited = request;
+        edited.argument_digest = crate::integrity::Digest::of_text("to=B;body=X");
+        assert_eq!(
+            verify_exact_action_approval(&receipt, &edited, 2, &std::collections::HashSet::new(),),
+            Err(ExactActionApprovalError::ArgumentMismatch)
+        );
     }
 }

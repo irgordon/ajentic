@@ -134,10 +134,15 @@ Sequencing rationale is in `docs/roadmap/sequencing.md`.
 | 195 | Post-v1 Release Closure and Evidence Preservation | Milestone 24 | Preserve final v1.0.0 release evidence, align status surfaces, and record post-v1 restrictions. | Closure/evidence phase only; no feature expansion, new release execution, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
 | 195.1 | Protected-Branch PR Closure and Solo-Maintainer Merge Evidence | Milestone 24 | Record PR #297 protected-branch closure, squash merge evidence, and solo-maintainer admin-bypass exception. | Process evidence only; no release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, or UI authority change. |
 | 196 | Post-v1 Audit Remediation and Contract Drift Guard | Milestone 24 | Retire stale scaffold risk, replace stale checklists, add operator-intent contract drift guard, and reframe UI provider mirror wording as projection-only. | Audit remediation only; no release mechanics, package publication, installer, update channel, deployment, OS signing, notarization, runtime authority change, UI authority change, workflow behavior change, or package version change. |
+| 197 | Authority and Completion Integrity | Milestone 24 | Bind validation, policy, replay, promotion, completion, claims, errors, context, memory, approvals, and retries to deterministic evidence. | Rust authority hardening only; no real provider activation, external side effects, package publication, installer, update channel, deployment, OS signing, notarization, release mechanics, or package version change. |
 
 ## Phase 196 audit-remediation note
 
 Phase 196 follows Phase 195.1 after post-v1 closure evidence is mainline-complete. It remediates audit findings by retiring stale bootstrap scaffolding, replacing stale audit/migration checklist placeholders, adding a non-authoritative operator-intent contract map and validator, and clarifying TypeScript provider mirror behavior as projection-only. Phase 196 creates no release mechanics, new tag, GitHub Release, package publication, installer, update channel, deployment, OS signing, notarization, backend authority change, UI authority change, workflow behavior change, or package version change.
+
+## Phase 197 authority and completion-integrity note
+
+Phase 197 follows the Phase 196 squash merge because the comprehensive alignment audit identified executable gaps beyond contract drift: caller-constructible positive verdicts, completion without observed postconditions, coarse claim grounding, replay without evidence integrity, error omission risk, user-pressure instability, unclassified context, self-activating memory, broad approvals, and unbounded retries. Phase 197 hardens those Rust-owned paths and shared schemas without activating real providers, external actions, release mechanics, package publication, installers, update channels, deployments, OS signing, notarization, or package version changes.
 
 ## Phase 185 release-stewardship note
 

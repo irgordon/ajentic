@@ -2,79 +2,76 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ajentic.dev/schemas/memory/memory-entry.schema.json",
   "title": "Memory Entry",
-  "description": "Persistent governed memory entry.",
+  "description": "Governed memory proposal whose activation requires independent verification.",
   "type": "object",
   "required": [
     "schema_version",
     "memory_id",
     "memory_type",
     "content",
+    "content_digest",
+    "source_digest",
+    "evidence_refs",
+    "source_trust",
+    "proposer_kind",
+    "proposed_by",
+    "verified_by",
+    "verifier_version",
+    "verification_decision",
+    "expiry_or_review_date",
+    "conflicts",
+    "supersedes",
+    "superseded_by",
+    "protected_key",
+    "snapshot_id",
+    "rollback_ref",
     "provenance",
     "status"
   ],
   "properties": {
-    "schema_version": {
-      "type": "string",
-      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-    },
-    "memory_id": {
-      "type": "string",
-      "minLength": 1
-    },
+    "schema_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "memory_id": { "type": "string", "minLength": 1 },
     "memory_type": {
       "type": "string",
-      "enum": [
-        "project_fact",
-        "convention",
-        "operator_note",
-        "run_observation",
-        "disabled"
-      ]
+      "enum": ["project_fact", "convention", "operator_note", "run_observation"]
     },
-    "content": {
-      "type": "object"
-    },
-    "provenance": {
-      "type": "object",
-      "required": [
-        "schema_version",
-        "source",
-        "created_by",
-        "created_at",
-        "reason"
-      ],
-      "properties": {
-        "schema_version": {
-          "type": "string",
-          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-        },
-        "source": {
-          "type": "string",
-          "minLength": 1
-        },
-        "created_by": {
-          "type": "string",
-          "minLength": 1
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "reason": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
+    "content": { "type": "string", "minLength": 1 },
+    "content_digest": { "$ref": "#/$defs/digest" },
+    "source_digest": { "$ref": "#/$defs/digest" },
+    "evidence_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "source_trust": { "type": "string", "enum": ["UNTRUSTED", "VERIFIED_EVIDENCE"] },
+    "proposer_kind": { "type": "string", "enum": ["MODEL", "HUMAN", "SYSTEM"] },
+    "proposed_by": { "type": "string", "minLength": 1 },
+    "verified_by": { "type": ["string", "null"] },
+    "verifier_version": { "type": ["string", "null"] },
+    "verification_decision": { "type": "string", "enum": ["PENDING", "VERIFIED", "REJECTED"] },
+    "expiry_or_review_date": { "type": "string", "minLength": 1 },
+    "conflicts": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "supersedes": { "type": ["string", "null"] },
+    "superseded_by": { "type": ["string", "null"] },
+    "protected_key": { "type": "boolean" },
+    "snapshot_id": { "type": "string", "minLength": 1 },
+    "rollback_ref": { "type": "string", "minLength": 1 },
+    "provenance": { "$ref": "memory-provenance.schema.json" },
     "status": {
       "type": "string",
-      "enum": [
-        "active",
-        "disabled",
-        "rejected"
-      ]
+      "enum": ["PROPOSED", "QUARANTINED", "VERIFIED", "ACTIVE", "SUPERSEDED", "REVOKED"]
     }
   },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "ACTIVE" } } },
+      "then": {
+        "properties": {
+          "verification_decision": { "const": "VERIFIED" },
+          "verified_by": { "type": "string", "minLength": 1 },
+          "verifier_version": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }
