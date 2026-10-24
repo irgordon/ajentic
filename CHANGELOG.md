@@ -4,6 +4,18 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - Audience Documentation
+
+### Added
+- Organize the wiki into non-technical user, developer, and maintainer paths with shared getting-started, installation, glossary, troubleshooting, and capability references.
+- Explain the current simulated review flow with exact controls, expected results, decision limits, and session reset behavior.
+- Document the combined provider exercise's materialization rejection rather than claiming a completed output path.
+- Record documentation structure and plain-language choices in ADR 003.
+
+### Changed
+- Align bundled help with the first sample review and link it to the full audience guides.
+- Preserve the compact root README and existing runtime, publication, and branch-protection boundaries.
+
 ## Unreleased - README and Setup Wiki
 
 ### Changed
