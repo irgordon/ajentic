@@ -4,11 +4,19 @@
 <body>
   <main>
     <h1>Getting started</h1>
-    <p>Start the local UI from the UI folder with <code>npm run dev</code>.</p>
-    <p>The dev server prints a local browser URL. Open that URL in a browser on the same machine.</p>
-    <p>The first screen shows the AJENTIC local operator shell, the current harness status, the local transport boundary, workflow panels, and operator controls.</p>
-    <p>The broad workflow is simple. Set up the provider path, run constrained local steps, review validation, inspect a staged proposal, decide whether to continue, materialize local candidate output, review replay/status, export evidence, package the session, and use restore/history views when needed.</p>
-    <p>The help is explanatory. It is local-only and non-production.</p>
+    <p>This local UI is a sample workflow, not a live AI chat service. It uses a pre-written example so you can practice reviewing a draft and recording a choice.</p>
+    <p>If the page is not running, ask the person setting it up to follow the repository installation guide. After dependencies are installed, they can run <code>npm run dev</code> from the UI folder and open the printed local browser address on the same computer.</p>
+    <h2>Your first review</h2>
+    <ol>
+      <li>Find <strong>Run local simulation</strong> near <strong>Bounded context</strong> and click it. Bounded context means the limited information supplied to the example.</li>
+      <li>Read <strong>Candidate output</strong>, which is the sample draft, and <strong>Validation / policy result</strong>, which explains the recorded checks.</li>
+      <li>Select <strong>Approve</strong> or <strong>Reject</strong> under <strong>Operator controls</strong>. This only records your local choice; it does not publish, send, or execute work.</li>
+      <li>Confirm <strong>Selected operator intent</strong> matches your choice. Intent means the choice you asked the example to record. Look for its entry in <strong>Run history / timeline</strong>.</li>
+      <li>Check <strong>Replay / status projection</strong> for decision count 1. This is a summary of the recorded choice, not a repeat of a real-world action.</li>
+    </ol>
+    <p>Only one decision is accepted for that sample in a session. A second choice is rejected as a duplicate. Refresh and start the simulation again to practice the other choice; refreshing clears the local example.</p>
+    <p>Some labels still show <strong>Unknown status</strong> because their technical value has no friendly translation. After a decision, use Selected operator intent and the timeline to confirm what was recorded. Unknown does not mean successful.</p>
+    <p>The help is explanatory. The example is local-only and non-production, and its display checks do not prove that AI-generated facts are correct.</p>
     <p><a href="index.html">Back to help index</a></p>
   </main>
 </body>

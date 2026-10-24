@@ -6,6 +6,16 @@ mutation_path: checklist_revision
 
 # Phase 197.2 - Task Outcome Evidence Binding
 
+## Audience Documentation Follow-up
+
+- [x] Inspect current controls, transport behavior, commands, CI, and publication boundaries.
+- [x] Write a plain-language first-review path and user guide with expected results and defined terms.
+- [x] Add developer and maintainer guides, shared installation, troubleshooting, glossary, and current limits.
+- [x] Align bundled first-use help and record the rationale in ADR 003.
+- [x] Verify the first-review and combined provider paths with screenshot-free headless browser checks on desktop/mobile viewports; record the observed rejection.
+- [x] Check 99 internal links/fragments and run documentation, structure, help-page, and whitespace validation.
+- The documentation PR must pass all required GitHub Actions checks before normal merge; its current-head results are the merge evidence.
+
 ## README and Setup Wiki Follow-up
 
 - [x] Compact the README, retain MIT, and reduce release status to two lines.
