@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { auditDependencyLicenses, validateLicenseReview, validateReviewInventory } from './audit_dependency_licenses.mjs';
+import { auditBundledAssets, auditDependencyLicenses, validateAssetInventory, validateLicenseReview, validateReviewInventory } from './audit_dependency_licenses.mjs';
 
 const DECLARED = { version: '1.0.0', license: 'MIT' };
 const REVIEW = { path: 'node_modules/fixture', version: '1.0.0', declared_license: 'MIT', reviewed_license: 'MIT', license_sha256: 'digest' };
@@ -26,4 +26,25 @@ test('changed dependency versions require license re-review', () => {
 test('a metadata and license-text discrepancy requires a recorded explanation', () => {
   const review = { ...REVIEW, reviewed_license: 'BSD-3-Clause' };
   assert.throws(() => validateLicenseReview(DECLARED, DECLARED, review, 'digest'), /explanation/);
+});
+
+test('bundled font, icon, and notice files match the reviewed hashes', () => {
+  assert.equal(auditBundledAssets().length, 22);
+});
+
+test('unrecorded or removed bundled assets fail closed', () => {
+  assert.throws(() => validateAssetInventory(['unreviewed.svg'], []), /one review entry/);
+});
+
+test('unreviewed bundled asset licenses fail closed', () => {
+  assert.throws(() => validateAssetInventory(['icon.svg'], [{ file: 'icon.svg', license: 'unknown', sha256: 'a'.repeat(64) }]), /Unreviewed/);
+});
+
+test('bundled assets cannot omit retained license notices', () => {
+  assert.throws(() => validateAssetInventory(['icon.svg'], [{ file: 'icon.svg', license: 'OFL-1.1', sha256: 'a'.repeat(64), source: 'https://raw.githubusercontent.com/vendor/source' }]), /retained/);
+});
+
+test('OS metadata and empty directory markers are not treated as licensed assets', () => {
+  const assets = auditBundledAssets();
+  validateAssetInventory([...assets.map(asset => asset.file), '.gitkeep', 'fonts/.DS_Store'], assets);
 });

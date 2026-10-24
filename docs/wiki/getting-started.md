@@ -10,108 +10,97 @@ mutation_path: readme_update
 
 ## What AJENTIC Is For
 
-A convincing AI answer is not the same thing as a checked answer. AJENTIC brings
-the proposed work, recorded checks, and review history into view so you can ask:
+A convincing AI answer is not the same as a checked answer. AJENTIC brings the
+proposed work, recorded checks, and review history into view so you can ask:
 
 - What was produced?
 - What was actually checked?
 - What is missing or uncertain?
-- What decision did I make, and why should I trust the result?
+- What decision did I record?
 
-For example, an AI-written summary might read well but leave out an important
-point. A review process helps you look for support rather than relying on tone
-or confidence. AJENTIC's current sample lets you practice that review process;
-it does not yet let you upload a meeting transcript and generate a live summary.
+An AI-written summary might read well but leave out an important point. A review
+process helps you look for support rather than relying on tone or confidence.
+Today's local example lets you practice that process; it is not a document-upload
+service or a live AI chat app.
 
 ## What You Need Today
 
-The browser example runs on your own computer. There is no app-store installer
-or hosted sign-in page in this repository's supported setup.
+If someone has started AJENTIC on your computer, open
+[http://127.0.0.1:5173](http://127.0.0.1:5173). This local address refers to your
+computer, not a public AJENTIC website. Otherwise, follow [Installation](installation.md),
+or ask a developer to set it up with you. No packaged installer or hosted sign-in
+is provided by this setup.
 
-If someone has already started AJENTIC for you on the same computer, open
-[http://127.0.0.1:5173](http://127.0.0.1:5173). This is a local address: it refers
-to your computer, not an AJENTIC website on the internet.
-
-Otherwise, follow [Installation](installation.md), or ask a developer to complete
-it with you. You do not need an AI-service account, payment details, or an API
-key to try the sample. An API key is a secret used to access a service; do not
-paste one into this demonstration or a support report.
+You do not need an AI-service account, payment details, or a secret API key to
+try the sample. Do not paste credentials into the example or a support report.
 
 ## Your First Review
 
-Allow about ten minutes once the page is running. No coding is needed for these
-steps. The page is long, so your browser's Find command can help locate a label:
-`Ctrl+F` on Windows/Linux or `Command+F` on macOS.
+Allow about ten minutes once the page is running. No coding is needed.
 
-### 1. Recognize the example environment
+### 1. Recognize the example
 
-At the top, look for **Local testing environment running simulated behaviors.**
-and **Ready (simulated)**. "Simulated" means the example uses predictable,
-pre-written data instead of contacting an AI service.
+Look for **AJENTIC**, **Local Demo**, and **File Changes**. The screen starts on
+**Compare**, with sample Before/After text. **Sample Comparison** and **No Files
+Written** identify it as an illustration, not generated file output.
 
-Some panels show **Not started**, **Needs attention**, or **Unknown status**.
-That does not mean your installation failed. Many panels are demonstrations of
-later review steps and do not start with complete information.
+"Demo" means predictable, pre-made data is used instead of a real AI service.
+You can inspect this comparison before running anything.
 
-### 2. Create the sample
+### 2. Load the sample draft
 
-Find **Run local simulation**, near **Bounded context**, and click it once.
-"Bounded context" means the limited information supplied for this example.
+Click **Run Sample** in the top bar. On a small screen it uses a play icon with
+the same accessible name. This loads a draft and recorded display checks; it
+does not execute a live tool.
 
-You should now see:
+Select **Result**. Under **Draft Output**, you should see **Deterministic local
+stub candidate**. That technical name means the same built-in example is used
+each time, not a new AI answer. The file comparison is a separate illustration,
+not a file created from this draft.
 
-- **Candidate output**, containing **Deterministic local stub candidate**.
-- **Run history / timeline**, with the sample's recorded steps.
-- **Validation / policy result**, with the sample's check results.
-- Enabled **Approve** and **Reject** buttons under **Operator controls**.
+### 3. Read the checks
 
-"Candidate" simply means a draft to look at. "Deterministic local stub" means
-the same built-in example is returned each time; it is not a fresh AI answer.
+Open **Check Details** in Result. The reason says **deterministic fixture
+satisfies local shell display checks only**. In everyday language: the example
+passed checks for this local display exercise. That does not prove its facts
+are correct or a real task is finished.
 
-### 3. Look at the work and its checks
+For the sample, **Output Trust** remains `false`: displaying or reviewing it
+does not make it trusted. **View / Checks**, or the amber counts beside Tool
+Result, opens other evidence, including blocked, missing, rejected, or unknown items.
 
-Read the sample and its check explanation before selecting a button. The check
-reason says **deterministic fixture satisfies local shell display checks only**.
-In everyday language: the example is suitable for this display exercise. It
-does not prove that AI-generated facts are correct or that a real task is done.
+### 4. Record a choice
 
-The **Provider output trust flag** remains `false`. This means the sample has
-not become trusted just because it is displayed or you reviewed it.
+Under **Review Decision**, select **Record Approval** or **Reject Draft**.
+These buttons record a local choice only. They do not send messages, execute
+tools, publish work, write files, or approve releases.
 
-### 4. Record one decision
+The footer confirms **Approval recorded for this local sample.** or **Rejection
+recorded for this local sample.** Both decision buttons then become disabled.
 
-Click **Approve** to practice recording a positive review, or **Reject** to
-practice declining the draft. Here, these buttons only record your local choice.
-They do not send a message, publish work, run a command, or approve a release.
+Select **Activity**, then expand **Decision History**. **Decision Count** becomes
+`1`; the record shows `approve` or `reject` and its identifier. This is a review
+record, not proof that external work was completed.
 
-Check **Selected operator intent**. It should show `approve` or `reject`.
-"Intent" means the choice you asked the example to record. The timeline adds
-an entry for that choice. Under **Replay / status projection**, **Decision count**
-becomes `1`; the latest decision kind matches your choice.
+### 5. Practice the other choice
 
-### 5. Try the other choice in a fresh example
-
-Only one decision is accepted for that sample in the current session. If you
-click the other button afterward, **Local transport boundary** reports
-`duplicate_decision_rejected`. That means the example refused to add another
-decision for the same sample; it is not an approval-change workflow.
-
-To practice again, refresh the browser, click **Run local simulation**, and
-choose the other button. Refreshing starts a fresh local example and clears
-its in-memory choices. **Do not rely on this page as saved work.**
+Only one review decision is accepted for this sample in the session. Choose
+**View / Reset Example** or refresh, run the sample again, and select the other
+choice. Resetting clears the example and notes. **Do not rely on this page as
+saved work.**
 
 ## What You Accomplished
 
-You created a sample, inspected its explanation, recorded one review decision,
-and found the record of that choice. This demonstrates why AJENTIC separates
-"there is a draft," "a check ran," and "someone reviewed it."
+You loaded a draft, inspected what its checks covered, recorded a review choice,
+and found that choice in the history. This demonstrates why AJENTIC separates
+a draft, a check result, and a person's review.
 
-It does not show a real AI connection, an independently verified fact, or a
-finished real-world task. Those are different claims that need their own support.
+You did not connect a live AI service, independently verify a fact, or complete
+a real-world task. Those different claims need their own support.
 
 ## Where to Go Next
 
-- [User guide](user-guide.md): understand the rest of the screen and its labels.
-- [Glossary](glossary.md): translate unfamiliar terms.
-- [Troubleshooting](troubleshooting.md): disabled buttons, unclear status, or a page that will not open.
-- [Capabilities and limits](capabilities-and-limits.md): see which features are examples rather than live services.
+- [User guide](user-guide.md): tabs, comparison, notes, statuses, and optional tests.
+- [Glossary](glossary.md): technical words in everyday language.
+- [Troubleshooting](troubleshooting.md): disabled controls, rejected requests, or setup problems.
+- [Capabilities and limits](capabilities-and-limits.md): examples versus live capabilities.

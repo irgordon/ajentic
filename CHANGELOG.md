@@ -4,6 +4,21 @@ authority_level: authoritative
 mutation_path: changelog_entry
 ---
 
+## Unreleased - File Review Workspace
+
+### Changed
+- Replace the long local panel page with the approved file-first workspace, compact Title Case labels, Compare/Result/Activity views, and desktop review controls.
+- Use locally bundled Inter UI text, Courier Prime code text, and Lucide icons with retained licenses and reviewed asset hashes.
+- Keep the existing local test controls in Developer Details while preserving rejected requests and evidence-gap visibility.
+- Label the file comparison as illustrative, keep attachments disabled, and keep notes in presentation memory only.
+- Align getting-started, user, developer, maintainer, and bundled help guidance with the new controls.
+- Record the rationale in ADR 004 and the visual comparison in the design QA report.
+
+### Validation
+- Add eight review-workspace behavior cases, extending UI API coverage to 149 tests.
+- Extend the license audit with bundled-asset coverage and retained-notice checks.
+- Preserve runtime authority, local transport semantics, package versions, and the protected zero-required-review CI merge policy.
+
 ## Unreleased - Audience Documentation
 
 ### Added
