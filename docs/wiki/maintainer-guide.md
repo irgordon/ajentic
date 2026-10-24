@@ -153,6 +153,12 @@ notice; TypeScript uses Apache-2.0. Preserve the notices and update the reviewed
 inventory deliberately when the locked selection changes. Do not regenerate
 license hashes merely to silence an unexplained failure.
 
+It also verifies the locally bundled Inter/Courier Prime fonts, Lucide icons,
+and retained notices against `ui/public/third-party-assets.json`. These assets
+have their own OFL/ISC/MIT terms; they do not become MIT-only because the project
+is MIT-licensed. The package-oriented SBOM is not a substitute for that asset
+inventory. Builds copy reviewed assets without remote font loading.
+
 There is no dedicated vulnerability-audit gate. Install-time `--no-audit` is a
 network/performance choice, not a security review. Assess current advisories
 separately and record findings and compatibility tradeoffs rather than implying

@@ -14,6 +14,32 @@ export function auditDependencyLicenses(root = process.cwd()) {
   return review.map(entry => auditInstalledLicense(root, lock.packages[entry.path], entry));
 }
 
+export function auditBundledAssets(root = process.cwd()) {
+  const directory = path.join(root, 'ui/public');
+  const inventory = readJson(path.join(directory, 'third-party-assets.json'));
+  const files = fs.readdirSync(directory, { recursive: true }).filter(file => fs.statSync(path.join(directory, file)).isFile() && file !== 'third-party-assets.json');
+  validateAssetInventory(files, inventory.assets);
+  for (const asset of inventory.assets) {
+    if (hashFile(path.join(directory, asset.file)) !== asset.sha256) throw new Error(`${asset.file}: bundled asset changed; re-review its source and notice`);
+  }
+  return inventory.assets;
+}
+
+export function validateAssetInventory(files, assets) {
+  if (!Array.isArray(assets)) throw new Error('Malformed bundled asset inventory');
+  const names = assets.map(asset => asset.file);
+  const content = files.filter(file => !['.DS_Store', '.gitkeep'].includes(path.basename(file)));
+  if (new Set(names).size !== names.length || names.length !== content.length || content.some(file => !names.includes(file))) throw new Error('Every bundled asset requires one review entry');
+  for (const asset of assets) {
+    if (!['OFL-1.1', 'ISC AND MIT'].includes(asset.license) || !/^[a-f0-9]{64}$/.test(asset.sha256)) throw new Error('Unreviewed bundled asset license or digest');
+    if (asset.file.includes('..') || path.isAbsolute(asset.file)) throw new Error('Bundled asset path must remain local');
+    if (!asset.source?.startsWith('https://raw.githubusercontent.com/')) throw new Error('Bundled asset requires a recorded upstream source');
+  }
+  for (const notice of ['fonts/Inter-LICENSE.txt', 'fonts/Courier-Prime-OFL.txt', 'icons/Lucide-LICENSE.txt']) {
+    if (!names.includes(notice)) throw new Error('Bundled assets require retained font and icon notices');
+  }
+}
+
 export function validateReviewInventory(packages, review) {
   if (!packages || !Array.isArray(review)) throw new Error('Malformed license inventory');
   const paths = review.map(entry => entry.path);
@@ -60,6 +86,8 @@ function runCli() {
     const rows = auditDependencyLicenses();
     for (const row of rows) console.log(`${row.package}: declared=${row.declared}; reviewed=${row.reviewed}`);
     console.log(`License inventory passed (${rows.length} locked dependencies; shipped license hashes checked).`);
+    const assets = auditBundledAssets();
+    console.log(`Bundled asset inventory passed (${assets.length} font, icon, and notice hashes checked).`);
   } catch (error) {
     console.error(`License inventory failed: ${error.message}`);
     process.exitCode = 1;

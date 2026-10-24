@@ -7,13 +7,13 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  --font-ui: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-mono: "Courier Prime", "Courier New", Courier, monospace;
   --font-sans: var(--font-ui);
   --font-size-xs: 0.8125rem;
   --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
+  --font-size-md: 0.875rem;
   --font-size-lg: 1.25rem;
   --line-height: 1.5;
 
@@ -22,12 +22,12 @@
   --border-radius-lg: 0.5rem;
   --border-color: #c8ced6;
 
-  --color-bg: #f7f1e7;
-  --color-soft-panel: #fffaf0;
+  --color-bg: #ffffff;
+  --color-soft-panel: #f7f8fa;
   --color-surface: #ffffff;
-  --color-text: #102a43;
-  --color-muted-text: #53606d;
-  --color-focus: #b42318;
+  --color-text: #20242c;
+  --color-muted-text: #667085;
+  --color-focus: #087ff5;
   --color-ready: #6f8f72;
   --color-ready-bg: #edf5ee;
   --color-attention: #d92d20;

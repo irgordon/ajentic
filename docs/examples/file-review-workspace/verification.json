@@ -1,0 +1,26 @@
+{
+  "fonts": {
+    "faces": [
+      {
+        "family": "Inter",
+        "status": "loaded"
+      },
+      {
+        "family": "Courier Prime",
+        "status": "loaded"
+      }
+    ],
+    "ui": "Inter, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "uiSize": "14px",
+    "code": "\"Courier Prime\", \"Courier New\", Courier, monospace",
+    "codeSize": "13px"
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "missing": [],
+  "external": [],
+  "desktopOverflow": false,
+  "mobileOverflow": false,
+  "flow": "passed",
+  "outputRejection": "provider_execution_result_id_mismatch"
+}

@@ -21,10 +21,17 @@ release evidence. A visible label or a passing check is not a permission grant.
 | Exercise provider-shaped requests | Use deterministic local test adapters and configurations, not a cloud subscription. |
 | Show staged proposal and session summaries | Demonstrate review steps and source connections; not a guarantee of file output or durable storage. |
 | Open local help | Read the bundled explanatory pages without signing in. External wiki links need internet access. |
+| Inspect the Before/After comparison | View an explicitly labelled, pre-recorded sample; it is not provider-generated file output. |
+| Add Review Notes | Keep text in this page's memory while reviewing; it is not saved or submitted as evidence. |
 
 The browser transport holds state in memory. A refresh or newly constructed
 transport starts a fresh example. Do not rely on a session-history or restore
 panel as a backup of real work.
+
+The primary workspace uses Compare, Result, and Activity tabs. View / Checks
+shows local evidence gaps, and View / Developer Details exposes the existing
+advanced test controls. Font and icon assets are served locally. The disabled
+attachment control does not upload or import files.
 
 ## What Is Not a Supported User Path
 

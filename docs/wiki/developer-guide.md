@@ -42,7 +42,10 @@ API server. The Rust CLI's documented user path is the bounded `dry-run` command
 | `core/src/task/`, `outcome/` | Task criteria, observations, and derived result contracts | [Task](../../core/src/task/mod.rs), [outcome](../../core/src/outcome/mod.rs) |
 | `core/src/execution/`, `state/`, `context/`, `memory/` | Controlled execution and runtime state/data boundaries | [Execution](../../core/src/execution/mod.rs) |
 | `core/src/ledger/`, `replay/`, `audit/` | Event recording, replay verification, and audit projections | [Ledger](../../core/src/ledger/mod.rs) |
-| `ui/src/main.ts` | Current local operator shell rendering and control wiring | [Entry point](../../ui/src/main.ts) |
+| `ui/src/main.ts` | Local request orchestration and delegated control wiring | [Entry point](../../ui/src/main.ts) |
+| `ui/src/app/reviewWorkspace.ts`, `reviewContent.ts`, `reviewModel.ts` | File-first view composition, presentation preferences, and illustrative comparison data | [Workspace](../../ui/src/app/reviewWorkspace.ts), [content](../../ui/src/app/reviewContent.ts) |
+| `ui/src/app/reviewDiagnostics.ts`, `reviewDiagnosticViews.ts` | Existing raw test/evidence panels behind View / Developer Details | [Diagnostics](../../ui/src/app/reviewDiagnostics.ts) |
+| `ui/public/` | Locally bundled fonts, icons, license notices, and reviewed hashes | [Asset inventory](../../ui/public/third-party-assets.json) |
 | `ui/src/api/` | Local browser transport, simulated data, and projections | [Transport](../../ui/src/api/localOperatorShellTransport.ts), [local shell](../../ui/src/api/localOperatorShell.ts) |
 | `ui/src/display/`, `ui/help/` | Friendly status wording and bundled help | [Status copy](../../ui/src/display/statusCopy.ts) |
 | `schemas/` | Shared JSON data contracts | [Schema coverage](../../tests/schema-coverage.json) |
@@ -83,6 +86,12 @@ Find the control in `ui/src/main.ts`, follow its transport call, and inspect the
 projection it renders. Update the friendly status mapping when adding a raw
 status. Preserve visibility of unknown, failed, rejected, and missing states.
 Test both a permitted interaction and a rejected or incomplete input.
+
+View preferences and review notes are in-memory presentation state only. Notes
+are not submitted as evidence or written to a file. The Before/After sample is
+pre-recorded illustrative data, not a diff computed from provider output. Keep
+that distinction visible. Existing test controls retain their action IDs and
+transport calls behind Developer Details.
 
 Do not add fetch calls, credentials, publishing controls, or computed release
 authority merely to make a local demonstration look complete. A label such as
@@ -182,6 +191,11 @@ Individual internal evidence checks are available without dispatching publicatio
 python3 scripts/reproducible_artifacts.py --check
 python3 scripts/reproducible_artifacts.py --check-evidence
 ```
+
+The asset-copy helper copies only entries in `ui/public/third-party-assets.json`
+and the inventory itself. The license audit verifies all bundled asset and notice
+hashes as well as npm dependencies. Finder metadata and `.gitkeep` are not bundled.
+Keep upstream font/icon sources and license notices when updating these assets.
 
 ## Toolchain and Validation Limits
 

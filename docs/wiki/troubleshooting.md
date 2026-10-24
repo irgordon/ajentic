@@ -23,16 +23,17 @@ solve a connection failure. If the setup has not been done, use
 
 ## The Review Buttons Are Disabled
 
-On a fresh page, click **Run local simulation** first. Approve and Reject need
-a sample draft to review. A disabled control in another panel may need an
+On a fresh page, click **Run Sample** first. Record Approval and Reject Draft need
+a sample draft to review. Both buttons are disabled after a decision is recorded.
+A disabled control under View / Developer Details may need an
 earlier sample step; it is not a reason to change security settings.
 
 ## A Status Says Unknown or Needs Attention
 
 **Unknown status** means the interface lacks a friendly translation for a raw
-value. Open the nearby details and keep that value in your report. After a
-review choice, `intent_recorded` is an expected example of this display gap:
-check **Selected operator intent** and the timeline to confirm your choice.
+value. Open the nearby details and keep that value in your report. The workspace
+shows a recorded choice in the footer and Activity / Decision History; the raw
+value `intent_recorded` remains available through Show Details and Check Details.
 
 **Needs attention**, **Rejected**, or **Preparation blocked** means you should
 read the specific reason rather than continue as though everything passed.
@@ -42,8 +43,9 @@ See [status explanations](user-guide.md#read-statuses-without-guessing).
 ## I Cannot Change Approve to Reject
 
 The sample accepts only one recorded decision for the same draft in a session.
-A second attempt reports `duplicate_decision_rejected`. To practice the other
-choice, refresh, run the simulation again, and select it. This clears the local
+The buttons then become disabled; duplicate transport submissions are rejected
+as `duplicate_decision_rejected`. To practice the other choice, use View / Reset
+Example or refresh, run the sample again, and select it. This clears the local
 example; it is not an edit to a saved decision.
 
 ## My Session Disappeared After Refresh

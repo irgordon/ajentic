@@ -106,8 +106,9 @@ npm run dev --prefix ui
 
 Wait for compilation and the printed address, then open
 [http://127.0.0.1:5173](http://127.0.0.1:5173). `127.0.0.1` means this computer.
-You should see **AJENTIC Local Operator Shell** as the page title and the heading
-**Local testing environment running simulated behaviors.**
+You should see **AJENTIC Review Workspace** as the page title, a **Local Demo**
+marker, and the **File Changes** sidebar. The comparison is an illustrative
+sample, not a file generated or written by the application.
 
 Keep this terminal open. The server listens on the local loopback address, not a
 public network address. Stop it with `Ctrl+C` in its terminal when finished.
@@ -116,6 +117,9 @@ Do not add public hosting or network exposure as a setup workaround.
 The current script uses port 5173 and compiles into `/tmp/ajentic-ui-dev` when it
 starts. It does not hot-reload: after source edits, stop it, start it again, and
 refresh the browser. Compilation requires the dependencies installed above.
+Inter interface text, Courier Prime code text, and Lucide icons are bundled
+locally with their license notices; opening the workspace does not fetch fonts
+or icon scripts from another website.
 
 **Setup is complete when the page loads, not when a terminal merely starts a
 command.** Follow [Your first review](getting-started.md#your-first-review) to

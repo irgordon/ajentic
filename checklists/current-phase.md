@@ -6,6 +6,17 @@ mutation_path: checklist_revision
 
 # Phase 197.2 - Task Outcome Evidence Binding
 
+## File Review Workspace Follow-up
+
+- [x] Resolve the Owner-selected design and typography refinement.
+- [x] Implement the file-first layout, Title Case labels, tabs, notes, review controls, and diagnostic access without changing Rust or the local transport.
+- [x] Bundle licensed local fonts/icons, record asset sources/hashes, and copy reviewed assets only.
+- [x] Add workspace and asset regressions; preserve rejected/blocked/missing/unknown visibility.
+- [x] Align the wiki/help controls and record the why in ADR 004.
+- [x] Finish the same-state visual QA iteration and focused typography comparison; retain the source, screenshots, initial finding, fix, and passing evidence.
+- [x] Run local typecheck, boundary lint, 149 UI behavior cases, 10 license/asset cases, help/docs/structure, and screenshot-based desktop/mobile verification.
+- Full clean-commit validation and all required current-head Actions remain the merge gate; results are recorded on the implementation PR.
+
 ## Audience Documentation Follow-up
 
 - [x] Inspect current controls, transport behavior, commands, CI, and publication boundaries.
